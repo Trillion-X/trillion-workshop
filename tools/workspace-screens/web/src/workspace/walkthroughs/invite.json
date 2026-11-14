@@ -1,0 +1,61 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "invite",
+  "revision": 1,
+  "order": 44,
+  "title": "Invite friends",
+  "summary": "Your link to invite people, who joined with it and what it earned you.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": {
+        "event_kind": "screen-opened",
+        "match": {
+          "entry": "guide",
+          "screen": "invite"
+        }
+      },
+      "once_key": "invite",
+      "requires": [
+        {
+          "once_key": "first-run"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "invite"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Share your link",
+          "body": "Copy your link or send it straight to someone. Each person who joins and pays takes money off your bill too."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.invite"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"invite\"] [data-guide-section=\"link\"]"
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "look",
+  "revision": 1,
+  "order": 43,
+  "title": "Look",
+  "summary": "How Trillion looks and how its panes size and snap.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": {
+        "event_kind": "screen-opened",
+        "match": {
+          "entry": "guide",
+          "screen": "look"
+        }
+      },
+      "once_key": "look",
+      "requires": [
+        {
+          "once_key": "first-run"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "look"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Make it yours",
+          "body": "Pick a look and drag a pane edge to feel how panes snap. Changes show right away on every screen."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.look"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"look\"] [data-guide-section=\"look\"]"
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

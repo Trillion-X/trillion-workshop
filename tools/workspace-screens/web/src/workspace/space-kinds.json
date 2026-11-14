@@ -1,0 +1,331 @@
+{
+  "schema": "trillion.space-kinds",
+  "focus_param": "pursuits",
+  "room_focus_param": "spaces",
+  "about": "How each kind of thing in a pursuit shows on the Pursuits screens (src/workspace/spaces-screen.tsx). A kind is the store's own word for the thing (src/spaces.mjs `kind`). Per kind: `label` and `icon` (and `plural`, how several of it read in a count) (a named icon) wherever the kind is named; `tone` for its tag; `draws_as` is `conversation` (it is a post in the conversation, its words the post's words) or `record` (it shows as a card inside the post of whoever put it there) or `tour` (a guided tour of this pursuit, its body's `tour` a walkthrough definition: it is not drawn among the things, and every member's page offers it to the tour host when they open the pursuit, so its trigger, such as the first opening of this pursuit's id, starts it for each member once; a tour a member wrote may only put words into a box, never press or send for anyone); `posted_as` is the line that post says; `preview` picks its picture: `file` reads the file's family from file-previews.json by its name, `text` shows the start of its words, `picture` shows the picture its body names (`picture`, filled in from a link's own card) and else the start of its words, anything else its icon; `opens` is where Open takes it: `file` and `everything` both open the item on its own screen, with its file and transcript when it carries one and its words otherwise. A kind nobody named uses `default` with its own word made readable, so a kind invented tomorrow still shows. `body_words` says how a thing's own words read: a field named here shows with this label, a field named with null is not shown, any other text field shows as it is. `pursuits` is how each kind of pursuit reads (the pursuit's `label`). `origins` turns where a thing came from (the store's words) into the words the person reads. `work_states` is how work handed to an agent reads, by its state; `invite_states` is how an invite link reads, by what became of it; `rule_effects` is how a rule about who can do what starts, by whether it lets or stops (src/space-permission-rules.json), with its icon, the first one being the rule that lets; a state not named here shows as it is. `places` are the places inside a pursuit, in order, with the count each shows; a place naming `screen` is that tool's own screen, opened on the pursuit (`space_id`); a place naming `views` draws the pursuit's things as one list with those views leading its view switch, narrowed to the kinds it names in `kinds` (Files is the pursuit's files), with the message box only where `compose` is set, its view choices kept under `remember_as`, and `empty` as what it says when it has nothing (a row with only an `id` is a designed view every list is offered, parts/ui/show/record-views/designs/designed-views.json). After them come the places the pursuit's turned-on parts add (src/workspace/community-screen.tsx `communityPlacesOf`); `turned_on_places` renames one of those inside a pursuit (`label`, `icon`) and, with `shows_when`, shows it only when that part of the pursuit's answer is there (`has`; with `member`, only to a member or only to someone not in it yet) or when the page's address is this pursuit's and carries that parameter (`address_has`, a hand-over link's `take_over`, which also opens the pursuit there). `focus_param` is the Focus dimension (src/record-scope.json `dimensions` param) opening a pursuit you are in sets the whole workspace's Focus to, naming the pursuit itself so the sidebar's switcher shows its title, and every screen is about that pursuit until the switcher changes it; `room_focus_param` is the dimension's room param, used only for a room no pursuit has taken in yet. `item_facts` are the small facts any member may set on any thing (src/spaces.mjs setSpaceItemFacts): each a field of every list of things, its `values` (with tones) when it has a fixed set, its `role` the slot a designed view draws it in. `written_by` names the body fields that, when a thing carries one, say who wrote it (mail that arrived names its sender), in place of who put it here.",
+  "kinds": {
+    "message": {
+      "label": "Message",
+      "plural": "messages",
+      "icon": "MessageSquare",
+      "tone": "neutral",
+      "draws_as": "conversation",
+      "posted_as": "",
+      "preview": "text",
+      "opens": "everything"
+    },
+    "pursuit": {
+      "label": "Pursuit",
+      "plural": "pursuits",
+      "icon": "Target",
+      "tone": "info",
+      "draws_as": "record",
+      "posted_as": "Shared a pursuit",
+      "preview": "text",
+      "opens": "everything"
+    },
+    "decision": {
+      "label": "Decision",
+      "plural": "decisions",
+      "icon": "Compass",
+      "tone": "success",
+      "draws_as": "record",
+      "posted_as": "Shared a decision",
+      "preview": "text",
+      "opens": "everything"
+    },
+    "file": {
+      "label": "File",
+      "plural": "files",
+      "icon": "File",
+      "tone": "warning",
+      "draws_as": "record",
+      "posted_as": "Shared a file",
+      "preview": "file",
+      "opens": "file"
+    },
+    "tool": {
+      "label": "Tool",
+      "plural": "tools",
+      "icon": "Wrench",
+      "tone": "info",
+      "draws_as": "record",
+      "posted_as": "Shared a tool",
+      "preview": "text",
+      "opens": "everything"
+    },
+    "link": {
+      "label": "Link",
+      "plural": "links",
+      "icon": "Link",
+      "tone": "info",
+      "draws_as": "record",
+      "posted_as": "Shared a link",
+      "preview": "picture",
+      "opens": "everything"
+    },
+    "tour": {
+      "label": "Tour",
+      "plural": "tours",
+      "icon": "Compass",
+      "tone": "info",
+      "draws_as": "tour",
+      "posted_as": "Added a tour of this pursuit",
+      "preview": "text",
+      "opens": "everything"
+    }
+  },
+  "default": {
+    "icon": "Box",
+    "tone": "neutral",
+    "draws_as": "record",
+    "posted_as": "Shared something",
+    "preview": "text",
+    "opens": "everything"
+  },
+  "body_words": {
+    "now": "Now",
+    "after": "Aiming for",
+    "why_it_matters": "Why",
+    "decision": "Chosen",
+    "input": null,
+    "title": null,
+    "status": null,
+    "at": null,
+    "created_at": null,
+    "app": null,
+    "speaker": null,
+    "identity": null,
+    "byte_length": null,
+    "media_type": null,
+    "name": null,
+    "descriptor": null,
+    "files": null,
+    "files_not_copied": null,
+    "picture": null,
+    "icon": null,
+    "from": null,
+    "subject": null,
+    "sent_at": null,
+    "message_id": null
+  },
+  "spaces": {
+    "project": {
+      "label": "Project",
+      "icon": "FolderKanban",
+      "tone": "info"
+    },
+    "group": {
+      "label": "Group",
+      "icon": "UsersRound",
+      "tone": "neutral"
+    },
+    "community": {
+      "label": "Community",
+      "icon": "Globe",
+      "tone": "success"
+    }
+  },
+  "origins": {
+    "made in this pursuit": "Written here",
+    "shared from a private Trillion": "Shared from their Trillion",
+    "brought in from a chat archive": "From a chat export"
+  },
+  "work_states": {
+    "open": {
+      "label": "Waiting",
+      "tone": "warning"
+    },
+    "taken": {
+      "label": "Being worked on",
+      "tone": "info"
+    },
+    "finished": {
+      "label": "Done",
+      "tone": "success"
+    }
+  },
+  "rule_effects": {
+    "allow": {
+      "label": "Allow",
+      "icon": "Check",
+      "tone": "success"
+    },
+    "deny": {
+      "label": "Don't allow",
+      "icon": "Ban",
+      "tone": "warning"
+    }
+  },
+  "invite_states": {
+    "open": {
+      "label": "Not used yet",
+      "tone": "info"
+    },
+    "used": {
+      "label": "Someone joined with it",
+      "tone": "success"
+    },
+    "expired": {
+      "label": "Expired",
+      "tone": "neutral"
+    },
+    "revoked": {
+      "label": "Stopped",
+      "tone": "neutral"
+    }
+  },
+  "places": [
+    {
+      "id": "conversation",
+      "label": "Messages",
+      "icon": "MessagesSquare",
+      "count": "things",
+      "views": [
+        {
+          "id": "chat"
+        },
+        {
+          "id": "feed"
+        },
+        {
+          "id": "inbox"
+        },
+        {
+          "id": "table",
+          "label": "Table",
+          "icon": "List"
+        },
+        {
+          "id": "gallery",
+          "label": "Cards",
+          "icon": "LayoutGrid"
+        },
+        {
+          "id": "board",
+          "label": "Board",
+          "icon": "Columns3"
+        },
+        {
+          "id": "timeline"
+        }
+      ],
+      "compose": true,
+      "remember_as": "trillion-space-messages",
+      "empty": "Nothing here yet. Write the first message, or share something with Share."
+    },
+    {
+      "id": "files",
+      "label": "Files",
+      "icon": "Folder",
+      "kinds": [
+        "file"
+      ],
+      "remember_as": "trillion-space-files",
+      "empty": "No files yet. Share one with Share, or drop it on the board.",
+      "views": [
+        {
+          "id": "gallery",
+          "label": "Cards",
+          "icon": "LayoutGrid"
+        },
+        {
+          "id": "table",
+          "label": "Table",
+          "icon": "List"
+        },
+        {
+          "id": "board",
+          "label": "Board",
+          "icon": "Columns3"
+        },
+        {
+          "id": "timeline"
+        }
+      ]
+    },
+    {
+      "id": "board",
+      "label": "Board",
+      "icon": "LayoutDashboard",
+      "screen": "tool:screen-board"
+    },
+    {
+      "id": "calendar",
+      "label": "Calendar",
+      "icon": "CalendarDays",
+      "screen": "tool:screen-calendar"
+    },
+    {
+      "id": "people",
+      "label": "People",
+      "icon": "UsersRound",
+      "count": "people"
+    },
+    {
+      "id": "agents",
+      "label": "AIs & work",
+      "icon": "Bot",
+      "count": "waiting"
+    },
+    {
+      "id": "rules",
+      "label": "Who can do what",
+      "icon": "ShieldCheck"
+    }
+  ],
+  "turned_on_places": {
+    "home": {
+      "label": "Feed",
+      "icon": "Newspaper",
+      "shows_when": {
+        "has": "feed",
+        "member": false
+      }
+    },
+    "members": {
+      "label": "Levels"
+    },
+    "about": {
+      "shows_when": {
+        "address_has": "take_over"
+      }
+    }
+  },
+  "written_by": [
+    "from"
+  ],
+  "item_facts": [
+    {
+      "id": "status",
+      "label": "Status",
+      "icon": "CircleDot",
+      "role": "status",
+      "values": {
+        "open": {
+          "label": "Open",
+          "tone": "info"
+        },
+        "waiting": {
+          "label": "Waiting",
+          "tone": "attention"
+        },
+        "done": {
+          "label": "Done",
+          "tone": "good"
+        }
+      }
+    },
+    {
+      "id": "assignee",
+      "label": "Who has it",
+      "icon": "UserCheck",
+      "role": "person"
+    },
+    {
+      "id": "section",
+      "label": "Section",
+      "icon": "Rows3"
+    }
+  ]
+}

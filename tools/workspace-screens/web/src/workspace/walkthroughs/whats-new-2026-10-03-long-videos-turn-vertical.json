@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-long-videos-turn-vertical",
+  "revision": 1,
+  "order": 8,
+  "title": "New: Turn long videos vertical",
+  "summary": "You can now reframe a recording of any length, so a full clip turns into a 9:16 reel ready to post.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-long-videos-turn-vertical",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T17:10:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-long-videos-turn-vertical"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You can turn a whole clip into a vertical reel",
+          "body": "Reframe a video now works on long recordings. It used to stop on anything over about 13 seconds, and now it turns a whole clip into a vertical reel that follows you."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "files",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your reels land in Files",
+          "body": "Each vertical cut is saved in Files next to the recording it came from, ready for a post."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tool-screen\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.files"
+        }
+      }
+    }
+  ]
+}

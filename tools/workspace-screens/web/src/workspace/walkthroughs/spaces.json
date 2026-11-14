@@ -1,0 +1,202 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "spaces",
+  "revision": 2,
+  "order": 29,
+  "title": "Pursuits",
+  "summary": "You can see the groups and projects you share with other people, and the invitations waiting for your answer.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": {
+        "event_kind": "screen-opened",
+        "match": {
+          "entry": "spaces"
+        }
+      },
+      "once_key": "spaces",
+      "requires": [
+        {
+          "once_key": "first-run"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "spaces"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your groups and projects",
+          "body": "The groups and projects you share with other people are here, along with invitations waiting for your answer."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.pursuits"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"spaces\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "search",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Find a pursuit",
+          "body": "Once you are in a pursuit, find it here by name. Press one to open it."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.pursuits"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"spaces\"] .record-views-search"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true,
+      "act": {
+        "do": "type",
+        "text": "launch"
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "back",
+            "label": "Back"
+          },
+          {
+            "role": "advance",
+            "label": "Search for me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "views",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Choose how they look",
+          "body": "See your pursuits as a list, a table, cards or a board."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.pursuits"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"spaces\"] [role=\"radiogroup\"][aria-label=\"View\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "find-again",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Find Pursuits again",
+          "body": "Open All pursuits from the pursuit switcher at the top of your sidebar whenever you need it."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": ".focus-editor-trigger, [data-sidebar-open-toggle]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ]
+}

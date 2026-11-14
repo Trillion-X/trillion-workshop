@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-agree-or-disagree",
+  "revision": 1,
+  "order": 8,
+  "title": "New: Agree or disagree with a decision",
+  "summary": "Say whether you agree with a decision. Disagree, and one of your AIs makes a new one from what you said. Every decision shows what came after it.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-agree-or-disagree",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T22:45:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-agree-or-disagree"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Do you agree?",
+          "body": "Open any decision and say I agree or I disagree, with why if you like."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "decisions",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your view on each one",
+          "body": "Disagree, and one of your AIs makes a new decision from what you said. Under it, What came after shows everything that followed."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.decisions"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"decisions\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 12
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ]
+}

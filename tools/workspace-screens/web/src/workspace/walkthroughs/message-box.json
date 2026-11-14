@@ -1,0 +1,205 @@
+{
+ "kind": "walkthrough-definition",
+ "id": "message-box",
+ "revision": 1,
+ "order": 42,
+ "title": "Message your AIs",
+ "summary": "Write once and every AI you connected can pick it up.",
+ "entry_step": "write",
+ "progress_style": {
+  "style": "segmented"
+ },
+ "triggers": [
+  {
+   "reason": "screen-first-opened",
+   "on_event": {
+    "event_kind": "screen-opened",
+    "match": {
+     "entry": "message-box"
+    }
+   },
+   "once_key": "message-box",
+   "requires": [
+    {
+     "once_key": "first-run"
+    }
+   ]
+  },
+  {
+   "reason": "replay",
+   "on_event": {
+    "event_kind": "walkthrough-requested",
+    "match": {
+     "walkthrough_id": "message-box"
+    }
+   }
+  }
+ ],
+ "steps": [
+  {
+   "id": "write",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Say what you want done",
+     "body": "Write it in your own words. The first of your AIs that is free takes it and tells you what happened."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.message-box"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"message-box\"] form[aria-label=\"Message your AIs\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "advance",
+      "label": "Show me"
+     }
+    ]
+   }
+  },
+  {
+   "id": "where",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Choose where it goes",
+     "body": "Keep it to yourself, or send it to a pursuit so the people there see it too."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.message-box"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"message-box\"] [data-slot=\"menu-trigger\"][aria-label=\"Send to\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "back",
+      "label": "Back"
+     },
+     {
+      "role": "advance",
+      "label": "Next"
+     }
+    ]
+   }
+  },
+  {
+   "id": "attach",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Add files",
+     "body": "Attach a file, a picture or a recording and your AI works with it."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.message-box"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"message-box\"] [aria-label=\"Attach files\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "back",
+      "label": "Back"
+     },
+     {
+      "role": "advance",
+      "label": "Next"
+     }
+    ]
+   }
+  },
+  {
+   "id": "find-again",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Find Message your AIs again",
+     "body": "Message your AIs is always in the sidebar. Press it to come back here."
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-sidebar-surface-id=\"trillion.message-box\"], [data-sidebar-open-toggle]"
+   },
+   "placement": {
+    "prefer": "right",
+    "auto_flip": true,
+    "gap": 14
+   }
+  }
+ ]
+}

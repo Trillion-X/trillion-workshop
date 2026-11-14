@@ -1,0 +1,117 @@
+{
+  "kind": "walkthrough-definition",
+  "revision": 1,
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "id": "whats-new-2026-10-03-layout-categories",
+  "order": 8,
+  "title": "New: Your layouts are kept in groups",
+  "summary": "You can find the layouts your AI makes again, because it keeps them in named groups the same way it keeps your tours.",
+  "entry_step": "intro",
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-layout-categories",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T17:32:24Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-layout-categories"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your AI files its layouts in groups",
+          "body": "When your AI puts screens side by side for you, it files the layout under a name like Launch or Writing."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "where",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You find them in Layouts",
+          "body": "Open … on any pane, and Layouts lists each group under its name, newest first. Your tours are kept the same way in Tours."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "button[aria-label=\"More for this pane\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "act": {
+        "do": "press"
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "back",
+            "label": "Back"
+          },
+          {
+            "role": "done",
+            "label": "Open it"
+          }
+        ]
+      }
+    }
+  ]
+}

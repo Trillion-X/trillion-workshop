@@ -1,0 +1,326 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "first-run",
+  "revision": 7,
+  "order": 1,
+  "title": "Welcome to Trillion",
+  "summary": "Connect your AI, find your tray and Tell us, and see where to find files, pursuits and tours.",
+  "entry_step": "welcome",
+  "escapable": false,
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 8000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "first-use",
+      "on_event": {
+        "event_kind": "first-use-ready"
+      },
+      "once_key": "first-run"
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "first-run"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "welcome",
+      "look": {
+        "backdrop": {
+          "opacity": 0.58,
+          "blur_px": 7
+        }
+      },
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Welcome to Trillion",
+          "body": "First, we’ll check your AI connection. Then see where to find your files, connections, pursuits and tours. You can take this tour again from Tours."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Show me around"
+          }
+        ]
+      }
+    },
+    {
+      "id": "connect",
+      "look": {
+        "backdrop": {
+          "opacity": 0.58,
+          "blur_px": 7
+        },
+        "card_width_px": 760
+      },
+      "content": {
+        "content_kind": "placeable-surface",
+        "payload": {
+          "surface_id": "trillion.get-started"
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "devices",
+      "content": {
+        "content_kind": "interactive-gate",
+        "payload": {
+          "title": "Trillion on your devices",
+          "body": "Get the iPhone app, the Chrome extension and the app for your computer. Each link opens in a new tab so you stay right here, and the ones you already have are ticked."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.ai"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"ai\"] [data-guide-section=\"devices\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "left",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "files",
+      "content": {
+        "content_kind": "interactive-gate",
+        "payload": {
+          "title": "Your files",
+          "body": "Everything you keep in Trillion lives here. Upload files, open any of them in its own tab and play videos and sound right there. On a phone, tap Show sidebar to find Files."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-surface-id=\"trillion.files\"], [data-sidebar-open-toggle]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      }
+    },
+    {
+      "id": "connections",
+      "content": {
+        "content_kind": "interactive-gate",
+        "payload": {
+          "title": "Connections",
+          "body": "Connect the services you already use, like your calendar, so Trillion can work with them for you."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-surface-id=\"trillion.connections\"], [data-sidebar-open-toggle]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      }
+    },
+    {
+      "id": "spaces",
+      "content": {
+        "content_kind": "interactive-gate",
+        "payload": {
+          "title": "Pursuits",
+          "body": "Switch to any pursuit here. Its messages, files, people and the tools it turned on show under it in your sidebar, and All pursuits lists the groups and projects you share and the ones anyone can join, like the Trillion community, free on every plan."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": ".focus-editor-trigger, [data-sidebar-open-toggle]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      }
+    },
+    {
+      "id": "ai-sidebar",
+      "content": {
+        "content_kind": "interactive-gate",
+        "payload": {
+          "title": "Use Trillion in your AI",
+          "body": "Come back here whenever you want to see how to use Trillion in the AI you already talk to, like ChatGPT or Claude."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-surface-id=\"trillion.ai\"], [data-sidebar-open-toggle]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      }
+    },
+    {
+      "id": "tray",
+      "content": {
+        "content_kind": "interactive-gate",
+        "payload": {
+          "title": "Your tray",
+          "body": "Right-click anything in Trillion and choose Add to tray. Then send what you picked to your AI or a pursuit, or tell the people who make Trillion what went wrong or what you would like."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-surface-id=\"trillion.tray\"], [data-sidebar-open-toggle]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "tell-us",
+      "content": {
+        "content_kind": "interactive-gate",
+        "payload": {
+          "title": "Tell us what happened or what you think",
+          "body": "Open Tell us above Start to report a bug, send feedback or share an idea. The people who make Trillion read every one. On a phone, press Show sidebar first."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-section-id=\"collection:trillion-tell-us\"], [data-sidebar-open-toggle]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "tours",
+      "content": {
+        "content_kind": "interactive-gate",
+        "payload": {
+          "title": "Take a tour again",
+          "body": "Every tour is kept here. Open Tours whenever you want to see one again."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-surface-id=\"trillion.tours\"], [data-sidebar-open-toggle]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-drives-eject-and-copy",
+  "revision": 1,
+  "order": 7,
+  "title": "New: Eject and copy between your drives",
+  "summary": "You can eject a drive and copy or move things between your drives from Trillion, without opening Finder.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-drives-eject-and-copy",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T21:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-drives-eject-and-copy"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You can eject and copy drives from Trillion",
+          "body": "You can eject a drive from Trillion again, and copy or move between the drives on your Mac without Finder."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "drive-row",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Every drive on your Mac is here",
+          "body": "Open Drives under Content, then Files. Each drive has Eject and Copy or move, where you pick what to copy, choose the drive it goes to, and confirm. You can also drag one drive onto another and choose Copy here or Move here."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": ".guide-row[data-draggable]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 12
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.use-tool",
+          "surface_input": {
+            "tool_id": "tool:drives"
+          }
+        }
+      }
+    },
+    {
+      "id": "copying",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You can watch it copy",
+          "body": "A copy shows under Copying now and in your notifications with how far it has got. You can Pause or Stop it from there."
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

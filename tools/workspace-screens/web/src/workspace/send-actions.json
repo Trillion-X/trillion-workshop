@@ -1,0 +1,36 @@
+{
+  "_what": "The words of the person's list of what their AI does with something they send (src/workspace/send-actions-tree.ts): the shared recursive tree's words (parts/ui/show/coss/project-tree.tsx ProjectTreeWords) for this list, the two kinds of row it makes (an action and a folder, each with its icon), and the icons its rows show (workflow_icon for an action that starts a workflow). The list itself is the person's saved instructions (src/share-destinations.mjs).",
+  "label": "Your AI will",
+  "empty": "Nothing saved yet. Add what your AI should do with what you send.",
+  "action_icon": "Sparkles",
+  "workflow_icon": "Workflow",
+  "kinds": [
+    { "id": "action", "label": "New action", "inside": "New action inside", "placeholder": "What should your AI do?", "insidePlaceholder": "What should your AI do?", "icon": "Sparkles" },
+    { "id": "folder", "label": "New folder", "inside": "New folder inside", "placeholder": "Folder name", "insidePlaceholder": "Folder name", "icon": "FolderPlus" }
+  ],
+  "tree": {
+    "add": "Add",
+    "cancelNew": "Cancel",
+    "editDetails": "Edit",
+    "rename": "Rename",
+    "move": "Move into a folder",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "remove": "Remove",
+    "moveInto": "Move {name} into…",
+    "topLevel": "Top of the list",
+    "cancelMove": "Cancel move",
+    "detailsName": "Name",
+    "detailsDescription": "What your AI does",
+    "detailsDescriptionPlaceholder": "Say what your AI should do with what you send, in your own words.",
+    "saveDetails": "Save",
+    "cancel": "Cancel",
+    "save": "Save",
+    "cancelRename": "Cancel rename",
+    "removeConfirm": "Remove {name}? Anything inside it moves up one level.",
+    "removeButton": "Remove",
+    "cancelRemove": "Keep it",
+    "noMatch": "Nothing matches"
+  },
+  "search": "Find an action"
+}

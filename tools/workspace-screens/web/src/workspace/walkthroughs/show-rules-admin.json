@@ -1,0 +1,120 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "show-rules-admin",
+  "revision": 2,
+  "order": 125,
+  "audience": "operator",
+  "title": "Account visibility",
+  "summary": "Choose a preset you keep, share it with the people who should see Trillion that way, and stop sharing when they should not.",
+  "entry_step": "preset",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": {
+        "event_kind": "screen-opened",
+        "match": {
+          "entry": "show-rules-admin",
+          "screen": "show-rules-admin"
+        }
+      },
+      "once_key": "show-rules-admin",
+      "requires": [
+        {
+          "once_key": "first-run"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "show-rules-admin"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "preset",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Choose the preset",
+          "body": "Select one of the presets you keep in Preset. What they get shows what the people you share it with will see."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.show-rules-admin"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"show-rules-admin\"] [aria-label=\"Preset\"]"
+      },
+      "centered_when_target_missing": true,
+      "next": "share"
+    },
+    {
+      "id": "share",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Share it with a person",
+          "body": "Type the person or account and use Share. Then use Copy share key and send it to them: it is shown only once, and only its fingerprint is kept."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.show-rules-admin"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"show-rules-admin\"] [aria-label=\"Person or account\"]"
+      },
+      "centered_when_target_missing": true,
+      "next": "access"
+    },
+    {
+      "id": "access",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "See who has it",
+          "body": "Shared with lists everyone who has this preset. Stop sharing takes a person out, and their share key reads nothing more."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.show-rules-admin"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"show-rules-admin\"] [aria-label=\"Shared with\"]"
+      },
+      "centered_when_target_missing": true,
+      "next": "return"
+    },
+    {
+      "id": "return",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Return to Account visibility",
+          "body": "Open Account visibility from Settings whenever you want to share a preset or stop sharing one."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-surface-id=\"trillion.show-rules-admin\"], [data-sidebar-open-toggle]"
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

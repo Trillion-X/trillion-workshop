@@ -1,0 +1,206 @@
+{
+  "_about": "How each thing in a share is shown under Sharing > Shared before (src/workspace/shared-before.tsx). A share's items are what deliver_share took, each { kind, ... }. A kind is one row: `label` names it above its card (none: the parts stand on their own), `parts` are drawn in order, each reading the fields it names (the first one present, or every value of a list). A part is one of: link-card (a link as its own preview), words (text; quoted: true sets it off as a quotation), pictures (addresses of pictures; kept: true means they are files kept in the person's Files, by identity), caption (one quiet line). A kind not listed here is drawn with `other`, so a new kind shows what it carries before it has a row.",
+  "kinds": {
+    "page": {
+      "parts": [
+        {
+          "part": "link-card",
+          "address": [
+            "url",
+            "page_url"
+          ],
+          "title": [
+            "title",
+            "page_title"
+          ],
+          "description": [
+            "text"
+          ],
+          "picture": [
+            "image"
+          ]
+        }
+      ]
+    },
+    "link": {
+      "parts": [
+        {
+          "part": "link-card",
+          "address": [
+            "url"
+          ],
+          "title": [
+            "title",
+            "text"
+          ],
+          "picture": [
+            "image"
+          ]
+        }
+      ]
+    },
+    "selection": {
+      "label": "Selected words",
+      "parts": [
+        {
+          "part": "words",
+          "from": [
+            "text"
+          ],
+          "quoted": true
+        },
+        {
+          "part": "caption",
+          "from": [
+            "page_title",
+            "page_url",
+            "url"
+          ]
+        }
+      ]
+    },
+    "post": {
+      "label": "Post",
+      "parts": [
+        {
+          "part": "words",
+          "from": [
+            "text"
+          ]
+        },
+        {
+          "part": "pictures",
+          "from": [
+            "pictures"
+          ]
+        },
+        {
+          "part": "caption",
+          "from": [
+            "url",
+            "page_url"
+          ]
+        }
+      ]
+    },
+    "picture": {
+      "label": "Picture of the page",
+      "parts": [
+        {
+          "part": "pictures",
+          "from": [
+            "file"
+          ],
+          "kept": true
+        },
+        {
+          "part": "caption",
+          "from": [
+            "page_title",
+            "url",
+            "page_url"
+          ]
+        }
+      ]
+    },
+    "image": {
+      "label": "Picture",
+      "parts": [
+        {
+          "part": "pictures",
+          "from": [
+            "url"
+          ]
+        },
+        {
+          "part": "pictures",
+          "from": [
+            "file"
+          ],
+          "kept": true
+        },
+        {
+          "part": "caption",
+          "from": [
+            "name",
+            "page_title",
+            "page_url"
+          ]
+        }
+      ]
+    },
+    "video": {
+      "label": "Video",
+      "parts": [
+        {
+          "part": "caption",
+          "from": [
+            "name",
+            "url"
+          ]
+        },
+        {
+          "part": "caption",
+          "from": [
+            "page_title",
+            "page_url"
+          ]
+        }
+      ]
+    },
+    "audio": {
+      "label": "Recording",
+      "parts": [
+        {
+          "part": "caption",
+          "from": [
+            "name",
+            "url"
+          ]
+        }
+      ]
+    },
+    "file": {
+      "label": "File",
+      "parts": [
+        {
+          "part": "caption",
+          "from": [
+            "name"
+          ]
+        }
+      ]
+    }
+  },
+  "other": {
+    "parts": [
+      {
+        "part": "link-card",
+        "address": [
+          "url",
+          "page_url"
+        ],
+        "title": [
+          "title",
+          "page_title",
+          "name"
+        ],
+        "picture": [
+          "image"
+        ]
+      },
+      {
+        "part": "words",
+        "from": [
+          "text"
+        ]
+      },
+      {
+        "part": "caption",
+        "from": [
+          "name"
+        ]
+      }
+    ]
+  }
+}

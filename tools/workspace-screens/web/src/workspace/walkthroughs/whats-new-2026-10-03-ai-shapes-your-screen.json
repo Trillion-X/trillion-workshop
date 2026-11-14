@@ -1,0 +1,113 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-ai-shapes-your-screen",
+  "revision": 1,
+  "order": 7,
+  "title": "New: Your AI shows you what it did",
+  "summary": "Your AI shows you what it did right on your screen, with a short tour, screens side by side or a note where something waits.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-ai-shapes-your-screen",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T05:17:10Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-ai-shapes-your-screen"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your AI can show you what it did",
+          "body": "When your AI finishes something you can see, it shows it to you right here instead of describing it."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "tours",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "It gives you a short tour of what changed",
+          "body": "It points at the new thing, one small card at a time. Every tour your AIs made is kept in Tours."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tours\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.tours"
+        }
+      }
+    },
+    {
+      "id": "screens",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "It puts your screens side by side",
+          "body": "When you go back and forth between screens, your AI can put them next to each other. It can also leave a note in your sidebar where something waits for you."
+        }
+      }
+    }
+  ]
+}

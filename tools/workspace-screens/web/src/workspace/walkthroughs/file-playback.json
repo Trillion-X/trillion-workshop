@@ -1,0 +1,130 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "file-playback",
+  "revision": 1,
+  "order": 4,
+  "title": "Playing a file",
+  "summary": "You can watch a video or listen to a recording right where it opens.",
+  "entry_step": "stage",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": {
+        "event_kind": "screen-opened",
+        "match": {
+          "entry": "tool-screen",
+          "tool_id": "tool:screen-file"
+        }
+      },
+      "once_key": "file-playback",
+      "requires": [
+        {
+          "once_key": "first-run"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "file-playback"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "stage",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your file opens in its own tab",
+          "body": "Open a video or a recording from Files and it plays in its own tab. You can pause, skip ahead, change the speed and go full screen."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.file"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tool-screen\"] .trillion-file-stage"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "left",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true,
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "path",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Back to its folder",
+          "body": "Press a folder name here to go back to where this file is kept."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.file"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tool-screen\"] .trillion-file-path"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

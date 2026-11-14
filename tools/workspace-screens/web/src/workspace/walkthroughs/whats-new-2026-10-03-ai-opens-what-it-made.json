@@ -1,0 +1,117 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-ai-opens-what-it-made",
+  "revision": 1,
+  "order": 8,
+  "title": "New: Your AI opens what it made",
+  "summary": "When your AI makes something, like a list or a decision, it opens that exact thing for you so you see it right away.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-ai-opens-what-it-made",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T16:45:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-ai-opens-what-it-made"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your AI opens what it made for you",
+          "body": "When your AI makes a list for you, it opens that list, not the page with all your lists."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "layouts",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "It is kept in your layouts",
+          "body": "It opens beside what you were doing. You can open it again later under Layouts in …."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "button[aria-label=\"More for this pane\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "act": {
+        "do": "press"
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "back",
+            "label": "Back"
+          },
+          {
+            "role": "done",
+            "label": "Open it"
+          }
+        ]
+      }
+    }
+  ]
+}

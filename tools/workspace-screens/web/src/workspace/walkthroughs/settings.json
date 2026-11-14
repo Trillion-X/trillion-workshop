@@ -1,0 +1,45 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "settings",
+  "revision": 1,
+  "order": 44,
+  "title": "Settings",
+  "summary": "Manage your account and workspace in one place.",
+  "entry_step": "choose",
+  "progress_style": { "style": "segmented" },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": { "event_kind": "screen-opened", "match": { "entry": "settings" } },
+      "once_key": "settings",
+      "requires": [{ "once_key": "first-run" }]
+    },
+    {
+      "reason": "replay",
+      "on_event": { "event_kind": "walkthrough-requested", "match": { "walkthrough_id": "settings" } }
+    }
+  ],
+  "steps": [
+    {
+      "id": "choose",
+      "content": { "content_kind": "text", "payload": {
+        "title": "Find the setting you need",
+        "body": "Choose a page here to manage your account, connected services, calendar, appearance or notifications."
+      } },
+      "target_preparation": { "surface": { "id": "trillion.settings" } },
+      "target_ref": { "from": "selector", "query": "[data-trillion-screen=\"settings\"] [data-sectioned-panels] .sectioned-panels-navigation" },
+      "centered_when_target_missing": true,
+      "next": "change"
+    },
+    {
+      "id": "change",
+      "content": { "content_kind": "text", "payload": {
+        "title": "Change it here",
+        "body": "Each page has its own controls. Switching pages keeps your unfinished work open, so you can return to it."
+      } },
+      "target_preparation": { "surface": { "id": "trillion.settings" } },
+      "target_ref": { "from": "selector", "query": "[data-trillion-screen=\"settings\"] [data-sectioned-panels] .sectioned-panels-page:not([hidden])" },
+      "centered_when_target_missing": true
+    }
+  ]
+}

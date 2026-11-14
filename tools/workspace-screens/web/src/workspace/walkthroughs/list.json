@@ -1,0 +1,137 @@
+{
+ "kind": "walkthrough-definition",
+ "id": "list",
+ "revision": 1,
+ "order": 55,
+ "title": "A list",
+ "summary": "One list: its rows, how they are shown, and adding more.",
+ "entry_step": "rows",
+ "progress_style": {
+  "style": "segmented"
+ },
+ "triggers": [
+  {
+   "reason": "screen-first-opened",
+   "on_event": {
+    "event_kind": "screen-opened",
+    "match": {
+     "entry": "tool-screen",
+     "tool_id": "tool:screen-list"
+    }
+   },
+   "once_key": "list",
+   "requires": [
+    {
+     "once_key": "first-run"
+    }
+   ]
+  },
+  {
+   "reason": "replay",
+   "on_event": {
+    "event_kind": "walkthrough-requested",
+    "match": {
+     "walkthrough_id": "list"
+    }
+   }
+  }
+ ],
+ "steps": [
+  {
+   "id": "rows",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Every row in this list",
+     "body": "Press a row to open it, or a cell to change it. New rows can be added at the bottom."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.list"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"list\"] [data-slot=\"table\"], [data-trillion-screen=\"list\"] [data-visual-database-view-id]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "advance",
+      "label": "Show me"
+     }
+    ]
+   }
+  },
+  {
+   "id": "views",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Show it your way",
+     "body": "Switch to a board, cards or a checklist. Each way shows the same rows."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.list"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"list\"] [role=\"radiogroup\"][aria-label=\"View\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "back",
+      "label": "Back"
+     },
+     {
+      "role": "advance",
+      "label": "Next"
+     }
+    ]
+   }
+  }
+ ]
+}

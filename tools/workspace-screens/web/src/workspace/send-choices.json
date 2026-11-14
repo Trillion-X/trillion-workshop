@@ -1,0 +1,30 @@
+{
+  "_what": "The two choices the message box sends with (src/workspace/send-choices.ts), read from the person's own share list (src/share-destinations.mjs): where it goes (their own Trillion and each pursuit, nested as the sidebar shows them, several at once, with a new pursuit made from typed words, `new_now` being where it stands when made) and what their AI does with it (one of their saved actions). Each shows only when there is something to choose. `private_icon` marks their own Trillion, `pursuit_icon` a pursuit only they are in, `with_people_icon` one with other people in it and `tool_icon` a tool that takes what is shared; `action_icon` marks a saved action and `folder_icon` a folder of them, which opens as its own menu. `sent` says where it went, with {places}. `route` is the default: with nothing chosen the box names no place and Trillion routes the share itself; `choose_where` / `hide_where` open and close the pickers, `waiting` is the quiet line while a kept share waits for the account. What is said after a send is in send-routed.json.",
+  "send_to": {
+    "label": "Send to",
+    "icon": "Send",
+    "search": "Find a pursuit",
+    "create": "New pursuit “{name}”",
+    "new_now": "Just started",
+    "private_icon": "Lock",
+    "pursuit_icon": "Target",
+    "with_people_icon": "Users",
+    "tool_icon": "MessageSquareHeart"
+  },
+  "action": {
+    "label": "Your AI will",
+    "icon": "Sparkles",
+    "search": "Find an action",
+    "create": "New action “{name}”",
+    "action_icon": "Sparkles",
+    "folder_icon": "Folder"
+  },
+  "from": "Web",
+  "from_agent": "trillion-web",
+  "sent": "Sent to {places}",
+  "route": {
+    "choose_where": "Choose where",
+    "hide_where": "Let Trillion decide",
+    "waiting": "Waiting to send"
+  }
+}

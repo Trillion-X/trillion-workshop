@@ -1,0 +1,183 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "record",
+  "revision": 1,
+  "order": 49,
+  "title": "Talk it through",
+  "summary": "You can say what is on your mind and read your words as you say them. When you press Done, it goes into your Files and to your AI.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": {
+        "event_kind": "screen-opened",
+        "match": {
+          "entry": "tool-screen",
+          "tool_id": "tool:screen-record"
+        }
+      },
+      "once_key": "record",
+      "requires": [
+        {
+          "once_key": "first-run"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "record"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Say what is on your mind",
+          "body": "Talk and read your words as you say them. When you press Done, it goes into your Files and to your AI."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.record"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"record\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "button",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Press to start",
+          "body": "Press once to start and again when you are done. Discard throws a recording away before anything is kept."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.record"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"record\"] [data-capture-control]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "words",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your words, as you say them",
+          "body": "What you say appears here while you talk. Your AI gets the recording and these words together."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.record"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"record\"] [aria-label=\"What you said\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "find-again",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Find this again",
+          "body": "Open it from the menu under Start whenever you want to talk something through."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-surface-id=\"trillion.record\"], [data-sidebar-open-toggle]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ]
+}

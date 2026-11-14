@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-02-button-work",
+  "revision": 1,
+  "order": 4,
+  "title": "New: Buttons show when they are working",
+  "summary": "Every button that starts work shows you it is working, then whether it worked, so you never wonder if your press went through.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-02-button-work",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-02T22:12:33Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-02-button-work"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your buttons tell you what they are doing",
+          "body": "When you press a button that starts work, it now tells you how that work is going."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "button-work",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You see working, Done, or Try again",
+          "body": "Press Save, Send, Run now or Have my AI write it and the button spins while it works. It shows a check and Done when it worked, or Try again in red when it did not, then goes back to its name. Pressing it again while it works does nothing, so nothing runs twice."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"workflows\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.workflows"
+        }
+      }
+    }
+  ]
+}

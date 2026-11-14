@@ -1,0 +1,147 @@
+{
+ "kind": "walkthrough-definition",
+ "id": "look-over-the-day",
+ "revision": 1,
+ "order": 59,
+ "title": "Screen look over the day",
+ "summary": "Your screen moves gradually from one look to another through the day.",
+ "entry_step": "switch",
+ "progress_style": {
+  "style": "segmented"
+ },
+ "triggers": [
+  {
+   "reason": "screen-first-opened",
+   "on_event": {
+    "event_kind": "screen-opened",
+    "match": {
+     "entry": "tool-screen",
+     "tool_id": "tool:screen-look-over-the-day"
+    }
+   },
+   "once_key": "look-over-the-day",
+   "requires": [
+    {
+     "once_key": "first-run"
+    }
+   ]
+  },
+  {
+   "reason": "replay",
+   "on_event": {
+    "event_kind": "walkthrough-requested",
+    "match": {
+     "walkthrough_id": "look-over-the-day"
+    }
+   }
+  }
+ ],
+ "steps": [
+  {
+   "id": "switch",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Turn it on",
+     "body": "With this on, your screen moves slowly from one look to the next between the times below. Each of your devices follows its own clock."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.look-over-the-day"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"tool-screen\"] [role=\"switch\"][aria-label=\"Change my screen look over the day\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "advance",
+      "label": "Next"
+     }
+    ]
+   }
+  },
+  {
+   "id": "plan",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Pick a plan, or set your own",
+     "body": "Start from Evening dims to black or Follow the sun, or change any time and look under Your plan."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.look-over-the-day"
+    }
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "back",
+      "label": "Back"
+     },
+     {
+      "role": "advance",
+      "label": "Next"
+     }
+    ]
+   }
+  },
+  {
+   "id": "hold",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Keep the look you have",
+     "body": "Hold this look keeps your screen as it is until the next change. Picking a look in Screen look holds it too."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.look-over-the-day"
+    }
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "back",
+      "label": "Back"
+     },
+     {
+      "role": "done",
+      "label": "Done"
+     }
+    ]
+   }
+  }
+ ]
+}

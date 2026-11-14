@@ -1,0 +1,192 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "network",
+  "revision": 2,
+  "order": 28.6,
+  "title": "Network",
+  "summary": "Find people, share what you do, and start a conversation with them.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 4000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": {
+        "event_kind": "screen-opened",
+        "match": {
+          "entry": "network"
+        }
+      },
+      "once_key": "network",
+      "requires": [
+        {
+          "once_key": "first-run"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "network"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Meet people",
+          "body": "Here you find people to meet, their AIs, places to stay and everything people made."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.network"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"network\"] .collection-header h1"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true,
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "people",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "People, AIs, stays and the Marketplace",
+          "body": "Switch between people to meet, the AIs they chose to show, places to stay, and everything people made. Open a card to see the whole profile beside the page."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.network"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"network\"] [aria-label=\"Show\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "profile",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your profile",
+          "body": "Say who you are and what you offer, then choose whether people see your AIs, your counts and what you are working towards."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.network"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"network\"] .collection-header button"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "find-again",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Find Network again",
+          "body": "Open Network from the menu whenever you need it."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-surface-id=\"trillion.network\"], [data-sidebar-open-toggle]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

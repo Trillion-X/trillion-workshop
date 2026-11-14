@@ -1,0 +1,148 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-changes-and-timed-layouts",
+  "revision": 1,
+  "order": 10,
+  "title": "New: Every change in Tours, and layouts on a schedule",
+  "summary": "Tours now lists every change to Trillion, newest first, and Show me walks you through each one. Your AI can also switch your screen to a layout at a time you choose.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-changes-and-timed-layouts",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T00:14:01Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-changes-and-timed-layouts"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Every change, and a tour of it",
+          "body": "Tours now opens with What is new. Each line is one change with its date, and Show me on a line walks you through it."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "changes",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "The newest change comes first",
+          "body": "Press Show me on any change to see it on your own screen."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tours\"]"
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.tours"
+        }
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 12
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 12
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "timed-layouts",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Layouts on a schedule",
+          "body": "Ask your AI to show one layout in the morning and another at night, or a layout when something happens. It opens by itself, and the one it replaces stays one click away as Previous layout."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "button[aria-label=\"More for this pane\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 12
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "done",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+ "kind": "walkthrough-definition",
+ "id": "spend",
+ "revision": 1,
+ "order": 50,
+ "title": "Spend",
+ "summary": "Estimated service and AI costs today and in this billing cycle, against your budgets.",
+ "entry_step": "table",
+ "progress_style": {
+  "style": "segmented"
+ },
+ "triggers": [
+  {
+   "reason": "screen-first-opened",
+   "on_event": {
+    "event_kind": "screen-opened",
+    "match": {
+     "entry": "tool-screen",
+     "tool_id": "tool:screen-spend"
+    }
+   },
+   "once_key": "spend",
+   "requires": [
+    {
+     "once_key": "first-run"
+    }
+   ]
+  },
+  {
+   "reason": "replay",
+   "on_event": {
+    "event_kind": "walkthrough-requested",
+    "match": {
+     "walkthrough_id": "spend"
+    }
+   }
+  }
+ ],
+ "steps": [
+  {
+   "id": "table",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "See each cost estimate",
+     "body": "Each line is one service or AI, with estimated costs for today and this billing cycle beside its budget."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.spend"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"spend\"] [data-slot=\"table\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "advance",
+      "label": "Show me"
+     }
+    ]
+   }
+  },
+  {
+   "id": "search",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Find one line",
+     "body": "Type a name to see only that service."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.spend"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"spend\"] input[aria-label=\"Search spend\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "back",
+      "label": "Back"
+     },
+     {
+      "role": "advance",
+      "label": "Next"
+     }
+    ]
+   }
+  },
+  {
+   "id": "find-again",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Find Spend again",
+     "body": "Spend is always in the sidebar. Press it to come back here."
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-sidebar-surface-id=\"trillion.spend\"], [data-sidebar-open-toggle]"
+   },
+   "placement": {
+    "prefer": "right",
+    "auto_flip": true,
+    "gap": 14
+   }
+  }
+ ]
+}

@@ -1,0 +1,117 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-fits-on-a-phone",
+  "revision": 1,
+  "order": 6,
+  "title": "New: Trillion fits your phone better",
+  "summary": "Trillion is easier to use on a phone, because cards stay clear of the status bar and only the pane you are in wears a frame.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-fits-on-a-phone",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T18:24:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-fits-on-a-phone"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Trillion fits your phone better",
+          "body": "A card like this one now blurs the page behind it. Tour cards and previews stay clear of the status bar and the home bar."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pane",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Only the pane you are in has a frame",
+          "body": "Tapping a pane no longer leaves a square outline on it, so its own frame is the only mark of where you are. If your notifications cannot load, they say so with Try again instead of showing a blank window."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "button[aria-label=\"More for this pane\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 12
+      },
+      "act": {
+        "do": "press"
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "back",
+            "label": "Back"
+          },
+          {
+            "role": "done",
+            "label": "Open it"
+          }
+        ]
+      }
+    }
+  ]
+}

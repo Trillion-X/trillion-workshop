@@ -1,0 +1,156 @@
+{
+ "kind": "walkthrough-definition",
+ "id": "sent",
+ "revision": 1,
+ "order": 49,
+ "title": "Sent",
+ "summary": "Every email, post and message your AIs sent for you.",
+ "entry_step": "intro",
+ "progress_style": {
+  "style": "segmented"
+ },
+ "triggers": [
+  {
+   "reason": "screen-first-opened",
+   "on_event": {
+    "event_kind": "screen-opened",
+    "match": {
+     "entry": "tool-screen",
+     "tool_id": "tool:screen-sent"
+    }
+   },
+   "once_key": "sent",
+   "requires": [
+    {
+     "once_key": "first-run"
+    }
+   ]
+  },
+  {
+   "reason": "replay",
+   "on_event": {
+    "event_kind": "walkthrough-requested",
+    "match": {
+     "walkthrough_id": "sent"
+    }
+   }
+  }
+ ],
+ "steps": [
+  {
+   "id": "intro",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "What went out in your name",
+     "body": "Each email, post and message your AIs sent is kept here with the exact words, who it went to and when."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.sent"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"sent\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "advance",
+      "label": "Show me"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ideas",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Ideas to start with",
+     "body": "Press an idea to ask your AI to send something for you."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.sent"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"sent\"] [data-examples-strip]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "back",
+      "label": "Back"
+     },
+     {
+      "role": "advance",
+      "label": "Next"
+     }
+    ]
+   }
+  },
+  {
+   "id": "find-again",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Find Sent again",
+     "body": "Sent is always in the sidebar. Press it to come back here."
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-sidebar-surface-id=\"trillion.sent\"], [data-sidebar-open-toggle]"
+   },
+   "placement": {
+    "prefer": "right",
+    "auto_flip": true,
+    "gap": 14
+   }
+  }
+ ]
+}

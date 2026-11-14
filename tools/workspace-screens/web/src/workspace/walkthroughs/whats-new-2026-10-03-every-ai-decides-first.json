@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-every-ai-decides-first",
+  "revision": 1,
+  "order": 9,
+  "title": "New: Every AI decides with Trillion first",
+  "summary": "Every AI you connect now settles a decision with Trillion before it builds or fixes anything, so what it builds works for every case, not only your example.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-every-ai-decides-first",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T18:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-every-ai-decides-first"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your AIs decide before they build",
+          "body": "You no longer have to tell your AIs to use the decision engine. Ask any of them to build, change or fix something and it decides with Trillion first, then builds what it decided."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "decisions",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You can see every choice it made",
+          "body": "Each decision your AI made, with its options and its reasons, shows in Decisions. What it builds works for any case, not only the example you gave."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"decisions\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.decisions"
+        }
+      }
+    }
+  ]
+}

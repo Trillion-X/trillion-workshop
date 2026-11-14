@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-davinci-free",
+  "revision": 1,
+  "order": 7,
+  "title": "New: Your AIs work in free DaVinci Resolve",
+  "summary": "Your AIs can now work in the free DaVinci Resolve too, adding timelines, clips and markers to the project you have open.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-davinci-free",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T16:34:12Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-davinci-free"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your AIs can work in the free DaVinci Resolve",
+          "body": "Your AIs now work in the free DaVinci Resolve, not only Studio. They add timelines, clips and markers in the project you have open."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "connections",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Open Resolve once more",
+          "body": "The first time your AI uses Resolve, Trillion adds a small helper to it. Open Resolve again and your AI works in it from then on. Connections shows Resolve on your computer."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"connections\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.connections"
+        }
+      }
+    }
+  ]
+}

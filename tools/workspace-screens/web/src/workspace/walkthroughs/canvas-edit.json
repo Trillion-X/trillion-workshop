@@ -1,0 +1,131 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "canvas-edit",
+  "revision": 1,
+  "order": 58,
+  "title": "Edit on canvas",
+  "summary": "A tour laid out as its cards: change any words or button in place, for one step, the whole tour or every tour.",
+  "entry_step": "cards",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": {
+        "event_kind": "screen-opened",
+        "match": {
+          "entry": "tool-screen",
+          "tool_id": "tool:screen-canvas-edit"
+        }
+      },
+      "once_key": "canvas-edit",
+      "requires": [
+        {
+          "once_key": "first-run"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "canvas-edit"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "cards",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Every step as its card",
+          "body": "Each card is the step exactly as the tour shows it. Move around by dragging the empty canvas; pinch or Ctrl-scroll to zoom."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.canvas-edit",
+          "surface_input": {
+            "id": "tour:canvas-edit"
+          }
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"canvas-edit\"] [data-canvas-piece]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "change",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Change it in place",
+          "body": "Press any words or button. Pick who the change is for, then type: it shows on the cards and on the tour at once."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.canvas-edit",
+          "surface_input": {
+            "id": "tour:canvas-edit"
+          }
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"canvas-edit\"] [data-canvas-piece] [data-walkthrough-copy=\"title\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

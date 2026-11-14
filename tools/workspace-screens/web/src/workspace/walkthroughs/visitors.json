@@ -1,0 +1,167 @@
+{
+ "kind": "walkthrough-definition",
+ "id": "visitors",
+ "revision": 1,
+ "order": 49,
+ "audience": "operator",
+ "title": "Visitors",
+ "summary": "Everyone who visits gettrillion.ai, your public pages and the app, what they click, and how many go on to pay.",
+ "entry_step": "charts",
+ "progress_style": {
+  "style": "segmented"
+ },
+ "triggers": [
+  {
+   "reason": "screen-first-opened",
+   "on_event": {
+    "event_kind": "screen-opened",
+    "match": {
+     "entry": "tool-screen",
+     "tool_id": "tool:screen-visitors"
+    }
+   },
+   "once_key": "visitors",
+   "requires": [
+    {
+     "once_key": "first-run"
+    }
+   ]
+  },
+  {
+   "reason": "replay",
+   "on_event": {
+    "event_kind": "walkthrough-requested",
+    "match": {
+     "walkthrough_id": "visitors"
+    }
+   }
+  }
+ ],
+ "steps": [
+  {
+   "id": "charts",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Visitors over time",
+     "body": "Each line is one place people visit: gettrillion.ai, your public pages and the app. Below it: the steps from a first visit to paying, what people click most, and where they came from."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.visitors"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"visitors\"] .record-set-charts"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "advance",
+      "label": "Next"
+     }
+    ]
+   }
+  },
+  {
+   "id": "table",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Every page",
+     "body": "Each row is one page with its visitors, views, clicks and how many read it to the end. Open a page to see what was clicked on it."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.visitors"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"visitors\"] [data-slot=\"table\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "back",
+      "label": "Back"
+     },
+     {
+      "role": "advance",
+      "label": "Next"
+     }
+    ]
+   }
+  },
+  {
+   "id": "find-again",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Find Visitors again",
+     "body": "Visitors is always in the sidebar, under Settings. New visits show here within a minute."
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-sidebar-surface-id=\"trillion.visitors\"], [data-sidebar-open-toggle]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "right",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true
+  }
+ ]
+}

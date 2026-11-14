@@ -1,0 +1,47 @@
+[
+  {
+    "id": "starter-files-decisions",
+    "name": "Files beside Decisions",
+    "icon": "Columns2",
+    "arrangement": { "kind": "split", "dir": "row", "children": [
+      { "kind": "pane", "surfaces": ["trillion.files"] },
+      { "kind": "pane", "surfaces": ["trillion.decisions"] }
+    ] }
+  },
+  {
+    "id": "starter-decisions-activity",
+    "name": "Decisions beside AI activity",
+    "icon": "Columns2",
+    "arrangement": { "kind": "split", "dir": "row", "children": [
+      { "kind": "pane", "surfaces": ["trillion.decisions"] },
+      { "kind": "pane", "surfaces": ["trillion.activity"] }
+    ] }
+  },
+  {
+    "id": "starter-build",
+    "name": "Automations beside Runs and Funnels",
+    "icon": "LayoutPanelLeft",
+    "arrangement": { "kind": "split", "dir": "row", "sizes": [3, 2], "children": [
+      { "kind": "pane", "surfaces": ["trillion.workflows"] },
+      { "kind": "split", "dir": "column", "children": [
+        { "kind": "pane", "surfaces": ["trillion.workshop"] },
+        { "kind": "pane", "surfaces": ["trillion.funnels"] }
+      ] }
+    ] }
+  },
+  {
+    "id": "starter-people",
+    "name": "Pursuits beside Network",
+    "icon": "Columns2",
+    "arrangement": { "kind": "split", "dir": "row", "children": [
+      { "kind": "pane", "surfaces": ["trillion.pursuits"] },
+      { "kind": "pane", "surfaces": ["trillion.network"] }
+    ] }
+  },
+  {
+    "id": "starter-account",
+    "name": "Account in one pane",
+    "icon": "PanelTop",
+    "arrangement": { "kind": "pane", "surfaces": ["trillion.connections", "trillion.plan", "trillion.account"] }
+  }
+]

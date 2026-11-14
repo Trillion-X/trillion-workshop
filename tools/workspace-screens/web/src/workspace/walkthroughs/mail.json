@@ -1,0 +1,121 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "mail",
+  "revision": 1,
+  "order": 28.6,
+  "title": "Mail",
+  "summary": "Read and search Gmail, manage messages and drafts, and link an email to a task.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": {
+        "event_kind": "screen-opened",
+        "match": {
+          "entry": "tool-screen",
+          "tool_id": "tool:screen-mail"
+        }
+      },
+      "once_key": "mail",
+      "requires": [
+        {
+          "once_key": "first-run"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "mail"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your Gmail account",
+          "body": "Choose your Google account and a folder here. Connect Google account if no account is available. Compose starts a new email."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.mail"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"email\"] [data-mail-rail]"
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "search",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Find a message",
+          "body": "Search Gmail using its own query words, then open a message to read it. On a phone, Folders and Back to mail move between the panes."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.mail"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"email\"] [data-mail-list]"
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "message",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Read and manage mail",
+          "body": "Open a message to reply, archive it, move it to Trash, or change its read and star status. Open in Gmail shows the original formatting. Drafts with attachments, formatting or extra recipients are edited in Gmail to preserve them."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.mail"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"email\"] [data-mail-detail]"
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "task",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Keep an email as a task",
+          "body": "Open a message, enter a task title and press Create task. The task keeps a link to the email. Drafts can be saved separately; Send sends the email from your connected Gmail account."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.mail"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"email\"] [data-email-task-origin]"
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

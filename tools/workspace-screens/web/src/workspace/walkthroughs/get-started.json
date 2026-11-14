@@ -1,0 +1,192 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "get-started",
+  "revision": 3,
+  "order": 34,
+  "title": "Get started",
+  "summary": "You can set Trillion up in four steps and see which ones you have already done.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "get-started"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Set Trillion up in four steps",
+          "body": "Follow four steps to set Trillion up. The ones you have finished are ticked."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.get-started"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"get-started\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "steps",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Do them in order",
+          "body": "Do them in order. Each one is ticked when it is done, and the next one says exactly what to do."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.get-started"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"get-started\"] .guide-steps"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "tray",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Pick things for what comes next",
+          "body": "Open Your tray to select one thing or several, then send them to your AI, a pursuit or Tell us."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-surface-id=\"trillion.tray\"], [data-sidebar-open-toggle]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "tell-us",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Report a bug or share an idea",
+          "body": "Open Tell us above Start to report a bug, send feedback or share an idea. The people who make Trillion read every one. On a phone, press Show sidebar first."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-section-id=\"collection:trillion-tell-us\"], [data-sidebar-open-toggle]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "find-again",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Find Get started again",
+          "body": "Open Get started from the menu whenever you need it. On a phone, press Show sidebar first."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-surface-id=\"trillion.get-started\"], [data-sidebar-open-toggle]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

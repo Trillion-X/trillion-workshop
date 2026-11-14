@@ -1,0 +1,137 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-02-live-work",
+  "revision": 2,
+  "order": 3,
+  "title": "New: Your AI works while you record",
+  "summary": "Your AI acts on what is said while you are still recording, and you can record one meeting from several devices at once.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-02-live-work",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-02T21:39:28Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-02-live-work"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your AI can work while you are still talking",
+          "body": "Your AI now works on a recording while you make it, instead of waiting until you stop."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "live-work",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your AI acts as you speak",
+          "body": "Start recording a meeting or a call, and every few sentences go to your AI as they are said. It researches the people named, starts on what you discuss and drafts follow-ups. You see what it does beside your live words."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"record\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.record"
+        }
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "record-with-others",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You can record one meeting from several devices",
+          "body": "Press Record with others and share the link. Every phone or laptop that opens it records the same meeting, and you get one transcript with each turn named by the device that heard it. Words heard twice are kept once."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"record\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.record"
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

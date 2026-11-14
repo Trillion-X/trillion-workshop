@@ -1,0 +1,22 @@
+{
+  "_what": "Words for Say about this (src/workspace/say-about-this.tsx): the notes and the message box under anything opened in its own tab. {time} is a moment as the player shows it (0:42, 1:02:05), {title} the thing's name. `part_kind` is the kind of part a note at a moment of a recording carries (src/responses.mjs part), and `moment_icon`, `about_icon` the icons of the box's chip.",
+  "heading": "Notes and messages",
+  "label": "Say something about this",
+  "placeholder": "Note something at this moment, or ask your AI to change it",
+  "at": "At {time}",
+  "about": "About {title}",
+  "play_from": "Play from {time}",
+  "empty": "Nothing said about this yet. What you write here is kept at the moment you are on and reaches your AIs.",
+  "shared_empty": "No notes yet. What you write here is shared with everyone in this room.",
+  "shared_placeholder": "Leave a note or suggestion for everyone here",
+  "shared_with": "Everyone in {title}",
+  "shared_sent": "Your note is shared in {title}.",
+  "member": "Member",
+  "more": "Show more notes",
+  "retry": "Try again",
+  "you": "You",
+  "failed": "Notes could not be read",
+  "part_kind": "moment",
+  "moment_icon": "Clock",
+  "about_icon": "MessageSquare"
+}

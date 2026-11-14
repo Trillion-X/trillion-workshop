@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-drafts-one-tap",
+  "revision": 3,
+  "order": 9,
+  "title": "New: A notice opens your draft post",
+  "summary": "Your drafts are one tap away: a notice when a draft post is ready opens it, Posts opens straight to that post, and a post that does not go out tells you the same way.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-drafts-one-tap",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T22:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-drafts-one-tap"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your draft, one tap away",
+          "body": "When your AI keeps a draft post for you, you get a notice. Tap it and the draft opens, with its video and words, ready to approve."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "notices",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your notices open the draft",
+          "body": "Every draft post your AI makes lands here as a notice. Tap it to open that draft in Posts. If a post you approved does not go out everywhere, you are told here too, and the tap opens that post."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"notifications\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.notifications"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-listening",
+  "revision": 1,
+  "order": 9,
+  "title": "New: Your Mac can listen for you",
+  "summary": "When you choose, your Mac listens and sends what is said to your AIs as it is said, with each part under the name of who said it.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-listening",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T23:50:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-listening"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your Mac can listen for you",
+          "body": "Ask any of your AIs to start listening on your Mac. What is said nearby reaches them as it is said, split into moments, each part named by who said it: you, a teammate your Mac knows, or someone it does not."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "who",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Who said what",
+          "body": "Teach your Mac a teammate's voice or face once, with their yes. After that, what they say arrives under their name. When your Mac is not sure who spoke, it says so, like \"Unsure (Ana or Ben?)\", and nobody is given a task from a guess. Voices and faces never leave your Mac."
+        }
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "where",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You stay in charge",
+          "body": "Listening shows here once it is on, and the Mac's microphone light shows the whole time. Say \"stop listening\" to turn it off, or \"off the record\" to leave a part out."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"connections\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.connections"
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

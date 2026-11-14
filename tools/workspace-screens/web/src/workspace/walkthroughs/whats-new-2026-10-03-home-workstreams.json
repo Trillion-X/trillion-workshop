@@ -1,0 +1,137 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-home-workstreams",
+  "revision": 1,
+  "order": 6,
+  "title": "New: Home shows what your AIs are working on",
+  "summary": "Home shows you what your AIs are working on and suggests your biggest needle mover when you have not marked one.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-home-workstreams",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T18:25:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-home-workstreams"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You can see your AIs' work right on Home",
+          "body": "Home now shows what your AIs are working on and which goal most likely moves the rest. Tour cards that show a screen also scroll now, with Next always in view."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "workstreams",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "What your AIs are working on",
+          "body": "Open AI work is grouped by the job it started from, one line each. Anything stuck comes first, with what is in its way, and Open takes you to all your AI work."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"home\"] [data-dashboard-card=\"workstreams\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 12
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.home"
+        }
+      }
+    },
+    {
+      "id": "needle-mover",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your biggest needle mover",
+          "body": "When no goal is marked, Trillion picks the one with the most other goals under it and tells you why. You can make it the one, or pick another goal below."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"home\"] [data-dashboard-card=\"needle-mover\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 12
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.home"
+        }
+      }
+    }
+  ]
+}

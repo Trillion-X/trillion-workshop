@@ -1,0 +1,203 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "formats",
+  "revision": 1,
+  "order": 50,
+  "title": "Formats",
+  "summary": "You can type what is on your mind and see it written out in every content format you use.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": {
+        "event_kind": "screen-opened",
+        "match": {
+          "entry": "tool-screen",
+          "tool_id": "tool:screen-formats"
+        }
+      },
+      "once_key": "formats",
+      "requires": [
+        {
+          "once_key": "first-run"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "formats"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "See one idea in every format",
+          "body": "Type what is on your mind and see it written out in every content format you use."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.formats"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"formats\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "thought",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Say what it is about",
+          "body": "Type the idea here. Every format below fills in with it as you type."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.formats"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"formats\"] textarea"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true,
+      "act": {
+        "do": "type",
+        "text": "What I learned this week"
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "back",
+            "label": "Back"
+          },
+          {
+            "role": "advance",
+            "label": "Write one for me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "cards",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Open a format to read it aloud",
+          "body": "Open one to read it as a script while you talk, or to have your AI write it for you."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.formats"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"formats\"] [data-slot=\"listing-grid\"], [data-trillion-screen=\"formats\"] .screen-state-actions button"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "find-again",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Find Formats again",
+          "body": "Open Formats from the menu whenever you have something to say."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-surface-id=\"trillion.formats\"], [data-sidebar-open-toggle]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ]
+}

@@ -1,0 +1,602 @@
+{
+  "whats-new-2026-09-28": {
+    "src": "whats-new-2026-09-28.webp",
+    "alt": "Tours: Every part of Trillion has a short tour here. You can take any of them again whenever you like.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-02-button-work": {
+    "src": "whats-new-2026-10-02-button-work.webp",
+    "alt": "You see working, Done, or Try again: Press Save, Send, Run now or Have my AI write it and the button spins while it works. It shows a check and Done when it worked, or Try again in red when it did not, then goes back to its name. Pressing it again while it works does nothing, so nothing runs twice.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-02-live-work": {
+    "src": "whats-new-2026-10-02-live-work.webp",
+    "alt": "You can record one meeting from several devices: Press Record with others and share the link. Every phone or laptop that opens it records the same meeting, and you get one transcript with each turn named by the device that heard it. Words heard twice are kept once.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-02-new-list": {
+    "src": "whats-new-2026-10-02-new-list.webp",
+    "alt": "You can make a list show for a while: Open the menu on any list you made and choose When it shows. You can pick 7 days, a date, or a rule, and the list goes away by itself when that time passes. Your AI can set this up too.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-02-record-audio": {
+    "src": "whats-new-2026-10-02-record-audio.webp",
+    "alt": "Record audio: Record while you watch the live waveform, pause and pick up again, or bring in an audio file. Every recording sits in one list you can rename, sort into a board or see on a timeline. Each one also goes to your Files and your AI.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-02-work-row": {
+    "src": "whats-new-2026-10-02-work-row.webp",
+    "alt": "You see who has it and how far it has got: Each job shows its whole title and the face of the AI doing it, with a blue line circling the face while it works. Under the title you see how many steps it has taken and when it started. Press anywhere on it to watch the work.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-agree-or-disagree": {
+    "src": "whats-new-2026-10-03-agree-or-disagree.webp",
+    "alt": "Your view on each one: Disagree, and one of your AIs makes a new decision from what you said. Under it, What came after shows everything that followed.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-ai-opens-what-it-made": {
+    "src": "whats-new-2026-10-03-ai-opens-what-it-made.webp",
+    "alt": "It is kept in your layouts: It opens beside what you were doing. You can open it again later under Layouts in ⋯.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-ai-shapes-your-screen": {
+    "src": "whats-new-2026-10-03-ai-shapes-your-screen.webp",
+    "alt": "It gives you a short tour of what changed: It points at the new thing, one small card at a time. Every tour your AIs made is kept in Tours.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-also-kept-in": {
+    "src": "whats-new-2026-10-03-also-kept-in.webp",
+    "alt": "Also kept in: When the same file is in more than one folder, because you copied it from two drives or saved it twice, a column names the other folder. It is still one file, so nothing is stored or sent twice.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-answer-anything": {
+    "src": "whats-new-2026-10-03-answer-anything.webp",
+    "alt": "Rest on a face: Rest on someone's face to see their name and how many posts they wrote here. Rest on that line to list them, and on one to read it, react and reply without leaving.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-blocked-microphone-in-a-browser": {
+    "src": "whats-new-2026-10-03-blocked-microphone-in-a-browser.webp",
+    "alt": "Record audio: If your browser blocks the microphone, this says so and shows where to allow it: the icon left of the address. In the Mac app it points to your Mac's settings.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-changes-always-save": {
+    "src": "whats-new-2026-10-03-changes-always-save.webp",
+    "alt": "Trillion handles busy moments for you: If Trillion is busy or you go offline, your change is sent again by itself, even after a reload. You only hear about it if it truly could not be kept.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-changes-and-timed-layouts": {
+    "src": "whats-new-2026-10-03-changes-and-timed-layouts.webp",
+    "alt": "Layouts on a schedule: Ask your AI to show one layout in the morning and another at night, or a layout when something happens. It opens by itself, and the one it replaces stays one click away as Previous layout.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-chrome-reply": {
+    "src": "whats-new-2026-10-03-chrome-reply.webp",
+    "alt": "You reply in one box: The window shows the Trillion mark, the notice you are answering and one box that grows as you write. Press Enter to send, Shift+Enter for a new line, and Cancel or Escape to close it. If your words do not go through, Send turns into Try again and keeps them.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-chrome-store": {
+    "src": "whats-new-2026-10-03-chrome-store.webp",
+    "alt": "Send to Trillion, one click away: The browser extension is on the Chrome Web Store. Add it, sign in, and send any page, selection or screenshot to your AIs. Trillion's notices show up in your browser too, with Reply right on them.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-davinci-free": {
+    "src": "whats-new-2026-10-03-davinci-free.webp",
+    "alt": "Open Resolve once more: The first time your AI uses Resolve, Trillion adds a small helper to it. Open Resolve again and your AI works in it from then on. Connections shows Resolve on your computer.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-drafts-one-tap": {
+    "src": "whats-new-2026-10-03-drafts-one-tap.webp",
+    "alt": "Your notices open the draft: Every draft post your AI makes lands here as a notice. Tap it to open that draft in Posts. If a post you approved does not go out everywhere, you are told here too, and the tap opens that post.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-drives-eject-and-copy": {
+    "src": "whats-new-2026-10-03-drives-eject-and-copy.webp",
+    "alt": "Every drive on your Mac is here: Open Drives under Content, then Files. Each drive has Eject and Copy or move, where you pick what to copy, choose the drive it goes to, and confirm. You can also drag one drive onto another and choose Copy here or Move here.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-drives-keep-themselves": {
+    "src": "whats-new-2026-10-03-drives-keep-themselves.webp",
+    "alt": "Your drive shows up in your files: Its files arrive under Recordings, in the drive's own folders, newest first. Each recording is transcribed on your Mac as it uploads, so its words are ready when it arrives and your AIs can work through it. If you unplug part way, it carries on next time, and a live card shows how far it got with Pause and Stop.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-every-ai-decides-first": {
+    "src": "whats-new-2026-10-03-every-ai-decides-first.webp",
+    "alt": "You can see every choice it made: Each decision your AI made, with its options and its reasons, shows in Decisions. What it builds works for any case, not only the example you gave.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-every-input-reaches-an-ai": {
+    "src": "whats-new-2026-10-03-every-input-reaches-an-ai.webp",
+    "alt": "You can see which AI took it: Each share and message shows here with the AI that took it and what it did. That includes the AI that works while no chat is open.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-failures-ask-your-ai": {
+    "src": "whats-new-2026-10-03-failures-ask-your-ai.webp",
+    "alt": "You can ask your AI to help: If it still does not work, Ask your AI sits beside Try again. Pick your AI once, whether that is ChatGPT, Claude, Gemini or another, and next time the button opens it with what went wrong already written. You never copy an error code.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-file-tree": {
+    "src": "whats-new-2026-10-03-file-tree.webp",
+    "alt": "Open a folder to see its files: Open a folder and its files slide in, with a line from the folder to each one. Videos, pictures, sounds and sheets each have their own colour, so you can spot them at a glance. Choose a file to open it.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-fits-on-a-phone": {
+    "src": "whats-new-2026-10-03-fits-on-a-phone.webp",
+    "alt": "Only the pane you are in has a frame: Tapping a pane no longer leaves a square outline on it, so its own frame is the only mark of where you are. If your notifications cannot load, they say so with Try again instead of showing a blank window.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-formats-as-pages": {
+    "src": "whats-new-2026-10-03-formats-as-pages.webp",
+    "alt": "Formats: Type what you want to talk about and every format shows it as it would read, led by where it goes. Pick a kind at the top to see only those.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-home-workstreams": {
+    "src": "whats-new-2026-10-03-home-workstreams.webp",
+    "alt": "Your biggest needle mover: When no goal is marked, Trillion picks the one with the most other goals under it and tells you why. You can make it the one, or pick another goal below.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-iphone-comes-back": {
+    "src": "whats-new-2026-10-03-iphone-comes-back.webp",
+    "alt": "It arrives with the next iPhone update: The next App Store update brings it to your phone. You can find the iPhone app and the Mac app in Trillion on your devices.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-iphone-notices": {
+    "src": "whats-new-2026-10-03-iphone-notices.webp",
+    "alt": "Watch work as it runs: Exports, copies and other long work show their progress on the Lock Screen and in the Dynamic Island until they finish.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-layout-categories": {
+    "src": "whats-new-2026-10-03-layout-categories.webp",
+    "alt": "You find them in Layouts: Open ⋯ on any pane, and Layouts lists each group under its name, newest first. Your tours are kept the same way in Tours.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-listening": {
+    "src": "whats-new-2026-10-03-listening.webp",
+    "alt": "You stay in charge: Listening shows here once it is on, and the Mac's microphone light shows the whole time. Say \"stop listening\" to turn it off, or \"off the record\" to leave a part out.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-long-videos-turn-vertical": {
+    "src": "whats-new-2026-10-03-long-videos-turn-vertical.webp",
+    "alt": "Your reels land in Files: Each vertical cut is saved in Files next to the recording it came from, ready for a post.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-mac-app": {
+    "src": "whats-new-2026-10-03-mac-app.webp",
+    "alt": "Download for Mac: You will find it in Trillion on your devices, beside the iPhone app. The download opens in a new tab, so you stay right here.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-menus-as-sheets": {
+    "src": "whats-new-2026-10-03-menus-as-sheets.webp",
+    "alt": "Try it here: Tap this on your phone: its menu slides up from the bottom. Drag the bar at its top down, or tap the dimmed page, to close it.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-message-box": {
+    "src": "whats-new-2026-10-03-message-box.webp",
+    "alt": "Your words go on top and your tools sit underneath: Type across the whole box. Under your words you can add a file, a recording or a drawing, and Send stays at the end of that row. On a phone or a narrow pane, those buttons wrap onto a second row instead of squeezing your words.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-messages-and-writing-on-the-map": {
+    "src": "whats-new-2026-10-03-messages-and-writing-on-the-map.webp",
+    "alt": "Your conversations: Pick a conversation on the left. On a narrow screen, Conversations at the top takes you back to the list.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-network-cards": {
+    "src": "whats-new-2026-10-03-network-cards.webp",
+    "alt": "You can open a profile beside the page: View profile opens it beside the page. You see their AIs, what they are working towards and a way to ask one of their AIs for help.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-notices-sit-low": {
+    "src": "whats-new-2026-10-03-notices-sit-low.webp",
+    "alt": "Notices sit where you look: A notice now pops up right at the bottom corner of the window. If a button sits in that corner, the notice moves beside it instead of floating far above it.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-one-list-many-views": {
+    "src": "whats-new-2026-10-03-one-list-many-views.webp",
+    "alt": "You can keep a layout for every list: In Saved views, Use this layout on every list saves the look you are in under your own name. From then on, every list offers it.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-one-marketplace": {
+    "src": "whats-new-2026-10-03-one-marketplace.webp",
+    "alt": "Runs: Every time your AI runs a tool, the run is here: how it ended, what it was for and the files it made.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-pane-more-menu": {
+    "src": "whats-new-2026-10-03-pane-more-menu.webp",
+    "alt": "Everything for this pane is under ⋯: Point at ⋯ beside your tabs, or tap it, to open a new tab or split, move, layer, maximize or close the pane, or watch it picture in picture. The same menu sets where the tabs sit, shows them as icons or pops them out, and has Hide sidebar or Show sidebar. The bar itself keeps only your tabs and ⋯.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-panes-slide-out-of-the-way": {
+    "src": "whats-new-2026-10-03-panes-slide-out-of-the-way.webp",
+    "alt": "Drag a pane down to a sliver: Drag the edge between two panes as far as you like: a pane can shrink to a thin strip and fades at its cut edge, on a phone too, where panes now stay side by side. With the sidebar between panes, drag either side of it or its empty space.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-pinch-every-view": {
+    "src": "whats-new-2026-10-03-pinch-every-view.webp",
+    "alt": "Pinch in Tree and Outline too: In a list's Tree, Outline, Timeline or any other view, pinch in to see every detail of each item, or out to see names only. Ctrl or Cmd with plus and minus does the same.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-pinch-to-see-more": {
+    "src": "whats-new-2026-10-03-pinch-to-see-more.webp",
+    "alt": "Pinch to see more or less: In Gallery or Board, pinch out, or press Ctrl and minus, to see more cards with just their names. Pinch in, or press Ctrl and plus, to see fewer cards with everything on them. The Zoom buttons do the same, and your list remembers where you left it.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-preview-details": {
+    "src": "whats-new-2026-10-03-preview-details.webp",
+    "alt": "The details are behind the info button: In Media and in every list, point at an item to see it. To see its project, stage, tags and other details, point at the info button beside its buttons.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-previews-you-work-in": {
+    "src": "whats-new-2026-10-03-previews-you-work-in.webp",
+    "alt": "Tabs too: Point at the name of a tab you are not on to see what it holds. Its close button stays just a close button.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-price-experiments": {
+    "src": "whats-new-2026-10-03-price-experiments.webp",
+    "alt": "Run price experiments: You start one from New. Say, \"Test $12 against $16 for my candle set.\" Your AI uses your real prices from Stripe and counts who saw each price and who paid, and your funnel shows the result. When one price wins, everyone sees that price. Trillion's own plan prices are tested the same way.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-record-in-the-share-sheet": {
+    "src": "whats-new-2026-10-03-record-in-the-share-sheet.webp",
+    "alt": "Talk about what you share: Share a photo, link or file to Trillion and tap the microphone. You see the time and a waveform that moves with your voice. Tap stop to add your voice note to the share, then tap Send to give both to your AIs.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-record-video-on-a-phone": {
+    "src": "whats-new-2026-10-03-record-video-on-a-phone.webp",
+    "alt": "Record video: On a phone, the camera and Start recording fill the whole width, and your recordings are listed underneath. On a wider screen, the list sits beside the camera.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-recording-bar": {
+    "src": "whats-new-2026-10-03-recording-bar.webp",
+    "alt": "Record: The bar shows the time and draws your voice as a wave while you speak, with Pause, Discard and Done beside it. Your words take the whole width under it.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-repeated-line-once": {
+    "src": "whats-new-2026-10-03-repeated-line-once.webp",
+    "alt": "Record: A line said again and again back to back shows once in your words and once in the saved transcript. If a stretch holds nothing but that line, it is not sent to your AIs as work.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-review-on-board": {
+    "src": "whats-new-2026-10-03-review-on-board.webp",
+    "alt": "Your Trillion screens too: Under Review a Trillion screen, choose any screen you use and put it on the board the same way, drawn as you see it.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-safe-to-eject": {
+    "src": "whats-new-2026-10-03-safe-to-eject.webp",
+    "alt": "Safe to eject: While a drive is copying, the Trillion menu bar shows Copying. Its menu says how many files are copied and when it is safe to eject. Unplug it part way and the files still to copy go up the next time you plug it in.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-sales-contracts": {
+    "src": "whats-new-2026-10-03-sales-contracts.webp",
+    "alt": "Sales contracts: Open Sales contracts from New, choose a customer and one of your offers, and the price fills in from your Stripe. Pick what happens after they pay, like a welcome email or a check-in a few days later, then press Send. It works in a narrow pane or on a phone too.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-saved-logins": {
+    "src": "whats-new-2026-10-03-saved-logins.webp",
+    "alt": "Saved logins: To see a password, sign in again, then copy it. Each login shows when it was last shown, and your AIs can read one only if you turn that on.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-screens-in-your-ai": {
+    "src": "whats-new-2026-10-03-screens-in-your-ai.webp",
+    "alt": "Connect your AI here: Connect ChatGPT or Claude on this screen. Once it is connected, ask it to show you any Trillion screen.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-scroll-any-direction": {
+    "src": "whats-new-2026-10-03-scroll-any-direction.webp",
+    "alt": "Scroll any way: You can scroll up, down, sideways or diagonally. A list scrolls first, and once it reaches its end, the scroll moves your panes. Pinch, or hold Ctrl and scroll, to zoom out and see them all.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-search-inside-documents": {
+    "src": "whats-new-2026-10-03-search-inside-documents.webp",
+    "alt": "Ask it here or in any AI: Type a question in the Files search. Your AIs ask the same search through Trillion, and each answer comes with a link that opens the file.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-sends-from-your-mac": {
+    "src": "whats-new-2026-10-03-sends-from-your-mac.webp",
+    "alt": "Your connections reach their service: When Substack says no to Trillion's servers, the same draft goes out over your Mac's own internet connection while Trillion is running there. It lands in your Substack drafts for you to read, and nothing is published until you approve it.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-share-sheet-choices": {
+    "src": "whats-new-2026-10-03-share-sheet-choices.webp",
+    "alt": "Arrives with the next iPhone update: The App Store update brings it to your phone. Trillion on your devices has the iPhone app and the Mac app.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-sidebar-above-keyboard": {
+    "src": "whats-new-2026-10-03-sidebar-above-keyboard.webp",
+    "alt": "Your sidebar stays above the keyboard: Tap into any box to type, then open the sidebar. Its list ends where the keyboard begins, never under it.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-sidebar-anywhere": {
+    "src": "whats-new-2026-10-03-sidebar-anywhere.webp",
+    "alt": "Drag the sidebar by its grip: Drop it on the line between two panes and it turns into a thin bar there, running down or across. Drop it anywhere else and it folds into a small handle that opens it when you need it. Icons that do not fit go under More, where you can also set how many show. Add an Empty space row to push icons apart.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-site-canvas": {
+    "src": "whats-new-2026-10-03-site-canvas.webp",
+    "alt": "Pick a site by its name: Each site is listed once by name, with live ones first. Domains and adding a new site sit just below, folded away until you need them.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-stay-signed-in": {
+    "src": "whats-new-2026-10-03-stay-signed-in.webp",
+    "alt": "After you connect an account: When you sign in to Gmail, Facebook or another service from Connections, the page that says it is connected offers Open Trillion to bring you back here, and Close this tab.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-storage-included": {
+    "src": "whats-new-2026-10-03-storage-included.webp",
+    "alt": "See how much you keep now: This month shows how much you keep. If you already pay, nothing changes until your next renewal.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-table-scrolls-to-top": {
+    "src": "whats-new-2026-10-03-table-scrolls-to-top.webp",
+    "alt": "Tables in a narrow pane scroll back to the top: A table in a narrow pane now scrolls all the way back up to its top, so you no longer need to resize the pane.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-task-tree": {
+    "src": "whats-new-2026-10-03-task-tree.webp",
+    "alt": "Tasks inside tasks: Give a list a field that links to the list itself, then open Tree. You can add a sub-task under any task, tick it done or rename it in place. Drag a task onto another to put it inside, or above or below one to put it beside it, and it stays that way when you come back.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-tell-us": {
+    "src": "whats-new-2026-10-03-tell-us.webp",
+    "alt": "Tell us: It sits above Start, so it is there whenever something comes up.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-thin-sidebar-bar": {
+    "src": "whats-new-2026-10-03-thin-sidebar-bar.webp",
+    "alt": "A thin bar, wherever it sits: When it is collapsed on any edge or between two panes, the sidebar is a slim bar of icons. Open it and its list shows as a column you can read, even on a phone. It keeps the same gap from the edge and the same rounded corners as your panes.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-things-keep-running": {
+    "src": "whats-new-2026-10-03-things-keep-running.webp",
+    "alt": "If it stops again, one of your AIs fixes it: If something stops again after Trillion starts it, one of your AIs gets the job to fix it, and you get one notice saying so.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-tours-do-it-with-you": {
+    "src": "whats-new-2026-10-03-tours-do-it-with-you.webp",
+    "alt": "Find a file: Press Search for me and the tour types into the real search.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-tours-open-the-screen": {
+    "src": "whats-new-2026-10-03-tours-open-the-screen.webp",
+    "alt": "Every tour is kept here: Take any tour again from Tours. Each one opens the screens it shows you.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-uploads-go-together": {
+    "src": "whats-new-2026-10-03-uploads-go-together.webp",
+    "alt": "Drop a whole folder here: Trillion speeds up while it keeps up and eases off when it is busy, so every file finishes as soon as it can.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-video-editor": {
+    "src": "whats-new-2026-10-03-video-editor.webp",
+    "alt": "Start from three clips: Media suggests three of your recordings. Point at a picture to watch it, then press Edit these. The editor opens at once with the clips on the timeline.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-video-stills": {
+    "src": "whats-new-2026-10-03-video-stills.webp",
+    "alt": "Open Media: Each video shows a still from its first moments. Point at one to scrub through it.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-visual-tuning": {
+    "src": "whats-new-2026-10-03-visual-tuning.webp",
+    "alt": "Style a page the same way: In Public apps, choose part of a page: its colours, text size, pursuit inside and corners are the same controls, and the canvas changes as you drag.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-what-trillion-figured-out": {
+    "src": "whats-new-2026-10-03-what-trillion-figured-out.webp",
+    "alt": "Where you are heading: It shows your trajectory and your values, passions, skills and goals. For each pursuit it sees, it says whether it is worth it for you and good for people, and whether what you are doing right now is on your path.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-work-map": {
+    "src": "whats-new-2026-10-03-work-map.webp",
+    "alt": "Work map: Each card takes its colour from where it is: stuck, being worked on, waiting or done, and shows how much of the work under it is done. Pick one goal above the map to start from it and see where to go now. Tap a card to open it.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-workflow-variations": {
+    "src": "whats-new-2026-10-03-workflow-variations.webp",
+    "alt": "Corrections that stick: Tell your AI what it got wrong and it can run Turn a correction into workflows: it fixes the work, then keeps each fix as a workflow every AI can find. Four more come with it: Put it where it belongs, Keep what you find in your lists, Port a screen without losing anything, and Same abilities on every device.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-x-bookmarks-and-likes": {
+    "src": "whats-new-2026-10-03-x-bookmarks-and-likes.webp",
+    "alt": "New ones keep arriving: Once X is connected, Trillion reads new bookmarks and likes every 30 minutes and hands each one to your rules.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-your-ai-does-it": {
+    "src": "whats-new-2026-10-03-your-ai-does-it.webp",
+    "alt": "One press: Press Have Claude do this (or whichever AI you connected) under Decisions, Formats, Marketplace, Automations, Workshop or Pursuits when they are empty, or Have Claude fix this when something fails. It starts on the job and you see it in AI work when it is done.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-03-your-members-are-yours": {
+    "src": "whats-new-2026-10-03-your-members-are-yours.webp",
+    "alt": "Charge your members yourself: Sell a membership with Sales contracts on your own Stripe. The money is yours, and what they bought opens only your community.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-04-apply-an-article": {
+    "src": "whats-new-2026-10-04-apply-an-article.webp",
+    "alt": "Make this mine: It starts on Make this mine. Your AI reads what you are pursuing, finds where the piece fits, says it in one line and does the first step. You can pick another action or add a note before you send, and any page link works the same way.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-04-mac-app-store": {
+    "src": "whats-new-2026-10-04-mac-app-store.webp",
+    "alt": "Until then, it is here: The Mac app is already in Trillion on your devices. Once Apple approves it, the Mac App Store has it too and updates it for you.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-04-microphone-heard-between-reads": {
+    "src": "whats-new-2026-10-04-microphone-heard-between-reads.webp",
+    "alt": "Record audio: The warning that Trillion hears nothing now shows only when your microphone really is silent or muted.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-04-one-look-every-device": {
+    "src": "whats-new-2026-10-04-one-look-every-device.webp",
+    "alt": "Arrives with the next iPhone update: The App Store update brings it to your phone. Trillion on your devices has the iPhone app, the Mac app and Chrome.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-04-posts-play-their-video": {
+    "src": "whats-new-2026-10-04-posts-play-their-video.webp",
+    "alt": "Watch it, then approve it: Each post shows its video as its picture, and Cards lays them out as a wall. Open one and its video plays beside the words, with Approve right above it.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-04-take-someone-out-of-a-space": {
+    "src": "whats-new-2026-10-04-take-someone-out-of-a-space.webp",
+    "alt": "Open the pursuit, then the person: In one of your pursuits, open a person's row and choose Take out of this pursuit. Your AI can do it too when you ask.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-04-your-ai-keeps-working": {
+    "src": "whats-new-2026-10-04-your-ai-keeps-working.webp",
+    "alt": "Told once, with what to do: You get one notice naming the service and exactly what fixes it, such as adding credit. Once it answers again, it goes back in line.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-05-files-at-memory-speed": {
+    "src": "whats-new-2026-10-05-files-at-memory-speed.webp",
+    "alt": "Your files in Finder under Trillion: a folder of recordings with their transcripts, including a 40.54 GB video, opened in place on a Mac.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-05-ask-trillion-from-siri": {
+    "src": "whats-new-2026-10-05-ask-trillion-from-siri.webp",
+    "alt": "Ask Trillion from Siri, Spotlight and Shortcuts: typing Ask Trillion in Spotlight on an iPhone shows Ask Trillion as the top hit.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-05-screenshot-opens-trillion": {
+    "src": "whats-new-2026-10-05-screenshot-opens-trillion.webp",
+    "alt": "A screenshot on your Mac goes straight to Trillion: the menu bar panel opens with the screenshot attached under Message your AIs.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-05-mark-up-from-chrome": {
+    "src": "whats-new-2026-10-05-mark-up-from-chrome.webp",
+    "alt": "Mark up a page before you send it from Chrome: the picture of a page with a red box and a pen line drawn on it, and the pen, shapes and colours above it.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-05-menu-bar-panel-arranged": {
+    "src": "whats-new-2026-10-05-menu-bar-panel-arranged.webp",
+    "alt": "The menu bar panel: Now with the greeting, the message box to all your AIs, what waits for you and what your AIs are working on, then the Notifications and Your tray tabs.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-05-open-any-file-with-trillion": {
+    "src": "whats-new-2026-10-05-open-any-file-with-trillion.webp",
+    "alt": "Open any file with Trillion: the menu bar panel with Launch plan.pdf attached in Message your AIs, ready to send.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-05-attach-files-from-chrome": {
+    "src": "whats-new-2026-10-05-attach-files-from-chrome.webp",
+    "alt": "Attach files in Send to Trillion: two files ready to send in the Attach files window, and the popup listing them under Sending.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-06-siri-never-loses-what-you-said": {
+    "src": "whats-new-2026-10-06-siri-never-loses-what-you-said.webp",
+    "alt": "Siri keeps what you say: on the iPhone, a hand-off answered \"Sent to your AIs\" while Trillion was out of reach, and the same job in AI work once Trillion answered.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-06-extension-pages-carry-only-what-they-use": {
+    "src": "whats-new-2026-10-06-extension-pages-carry-only-what-they-use.webp",
+    "alt": "Send to Trillion 1.3.1: the signed-in popup with two attached files kept, the Mark up page drawing on a picture, and each page's size beside its old size.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-06-chrome-web-store-connection": {
+    "src": "whats-new-2026-10-06-chrome-web-store-connection.webp",
+    "alt": "Connections in Trillion with Chrome Web Store and its Connect button, marked: connect once and Trillion checks the review and publishes new versions.",
+    "width": 1280,
+    "height": 800
+  },
+  "whats-new-2026-10-06-schedules-every-few-hours": {
+    "src": "whats-new-2026-10-06-schedules-every-few-hours.webp",
+    "alt": "Automations in Trillion with two schedules marked: one every hour from 00:23 and one every 15 minutes, each with its next run.",
+    "width": 1280,
+    "height": 800
+  }
+}

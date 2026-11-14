@@ -1,0 +1,307 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-draw-over-anything",
+  "revision": 2,
+  "order": 10,
+  "title": "New: Draw over anything",
+  "summary": "You can draw over one pane or the whole screen again, from the … menu of any pane, to point things out.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-draw-over-anything",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T21:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-draw-over-anything"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You can draw over anything again",
+          "body": "Draw over one pane or the whole screen, sidebar included, in any colour, with lines, boxes and circles. Try it now."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Let's draw"
+          }
+        ]
+      }
+    },
+    {
+      "id": "open-more",
+      "content": {
+        "content_kind": "interactive-gate",
+        "payload": {
+          "title": "Press …",
+          "body": "Every pane keeps its drawing tools in its … menu.",
+          "gesture_hint": "Press … to go on"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "button[aria-label=\"More for this pane\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 12
+      },
+      "advance_condition": {
+        "op": "target-interacted"
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          }
+        ]
+      }
+    },
+    {
+      "id": "open-draw",
+      "content": {
+        "content_kind": "interactive-gate",
+        "payload": {
+          "title": "Point at Draw",
+          "body": "Draw opens its choices beside the menu.",
+          "gesture_hint": "Point at Draw to go on"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-drill-row=\"draw\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 4,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "left",
+        "auto_flip": true,
+        "gap": 12
+      },
+      "advance_condition": {
+        "op": "target-interacted"
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          }
+        ]
+      }
+    },
+    {
+      "id": "choose-screen",
+      "content": {
+        "content_kind": "interactive-gate",
+        "payload": {
+          "title": "Press Draw on the whole screen",
+          "body": "Draw on this pane keeps the drawing with that pane. Draw on the whole screen goes over everything.",
+          "gesture_hint": "Press it to go on"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-draw-row=\"draw-screen\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 4,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "left",
+        "auto_flip": true,
+        "gap": 12
+      },
+      "advance_condition": {
+        "op": "target-interacted"
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          }
+        ]
+      }
+    },
+    {
+      "id": "draw-now",
+      "content": {
+        "content_kind": "interactive-gate",
+        "payload": {
+          "title": "Draw anything you like",
+          "body": "Circle something, underline it or write over the sidebar. Your drawing is kept and stays when you stop.",
+          "gesture_hint": "Draw a line to go on"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-whole-screen-marks]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 0,
+            "radius": 0
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "above",
+        "auto_flip": true,
+        "gap": 12
+      },
+      "advance_condition": {
+        "op": "target-interacted"
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          }
+        ]
+      }
+    },
+    {
+      "id": "toolbar",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Pick colours and shapes, then press Done",
+          "body": "Pick a colour, a line, a box, a circle or the eraser here, and undo takes back the last mark. Done stops drawing, and Hide drawings in … hides them."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-whole-screen-marks] [data-testid=\"mark-toolbar\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "above",
+        "auto_flip": true,
+        "gap": 12
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "point",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Point at anything to change it",
+          "body": "In the same … menu, Point at something to change it, then press anything on the screen. Change every one like it on the spot (its fill, text colour, corners), or say what should change and your AI does it."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "button[aria-label=\"More for this pane\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 12
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

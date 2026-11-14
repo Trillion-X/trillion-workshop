@@ -1,0 +1,188 @@
+{
+ "kind": "walkthrough-definition",
+ "id": "ambience",
+ "revision": 2,
+ "order": 58,
+ "title": "Ambience",
+ "summary": "A moving picture and your lights that follow the sound around you.",
+ "entry_step": "picture",
+ "progress_style": {
+  "style": "segmented"
+ },
+ "triggers": [
+  {
+   "reason": "screen-first-opened",
+   "on_event": {
+    "event_kind": "screen-opened",
+    "match": {
+     "entry": "tool-screen",
+     "tool_id": "tool:screen-ambience"
+    }
+   },
+   "once_key": "ambience",
+   "requires": [
+    {
+     "once_key": "first-run"
+    }
+   ]
+  },
+  {
+   "reason": "replay",
+   "on_event": {
+    "event_kind": "walkthrough-requested",
+    "match": {
+     "walkthrough_id": "ambience"
+    }
+   }
+  }
+ ],
+ "steps": [
+  {
+   "id": "picture",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "It moves with the sound",
+     "body": "The picture follows whatever is playing. Press the arrows to pick another look, and Save as my look keeps one you tuned."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.ambience"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"tool-screen\"] canvas[data-moves-with-sound]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "advance",
+      "label": "Show me"
+     }
+    ]
+   }
+  },
+  {
+   "id": "sound",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Where the sound comes from",
+     "body": "The room, music on this computer, or what plays in Trillion. Connected lights follow it too."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.ambience"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"tool-screen\"] [aria-label=\"Where the sound comes from\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "back",
+      "label": "Back"
+     },
+     {
+      "role": "advance",
+      "label": "Next"
+     }
+    ]
+   }
+  },
+  {
+   "id": "behind",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Put it behind your screens",
+     "body": "Put behind my screens moves this look behind every pane; Take it away removes it."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.ambience"
+    }
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "back",
+      "label": "Back"
+     },
+     {
+      "role": "advance",
+      "label": "Next"
+     }
+    ]
+   }
+  },
+  {
+   "id": "find-again",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Find Ambience again",
+     "body": "Ambience is always in the sidebar. Press it to come back here."
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-sidebar-surface-id=\"trillion.ambience\"], [data-sidebar-open-toggle]"
+   },
+   "placement": {
+    "prefer": "right",
+    "auto_flip": true,
+    "gap": 14
+   }
+  }
+ ]
+}

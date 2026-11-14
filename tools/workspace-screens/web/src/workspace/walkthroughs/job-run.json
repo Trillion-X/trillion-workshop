@@ -1,0 +1,86 @@
+{
+ "kind": "walkthrough-definition",
+ "id": "job-run",
+ "revision": 1,
+ "order": 59,
+ "title": "Work being done",
+ "summary": "One job an AI is doing: its steps, what it said and what it made.",
+ "entry_step": "intro",
+ "progress_style": {
+  "style": "segmented"
+ },
+ "triggers": [
+  {
+   "reason": "screen-first-opened",
+   "on_event": {
+    "event_kind": "screen-opened",
+    "match": {
+     "entry": "job-run"
+    }
+   },
+   "once_key": "job-run",
+   "requires": [
+    {
+     "once_key": "first-run"
+    }
+   ]
+  },
+  {
+   "reason": "replay",
+   "on_event": {
+    "event_kind": "walkthrough-requested",
+    "match": {
+     "walkthrough_id": "job-run"
+    }
+   }
+  }
+ ],
+ "steps": [
+  {
+   "id": "intro",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "One piece of work",
+     "body": "This shows who is doing the work, each step so far and what came out of it. It updates by itself while the work runs."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.job-run"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"job-run\"] h1, [data-trillion-screen=\"job-run\"] h2"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "advance",
+      "label": "Show me"
+     }
+    ]
+   }
+  }
+ ]
+}

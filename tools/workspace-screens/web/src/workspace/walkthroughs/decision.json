@@ -1,0 +1,121 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "decision",
+  "revision": 2,
+  "order": 24,
+  "title": "Decision",
+  "summary": "You can see what was decided, how it turned out, the notes on it and how it was worked through.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": {
+        "event_kind": "screen-opened",
+        "match": {
+          "entry": "guide",
+          "screen": "decision"
+        }
+      },
+      "once_key": "decision",
+      "requires": [
+        {
+          "once_key": "first-run"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "decision"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Everything about one decision",
+          "body": "Read what was decided, how it turned out and the notes on it, then follow how it was worked through."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.decision"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"decision\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "answer",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "This decision",
+          "body": "Here you see what was decided, why, and what happens next. When a question is waiting for you, answer it here."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.decision"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"decision\"] .guide-section"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

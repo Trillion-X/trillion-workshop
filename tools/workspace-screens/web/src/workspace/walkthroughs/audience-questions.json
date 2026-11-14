@@ -1,0 +1,148 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "audience-questions",
+  "revision": 2,
+  "order": 25,
+  "title": "Audience questions",
+  "summary": "You can check the real questions your audience asked, look at where each answer comes from and keep the ones you approve for your private drafts.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": {
+        "event_kind": "screen-opened",
+        "match": {
+          "entry": "audience-questions"
+        }
+      },
+      "once_key": "audience-questions",
+      "requires": [
+        {
+          "once_key": "first-run"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "audience-questions"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Work from your audience's real questions",
+          "body": "Check the real questions your audience asks and the sources behind each answer. Keep the ones you approve for your private drafts."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.audience-questions"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"audience-questions\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "questions",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Questions people asked",
+          "body": "The questions you checked and kept show here, with the sources your answers come from."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.audience-questions"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"audience-questions\"] .guide-rows, [data-trillion-screen=\"audience-questions\"] .record-views-bar, [data-trillion-screen=\"audience-questions\"] .screen-state-actions button"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "find-again",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Find Audience questions again",
+          "body": "Open Audience questions from the menu whenever you need it."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-surface-id=\"trillion.audience-questions\"], [data-sidebar-open-toggle]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ]
+}

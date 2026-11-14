@@ -1,0 +1,87 @@
+{
+ "kind": "walkthrough-definition",
+ "id": "clients",
+ "revision": 1,
+ "order": 52,
+ "title": "Clients",
+ "summary": "The people in your programs and where each one is.",
+ "entry_step": "intro",
+ "progress_style": {
+  "style": "segmented"
+ },
+ "triggers": [
+  {
+   "reason": "screen-first-opened",
+   "on_event": {
+    "event_kind": "screen-opened",
+    "match": {
+     "entry": "guide",
+     "screen": "clients"
+    }
+   },
+   "once_key": "clients",
+   "requires": [
+    {
+     "once_key": "first-run"
+    }
+   ]
+  },
+  {
+   "reason": "replay",
+   "on_event": {
+    "event_kind": "walkthrough-requested",
+    "match": {
+     "walkthrough_id": "clients"
+    }
+   }
+  }
+ ],
+ "steps": [
+  {
+   "id": "intro",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Everyone you work with",
+     "body": "Each person in your programs, with where they are and what they need next."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.clients"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"clients\"] .guide-title, [data-trillion-screen=\"clients\"] .guide-header"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "advance",
+      "label": "Show me"
+     }
+    ]
+   }
+  }
+ ]
+}

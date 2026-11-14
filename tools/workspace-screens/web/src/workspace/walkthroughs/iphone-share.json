@@ -1,0 +1,179 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "iphone-share",
+  "revision": 1,
+  "order": 3,
+  "title": "Share to Trillion from your iPhone",
+  "summary": "Put Trillion first in your iPhone's Share sheet, then send anything to it in two taps.",
+  "entry_step": "01-share-button",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "iphone-share"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "01-share-button",
+      "content": {
+        "content_kind": "picture",
+        "payload": {
+          "title": "Tap Share",
+          "body": "Open a photo, a page in Safari or a reel. Tap Share, the square with the arrow pointing up.",
+          "picture": {
+            "src": "/workspace/illustrations/iphone-share-01-share-button.webp",
+            "alt": "Tap Share"
+          }
+        }
+      }
+    },
+    {
+      "id": "02-app-row",
+      "content": {
+        "content_kind": "picture",
+        "payload": {
+          "title": "Look at the row of apps",
+          "body": "The Share sheet opens. Under the picture is a row of apps. If you do not see More at its end, swipe the row to the left.",
+          "picture": {
+            "src": "/workspace/illustrations/iphone-share-02-app-row.webp",
+            "alt": "Look at the row of apps"
+          }
+        }
+      }
+    },
+    {
+      "id": "03-more",
+      "content": {
+        "content_kind": "picture",
+        "payload": {
+          "title": "Tap More",
+          "body": "More is the circle with three dots at the end of the row.",
+          "picture": {
+            "src": "/workspace/illustrations/iphone-share-03-more.webp",
+            "alt": "Tap More"
+          }
+        }
+      }
+    },
+    {
+      "id": "04-edit",
+      "content": {
+        "content_kind": "picture",
+        "payload": {
+          "title": "Tap Edit",
+          "body": "Edit is at the top right of the list of apps.",
+          "picture": {
+            "src": "/workspace/illustrations/iphone-share-04-edit.webp",
+            "alt": "Tap Edit"
+          }
+        }
+      }
+    },
+    {
+      "id": "05-plus",
+      "content": {
+        "content_kind": "picture",
+        "payload": {
+          "title": "Tap the green plus next to Trillion",
+          "body": "Trillion is under Suggestions. The plus moves it up into Favorites.",
+          "picture": {
+            "src": "/workspace/illustrations/iphone-share-05-plus.webp",
+            "alt": "Tap the green plus next to Trillion"
+          }
+        }
+      }
+    },
+    {
+      "id": "06-favorites",
+      "content": {
+        "content_kind": "picture",
+        "payload": {
+          "title": "Put Trillion first",
+          "body": "Trillion is now in Favorites. If other apps are there too, hold the three lines beside Trillion and drag it to the top.",
+          "picture": {
+            "src": "/workspace/illustrations/iphone-share-06-favorites.webp",
+            "alt": "Put Trillion first"
+          }
+        }
+      }
+    },
+    {
+      "id": "07-done",
+      "content": {
+        "content_kind": "picture",
+        "payload": {
+          "title": "Tap the check",
+          "body": "Tap the blue check at the top right to finish. You only do this once.",
+          "picture": {
+            "src": "/workspace/illustrations/iphone-share-07-done.webp",
+            "alt": "Tap the check"
+          }
+        }
+      }
+    },
+    {
+      "id": "08-trillion-first",
+      "content": {
+        "content_kind": "picture",
+        "payload": {
+          "title": "Tap Trillion",
+          "body": "From now on Trillion is first in the row every time you tap Share. Tap it.",
+          "picture": {
+            "src": "/workspace/illustrations/iphone-share-08-trillion-first.webp",
+            "alt": "Tap Trillion"
+          }
+        }
+      }
+    },
+    {
+      "id": "09-sheet",
+      "content": {
+        "content_kind": "picture",
+        "payload": {
+          "title": "Choose where it goes and what your AI should do",
+          "body": "Send to says My Trillion. Under What should your AI do, pick one of your actions. If you are not sure, No clue, you figure it out always works.",
+          "picture": {
+            "src": "/workspace/illustrations/iphone-share-09-sheet.webp",
+            "alt": "Choose where it goes and what your AI should do"
+          }
+        }
+      }
+    },
+    {
+      "id": "10-send-to",
+      "content": {
+        "content_kind": "picture",
+        "payload": {
+          "title": "Add a note if you want",
+          "body": "Type what you want your AI to know, for example: Why do the first 3 seconds hold me? Make my next reel open like this.",
+          "picture": {
+            "src": "/workspace/illustrations/iphone-share-10-send-to.webp",
+            "alt": "Add a note if you want"
+          }
+        }
+      }
+    },
+    {
+      "id": "11-sent",
+      "content": {
+        "content_kind": "picture",
+        "payload": {
+          "title": "Tap Send to My Trillion",
+          "body": "The sheet closes once Trillion has it, and your AI picks it up from there.",
+          "picture": {
+            "src": "/workspace/illustrations/iphone-share-11-sent.webp",
+            "alt": "Tap Send to My Trillion"
+          }
+        }
+      }
+    }
+  ]
+}

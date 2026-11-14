@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-02-record-audio",
+  "revision": 1,
+  "order": 4,
+  "title": "New: Record audio has its own screen",
+  "summary": "You can record audio on its own screen, watch the waveform as you speak and find every recording in one list.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-02-record-audio",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T05:15:16Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-02-record-audio"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You have your own audio recorder now",
+          "body": "Record audio and Record video now have screens of their own, beside Write and Draw."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "record-audio",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Record audio",
+          "body": "Record while you watch the live waveform, pause and pick up again, or bring in an audio file. Every recording sits in one list you can rename, sort into a board or see on a timeline. Each one also goes to your Files and your AI."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"record-audio\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.record-audio"
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

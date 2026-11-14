@@ -1,0 +1,203 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "media",
+  "revision": 2,
+  "order": 21,
+  "title": "Media",
+  "summary": "You can search what is said in your recordings and in what your tools made, and see what to make next.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": {
+        "event_kind": "screen-opened",
+        "match": {
+          "entry": "tool-screen",
+          "tool_id": "tool:screen-media"
+        }
+      },
+      "once_key": "media",
+      "requires": [
+        {
+          "once_key": "first-run"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "media"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your recordings and what your tools made",
+          "body": "Your recordings and everything your tools made are here. Search what is said in them and see what to make next."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.media"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tool-screen\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "search",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Search what was said",
+          "body": "Once you have recordings, type a word here to find the moment someone said it."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.media"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tool-screen\"] .record-views-search"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true,
+      "act": {
+        "do": "type",
+        "text": "meeting"
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "back",
+            "label": "Back"
+          },
+          {
+            "role": "advance",
+            "label": "Search for me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "views",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Choose how they look",
+          "body": "See your recordings as a list, a table, cards or a board."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.media"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tool-screen\"] [role=\"radiogroup\"][aria-label=\"View\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "find-again",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Find Media again",
+          "body": "Open Media from the menu whenever you need it."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-surface-id=\"trillion.media\"], [data-sidebar-open-toggle]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ]
+}

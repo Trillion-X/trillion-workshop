@@ -1,0 +1,121 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "controls",
+  "revision": 1,
+  "order": 45,
+  "title": "Controls",
+  "summary": "Adjust what your AI made, see its preview and keep the result when it is ready.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": {
+        "event_kind": "screen-opened",
+        "match": {
+          "entry": "tool-screen",
+          "tool_id": "tool:screen-controls"
+        }
+      },
+      "once_key": "controls",
+      "requires": [
+        {
+          "once_key": "first-run"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "controls"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Adjust what you asked for",
+          "body": "Ask your AI to make controls for what you want to adjust. Open the controls it gives you to see the preview and available settings."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.controls"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"controls\"]"
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "preview",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "See each change",
+          "body": "Move a control to change the preview. Some changes can only be seen in the full copy; the preview tells you when."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.controls"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"controls\"] [data-controls-preview]"
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "history",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Go back or start again",
+          "body": "Undo and Redo step through your changes. Reset returns the controls to their starting settings."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.controls"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"controls\"] [data-controls-undo]"
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "keep",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Keep the result",
+          "body": "Your settings are saved after you change them. If this interface offers a keep button, press it when you are ready to run the tool and keep its result. Moving a control does not run the tool."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.controls"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"controls\"] [data-controls-keep]"
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

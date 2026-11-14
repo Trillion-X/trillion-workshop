@@ -1,0 +1,136 @@
+{
+ "kind": "walkthrough-definition",
+ "id": "catch-up",
+ "revision": 1,
+ "order": 43,
+ "title": "Your devices",
+ "summary": "Whether every phone and computer you use has caught up with your latest changes.",
+ "entry_step": "state",
+ "progress_style": {
+  "style": "segmented"
+ },
+ "triggers": [
+  {
+   "reason": "screen-first-opened",
+   "on_event": {
+    "event_kind": "screen-opened",
+    "match": {
+     "entry": "catch-up"
+    }
+   },
+   "once_key": "catch-up",
+   "requires": [
+    {
+     "once_key": "first-run"
+    }
+   ]
+  },
+  {
+   "reason": "replay",
+   "on_event": {
+    "event_kind": "walkthrough-requested",
+    "match": {
+     "walkthrough_id": "catch-up"
+    }
+   }
+  }
+ ],
+ "steps": [
+  {
+   "id": "state",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Are you caught up?",
+     "body": "This says at a glance whether a change is still waiting to be sent. Waiting changes go out by themselves."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.catch-up"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"catch-up\"] [data-catch-up-head]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "advance",
+      "label": "Show me"
+     }
+    ]
+   }
+  },
+  {
+   "id": "devices",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Each device you use",
+     "body": "Every phone and computer signed in to Trillion, and when it last caught up."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.catch-up"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"catch-up\"] [data-catch-up-devices]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "back",
+      "label": "Back"
+     },
+     {
+      "role": "advance",
+      "label": "Next"
+     }
+    ]
+   }
+  }
+ ]
+}

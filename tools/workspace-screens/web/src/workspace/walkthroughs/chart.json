@@ -1,0 +1,54 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "chart",
+  "revision": 1,
+  "order": 51,
+  "title": "Chart",
+  "summary": "Read a chart from a list or reading, then choose another view when it is offered.",
+  "entry_step": "read",
+  "progress_style": { "style": "segmented" },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": { "event_kind": "screen-opened", "match": { "entry": "tool-screen", "tool_id": "tool:screen-chart" } },
+      "once_key": "chart",
+      "requires": [{ "once_key": "first-run" }]
+    },
+    {
+      "reason": "replay",
+      "on_event": { "event_kind": "walkthrough-requested", "match": { "walkthrough_id": "chart" } }
+    }
+  ],
+  "steps": [
+    {
+      "id": "read",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Read this chart",
+          "body": "This chart draws the list or reading named by this piece. Point to a mark to see its value. When a mark offers a closer view, press it to open that view."
+        }
+      },
+      "target_preparation": { "surface": { "id": "trillion.chart" } },
+      "target_ref": { "from": "selector", "query": "[data-trillion-screen=\"chart\"]" },
+      "centered_when_target_missing": true,
+      "cutout": { "shapes": [{ "shape": "rounded-rect", "padding": 6, "radius": 10 }] },
+      "placement": { "prefer": "below", "auto_flip": true, "gap": 14 },
+      "nav": { "buttons": [{ "role": "skip", "label": "Skip" }, { "role": "advance", "label": "Next" }] }
+    },
+    {
+      "id": "choose",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Choose what you see",
+          "body": "When this reading offers more than one chart, use Chart to switch between them. Each placed chart keeps the view you chose."
+        }
+      },
+      "target_preparation": { "surface": { "id": "trillion.chart" } },
+      "target_ref": { "from": "selector", "query": "[data-trillion-screen=\"chart\"] [aria-label=\"Chart\"]" },
+      "centered_when_target_missing": true,
+      "placement": { "prefer": "below", "auto_flip": true, "gap": 14 }
+    }
+  ]
+}

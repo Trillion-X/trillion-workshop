@@ -1,0 +1,50 @@
+{
+  "_what": "The workspace's words for every tour (parts/guided-overlay, the host mounted in main.tsx), and the facts a tour step may wait on. end_label names the control on every step that ends the whole tour (Skip only moves past one step). closing_step is the one step shown when a tour is ended before its last step: it points at where every tour is kept, so the person knows where to take it again. more_waiting is the button a card carries when other tours wait behind it ({count} is how many): it opens Waiting tours, where each can be shown, hidden for a while, or dismissed. readbacks names, for each fact a step's owner-readback condition reads (readback_ref), the address that answers it; ai-connection.ts reads the same row.",
+  "end_label": "End tour",
+  "closing_step": {
+    "id": "tours-are-always-here",
+    "content": {
+      "content_kind": "text",
+      "payload": {
+        "title": "Take any tour again from Tours"
+      }
+    },
+    "target_ref": {
+      "from": "selector",
+      "query": "[data-sidebar-surface-id=\"trillion.tours\"], [data-sidebar-open-toggle]"
+    },
+    "cutout": {
+      "shapes": [
+        {
+          "shape": "rounded-rect",
+          "padding": 6,
+          "radius": 10
+        }
+      ]
+    },
+    "placement": {
+      "prefer": "right",
+      "auto_flip": true,
+      "gap": 14
+    },
+    "centered_when_target_missing": true,
+    "nav": {
+      "buttons": [
+        {
+          "role": "done",
+          "label": "Got it"
+        }
+      ]
+    }
+  },
+  "more_waiting": {
+    "role": "waiting",
+    "label": "{count} more waiting",
+    "perform": { "target": "workspace.open-screen", "operation": "open", "params": { "id": "trillion.waiting-tours", "input": { "queue_only": true }, "title": "Waiting tours" } }
+  },
+  "readbacks": {
+    "ai-connection": {
+      "url": "/work/api/ai-connection"
+    }
+  }
+}

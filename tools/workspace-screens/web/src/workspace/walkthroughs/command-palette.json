@@ -1,0 +1,140 @@
+{
+ "kind": "walkthrough-definition",
+ "id": "command-palette",
+ "revision": 1,
+ "order": 40,
+ "title": "Find anything",
+ "summary": "Search every screen, file and thing you keep from one box, or ask your AI from it.",
+ "entry_step": "box",
+ "progress_style": {
+  "style": "segmented"
+ },
+ "triggers": [
+  {
+   "reason": "screen-first-opened",
+   "on_event": {
+    "event_kind": "screen-opened",
+    "match": {
+     "entry": "command-palette"
+    }
+   },
+   "once_key": "command-palette",
+   "requires": [
+    {
+     "once_key": "first-run"
+    }
+   ]
+  },
+  {
+   "reason": "replay",
+   "on_event": {
+    "event_kind": "walkthrough-requested",
+    "match": {
+     "walkthrough_id": "command-palette"
+    }
+   }
+  }
+ ],
+ "steps": [
+  {
+   "id": "box",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Type what you are looking for",
+     "body": "A screen, a file, a person, a decision: start typing and the closest ones show first."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.command-palette"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"command-palette\"] input[role=\"combobox\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "act": {
+    "do": "type",
+    "text": "files"
+   },
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "advance",
+      "label": "Search for me"
+     }
+    ]
+   }
+  },
+  {
+   "id": "results",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Press one to open it",
+     "body": "Use the arrow keys and Return, or press a row. Cmd K opens this box from anywhere."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.command-palette"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"command-palette\"] [role=\"listbox\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "back",
+      "label": "Back"
+     },
+     {
+      "role": "advance",
+      "label": "Next"
+     }
+    ]
+   }
+  }
+ ]
+}

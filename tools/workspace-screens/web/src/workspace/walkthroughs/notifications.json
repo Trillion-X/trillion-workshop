@@ -1,0 +1,136 @@
+{
+ "kind": "walkthrough-definition",
+ "id": "notifications",
+ "revision": 1,
+ "order": 41,
+ "title": "Notifications",
+ "summary": "What happened while you were away, and what is waiting for you.",
+ "entry_step": "intro",
+ "progress_style": {
+  "style": "segmented"
+ },
+ "triggers": [
+  {
+   "reason": "screen-first-opened",
+   "on_event": {
+    "event_kind": "screen-opened",
+    "match": {
+     "entry": "notifications"
+    }
+   },
+   "once_key": "notifications",
+   "requires": [
+    {
+     "once_key": "first-run"
+    }
+   ]
+  },
+  {
+   "reason": "replay",
+   "on_event": {
+    "event_kind": "walkthrough-requested",
+    "match": {
+     "walkthrough_id": "notifications"
+    }
+   }
+  }
+ ],
+ "steps": [
+  {
+   "id": "intro",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Everything that needs you",
+     "body": "Your AIs, your pursuits and Trillion tell you here when something is done or needs an answer."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.notifications"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"notifications\"] [data-slot=\"notification-center\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "advance",
+      "label": "Show me"
+     }
+    ]
+   }
+  },
+  {
+   "id": "filter",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Only what matters now",
+     "body": "Show all, or only what is unread, and mark everything read in one press."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.notifications"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"notifications\"] [role=\"toolbar\"][aria-label=\"Notification actions\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "back",
+      "label": "Back"
+     },
+     {
+      "role": "advance",
+      "label": "Next"
+     }
+    ]
+   }
+  }
+ ]
+}

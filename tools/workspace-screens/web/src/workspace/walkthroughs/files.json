@@ -1,0 +1,218 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "files",
+  "revision": 1,
+  "order": 3,
+  "title": "Files",
+  "summary": "You can upload, find and open all your files here.",
+  "entry_step": "upload",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": {
+        "event_kind": "screen-opened",
+        "match": {
+          "entry": "tool-screen",
+          "tool_id": "tool:screen-files"
+        }
+      },
+      "once_key": "files",
+      "requires": [
+        {
+          "once_key": "first-run"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "files"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "upload",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Upload files",
+          "body": "Choose files from your computer here, or drop them anywhere on this screen."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.files"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tool-screen\"] .record-views-bar-actions > button:last-child, [data-trillion-screen=\"tool-screen\"] .trillion-files.kibo-file-dropzone"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true,
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "search",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Find a file",
+          "body": "Once you have files, type part of a name here to find one. The buttons beside it filter, sort and group what you see."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.files"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tool-screen\"] input[aria-label=\"Search files\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true,
+      "act": {
+        "do": "type",
+        "text": "video"
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "back",
+            "label": "Back"
+          },
+          {
+            "role": "advance",
+            "label": "Search for me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "views",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Choose how they look",
+          "body": "See your files as a list, as cards by when they changed, or as a board by kind."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.files"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tool-screen\"] [role=\"radiogroup\"][aria-label=\"View\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "open",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Open a file",
+          "body": "Double-click a file to open it in its own tab. Videos and sound play right there."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.files"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tool-screen\"] table"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "above",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

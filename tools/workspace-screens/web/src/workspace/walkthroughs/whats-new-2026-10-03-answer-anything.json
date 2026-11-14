@@ -1,0 +1,171 @@
+{
+  "kind": "walkthrough-definition",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "id": "whats-new-2026-10-03-answer-anything",
+  "revision": 1,
+  "order": 7,
+  "title": "Answer anything where it is",
+  "summary": "Answer anything where it is: react to a post, comment on the exact words you select on any screen, and rest on a face to see what they wrote and reply there.",
+  "entry_step": "intro",
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-answer-anything",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T06:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-answer-anything"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "React, comment and reply in place",
+          "body": "Answer anything where it is. React to a post with any emoji, picture or GIF link, comment on the exact words you select, and rest on someone's face to see what they wrote and reply right there."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "react",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "React to a post",
+          "body": "Press the smile under any post in a pursuit to react. Everyone in the pursuit sees it, and pressing it again takes it back."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.pursuits"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"spaces\"] .reaction-row, [data-trillion-screen=\"spaces\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      }
+    },
+    {
+      "id": "words",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Comment on the exact words",
+          "body": "Select words anywhere and press Comment. In a pursuit your reply quotes those words for everyone there; anywhere else it goes to your AIs with the words you pointed at."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"spaces\"] .thread-body, [data-trillion-screen=\"spaces\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.pursuits"
+        }
+      }
+    },
+    {
+      "id": "faces",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Rest on a face",
+          "body": "Rest on someone's face to see their name and how many posts they wrote here. Rest on that line to list them, and on one to read it, react and reply without leaving."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"spaces\"] .person-hover-trigger, [data-trillion-screen=\"spaces\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 12
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.pursuits"
+        }
+      }
+    }
+  ]
+}

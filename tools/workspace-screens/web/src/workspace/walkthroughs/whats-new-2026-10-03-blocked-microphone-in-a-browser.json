@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-blocked-microphone-in-a-browser",
+  "revision": 1,
+  "order": 5,
+  "title": "New: Recording says where the microphone is blocked",
+  "summary": "When a browser blocks the microphone or camera, Record audio and Record video say so and show the site setting to turn back on, not your Mac's settings.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-blocked-microphone-in-a-browser",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T23:50:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-blocked-microphone-in-a-browser"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "When the browser blocks the microphone",
+          "body": "Recording says where the microphone is blocked."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "record-audio",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Record audio",
+          "body": "If your browser blocks the microphone, this says so and shows where to allow it: the icon left of the address. In the Mac app it points to your Mac's settings."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"record-audio\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.record-audio"
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

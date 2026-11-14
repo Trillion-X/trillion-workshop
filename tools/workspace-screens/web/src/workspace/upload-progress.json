@@ -1,0 +1,11 @@
+{
+  "_what": "How an upload tells the truth about how far along it is, and when it tries again (upload-progress.mjs). Bytes sent fill only `parts_share` of the bar (a share, 0 to 1): the rest is for the server to finish keeping the file, which is not done when the last byte is sent. While the server finishes, the bar rises to the end over `finish_ms` and not before the server says it is stored. Only a dropped connection or a server error (`retry_from_status` and above, or a status `retry_also` names) is tried again, `attempts` times in all, waiting `base_ms` doubled each time plus up to `jitter_ms`; a refusal (any other status) is final and goes straight to the person in the server's own words. `outcomes` name the typed results an upload ends in.",
+  "parts_share": 0.9,
+  "finish_ms": 5000,
+  "retry_from_status": 500,
+  "retry_also": [408, 429],
+  "attempts": 3,
+  "base_ms": 1000,
+  "jitter_ms": 250,
+  "outcomes": ["completed", "failed", "cancelled", "refused"]
+}

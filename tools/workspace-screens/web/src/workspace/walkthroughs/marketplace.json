@@ -1,0 +1,237 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "marketplace",
+  "revision": 1,
+  "order": 48,
+  "title": "Marketplace",
+  "summary": "You can browse everything you and other people made for any AI to use, publish your own for everyone, and take it back whenever you like.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": {
+        "event_kind": "screen-opened",
+        "match": {
+          "entry": "marketplace"
+        }
+      },
+      "once_key": "marketplace",
+      "requires": [
+        {
+          "once_key": "first-run"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "marketplace"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Find what people made for AIs",
+          "body": "Everything you and other people made for any AI to use is here. Publish your own for everyone, or take it back."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.marketplace"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"marketplace\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "kinds",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Pick what to look at",
+          "body": "Switch between kinds of things, like tools, workflows and screens, and between everyone's and your own."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.marketplace"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"marketplace\"] [aria-label=\"Kinds\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "search",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Find anything",
+          "body": "Type and press Enter to search the whole marketplace, not only what is on screen."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.marketplace"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"marketplace\"] .record-views-search"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true,
+      "act": {
+        "do": "type",
+        "text": "video",
+        "commit": "blur"
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "back",
+            "label": "Back"
+          },
+          {
+            "role": "advance",
+            "label": "Search for me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "views",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Publish your own",
+          "body": "A card marked Yours has a Publish button. Publish it and every AI can find it, and Withdraw takes it back."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.marketplace"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"marketplace\"] [data-slot=\"listing-actions\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "find-again",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Find the Marketplace again",
+          "body": "Open the Marketplace from the menu whenever you need it."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-surface-id=\"trillion.marketplace\"], [data-sidebar-open-toggle]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ]
+}

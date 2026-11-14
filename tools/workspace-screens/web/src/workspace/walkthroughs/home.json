@@ -1,0 +1,216 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "home",
+  "revision": 2,
+  "order": 20,
+  "title": "Home",
+  "summary": "You can see where things stand at a glance, with what is waiting for your answer, your numbers over time, recent decisions, your goals and what your AIs did.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": {
+        "event_kind": "screen-opened",
+        "match": {
+          "screen": "home"
+        }
+      },
+      "once_key": "home",
+      "requires": [
+        {
+          "once_key": "first-run"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "home"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "See where things stand",
+          "body": "Home shows what is waiting for your answer, your numbers over time, recent decisions, your goals and what your AIs did."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.home"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"home\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "numbers",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your numbers",
+          "body": "This shows how many free decisions you have left this week and how your decisions add up over time."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.home"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"home\"] .dashboard-stats"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "needs-you",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "What needs you",
+          "body": "Here you see decisions waiting for your answer, what your AI decided, what your AIs did and what you are working toward. See all opens the full list."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.home"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"home\"] [data-board-screen=\"trillion.home.waiting\"], [data-trillion-screen=\"home\"] [data-board-piece]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "above",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "arrange",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Make Home yours",
+          "body": "Point at any part of Home to drag it somewhere else, change its width, swap it for another screen or remove it. Add to Home puts any screen here, including Files or one of your lists."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"home\"] [data-board-add]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 12
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "above",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.home"
+        }
+      }
+    },
+    {
+      "id": "find-again",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Find Home again",
+          "body": "Open Home from the menu whenever you need it."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-surface-id=\"trillion.home\"], [data-sidebar-open-toggle]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ]
+}

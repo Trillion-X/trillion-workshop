@@ -1,0 +1,155 @@
+{
+ "kind": "walkthrough-definition",
+ "id": "ai-work",
+ "revision": 1,
+ "order": 48,
+ "title": "AI work",
+ "summary": "The jobs your AIs handed each other, who has each one and how it ended.",
+ "entry_step": "intro",
+ "progress_style": {
+  "style": "segmented"
+ },
+ "triggers": [
+  {
+   "reason": "screen-first-opened",
+   "on_event": {
+    "event_kind": "screen-opened",
+    "match": {
+     "entry": "ai-work"
+    }
+   },
+   "once_key": "ai-work",
+   "requires": [
+    {
+     "once_key": "first-run"
+    }
+   ]
+  },
+  {
+   "reason": "replay",
+   "on_event": {
+    "event_kind": "walkthrough-requested",
+    "match": {
+     "walkthrough_id": "ai-work"
+    }
+   }
+  }
+ ],
+ "steps": [
+  {
+   "id": "intro",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Work between your AIs",
+     "body": "When one of your AIs asks another to do something, the job shows here with who took it and what it said back."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.ai-work"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"ai-work\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "advance",
+      "label": "Show me"
+     }
+    ]
+   }
+  },
+  {
+   "id": "ideas",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Ideas to start with",
+     "body": "Press an idea to hand that job to your AI."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.ai-work"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"ai-work\"] [data-examples-strip]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "back",
+      "label": "Back"
+     },
+     {
+      "role": "advance",
+      "label": "Next"
+     }
+    ]
+   }
+  },
+  {
+   "id": "find-again",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Find AI work again",
+     "body": "AI work is always in the sidebar. Press it to come back here."
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-sidebar-surface-id=\"trillion.ai-work\"], [data-sidebar-open-toggle]"
+   },
+   "placement": {
+    "prefer": "right",
+    "auto_flip": true,
+    "gap": 14
+   }
+  }
+ ]
+}

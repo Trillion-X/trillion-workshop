@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-formats-as-pages",
+  "revision": 1,
+  "order": 4,
+  "title": "New: Formats show your thought as it would read",
+  "summary": "Formats shows each one as it would read, your thought on top, led by where it goes (X, YouTube, Substack), with tabs for each kind; and there is one Formats.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-formats-as-pages",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T23:10:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-formats-as-pages"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Formats, as they would read",
+          "body": "Formats now shows each one as it would read, with your thought on top."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "formats",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Formats",
+          "body": "Type what you want to talk about and every format shows it as it would read, led by where it goes. Pick a kind at the top to see only those."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"formats\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.formats"
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

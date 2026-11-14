@@ -1,0 +1,121 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "billing",
+  "revision": 1,
+  "order": 39,
+  "title": "Billing",
+  "summary": "Who you pay for, the card each purchase uses, what each part of your deal costs and your usage day by day.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": {
+        "event_kind": "screen-opened",
+        "match": {
+          "entry": "guide",
+          "screen": "billing"
+        }
+      },
+      "once_key": "billing",
+      "requires": [
+        {
+          "once_key": "first-run"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "billing"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "What you pay, at a glance",
+          "body": "How many spots you pay for, what they cost each month, what usage added and how many cards pay for it all."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.billing"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"billing\"] [data-guide-section=\"glance\"]"
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "usage",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Usage by day",
+          "body": "Each part of your usage, charged from measured usage at the listed rates plus a small margin, drawn day by day."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.billing"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"billing\"] [data-guide-section=\"usage\"]"
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "deal",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your deal, part by part",
+          "body": "Every part of what you pay for. Switch a part off and Trillion stops that work for you, so it is not charged."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.billing"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"billing\"] [data-guide-section=\"deal\"]"
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "pays",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Who you pay for",
+          "body": "Each purchase has its own card and invoices. Copy its invitation to give a spot to anyone, or buy more spots."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.billing"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"billing\"] [data-guide-section=\"pays\"]"
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

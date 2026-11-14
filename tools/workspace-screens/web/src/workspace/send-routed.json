@@ -1,0 +1,6 @@
+{
+  "_what": "What the message box and the tray say after a share was sent from them (src/workspace/send-routed.ts): `kept` when the account could not be reached and this device holds the share (or the account kept it at its edge), `on_it` when the account is routing it, `on_it_with` ({pursuits}) when it connected the share to pursuits.",
+  "kept": "Kept. Trillion will deliver it as soon as your account answers.",
+  "on_it": "Trillion is on it.",
+  "on_it_with": "Trillion is on it: {pursuits}."
+}

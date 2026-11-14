@@ -1,0 +1,61 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "privacy",
+  "revision": 1,
+  "order": 42,
+  "title": "Privacy",
+  "summary": "Whether your decisions teach other people, anonymously, and the stories published from them.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": {
+        "event_kind": "screen-opened",
+        "match": {
+          "entry": "guide",
+          "screen": "privacy"
+        }
+      },
+      "once_key": "privacy",
+      "requires": [
+        {
+          "once_key": "first-run"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "privacy"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "What leaves your Trillion",
+          "body": "Choose whether your decisions help other people, always rewritten without names, and take down any story published from them."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.privacy"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"privacy\"] [data-guide-section=\"sharing\"]"
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

@@ -1,0 +1,339 @@
+{
+ "kind": "walkthrough-definition",
+ "id": "community",
+ "revision": 2,
+ "order": 30.5,
+ "title": "Community",
+ "summary": "Turn a pursuit into a community: a feed, meetings, a classroom, members and levels.",
+ "entry_step": "intro",
+ "progress_style": {
+  "style": "segmented"
+ },
+ "triggers": [
+  {
+   "reason": "screen-first-opened",
+   "on_event": {
+    "event_kind": "screen-opened",
+    "match": {
+     "entry": "space"
+    }
+   },
+   "once_key": "community",
+   "requires": [
+    {
+     "once_key": "first-run"
+    },
+    {
+     "once_key": "space"
+    }
+   ]
+  },
+  {
+   "reason": "replay",
+   "on_event": {
+    "event_kind": "walkthrough-requested",
+    "match": {
+     "walkthrough_id": "community"
+    }
+   }
+  }
+ ],
+ "steps": [
+  {
+   "id": "intro",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Every pursuit can be a community",
+     "body": "Groups, projects and communities are all pursuits. Each part you turn on adds a row under it in your sidebar."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.space"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-sidebar-surface-id*=\":part:\"], [data-sidebar-open-toggle]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "advance",
+      "label": "Show me"
+     }
+    ]
+   }
+  },
+  {
+   "id": "feed",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Talk with everyone",
+     "body": "Home is where members post, reply and vote for what matters most."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.space"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"space\"] [data-sidebar-surface-id$=\":home\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "back",
+      "label": "Back"
+     },
+     {
+      "role": "advance",
+      "label": "Next"
+     }
+    ]
+   }
+  },
+  {
+   "id": "calendar",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Calls and meetups",
+     "body": "Put on a meeting and see who is going. It is the same Calendar everyone in the pursuit sees, showing just this pursuit."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.space"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"space\"] [data-sidebar-surface-id$=\":calendar\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "back",
+      "label": "Back"
+     },
+     {
+      "role": "advance",
+      "label": "Next"
+     }
+    ]
+   }
+  },
+  {
+   "id": "classroom",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Courses",
+     "body": "Lessons each member marks done, in order. It shows once a course is added."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.space"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"space\"] [data-sidebar-surface-id$=\":classroom\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "back",
+      "label": "Back"
+     },
+     {
+      "role": "advance",
+      "label": "Next"
+     }
+    ]
+   }
+  },
+  {
+   "id": "members",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Who is here",
+     "body": "Everyone in the pursuit, with their level. Nobody sees how to reach anyone else."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.space"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"space\"] [data-sidebar-surface-id$=\":members\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "back",
+      "label": "Back"
+     },
+     {
+      "role": "advance",
+      "label": "Next"
+     }
+    ]
+   }
+  },
+  {
+   "id": "tools",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Tools",
+     "body": "Add any tool to this pursuit, whoever made it: points, a leaderboard, a classroom or one someone saved yesterday. Each one you add opens here for everyone."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.space"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"space\"] [data-sidebar-surface-id$=\":tools\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "back",
+      "label": "Back"
+     },
+     {
+      "role": "advance",
+      "label": "Next"
+     }
+    ]
+   }
+  }
+ ]
+}

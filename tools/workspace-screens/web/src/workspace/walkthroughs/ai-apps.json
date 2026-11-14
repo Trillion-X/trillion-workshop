@@ -1,0 +1,61 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "ai-apps",
+  "revision": 1,
+  "order": 41,
+  "title": "AI apps & keys",
+  "summary": "The AI apps that use your Trillion, what each can reach, and keys for apps that ask for one.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": {
+        "event_kind": "screen-opened",
+        "match": {
+          "entry": "guide",
+          "screen": "ai-apps"
+        }
+      },
+      "once_key": "ai-apps",
+      "requires": [
+        {
+          "once_key": "first-run"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "ai-apps"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your AI apps",
+          "body": "Every AI app you let use your Trillion, and the pursuits or private work each one can reach. Open one to change it."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.ai-apps"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"ai-apps\"] [data-guide-section=\"apps\"]"
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

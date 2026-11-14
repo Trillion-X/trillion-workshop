@@ -1,0 +1,80 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-failures-ask-your-ai",
+  "revision": 1,
+  "order": 7,
+  "title": "New: Your AI helps when something fails",
+  "summary": "When something does not load, Trillion tries again by itself and then lets you ask your own AI for help.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-failures-ask-your-ai",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T17:40:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-failures-ask-your-ai"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Trillion tries again before it bothers you",
+          "body": "When something does not load, Trillion now tries again by itself before it asks anything of you."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ask-your-ai",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You can ask your AI to help",
+          "body": "If it still does not work, Ask your AI sits beside Try again. Pick your AI once, whether that is ChatGPT, Claude, Gemini or another, and next time the button opens it with what went wrong already written. You never copy an error code."
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "what_this_is": "Where a record lives when its label says so (src/workspace/records.ts). A label that starts with a row's prefix is `<prefix><room>/<address>`: the record at <address> in the live room at the row's room_path with {room} filled in (src/workspace/live-room.ts), read and changed there for everyone the Worker lets into that room, and shown live on every screen that reads the label. Every other label lives in the person's own store. A new kind of store is a row here.",
+  "places": [
+    {
+      "prefix": "space-room:",
+      "room_path": "/work/live/board/{room}?as=records",
+      "about": "A pursuit's live room: what the pursuit's members keep together (its board, and documents made from board notes). The Worker lets in only a member of the pursuit, and only one whose pursuit rules let them add items may change it."
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "_what": "How list rows travel by the clipboard (row-clipboard.ts). Copying rows writes `type` (the rows whole: their list, ids, values and the fields' kinds, for another Trillion list) beside text/plain (tab separated), text/html (a table) and text/markdown (a table), so a paste anywhere else stays readable. A paste into a list reads `type` first, then a table (HTML from another editor, parts/documents/read-data/paste-sources.ts, or tab-separated text). Rows from another Trillion list are linked or copied by the person's choice when the list has a field linking to the list they came from, and copied otherwise; `words` are what the choice and its outcome say.",
+  "type": "application/x-trillion-rows+json",
+  "version": 1,
+  "words": {
+    "choose": "Paste {count} rows from {list}",
+    "choose_detail": "Link to the rows where they are, or copy them into this list.",
+    "link": "Link to them",
+    "copy": "Copy them here",
+    "pasted": "{count} rows pasted",
+    "failed": "The rows could not be pasted"
+  }
+}

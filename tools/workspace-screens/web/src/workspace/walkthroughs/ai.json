@@ -1,0 +1,133 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "ai",
+  "revision": 2,
+  "order": 35,
+  "title": "Use Trillion in your AI",
+  "summary": "You can add Trillion to Claude, ChatGPT, Codex, Cursor or any other AI app, and see which jobs to ask it for.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "ai"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Add Trillion to your AI",
+          "body": "Add Trillion to Claude, ChatGPT, Codex, Cursor or any other AI app you use, then see which jobs to ask it for."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.ai"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"ai\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "apps",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Pick your AI app",
+          "body": "Choose Claude, ChatGPT, Codex, Cursor or another app, then follow its steps to add Trillion to it."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.ai"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"ai\"] .guide-tabs .choice-tiles, [data-trillion-screen=\"ai\"] .guide-section"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "find-again",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Find Use Trillion in your AI again",
+          "body": "Open Use Trillion in your AI from the menu whenever you need it."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-surface-id=\"trillion.ai\"], [data-sidebar-open-toggle]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ]
+}

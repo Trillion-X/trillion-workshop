@@ -1,0 +1,17 @@
+{
+  "_what": "The deferred reads shared by the signed-in workspace and its AI-app view (screen-catalog.mjs). Existing first-answers paths still name the viewer, tool screens and pursuits. Conversations stay deferred, outside firstAnswers.paths, so the Worker never adds their read to the first response; their `path` is null while the engine has no owner for it (macos/release.json route_owner_gate.retired), and the catalog then settles them empty without asking. Their changed-store refresh keeps the existing one-minute limit; the catalog itself never polls. Failure words are shared by hosts that show an incomplete catalog and offer a retry.",
+  "conversations": {
+    "path": null,
+    "refresh_after_ms": 60000
+  },
+  "words": {
+    "failed": "{source} could not load. The entries already loaded are still available.",
+    "retry": "Try again",
+    "sources": {
+      "viewer": "Your access",
+      "tools": "Tool screens",
+      "pursuits": "Pursuits",
+      "conversations": "Conversations"
+    }
+  }
+}

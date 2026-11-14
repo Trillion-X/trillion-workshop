@@ -1,0 +1,127 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-02-new-list",
+  "revision": 1,
+  "order": 3,
+  "title": "New: See what was just added",
+  "summary": "You can see what was just added at the top of your sidebar, and make lists that show only for as long as you need them.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-02-new-list",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-02T22:05:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-02-new-list"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You can see what is new at a glance",
+          "body": "The top of your sidebar now shows what was just added, and you can make lists that show only for a while."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "new-list",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "New",
+          "body": "This list holds everything added to Trillion in the last two days, newest first, like Sales contracts. Things leave it by themselves as they get older."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-section-id=\"trillion-new\"], [data-sidebar-open-toggle]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      }
+    },
+    {
+      "id": "when-it-shows",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You can make a list show for a while",
+          "body": "Open the menu on any list you made and choose When it shows. You can pick 7 days, a date, or a rule, and the list goes away by itself when that time passes. Your AI can set this up too."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[aria-label=\"Add a list\"], [data-sidebar-open-toggle]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ]
+}

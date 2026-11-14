@@ -1,0 +1,216 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "tray",
+  "revision": 1,
+  "order": 51,
+  "title": "Your tray",
+  "summary": "You can pick anything in Trillion and send it on to your AI, a pursuit or the people who make Trillion.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": {
+        "event_kind": "screen-opened",
+        "match": {
+          "entry": "tray"
+        }
+      },
+      "once_key": "tray",
+      "requires": [
+        {
+          "once_key": "first-run"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "tray"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Everything you pick lands here",
+          "body": "Everything you pick anywhere in Trillion lands here, ready to send on."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.tray"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tray\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "pick",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Pick anything",
+          "body": "Press Pick things, then click anything in Trillion. Click more to add them, or drag a box over several. You can also right-click anything and choose Add to tray."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.tray"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-tray-pick]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "send",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Say what should happen",
+          "body": "Write a note, add a picture of the screen and pick where it goes. Send it to your AI or a pursuit, or to the people who make Trillion when something went wrong, you want a change or you have an idea."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.tray"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tray\"] .composer"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "actions",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "What your AI does with it",
+          "body": "The Your AI will list holds every action you saved, in your folders. Add your own there, or in the sidebar under Your AI will."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.tray"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tray\"] .composer-picker"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "find-again",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Find your tray again",
+          "body": "Open Your tray from the menu whenever you want it. On a phone, press Show sidebar first."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-surface-id=\"trillion.tray\"], [data-sidebar-open-toggle]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ]
+}

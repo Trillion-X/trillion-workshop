@@ -1,0 +1,80 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-chrome-reply",
+  "revision": 1,
+  "order": 5,
+  "title": "New: Reply to a Chrome notice in one box",
+  "summary": "You can answer a notice from Chrome in a small window that shows who is asking and sends when you press Enter.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-chrome-reply",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T06:01:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-chrome-reply"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You can answer a Chrome notice faster",
+          "body": "When a notice in Chrome asks you to reply, the window that opens is now quicker to answer."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "reply",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You reply in one box",
+          "body": "The window shows the Trillion mark, the notice you are answering and one box that grows as you write. Press Enter to send, Shift+Enter for a new line, and Cancel or Escape to close it. If your words do not go through, Send turns into Try again and keeps them."
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

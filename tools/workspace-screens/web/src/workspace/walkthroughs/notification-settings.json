@@ -1,0 +1,155 @@
+{
+ "kind": "walkthrough-definition",
+ "id": "notification-settings",
+ "revision": 1,
+ "order": 53,
+ "title": "Notification settings",
+ "summary": "Choose where Trillion tells you things: here, on this computer or by email.",
+ "entry_step": "where",
+ "progress_style": {
+  "style": "segmented"
+ },
+ "triggers": [
+  {
+   "reason": "screen-first-opened",
+   "on_event": {
+    "event_kind": "screen-opened",
+    "match": {
+     "entry": "notification-settings"
+    }
+   },
+   "once_key": "notification-settings",
+   "requires": [
+    {
+     "once_key": "first-run"
+    }
+   ]
+  },
+  {
+   "reason": "replay",
+   "on_event": {
+    "event_kind": "walkthrough-requested",
+    "match": {
+     "walkthrough_id": "notification-settings"
+    }
+   }
+  }
+ ],
+ "steps": [
+  {
+   "id": "where",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Where you hear about things",
+     "body": "Turn each place on or off: in Trillion, on this computer, or by email."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.notification-settings"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"notification-settings\"] span[role=\"switch\"][aria-label=\"In Trillion\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "advance",
+      "label": "Show me"
+     }
+    ]
+   }
+  },
+  {
+   "id": "email",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Get them by email",
+     "body": "Add the address you want notices sent to."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.notification-settings"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"notification-settings\"] input[aria-label=\"Email address\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "back",
+      "label": "Back"
+     },
+     {
+      "role": "advance",
+      "label": "Next"
+     }
+    ]
+   }
+  },
+  {
+   "id": "find-again",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Find Notification settings again",
+     "body": "Notification settings is always in the sidebar. Press it to come back here."
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-sidebar-surface-id=\"trillion.notification-settings\"], [data-sidebar-open-toggle]"
+   },
+   "placement": {
+    "prefer": "right",
+    "auto_flip": true,
+    "gap": 14
+   }
+  }
+ ]
+}

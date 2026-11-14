@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-mac-app",
+  "revision": 1,
+  "order": 6,
+  "title": "New: Trillion for Mac",
+  "summary": "You can download Trillion for Mac from Trillion on your devices and keep it open in its own window.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-mac-app",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T05:29:36Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-mac-app"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Trillion for Mac is out",
+          "body": "Trillion gets its own window on your Mac, with recording and your files close at hand. It opens without a warning from macOS."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "download",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Download for Mac",
+          "body": "You will find it in Trillion on your devices, beside the iPhone app. The download opens in a new tab, so you stay right here."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.ai"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"ai\"] [data-guide-section=\"devices\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "left",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ]
+}
