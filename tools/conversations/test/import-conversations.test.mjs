@@ -315,3 +315,11 @@ test('an AI with no store here keeps a turn through the tool, and the same turn 
   assert.deepEqual(kept, [['person', 'How long does rye proof?', '2026-11-04T11:00:00.000Z', 'Muse'], ['ai', 'About two hours.', '2026-11-04T11:00:05.000Z', 'Muse'], ['person', 'And spelt?', '2026-11-04T11:01:00.000Z', 'Muse']]);
   await assert.rejects(keepWhatISaidToAnAi({ input: { conversation_id: 'x', messages: [] } }, context), /app is required/);
 });
+
+// The engine refuses a Workshop install whose rows declare one record kind twice (record_model_policy installed.rs
+// `duplicates`): a row copied from another must not carry its record_model along (Nov 13, a copied row stopped the install).
+test('no record kind is declared by two of these rows', () => {
+  const declared = rows.flatMap(row => (row.record_model?.kinds ?? []).map(kind => [kind.type, row.id]));
+  const seen = new Map();
+  for (const [type, id] of declared) { assert.ok(!seen.has(type), `${type} is declared by ${seen.get(type)} and ${id}`); seen.set(type, id); }
+});

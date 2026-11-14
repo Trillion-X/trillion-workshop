@@ -2638,53 +2638,6 @@
         "provenance": {
           "source": "Old Trillion's record_messages (tools/keep-and-wake-ai-sessions-on-this-computer src/server-instructions.json, src/messages.mjs record()), over the moved importConversation of src/chat-import.mjs"
         },
-        "record_model": {
-          "_what": "The record kinds this tool's import keeps beside the messages: one row per AI conversation (the list ai-conversations, read-data/ai-conversations-list.json) and one cursor row per source and per file of it.",
-          "kinds": [
-            {
-              "type": "record:ai-conversation",
-              "guard_properties": {
-                "title": "text",
-                "app": "text",
-                "conversation_id": "text",
-                "started": "text",
-                "last": "text",
-                "messages": "number",
-                "models": "list",
-                "labels": "list",
-                "people": "list",
-                "pursuits": "list",
-                "follow_ups": "text",
-                "original_file": "text"
-              }
-            },
-            {
-              "type": "conversation-import-cursor",
-              "guard_properties": {
-                "source": "text",
-                "app": "text",
-                "file": "text",
-                "bytes": "number",
-                "changed_ms": "number",
-                "done": "boolean",
-                "next": "any",
-                "conversations_kept": "number",
-                "messages_added": "number",
-                "messages_already_kept": "number",
-                "attachments_not_kept": "number",
-                "attachments_kept": "number",
-                "attachments_too_large": "number",
-                "attachments_refused": "objects",
-                "conversations_refused": "objects",
-                "files_found": "number",
-                "files_done": "number",
-                "state": "text",
-                "stopped": "text",
-                "updated_at": "text"
-              }
-            }
-          ]
-        },
         "verify": [
           {
             "kind": "sample-run",
