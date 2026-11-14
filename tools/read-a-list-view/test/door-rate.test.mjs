@@ -127,3 +127,24 @@ test('a call sent again for a busy answer is one line of the busy log: its codes
     assert.ok(lines[0].waited_ms >= 200 + 400, 'the wait is the time the call really waited');
   } finally { server.close(); }
 });
+
+test('a write refused for rights that never started is sent again once: the busy log caught that refusal landing on the same key', async () => {
+  const keys = [];
+  const server = createServer((request, response) => {
+    let body = '';
+    request.on('data', chunk => { body += chunk; });
+    request.on('end', () => {
+      const call = JSON.parse(body);
+      keys.push(call.params.arguments.request_key);
+      const result = keys.length < 2 ? { isError: true, structuredContent: { code: 'current_workspace_rights_refused', outcome: 'not_started' } } : { structuredContent: { changed: true, write_count: 1 } };
+      response.setHeader('content-type', 'application/json');
+      response.end(JSON.stringify({ jsonrpc: '2.0', id: call.id, result }));
+    });
+  });
+  await new Promise(done => server.listen(0, '127.0.0.1', done));
+  try {
+    const door = await openDoor({ ...CONFIG(server.address().port), records: { ...CONFIG(0).records, write_method: 'records:write' } }, { keyOf: async () => 'made-up-key-for-the-bakery' });
+    assert.deepEqual(await door.write([{ id: 'record:loaf:rye', type: 'record:loaf', value: {} }], { key: 'k4' }), { changed: true, write_count: 1 });
+    assert.deepEqual(keys, ['k4', 'k4']);
+  } finally { server.close(); }
+});

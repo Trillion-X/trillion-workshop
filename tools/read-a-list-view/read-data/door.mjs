@@ -33,7 +33,9 @@ const { retries: BUSY_RETRIES, first_wait_ms: FIRST_WAIT_MS } = listView.door_re
 // Refusals that say the write never started because the store was busy: write_deadline_exceeded (the door's own time ran out
 // before the write began) and original_workspace_source_unavailable (the store answered DatabaseBusy: another writer held it,
 // seen refreshing the Library on Nov 13 under load 18). Only with outcome not_started: nothing was written, the same key is safe.
-const WAIT_AND_SEND_AGAIN = new Set(['write_deadline_exceeded', 'original_workspace_source_unavailable']);
+// current_workspace_rights_refused is on the list because the busy log caught it as a transient: a records:list refused with it
+// landed 20 s later on the same key (Nov 13, load 20 to 30), and a Library refresh write was refused with it, never started.
+const WAIT_AND_SEND_AGAIN = new Set(['write_deadline_exceeded', 'original_workspace_source_unavailable', 'current_workspace_rights_refused']);
 // The Workshop's tools folder, where a local tool's module is found.
 const TOOLS = new URL('../', new URL('../', import.meta.url));
 const wait = ms => new Promise(done => setTimeout(done, ms));
