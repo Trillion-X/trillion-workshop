@@ -1,0 +1,5 @@
+{
+  "_what": "Where tool:start-a-recipe-run finds a person's own recipe: the row types their list of workflows and its steps are kept under, tried in order, and the id prefixes. A person's rows may be typed as list rows (record:workflow-recipe) or as the account's older kinds (workflow-recipe, workflow-step, the types a real account was found to hold, 2026-11-13); a recipe row found under any of them wins over the public recipe. The tool row's rights list the same types. Adding a type is a row here and a right there.",
+  "recipe": { "types": ["record:workflow-recipe", "workflow-recipe"], "id_prefix": "record:workflow-recipe:" },
+  "step": { "types": ["record:workflow-step", "workflow-step"], "id_prefix": "record:workflow-step:" }
+}

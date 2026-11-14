@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflow-steps:public",
   "list": "workflow-steps",
-  "blake3": "c58e6ccb5ce42652d796ad044855a5b973ce1e7016eb0f38e9316c19468f5a41",
+  "blake3": "55a0816793878fa44119b9b51d9aa51d458df3a41c60b936641fa2944abd7e9f",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -15378,7 +15378,7 @@
     "actor_policy": "",
     "came_from": "calendar-tasks rows with parent_id and children; a record wake's cause (src/wake.rs: detail.changes of {id, sequence, version, deleted}).",
     "checks": "[{\"kind\": \"distinct-at-least\", \"path\": [\"this\", \"root_task\"], \"count\": 1, \"says\": \"The root task id is given.\"}]",
-    "do": "The seeds are input.seed when it is given; otherwise every row the run's cause names (the run job's cause.detail.changes, each {id, deleted}): read each changed row that is not deleted (records:read at @own-records) and make it a seed: words = its words as written (the row's own text fields, word for word), came_from = its row id. A row that already has a root task (a calendar-task whose description names that came_from) is not planted twice. For each seed write one row to list calendar-tasks (records:write at @own-records, type record:calendar-task): id \"record:calendar-task:tree-<short slug of the seed words>\", value {title: the seed in one line, description: the seed's words and came_from, collection_id: [input.owner.task_list], priority: \"high\", status: \"To do\", children: []}. Every later step adds children (parent_id pointing here) and a child is set Done only when its done_when holds. Read the row back.",
+    "do": "The seeds are input.seeds when the starter filled them in from an arrival source (each {words, came_from, at}, the words as they came); else input.seed when it is given; otherwise every row the run's cause names (the run job's cause.detail.changes, each {id, deleted}): read each changed row that is not deleted (records:read at @own-records) and make it a seed: words = its words as written (the row's own text fields, word for word), came_from = its row id. A row that already has a root task (a calendar-task whose description names that came_from) is not planted twice. For each seed write one row to list calendar-tasks (records:write at @own-records, type record:calendar-task): id \"record:calendar-task:tree-<short slug of the seed words>\", value {title: the seed in one line, description: the seed's words and came_from, collection_id: [input.owner.task_list], priority: \"high\", status: \"To do\", children: []}. Every later step adds children (parent_id pointing here) and a child is set Done only when its done_when holds. Read the row back.",
     "done_when": "Each seed's root task reads back with the seed's words, its came_from and the owner's task list.",
     "flags": "{}",
     "good_answer": "One root row.",
@@ -15621,7 +15621,7 @@
     "actor_policy": "",
     "came_from": "workflow:keep-a-changelog-from-what-shipped",
     "checks": "[]",
-    "do": "Mail answers: run workflow:handle-every-inbox-daily or the branch for the thread. Change log: run workflow:keep-a-changelog-from-what-shipped with the visibility of the seed; a row marked internal is kept for the team and never reaches the public change log (for example a price experiment).",
+    "do": "Answers: for each part that is a thread waiting for an answer, run the branch choose-branches chose for it (list tree-branches; in the Workshop that is workflow:answer-comments-and-messages). Change log: run workflow:keep-a-changelog-from-what-shipped with the visibility of the seed; a row marked internal is kept for the team and never reaches the public change log (for example a price experiment).",
     "done_when": "Every shipped change has one change-log row with its visibility.",
     "flags": "{}",
     "good_answer": "Row ids of the change log and answers.",

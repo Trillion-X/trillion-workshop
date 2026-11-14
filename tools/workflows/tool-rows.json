@@ -22,21 +22,22 @@
         "label": "Start a run of a recipe: leave its steps as a job for my AI",
         "status": "active",
         "job": "When a recipe of mine is started, by a wake I switched on or by a call, put its steps and its input in my own records as one job waiting for my AI, once per firing",
-        "description": "Every recipe row runs as this tool (the recipes' row source names it in invoke_with), with the recipe's id in input.row. It reads that recipe from the person's own list of workflows and the rows of its steps, or else from the public recipes folder (the person's own row wins when both hold the id), and writes one record of kind ai-job, id ai-job:<recipe id>:<request key>, holding status waiting, the recipe id and label, its steps, the input it was started with and the wake cause that started it. It does no step itself, schedules nothing and keeps nothing else. The AI that next connects to the person's records lists ai-job records with status waiting, does the oldest, and writes status done with its result. A firing or a call that comes again with the same request key finds its job and writes nothing.",
+        "description": "Every recipe row runs as this tool (the recipes' row source names it in invoke_with), with the recipe's id in input.row. It reads that recipe from the person's own list of workflows and the rows of its steps, or else from the public recipes folder (the person's own row wins when both hold the id; their rows may be typed record:workflow-recipe or workflow-recipe, arrivals/recipe-row-types.json), and, when a record wake names an arrival source, starts only from the changed rows that source's filter keeps, each a seed in the run's input, writing nothing when none is kept (arrivals/arrival-sources.json); it writes one record of kind ai-job, id ai-job:<recipe id>:<request key>, holding status waiting, the recipe id and label, its steps, the input it was started with and the wake cause that started it. It does no step itself, schedules nothing and keeps nothing else. The AI that next connects to the person's records lists ai-job records with status waiting, does the oldest, and writes status done with its result. A firing or a call that comes again with the same request key finds its job and writes nothing.",
         "input_schema": {
           "type": "object",
           "required": ["row"],
           "properties": {
             "row": { "type": "string", "description": "The recipe's id (workflow:...). The engine sets it to the recipe row being run." },
-            "start_at": { "type": "string", "description": "The step the run starts at, when a wake names one" }
+            "start_at": { "type": "string", "description": "The step the run starts at, when a wake names one" },
+            "arrival_source": { "type": "string", "description": "A row of the person's own list arrival-sources, when a record wake starts the run: only the changed rows its filter keeps start it, each made a seed in the run's input (seeds); when it keeps none, nothing is written (arrivals/arrival-sources.json)" }
           }
         },
         "output_schema": {
           "type": "object",
           "required": ["job", "status"],
           "properties": {
-            "job": { "type": "string", "description": "The id of the ai-job record" },
-            "status": { "type": "string", "enum": ["written", "already-there"] }
+            "job": { "type": ["string", "null"], "description": "The id of the ai-job record, null when nothing arrived" },
+            "status": { "type": "string", "enum": ["written", "already-there", "nothing-arrived"] }
           }
         },
         "invoke": {
@@ -50,9 +51,18 @@
                 "paths": [
                   "read-data/start-a-recipe-run.mjs",
                   "read-data/recipe-rows.mjs",
-                  "recipes"
+                  "recipes",
+                  "arrivals"
                 ],
                 "at": "/opt/workflows"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/formulas"
               },
               {
                 "package": "records-door",
@@ -105,7 +115,12 @@
             "rights": [
               { "kind": "ai-job", "operations": ["records:read", "records:write"] },
               { "kind": "record:workflow-recipe", "operations": ["records:read"] },
-              { "kind": "record:workflow-step", "operations": ["records:list"], "prefix": "record:workflow-step:" }
+              { "kind": "record:workflow-step", "operations": ["records:list"], "prefix": "record:workflow-step:" },
+              { "kind": "workflow-recipe", "operations": ["records:read"] },
+              { "kind": "workflow-step", "operations": ["records:list"], "prefix": "record:workflow-step:" },
+              { "kind": "record:arrival-sources", "operations": ["records:read"] },
+              { "kind": "message", "operations": ["records:read"] },
+              { "kind": "record:inputs-arrivals", "operations": ["records:read"] }
             ]
           }
         },

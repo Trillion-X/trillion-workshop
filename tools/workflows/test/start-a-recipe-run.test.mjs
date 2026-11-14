@@ -22,6 +22,11 @@ test('the recipes source runs every recipe as the starter', () => {
     { kind: 'ai-job', operations: ['records:read', 'records:write'] },
     { kind: 'record:workflow-recipe', operations: ['records:read'] },
     { kind: 'record:workflow-step', operations: ['records:list'], prefix: 'record:workflow-step:' },
+    { kind: 'workflow-recipe', operations: ['records:read'] },
+    { kind: 'workflow-step', operations: ['records:list'], prefix: 'record:workflow-step:' },
+    { kind: 'record:arrival-sources', operations: ['records:read'] },
+    { kind: 'message', operations: ['records:read'] },
+    { kind: 'record:inputs-arrivals', operations: ['records:read'] },
   ]);
 });
 
@@ -78,4 +83,51 @@ test('when the person\'s list and the public recipes both hold the id, the perso
   const [job] = ran.kept.filter(record => record.type === 'ai-job');
   assert.equal(job.value.label, 'My own version');
   assert.notDeepEqual(job.value.job, recipe.steps);
+});
+
+// The same rows under the account's older kinds (workflow-recipe, workflow-step), as a real person's account holds them.
+const olderTyped = slug => ownRows(slug).map(record => ({ ...record, type: record.type.replace('record:', '') }));
+
+test('a person\'s own rows typed workflow-recipe and workflow-step win over the public recipe too', async () => {
+  const ran = await fire(started, { records: olderTyped(recipeId.replace('workflow:', '')) });
+  assert.equal(ran.status, 0);
+  const [job] = ran.kept.filter(record => record.type === 'ai-job');
+  assert.equal(job.value.label, 'My own version');
+  assert.deepEqual(job.value.job.map(step => step.id), ['first', 'second']);
+});
+
+// A made-up arrival source: messages, kept only when a person wrote them, each mapped to a seed.
+const source = { id: 'record:arrival-sources:made-up-messages', type: 'record:arrival-sources', value: {
+  label: 'Made-up messages', read_type: 'message', state: 'On',
+  filter: JSON.stringify({ fields: [{ id: 'speaker', kind: 'text', path: ['speaker'] }], tree: { kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field: 'speaker', operator: 'is_text', params: { text: 'person' } }] } }),
+  seed: JSON.stringify({ words: ['text'], came_from: ['id'], at: ['at'] }),
+} };
+const message = (id, speaker, text) => ({ id, type: 'message', value: { speaker, text, at: '2026-01-02T03:04:05.000Z', app: 'Made-up app' } });
+const woken = changes => ({ kind: 'record', wake: 'message-arrived', detail: { resource: 'own-records', changes } });
+const fireWoken = (changes, records) => answerOf(starter, { ...started, arrival_source: source.id }, { task: { request_key: 'cause-key-2', cause: woken(changes) }, records });
+
+test('a person\'s message named by the cause starts the run with it as a seed, and the AI reply beside it does not', async () => {
+  const records = [source, message('message:a', 'person', 'A thought worth growing.'), message('message:b', 'ai', 'An answer from the AI.')];
+  const ran = await fireWoken([{ id: 'message:a', deleted: false }, { id: 'message:b', deleted: false }], records);
+  assert.equal(ran.status, 0);
+  assert.equal(ran.result.status, 'written');
+  const [job] = ran.kept.filter(record => record.type === 'ai-job');
+  assert.deepEqual(job.value.input.seeds, [{ words: 'A thought worth growing.', came_from: 'message:a', at: '2026-01-02T03:04:05.000Z' }]);
+});
+
+test('a cause naming only an AI reply, or only a deleted row, writes nothing', async () => {
+  for (const changes of [[{ id: 'message:b', deleted: false }], [{ id: 'message:a', deleted: true }]]) {
+    const ran = await fireWoken(changes, [source, message('message:a', 'person', 'A thought.'), message('message:b', 'ai', 'An answer.')]);
+    assert.equal(ran.status, 0);
+    assert.deepEqual(ran.result, { job: null, status: 'nothing-arrived' });
+    assert.ok(!ran.calls.some(call => call.method === 'records:write'));
+  }
+});
+
+test('a source that is off starts nothing, and a missing source is refused', async () => {
+  const off = { ...source, value: { ...source.value, state: 'Off' } };
+  const ran = await fireWoken([{ id: 'message:a', deleted: false }], [off, message('message:a', 'person', 'A thought.')]);
+  assert.deepEqual(ran.result, { job: null, status: 'nothing-arrived' });
+  const missing = await fireWoken([{ id: 'message:a', deleted: false }], [message('message:a', 'person', 'A thought.')]);
+  assert.match(missing.error, /no arrival source/);
 });

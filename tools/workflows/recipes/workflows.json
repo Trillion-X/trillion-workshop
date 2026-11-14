@@ -10714,6 +10714,31 @@
               "items": {
                 "type": "string"
               }
+            },
+            "arrival_source": {
+              "type": "string",
+              "description": "A row of the person's list arrival-sources, given by a record wake: only the changed rows its filter keeps start the run (tool:start-a-recipe-run), each a seed in seeds."
+            },
+            "seeds": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "words"
+                ],
+                "properties": {
+                  "words": {
+                    "type": "string"
+                  },
+                  "came_from": {
+                    "type": "string"
+                  },
+                  "at": {
+                    "type": "string"
+                  }
+                }
+              },
+              "description": "The seeds that arrived, filled in by the starter from the arrival source; never given by hand."
             }
           },
           "required": [
@@ -10725,7 +10750,7 @@
           "from": "the person, 2026-11-12 8:17 PM CST onward: one input is the seed and fires every branch; every output is reused N by N; one number sets how many agents run a step; simulation is the workflow engine used this way; progress shows in table, task and canvas views.",
           "note": "The branches are rows of list tree-branches, so adding a branch is adding a row and never an edit here. The owner (Trillion, the person, a client such as a school) is input: tasks go under owner.task_list and owner.pursuit, using the task lists and pursuits that already exist. visibility internal keeps work (for example a price experiment) off the public change log.",
           "verdict": "The person's verdict, 2026-11-13 about 5:40 PM CST: \"my verdict is go, there, done, verdict made, no decision needed, pass the decision off as done, it's decided\" (decision source:b25lLXRyZWUtY29udGVudC13b3JrZmxvdy0yMDI2LTExLTEy).",
-          "starts": "Daily by the wake `daily` (the continuation infinity's continue step names), and from any new row of a list the person points a record wake at: a wake-declaration in their own records naming this recipe, on {record: {resource: own-records, prefix: <the list's row id prefix>}}, input {start_at: plant-the-seed, owner, visibility}. Each wake is off until the person switches it on."
+          "starts": "Daily by the wake `daily` (the continuation infinity's continue step names), and from whatever arrives: one record wake per arrival source, each a wake-declaration in the person's own records naming this recipe, on {record: {resource: own-records, prefix: <the source's row id prefix>}}, input {start_at: plant-the-seed, owner, visibility, arrival_source: <its row in list arrival-sources>}. The source row holds what counts (a filter, for example messages the person wrote and not the AI's replies) and how a row becomes a seed (paths for words, came_from, at); tool:start-a-recipe-run starts a run only when the filter keeps a changed row. Each wake is off until the person switches it on."
         },
         "wakes": [
           {
@@ -10749,7 +10774,7 @@
           {
             "id": "plant-the-seed",
             "title": "Write the root task",
-            "do": "The seeds are input.seed when it is given; otherwise every row the run's cause names (the run job's cause.detail.changes, each {id, deleted}): read each changed row that is not deleted (records:read at @own-records) and make it a seed: words = its words as written (the row's own text fields, word for word), came_from = its row id. A row that already has a root task (a calendar-task whose description names that came_from) is not planted twice. For each seed write one row to list calendar-tasks (records:write at @own-records, type record:calendar-task): id \"record:calendar-task:tree-<short slug of the seed words>\", value {title: the seed in one line, description: the seed's words and came_from, collection_id: [input.owner.task_list], priority: \"high\", status: \"To do\", children: []}. Every later step adds children (parent_id pointing here) and a child is set Done only when its done_when holds. Read the row back.",
+            "do": "The seeds are input.seeds when the starter filled them in from an arrival source (each {words, came_from, at}, the words as they came); else input.seed when it is given; otherwise every row the run's cause names (the run job's cause.detail.changes, each {id, deleted}): read each changed row that is not deleted (records:read at @own-records) and make it a seed: words = its words as written (the row's own text fields, word for word), came_from = its row id. A row that already has a root task (a calendar-task whose description names that came_from) is not planted twice. For each seed write one row to list calendar-tasks (records:write at @own-records, type record:calendar-task): id \"record:calendar-task:tree-<short slug of the seed words>\", value {title: the seed in one line, description: the seed's words and came_from, collection_id: [input.owner.task_list], priority: \"high\", status: \"To do\", children: []}. Every later step adds children (parent_id pointing here) and a child is set Done only when its done_when holds. Read the row back.",
             "submit": {
               "type": "object",
               "properties": {
@@ -11277,7 +11302,7 @@
           {
             "id": "answer-and-change-log",
             "title": "Answer, and log the change",
-            "do": "Mail answers: run workflow:handle-every-inbox-daily or the branch for the thread. Change log: run workflow:keep-a-changelog-from-what-shipped with the visibility of the seed; a row marked internal is kept for the team and never reaches the public change log (for example a price experiment).",
+            "do": "Answers: for each part that is a thread waiting for an answer, run the branch choose-branches chose for it (list tree-branches; in the Workshop that is workflow:answer-comments-and-messages). Change log: run workflow:keep-a-changelog-from-what-shipped with the visibility of the seed; a row marked internal is kept for the team and never reaches the public change log (for example a price experiment).",
             "submit": {
               "type": "object",
               "properties": {

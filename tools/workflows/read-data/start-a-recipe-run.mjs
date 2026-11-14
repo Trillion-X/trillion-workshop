@@ -12,25 +12,65 @@
 // a recipe by recipe-rows.mjs), and otherwise a public recipe the Workshop carries (recipes/). When both hold the id, the
 // person's own row wins.
 //
+// The person's own rows may be kept under more than one row type (arrivals/recipe-row-types.json); each is tried in order.
+//
+// A wake whose input names an arrival source (arrivals/arrival-sources.json) starts the run only from the changed rows that
+// source keeps, each mapped to a seed in the run's input; when it keeps none, nothing is written (status
+// 'nothing-arrived'), so an AI reply arriving beside a person's message starts nothing of its own.
+//
 // The job's id is `ai-job:<recipe id>:<request key>`. A wake's request key is its cause key, one per firing, and a
 // call at the door brings its own retry key, so a firing or a call that comes again finds its job and changes nothing.
 
 import { readdirSync, readFileSync } from 'node:fs';
 import { recipeFromRows } from './recipe-rows.mjs';
+import { filterRecords } from '../../formulas/do-work/requests.mjs';
 
 const RECIPES = new URL('../recipes/', import.meta.url);
 const JOB_KIND = 'ai-job';
-const RECIPE_ROW = 'record:workflow-recipe';
-const STEP_ROW = 'record:workflow-step';
+const ROW_TYPES = JSON.parse(readFileSync(new URL('../arrivals/recipe-row-types.json', import.meta.url), 'utf8'));
+const ARRIVALS = JSON.parse(readFileSync(new URL('../arrivals/arrival-sources.json', import.meta.url), 'utf8'));
 
 // The person's own recipe with this id: its row in their list of workflows and the rows of its steps, or nothing.
 async function ownRecipe(id, door) {
   const slug = id.replace(/^workflow:/, '');
-  const row = await door.read(RECIPE_ROW, `${RECIPE_ROW}:${slug}`);
-  if (!row) return null;
-  const steps = [];
-  for await (const step of door.list({ type: STEP_ROW, prefix: `${STEP_ROW}:${slug}--` })) if (step.value?.recipe?.[0] === slug) steps.push(step);
-  return recipeFromRows({ value: row }, steps);
+  for (const type of ROW_TYPES.recipe.types) {
+    const row = await door.read(type, `${ROW_TYPES.recipe.id_prefix}${slug}`);
+    if (!row) continue;
+    const steps = new Map();
+    for (const stepType of ROW_TYPES.step.types) {
+      for await (const step of door.list({ type: stepType, prefix: `${ROW_TYPES.step.id_prefix}${slug}--` })) if (step.value?.recipe?.[0] === slug && !steps.has(step.id)) steps.set(step.id, step);
+    }
+    return recipeFromRows({ value: row }, [...steps.values()]);
+  }
+  return null;
+}
+
+const parsed = (text, where) => { if (text === undefined || text === null || text === '') return null; if (typeof text !== 'string') return text; try { return JSON.parse(text); } catch { throw new Error(`${where} is not JSON.`); } };
+const atPath = (row, path) => (Array.isArray(path) ? path : [path]).reduce((value, key) => (value == null ? undefined : value[key]), row);
+
+// The seeds that arrived: the changed rows the cause names, kept by the source row's filter and mapped by its seed paths.
+async function arrivedSeeds(sourceId, cause, door) {
+  const source = await door.read(ARRIVALS.row_type, sourceId);
+  if (!source) throw new Error(`There is no arrival source ${sourceId}.`);
+  if (source.state === 'Off') return [];
+  if (typeof source.read_type !== 'string' || !source.read_type) throw new Error(`Arrival source ${sourceId} names no read_type.`);
+  const filter = parsed(source.filter, `Arrival source ${sourceId} filter`);
+  const seed = parsed(source.seed, `Arrival source ${sourceId} seed`);
+  if (!seed?.words) throw new Error(`Arrival source ${sourceId} names no seed.words path.`);
+  const rows = [];
+  for (const change of cause?.detail?.changes ?? []) {
+    if (change?.deleted || typeof change?.id !== 'string') continue;
+    const value = await door.read(source.read_type, change.id);
+    if (value) rows.push({ ...value, id: change.id });
+  }
+  let kept = rows;
+  if (filter && rows.length) {
+    const answer = filterRecords({ records: rows, fields: filter.fields, tree: filter.tree });
+    if (answer.incomplete?.length) throw new Error(`Arrival source ${sourceId} has an unfinished filter: ${JSON.stringify(answer.incomplete)}.`);
+    kept = answer.matches.map(at => rows[at]);
+  }
+  return kept.map(row => ({ words: atPath(row, seed.words), came_from: atPath(row, seed.came_from ?? ['id']), ...(seed.at ? { at: atPath(row, seed.at) } : {}) }))
+    .filter(item => typeof item.words === 'string' && item.words.trim());
 }
 
 // The public recipe with this id, read from the recipe files beside this module.
@@ -49,6 +89,11 @@ export async function startARecipeRun({ input = {}, task = {} } = {}, { door }) 
   const recipe = (await ownRecipe(row, door)) ?? publicRecipe(row);
   const id = `${JOB_KIND}:${row}:${task.request_key}`;
   if (await door.read(JOB_KIND, id)) return { job: id, status: 'already-there' };
+  if (given[ARRIVALS.input_field] !== undefined) {
+    const seeds = await arrivedSeeds(given[ARRIVALS.input_field], task.cause, door);
+    if (!seeds.length) return { job: null, status: 'nothing-arrived' };
+    given[ARRIVALS.seeds_field] = seeds;
+  }
   const value = {
     kind: JOB_KIND,
     status: 'waiting',

@@ -1,0 +1,6 @@
+{
+  "_what": "How a woken run starts only from what really arrived. A wake whose input names an arrival source (input field `input_field`) gives tool:start-a-recipe-run a source row of the person's own (type `row_type`): { label, read_type, filter, seed, state }. The starter reads each row the wake's cause names as changed (cause.detail.changes, not deleted) under read_type, keeps those the filter keeps (tool:filter-rows-by-rules {fields, tree}, evaluated by the formulas engine; no filter keeps every row) and maps each kept row to a seed by the seed paths ({words, came_from, at}, each a path into the row, whose own id is at ['id']). The seeds go into the run's input under `seeds_field`; when no row is kept, no job is written. Which rows count (person-written messages, an inputs list) is the source row, never code. The tool row's rights must let it read the source rows and each read_type.",
+  "input_field": "arrival_source",
+  "seeds_field": "seeds",
+  "row_type": "record:arrival-sources"
+}
