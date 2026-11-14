@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:ed25360b91781b817183fae029479f173ded41a9fe0081913254963fbc0afc47"
+  "blake3": "1f:9858449d8a56755ef59fc0850ed770231b9a1c250b45902ae1b269487da29172"
  },
  "fields": [
   {
@@ -5917,10 +5917,7 @@
     "placements": [
      "placement:deployed-container"
     ],
-    "folder": "media-composition",
-    "flags": [
-     "has-a-screen"
-    ]
+    "folder": "media-composition"
    }
   },
   {
@@ -7137,10 +7134,7 @@
     "placements": [
      "placement:deployed-container"
     ],
-    "folder": "media-composition",
-    "flags": [
-     "has-a-screen"
-    ]
+    "folder": "media-composition"
    }
   },
   {
@@ -7369,10 +7363,7 @@
     "placements": [
      "placement:deployed-container"
     ],
-    "folder": "media-composition",
-    "flags": [
-     "has-a-screen"
-    ]
+    "folder": "media-composition"
    }
   },
   {
@@ -8377,10 +8368,7 @@
     "placements": [
      "placement:caller-sandbox"
     ],
-    "folder": "media-composition",
-    "flags": [
-     "has-a-screen"
-    ]
+    "folder": "media-composition"
    }
   },
   {
@@ -12568,7 +12556,7 @@
    "values": {
     "title": "Send each post at its time",
     "job": "When the person's posts change, set each post that is set to go at its time to be sent then, to each of its destinations, by that place's send row",
-    "description": "Runs on its own once the person switches on its wake (at-its-time): each time their posts change, it reads the changed posts, and for each one set to go at its time (tool:set-a-post-to-go-at-its-time) it sets one run of the place's send row (tool:send-a-post-to-<place>) per destination still to be sent, at the post's scheduled_for. That run sends only while the post is still set to go as it was then, so a post taken back, changed or set again sends nothing at the old time. It sends nothing itself, polls nothing and keeps nothing. Its rights are the ones the sends it sets need (the person's posts, their connections and their files), because each send reaches only what this wake was granted. Returns set (each post, destination, send row and time), left_out (each send not set, with why) and said.",
+    "description": "Runs on its own once the person switches on its wake (at-its-time): each time their posts change, it reads the changed posts, and for each one set to go at its time (tool:set-a-post-to-go-at-its-time) it sets one run of the place's send row (the place's send-a-post-to row, such as tool:send-a-post-to-instagram) per destination still to be sent, at the post's scheduled_for. That run sends only while the post is still set to go as it was then, so a post taken back, changed or set again sends nothing at the old time. It sends nothing itself, polls nothing and keeps nothing. Its rights are the ones the sends it sets need (the person's posts, their connections and their files), because each send reaches only what this wake was granted. Returns set (each post, destination, send row and time), left_out (each send not set, with why) and said.",
     "status": "active",
     "maker": "maker:social-posts",
     "licence_class": "licence:maker-own",
@@ -14619,7 +14607,7 @@
    "values": {
     "title": "Write a copy of a repository into my files, for citations to be checked against",
     "job": "Write the files of a repository, the dates of its commits and a stamp naming the commit into my own files under /source-copies/<root>/, so a check of what a finding cites can read them on any computer",
-    "description": "Takes a root name, the ref and head the copy was made from, a list of files ({path, text}, at most 64, each at most 4 MiB), the commit dates ({<full hash>: <ISO date>}) and whether the list is every tracked file. Writes each file, then .commit-dates.json, and the stamp .source-copy.json last, under /source-copies/<root>/, so a copy whose stamp is old never claims a new head. The stamp holds ref, head, copied_at and files: the sorted paths the copy holds (the earlier stamp's files plus these, or exactly these when complete is true). A path with .., ., an empty part, a leading / or a backslash is refused and nothing is written. The tool never reads a repository: the caller reads git and hands in the text.",
+    "description": "Takes a root name, the ref and head the copy was made from, a list of files ({path, text}, at most 64, each at most 4 MiB), the commit dates ({<full hash>: <ISO date>}) and whether the list is every tracked file. Writes each file, then .commit-dates.json, and the stamp .source-copy.json last, under /source-copies/<root>/, so a copy whose stamp is old never claims a new head. The stamp holds ref, head, copied_at and files: the sorted paths the copy holds (the earlier stamp's files plus these, or exactly these when complete is true; also_held paths, written by earlier runs of the same head, are added). A big copy can be sent in several runs: with final false a run writes only its files (no dates, no stamp) and answers final:false; the last run (final true, the default) writes the dates and the stamp. A path with .., ., an empty part, a leading / or a backslash is refused and nothing is written. The tool never reads a repository: the caller reads git and hands in the text.",
     "status": "active",
     "maker": "maker:workflows",
     "licence_class": "licence:maker-own",

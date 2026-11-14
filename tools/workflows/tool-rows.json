@@ -1056,7 +1056,8 @@
                   "read-data/citation-resolvers.mjs",
                   "citation-resolvers.json",
                   "recipe-check-kinds.json",
-                  "read-data/step-agents.mjs"
+                  "read-data/step-agents.mjs",
+                  "read-data/answer-schema.mjs"
                 ],
                 "at": "/opt/workflows"
               },
@@ -1306,7 +1307,7 @@
         "label": "Write a copy of a repository into my files, for citations to be checked against",
         "status": "active",
         "job": "Write the files of a repository, the dates of its commits and a stamp naming the commit into my own files under /source-copies/<root>/, so a check of what a finding cites can read them on any computer",
-        "description": "Takes a root name, the ref and head the copy was made from, a list of files ({path, text}, at most 64, each at most 4 MiB), the commit dates ({<full hash>: <ISO date>}) and whether the list is every tracked file. Writes each file, then .commit-dates.json, and the stamp .source-copy.json last, under /source-copies/<root>/, so a copy whose stamp is old never claims a new head. The stamp holds ref, head, copied_at and files: the sorted paths the copy holds (the earlier stamp's files plus these, or exactly these when complete is true). A path with .., ., an empty part, a leading / or a backslash is refused and nothing is written. The tool never reads a repository: the caller reads git and hands in the text.",
+        "description": "Takes a root name, the ref and head the copy was made from, a list of files ({path, text}, at most 64, each at most 4 MiB), the commit dates ({<full hash>: <ISO date>}) and whether the list is every tracked file. Writes each file, then .commit-dates.json, and the stamp .source-copy.json last, under /source-copies/<root>/, so a copy whose stamp is old never claims a new head. The stamp holds ref, head, copied_at and files: the sorted paths the copy holds (the earlier stamp's files plus these, or exactly these when complete is true; also_held paths, written by earlier runs of the same head, are added). A big copy can be sent in several runs: with final false a run writes only its files (no dates, no stamp) and answers final:false; the last run (final true, the default) writes the dates and the stamp. A path with .., ., an empty part, a leading / or a backslash is refused and nothing is written. The tool never reads a repository: the caller reads git and hands in the text.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -1359,6 +1360,18 @@
             "complete": {
               "type": "boolean",
               "description": "True when the files sent are every tracked file of the repository"
+            },
+            "final": {
+              "type": "boolean",
+              "description": "False writes only the files, with no dates and no stamp; the last run of a head leaves it true (the default)"
+            },
+            "also_held": {
+              "type": "array",
+              "maxItems": 256,
+              "items": {
+                "type": "string"
+              },
+              "description": "Paths written by earlier non-final runs of the same head, added to the stamp's files"
             }
           }
         },

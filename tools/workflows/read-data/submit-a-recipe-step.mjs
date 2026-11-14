@@ -9,7 +9,8 @@
 //   submitARecipeStep({ input: { run, step, answer }, task }, { door })
 //     -> { status: 'kept' | 'already-there', answer_id, checks: [{ kind, says, passed }], unchecked: [{ kind, says, reason }] }
 //
-// A check that fails refuses the answer with the failing values and keeps nothing. A check this module cannot judge
+// The answer is first judged against the step's `submit` schema (answer-schema.mjs); one that does not fit is refused
+// naming each bad field path. A check that fails refuses the answer with the failing values and keeps nothing. A check this module cannot judge
 // (for example `exists` with no catalog to look in) is listed under `unchecked`, never reported as passed. Earlier
 // steps' answers are what `steps.<id>` reads, so every earlier step must have its answer kept first.
 //
@@ -20,6 +21,7 @@ import { laneIds, laneJobId, runStep, runsLaneJobs } from './step-agents.mjs';
 import { checkResults, valuesAt } from './recipe-check-results.mjs';
 import { readFileSync } from 'node:fs';
 import { resolveItem } from './citation-resolvers.mjs';
+import { schemaProblems } from './answer-schema.mjs';
 
 const JOB_KIND = 'ai-job';
 const CHECK_VOCABULARY = JSON.parse(readFileSync(new URL('../recipe-check-kinds.json', import.meta.url), 'utf8'));
@@ -41,6 +43,10 @@ export async function submitARecipeStep({ input = {}, task = {} } = {}, { door, 
   const step = runStep(steps[at], parent.input);
   const id = answerId(run, stepId);
   if (await door.read(JOB_KIND, id)) return { status: 'already-there', answer_id: id, checks: [], unchecked: [] };
+
+  // The answer must fit the step's own `submit` schema before any check is judged or anything is kept.
+  const problems = step.submit ? schemaProblems(step.submit, answer) : [];
+  if (problems.length) throw new Error(`The answer to step "${stepId}" does not fit the step's submit schema: ${problems.map(({ path, why }) => `${path} ${why}`).join('; ')}`);
 
   const earlier = {};
   for (const before of steps.slice(0, at)) {

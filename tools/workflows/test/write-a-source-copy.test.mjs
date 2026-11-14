@@ -112,3 +112,28 @@ test('an unreadable earlier stamp is treated as none, and a retry with the same 
   await run(door, input());
   assert.deepEqual(new Map([...door.stored].map(([name, bytes]) => [name, bytes.toString('utf8')])), before);
 });
+
+test('a non-final run writes only its files: no dates and no stamp', async () => {
+  const door = filesDoor();
+  const done = await run(door, input({ final: false }));
+  assert.deepEqual(done, { root: 'madeup', head: HEAD, written: 2, bytes: door.stored.get('/source-copies/madeup/src/a.txt').length + 2, final: false });
+  assert.deepEqual(door.calls, ['/source-copies/madeup/src/a.txt', '/source-copies/madeup/b.txt']);
+  assert.equal(door.stored.has('/source-copies/madeup/.source-copy.json'), false);
+  assert.equal(door.stored.has('/source-copies/madeup/.commit-dates.json'), false);
+});
+
+test('a final run lists the also_held paths in the stamp', async () => {
+  const door = filesDoor();
+  await run(door, input({ final: false }));
+  await run(door, input({ files: [{ path: 'c.txt', text: 'c\n' }], also_held: ['src/a.txt', 'b.txt'], complete: true }));
+  assert.deepEqual(stamp(door).files, ['b.txt', 'c.txt', 'src/a.txt']);
+  assert.equal(stamp(door).head, HEAD);
+});
+
+test('a bad also_held path, a non-boolean final or too many paths is refused and nothing is written', async () => {
+  for (const body of [input({ also_held: ['../x'] }), input({ also_held: ['/x'] }), input({ also_held: ['a//b'] }), input({ also_held: [3] }), input({ also_held: ['.source-copy.json'] }), input({ also_held: 'x' }), input({ final: 'no' }), input({ also_held: Array.from({ length: 257 }, (_, at) => `f${at}`) })]) {
+    const door = filesDoor();
+    await assert.rejects(run(door, body), Error);
+    assert.equal(door.stored.size, 0);
+  }
+});

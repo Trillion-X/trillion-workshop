@@ -7,6 +7,10 @@
 //   writeASourceCopy({ input: { root, ref, head, files: [{ path, text }], dates: { <fullhash>: <ISO date> }, complete? }, task }, { door })
 //     -> { root, head, written, bytes }
 //
+// A big copy goes in several runs of one head: every run but the last sends `final: false` and writes only its files
+// (no dates, no stamp, so the stamp never claims the new head early; it returns final:false). The last run sends the
+// default `final: true` and `also_held`, the paths the earlier runs wrote, which join the stamp's `files`.
+//
 // Order: every file, then .commit-dates.json, then .source-copy.json LAST, so a copy whose stamp is old never claims a
 // new head. Each write uses an upload id derived from root + head + path, so a retry resumes. The stamp's `files` are the
 // sorted paths the copy holds: the earlier stamp's files that are still held plus the new ones, or exactly the sent
@@ -16,7 +20,8 @@ import { readWholeFile, writeWholeFile } from '../../records-door/read-data/whol
 
 export const MOST_FILES = 64;
 export const MOST_TEXT_BYTES = 4 * 1024 * 1024;
-const ALLOWED_INPUT = new Set(['root', 'ref', 'head', 'files', 'dates', 'complete']);
+const ALLOWED_INPUT = new Set(['root', 'ref', 'head', 'files', 'dates', 'complete', 'final', 'also_held']);
+export const MOST_ALSO_HELD = 256;
 const ROOT = /^[a-z0-9][a-z0-9-]*$/;
 export const STAMP = '.source-copy.json';
 export const DATES = '.commit-dates.json';
@@ -27,11 +32,14 @@ const uploadId = (root, head, path) => makeHashCodeHexFromBytes(Buffer.from(`sou
 
 export async function writeASourceCopy({ input = {}, task = {} } = {}, { door }) {
   for (const key of Object.keys(input)) if (!ALLOWED_INPUT.has(key)) throw new Error(`input.${key} is not taken.`);
-  const { root, ref, head, files, dates, complete = false } = input;
+  const { root, ref, head, files, dates, complete = false, final = true, also_held = [] } = input;
   if (typeof root !== 'string' || !ROOT.test(root)) throw new Error('input.root must be lowercase letters, digits and hyphens, starting with a letter or digit.');
   if (typeof ref !== 'string' || !ref) throw new Error('input.ref must name the ref the copy was made from.');
   if (typeof head !== 'string' || !head) throw new Error('input.head must be the commit the copy was made from.');
   if (typeof complete !== 'boolean') throw new Error('input.complete must be true or false.');
+  if (typeof final !== 'boolean') throw new Error('input.final must be true or false.');
+  if (!Array.isArray(also_held) || also_held.length > MOST_ALSO_HELD) throw new Error(`input.also_held must be a list of at most ${MOST_ALSO_HELD} paths.`);
+  for (const path of also_held) if (badPath(path) || path === STAMP || path === DATES) throw new Error(`${JSON.stringify(path)} is not a path inside ${root}.`);
   if (!Array.isArray(files)) throw new Error('input.files must be a list of { path, text }.');
   if (files.length > MOST_FILES) throw new Error(`input.files holds ${files.length} files; at most ${MOST_FILES} are taken in one run.`);
   if (dates === null || typeof dates !== 'object' || Array.isArray(dates)) throw new Error('input.dates must be an object of full commit hash to ISO date.');
@@ -61,8 +69,9 @@ export async function writeASourceCopy({ input = {}, task = {} } = {}, { door })
     bytes += data.length;
   };
   for (const file of files) await put(file.path, file.text, 'text/plain');
+  if (!final) return { root, head, written: files.length, bytes, final: false };
   await put(DATES, JSON.stringify(dates), 'application/json');
-  const held = new Set(files.map(file => file.path));
+  const held = new Set([...files.map(file => file.path), ...also_held]);
   if (!complete && Array.isArray(earlier?.files)) for (const path of earlier.files) if (typeof path === 'string' && !badPath(path)) held.add(path);
   const stamp = { ref, head, copied_at: task.at ?? task.time ?? new Date().toISOString(), files: [...held].sort(), complete };
   await put(STAMP, JSON.stringify(stamp), 'application/json');

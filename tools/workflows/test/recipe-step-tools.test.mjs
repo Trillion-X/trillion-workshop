@@ -172,3 +172,24 @@ test('lanes that take their jobs by the commands handed back are six workers to 
   for (const item of began.lane_jobs) door.held.set(item.job, { ...door.held.get(item.job), value: { ...door.held.get(item.job).value, status: 'done', finished_by: item.as } });
   assert.equal((await submit(door, { run, step: 'dig', answer: answerFor(step) })).status, 'kept');
 });
+
+test('an answer that breaks the step\'s submit schema is refused naming each bad field, and nothing is kept; a well-formed one is kept', async () => {
+  const submitSchema = {
+    type: 'object', required: ['branches'], additionalProperties: false,
+    properties: { branches: { type: 'array', minItems: 1, items: { type: 'object', required: ['id', 'kind'], properties: { id: { type: 'string', minLength: 1 }, kind: { enum: ['yes', 'no'] } } } } },
+  };
+  const step = stepOf({ id: 'pick', agents: 1, checks: [], submit: submitSchema });
+  const door = memoryDoor([step]);
+  const writes = door.writes.length;
+  const malformed = { branches: [{ id: 'a', kind: 'maybe' }, { kind: 'yes' }], extra: 1 };
+  await assert.rejects(submit(door, { run, step: 'pick', answer: malformed }), error => {
+    for (const part of ['this.branches[0].kind', 'this.branches[1].id', 'this.extra']) assert.ok(error.message.includes(part), `${part} in: ${error.message}`);
+    return true;
+  });
+  await assert.rejects(submit(door, { run, step: 'pick', answer: { branches: 'nope' } }), /this\.branches must be array, is string/);
+  assert.equal(door.held.has(answerId(run, 'pick')), false);
+  assert.equal(door.writes.length, writes);
+  const kept = await submit(door, { run, step: 'pick', answer: { branches: [{ id: 'a', kind: 'yes' }] } });
+  assert.equal(kept.status, 'kept');
+  assert.equal(door.held.has(answerId(run, 'pick')), true);
+});
