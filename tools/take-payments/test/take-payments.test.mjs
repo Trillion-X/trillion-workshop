@@ -139,7 +139,7 @@ test('what a buyer paid must be a price the offer declares', async () => {
 });
 
 test('eligibility rules are the person\'s records, and a held ref changes what is shown', async () => {
-  const context = { door: doorOf({ 'record:commercial-offer': offerRows, 'offer-eligibility-rule': [{ id: 'elig:1', offer_id: 'offer:cake', requires_held: ['access:box'] }] }) };
+  const context = { door: doorOf({ 'record:commercial-offer': offerRows, 'record:offer-eligibility-rule': [{ id: 'elig:1', offer_id: 'offer:cake', requires_held: ['access:box'] }] }) };
   assert.deepEqual((await showOffersForABuyer({ held_access_refs: [] }, context)).offers.map(offer => offer.id), ['offer:box']);
   assert.deepEqual((await showOffersForABuyer({ held_access_refs: ['access:box'] }, context)).offers.map(offer => offer.id), ['offer:box', 'offer:cake']);
 });

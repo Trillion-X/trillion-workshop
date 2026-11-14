@@ -156,7 +156,13 @@
                 ]
               },
               {
-                "kind": "checkout-code-adjustment",
+                "kind": "record:checkout-code-adjustment",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "record:offer-amount-choice",
                 "operations": [
                   "records:list"
                 ]
@@ -216,7 +222,7 @@
         "id": "tool:start-a-stripe-checkout",
         "label": "Start a Stripe checkout",
         "job": "Make the Stripe hosted checkout page a buyer is sent to, for one of my offers, with my own Stripe account",
-        "description": "Prices the sale as price-a-sale does, needs the buyer agreement in consent (billing and legal), and success_url and cancel_url for where the buyer lands afterwards (they only land the buyer; they never grant access). Returns the address to send the buyer to. Uses your Stripe key from your held values.",
+        "description": "Prices the sale as price-a-sale does, needs the buyer agreement in consent (billing and legal), and success_url and cancel_url for where the buyer lands afterwards (they only land the buyer; they never grant access). Returns the address to send the buyer to. Uses the Stripe key of the seller connection that seller_connection names (service_connection:stripe is your own).",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -274,9 +280,15 @@
             },
             "cancel_url": {
               "type": "string"
+            },
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
+            "seller_connection",
             "checkoutAttemptId",
             "checkoutStartedAt",
             "offerId",
@@ -385,8 +397,8 @@
           },
           "credential_mounts": [
             {
-              "secret_name": "stripe-api-key",
-              "fd": 4
+              "fd": 4,
+              "field_id": "secret_key"
             }
           ],
           "records": {
@@ -399,12 +411,22 @@
                 ]
               },
               {
-                "kind": "checkout-code-adjustment",
+                "kind": "record:checkout-code-adjustment",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "record:offer-amount-choice",
                 "operations": [
                   "records:list"
                 ]
               }
             ]
+          },
+          "connection": {
+            "vendor": "stripe",
+            "from_input": "seller_connection"
           }
         },
         "result_selector": "$.result",
@@ -424,6 +446,7 @@
           {
             "kind": "sample-run",
             "input": {
+              "seller_connection": "service_connection:stripe:sample",
               "checkoutAttemptId": "attempt-000000000001",
               "checkoutStartedAt": "2026-11-03T03:04:05Z",
               "offerId": "offer:bread-box",
@@ -515,7 +538,7 @@
         "id": "tool:start-a-stripe-checkout-that-pays-someone-else",
         "label": "Start a Stripe checkout that pays someone else",
         "job": "Make a Stripe hosted checkout whose money goes to a person I pay, with my fee kept back",
-        "description": "Give offer_id, price_option_id, payer_ref, payee_account (their Stripe account id), fee ({ percent }), success_url and cancel_url. The platform fee is worked out in whole cents and never above the amount. Uses your Stripe key from your held values.",
+        "description": "Give offer_id, price_option_id, payer_ref, payee_account (their Stripe account id), fee ({ percent }), success_url and cancel_url. The platform fee is worked out in whole cents and never above the amount. Uses the Stripe key of the seller connection that seller_connection names (service_connection:stripe is your own).",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -549,9 +572,15 @@
             },
             "offers": {
               "type": "array"
+            },
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
+            "seller_connection",
             "offer_id",
             "price_option_id",
             "payer_ref",
@@ -657,8 +686,8 @@
           },
           "credential_mounts": [
             {
-              "secret_name": "stripe-api-key",
-              "fd": 4
+              "fd": 4,
+              "field_id": "secret_key"
             }
           ],
           "records": {
@@ -669,8 +698,18 @@
                 "operations": [
                   "records:list"
                 ]
+              },
+              {
+                "kind": "record:offer-amount-choice",
+                "operations": [
+                  "records:list"
+                ]
               }
             ]
+          },
+          "connection": {
+            "vendor": "stripe",
+            "from_input": "seller_connection"
           }
         },
         "result_selector": "$.result",
@@ -690,6 +729,7 @@
           {
             "kind": "sample-run",
             "input": {
+              "seller_connection": "service_connection:stripe:sample",
               "offer_id": "offer:sample-cake",
               "price_option_id": "price:cake",
               "payee_account": "acct_sample0002",
@@ -776,16 +816,22 @@
         "id": "tool:look-up-a-stripe-checkout",
         "label": "Look up a Stripe checkout",
         "job": "Read a Stripe checkout and the subscription it made: whether it was paid, who by, the metadata set when it began and the real recurring amount",
-        "description": "Give provider_session_id. The amounts and status come from Stripe, not from the buyer browser, so a success redirect cannot forge them. Uses your Stripe key from your held values.",
+        "description": "Give provider_session_id. The amounts and status come from Stripe, not from the buyer browser, so a success redirect cannot forge them. Uses the Stripe key of the seller connection that seller_connection names (service_connection:stripe is your own).",
         "status": "active",
         "input_schema": {
           "type": "object",
           "properties": {
             "provider_session_id": {
               "type": "string"
+            },
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
+            "seller_connection",
             "provider_session_id"
           ]
         },
@@ -884,10 +930,14 @@
           },
           "credential_mounts": [
             {
-              "secret_name": "stripe-api-key",
-              "fd": 4
+              "fd": 4,
+              "field_id": "secret_key"
             }
-          ]
+          ],
+          "connection": {
+            "vendor": "stripe",
+            "from_input": "seller_connection"
+          }
         },
         "result_selector": "$.result",
         "needs": {
@@ -906,6 +956,7 @@
           {
             "kind": "sample-run",
             "input": {
+              "seller_connection": "service_connection:stripe:sample",
               "provider_session_id": "cs_test_sample0001"
             },
             "shape_read_at": "2026-11-03",
@@ -987,7 +1038,7 @@
         "id": "tool:find-a-completed-stripe-checkout",
         "label": "Find a completed Stripe checkout",
         "job": "Find the completed Stripe checkout for one buyer and offer when the buyer browser never came back",
-        "description": "Give offer_id and the buyer customer_email, or a created_after_unix time to look from (then exactly one match is needed). Returns the session id if found, or why not. Uses your Stripe key from your held values.",
+        "description": "Give offer_id and the buyer customer_email, or a created_after_unix time to look from (then exactly one match is needed). Returns the session id if found, or why not. Uses the Stripe key of the seller connection that seller_connection names (service_connection:stripe is your own).",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -1000,9 +1051,15 @@
             },
             "created_after_unix": {
               "type": "number"
+            },
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
+            "seller_connection",
             "offer_id"
           ]
         },
@@ -1098,10 +1155,14 @@
           },
           "credential_mounts": [
             {
-              "secret_name": "stripe-api-key",
-              "fd": 4
+              "fd": 4,
+              "field_id": "secret_key"
             }
-          ]
+          ],
+          "connection": {
+            "vendor": "stripe",
+            "from_input": "seller_connection"
+          }
         },
         "result_selector": "$.result",
         "needs": {
@@ -1120,6 +1181,7 @@
           {
             "kind": "sample-run",
             "input": {
+              "seller_connection": "service_connection:stripe:sample",
               "customer_email": "buyer@example.test",
               "offer_id": "offer:bread-box"
             },
@@ -1173,7 +1235,7 @@
         "id": "tool:list-completed-stripe-checkouts",
         "label": "List completed Stripe checkouts",
         "job": "List every completed Stripe checkout since a time, payment links included, so each buyer can be followed up once",
-        "description": "Give created_after_unix, and offer_id to keep one offer. Returns each checkout oldest first (session id, time, buyer email, offer and price option, amount, currency, subscription id), complete, and next_created_after_unix for the next read. The same checkout can come back in two reads: keep each one once by provider_session_id. Uses your Stripe key from your held values.",
+        "description": "Give created_after_unix, and offer_id to keep one offer. Returns each checkout oldest first (session id, time, buyer email, offer and price option, amount, currency, subscription id), complete, and next_created_after_unix for the next read. The same checkout can come back in two reads: keep each one once by provider_session_id. Uses the Stripe key of the seller connection that seller_connection names (service_connection:stripe is your own).",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -1186,9 +1248,15 @@
             },
             "max_pages": {
               "type": "number"
+            },
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
+            "seller_connection",
             "created_after_unix"
           ]
         },
@@ -1291,10 +1359,14 @@
           },
           "credential_mounts": [
             {
-              "secret_name": "stripe-api-key",
-              "fd": 4
+              "fd": 4,
+              "field_id": "secret_key"
             }
-          ]
+          ],
+          "connection": {
+            "vendor": "stripe",
+            "from_input": "seller_connection"
+          }
         },
         "result_selector": "$.result",
         "needs": {
@@ -1313,6 +1385,7 @@
           {
             "kind": "sample-run",
             "input": {
+              "seller_connection": "service_connection:stripe:sample",
               "created_after_unix": 1793664000
             },
             "shape_read_at": "2026-11-03",
@@ -1365,7 +1438,7 @@
         "id": "tool:list-ended-stripe-subscriptions",
         "label": "List ended Stripe subscriptions",
         "job": "List every Stripe subscription that ended since a time, so each customer record can be marked ended once",
-        "description": "Give ended_after_unix. Returns each ended subscription oldest first (subscription id, when it ended, its metadata) and complete. Uses your Stripe key from your held values.",
+        "description": "Give ended_after_unix. Returns each ended subscription oldest first (subscription id, when it ended, its metadata) and complete. Uses the Stripe key of the seller connection that seller_connection names (service_connection:stripe is your own).",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -1375,9 +1448,15 @@
             },
             "max_pages": {
               "type": "number"
+            },
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
+            "seller_connection",
             "ended_after_unix"
           ]
         },
@@ -1477,10 +1556,14 @@
           },
           "credential_mounts": [
             {
-              "secret_name": "stripe-api-key",
-              "fd": 4
+              "fd": 4,
+              "field_id": "secret_key"
             }
-          ]
+          ],
+          "connection": {
+            "vendor": "stripe",
+            "from_input": "seller_connection"
+          }
         },
         "result_selector": "$.result",
         "needs": {
@@ -1499,6 +1582,7 @@
           {
             "kind": "sample-run",
             "input": {
+              "seller_connection": "service_connection:stripe:sample",
               "ended_after_unix": 1793664000
             },
             "shape_read_at": "2026-11-03",
@@ -1560,7 +1644,7 @@
         "id": "tool:schedule-the-later-payments-in-stripe",
         "label": "Schedule the later payments in Stripe",
         "job": "After a buyer has paid at the door, set up the payments that come later (a week on, a month on, then every month) in Stripe",
-        "description": "Give payment_schedule (charges with amount_cents as text and days_after_signup, and an optional repeat), customer_ref, product_name and signed_up_at_unix_seconds. The first payment is taken by the checkout, not here. Uses your Stripe key from your held values.",
+        "description": "Give payment_schedule (charges with amount_cents as text and days_after_signup, and an optional repeat), customer_ref, product_name and signed_up_at_unix_seconds. The first payment is taken by the checkout, not here. Uses the Stripe key of the seller connection that seller_connection names (service_connection:stripe is your own).",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -1582,9 +1666,15 @@
             },
             "idempotency_key": {
               "type": "string"
+            },
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
+            "seller_connection",
             "payment_schedule",
             "customer_ref",
             "product_name",
@@ -1689,10 +1779,14 @@
           },
           "credential_mounts": [
             {
-              "secret_name": "stripe-api-key",
-              "fd": 4
+              "fd": 4,
+              "field_id": "secret_key"
             }
-          ]
+          ],
+          "connection": {
+            "vendor": "stripe",
+            "from_input": "seller_connection"
+          }
         },
         "result_selector": "$.result",
         "needs": {
@@ -1711,6 +1805,7 @@
           {
             "kind": "sample-run",
             "input": {
+              "seller_connection": "service_connection:stripe:sample",
               "payment_schedule": {
                 "charges": [
                   {
@@ -1762,7 +1857,7 @@
         "id": "tool:count-a-paid-installment-in-stripe",
         "label": "Count a paid installment in Stripe",
         "job": "When a pay-in-N plan invoice is paid, count it, and stop the plan after the last one so no extra invoice is ever made",
-        "description": "Give subscription_id and the paid invoice_id. A replayed invoice is counted once; the last installment keeps the buyer access and cancels the subscription. Plans that are not pay-in-N are left alone. Uses your Stripe key from your held values.",
+        "description": "Give subscription_id and the paid invoice_id. A replayed invoice is counted once; the last installment keeps the buyer access and cancels the subscription. Plans that are not pay-in-N are left alone. Uses the Stripe key of the seller connection that seller_connection names (service_connection:stripe is your own).",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -1772,9 +1867,15 @@
             },
             "invoice_id": {
               "type": "string"
+            },
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
+            "seller_connection",
             "subscription_id"
           ]
         },
@@ -1876,10 +1977,14 @@
           },
           "credential_mounts": [
             {
-              "secret_name": "stripe-api-key",
-              "fd": 4
+              "fd": 4,
+              "field_id": "secret_key"
             }
-          ]
+          ],
+          "connection": {
+            "vendor": "stripe",
+            "from_input": "seller_connection"
+          }
         },
         "result_selector": "$.result",
         "needs": {
@@ -1898,6 +2003,7 @@
           {
             "kind": "sample-run",
             "input": {
+              "seller_connection": "service_connection:stripe:sample",
               "subscription_id": "sub_sample0003",
               "invoice_id": "in_sample0002"
             },
@@ -1996,7 +2102,7 @@
         "id": "tool:cancel-a-stripe-subscription",
         "label": "Cancel a Stripe subscription",
         "job": "Cancel a buyer Stripe subscription now, or at the end of what they have paid for",
-        "description": "Give subscription_id, and at_period_end: true to keep the paid period running and stop the next renewal. Uses your Stripe key from your held values.",
+        "description": "Give subscription_id, and at_period_end: true to keep the paid period running and stop the next renewal. Uses the Stripe key of the seller connection that seller_connection names (service_connection:stripe is your own).",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -2006,9 +2112,15 @@
             },
             "at_period_end": {
               "type": "boolean"
+            },
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
+            "seller_connection",
             "subscription_id"
           ]
         },
@@ -2110,10 +2222,14 @@
           },
           "credential_mounts": [
             {
-              "secret_name": "stripe-api-key",
-              "fd": 4
+              "fd": 4,
+              "field_id": "secret_key"
             }
-          ]
+          ],
+          "connection": {
+            "vendor": "stripe",
+            "from_input": "seller_connection"
+          }
         },
         "result_selector": "$.result",
         "needs": {
@@ -2132,6 +2248,7 @@
           {
             "kind": "sample-run",
             "input": {
+              "seller_connection": "service_connection:stripe:sample",
               "subscription_id": "sub_sample0001"
             },
             "shape_read_at": "2026-11-03",
@@ -2185,7 +2302,7 @@
         "id": "tool:open-the-billing-page-for-one-purchase-and-show-the-card",
         "label": "Open the billing page for one purchase and show its card",
         "job": "Open the billing page of one purchase, where the buyer can change or cancel it, and show the card that pays it",
-        "description": "Give subscription_id (the sub_ id of one purchase) and return_url (an https address the billing page returns to). Reads the purchase with the card that pays it, opens a Stripe customer billing-portal session for the customer that bills it, and gives back the redirect address and the card (brand, last four, expiry only). The configuration is the account default unless configuration names one; an account with none is refused, never given a made-up one. It changes no subscription and moves no money. Uses your Stripe key from your held values.",
+        "description": "Give subscription_id (the sub_ id of one purchase) and return_url (an https address the billing page returns to). Reads the purchase with the card that pays it, opens a Stripe customer billing-portal session for the customer that bills it, and gives back the redirect address and the card (brand, last four, expiry only). The configuration is the account default unless configuration names one; an account with none is refused, never given a made-up one. It changes no subscription and moves no money. Uses the Stripe key of the seller connection that seller_connection names (service_connection:stripe is your own).",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -2201,9 +2318,15 @@
             "configuration": {
               "type": "string",
               "pattern": "^bpc_[A-Za-z0-9]+$"
+            },
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
+            "seller_connection",
             "subscription_id",
             "return_url"
           ]
@@ -2325,10 +2448,14 @@
           },
           "credential_mounts": [
             {
-              "secret_name": "stripe-api-key",
-              "fd": 4
+              "fd": 4,
+              "field_id": "secret_key"
             }
-          ]
+          ],
+          "connection": {
+            "vendor": "stripe",
+            "from_input": "seller_connection"
+          }
         },
         "result_selector": "$.result",
         "needs": {
@@ -2347,6 +2474,7 @@
           {
             "kind": "sample-run",
             "input": {
+              "seller_connection": "service_connection:stripe:sample",
               "subscription_id": "sub_sample0001",
               "return_url": "https://app.example.com/billing"
             },
@@ -2415,7 +2543,7 @@
         "id": "tool:tag-a-stripe-subscription",
         "label": "Tag a Stripe subscription",
         "job": "Add notes (metadata) to a buyer Stripe subscription without changing the ones already there",
-        "description": "Give subscription_id and metadata (text values). Only keys you give are added or changed, and nothing is written when nothing changes. Uses your Stripe key from your held values.",
+        "description": "Give subscription_id and metadata (text values). Only keys you give are added or changed, and nothing is written when nothing changes. Uses the Stripe key of the seller connection that seller_connection names (service_connection:stripe is your own).",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -2425,9 +2553,15 @@
             },
             "metadata": {
               "type": "object"
+            },
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
+            "seller_connection",
             "subscription_id",
             "metadata"
           ]
@@ -2528,10 +2662,14 @@
           },
           "credential_mounts": [
             {
-              "secret_name": "stripe-api-key",
-              "fd": 4
+              "fd": 4,
+              "field_id": "secret_key"
             }
-          ]
+          ],
+          "connection": {
+            "vendor": "stripe",
+            "from_input": "seller_connection"
+          }
         },
         "result_selector": "$.result",
         "needs": {
@@ -2550,6 +2688,7 @@
           {
             "kind": "sample-run",
             "input": {
+              "seller_connection": "service_connection:stripe:sample",
               "subscription_id": "sub_sample0001",
               "metadata": {
                 "follow_up": "sent"
@@ -2645,7 +2784,7 @@
         "id": "tool:set-up-stripe-payment-links",
         "label": "Set up Stripe payment links",
         "job": "Make Stripe hold one lasting payment link for every priced option of my offers, with the buyer plan page and my discount codes",
-        "description": "Give owner (a name that marks the Stripe objects as yours) and after_payment_url (where a buyer lands after paying: an offer row with post_purchase_route_path lands at that path under it, any other at its root). A trial, a part of the first month taken today, and a quantity the buyer picks come from each price option. Reads your offers and code adjustments from your records. Safe to run again: prices, links, codes and the plan page are found, not made twice; links for options you no longer sell stop taking payments. Webhook endpoints are not made here (Stripe shows a signing secret only once); add yours in the Stripe dashboard and keep its secret in your held values. Uses your Stripe key from your held values.",
+        "description": "Give owner (a name that marks the Stripe objects as yours) and after_payment_url (where a buyer lands after paying: an offer row with post_purchase_route_path lands at that path under it, any other at its root). A trial, a part of the first month taken today, and a quantity the buyer picks come from each price option. Reads your offers and code adjustments from your records. Safe to run again: prices, links, codes and the plan page are found, not made twice; links for options you no longer sell stop taking payments. Webhook endpoints are not made here (Stripe shows a signing secret only once); add yours in the Stripe dashboard and keep its secret in your held values. Uses the Stripe key of the seller connection that seller_connection names (service_connection:stripe is your own).",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -2664,9 +2803,15 @@
             },
             "adjustments": {
               "type": "array"
+            },
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
+            "seller_connection",
             "owner",
             "after_payment_url"
           ]
@@ -2769,8 +2914,8 @@
           },
           "credential_mounts": [
             {
-              "secret_name": "stripe-api-key",
-              "fd": 4
+              "fd": 4,
+              "field_id": "secret_key"
             }
           ],
           "records": {
@@ -2783,12 +2928,22 @@
                 ]
               },
               {
-                "kind": "checkout-code-adjustment",
+                "kind": "record:checkout-code-adjustment",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "record:offer-amount-choice",
                 "operations": [
                   "records:list"
                 ]
               }
             ]
+          },
+          "connection": {
+            "vendor": "stripe",
+            "from_input": "seller_connection"
           }
         },
         "result_selector": "$.result",
@@ -2808,6 +2963,7 @@
           {
             "kind": "sample-run",
             "input": {
+              "seller_connection": "service_connection:stripe:sample",
               "owner": "sample-shop",
               "after_payment_url": "https://shop.example.test/"
             },
@@ -2974,7 +3130,7 @@
         "id": "tool:check-a-stripe-event",
         "label": "Check a Stripe event",
         "job": "Check a Stripe webhook before believing it (its age and its signature), and read it as a payment event to keep",
-        "description": "Give the raw payload exactly as received and the Stripe-Signature header as signature_header. The signature is checked with your webhook signing secret from your held values. Returns the payment event, or why it was not believed. Nothing unchecked is kept.",
+        "description": "Give the raw payload exactly as received and the Stripe-Signature header as signature_header. The signature is checked with the webhook signing secret of the seller connection that seller_connection names. Returns the payment event, or why it was not believed. Nothing unchecked is kept.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -2990,9 +3146,15 @@
             },
             "event_map": {
               "type": "object"
+            },
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
+            "seller_connection",
             "payload",
             "signature_header"
           ]
@@ -3098,10 +3260,14 @@
           },
           "credential_mounts": [
             {
-              "secret_name": "stripe-webhook-secret",
-              "fd": 5
+              "fd": 5,
+              "field_id": "webhook_secret"
             }
-          ]
+          ],
+          "connection": {
+            "vendor": "stripe",
+            "from_input": "seller_connection"
+          }
         },
         "result_selector": "$.result",
         "needs": {
@@ -3127,12 +3293,13 @@
           {
             "kind": "sample-run",
             "input": {
+              "seller_connection": "service_connection:stripe:sample",
               "payload": "{\"id\":\"evt_sample0001\",\"object\":\"event\",\"type\":\"checkout.session.completed\",\"created\":1793750400,\"data\":{\"object\":{\"id\":\"cs_test_sample0002\",\"object\":\"checkout.session\",\"amount_total\":2500,\"currency\":\"usd\",\"payment_status\":\"paid\",\"metadata\":{\"offer_id\":\"offer:sample-cake\"}}}}",
               "signature_header": "t=1793750400,v1=980b71987d5d696fabe6dd2822075b78f8378d389ffbac33535f55d1e73ce957",
               "now_seconds": 1793750405
             },
             "held": {
-              "stripe-webhook-secret": "made-up-signing-secret-for-a-sample"
+              "webhook_secret": "made-up-signing-secret-for-a-sample"
             }
           }
         ]
@@ -3265,6 +3432,12 @@
             "rights": [
               {
                 "kind": "record:commercial-offer",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "record:offer-amount-choice",
                 "operations": [
                   "records:list"
                 ]
@@ -3450,7 +3623,13 @@
                 ]
               },
               {
-                "kind": "offer-eligibility-rule",
+                "kind": "record:offer-eligibility-rule",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "record:offer-amount-choice",
                 "operations": [
                   "records:list"
                 ]
@@ -3507,7 +3686,7 @@
         "id": "tool:set-up-someone-i-pay-in-stripe",
         "label": "Set up someone I pay in Stripe",
         "job": "Make a Stripe account for a person I pay, or check one, and get their Stripe onboarding page and what Stripe still needs from them",
-        "description": "Give settings ({ country, controller, capabilities }), owner, payee_ref, refresh_url and return_url, or an existing account id. Returns the account, whether it can be paid and what is due, and the onboarding address. Uses your Stripe key from your held values.",
+        "description": "Give settings ({ country, controller, capabilities }), owner, payee_ref, refresh_url and return_url, or an existing account id. Returns the account, whether it can be paid and what is due, and the onboarding address. Uses the Stripe key of the seller connection that seller_connection names (service_connection:stripe is your own).",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -3535,9 +3714,15 @@
             },
             "idempotency_key": {
               "type": "string"
+            },
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
+            "seller_connection",
             "refresh_url",
             "return_url"
           ]
@@ -3641,10 +3826,14 @@
           },
           "credential_mounts": [
             {
-              "secret_name": "stripe-api-key",
-              "fd": 4
+              "fd": 4,
+              "field_id": "secret_key"
             }
-          ]
+          ],
+          "connection": {
+            "vendor": "stripe",
+            "from_input": "seller_connection"
+          }
         },
         "result_selector": "$.result",
         "needs": {
@@ -3663,6 +3852,7 @@
           {
             "kind": "sample-run",
             "input": {
+              "seller_connection": "service_connection:stripe:sample",
               "settings": {
                 "country": "US",
                 "controller": {
@@ -3732,7 +3922,7 @@
         "id": "tool:pay-someone-a-share-through-stripe",
         "label": "Pay someone a share through Stripe",
         "job": "Pay a share of what I took on to a person I pay, out of my own Stripe balance",
-        "description": "This pays real money out. Give amount_cents, currency, destination (their Stripe account id), optionally source_transaction, and confirm_moves_money: true in the same request, or nothing is sent. Uses your Stripe key from your held values.",
+        "description": "This pays real money out. Give amount_cents, currency, destination (their Stripe account id), optionally source_transaction, and confirm_moves_money: true in the same request, or nothing is sent. Uses the Stripe key of the seller connection that seller_connection names (service_connection:stripe is your own).",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -3757,9 +3947,15 @@
             },
             "confirm_moves_money": {
               "type": "boolean"
+            },
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
+            "seller_connection",
             "amount_cents",
             "currency",
             "destination",
@@ -3864,10 +4060,14 @@
           },
           "credential_mounts": [
             {
-              "secret_name": "stripe-api-key",
-              "fd": 4
+              "fd": 4,
+              "field_id": "secret_key"
             }
-          ]
+          ],
+          "connection": {
+            "vendor": "stripe",
+            "from_input": "seller_connection"
+          }
         },
         "result_selector": "$.result",
         "needs": {
@@ -3886,6 +4086,7 @@
           {
             "kind": "sample-run",
             "input": {
+              "seller_connection": "service_connection:stripe:sample",
               "amount_cents": 500,
               "currency": "USD",
               "destination": "acct_sample0002",
@@ -3921,7 +4122,7 @@
         "id": "tool:rehearse-a-payment-schedule-in-stripe-test-mode",
         "label": "Rehearse a payment schedule in Stripe test mode",
         "job": "Build a payment schedule in Stripe test mode and see what Stripe says it will charge and when, before a real buyer meets it",
-        "description": "Give payment_schedule and product_name. Only a Stripe test key is accepted (it must start with a test prefix, checked before anything is built); it comes from your held values under a test-key name. Makes test objects only; no real money moves.",
+        "description": "Give payment_schedule and product_name. Only a Stripe test key is accepted (it must start with a test prefix, checked before anything is built); it is the test key of the seller connection that seller_connection names. Makes test objects only; no real money moves.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -3934,9 +4135,15 @@
             },
             "currency": {
               "type": "string"
+            },
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
+            "seller_connection",
             "payment_schedule",
             "product_name"
           ]
@@ -4037,10 +4244,14 @@
           },
           "credential_mounts": [
             {
-              "secret_name": "stripe-test-api-key",
-              "fd": 4
+              "fd": 4,
+              "field_id": "test_secret_key"
             }
-          ]
+          ],
+          "connection": {
+            "vendor": "stripe",
+            "from_input": "seller_connection"
+          }
         },
         "result_selector": "$.result",
         "needs": {
@@ -4059,6 +4270,7 @@
           {
             "kind": "sample-run",
             "input": {
+              "seller_connection": "service_connection:stripe:sample",
               "payment_schedule": {
                 "charges": [
                   {
@@ -4079,7 +4291,7 @@
               "product_name": "Sample course"
             },
             "held": {
-              "stripe-test-api-key": "sk_test_made_up_sample_key"
+              "test_secret_key": "sk_test_made_up_sample_key"
             },
             "shape_read_at": "2026-11-03",
             "replies": [
@@ -4153,7 +4365,7 @@
         "id": "tool:rehearse-a-billing-page-in-stripe-test-mode",
         "label": "Rehearse a billing page in Stripe test mode",
         "job": "Make a test subscription in Stripe test mode and open its billing page, to see the billing page comes back before a real buyer needs it",
-        "description": "Give product_name, amount_cents and return_url (an https address the billing page returns to). Only a Stripe test key is accepted (it must start with a test prefix, checked before anything is built); it comes from your held values under a test-key name. Makes a test customer, product, price and subscription, then opens the billing page of that subscription the way the billing-page tool does, and gives back the subscription, the page's address and the card that pays it (none until a card is added). It never opens the address. Makes test objects only; no real money moves.",
+        "description": "Give product_name, amount_cents and return_url (an https address the billing page returns to). Only a Stripe test key is accepted (it must start with a test prefix, checked before anything is built); it is the test key of the seller connection that seller_connection names. Makes a test customer, product, price and subscription, then opens the billing page of that subscription the way the billing-page tool does, and gives back the subscription, the page's address and the card that pays it (none until a card is added). It never opens the address. Makes test objects only; no real money moves.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -4171,9 +4383,15 @@
             },
             "currency": {
               "type": "string"
+            },
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
+            "seller_connection",
             "product_name",
             "amount_cents",
             "return_url"
@@ -4291,10 +4509,14 @@
           },
           "credential_mounts": [
             {
-              "secret_name": "stripe-test-api-key",
-              "fd": 4
+              "fd": 4,
+              "field_id": "test_secret_key"
             }
-          ]
+          ],
+          "connection": {
+            "vendor": "stripe",
+            "from_input": "seller_connection"
+          }
         },
         "result_selector": "$.result",
         "needs": {
@@ -4313,12 +4535,13 @@
           {
             "kind": "sample-run",
             "input": {
+              "seller_connection": "service_connection:stripe:sample",
               "product_name": "Sample membership",
               "amount_cents": 1000,
               "return_url": "https://app.example.com/billing"
             },
             "held": {
-              "stripe-test-api-key": "sk_test_made_up_sample_key"
+              "test_secret_key": "sk_test_made_up_sample_key"
             },
             "shape_read_at": "2026-11-12",
             "replies": [
@@ -7443,10 +7666,14 @@
           },
           "credential_mounts": [
             {
-              "secret_name": "stripe-api-key",
-              "fd": 4
+              "fd": 4,
+              "field_id": "secret_key"
             }
-          ]
+          ],
+          "connection": {
+            "vendor": "stripe",
+            "from_input": "seller_connection"
+          }
         },
         "result_selector": "$.result",
         "needs": {
@@ -7483,9 +7710,15 @@
             "agreement_ref": {
               "type": "string",
               "minLength": 1
+            },
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
+            "seller_connection",
             "settlement_id",
             "settlement_version",
             "payer_id",
@@ -7537,6 +7770,7 @@
           {
             "kind": "sample-run",
             "input": {
+              "seller_connection": "service_connection:stripe:sample",
               "agreement_ref": "usage-billing-agreement:sample",
               "payer_id": "payer:sample-a",
               "settlement_id": "pool-sample-2026-10",
@@ -8549,10 +8783,14 @@
           },
           "credential_mounts": [
             {
-              "secret_name": "stripe-api-key",
-              "fd": 4
+              "fd": 4,
+              "field_id": "secret_key"
             }
-          ]
+          ],
+          "connection": {
+            "vendor": "stripe",
+            "from_input": "seller_connection"
+          }
         },
         "result_selector": "$.result",
         "needs": {
@@ -8581,9 +8819,15 @@
             "provider_invoice_item_id": {
               "type": "string",
               "minLength": 1
+            },
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
             }
           },
           "required": [
+            "seller_connection",
             "report_id",
             "provider_invoice_item_id"
           ],
@@ -8633,6 +8877,7 @@
           {
             "kind": "sample-run",
             "input": {
+              "seller_connection": "service_connection:stripe:sample",
               "report_id": "resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713",
               "provider_invoice_item_id": "ii_sample0001"
             },
@@ -9616,7 +9861,7 @@
         "id": "tool:read-stripe-promotion-codes",
         "label": "Read the promotion codes in Stripe",
         "job": "Read the promotion codes and the coupons they give in your Stripe account, to see whether a code is active, how often it was used and what it takes off",
-        "description": "Reads the promotion codes of your own Stripe account. Give code (one promotion code as the buyer types it), active (true or false) and limit (1 to 100), all optional. Answers each promotion code with its id, code, whether it is active, how many times it was redeemed and the most allowed, when it expires (Stripe's own time in seconds), its restrictions (first order only, minimum amount and its currency) and the coupon it gives (id, amount off or percent off, currency, duration and months, whether it is still valid, its own redemption counts), and whether Stripe has more beyond the list. A field Stripe did not send answers null. Only reads: nothing is created, changed or used up, and the key is never answered. Uses your Stripe key from your held values.",
+        "description": "Reads the promotion codes of your own Stripe account. Give code (one promotion code as the buyer types it), active (true or false) and limit (1 to 100), all optional. Answers each promotion code with its id, code, whether it is active, how many times it was redeemed and the most allowed, when it expires (Stripe's own time in seconds), its restrictions (first order only, minimum amount and its currency) and the coupon it gives (id, amount off or percent off, currency, duration and months, whether it is still valid, its own redemption counts), and whether Stripe has more beyond the list. A field Stripe did not send answers null. Only reads: nothing is created, changed or used up, and the key is never answered. Uses the Stripe key of the seller connection that seller_connection names (service_connection:stripe is your own).",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -9631,9 +9876,17 @@
               "type": "integer",
               "minimum": 1,
               "maximum": 100
+            },
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "required": [
+            "seller_connection"
+          ]
         },
         "output_schema": {
           "type": "object",
@@ -9860,10 +10113,14 @@
           },
           "credential_mounts": [
             {
-              "secret_name": "stripe-api-key",
-              "fd": 4
+              "fd": 4,
+              "field_id": "secret_key"
             }
-          ]
+          ],
+          "connection": {
+            "vendor": "stripe",
+            "from_input": "seller_connection"
+          }
         },
         "result_selector": "$.result",
         "needs": {
@@ -9882,6 +10139,7 @@
           {
             "kind": "sample-run",
             "input": {
+              "seller_connection": "service_connection:stripe:sample",
               "code": "SAMPLEFRIEND25"
             },
             "shape_read_at": "2026-11-12",
@@ -9941,7 +10199,7 @@
         "id": "tool:read-stripe-promotion-codes-in-test-mode",
         "label": "Read the promotion codes in Stripe test mode",
         "job": "Read the promotion codes and coupons in your Stripe test account, to see a read work before it is run on the real account",
-        "description": "Reads the promotion codes of your Stripe test account. Only a Stripe test key is accepted (it must start with a test prefix, checked before anything is built); it comes from your held values under a test-key name. Give code (one promotion code as the buyer types it), active (true or false) and limit (1 to 100), all optional. Answers each promotion code with its id, code, whether it is active, how many times it was redeemed and the most allowed, when it expires (Stripe's own time in seconds), its restrictions (first order only, minimum amount and its currency) and the coupon it gives (id, amount off or percent off, currency, duration and months, whether it is still valid, its own redemption counts), and whether Stripe has more beyond the list. A field Stripe did not send answers null. Only reads: nothing is created, changed or used up, and the key is never answered.",
+        "description": "Reads the promotion codes of your Stripe test account. Only a Stripe test key is accepted (it must start with a test prefix, checked before anything is built); it is the test key of the seller connection that seller_connection names. Give code (one promotion code as the buyer types it), active (true or false) and limit (1 to 100), all optional. Answers each promotion code with its id, code, whether it is active, how many times it was redeemed and the most allowed, when it expires (Stripe's own time in seconds), its restrictions (first order only, minimum amount and its currency) and the coupon it gives (id, amount off or percent off, currency, duration and months, whether it is still valid, its own redemption counts), and whether Stripe has more beyond the list. A field Stripe did not send answers null. Only reads: nothing is created, changed or used up, and the key is never answered.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -9956,9 +10214,17 @@
               "type": "integer",
               "minimum": 1,
               "maximum": 100
+            },
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "required": [
+            "seller_connection"
+          ]
         },
         "output_schema": {
           "type": "object",
@@ -10185,10 +10451,14 @@
           },
           "credential_mounts": [
             {
-              "secret_name": "stripe-test-api-key",
-              "fd": 4
+              "fd": 4,
+              "field_id": "test_secret_key"
             }
-          ]
+          ],
+          "connection": {
+            "vendor": "stripe",
+            "from_input": "seller_connection"
+          }
         },
         "result_selector": "$.result",
         "needs": {
@@ -10207,10 +10477,11 @@
           {
             "kind": "sample-run",
             "input": {
+              "seller_connection": "service_connection:stripe:sample",
               "code": "SAMPLEFRIEND25"
             },
             "held": {
-              "stripe-test-api-key": "sk_test_made_up_sample_key"
+              "test_secret_key": "sk_test_made_up_sample_key"
             },
             "shape_read_at": "2026-11-12",
             "replies": [

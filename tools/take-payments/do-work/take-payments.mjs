@@ -8,8 +8,8 @@
 //   door     the person's records door (descriptor 3): their offers, code adjustments and eligibility rules are
 //            records they keep, read from there when the request does not carry them.
 //   send     delivers one built Stripe request. By default it is made from the person's own Stripe key, which the row
-//            mounts on descriptor 4 under the held-value name `stripe-api-key`; tests pass a stand-in.
-//   secrets  { webhookSecret }: the signing secret the row mounts on descriptor 5 (`stripe-webhook-secret`).
+//            mounts on descriptor 4 as the field of the seller's connection the input `seller_connection` names; tests pass a stand-in.
+//   secrets  { webhookSecret }: the signing secret the row mounts on descriptor 5 (the connection's `webhook_secret`).
 //   readKey  how a held value is read from its descriptor (tests pass a stand-in; the default reads the descriptor).
 //
 // Nothing here prices anything, names a product, or holds a key. A request is built from the person's offer rows and
@@ -18,7 +18,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { openBillingPage } from './billing-portal.mjs';
-import { readCheckoutOffers } from '../../funnels-and-offers/read-data/read-offers.ts';
+import { readCheckoutOffers, suggestionKey } from '../../funnels-and-offers/read-data/read-offers.ts';
 import { resolveOfferVariants } from '../../funnels-and-offers/read-data/offer-variants.mjs';
 import { readCheckoutCodeAdjustments } from '../read-data/read-code-adjustments.ts';
 import { buildCheckoutMaterialQuote, buildCheckoutQuote } from '../read-data/checkout-quote.ts';
@@ -69,23 +69,30 @@ async function recordsOf(door, type, kind = type) {
   return values;
 }
 
-/** The rows of each suggestion list an offer names (`voluntary_amount_policy.suggestion_rows.list`), read through the
- *  person's records door. A list's definition gives its row type; its rows are the records of that type under the row
- *  prefix. This is the one place a list is read: the offer reader takes these rows as given and reads no records. */
+/** The one row type every offer's suggested amounts are kept as (list `row_type` offer-amount-choice). A run's records
+ *  right is a kind the tool row names, so the type is fixed here and one list holds the choices of every offer: a row links
+ *  the offer it belongs to in the field the offer's `suggestion_rows.offer_field` names (a link holds a list of ids). */
+const SUGGESTION_ROW_TYPE = 'record:offer-amount-choice';
+
+/** The rows of each suggestion list an offer names (`voluntary_amount_policy.suggestion_rows`), read through the person's
+ *  records door: all rows of the one suggestion row type, kept per offer under `suggestionKey(offer id, list)` for the rows
+ *  that name that offer. This is the one place a list is read: the offer reader takes these rows as given and reads no records. */
 export async function suggestionListsOf(rows, door) {
-  const lists = new Map();
+  const named = [];
   for (const offer of resolveOfferVariants(rows)) {
     for (const option of Array.isArray(offer?.price_options) ? offer.price_options : []) {
-      const address = option?.voluntary_amount_policy?.suggestion_rows?.list;
-      if (typeof address !== 'string' || lists.has(address)) continue;
-      if (!door) throw new Error(`${address} is named by an offer, and the offers' suggestions are read through the records door.`);
-      const definition = await door.read('list', address);
-      if (!object(definition) || typeof definition.row_type !== 'string') throw new Error(`${address} is not a list the person keeps.`);
-      const type = `record:${definition.row_type}`;
-      const values = [];
-      for await (const record of door.list({ type, prefix: `${type}:` })) values.push(record.value);
-      lists.set(address, values);
+      const declaration = option?.voluntary_amount_policy?.suggestion_rows;
+      if (typeof declaration?.list === 'string') named.push({ offerId: offer.id, declaration });
     }
+  }
+  const lists = new Map();
+  if (named.length === 0) return lists;
+  if (!door) throw new Error(`${named[0].declaration.list} is named by an offer, and the offers' suggestions are read through the records door.`);
+  const values = [];
+  for await (const record of door.list({ type: SUGGESTION_ROW_TYPE })) if (object(record.value)) values.push(record.value);
+  for (const { offerId, declaration } of named) {
+    const field = declaration.offer_field;
+    lists.set(suggestionKey(offerId, declaration.list), typeof field === 'string' ? values.filter(value => [value[field]].flat().includes(offerId)) : values);
   }
   return lists;
 }
@@ -97,7 +104,7 @@ async function offersOf(input, context, options) {
 }
 
 async function adjustmentsOf(input, context) {
-  return readCheckoutCodeAdjustments(Array.isArray(input.adjustments) ? input.adjustments : await recordsOf(context.door, 'checkout-code-adjustment'));
+  return readCheckoutCodeAdjustments(Array.isArray(input.adjustments) ? input.adjustments : await recordsOf(context.door, 'record:checkout-code-adjustment', 'checkout-code-adjustment'));
 }
 
 function sender(context) {
@@ -218,7 +225,7 @@ export async function checkWhatWasPaid(input, context) {
 /** The offers a buyer may see, given the access they already hold and the person's eligibility rules. */
 export async function showOffersForABuyer(input, context) {
   const offers = await offersOf(input, context);
-  const rules = Array.isArray(input.rules) ? input.rules : await recordsOf(context.door, 'offer-eligibility-rule');
+  const rules = Array.isArray(input.rules) ? input.rules : await recordsOf(context.door, 'record:offer-eligibility-rule', 'offer-eligibility-rule');
   const { offers: visible, decisions } = applyOfferEligibility(offers, input.held_access_refs ?? [], rules);
   return { offers: visible, decisions };
 }

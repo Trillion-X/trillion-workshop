@@ -48,7 +48,12 @@ test('a row can reach the internet only to talk to Stripe with the person\'s own
     const mounts = row.invoke.credential_mounts ?? [];
     if (row.invoke.internet) assert.equal(mounts.length, 1, `${row.id} reaches Stripe with exactly one held key`);
     if (mounts.length) assert.ok(row.invoke.internet || row.id === 'tool:check-a-stripe-event', `${row.id} mounts a secret only to use it`);
-    for (const mount of mounts) assert.match(mount.secret_name, /^stripe-[a-z-]+$/, `${row.id} names its held value`);
+    // The key is the seller's own: the row names a field of the seller's Stripe connection, and the run's input says whose.
+    for (const mount of mounts) assert.match(mount.field_id, /^(?:secret_key|test_secret_key|webhook_secret)$/, `${row.id} names a field of the seller's connection`);
+    if (mounts.length) {
+      assert.deepEqual(row.invoke.connection, { vendor: 'stripe', from_input: 'seller_connection' }, `${row.id} takes the seller's connection from its input`);
+      assert.ok(row.input_schema.required.includes('seller_connection'), `${row.id} requires seller_connection`);
+    }
     // A sample's held values are made up; the one a key-prefix check needs is a visibly made-up test-mode key.
     const held = (row.verify ?? []).flatMap(item => Object.values(item.held ?? {}));
     for (const value of held) assert.ok(!/\b(?:sk|rk|whsec)_/.test(value) || /^(?:sk|rk)_test_made_up_[a-z_]+$/.test(value), `${row.id}: a sample's held key is a made-up test key`);
@@ -80,7 +85,7 @@ test('each sample run answers what the row says it should', async () => {
       const [command, ...rest] = row.invoke.argv.map(onThisComputer);
       // The engine gives a row its records door on descriptor 3, as run-an-export.mjs reads it: the same fake door the
       // records-door tests use, with the rights the adjustment list needs.
-      const door = await startFakeDoor({ rights: [{ kind: 'checkout-code-adjustment', operations: ['records:list'] }] });
+      const door = await startFakeDoor({ rights: [{ kind: 'record:checkout-code-adjustment', operations: ['records:list'] }, { kind: 'record:offer-eligibility-rule', operations: ['records:list'] }] });
       const stdout = await runWithDoor(command === 'node' ? process.execPath : command, rest, sample.input, door.descriptor)
         .finally(() => door.close());
       const answer = JSON.parse(stdout.trim().split('\n').at(-1));

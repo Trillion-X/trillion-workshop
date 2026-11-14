@@ -103,7 +103,7 @@ test('every read row names a GET operation of the operation map, and an input th
   }
   for (const id of ['tool:read-stripe-promotion-codes', 'tool:read-stripe-promotion-codes-in-test-mode']) {
     const row = rows.find(candidate => candidate.id === id);
-    assert.deepEqual(Object.keys(row.input_schema.properties).sort(), Object.keys(readShapes.reads[0].inputs).sort(), id);
+    assert.deepEqual(Object.keys(row.input_schema.properties).filter(name => name !== 'seller_connection').sort(), Object.keys(readShapes.reads[0].inputs).sort(), id);
     assert.equal(row.invoke.credential_mounts.length, 1);
   }
 });

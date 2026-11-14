@@ -1,5 +1,5 @@
 import { describe, expect, it } from './expect.mjs';
-import { readCheckoutOffers } from '../../funnels-and-offers/read-data/read-offers.ts';
+import { readCheckoutOffers, suggestionKey } from '../../funnels-and-offers/read-data/read-offers.ts';
 
 /** One offer whose single price option carries exactly the fields the caller names.
  *
@@ -95,7 +95,7 @@ describe('readCheckoutOffers voluntary amount policy', () => {
 
 describe('readCheckoutOffers fixed suggested amounts named by a list of rows', () => {
   const amountRows = { list: 'list:tip-amounts', value_field: 'cents', shown_field: 'shown' };
-  const lists = (rows: unknown[]) => new Map([['list:tip-amounts', rows]]);
+  const lists = (rows: unknown[]) => new Map([[suggestionKey('offer:contribution', 'list:tip-amounts'), rows]]);
   const policy = (extra: Record<string, unknown>) => ({ allow_custom: true, currency: 'usd', min_cents: 100, suggestion_rows: amountRows, ...extra });
 
   it('offers the rows that are shown, and keeps a hidden amount out of suggested_cents', () => {

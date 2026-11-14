@@ -215,15 +215,17 @@ export function discoveredPriceCents(rule: {
 
 /** One suggested amount as the list or the inline array states it: its value and whether it is offered. */
 type SuggestionEntry = { value: unknown; shown: boolean };
-/** The rows of each suggestion list an offer names, keyed by the list's address (`list:<id>`). Read by the caller. */
+/** The rows of each suggestion list an offer names, keyed by `suggestionKey(offer id, list address)`: the rows of the
+ *  list that name that offer in the field `suggestion_rows.offer_field` (every row when it names none). Read by the caller. */
 export type SuggestionLists = ReadonlyMap<string, readonly unknown[]>;
+export const suggestionKey = (offerId: string, list: string): string => `${offerId}\n${list}`;
 /** What a named list gives an offer: its suggested amounts, and its custom-amount row when it has one. */
 type ListedSuggestions = { entries: SuggestionEntry[]; custom: { shown: boolean } | undefined };
 
 /** The rows of the list an offer's `suggestion_rows` names. Every row states its `shown` switch. A suggested row states
  *  its amount (or multiple) in `value_field`. The row whose `custom_field` is true is the custom-amount choice, and its
  *  switch is allow_custom. */
-function readSuggestionRows(declaration: unknown, lists: SuggestionLists | undefined): ListedSuggestions {
+function readSuggestionRows(declaration: unknown, lists: SuggestionLists | undefined, offerId: string): ListedSuggestions {
   if (!isRecord(declaration)) throw new Error('voluntary_amount_policy.suggestion_rows must be an object.');
   const list = readString(declaration.list);
   const valueField = readString(declaration.value_field);
@@ -235,7 +237,10 @@ function readSuggestionRows(declaration: unknown, lists: SuggestionLists | undef
   if (declaration.custom_field !== undefined && !customField) {
     throw new Error('voluntary_amount_policy.suggestion_rows.custom_field must name a field.');
   }
-  const rows = lists?.get(list);
+  if (declaration.offer_field !== undefined && !readString(declaration.offer_field)) {
+    throw new Error('voluntary_amount_policy.suggestion_rows.offer_field must name a field.');
+  }
+  const rows = lists?.get(suggestionKey(offerId, list));
   if (!rows) throw new Error(`voluntary_amount_policy.suggestion_rows names ${list}, whose rows were not read.`);
   const entries: SuggestionEntry[] = [];
   let custom: { shown: boolean } | undefined;
@@ -361,12 +366,13 @@ function readVoluntaryAmountPolicy(
   value: unknown,
   optionCurrency: string | undefined,
   lists: SuggestionLists | undefined,
+  offerId: string,
 ): VoluntaryAmountPolicy | undefined {
   if (!isRecord(value)) {
     throw new Error('voluntary_amount_policy must be an object.');
   }
   if (value.enabled === false) return undefined;
-  const listed = value.suggestion_rows === undefined ? undefined : readSuggestionRows(value.suggestion_rows, lists);
+  const listed = value.suggestion_rows === undefined ? undefined : readSuggestionRows(value.suggestion_rows, lists, offerId);
   const discovered = value.price_discovery === undefined ? null : discoveredPolicy(value.price_discovery, listed?.entries);
   if (discovered && (value.min_cents != null || value.minimum_amount_cents != null || value.suggested_cents != null)) {
     throw new Error('voluntary_amount_policy with price_discovery derives min_cents and suggested_cents; it may not also state them.');
@@ -520,7 +526,7 @@ function readChargeDimensions(value: unknown): CommercialChargeDimension[] | und
   return dimensions;
 }
 
-function readPriceOptions(value: unknown, lists: SuggestionLists | undefined): CommercialPriceOption[] {
+function readPriceOptions(value: unknown, lists: SuggestionLists | undefined, offerId: string): CommercialPriceOption[] {
   if (!Array.isArray(value)) return [];
   return value.flatMap((option, index) => {
     if (!isRecord(option)) return [];
@@ -546,7 +552,7 @@ function readPriceOptions(value: unknown, lists: SuggestionLists | undefined): C
       : undefined;
     const chargeDimensions = readChargeDimensions(option.charge_dimensions);
     const voluntaryAmountPolicy = Object.prototype.hasOwnProperty.call(option, 'voluntary_amount_policy')
-      ? readVoluntaryAmountPolicy(option.voluntary_amount_policy, currency, lists)
+      ? readVoluntaryAmountPolicy(option.voluntary_amount_policy, currency, lists, offerId)
       : undefined;
     if (chargeDimensions && (
       includedUnits != null
@@ -636,7 +642,7 @@ export function readCheckoutOffers(
         id,
         label,
         ...(postPurchaseRoutePath ? { post_purchase_route_path: postPurchaseRoutePath } : {}),
-        price_options: readPriceOptions(record.price_options, options.suggestionLists),
+        price_options: readPriceOptions(record.price_options, options.suggestionLists, id),
         ...(publicOfferId ? { public_offer_id: publicOfferId } : {}),
         // Only an explicit `false` withholds an offer. Anything else, including
         // a missing field, is an offer that may be shown, so nothing that has

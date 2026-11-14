@@ -5,7 +5,7 @@
 // Every assertion is about what a BUYER is offered and what checkout ENFORCES,
 // both of which come out of readCheckoutOffers, so they cannot disagree.
 import { describe, expect, it } from './expect.mjs';
-import { discoveredPriceCents, readCheckoutOffers } from '../../funnels-and-offers/read-data/read-offers.ts';
+import { discoveredPriceCents, readCheckoutOffers, suggestionKey } from '../../funnels-and-offers/read-data/read-offers.ts';
 
 const offerWith = (discovery: Record<string, unknown>) => ({
   records: [{
@@ -103,7 +103,7 @@ const listedOffer = (policy: Record<string, unknown>) => ({
 });
 const multiplesList = 'list:membership-multiples';
 const multiplesRows = { list: multiplesList, value_field: 'multiple', shown_field: 'shown' };
-const listsWith = (rows: unknown[]) => new Map([[multiplesList, rows]]);
+const listsWith = (rows: unknown[]) => new Map([[suggestionKey('offer:membership', multiplesList), rows]]);
 const discovery = { start_cents: 5000, sales_to_double: 1, target_win_rate: 0.05, sales: 0, reached_price: 0 };
 
 describe('price discovery ceiling and fixed price', () => {
