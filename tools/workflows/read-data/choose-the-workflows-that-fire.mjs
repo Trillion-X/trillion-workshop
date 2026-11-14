@@ -17,10 +17,10 @@
 
 import { readdirSync, readFileSync } from 'node:fs';
 import { filterRecords } from '../../formulas/do-work/requests.mjs';
+import { conditionProblems, FIRES_WHEN } from './fires-when.mjs';
 
 const RECIPES = new URL('../recipes/', import.meta.url);
 const ROW_TYPES = JSON.parse(readFileSync(new URL('../arrivals/recipe-row-types.json', import.meta.url), 'utf8'));
-export const FIRES_WHEN = JSON.parse(readFileSync(new URL('../branches/fires-when.json', import.meta.url), 'utf8'));
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const parsed = (value, where) => {
@@ -28,24 +28,6 @@ const parsed = (value, where) => {
   if (typeof value !== 'string') return value;
   try { return JSON.parse(value); } catch { throw new Error(`${where} is not JSON.`); }
 };
-
-// Every problem with one workflow's conditions, as sentences; none when they are absent.
-export function conditionProblems(conditions, where = FIRES_WHEN.field) {
-  if (conditions === undefined) return [];
-  if (!Array.isArray(conditions)) return [`${where} must be a list of conditions { label, condition: { fields, tree }, made_by, state }.`];
-  const problems = [];
-  conditions.forEach((item, index) => {
-    const name = `${where}[${index}]`;
-    if (!object(item) || typeof item.label !== 'string' || !item.label.trim()) { problems.push(`${name} must have a label saying the condition in words.`); return; }
-    if (!object(item.condition) || !Array.isArray(item.condition.fields) || !object(item.condition.tree)) { problems.push(`${name}.condition must be { fields, tree } as tool:filter-rows-by-rules takes them.`); return; }
-    if (typeof item.made_by !== 'string' || !item.made_by) problems.push(`${name}.made_by must say who wrote the condition.`);
-    let answer;
-    try { answer = filterRecords({ records: [], fields: item.condition.fields, tree: item.condition.tree }); } catch (error) { problems.push(`${name}.condition is refused: ${error.message}`); return; }
-    if (answer.incomplete.length) problems.push(`${name}.condition has unfinished rules: ${JSON.stringify(answer.incomplete)}.`);
-    if (!answer.reads.length) problems.push(`${name}.condition reads no field, so it would keep every part.`);
-  });
-  return problems;
-}
 
 // The installed catalog: every recipe of the files beside this module, by id.
 function catalogRecipes() {

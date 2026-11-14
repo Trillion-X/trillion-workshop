@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:f4936f087c310aa3ac4001120f5161e34078d1e2c212f13e75102f7b1e120267"
+  "blake3": "1f:95b23b6a3d74e9393d9276758d2e09ba537e1b3ec77338cc89d00fc2f372b466"
  },
  "fields": [
   {
@@ -13934,6 +13934,21 @@
      "placement:your-computer"
     ],
     "folder": "turn-frames-into-slides"
+   }
+  },
+  {
+   "id": "tool:turn-my-agent-skills-into-workflows",
+   "values": {
+    "title": "Turn my agent skills into workflows my AI can find and run",
+    "job": "Take the agent skills I have installed (the rows of my agent-skills list) and make each one a workflow in my own account, leaving out any skill that names a secret key, a folder on my computer, an email address, a phone number or one of my private words",
+    "description": "Reads the rows of the person's own agent-skills list (record:agent-skill; a long file is several rows, joined in order). A skill is a folder holding a SKILL.md with a name and a description. Each skill whose text is clean becomes one workflow in the person's own list of workflows: a row whose id is workflow: then skill- then the skill's name and one step whose instructions are the skill's, with its text files (smallest first, within a size budget) under files. A skill whose SKILL.md or shipped files match a secret key, a computer path, an email address, a phone number, or a word in input.private_words stays home, and the answer names it and the kind of reason, never the text. Writes only into the person's own account, never the public Workshop. The same skills write the same ids, so a re-run updates; a workflow whose skill is gone is named under stale and left alone. input.dry_run answers what would be made and left out and writes nothing; input.folder keeps only skills under that folder. What is screened and the size budget are data (data/skill-import-rules.json), not code.",
+    "status": "active",
+    "maker": "maker:workflows",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "turn-a-folder-of-agent-skills-into-workflows"
    }
   },
   {

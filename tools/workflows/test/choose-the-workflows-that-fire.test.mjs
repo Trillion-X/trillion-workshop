@@ -4,8 +4,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { chooseTheWorkflowsThatFire } from '../read-data/choose-the-workflows-that-fire.mjs';
-import { startARecipeRun } from '../read-data/start-a-recipe-run.mjs';
+import { conditionProblems } from '../read-data/fires-when.mjs';
 import { recipeProblems } from '../read-data/recipe-problems.mjs';
+import { startARecipeRun } from '../read-data/start-a-recipe-run.mjs';
 
 const installed = JSON.parse(readFileSync(new URL('../recipes/workflows.json', import.meta.url), 'utf8')).records.map(({ payload }) => payload);
 
@@ -79,11 +80,13 @@ test('an Off condition chooses nothing, an unfinished one is named, and a workfl
   assert.ok(answer.unconditioned.some(item => item.workflow === 'workflow:bare-one' && item.label === 'Bare'));
 });
 
-test('a recipe whose conditions the engine cannot evaluate, or that keep every part, is refused', () => {
-  const base = installed.find(recipe => recipe.id === 'workflow:first-win');
+test('every installed condition is one the engine evaluates; one it cannot, or that keeps every part, is named', () => {
+  for (const recipe of installed) assert.deepEqual(conditionProblems(recipe.fires_when, recipe.id), [], `${recipe.id} conditions`);
   const keepsAll = { label: 'always', condition: { fields: [], tree: { kind: 'group', combinator: 'and', negate: false, rules: [] } }, made_by: 'x', state: 'On' };
-  assert.deepEqual(recipeProblems({ ...base, fires_when: [keepsAll] }), ['fires_when[0].condition reads no field, so it would keep every part.']);
-  assert.match(recipeProblems({ ...base, fires_when: {} })[0], /must be a list of conditions/);
+  assert.deepEqual(conditionProblems([keepsAll]), ['fires_when[0].condition reads no field, so it would keep every part.']);
+  assert.match(conditionProblems({})[0], /must be a list of conditions/);
+  const base = installed.find(recipe => recipe.id === 'workflow:first-win');
+  assert.deepEqual(recipeProblems({ ...base, fires_when: [keepsAll] }), ['fires_when[0].condition reads no field, so it would keep every part.'], 'the validator refuses it too');
 });
 
 test('parts are required', async () => {

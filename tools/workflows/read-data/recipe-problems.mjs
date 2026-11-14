@@ -4,7 +4,7 @@
 import { readFileSync } from 'node:fs';
 import { wakeProblems, WAKE_VOCABULARY } from './wake-problems.mjs';
 import { agentProblems, runsLaneJobs } from './step-agents.mjs';
-import { conditionProblems, FIRES_WHEN } from './choose-the-workflows-that-fire.mjs';
+import { conditionProblems, FIRES_WHEN } from './fires-when.mjs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;

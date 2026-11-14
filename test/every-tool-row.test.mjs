@@ -50,6 +50,17 @@ test('no two rows share an id', () => {
   }
 });
 
+// The engine admits a run's records rights only when most_writes is a whole number from 1 to its write cap
+// (trillion-rust account_rights/run_capability.rs); a row that writes nothing still says 1, else every run is refused as
+// workshop_tool_not_runnable_here (tool:choose-the-workflows-that-fire said 0 on 2026-11-13).
+test('a row\'s most_writes, when it gives one, is a whole number of at least 1', () => {
+  for (const { payload } of rows) {
+    const most = payload.invoke?.records?.most_writes;
+    if (most === undefined || most === null) continue;
+    assert.ok(Number.isInteger(most) && most >= 1, `${payload.id} gives most_writes ${JSON.stringify(most)}`);
+  }
+});
+
 test('a row\'s files are in the tool folder it names, and its licence class is a listed one', () => {
   for (const { payload } of rows) {
     if (payload.licence_class) assert.ok(classes.has(payload.licence_class), `${payload.id}: ${payload.licence_class} is in licence-classes.json`);

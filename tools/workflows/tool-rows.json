@@ -390,6 +390,7 @@
                 "package": "workflows",
                 "paths": [
                   "read-data/choose-the-workflows-that-fire.mjs",
+                  "read-data/fires-when.mjs",
                   "recipes",
                   "arrivals",
                   "branches"
@@ -451,7 +452,7 @@
           },
           "records": {
             "fd": 3,
-            "most_writes": 0,
+            "most_writes": 1,
             "rights": [
               {
                 "kind": "record:workflow-recipe",
