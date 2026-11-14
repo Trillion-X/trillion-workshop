@@ -1,16 +1,16 @@
 {
-  "start_here": "Say to your AI: \"List the sending keys on my Resend account with their names and dates.\" It runs tool:list-sending-keys-with-resend, which shows ids and names, never a key.",
+  "start_here": "Say to your AI: \"List the sending keys on my Resend account with their names and dates.\" It runs tool:list-sending-keys, which shows ids and names, never a key.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it reads the keys your email-sending account has and writes nothing.",
   "workflows": [],
   "tools": [
-    "tool:list-sending-keys-with-resend"
+    "tool:list-sending-keys"
   ],
   "instructions": [
     "1. Connect your Resend account once so your key is held under the name resend-api-key; the key is never typed into the request.",
-    "2. Say to your AI: \"List my Resend keys\". It calls tools:run with tool tool:list-sending-keys-with-resend and an empty input {}.",
+    "2. Say to your AI: \"List my Resend keys\". It calls tools:run with tool tool:list-sending-keys and an empty input {}.",
     "3. Read data: each key's id, name and created_at. A key itself is never shown (Resend shows it once, when made).",
-    "4. To turn one off, give its id to tool:remove-a-sending-key-with-resend."
+    "4. To turn one off, give its id to tool:remove-a-sending-key."
   ],
   "worked_examples": [
     {
@@ -23,7 +23,7 @@
           "address": "@workshop-tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:list-sending-keys-with-resend",
+            "tool": "tool:list-sending-keys",
             "input": {}
           }
         }

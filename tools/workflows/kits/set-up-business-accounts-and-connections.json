@@ -181,7 +181,7 @@
     "tool:check-the-facebook-page-connection",
     "tool:check-the-instagram-connection",
     "tool:list-every-connection",
-    "tool:make-a-sending-key-with-resend",
+    "tool:make-a-sending-key",
     "tool:send-a-post-to-youtube",
     "tool:set-up-someone-i-pay-in-stripe"
   ],

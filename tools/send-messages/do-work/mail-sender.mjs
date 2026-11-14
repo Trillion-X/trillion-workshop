@@ -1,8 +1,8 @@
 // tools/send-messages/do-work/mail-sender.mjs
 //
 // Purpose
-//   The one way the person's account sends an email: every email row's run (tool:send-an-email-with-resend,
-//   tool:send-an-email-with-amazon-ses), and through them the sign-in codes its door sends. Who it comes from, how many
+//   The one way the person's account sends an email: every email row's run (tool:send-an-email
+//   (any provider row)), and through them the sign-in codes its door sends. Who it comes from, how many
 //   may go and how each provider's refusals read are one DATA row, the account's own `mail-settings` record
 //   `settings:mail` (copied from read-data/mail-settings.json the first time), read here and nowhere else. Every email
 //   is drawn here (read-data/draw-an-email.mjs) in the person's look, with the account's mark (`brand`, `made_with`).
@@ -30,7 +30,7 @@
 //      with any other code, or none, may have sent it, so it answers unknown: true and is not sent again blindly.
 //
 // USAGE
-//   node mail-sender.mjs <provider id>    the request on standard input, the person's records door on descriptor 3 and
+//   node mail-sender.mjs [provider id]    the provider is the request's `provider` unless an id is given; the request on standard input, the person's records door on descriptor 3 and
 //                                         the provider's keys after it; the last line is { result: the answer }
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -415,8 +415,9 @@ export async function sendAnEmail(request, { provider, sender }) {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   try {
-    const provider = providerOf(process.argv[2]);
     const request = JSON.parse(readFileSync(0, 'utf8') || '{}');
+    const provider = providerOf(process.argv[2] ?? request.provider);
+    if (provider.channel !== 'email') throw new Error(`${provider.id} is not an email provider.`);
     const door = openRecordsDoor();
     const row = await mailSettings(door);
     const binding = bindingFor(provider, heldKeys(provider), row);

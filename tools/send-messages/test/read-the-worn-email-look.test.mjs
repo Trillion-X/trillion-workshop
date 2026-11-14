@@ -28,7 +28,7 @@ const work = mkdtempSync(join(tmpdir(), 'worn-email-look-test-'));
 const doors = [];
 after(() => Promise.all(doors.map(fake => fake.close())).then(() => rmSync(work, { recursive: true, force: true })));
 
-const rights = rowOf(rows, 'tool:send-an-email-with-resend').invoke.records.rights;
+const rights = rowOf(rows, 'tool:send-an-email').invoke.records.rights;
 const settingsWith = () => ({ ...structuredClone(SHIPPED), from: { email: 'hello@example.com', name: 'Example' }, owner: 'owner@example.com' });
 // A dark look the account can wear, from the shipped looks (its ground is black).
 const darkId = EMAIL_LOOK.looks.themes.map(row => row.payload).find(look => resolveScreenLookPalette(look)['--bg-primary'] === '#000000').id;

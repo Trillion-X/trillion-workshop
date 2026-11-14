@@ -23,6 +23,7 @@ import { buildSendInvocation, isTccDenial } from '../read-data/render-a-send.ts'
 import { MessageBlockedError, heldKeys, providerOf, providers, runAdapter, sendMessage } from '../do-work/send-a-message.mjs';
 import { SETTINGS, SETTINGS_ID, SHIPPED } from '../do-work/mail-sender.mjs';
 import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
+import { mountsFor, mountsOf } from './mounts-for.test.mjs';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const stub = fileURLToPath(new URL('./stub-fetch.mjs', import.meta.url));
@@ -235,15 +236,17 @@ describe('Messages on this Mac (carried from the Messages sender)', () => {
 describe('the keys and the rows', () => {
   const rows = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
 
-  it('each provider\'s row mounts exactly the secrets the provider\'s DATA names, one descriptor each', () => {
+  it('the tool of a provider\'s channel mounts exactly the secrets the provider\'s DATA names, one descriptor each, only when it is named', () => {
+    const toolOf = { email: 'tool:send-an-email', text: 'tool:send-a-text' };
     for (const provider of providers()) {
-      const row = rows.find(item => item.invoke.argv?.includes(provider.id) && item.invoke.argv.at(-1) === provider.id);
       if (provider.kind === 'process') {
         assert.equal(provider.credentials.length, 0);
         assert.equal(rows.find(item => item.invoke.kind === 'computer').invoke.capabilities.length, 1);
         continue;
       }
-      assert.deepEqual(row.invoke.credential_mounts, provider.credentials.map(({ secret_name, fd }) => ({ secret_name, fd })), provider.id);
+      const row = rows.find(item => item.id === toolOf[provider.channel]);
+      const mounted = row.invoke.credential_mounts.filter(mount => mount.only_when.equals === provider.id);
+      assert.deepEqual(mounted, provider.credentials.map(({ secret_name, fd }) => ({ secret_name, fd, only_when: { input: 'provider', equals: provider.id } })), provider.id);
       assert.equal(row.invoke.internet, true);
     }
   });
@@ -262,7 +265,7 @@ describe('the keys and the rows', () => {
     writeFileSync(log, '');
     const keyFile = join(work, 'key');
     writeFileSync(keyFile, 'test-key-descriptor');
-    const door = await startFakeDoor({ rights: rows.find(item => item.id === 'tool:send-an-email-with-resend').invoke.records.rights,
+    const door = await startFakeDoor({ rights: rows.find(item => item.id === 'tool:send-an-email').invoke.records.rights,
       records: [{ id: SETTINGS_ID, type: SETTINGS, value: { ...SHIPPED, from: { email: 'sender@example.com', name: 'Sender' } } }] });
     after(() => door.close());
     const stdio = ['pipe', 'pipe', 'pipe', openSync(door.descriptor, 'r'), openSync(keyFile, 'r')];
@@ -286,5 +289,44 @@ describe('the keys and the rows', () => {
     for (const provider of providers().filter(item => item.kind === 'adapter')) {
       assert.ok(readFileSync(join(folder, 'do-work', provider.adapter), 'utf8').length > 0, provider.adapter);
     }
+  });
+});
+
+describe('the tools are named for their job and reach a provider by the request, not by a vendor-named row', () => {
+  const rows = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+  const rowFor = id => rows.find(item => item.id === id);
+
+  it('no tool id names a vendor the provider rows hold', () => {
+    const vendors = providers().flatMap(provider => [provider.id, provider.id.split('-')[0]]).filter(name => name.length > 3);
+    for (const row of rows) for (const vendor of new Set(vendors)) assert.ok(!row.id.includes(vendor), `${row.id} names ${vendor}`);
+  });
+
+  it('each sending tool mounts exactly the keys the providers of its channel call for, each only when its provider is named', () => {
+    assert.deepEqual(mountsOf(rowFor('tool:send-an-email')), mountsFor('email'));
+    assert.deepEqual(mountsOf(rowFor('tool:send-a-text')), mountsFor('text'));
+    for (const id of ['tool:send-an-email', 'tool:send-a-text']) {
+      const row = rowFor(id);
+      assert.equal(row.invoke.argv.length, row.invoke.argv.findIndex(item => item.endsWith('.mjs')) + 1, `${id}: the provider is not in argv`);
+      assert.deepEqual(row.input_schema.required, ['provider'], id);
+      assert.deepEqual(row.input_schema.properties.provider, { type: 'string' }, id);
+    }
+  });
+
+  it('a provider that is not of the tool\'s channel is refused before anything is read', async () => {
+    const run = (script, input) => new Promise(done => {
+      const child = spawn(process.execPath, [join(folder, 'do-work', script)], { stdio: ['pipe', 'pipe', 'pipe'] });
+      let err = '';
+      child.stderr.on('data', chunk => { err += chunk; });
+      child.stdin.end(JSON.stringify(input));
+      child.on('close', code => done({ code, err }));
+    });
+    const email = await run('mail-sender.mjs', { provider: 'twilio-sms', recipients: ['a@example.com'] });
+    assert.equal(email.code, 1);
+    assert.match(email.err, /twilio-sms is not an email provider/);
+    const text = await run('send-a-message.mjs', { provider: 'resend', recipients: ['+15550100101'], text: 'hi' });
+    assert.equal(text.code, 1);
+    assert.match(text.err, /resend is not a text provider/);
+    const unknown = await run('mail-sender.mjs', { provider: 'no-such-provider', recipients: ['a@example.com'] });
+    assert.match(unknown.err, /Unsupported provider: no-such-provider/);
   });
 });

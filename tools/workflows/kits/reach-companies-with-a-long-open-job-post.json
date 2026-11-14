@@ -16,7 +16,7 @@
     "tool:read-public-web-page",
     "tool:read-voice",
     "tool:record-a-customer-step",
-    "tool:send-an-email-with-resend",
+    "tool:send-an-email",
     "tool:sort-bounces-and-replies",
     "tool:write-a-message-body-from-a-document"
   ],

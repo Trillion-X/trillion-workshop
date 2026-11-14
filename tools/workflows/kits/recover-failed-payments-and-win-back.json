@@ -178,7 +178,7 @@
   ],
   "tools": [
     "tool:list-ended-stripe-subscriptions",
-    "tool:send-an-email-with-resend",
+    "tool:send-an-email",
     "tool:stripe-events-read_money_since"
   ],
   "instructions": [

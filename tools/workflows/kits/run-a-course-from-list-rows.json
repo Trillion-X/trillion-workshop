@@ -279,8 +279,8 @@
   ],
   "tools": [
     "tool:check-copy",
-    "tool:send-due-email-lessons-with-resend",
-    "tool:sign-someone-up-for-an-email-course-with-resend",
+    "tool:send-due-email-lessons",
+    "tool:sign-someone-up-for-an-email-course",
     "tool:stop-an-email-course",
     "tool:work-out-where-a-learner-stands"
   ],

@@ -34,7 +34,7 @@ test('a refused or missing key says what to do, without the key', async () => {
 
 test('the sending-key row asks for a sending-only key and keeps the reply\'s token in the vault, never in the answer', () => {
   const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
-  const maker = rows.find(one => one.id === 'tool:make-a-sending-key-with-resend');
+  const maker = rows.find(one => one.id === 'tool:make-a-sending-key');
   assert.equal(maker.invoke.kind, 'http');
   assert.equal(maker.invoke.url, 'https://api.resend.com/api-keys');
   assert.deepEqual(maker.invoke.body_template.permission, { const: 'sending_access' });
@@ -70,9 +70,9 @@ test('the domain rows add, read and check a domain with the held key in the head
 test('the sending-key rows list the keys and remove one by its id with the held key in the header, never sending a key', () => {
   const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
   const header = [{ secret_name: 'resend-api-key', hosts: ['api.resend.com'], placement: { kind: 'header', name: 'Authorization', prefix: 'Bearer ' } }];
-  const list = rows.find(one => one.id === 'tool:list-sending-keys-with-resend');
+  const list = rows.find(one => one.id === 'tool:list-sending-keys');
   assert.deepEqual([list.invoke.kind, list.invoke.method, list.invoke.url], ['http', 'GET', 'https://api.resend.com/api-keys']);
-  const remove = rows.find(one => one.id === 'tool:remove-a-sending-key-with-resend');
+  const remove = rows.find(one => one.id === 'tool:remove-a-sending-key');
   assert.deepEqual([remove.invoke.kind, remove.invoke.method, remove.invoke.url], ['http', 'DELETE', 'https://api.resend.com/api-keys/{api_key_id}']);
   assert.deepEqual(remove.input_schema.required, ['api_key_id']);
   const id = new RegExp(remove.input_schema.properties.api_key_id.pattern);

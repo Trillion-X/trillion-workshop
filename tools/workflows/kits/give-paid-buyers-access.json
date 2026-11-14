@@ -1,5 +1,5 @@
 {
- "start_here": "Say to your AI: \"Run workflow:give-paid-buyers-access for offer offer:sourdough-club, customer records of type record:club-customer, email tool tool:send-an-email-with-resend from club@example.com, with a setup email saying how to pick up the first loaf.\"",
+ "start_here": "Say to your AI: \"Run workflow:give-paid-buyers-access for offer offer:sourdough-club, customer records of type record:club-customer, email provider resend from club@example.com, with a setup email saying how to pick up the first loaf.\"",
  "lists": [],
  "no_lists_because": "It names no list: it keeps customer records of the type you give it as customer_record_type, one per paid checkout, through your records.",
  "workflows": [
@@ -7,8 +7,7 @@
  ],
  "tools": [
   "tool:start-a-recipe-run",
-  "tool:send-an-email-with-resend",
-  "tool:send-an-email-with-amazon-ses",
+  "tool:send-an-email",
   "tool:list-completed-stripe-checkouts",
   "tool:look-up-a-stripe-checkout",
   "tool:check-what-a-buyer-paid",
@@ -16,8 +15,8 @@
   "tool:list-ended-stripe-subscriptions"
  ],
  "instructions": [
-  "1. Declare the offer with its prices and connect Stripe; pick the email tool you use (Resend or Amazon SES) and the from address.",
-  "2. Say \"Run workflow:give-paid-buyers-access\" with offer_id, email_tool, from and setup_email (subject and text, with {email} and {people} placeholders); customer_record_type and start_unix are optional.",
+  "1. Declare the offer with its prices and connect Stripe; name the email provider you connected and the from address.",
+  "2. Say \"Run workflow:give-paid-buyers-access\" with offer_id, email_provider, from and setup_email (subject and text, with {email} and {people} placeholders); customer_record_type and start_unix are optional.",
   "3. Schedule it every 15 minutes. Each run lists checkouts paid since the last one kept, checks each amount against a declared price and keeps one record per checkout.",
   "4. Read what it tells you: a checkout whose amount matches no price is not kept and is named to you.",
   "5. Each new customer gets the setup email once; customers whose subscription ended are marked ended and keep their record."
@@ -38,7 +37,7 @@
        "row": "workflow:give-paid-buyers-access",
        "offer_id": "offer:sourdough-club",
        "customer_record_type": "record:club-customer",
-       "email_tool": "tool:send-an-email-with-resend",
+       "email_provider": "resend",
        "from": "club@example.com",
        "setup_email": {
         "subject": "Your Sourdough Club loaf is ready to book",

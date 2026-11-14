@@ -1,19 +1,19 @@
 {
-  "start_here": "Say to your AI: \"Make a send-only Resend key named Bakery newsletter and keep it as bakery-newsletter-key.\" It runs tool:make-a-sending-key-with-resend with those two values.",
+  "start_here": "Say to your AI: \"Make a send-only Resend key named Bakery newsletter and keep it as bakery-newsletter-key.\" It runs tool:make-a-sending-key with those two values.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it asks your email-sending account for a new send-only key and keeps that key in your vault under the name you give.",
   "workflows": [],
   "tools": [
-    "tool:make-a-sending-key-with-resend",
-    "tool:list-sending-keys-with-resend",
-    "tool:remove-a-sending-key-with-resend"
+    "tool:make-a-sending-key",
+    "tool:list-sending-keys",
+    "tool:remove-a-sending-key"
   ],
   "instructions": [
     "1. Connect your Resend account once so your key is held under the name resend-api-key; the key is never typed into the request.",
     "2. Choose a name Resend should show (1 to 50 characters) and a vault name keep_as (lower case letters, digits and dashes, for example bakery-newsletter-key). If that vault name is already held, nothing is asked and nothing is replaced.",
-    "3. Say to your AI: \"Make a sending key named <name> and keep it as <keep_as>\". It calls tools:run with tool tool:make-a-sending-key-with-resend and {\"name\", \"keep_as\"}, plus domain_id to limit the key to one domain.",
+    "3. Say to your AI: \"Make a sending key named <name> and keep it as <keep_as>\". It calls tools:run with tool tool:make-a-sending-key and {\"name\", \"keep_as\"}, plus domain_id to limit the key to one domain.",
     "4. Read the answer: the new key's id and the held word in place of the key. The key itself is never shown; it sits in your vault under keep_as.",
-    "5. Later list keys with tool:list-sending-keys-with-resend and turn one off with tool:remove-a-sending-key-with-resend."
+    "5. Later list keys with tool:list-sending-keys and turn one off with tool:remove-a-sending-key."
   ],
   "worked_examples": [
     {
@@ -26,7 +26,7 @@
           "address": "@workshop-tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:make-a-sending-key-with-resend",
+            "tool": "tool:make-a-sending-key",
             "input": {
               "name": "Bakery newsletter",
               "keep_as": "bakery-newsletter-key"

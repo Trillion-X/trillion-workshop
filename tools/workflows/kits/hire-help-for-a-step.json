@@ -8,8 +8,7 @@
  "tools": [
   "tool:start-a-recipe-run",
   "tool:hold-to-it",
-  "tool:send-an-email-with-amazon-ses",
-  "tool:send-an-email-with-resend"
+  "tool:send-an-email"
  ],
  "instructions": [
   "1. Say what must be done in person (step), and where, when and what proof you want (where, when, proof_wanted); only step is required.",

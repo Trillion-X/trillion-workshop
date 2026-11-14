@@ -9816,7 +9816,7 @@
           "type": "object",
           "required": [
             "offer_id",
-            "email_tool",
+            "email_provider",
             "from",
             "setup_email"
           ],
@@ -9837,12 +9837,9 @@
               "default": "customer",
               "description": "The record type each buyer is kept as"
             },
-            "email_tool": {
-              "enum": [
-                "tool:send-an-email-with-resend",
-                "tool:send-an-email-with-amazon-ses"
-              ],
-              "description": "The send-messages tool the seller has a sender and key for"
+            "email_provider": {
+              "type": "string",
+              "description": "The id of the email provider row the seller connected, as read-data/message-providers.json of send-messages names it"
             },
             "from": {
               "type": "string",
@@ -10036,7 +10033,7 @@
           {
             "id": "send-setup",
             "title": "Send each new customer the setup email once",
-            "do": "For each record kept in this run whose setup_sent_at is empty, call input.email_tool with { to: email, from: input.from, subject: input.setup_email.subject, text: input.setup_email.text with {email} and {people} filled, idempotencyKey: setup:<provider_session_id> }. Then write setup_sent_at (the send's time) on the record.",
+            "do": "For each record kept in this run whose setup_sent_at is empty, call tool:send-an-email with { provider: input.email_provider, to: email, from: input.from, subject: input.setup_email.subject, text: input.setup_email.text with {email} and {people} filled, idempotencyKey: setup:<provider_session_id> }. Then write setup_sent_at (the send's time) on the record.",
             "submit": {
               "type": "object",
               "required": [
@@ -12711,7 +12708,7 @@
           {
             "id": "book",
             "title": "Book it and hold them to it",
-            "do": "After the tap, book through the person's own account on the service (or send the email with tool:send-an-email-with-amazon-ses or tool:send-an-email-with-resend, whichever the person's connection is), record that it was sent, put the time on the calendar (tool:hold-to-it), and after it check the proof arrived; if it did not, follow up and tell the person.",
+            "do": "After the tap, book through the person's own account on the service (or send the email with tool:send-an-email with the provider the person's connection is), record that it was sent, put the time on the calendar (tool:hold-to-it), and after it check the proof arrived; if it did not, follow up and tell the person.",
             "submit": {
               "type": "object",
               "required": [
@@ -29248,7 +29245,7 @@
         "produces": "Each new buyer on the five-day course with a customer record and a day-by-day journey.",
         "source": {
           "from": "business-on-trillion meta-workflow, generic and public",
-          "note": "After the sale. Live tools: sign-someone-up-for-an-email-course-with-resend, send-due-email-lessons-with-resend, add-a-customer, record-a-customer-step, see-where-each-customer-is, send-an-email-with-resend. send-follow-up-emails-after-sign-up is not a live tool."
+          "note": "After the sale. Live tools: sign-someone-up-for-an-email-course, send-due-email-lessons, add-a-customer, record-a-customer-step, see-where-each-customer-is, send-an-email. send-follow-up-emails-after-sign-up is not a live tool."
         },
         "fires_when": [
           {
@@ -29322,7 +29319,7 @@
           {
             "id": "sign-up-the-buyer",
             "title": "Sign a new buyer up for the five-day course",
-            "do": "Call tool:sign-someone-up-for-an-email-course-with-resend with input {\"email\": \"<the buyer's email>\", \"consent\": true, \"course\": {\"id\": \"five-day-start\", \"public_origin\": \"<https site root>\", \"checkout_url\": \"<the payment link>\", \"from\": \"<verified sending address>\", \"mailing_address\": \"<mailing address>\", \"consent_text\": \"<the words the buyer agreed to>\", \"consent_version\": \"1\", \"lessons\": \"<the five lessons>\"}, \"provider\": \"resend\", \"source\": \"buyer-after-payment\"}. consent is true only when the buyer agreed to the consent words in this run. A buyer who did not agree is not signed up.",
+            "do": "Call tool:sign-someone-up-for-an-email-course with input {\"email\": \"<the buyer's email>\", \"consent\": true, \"course\": {\"id\": \"five-day-start\", \"public_origin\": \"<https site root>\", \"checkout_url\": \"<the payment link>\", \"from\": \"<verified sending address>\", \"mailing_address\": \"<mailing address>\", \"consent_text\": \"<the words the buyer agreed to>\", \"consent_version\": \"1\", \"lessons\": \"<the five lessons>\"}, \"provider\": \"<the id of the person's email provider>\", \"source\": \"buyer-after-payment\"}. consent is true only when the buyer agreed to the consent words in this run. A buyer who did not agree is not signed up.",
             "submit": {
               "type": "object",
               "required": [
@@ -29335,7 +29332,7 @@
               }
             },
             "run_tool": {
-              "tool_id": "tool:sign-someone-up-for-an-email-course-with-resend",
+              "tool_id": "tool:sign-someone-up-for-an-email-course",
               "input": {
                 "email": "<the buyer's email>",
                 "consent": true,
@@ -29349,7 +29346,7 @@
                   "consent_version": "1",
                   "lessons": "<the five lessons>"
                 },
-                "provider": "resend",
+                "provider": "<the id of the person's email provider>",
                 "source": "buyer-after-payment"
               }
             },
@@ -29361,7 +29358,7 @@
             "came_from": [
               "brief:business-on-trillion-2026-11-12:after-the-sale",
               "L082",
-              "tool:sign-someone-up-for-an-email-course-with-resend input_schema"
+              "tool:sign-someone-up-for-an-email-course input_schema"
             ],
             "part_of": [
               "workflow:onboard-new-buyers-in-five-days"
@@ -29370,7 +29367,7 @@
           {
             "id": "send-due-lessons",
             "title": "Send the due lessons each day",
-            "do": "Call tool:send-due-email-lessons-with-resend with input {\"provider\": \"resend\", \"limit\": 100}. The answer counts the lessons sent and lists any failures.",
+            "do": "Call tool:send-due-email-lessons with input {\"provider\": \"<the id of the person's email provider>\", \"limit\": 100}. The answer counts the lessons sent and lists any failures.",
             "submit": {
               "type": "object",
               "required": [
@@ -29390,9 +29387,9 @@
               }
             },
             "run_tool": {
-              "tool_id": "tool:send-due-email-lessons-with-resend",
+              "tool_id": "tool:send-due-email-lessons",
               "input": {
-                "provider": "resend",
+                "provider": "<the id of the person's email provider>",
                 "limit": 100
               }
             },
@@ -29404,7 +29401,7 @@
             "came_from": [
               "brief:business-on-trillion-2026-11-12:after-the-sale",
               "L082",
-              "tool:send-due-email-lessons-with-resend input_schema"
+              "tool:send-due-email-lessons input_schema"
             ],
             "part_of": [
               "workflow:onboard-new-buyers-in-five-days"
@@ -29542,7 +29539,7 @@
           {
             "id": "follow-up-after-sign-up",
             "title": "Send the follow-up after sign-up",
-            "do": "send-follow-up-emails-after-sign-up is not a live tool (it exists only as a ports folder with no tool row). Submit the gap naming it. Then draft the follow-up in the person's words, check it with check-copy, and hand it to the person to send with send-an-email-with-resend (live) to the buyer's address. Nothing is sent by this step.",
+            "do": "send-follow-up-emails-after-sign-up is not a live tool (it exists only as a ports folder with no tool row). Submit the gap naming it. Then draft the follow-up in the person's words, check it with check-copy, and hand it to the person to send with send-an-email (live) to the buyer's address. Nothing is sent by this step.",
             "submit": {
               "type": "object",
               "required": [
@@ -38038,7 +38035,7 @@
           {
             "id": "send",
             "title": "Send the due messages",
-            "do": "Send each due message with tool:send-an-email-with-resend from input.from, one recipient each, with its subject, body_html and text, and an idempotencyKey of the prospect key so a retry never sends twice. Never send to an address that is not in due_now. Nothing is sent to anyone the person has not approved on the list, and never from their main address.",
+            "do": "Send each due message with tool:send-an-email from input.from, one recipient each, with its subject, body_html and text, and an idempotencyKey of the prospect key so a retry never sends twice. Never send to an address that is not in due_now. Nothing is sent to anyone the person has not approved on the list, and never from their main address.",
             "submit": {
               "type": "object",
               "required": [
@@ -38047,7 +38044,7 @@
               ],
               "properties": {
                 "tool": {
-                  "const": "tool:send-an-email-with-resend"
+                  "const": "tool:send-an-email"
                 },
                 "sent": {
                   "type": "array",
@@ -38074,7 +38071,7 @@
             "checks": [
               {
                 "kind": "exists",
-                "says": "The step ran tool:send-an-email-with-resend, a tool the account has",
+                "says": "The step ran tool:send-an-email, a tool the account has",
                 "path": [
                   "this",
                   "tool"
@@ -39419,7 +39416,7 @@
           {
             "id": "send",
             "title": "Send the due emails on Saturday",
-            "do": "Send each due email with tool:send-an-email-with-amazon-ses from input.from in input.region, one recipient each. Never send to an address that is not in due_now. Nothing is sent to anyone the person has not approved on the list, and never from their main address.",
+            "do": "Send each due email with tool:send-an-email from input.from in input.region, one recipient each. Never send to an address that is not in due_now. Nothing is sent to anyone the person has not approved on the list, and never from their main address.",
             "submit": {
               "type": "object",
               "required": [
@@ -39428,7 +39425,7 @@
               ],
               "properties": {
                 "tool": {
-                  "const": "tool:send-an-email-with-amazon-ses"
+                  "const": "tool:send-an-email"
                 },
                 "sent": {
                   "type": "array",
@@ -39455,7 +39452,7 @@
             "checks": [
               {
                 "kind": "exists",
-                "says": "The step ran tool:send-an-email-with-amazon-ses, a tool the account has",
+                "says": "The step ran tool:send-an-email, a tool the account has",
                 "path": [
                   "this",
                   "tool"
@@ -41293,7 +41290,7 @@
         "produces": "One payment-failed email per failed invoice, one win-back per churned subscription, and the retry owner named.",
         "source": {
           "from": "business-on-trillion meta-workflow, generic and public",
-          "note": "After the sale. Added by this meta-workflow (not in the original list): payment-failure dunning and churn win-back. Live tools: stripe-events-read_money_since, list-ended-stripe-subscriptions, send-an-email-with-resend. The retry schedule lives in the Stripe account; no live Trillion tool sets it."
+          "note": "After the sale. Added by this meta-workflow (not in the original list): payment-failure dunning and churn win-back. Live tools: stripe-events-read_money_since, list-ended-stripe-subscriptions, send-an-email. The retry schedule lives in the Stripe account; no live Trillion tool sets it."
         },
         "fires_when": [
           {
@@ -41420,7 +41417,7 @@
           {
             "id": "send-the-payment-failed-email",
             "title": "Email each buyer with a failed payment, in the person's words",
-            "do": "Call tool:send-an-email-with-resend with input {\"recipients\": [\"<the buyer's email from the failed entry>\"], \"subject\": \"<the person's subject for a failed payment>\", \"markdown\": \"<the person's words: the payment did not go through, the link to try again>\", \"kind\": \"payment-failed\", \"idempotencyKey\": \"payment-failed-<invoice id>\"}. The idempotency key is the invoice id, so a second run for the same invoice sends nothing new. Check the words with check-copy before the send.",
+            "do": "Call tool:send-an-email with input {\"provider\": \"<the id of the person's email provider>\", \"recipients\": [\"<the buyer's email from the failed entry>\"], \"subject\": \"<the person's subject for a failed payment>\", \"markdown\": \"<the person's words: the payment did not go through, the link to try again>\", \"kind\": \"payment-failed\", \"idempotencyKey\": \"payment-failed-<invoice id>\"}. The idempotency key is the invoice id, so a second run for the same invoice sends nothing new. Check the words with check-copy before the send.",
             "submit": {
               "type": "object",
               "required": [
@@ -41437,8 +41434,9 @@
               }
             },
             "run_tool": {
-              "tool_id": "tool:send-an-email-with-resend",
+              "tool_id": "tool:send-an-email",
               "input": {
+                "provider": "<the id of the person's email provider>",
                 "recipients": [
                   "<the buyer's email from the failed entry>"
                 ],
@@ -41456,7 +41454,7 @@
             "came_from": [
               "brief:business-on-trillion-2026-11-12:added-payment-recovery-and-win-back",
               "L082",
-              "tool:send-an-email-with-resend input_schema"
+              "tool:send-an-email input_schema"
             ],
             "part_of": [
               "workflow:recover-failed-payments-and-win-back"
@@ -41540,7 +41538,7 @@
           {
             "id": "send-the-win-back-email",
             "title": "Send each churned buyer one win-back email in the person's words",
-            "do": "Call tool:send-an-email-with-resend with input {\"recipients\": [\"<the buyer's email from the customer record for the subscription>\"], \"subject\": \"<the person's win-back subject>\", \"markdown\": \"<the person's win-back words, with the one offer that brings them back>\", \"kind\": \"win-back\", \"idempotencyKey\": \"win-back-<subscription id>\"}. One win-back per subscription. The offer in it is one the person already sells.",
+            "do": "Call tool:send-an-email with input {\"provider\": \"<the id of the person's email provider>\", \"recipients\": [\"<the buyer's email from the customer record for the subscription>\"], \"subject\": \"<the person's win-back subject>\", \"markdown\": \"<the person's win-back words, with the one offer that brings them back>\", \"kind\": \"win-back\", \"idempotencyKey\": \"win-back-<subscription id>\"}. One win-back per subscription. The offer in it is one the person already sells.",
             "submit": {
               "type": "object",
               "required": [
@@ -41553,8 +41551,9 @@
               }
             },
             "run_tool": {
-              "tool_id": "tool:send-an-email-with-resend",
+              "tool_id": "tool:send-an-email",
               "input": {
+                "provider": "<the id of the person's email provider>",
                 "recipients": [
                   "<the buyer's email from the customer record for the subscription>"
                 ],
@@ -41572,7 +41571,7 @@
             "came_from": [
               "brief:business-on-trillion-2026-11-12:added-payment-recovery-and-win-back",
               "L082",
-              "tool:send-an-email-with-resend input_schema"
+              "tool:send-an-email input_schema"
             ],
             "part_of": [
               "workflow:recover-failed-payments-and-win-back"
@@ -42435,7 +42434,7 @@
         "produces": "Quiet buyers followed up, referral codes counted, rewards recorded in the person's words, and testimonial asks sent only with consent.",
         "source": {
           "from": "business-on-trillion meta-workflow, generic and public",
-          "note": "After the sale. Newly built stage (not in the original list; brief said it is clearly missing). Live tools: see-where-each-customer-is, make-a-referral-code, work-out-referral-codes, withdraw-a-referral-code, send-an-email-with-resend, start-a-recipe-run. referral-codes-and-rewards and testimonials are not live tools; reward and testimonial stores are named as gaps."
+          "note": "After the sale. Newly built stage (not in the original list; brief said it is clearly missing). Live tools: see-where-each-customer-is, make-a-referral-code, work-out-referral-codes, withdraw-a-referral-code, send-an-email, start-a-recipe-run. referral-codes-and-rewards and testimonials are not live tools; reward and testimonial stores are named as gaps."
         },
         "fires_when": [
           {
@@ -42750,7 +42749,7 @@
           {
             "id": "ask-for-a-testimonial",
             "title": "Ask a buyer for a testimonial, after consent",
-            "do": "Draft the ask in the person's words (check it with check-copy first). Then call tool:send-an-email-with-resend with input {\"recipients\": [\"<the buyer's email>\"], \"subject\": \"<subject from the draft>\", \"markdown\": \"<the draft>\", \"kind\": \"testimonial-ask\", \"idempotencyKey\": \"testimonial-ask-<buyer account id>\"}. Testimonials are not stored by any live tool: the reply is kept in the buyer's customer record with record-a-customer-step.",
+            "do": "Draft the ask in the person's words (check it with check-copy first). Then call tool:send-an-email with input {\"provider\": \"<the id of the person's email provider>\", \"recipients\": [\"<the buyer's email>\"], \"subject\": \"<subject from the draft>\", \"markdown\": \"<the draft>\", \"kind\": \"testimonial-ask\", \"idempotencyKey\": \"testimonial-ask-<buyer account id>\"}. Testimonials are not stored by any live tool: the reply is kept in the buyer's customer record with record-a-customer-step.",
             "submit": {
               "type": "object",
               "required": [
@@ -47679,7 +47678,7 @@
         "produces": "A five-day course held in rows, tested with one real sign-up, sent on its days, and stoppable per learner.",
         "source": {
           "from": "business-on-trillion meta-workflow, generic and public",
-          "note": "Bottom of funnel. Live tools: sign-someone-up-for-an-email-course-with-resend, send-due-email-lessons-with-resend, work-out-where-a-learner-stands, stop-an-email-course, check-copy. The course is a list of lesson rows; no separate course tool is named."
+          "note": "Bottom of funnel. Live tools: sign-someone-up-for-an-email-course, send-due-email-lessons, work-out-where-a-learner-stands, stop-an-email-course, check-copy. The course is a list of lesson rows; no separate course tool is named."
         },
         "fires_when": [
           {
@@ -47843,7 +47842,7 @@
           {
             "id": "test-sign-up",
             "title": "Test one sign-up with the owner's own address and consent",
-            "do": "Call tool:sign-someone-up-for-an-email-course-with-resend with input {\"email\": {\"from\": [\"steps\", \"read-facts\", \"facts\", \"owner_email\"]}, \"consent\": true, \"course\": {\"id\": \"five-day-start\", \"public_origin\": \"<https site root of the person's site>\", \"checkout_url\": \"<the payment link from take-payments-with-stripe>\", \"from\": \"<the verified sending address>\", \"mailing_address\": \"<the mailing address the person gives>\", \"consent_text\": \"<the consent words the person's sign-up form shows>\", \"consent_version\": \"1\", \"lessons\": \"<lessons 1 to 5 from write-the-lessons, each with delay_hours (0 for day 1, 24 times day minus 1 otherwise), subject, article_url, text_lines>\"}, \"provider\": \"resend\", \"source\": \"business-setup-test\"}. consent is true ONLY when the person agreed to the words in course.consent_text. For a test the owner agrees to it themselves in this step's answer; say so.",
+            "do": "Call tool:sign-someone-up-for-an-email-course with input {\"email\": {\"from\": [\"steps\", \"read-facts\", \"facts\", \"owner_email\"]}, \"consent\": true, \"course\": {\"id\": \"five-day-start\", \"public_origin\": \"<https site root of the person's site>\", \"checkout_url\": \"<the payment link from take-payments-with-stripe>\", \"from\": \"<the verified sending address>\", \"mailing_address\": \"<the mailing address the person gives>\", \"consent_text\": \"<the consent words the person's sign-up form shows>\", \"consent_version\": \"1\", \"lessons\": \"<lessons 1 to 5 from write-the-lessons, each with delay_hours (0 for day 1, 24 times day minus 1 otherwise), subject, article_url, text_lines>\"}, \"provider\": \"<the id of the person's email provider>\", \"source\": \"business-setup-test\"}. consent is true ONLY when the person agreed to the words in course.consent_text. For a test the owner agrees to it themselves in this step's answer; say so.",
             "submit": {
               "type": "object",
               "required": [
@@ -47859,7 +47858,7 @@
               }
             },
             "run_tool": {
-              "tool_id": "tool:sign-someone-up-for-an-email-course-with-resend",
+              "tool_id": "tool:sign-someone-up-for-an-email-course",
               "input": {
                 "email": {
                   "from": [
@@ -47880,7 +47879,7 @@
                   "consent_version": "1",
                   "lessons": "<lessons 1 to 5 from write-the-lessons, each with delay_hours (0 for day 1, 24 times day minus 1 otherwise), subject, article_url, text_lines>"
                 },
-                "provider": "resend",
+                "provider": "<the id of the person's email provider>",
                 "source": "business-setup-test"
               }
             },
@@ -47892,7 +47891,7 @@
             "came_from": [
               "brief:business-on-trillion-2026-11-12:bottom",
               "L082",
-              "tool:sign-someone-up-for-an-email-course-with-resend input_schema"
+              "tool:sign-someone-up-for-an-email-course input_schema"
             ],
             "part_of": [
               "workflow:run-a-course-from-list-rows"
@@ -47901,7 +47900,7 @@
           {
             "id": "send-due-lessons",
             "title": "Send the lessons that are due",
-            "do": "Call tool:send-due-email-lessons-with-resend with input {\"provider\": \"resend\", \"limit\": 100}. Run once a day. The answer says how many lessons were sent and which failed.",
+            "do": "Call tool:send-due-email-lessons with input {\"provider\": \"<the id of the person's email provider>\", \"limit\": 100}. Run once a day. The answer says how many lessons were sent and which failed.",
             "submit": {
               "type": "object",
               "required": [
@@ -47921,9 +47920,9 @@
               }
             },
             "run_tool": {
-              "tool_id": "tool:send-due-email-lessons-with-resend",
+              "tool_id": "tool:send-due-email-lessons",
               "input": {
-                "provider": "resend",
+                "provider": "<the id of the person's email provider>",
                 "limit": 100
               }
             },
@@ -47935,7 +47934,7 @@
             "came_from": [
               "brief:business-on-trillion-2026-11-12:bottom",
               "L082",
-              "tool:send-due-email-lessons-with-resend input_schema"
+              "tool:send-due-email-lessons input_schema"
             ],
             "part_of": [
               "workflow:run-a-course-from-list-rows"
@@ -51540,7 +51539,7 @@
           {
             "id": "check-tools-live",
             "title": "Check every tool the stages name is in the live catalog",
-            "do": "Call run_resource_operation with address @workshop-tools, method tools:list and input {\"tool\": \"tool:<the id>\"} once per id in this list: add-a-customer, add-an-email-sending-domain, advance-a-community-matchmaker, answer-in-a-community, approve-a-post, attach_domain, break-down-visits-and-sales, cancel-a-stripe-subscription, check-a-page-for-search-and-answer-engines, check-against-a-persons-rules-and-verdicts, check-an-email-sending-domain, check-copy, check-given-pages-at-every-width, check-the-facebook-page-connection, check-the-instagram-connection, copy-a-site, count-a-paid-installment-in-stripe, critique-a-public-page, cut-and-caption, draft-a-funnel, draft-a-post, expand-a-reply-template, find-a-completed-stripe-checkout, find-silence, list-ended-stripe-subscriptions, list-every-connection, list-my-recordings-and-media, make-a-referral-code, make-a-sending-key-with-resend, measure-a-checklist, measure-funnel-stages, name_site, pick-cover-frame, publish_site, pull-my-instagram-messages, read-my-community-matches, read-public-web-page, record-a-customer-step, reframe-video, render-an-edit, resolve-a-brand, search-one-of-my-lists, see-how-each-post-did, see-where-each-customer-is, see-who-holds-paid-access, send-a-post-to-substack, send-a-post-to-youtube, send-an-email-with-resend, send-due-email-lessons-with-resend, send-each-post-at-its-time, set-a-post-to-go-at-its-time, set-up-someone-i-pay-in-stripe, set-up-stripe-payment-links, show-which-offers-a-buyer-may-see, sign-someone-up-for-an-email-course-with-resend, start-a-recipe-run, start-a-stripe-checkout-that-pays-someone-else, stop-an-email-course, stripe-events-read_money_since, suggest-media-cuts, tag-a-stripe-subscription, withdraw-a-referral-code, work-out-referral-codes, work-out-where-a-learner-stands, write-legal-documents. An answer with the id and an input_schema means the tool is live. Write the result as one row: records:write with {\"records\":[{\"id\":\"record:business-setup:tools\",\"type\":\"record:business-setup\",\"value\":{\"live\":[<ids found>],\"not_live\":[<ids not found>]}}]}. Ids in not_live are source-only or absent: every stage that names one already has its own gap step, so nothing is claimed as run.",
+            "do": "Call run_resource_operation with address @workshop-tools, method tools:list and input {\"tool\": \"tool:<the id>\"} once per id in this list: add-a-customer, add-an-email-sending-domain, advance-a-community-matchmaker, answer-in-a-community, approve-a-post, attach_domain, break-down-visits-and-sales, cancel-a-stripe-subscription, check-a-page-for-search-and-answer-engines, check-against-a-persons-rules-and-verdicts, check-an-email-sending-domain, check-copy, check-given-pages-at-every-width, check-the-facebook-page-connection, check-the-instagram-connection, copy-a-site, count-a-paid-installment-in-stripe, critique-a-public-page, cut-and-caption, draft-a-funnel, draft-a-post, expand-a-reply-template, find-a-completed-stripe-checkout, find-silence, list-ended-stripe-subscriptions, list-every-connection, list-my-recordings-and-media, make-a-referral-code, make-a-sending-key, measure-a-checklist, measure-funnel-stages, name_site, pick-cover-frame, publish_site, pull-my-instagram-messages, read-my-community-matches, read-public-web-page, record-a-customer-step, reframe-video, render-an-edit, resolve-a-brand, search-one-of-my-lists, see-how-each-post-did, see-where-each-customer-is, see-who-holds-paid-access, send-a-post-to-substack, send-a-post-to-youtube, send-an-email, send-due-email-lessons, send-each-post-at-its-time, set-a-post-to-go-at-its-time, set-up-someone-i-pay-in-stripe, set-up-stripe-payment-links, show-which-offers-a-buyer-may-see, sign-someone-up-for-an-email-course, start-a-recipe-run, start-a-stripe-checkout-that-pays-someone-else, stop-an-email-course, stripe-events-read_money_since, suggest-media-cuts, tag-a-stripe-subscription, withdraw-a-referral-code, work-out-referral-codes, work-out-where-a-learner-stands, write-legal-documents. An answer with the id and an input_schema means the tool is live. Write the result as one row: records:write with {\"records\":[{\"id\":\"record:business-setup:tools\",\"type\":\"record:business-setup\",\"value\":{\"live\":[<ids found>],\"not_live\":[<ids not found>]}}]}. Ids in not_live are source-only or absent: every stage that names one already has its own gap step, so nothing is claimed as run.",
             "submit": {
               "type": "object",
               "required": [
@@ -52844,7 +52843,7 @@
         "produces": "A brand book job, a test email the owner confirmed in an inbox, and a gap for each source-only dependency.",
         "source": {
           "from": "business-on-trillion meta-workflow, generic and public",
-          "note": "Middle of funnel. Live tools: send-an-email-with-resend, start-a-recipe-run. resolve-a-brand is source-only (not in the live catalog). make-a-brand-book-and-decks is an existing live workflow, run by reference."
+          "note": "Middle of funnel. Live tools: send-an-email, start-a-recipe-run. resolve-a-brand is source-only (not in the live catalog). make-a-brand-book-and-decks is an existing live workflow, run by reference."
         },
         "fires_when": [
           {
@@ -53004,7 +53003,7 @@
           {
             "id": "send-test-branded-email",
             "title": "Send one test branded email to the owner",
-            "do": "Call tool:send-an-email-with-resend with input {\"recipients\": [{\"from\": [\"steps\", \"read-facts\", \"facts\", \"owner_email\"]}], \"subject\": \"Test: <facts.business_name> email is set up\", \"markdown\": \"This is a test of the branded email. If it reached you, the sending is set up.\", \"kind\": \"test\", \"idempotencyKey\": \"brand-test-<today YYYY-MM-DD>\"}. The email is drawn in the look the person chose (the shipped look until they choose one). Only the owner's own address receives it. The sender is the verified domain from the accounts stage.",
+            "do": "Call tool:send-an-email with input {\"provider\": \"<the id of the person's email provider>\", \"recipients\": [{\"from\": [\"steps\", \"read-facts\", \"facts\", \"owner_email\"]}], \"subject\": \"Test: <facts.business_name> email is set up\", \"markdown\": \"This is a test of the branded email. If it reached you, the sending is set up.\", \"kind\": \"test\", \"idempotencyKey\": \"brand-test-<today YYYY-MM-DD>\"}. The email is drawn in the look the person chose (the shipped look until they choose one). Only the owner's own address receives it. The sender is the verified domain from the accounts stage.",
             "submit": {
               "type": "object",
               "required": [
@@ -53020,8 +53019,9 @@
               }
             },
             "run_tool": {
-              "tool_id": "tool:send-an-email-with-resend",
+              "tool_id": "tool:send-an-email",
               "input": {
+                "provider": "<the id of the person's email provider>",
                 "recipients": [
                   {
                     "from": [
@@ -53046,7 +53046,7 @@
             "came_from": [
               "brief:business-on-trillion-2026-11-12:middle",
               "L082",
-              "tool:send-an-email-with-resend input_schema"
+              "tool:send-an-email input_schema"
             ],
             "part_of": [
               "workflow:set-up-brand-and-branded-emails"
@@ -53129,7 +53129,7 @@
         "produces": "One checked account state per connection and a sending key kept in the vault.",
         "source": {
           "from": "business-on-trillion meta-workflow, generic and public",
-          "note": "Stage 1 of the business meta-workflow. Live tools: list-every-connection, set-up-someone-i-pay-in-stripe, check-the-instagram-connection, check-the-facebook-page-connection, add-an-email-sending-domain, check-an-email-sending-domain, make-a-sending-key-with-resend. No live tool checks a YouTube connection (gap written at run time). DNS changes are done by the person at their DNS host; no tool does that."
+          "note": "Stage 1 of the business meta-workflow. Live tools: list-every-connection, set-up-someone-i-pay-in-stripe, check-the-instagram-connection, check-the-facebook-page-connection, add-an-email-sending-domain, check-an-email-sending-domain, make-a-sending-key. No live tool checks a YouTube connection (gap written at run time). DNS changes are done by the person at their DNS host; no tool does that."
         },
         "fires_when": [
           {
@@ -53581,7 +53581,7 @@
           {
             "id": "make-sending-key",
             "title": "Make the email sending key and keep it in the vault",
-            "do": "Call tool:make-a-sending-key-with-resend with input {\"name\": \"<facts.business_name> sending\", \"keep_as\": \"business-sending\", \"domain_id\": {\"from\": [\"steps\", \"add-email-sending-domain\", \"domain_id\"]}}. keep_as names where the key is kept (a name, never the key). The key value is never written into the answer, the record or a chat.",
+            "do": "Call tool:make-a-sending-key with input {\"name\": \"<facts.business_name> sending\", \"keep_as\": \"business-sending\", \"domain_id\": {\"from\": [\"steps\", \"add-email-sending-domain\", \"domain_id\"]}}. keep_as names where the key is kept (a name, never the key). The key value is never written into the answer, the record or a chat.",
             "submit": {
               "type": "object",
               "required": [
@@ -53597,7 +53597,7 @@
               }
             },
             "run_tool": {
-              "tool_id": "tool:make-a-sending-key-with-resend",
+              "tool_id": "tool:make-a-sending-key",
               "input": {
                 "name": "<facts.business_name> sending",
                 "keep_as": "business-sending",

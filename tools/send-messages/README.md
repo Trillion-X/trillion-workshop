@@ -1,6 +1,6 @@
 # tools/send-messages/
 
-The person's AI sends a message to one person or a list: an email (Amazon SES or Resend), a text (Twilio) or a Messages message from the person's own Mac, through the provider the person chooses. An email can be written from a template, and a document the person wrote can first be turned into the message body. Each recipient is sent to on their own and answered on their own, so one bad address never hides the others. And it keeps who agreed to get which emails: a signed-up email course (consent, queued lessons, unsubscribe), a one-update interest list, and a read-back of every consent.
+The person's AI sends a message to one person or a list: an email, a text or a Messages message from the person's own Mac, through the provider the person chooses. An email can be written from a template, and a document the person wrote can first be turned into the message body. Each recipient is sent to on their own and answered on their own, so one bad address never hides the others. And it keeps who agreed to get which emails: a signed-up email course (consent, queued lessons, unsubscribe), a one-update interest list, and a read-back of every consent.
 
 Six packages did this one job and are merged here, ported from bitfield-packages: `broadcast-delivery` (Amazon SES, Resend and Twilio, to a list), `resend-email-sender` (one templated email, thread headers, retry key), `imessage-messages-sender` (Messages on the Mac), `composition-mail-serializer` (a document into a body) and `myletter-newsletter` (consent for email courses and update lists). The consent half sends its lessons through the sending half, which is why they share a folder.
 
@@ -10,13 +10,12 @@ The provider's key arrives on a private pipe (the row's `credential_mounts`, one
 
 | Tool | What it does | Runs |
 |------|--------------|------|
-| `tool:send-an-email-with-amazon-ses` | An email to a list through the person's SES account, under the account's mail rules (`do-work/mail-sender.mjs`) | container, internet, records door (`mail-settings`, `mail-sent`, `mail-day`, and the worn look's `@own-records` `screen-look`, `screen-look-own-themes`, `workspace-preference:screen-look-over-time` and `workspace-preference:where-looks-apply`, read only), keys `amazon-ses-access-key-id` and `amazon-ses-secret-access-key` |
-| `tool:send-an-email-with-resend` | An email to a list through the person's Resend account, from words, markdown (a written email) or a template, with thread headers and a retry key, under the account's mail rules (`do-work/mail-sender.mjs`) | container, internet, records door (`mail-settings`, `mail-sent`, `mail-day`, and the worn look's `@own-records` `screen-look`, `screen-look-own-themes`, `workspace-preference:screen-look-over-time` and `workspace-preference:where-looks-apply`, read only), key `resend-api-key` |
-| `tool:send-a-text-with-twilio` | A text message to a list of numbers through the person's Twilio account | container, internet, key `twilio-auth-token` |
+| `tool:send-an-email` | An email to a list through the email provider named in `provider` (a row of `read-data/message-providers.json`: Amazon SES, Resend or a new one), from words, markdown (a written email) or a template, with thread headers and a retry key, under the account's mail rules (`do-work/mail-sender.mjs`) | container, internet, records door (`mail-settings`, `mail-sent`, `mail-day`, and the worn look's `@own-records` `screen-look`, `screen-look-own-themes`, `workspace-preference:screen-look-over-time` and `workspace-preference:where-looks-apply`, read only), key `resend-api-key` |
+| `tool:send-a-text` | A text message to a list of numbers through the text provider named in `provider` | container, internet, the provider's key (mounted only when `provider` names it) |
 | `tool:send-a-message-on-this-mac` | A Messages message from the person's own Mac, failing closed with what to allow when macOS refuses | `computer` row holding `use-the-messages-app` |
 | `tool:write-a-message-body-from-a-document` | A document's nodes into `{ body_html, body_text, inline_refs, degraded }` | on the person's computer, Python |
-| `tool:sign-someone-up-for-an-email-course-with-resend` / `-with-amazon-ses` | Records a person's consent to an email course, queues the later lessons, sends lesson 1; signing up again sends nothing twice | container, records door, the provider's keys on descriptors 4 and up |
-| `tool:send-due-email-lessons-with-resend` / `-with-amazon-ses` | Sends each queued lesson whose time has come to the people still signed up, once each; a failed send queues its own retry (up to three) | container, records door, keys as above |
+| `tool:sign-someone-up-for-an-email-course` | Records a person's consent to an email course, queues the later lessons, sends lesson 1; signing up again sends nothing twice | container, records door, the provider's keys on descriptors 4 and up |
+| `tool:send-due-email-lessons` | Sends each queued lesson whose time has come to the people still signed up, once each; a failed send queues its own retry (up to three) | container, records door, keys as above |
 | `tool:save-interest-in-an-email-update` | Keeps a person's consent to one email if a course becomes available; sends nothing | container, records door, no key |
 | `tool:stop-an-email-course` | Ends a subscription from the token in the unsubscribe link | container, records door, no key |
 | `tool:pace-sends-from-an-inbox` | When each address may be emailed from one sending inbox: a ramp of sends a day, the least gap, the weekdays and local hours, how long to leave an address, and a pause when the last sends bounce or draw a complaint; answers due now, a schedule and who is held and why | container, no internet, no key |
@@ -27,7 +26,7 @@ Pacing and what comes back are DATA in `read-data/inbox-pacing.json`: a pacing r
 
 A new provider is one row in `read-data/message-providers.json` (its settings, its keys, and either an adapter script or a command) and one row in `tool-rows.json`.
 
-The consent records (`email-course-subscription`, `email-course-token`, `email-course-interest`, `contact-point`, `email-lesson-due`) are kept in the person's own records. A subscription holds the contact's id, not the address. Nothing wakes the lesson runner yet: the person's AI (or a wake the engine declares for `tool:send-due-email-lessons-*`) runs it.
+The consent records (`email-course-subscription`, `email-course-token`, `email-course-interest`, `contact-point`, `email-lesson-due`) are kept in the person's own records. A subscription holds the contact's id, not the address. Nothing wakes the lesson runner yet: the person's AI (or a wake the engine declares for `tool:send-due-email-lessons`) runs it.
 
 ## Files
 

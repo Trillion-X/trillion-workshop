@@ -1,0 +1,41 @@
+{
+  "drafted_from": "tool:send-a-text's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Send a text message, to one number or a list, through the text provider I connected\", with {\"to\":\"+15550100101\",\"provider\":\"twilio-sms\",\"from\":\"+15550100100\",\"account_sid\":\"ACsample00000000000000000000000000\",\"text\":\"Hello there\"}. It runs tool:send-a-text and answers {\"provider\":\"twilio-sms\",\"sent\":[{\"recipient\":\"+15550100101\",\"messageId\":\"SMsample00000000000000000000000000\"}],\"said\":\"Sent to 1 of 1 through Twilio text message.\"}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:send-a-text"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Send a text message, to one number or a list, through the text provider I connected\", and give it provider; from; account_sid.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:send-a-text and its input (the worked example shows one).",
+    "3. Read what comes back: Give recipients (phone numbers with country code; to for one), provider (the id of the text provider row in read-data/message-providers.json that the person's text connection is), the settings that row asks for (for twilio-sms: from, a number on the account, and account_sid, the account's id) and text (or subject when there is no text)."
+  ],
+  "worked_examples": [
+    {
+      "title": "Send a text message on its own sample",
+      "ask": "Send a text message, to one number or a list, through the text provider I connected",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:send-a-text",
+            "input": {
+              "to": "+15550100101",
+              "provider": "twilio-sms",
+              "from": "+15550100100",
+              "account_sid": "ACsample00000000000000000000000000",
+              "text": "Hello there"
+            }
+          }
+        }
+      },
+      "given": "The input {\"to\":\"+15550100101\",\"provider\":\"twilio-sms\",\"from\":\"+15550100100\",\"account_sid\":\"ACsample00000000000000000000000000\",\"text\":\"Hello there\"}, the web answering from 1 recorded reply.",
+      "hands_back": "It answered {\"provider\":\"twilio-sms\",\"sent\":[{\"recipient\":\"+15550100101\",\"messageId\":\"SMsample00000000000000000000000000\"}],\"said\":\"Sent to 1 of 1 through Twilio text message.\"}."
+    }
+  ]
+}

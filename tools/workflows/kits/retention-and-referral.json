@@ -179,7 +179,7 @@
   "tools": [
     "tool:make-a-referral-code",
     "tool:see-where-each-customer-is",
-    "tool:send-an-email-with-resend",
+    "tool:send-an-email",
     "tool:start-a-recipe-run",
     "tool:withdraw-a-referral-code",
     "tool:work-out-referral-codes"

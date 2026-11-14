@@ -23,7 +23,7 @@ after(() => Promise.all(doors.map(fake => fake.close())));
 const settingsWith = (change = {}) => ({ ...structuredClone(SHIPPED), from: { email: 'hello@example.com', name: 'Example' }, owner: 'owner@example.com', ...change });
 
 async function doorFor(records = []) {
-  const fake = await startFakeDoor({ rights: rowOf(rows, 'tool:send-an-email-with-resend').invoke.records.rights, records });
+  const fake = await startFakeDoor({ rights: rowOf(rows, 'tool:send-an-email').invoke.records.rights, records });
   doors.push(fake);
   return { fake, door: openRecordsDoor({ descriptor: fake.descriptor }) };
 }
@@ -202,7 +202,7 @@ describe('the mail row and the email rows', () => {
   });
 
   it('each email row runs the mail rules with the records it needs and its keys after the door\'s descriptor', () => {
-    for (const id of ['tool:send-an-email-with-resend', 'tool:send-an-email-with-amazon-ses']) {
+    for (const id of ['tool:send-an-email']) {
       const row = rowOf(rows, id);
       assert.equal(row.invoke.argv[1], '/opt/send-messages/do-work/mail-sender.mjs', id);
       assert.deepEqual(row.invoke.records.rights.filter(right => right.kind !== '@own-records').map(right => right.kind).sort(), ['mail-day', 'mail-sent', 'mail-settings'], id);

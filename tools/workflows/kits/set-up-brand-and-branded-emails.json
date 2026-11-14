@@ -178,7 +178,7 @@
   ],
   "tools": [
     "tool:resolve-a-brand",
-    "tool:send-an-email-with-resend",
+    "tool:send-an-email",
     "tool:start-a-recipe-run"
   ],
   "instructions": [

@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:9858449d8a56755ef59fc0850ed770231b9a1c250b45902ae1b269487da29172"
+  "blake3": "1f:2e0148186908f6d7b463b2e76eed6990b76b66e181734c239dcef629670640a6"
  },
  "fields": [
   {
@@ -6291,9 +6291,9 @@
    }
   },
   {
-   "id": "tool:list-sending-keys-with-resend",
+   "id": "tool:list-sending-keys",
    "values": {
-    "title": "List sending keys with Resend",
+    "title": "List sending keys",
     "job": "See the keys my email-sending account has: each one's id, name and when it was made",
     "description": "Lists the keys of the person's email-sending account (Resend), with the key they connected: each key's id, name and when it was made, never a key itself (the provider shows a key only once, when it is made). It only reads.",
     "status": "active",
@@ -6816,9 +6816,9 @@
    }
   },
   {
-   "id": "tool:make-a-sending-key-with-resend",
+   "id": "tool:make-a-sending-key",
    "values": {
-    "title": "Make a sending key with Resend",
+    "title": "Make a sending key",
     "job": "Make a new key that can only send email from my email-sending account, kept under its own name",
     "description": "Asks the person's email-sending account (Resend), with the key they connected, for a new key that may only send email (from one domain when domain_id names one), and keeps the new key in the person's vault under keep_as. The new key is never shown: the answer holds its id and the held word in its place. A keep_as already held is never replaced, and then nothing is asked. Give the new key's name as Resend should show it.",
     "status": "active",
@@ -10786,11 +10786,11 @@
    }
   },
   {
-   "id": "tool:remove-a-sending-key-with-resend",
+   "id": "tool:remove-a-sending-key",
    "values": {
-    "title": "Remove a sending key with Resend",
+    "title": "Remove a sending key",
     "job": "Turn off one key of my email-sending account, by its id, so it can never send again",
-    "description": "Removes one key of the person's email-sending account (Resend) by its id (the id tool:make-a-sending-key-with-resend or tool:list-sending-keys-with-resend answered), with the key they connected. Anything still holding the removed key can no longer send. The vault's copy is removed with the vault's own remove.",
+    "description": "Removes one key of the person's email-sending account (Resend) by its id (the id tool:make-a-sending-key or tool:list-sending-keys answered), with the key they connected. Anything still holding the removed key can no longer send. The vault's copy is removed with the vault's own remove.",
     "status": "active",
     "maker": "maker:email-sending-domains",
     "licence_class": "licence:maker-own",
@@ -12477,11 +12477,11 @@
    }
   },
   {
-   "id": "tool:send-a-text-with-twilio",
+   "id": "tool:send-a-text",
    "values": {
-    "title": "Send a text message with Twilio",
-    "job": "Send a text message, to one number or a list, through my Twilio account",
-    "description": "Give recipients (phone numbers with country code; to for one), from (a number on the Twilio account), account_sid (the account's id) and text (or subject when there is no text). Each number is sent to on its own and answered on its own: sent holds { recipient, messageId } or { recipient, error }. The held auth token reaches the one process on a private pipe; it is never shown.",
+    "title": "Send a text message",
+    "job": "Send a text message, to one number or a list, through the text provider I connected",
+    "description": "Give recipients (phone numbers with country code; to for one), provider (the id of the text provider row in read-data/message-providers.json that the person's text connection is), the settings that row asks for (for twilio-sms: from, a number on the account, and account_sid, the account's id) and text (or subject when there is no text). Each number is sent to on its own and answered on its own: sent holds { recipient, messageId } or { recipient, error }. The held key of the provider named reaches the one process on a private pipe; it is never shown.",
     "status": "active",
     "maker": "maker:send-messages",
     "licence_class": "licence:maker-own",
@@ -12492,11 +12492,11 @@
    }
   },
   {
-   "id": "tool:send-an-email-with-amazon-ses",
+   "id": "tool:send-an-email",
    "values": {
-    "title": "Send an email with Amazon SES",
-    "job": "Send an email, to one person or a list, through my Amazon SES account",
-    "description": "Give recipients (a list of addresses; to for one), region (such as us-east-1), and the words: subject and text (drawn as an email in the look the person wears, read from their screen-look records (the shipped look until they choose one; an email whose look cannot be read is not sent), with its mark from the mail row's brand and made_with) or your own html, markdown for a written email (it also goes as a BCC to the account's own address, and answers sent_copy), or template (a template name from read-data/message-templates.json, or your own templates) with variables; kind names what it is for the account's limits (sign-in-code, message ...). Every email comes from the account's own mail row (records `mail-settings` `settings:mail`, copied from read-data/mail-settings.json the first time), never from the request; each address may be sent only so many emails of a kind (per_person), the day keeps room for sign-in codes (daily), a proof address is written down and never sent, and every email is written down under its address. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error } with limited, unknown (it may have gone; it is not sent again) or suppressed. The held SES keys reach the one process on private pipes; they are never shown.",
+    "title": "Send an email",
+    "job": "Send an email, to one person or a list, through the email provider I connected",
+    "description": "Give recipients (a list of addresses; to for one), provider (the id of the email provider row in read-data/message-providers.json that the person's email connection is), the settings that provider's row asks for (region for Amazon SES, such as us-east-1) and the words: subject and text (drawn as an email in the look the person wears, read from their screen-look records (the shipped look until they choose one; an email whose look cannot be read is not sent), with its mark from the mail row's brand and made_with) or your own html, markdown for a written email (it also goes as a BCC to the account's own address, and answers sent_copy), or template (a template name from read-data/message-templates.json, or your own templates) with variables; kind names what it is for the account's limits (sign-in-code, message ...). Every email comes from the account's own mail row (records `mail-settings` `settings:mail`, copied from read-data/mail-settings.json the first time), never from the request; each address may be sent only so many emails of a kind (per_person), the day keeps room for sign-in codes (daily), a proof address is written down and never sent, and every email is written down under its address. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error } with limited, unknown (it may have gone; it is not sent again) or suppressed. The held keys of the provider named reach the one process on private pipes; they are never shown.",
     "status": "active",
     "maker": "maker:send-messages",
     "licence_class": "licence:maker-own",
@@ -12507,41 +12507,11 @@
    }
   },
   {
-   "id": "tool:send-an-email-with-resend",
+   "id": "tool:send-due-email-lessons",
    "values": {
-    "title": "Send an email with Resend",
-    "job": "Send an email, to one person or a list, through my Resend account",
-    "description": "Give recipients (a list of addresses; to for one) and the words: subject and text (drawn as an email in the look the person wears, read from their screen-look records (the shipped look until they choose one; an email whose look cannot be read is not sent), with its mark from the mail row's brand and made_with) or your own html, markdown for a written email (it also goes as a BCC to the account's own address, and answers sent_copy), or template (a template name from read-data/message-templates.json, or your own templates) with variables; kind names what it is for the account's limits (sign-in-code, message ...). headers can carry In-Reply-To, References or List-Unsubscribe (names are limited to letters, digits and hyphens, values to one line of 4 KiB); idempotencyKey makes a retry safe. Every email comes from the account's own mail row (records `mail-settings` `settings:mail`, copied from read-data/mail-settings.json the first time; its from must be on a domain verified in Resend, see tool:list-email-sending-domains), never from the request; each address may be sent only so many emails of a kind (per_person), the day keeps room for sign-in codes (daily), a proof address is written down and never sent, and every email is written down under its address. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error } with the provider's own status, error name and reason, and limited, unknown (it may have gone; it is not sent again) or suppressed. The held key reaches the one process on a private pipe; it is never shown.",
-    "status": "active",
-    "maker": "maker:send-messages",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "send-messages"
-   }
-  },
-  {
-   "id": "tool:send-due-email-lessons-with-amazon-ses",
-   "values": {
-    "title": "Send the email lessons that have come due (through Amazon SES)",
+    "title": "Send the email lessons that have come due",
     "job": "Send each email-course lesson whose time has come to the people still signed up, once each, and retry a failed one later",
-    "description": "Optional limit (up to 50 per run), provider (amazon-ses) and region. Finds the queued lessons whose time has passed, sends each to a subscriber who is still signed up and has not had it, marks it sent, and removes the queue entry. A failed send queues its own retry (up to three, each later than the last). Answers results [{ lesson_index, status: sent, already-sent, unsubscribed or failed, why? }] and said.",
-    "status": "active",
-    "maker": "maker:send-messages",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "send-messages"
-   }
-  },
-  {
-   "id": "tool:send-due-email-lessons-with-resend",
-   "values": {
-    "title": "Send the email lessons that have come due (through Resend)",
-    "job": "Send each email-course lesson whose time has come to the people still signed up, once each, and retry a failed one later",
-    "description": "Optional limit (up to 50 per run) and provider (resend). Finds the queued lessons whose time has passed, sends each to a subscriber who is still signed up and has not had it, marks it sent, and removes the queue entry. A failed send queues its own retry (up to three, each later than the last). Answers results [{ lesson_index, status: sent, already-sent, unsubscribed or failed, why? }] and said.",
+    "description": "Optional limit (up to 50 per run), provider (the id of the email provider row in read-data/message-providers.json that the person's email connection is) and region when that row asks for one. Finds the queued lessons whose time has passed, sends each to a subscriber who is still signed up and has not had it, marks it sent, and removes the queue entry. A failed send queues its own retry (up to three, each later than the last). Answers results [{ lesson_index, status: sent, already-sent, unsubscribed or failed, why? }] and said.",
     "status": "active",
     "maker": "maker:send-messages",
     "licence_class": "licence:maker-own",
@@ -12937,26 +12907,11 @@
    }
   },
   {
-   "id": "tool:sign-someone-up-for-an-email-course-with-amazon-ses",
+   "id": "tool:sign-someone-up-for-an-email-course",
    "values": {
-    "title": "Sign someone up for an email course (sends through Amazon SES)",
+    "title": "Sign someone up for an email course",
     "job": "Sign a person up for an email course after they agreed to it, keep their consent in my records, send the first lesson now and queue the others",
-    "description": "Give email, consent (true only when the person agreed in the words of course.consent_text), course (id, public_origin as an https site root, checkout_url, from, mailing_address, consent_text, consent_version and 2 to 12 lessons { delay_hours, subject, article_url, text_lines, html_lines } where every lesson carries {{unsubscribeUrl}} and {{mailingAddress}} and the first has delay_hours 0), source (where they signed up, optional), provider (amazon-ses) and region (the SES region). Nothing is sent without consent, a sender and a mailing address. Records the consent with its words, version, time and source; queues each later lesson at its time (tool:send-due-email-lessons-with-amazon-ses sends them); sends lesson 1; signing up again sends nothing twice. Answers { status: enrolled, already_enrolled }.",
-    "status": "active",
-    "maker": "maker:send-messages",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "send-messages"
-   }
-  },
-  {
-   "id": "tool:sign-someone-up-for-an-email-course-with-resend",
-   "values": {
-    "title": "Sign someone up for an email course (sends through Resend)",
-    "job": "Sign a person up for an email course after they agreed to it, keep their consent in my records, send the first lesson now and queue the others",
-    "description": "Give email, consent (true only when the person agreed in the words of course.consent_text), course (id, public_origin as an https site root, checkout_url, from, mailing_address, consent_text, consent_version and 2 to 12 lessons { delay_hours, subject, article_url, text_lines, html_lines } where every lesson carries {{unsubscribeUrl}} and {{mailingAddress}} and the first has delay_hours 0), source (where they signed up, optional) and provider (resend). Nothing is sent without consent, a sender and a mailing address. Records the consent with its words, version, time and source; queues each later lesson at its time (tool:send-due-email-lessons-with-resend sends them); sends lesson 1 with List-Unsubscribe headers; signing up again sends nothing twice. Answers { status: enrolled, already_enrolled }.",
+    "description": "Give email, consent (true only when the person agreed in the words of course.consent_text), course (id, public_origin as an https site root, checkout_url, from, mailing_address, consent_text, consent_version and 2 to 12 lessons { delay_hours, subject, article_url, text_lines, html_lines } where every lesson carries {{unsubscribeUrl}} and {{mailingAddress}} and the first has delay_hours 0), source (where they signed up, optional) and provider (the id of the email provider row in read-data/message-providers.json that the person's email connection is; region too when that row asks for one). Nothing is sent without consent, a sender and a mailing address. Records the consent with its words, version, time and source; queues each later lesson at its time (tool:send-due-email-lessons sends them); sends lesson 1 with List-Unsubscribe headers; signing up again sends nothing twice. Answers { status: enrolled, already_enrolled }.",
     "status": "active",
     "maker": "maker:send-messages",
     "licence_class": "licence:maker-own",

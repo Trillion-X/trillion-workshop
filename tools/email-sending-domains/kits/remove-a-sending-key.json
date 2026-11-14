@@ -1,17 +1,17 @@
 {
-  "start_here": "Say to your AI: \"Remove the Resend key 0f1e2d3c-4b5a-4968-8776-a5b4c3d2e1f0 so it can never send again.\" It runs tool:remove-a-sending-key-with-resend.",
+  "start_here": "Say to your AI: \"Remove the Resend key 0f1e2d3c-4b5a-4968-8776-a5b4c3d2e1f0 so it can never send again.\" It runs tool:remove-a-sending-key.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it turns off one key on your email-sending account by its id and writes nothing of its own.",
   "workflows": [],
   "tools": [
-    "tool:remove-a-sending-key-with-resend",
-    "tool:list-sending-keys-with-resend",
-    "tool:make-a-sending-key-with-resend"
+    "tool:remove-a-sending-key",
+    "tool:list-sending-keys",
+    "tool:make-a-sending-key"
   ],
   "instructions": [
     "1. Connect your Resend account once so your key is held under the name resend-api-key; the key is never typed into the request.",
-    "2. Get the key's id from tool:list-sending-keys-with-resend or from the answer of tool:make-a-sending-key-with-resend.",
-    "3. Say to your AI: \"Remove the Resend key <id>\". It calls tools:run with tool tool:remove-a-sending-key-with-resend and {\"api_key_id\": \"<id>\"}. The id may hold only letters, digits and dashes.",
+    "2. Get the key's id from tool:list-sending-keys or from the answer of tool:make-a-sending-key.",
+    "3. Say to your AI: \"Remove the Resend key <id>\". It calls tools:run with tool tool:remove-a-sending-key and {\"api_key_id\": \"<id>\"}. The id may hold only letters, digits and dashes.",
     "4. Anything still holding that key can no longer send. Remove the vault's copy with the vault's own remove."
   ],
   "worked_examples": [
@@ -25,7 +25,7 @@
           "address": "@workshop-tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:remove-a-sending-key-with-resend",
+            "tool": "tool:remove-a-sending-key",
             "input": {
               "api_key_id": "0f1e2d3c-4b5a-4968-8776-a5b4c3d2e1f0"
             }
@@ -33,7 +33,7 @@
         }
       },
       "given": "From test/list-email-sending-domains.test.mjs (the id shape it accepts) and tools/email-sending-domains/tool-rows.json: the row sends DELETE https://api.resend.com/api-keys/0f1e2d3c-4b5a-4968-8776-a5b4c3d2e1f0 with no body and returns Resend's reply unchanged; its output_schema is a bare object.",
-      "hands_back": "Resend's reply to the delete, relayed unchanged (an object with no required fields); then tool:list-sending-keys-with-resend no longer lists id 0f1e2d3c-4b5a-4968-8776-a5b4c3d2e1f0."
+      "hands_back": "Resend's reply to the delete, relayed unchanged (an object with no required fields); then tool:list-sending-keys no longer lists id 0f1e2d3c-4b5a-4968-8776-a5b4c3d2e1f0."
     }
   ],
   "drafted_from": "tools/email-sending-domains/tool-rows.json (its row), test/list-email-sending-domains.test.mjs"

@@ -15,6 +15,7 @@ import {
   KEY_FIRST_DESCRIPTOR, enrollInEmailCourse, heldKeysFrom, saveEmailInterest, sendDueEmailLessons, unsubscribeFromEmailCourse, whoAgreedToGetEmails,
 } from '../do-work/keep-who-agreed.mjs';
 import { providerOf } from '../do-work/send-a-message.mjs';
+import { mountsFor, mountsOf } from './mounts-for.test.mjs';
 
 
 const line = text => ({ text_lines: [`${text}: {{articleUrl}}`, 'Unsubscribe: {{unsubscribeUrl}}', '{{mailingAddress}}'], html_lines: [`<p>${text}: {{articleUrl}}</p>`, '<p>{{unsubscribeUrl}} {{mailingAddress}}</p>'] });
@@ -50,11 +51,11 @@ const at = iso => ({ now: () => new Date(iso) });
 
 describe('the rows and the seam agree', () => {
   it('keys are mounted from descriptor 4 up, in the order the provider lists them, and the records door is 3', () => {
-    for (const [id, provider] of [['tool:sign-someone-up-for-an-email-course-with-resend', 'resend'], ['tool:sign-someone-up-for-an-email-course-with-amazon-ses', 'amazon-ses'], ['tool:send-due-email-lessons-with-resend', 'resend'], ['tool:send-due-email-lessons-with-amazon-ses', 'amazon-ses']]) {
+    for (const id of ['tool:sign-someone-up-for-an-email-course', 'tool:send-due-email-lessons']) {
       const row = rowOf(rows, id);
       assert.equal(row.invoke.records.fd, 3);
-      assert.deepEqual(row.invoke.credential_mounts, providerOf(provider).credentials.map(({ secret_name }, index) => ({ secret_name, fd: KEY_FIRST_DESCRIPTOR + index })), id);
-      assert.deepEqual(row.input_schema.properties.provider.enum, [provider]);
+      assert.deepEqual(mountsOf(row), mountsFor('email'), id);
+      assert.equal(row.input_schema.properties.provider.enum, undefined, `${id} is named for its job, not a provider`);
     }
     for (const id of ['tool:save-interest-in-an-email-update', 'tool:stop-an-email-course', 'tool:who-agreed-to-get-which-emails']) {
       assert.equal(rowOf(rows, id).invoke.credential_mounts, undefined, `${id} sends nothing and holds no key`);
@@ -70,7 +71,7 @@ describe('the rows and the seam agree', () => {
 
 describe('signing up, the first lesson, the queue and the due runner', () => {
   it('records the consent, queues the later lesson, sends the first with unsubscribe headers and sends nothing twice', async () => {
-    const { fake, row, door } = await doorFor('tool:sign-someone-up-for-an-email-course-with-resend');
+    const { fake, row, door } = await doorFor('tool:sign-someone-up-for-an-email-course');
     try {
       const sender = adapter();
       const result = await enrollInEmailCourse({ email: 'Reader@Example.com', consent: true, course, source: '/sign-up', provider: 'resend' }, { door, ...keys, send: { run: sender.run }, ...at('2026-10-01T12:00:00.000Z') });
@@ -103,7 +104,7 @@ describe('signing up, the first lesson, the queue and the due runner', () => {
   });
 
   it('refuses without consent and writes nothing', async () => {
-    const { fake, door } = await doorFor('tool:sign-someone-up-for-an-email-course-with-resend');
+    const { fake, door } = await doorFor('tool:sign-someone-up-for-an-email-course');
     try {
       const sender = adapter();
       await assert.rejects(enrollInEmailCourse({ email: 'reader@example.com', consent: false, course, provider: 'resend' }, { door, ...keys, send: { run: sender.run } }), /agree/);
@@ -113,11 +114,11 @@ describe('signing up, the first lesson, the queue and the due runner', () => {
   });
 
   it('the due runner sends a lesson once it has fallen due, marks it sent and clears the queue', async () => {
-    const enrolled = await doorFor('tool:sign-someone-up-for-an-email-course-with-resend');
+    const enrolled = await doorFor('tool:sign-someone-up-for-an-email-course');
     try {
       await enrollInEmailCourse({ email: 'reader@example.com', consent: true, course, provider: 'resend' }, { door: enrolled.door, ...keys, send: { run: adapter().run }, ...at('2026-10-01T12:00:00.000Z') });
       const held = [...enrolled.fake.kept.values()];
-      const due = await doorFor('tool:send-due-email-lessons-with-resend', held);
+      const due = await doorFor('tool:send-due-email-lessons', held);
       try {
         const early = adapter();
         const before = await sendDueEmailLessons({ provider: 'resend' }, { door: due.door, ...keys, send: { run: early.run }, ...at('2026-10-02T11:00:00.000Z') });
@@ -136,10 +137,10 @@ describe('signing up, the first lesson, the queue and the due runner', () => {
   });
 
   it('a failed send queues its own later retry and clears the entry that failed', async () => {
-    const enrolled = await doorFor('tool:sign-someone-up-for-an-email-course-with-resend');
+    const enrolled = await doorFor('tool:sign-someone-up-for-an-email-course');
     try {
       await enrollInEmailCourse({ email: 'reader@example.com', consent: true, course, provider: 'resend' }, { door: enrolled.door, ...keys, send: { run: adapter().run }, ...at('2026-10-01T12:00:00.000Z') });
-      const due = await doorFor('tool:send-due-email-lessons-with-resend', [...enrolled.fake.kept.values()]);
+      const due = await doorFor('tool:send-due-email-lessons', [...enrolled.fake.kept.values()]);
       try {
         const answer = await sendDueEmailLessons({ provider: 'resend' }, { door: due.door, ...keys, send: { run: adapter(true).run }, ...at('2026-10-02T12:00:00.000Z') });
         assert.equal(answer.results[0].status, 'failed');
@@ -153,7 +154,7 @@ describe('signing up, the first lesson, the queue and the due runner', () => {
   });
 
   it('an unsubscribed person gets nothing from the queue', async () => {
-    const enrolled = await doorFor('tool:sign-someone-up-for-an-email-course-with-resend');
+    const enrolled = await doorFor('tool:sign-someone-up-for-an-email-course');
     try {
       await enrollInEmailCourse({ email: 'reader@example.com', consent: true, course, provider: 'resend' }, { door: enrolled.door, ...keys, send: { run: adapter().run }, ...at('2026-10-01T12:00:00.000Z') });
       const held = [...enrolled.fake.kept.values()];
@@ -162,7 +163,7 @@ describe('signing up, the first lesson, the queue and the due runner', () => {
       try {
         assert.deepEqual(await unsubscribeFromEmailCourse({ token }, { door: stop.door, ...at('2026-10-01T13:00:00.000Z') }), { status: 'unsubscribed' });
         assert.deepEqual(await unsubscribeFromEmailCourse({ token: 'x'.repeat(43) }, { door: stop.door }), { status: 'unsubscribed' }, 'an unknown token answers unsubscribed too');
-        const due = await doorFor('tool:send-due-email-lessons-with-resend', [...stop.fake.kept.values()]);
+        const due = await doorFor('tool:send-due-email-lessons', [...stop.fake.kept.values()]);
         try {
           const sender = adapter();
           const answer = await sendDueEmailLessons({ provider: 'resend' }, { door: due.door, ...keys, send: { run: sender.run }, ...at('2026-10-05T12:00:00.000Z') });
@@ -177,7 +178,7 @@ describe('signing up, the first lesson, the queue and the due runner', () => {
 describe('interest in one update, and who agreed', () => {
   it('keeps the agreement in its words and lists everyone with a consent, each address once', async () => {
     const interest = await doorFor('tool:save-interest-in-an-email-update');
-    const enrolled = await doorFor('tool:sign-someone-up-for-an-email-course-with-resend');
+    const enrolled = await doorFor('tool:sign-someone-up-for-an-email-course');
     try {
       assert.deepEqual(await saveEmailInterest({ email: 'Asker@Example.com', consent: true, course: interestCourse, source: '/update' }, { door: interest.door, ...at('2026-10-01T09:00:00.000Z') }), { status: 'interest_saved', already_saved: false });
       assert.deepEqual(await saveEmailInterest({ email: 'asker@example.com', consent: true, course: interestCourse }, { door: interest.door }), { status: 'interest_saved', already_saved: true });

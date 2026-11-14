@@ -107,7 +107,7 @@ function courseFor(input, door, options = {}) {
   return makeCourse({ door, send, ...(options.now ? { now: options.now } : {}) });
 }
 
-/** tool:sign-someone-up-for-an-email-course-with-*: records the consent, schedules the later lessons, sends the first. */
+/** tool:sign-someone-up-for-an-email-course: records the consent, schedules the later lessons, sends the first. */
 export const enrollInEmailCourse = (input, { door, ...options }) => courseFor(input, door, options).enroll({ email: input.email, consent: input.consent, course: input.course, source: input.source });
 
 /** tool:save-interest-in-an-email-update: records consent to one update. Sends nothing. */
@@ -117,7 +117,7 @@ export const saveEmailInterest = (input, { door, ...options }) => courseFor({}, 
 export const unsubscribeFromEmailCourse = (input, { door, ...options }) => courseFor({}, door, options).unsubscribe(input.token);
 
 /**
- * tool:send-due-email-lessons-with-*: delivers each lesson that has fallen due, once, and removes its due record. A
+ * tool:send-due-email-lessons: delivers each lesson that has fallen due, once, and removes its due record. A
  * failed send has already scheduled its own later retry (up to three), so its record is removed too.
  */
 export async function sendDueEmailLessons(input, { door, ...options }) {

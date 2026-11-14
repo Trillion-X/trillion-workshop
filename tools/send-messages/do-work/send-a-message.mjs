@@ -18,7 +18,7 @@
 //      never woven into its script, and a permission refusal by the system fails closed with what to grant.
 //
 // USAGE
-//   node send-a-message.mjs <provider id>             request on standard input, last line of standard output is { result: the answer }
+//   node send-a-message.mjs [provider id]             the provider is the request's `provider` unless an id is given; request on standard input, last line of standard output is { result: the answer }
 //   node run-an-export.mjs send-a-message.mjs sendOnThisMac   (the computer row: Messages on this Mac)
 import { execFile, spawn } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -192,8 +192,9 @@ export function heldKeys(provider, read = descriptor => readFileSync(descriptor,
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   try {
-    const provider = providerOf(process.argv[2]);
     const request = JSON.parse(readFileSync(0, 'utf8') || '{}');
+    const provider = providerOf(process.argv[2] ?? request.provider);
+    if (process.argv[2] === undefined && provider.channel !== 'text') throw new Error(`${provider.id} is not a text provider.`);
     console.log(JSON.stringify({ result: await sendMessage(request, { providerId: provider.id, credentials: heldKeys(provider) }) }));
   } catch (error) {
     console.error(error.message);
