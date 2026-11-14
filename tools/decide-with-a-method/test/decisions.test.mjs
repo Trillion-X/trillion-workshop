@@ -1,17 +1,17 @@
-// The decision tools over the person's own records, with a made-up method and made-up decisions. Ported from the old
-// app's run-decision, one-pass and outcome tests where they do not depend on the old store: one source opens one
-// decision, a step is answered only in its turn and replays, every check is answered and the calling AI's grounded
-// refusals hold, citations are the decision's own evidence or current pursuits, a decision needs every question and
-// its fields, a new decision needs a failed result first, and the records keep the old store's layout.
+// The decision tools over the person's own records, with a made-up method (rows and a saved view) and made-up decisions.
+// Ported from the old app's run-decision, one-pass and outcome tests where they do not depend on the old store: one source
+// opens one decision, a decision is made when every row of its method has an answer, a decision needs its fields, a known
+// option and its own evidence, a new decision needs a failed result first, and the records keep the old store's layout.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { addDecisionEvidence, answerADecisionQuestion, caseIdFor, inheritableFrom, endDecisions, makeTheDecision, nextDecisionQuestion, reportADecisionResult, sayWhatWasDone, startADecision } from '../read-data/decisions.mjs';
+import { addDecisionEvidence, caseIdFor, endDecisions, makeTheDecision, reportADecisionResult, sayWhatWasDone, startADecision } from '../read-data/decisions.mjs';
 import { shareADecision } from '../read-data/share-a-decision.mjs';
 import { joinDecision, readDecision, readStep, recordsOf, writeDecision } from '../read-data/decision-records.mjs';
 import { similarDecisions } from '../read-data/similar-decisions.mjs';
-import { methodCatalogue } from '../read-data/method.mjs';
-import { caseView, memoryDoor, plainChecks, plainMethod, refsOfCase, today } from './fixtures.mjs';
+import { caseView, memoryDoor, METHOD_VIEW, STEP_ROW, refsOfCase, today } from './fixtures.mjs';
+import { account, answerAll, seedSteps } from './old-engine-for-tests.mjs';
+import { methodAnswered, recordMethodAnswers } from '../method-rows/answers.mjs';
 
 const settings = JSON.parse(readFileSync(new URL('../read-data/decide-with-a-method.json', import.meta.url), 'utf8'));
 const CHECK_REVISION = settings.records.record_revision.check !== false;
@@ -22,246 +22,71 @@ const opened = {
   evidence: [{ ref: 'e1', claim: 'Last spring twelve families signed up at the old price' }, { ref: 'e2', claim: 'The kiln costs went up this year' }],
   options: [{ id: 'keep', label: 'Keep the price' }, { id: 'raise', label: 'Raise the price' }],
 };
-const scope = { decision_context: { worth_weighing: true, compare_existing: false }, omission_reasons: { compare_existing: { searched: ['the camp price list'], evidence_refs: ['e1'] } }, evidence_refs: ['e1'] };
-const outcomeAnswer = {
-  desired_result: 'Twelve families sign up at a price covering the kiln',
-  current_state: 'The old price no longer covers the kiln costs',
-  checklist: { 'outcome-before-after': { handled: true, how: 'Before: price below kiln costs; after: twelve families at a covering price', evidence_refs: ['e2'] } },
-  evidence_refs: ['e1', 'e2'],
-};
-// The second judge's verdict on the one check the outcome step asks: every check is graded before an answer is kept.
-const judged = [{ check: 'outcome-before-after', meets: true, rests_on: 'e2', graded_by: 'second-judge-test' }];
-const proofAnswer = { check_by: today(), measure: 'Count the spring sign ups', evidence_refs: ['e1'] };
 const decision = { option_id: 'raise', reason: 'Kiln costs went up and families still came', next_action: 'Email the families the new price', success_measure: 'Twelve sign ups by May', evidence_refs: ['e1', 'e2'], who_it_changes: 'The twelve families pay a little more and keep their camp' };
 
-// The key a current step or answered-step summary is kept at: the root names the content identity it holds per index
-// (`step_refs`, `answered_refs`). A version kept beside it (`:v<vvv>`) is named by its own key, as it always was.
-function nowKey(door, key) {
-  const [, type, id, digits] = /^(decision-step|decision-answered-step):(.*):(\d{3})$/.exec(key) ?? [];
-  if (!type) return key;
-  const root = door.value(id);
-  const refs = refsOfCase(door, id);
-  const ref = (type === 'decision-step' ? refs.step_refs : refs.items?.answered_steps)?.[Number(digits)];
-  return ref ? `${key}:c${ref}` : key;
-}
+// A decision kept before methods were rows kept its method snapshot and answered steps on it; the layout still reads, so the tests
+// of the layout seed that shape: the snapshot, and an answer to a step written as an answered step.
+const legacyMethod = () => ({ id: 'plain', name: 'A made-up method', steps: [{ id: 'scope', question: 'What is being decided?' }, { id: 'outcome', question: 'What should be true after?' }] });
+const scope = { evidence_refs: ['e1'] };
+const outcomeAnswer = { evidence_refs: ['e1', 'e2'] };
 
 // The laid-apart item `index` of a list as the case holds it: its key carries the identity the root's refs name for it.
 function itemNow(door, id, list, index) {
   const { type, digits } = settings.records.laid_apart[list];
-  const root = door.value(id);
   const ref = refsOfCase(door, id).items?.[list]?.[index];
   return door.value(`${type}:${id}:${String(index).padStart(digits, '0')}${ref ? `:c${ref}` : ''}`);
 }
 
-function account() {
-  const door = memoryDoor();
-  door.put(`record:${settings.records.method_row}:plain`, `record:${settings.records.method_row}`, plainMethod());
-  for (const check of plainChecks()) door.put(`record:${settings.records.check_row}:${check.id}`, `record:${settings.records.check_row}`, check);
-  return door;
-}
+// A decision opened with answered steps kept the way earlier decisions have them, and every row of its method answered through the pair.
 async function answered(door) {
   const { case_id: id } = await startADecision(opened, { door });
-  await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
-  await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: outcomeAnswer, verdicts: judged }, { door });
-  await answerADecisionQuestion({ decision_id: id, step_id: 'proof', answer: proofAnswer }, { door });
+  await seedSteps(door, id, ['scope', 'outcome', 'proof']);
+  const kept = await answerAll(door, id);
+  assert.equal(kept.refused.length, 0, 'every answer is recorded');
   return id;
 }
-// The outcome answer as a decision kept it before every check needed a verdict: its step and its summary say one check
-// asked and none graded.
-function keptBeforeVerdicts(door, id) {
-  const step = nowKey(door, `decision-step:${id}:001`);
-  const summary = nowKey(door, `decision-answered-step:${id}:001`);
-  door.put(step, door.records.get(step).type, { ...door.value(step), verdicts: { given: [] } });
-  door.put(summary, door.records.get(summary).type, { ...door.value(summary), graded: 0, graded_by: '' });
-}
+
+// The answers a decision holds for the rows of its method.
+const methodAnsweredCount = async (door, id) => (await methodAnswered(door, id, METHOD_VIEW)).answered;
 
 test('one source opens one decision: the same input is that decision, different input is refused', async () => {
   const door = account();
   const first = await startADecision(opened, { door });
   assert.equal(first.case_id, caseIdFor(opened.source_id));
-  assert.equal(first.question.step_id, 'scope');
+  assert.equal(first.method, METHOD_VIEW, 'the decision is opened with the default method, a saved view');
+  assert.match(first.ai_instructions[0], /tool:read-a-method/);
   const root = caseView(door, first.case_id);
   assert.deepEqual(root.answered_steps, []);
-  assert.equal(root.method.id, 'plain', 'the decision keeps the method it was opened with');
-  assert.equal(root.method_id, 'plain', 'and its id beside it, for lists that weigh decisions by method');
+  assert.equal(root.method_view, METHOD_VIEW, 'the decision keeps the saved view it was opened with');
   const kept = door.value(first.case_id);
   assert.equal(kept.input.evidence, undefined, 'the root holds no evidence itself');
   assert.deepEqual(kept.input.options, opened.options, 'its options stay on the root');
   assert.equal(kept.method, undefined, 'nor its method snapshot');
   assert.deepEqual(kept.counts, { evidence: 2, candidates: 0, reports: 0, carried_out: 0, decision_history: 0, cited_pursuits: 0, answered_steps: 0 });
   assert.deepEqual(itemNow(door, first.case_id, 'evidence', 1), opened.evidence[1], 'each evidence row is a record of its own');
-  assert.deepEqual(door.value(`decision-method:${kept.method_identity}`).method, root.method, 'the snapshot is kept once by its identity');
   assert.equal(root.status, 'needs_decision');
   assert.equal((await startADecision(opened, { door })).case_id, first.case_id);
   await assert.rejects(startADecision({ ...opened, goal: 'Something else entirely' }, { door }), /already has decision/);
   await assert.rejects(startADecision({ ...opened, options: [opened.options[0]] }, { door }), /at least two options/);
   await assert.rejects(startADecision({ ...opened, source_id: 'x', evidence: [{ ref: 'e1', claim: 'a' }, { ref: 'e1', claim: 'b' }] }, { door }), /unique ref/);
-  await assert.rejects(startADecision(opened, { door: memoryDoor() }), /no methods/);
-});
-
-test('each step is answered in its turn, kept as its own record, and the same answer again replays', async () => {
-  const door = account();
-  const { case_id: id } = await startADecision(opened, { door });
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: outcomeAnswer, verdicts: judged }, { door }), /waiting for its "scope" question/);
-  const scoped = await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
-  assert.equal(scoped.question.step_id, 'outcome');
-  assert.deepEqual(scoped.question_method_coverage.omitted, [{ step_id: 'existing', reason: scoped.question_method_coverage.omitted[0].reason }]);
-  assert.ok(scoped.question.checklist.some(row => row.id === 'outcome-before-after'));
-  assert.equal(scoped.question.grader, settings.grader.grader, 'the calling AI is told who judges the checks');
-  const again = await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
-  assert.equal(again.replayed, true);
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: { ...scope, evidence_refs: ['e2'] } }, { door }), /different answer/);
-  await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: outcomeAnswer, verdicts: judged }, { door });
-  const step = door.value(nowKey(door, `decision-step:${id}:001`));
-  assert.equal(step.step_id, 'outcome');
-  assert.deepEqual(step.checklist.checks.map(row => row.id), ['outcome-before-after'], 'the checks asked are kept with the answer');
-  assert.deepEqual(caseView(door, id).answered_steps.map(stub => stub.step_id), ['scope', 'outcome']);
-  assert.equal(door.value(nowKey(door, `decision-answered-step:${id}:001`)).step_id, 'outcome', 'each answered step\'s summary is a record of its own');
-  assert.equal(door.value(id).guidance, undefined, 'the root holds no answers itself');
-  assert.equal(door.value(id).answered_steps, undefined, 'nor their summaries');
-});
-
-test('a change too large for one door message is written in parts, the root last, and a step keeps each check as its id, question and row identity', async () => {
-  const door = account();
-  const { case_id: id } = await startADecision(opened, { door });
-  await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
-  const long = { ...outcomeAnswer, current_state: 'The old price no longer covers the kiln costs. '.repeat(1200) };
-  door.writes.length = 0;
-  await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: long, verdicts: judged }, { door });
-  assert.deepEqual(door.writes.at(-1).ids, [id, `decision-revision:${id}`], 'the root and its revision, last');
-  const keys = door.writes.map(write => write.key);
-  assert.ok(keys.slice(0, -1).every((key, at) => key.startsWith(`answer-a-decision-question:${id}:1:`) && key.endsWith(`:part:${at}`)), 'each part is keyed by its content');
-  assert.ok(keys.at(-1).startsWith(`answer-a-decision-question:${id}:1:`) && !keys.at(-1).includes(':part:'), 'the root is keyed by its content');
-  const head = door.value(nowKey(door, `decision-step:${id}:001`));
-  assert.equal(head.step_id, 'outcome', 'a step too large for one record keeps its short fields');
-  assert.ok(head.kept_in_parts >= 2, 'and its whole value in parts');
-  for (const write of door.writes) assert.ok(write.largest <= settings.record_bytes, `no record over ${settings.record_bytes} bytes (${write.largest})`);
-  const step = (await readStep(door, nowKey(door, `decision-step:${id}:001`)));
-  assert.equal(step.answer.current_state, long.current_state, 'the step reads back whole');
-  assert.equal((await nextDecisionQuestion({ decision_id: id }, { door })).question.step_id, 'proof');
-  const [kept] = step.checklist;
-  assert.deepEqual(Object.keys(kept), ['id', 'check', 'identity']);
-  assert.match(kept.identity, /^1f:[0-9a-f]{64}$/);
-});
-
-test('a call reads only the checks of the step it asks, and a check\'s whole words come by id on request', async () => {
-  const door = account();
-  const checkType = `record:${settings.records.check_row}`;
-  const { case_id: id } = await startADecision(opened, { door });
-  // The methods are the branch nodes of the same one Checks list, read by kind; no check row is read for the scope question.
-  const branches = { type: checkType, where: settings.records.method_where };
-  const checkReads = () => door.lists.filter(list => list.type === checkType && JSON.stringify(list) !== JSON.stringify(branches));
-  assert.deepEqual(checkReads(), [], 'the scope question asks no checks');
-  assert.ok(door.lists.some(list => JSON.stringify(list) === JSON.stringify(branches)), 'the methods are read as branch rows of list:checks');
-  const scoped = await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
-  assert.deepEqual(checkReads(), [{ type: checkType, where: { step: 'outcome' } }]);
-  assert.deepEqual(scoped.question.checklist, [{ id: 'outcome-before-after', check: plainChecks()[0].check }], 'a check is its id and question');
-  assert.equal(scoped.explain, settings.words.explain_note);
-  const explained = await nextDecisionQuestion({ decision_id: id, explain: ['outcome-before-after'] }, { door });
-  assert.deepEqual(explained.explained, [{ id: 'outcome-before-after', check: plainChecks()[0].check, good_answer: plainChecks()[0].good_answer, skippable: false }]);
-  assert.deepEqual(Object.keys(explained), ['case_id', 'step_id', 'explained'], 'only the words asked for');
-  assert.equal(explained.step_id, 'outcome');
-  await assert.rejects(nextDecisionQuestion({ decision_id: id, explain: ['existing-where'] }, { door }), /does not ask existing-where/);
-  await assert.rejects(nextDecisionQuestion({ decision_id: id, explain: [] }, { door }), /from 1 to 128/);
-  assert.ok(door.lists.filter(list => list.type === checkType).every(list => list.where), 'no call lists every check');
-});
-
-test('every check is answered, and a grounded refusal from the calling AI holds while an ungrounded one is ignored', async () => {
-  const door = account();
-  const { case_id: id } = await startADecision(opened, { door });
-  await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
-  const { checklist: _gone, ...noChecks } = outcomeAnswer;
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: noChecks, verdicts: judged }, { door }), /Say how the answer handles each check: outcome-before-after/);
-  const refused = [{ check: 'outcome-before-after', meets: false, rests_on: 'e2', missing: 'which state it should end up in', graded_by: 'second-judge-test' }];
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: outcomeAnswer, verdicts: refused }, { door }), /checklist\.outcome-before-after: .*which state it should end up in/);
-  const ungrounded = [{ check: 'outcome-before-after', meets: false, rests_on: 'e2', missing: 'a spreadsheet of costs', graded_by: 'second-judge-test' }];
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: outcomeAnswer, verdicts: ungrounded }, { door }), /1 of its 1 have none taken \(outcome-before-after\)/, 'an ungrounded refusal is not taken, so the check is still ungraded');
-  const passed = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: outcomeAnswer, verdicts: [...ungrounded, ...judged] }, { door });
-  assert.equal(passed.question.step_id, 'proof');
-});
-
-test('the verdicts taken are kept with their step and counted on the root, so an answered step shows whether it was judged', async () => {
-  const graded = account();
-  const { case_id: id } = await startADecision(opened, { door: graded });
-  await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door: graded });
-  const meets = [{ check: 'outcome-before-after', meets: true, rests_on: 'e2', graded_by: 'second-judge-test' }];
-  await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: outcomeAnswer, verdicts: meets }, { door: graded });
-  assert.deepEqual(graded.value(nowKey(graded, `decision-step:${id}:001`)).verdicts.given.map(verdict => [verdict.id, verdict.meets, verdict.graded_by]), [['outcome-before-after', true, 'second-judge-test']]);
-  assert.deepEqual(caseView(graded, id).answered_steps.map(({ step_id, checks, graded: count, graded_by }) => ({ step_id, checks, graded: count, graded_by })), [
-    { step_id: 'scope', checks: 0, graded: 0, graded_by: '' },
-    { step_id: 'outcome', checks: 1, graded: 1, graded_by: 'second-judge-test' },
-  ]);
-  await answerADecisionQuestion({ decision_id: id, step_id: 'proof', answer: proofAnswer }, { door: graded });
-  assert.deepEqual(caseView(graded, id).answered_steps[1], { step_id: 'outcome', answered_at: caseView(graded, id).answered_steps[1].answered_at, checks: 1, graded: 1, graded_by: 'second-judge-test', version: 1, needs_recheck: false }, 'a later write keeps the counts of a step it read as its stub');
-
-  const unjudged = account();
-  const { case_id: other } = await startADecision(opened, { door: unjudged });
-  await answerADecisionQuestion({ decision_id: other, step_id: 'scope', answer: scope }, { door: unjudged });
-  await assert.rejects(answerADecisionQuestion({ decision_id: other, step_id: 'outcome', answer: outcomeAnswer }, { door: unjudged }), /needs a second judge's verdict.*The step stays unanswered/);
-  assert.deepEqual(caseView(unjudged, other).answered_steps.map(stub => stub.step_id), ['scope'], 'an answer with a check left ungraded is not kept');
-  assert.equal((await nextDecisionQuestion({ decision_id: other }, { door: unjudged })).question.step_id, 'outcome');
-});
-
-// The engine keeps an answer's keys in sorted order, so a page of the answer holds the keys that sort first. The question
-// must sort before the large parts (the pursuits, the method coverage), so the first page of 12 KB holds it.
-function sortedKeysText(value) {
-  if (Array.isArray(value)) return `[${value.map(sortedKeysText).join(',')}]`;
-  if (value && typeof value === 'object') return `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${sortedKeysText(value[key])}`).join(',')}}`;
-  return JSON.stringify(value);
-}
-
-test('the next question is in the first 12 KB of the answer, ahead of a long list of pursuits and the method coverage', async () => {
-  const door = account();
-  const { case_id: id } = await startADecision(opened, { door });
-  await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
-  for (let n = 0; n < 12; n += 1) door.put(`pursuit:long-${n}`, 'pursuit', { title: `Long aim ${n}`, now: 'x'.repeat(1500), after: 'y'.repeat(300), status: 'active' });
-  const reply = await nextDecisionQuestion({ decision_id: id }, { door });
-  assert.equal(reply.question.step_id, 'outcome', 'the outcome question is next');
-  const text = sortedKeysText(reply);
-  assert.ok(text.length > 12288, 'the answer is longer than one 12 KB page');
-  assert.ok(text.indexOf('"question":') < 12288, `the question starts at byte ${text.indexOf('"question":')}`);
-});
-
-test('an answer cites only the decision\'s evidence or a current pursuit, which is copied in as it stood', async () => {
-  const door = account();
-  door.put('pursuit:camp', 'pursuit', { title: 'Keep the camp running', now: 'Losing money', after: 'Covering costs', status: 'active' });
-  door.put('pursuit:old', 'pursuit', { title: 'An old aim', now: 'a', after: 'b', status: 'ended' });
-  const { case_id: id } = await startADecision(opened, { door });
-  const reply = await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
-  assert.deepEqual(reply.question_pursuits.map(item => item.id), ['pursuit:camp'], 'the outcome question carries the current pursuits');
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: { ...outcomeAnswer, evidence_refs: ['pursuit:old'] }, verdicts: judged }, { door }), /is not a ref of this case/);
-  await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: { ...outcomeAnswer, evidence_refs: ['e1', 'pursuit:camp'] }, verdicts: judged }, { door });
-  assert.deepEqual(caseView(door, id).cited_pursuits, { 'pursuit:camp': 'Keep the camp running: now Losing money; should be Covering costs' });
-});
-
-test('once every question is answered the decision is asked for, with similar earlier decisions beside it', async () => {
-  const door = account();
-  door.put('decision:earlier', 'decision', { id: 'decision:earlier', created_at: '2026-01-01T00:00:00.000Z', method: { id: 'plain' }, status: 'needs_outcome', input: { goal: 'Decide the pottery camp price for winter', options: [{ id: 'a', label: 'Keep it' }], evidence: [] }, decision: { option_id: 'a', next_action: 'Keep the winter price' }, answered_steps: [] });
-  const id = await answered(door);
-  const ready = await nextDecisionQuestion({ decision_id: id }, { door });
-  assert.equal(ready.question, null);
-  assert.deepEqual(ready.options, [{ id: 'keep', label: 'Keep the price' }, { id: 'raise', label: 'Raise the price' }]);
-  assert.deepEqual(ready.decision_fields.map(field => field.name), ['who_it_changes'], 'worth weighing is on, so its field is asked');
-  assert.match(ready.ai_instructions[0], /tool:make-the-decision/);
-  assert.deepEqual(ready.similar_decisions.map(item => item.case_id), ['decision:earlier']);
-  assert.deepEqual(ready.how_to_say_it.map(row => row.id), ['plain-words']);
+  await assert.rejects(startADecision(opened, { door: memoryDoor() }), /There is no saved method/);
+  await assert.rejects(startADecision({ ...opened, source_id: 'y', method: 'list-view:method-rows:nowhere' }, { door }), /There is no saved method/);
 });
 
 test('a decision needs every question, its fields, a known option and the decision\'s own evidence', async () => {
   const door = account();
   const { case_id: early } = await startADecision({ ...opened, source_id: 'chat:early' }, { door });
-  await assert.rejects(makeTheDecision({ decision_id: early, decision }, { door }), /Complete the guided questions/);
+  await assert.rejects(makeTheDecision({ decision_id: early, decision }, { door }), /has 3 of its 3 rows without an answer, the first of them record:method-row:universal-steps~%2Foutcome/);
+  await answerAll(door, early, { steps: ['scope'] });
+  await assert.rejects(makeTheDecision({ decision_id: early, decision }, { door }), /has 2 of its 3 rows without an answer/, 'one row answered leaves the rest to answer');
   const id = await answered(door);
-  const { who_it_changes: _who, ...withoutField } = decision;
-  await assert.rejects(makeTheDecision({ decision_id: id, decision: withoutField }, { door }), /Decision needs who_it_changes/);
+  const { next_action: _next, ...withoutField } = decision;
+  await assert.rejects(makeTheDecision({ decision_id: id, decision: withoutField }, { door }), /Decision needs/);
   await assert.rejects(makeTheDecision({ decision_id: id, decision: { ...decision, option_id: 'maybe' } }, { door }), /unknown option \("maybe"\)/);
   await assert.rejects(makeTheDecision({ decision_id: id, decision: { ...decision, evidence_refs: ['nowhere'] } }, { door }), /must cite existing evidence/);
-  const refused = [{ check: 'who_it_changes', meets: false, rests_on: 'e1', missing: 'what is different for them', graded_by: 'second-judge-test' }];
-  await assert.rejects(makeTheDecision({ decision_id: id, decision, verdicts: refused }, { door }), /who_it_changes: .*what is different for them/);
   const made = await makeTheDecision({ decision_id: id, decision, usage: { model_calls: 3 } }, { door });
   assert.equal(made.decision.option_id, 'raise');
   assert.match(made.resume.instruction, /Email the families the new price/);
-  assert.match(made.resume.instruction, /Who it changes beyond you: The twelve families/);
   assert.match(made.ai_instructions[0], /tool:say-what-was-done with decision_id/);
   const root = caseView(door, id);
   assert.equal(root.status, 'needs_outcome');
@@ -305,21 +130,19 @@ test('saying what was done keeps it with the decision generation it carried out'
 test('a decision kept whole is laid apart at its next change, its calls kept as records of their own, its root written last', async () => {
   const door = account();
   const id = caseIdFor('chat:whole');
-  const snapshot = methodCatalogue([plainMethod()], plainChecks()).snapshotMethod('plain');
   const calls = Array.from({ length: 300 }, (_, n) => ({ route: 'guide', accepted: true, at: `2026-01-01T00:00:${String(n % 60).padStart(2, '0')}.000Z`, submission: { secret: 'never kept' } }));
-  door.put(id, 'decision', { id, source_id: 'chat:whole', input: { ...opened, source_id: 'chat:whole' }, method: snapshot, status: 'needs_decision', decision: null, created_at: '2026-01-01T00:00:00.000Z', guidance: [{ step_id: 'scope', answer: scope, answered_at: '2026-01-01T00:00:01.000Z' }], calls });
-  const reply = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: outcomeAnswer, verdicts: judged }, { door });
-  assert.equal(reply.question.step_id, 'proof');
+  door.put(id, 'decision', { id, source_id: 'chat:whole', input: { ...opened, source_id: 'chat:whole' }, method: legacyMethod(), status: 'needs_decision', decision: null, created_at: '2026-01-01T00:00:00.000Z', guidance: [{ step_id: 'scope', answer: scope, answered_at: '2026-01-01T00:00:01.000Z' }], calls });
+  await addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e3', claim: 'Two families asked for a lower price' }] }, { door });
   const root = caseView(door, id);
   assert.equal(root.guidance, undefined);
   assert.equal(root.calls, undefined);
   assert.equal(root.call_count, 300);
-  assert.deepEqual(root.answered_steps.map(stub => stub.step_id), ['scope', 'outcome']);
-  assert.deepEqual(root.input.evidence, opened.evidence, 'its evidence is laid apart too');
+  assert.deepEqual(root.answered_steps.map(stub => stub.step_id), ['scope']);
+  assert.deepEqual(root.input.evidence.map(row => row.ref), ['e1', 'e2', 'e3'], 'its evidence is laid apart too');
   assert.equal(door.value(id).input.evidence, undefined);
   assert.equal(door.value(id).method, undefined);
+  assert.equal(root.method.id, 'plain', 'its method snapshot is kept once, beside it');
   for (const write of door.writes) assert.ok(write.bytes <= 64 * 1024);
-  assert.equal(door.value(nowKey(door, `decision-step:${id}:000`)).step_id, 'scope');
   assert.equal(door.value(`decision-call:${id}:000299`).route, 'guide');
   assert.equal(door.value(`decision-call:${id}:000000`).submission, undefined, 'a call keeps no payload');
   assert.deepEqual(door.writes.at(-1).ids, [id, `decision-revision:${id}`], 'the root and its revision are written after their parts');
@@ -328,22 +151,21 @@ test('a decision kept whole is laid apart at its next change, its calls kept as 
 // Every record kind a decision is laid out in (read-data/decision-records.mjs).
 const decisionKinds = ['decision', 'decision-step', 'decision-call', ...Object.values(settings.records.laid_apart).map(list => list.type), settings.records.method, settings.records.part.type, settings.records.refs, settings.records.record_revision.type];
 
-test('the tool rows reach only the decision records, the person\'s pursuits and their method lists', () => {
-  const tools = ['tool:start-a-decision', 'tool:next-decision-question', 'tool:answer-a-decision-question', 'tool:add-decision-evidence', 'tool:make-the-decision', 'tool:report-a-decision-result', 'tool:say-what-was-done', 'tool:end-a-decision'];
+test('the tool rows reach only the decision records, the person\'s pursuits and the rows of their methods', () => {
+  const tools = ['tool:start-a-decision', 'tool:add-decision-evidence', 'tool:make-the-decision', 'tool:report-a-decision-result', 'tool:say-what-was-done', 'tool:end-a-decision'];
+  const methodKinds = ['list', 'list-view', 'method-answer', "record:method-row"];
   for (const id of tools) {
     const row = rows.find(each => each.id === id);
     assert.ok(row, `${id} has a row`);
     const rights = row.invoke.records.rights;
-    // A decision's named workflow runs are read back as ai-job records, and only by the tools that take a run.
-    const runKinds = ['tool:answer-a-decision-question', 'tool:make-the-decision', 'tool:say-what-was-done'].includes(id) ? ['ai-job'] : [];
-    for (const right of rights) assert.ok([...decisionKinds, 'pursuit', 'record:check', `record:${settings.records.kind_row}`, ...runKinds].includes(right.kind), `${id} reaches ${right.kind}`);
-    for (const kind of runKinds) assert.deepEqual(rights.find(right => right.kind === kind)?.operations, ['records:read'], `${id} only reads ${kind} rows`);
+    for (const right of rights) assert.ok([...decisionKinds, 'pursuit', ...methodKinds].includes(right.kind), `${id} reaches ${right.kind}`);
     // Ending a large old-layout decision goes through its record layout, so every decision tool reaches each laid-apart kind.
     for (const kind of decisionKinds.filter(each => each !== 'decision-call')) assert.ok(rights.some(right => right.kind === kind), `${id} reaches ${kind}, where a decision keeps its parts`);
-    if (['tool:add-decision-evidence', 'tool:end-a-decision'].includes(id)) assert.ok(!rights.some(right => right.kind.startsWith('record:')), 'adding evidence reads no method rows');
-    // A tool that walks a method reads its rows by id (and lists by `where` only for rows written before they named their parts).
-    else if (['tool:report-a-decision-result', 'tool:say-what-was-done'].includes(id)) assert.deepEqual(rights.find(right => right.kind === 'record:check')?.operations, ['records:list'], `${id} only lists record:check rows`);
-    else assert.deepEqual(rights.find(right => right.kind === 'record:check')?.operations, ['records:list', 'records:read'], `${id} reads record:check rows by id and lists them only by where`);
+    // Only the tools that name or check a method reach its rows, and none writes a row of the method or the saved view.
+    const reachesMethod = rights.some(right => methodKinds.includes(right.kind));
+    assert.equal(reachesMethod, ['tool:start-a-decision', 'tool:make-the-decision'].includes(id), `${id} reaches the person's methods only where it names or checks one`);
+    for (const right of rights.filter(each => ['list', 'list-view', "record:method-row"].includes(each.kind))) assert.ok(!right.operations.includes('records:write'), `${id} never writes ${right.kind}`);
+    if (id === 'tool:make-the-decision') assert.deepEqual(rights.find(right => right.kind === 'method-answer')?.operations, ['records:list'], 'making a decision only lists the answers its method has');
     assert.ok(!rights.some(right => right.kind === 'pursuit' && right.operations.includes('records:write')), `${id} never writes a pursuit`);
   }
 });
@@ -389,265 +211,6 @@ test('sharing reads only the decision and the person\'s never-publish rows, and 
   for (const name of ['decide-with-a-method', 'learn-from-everyones-results', 'ask-a-small-model-for-a-verdict', 'content-identity', '@noble/hashes']) assert.ok(packed.includes(name), name);
 });
 
-test('a decision opened from its goal and constraints alone chooses among what its rule-out step leaves standing', async () => {
-  const door = account();
-  const method = plainMethod();
-  method.steps.splice(2, 0, { id: 'rule_out', question: 'Which options can be ruled out now, and what fact rules each one out?', fields: [{ name: 'ruled_out', label: 'Ruled out', list: true }, { name: 'still_standing', label: 'Still standing', list: true }] });
-  method.backbone[0].steps.push('rule_out');
-  door.put(`record:${settings.records.method_row}:plain`, `record:${settings.records.method_row}`, method);
-  const { options: _given, ...unbiased } = { ...opened, source_id: 'chat:no-options' };
-  await assert.rejects(startADecision({ ...unbiased, options: [opened.options[0]] }, { door }), /at least two options/, 'options given are still at least two');
-  const { case_id: id } = await startADecision(unbiased, { door });
-  await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
-  const asked = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: outcomeAnswer, verdicts: judged }, { door });
-  assert.equal(asked.question.step_id, 'rule_out');
-  assert.match(asked.candidates_note, /opened with no options/, 'the step that lists what stands is told to generate and eliminate candidates');
-  await answerADecisionQuestion({ decision_id: id, step_id: 'rule_out', answer: { ruled_out: ['Close the camp: e1 shows twelve families still want it'], still_standing: ['Raise the price', 'Keep the price and add a kiln fee'], evidence_refs: ['e1', 'e2'] } }, { door });
-  await answerADecisionQuestion({ decision_id: id, step_id: 'proof', answer: proofAnswer }, { door });
-  const ready = await nextDecisionQuestion({ decision_id: id }, { door });
-  assert.deepEqual(ready.options, [{ id: 'candidate:1', label: 'Raise the price' }, { id: 'candidate:2', label: 'Keep the price and add a kiln fee' }]);
-  await assert.rejects(makeTheDecision({ decision_id: id, decision: { ...decision, option_id: 'raise' } }, { door }), /unknown option/, 'only what still stands can be chosen');
-  const made = await makeTheDecision({ decision_id: id, decision: { ...decision, option_id: 'candidate:2' } }, { door });
-  assert.equal(caseView(door, id).decision.option_id, 'candidate:2');
-  assert.ok(made);
-});
-
-// The revised outcome: the same answer with another state, given as a revision of the earlier one.
-const revisedOutcome = { ...outcomeAnswer, current_state: 'The old price no longer covers the kiln costs at all' };
-const becauseKiln = { because: 'The kiln price rose again in the summer' };
-
-test('a revised answer is a new version: the old one is kept and readable, and every later step is asked again', async () => {
-  const door = account();
-  const id = await answered(door);
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: revisedOutcome, verdicts: judged }, { door }), /revise\.because/, 'a different answer is not taken as it stands');
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: revisedOutcome, revise: { because: 'too short' }, verdicts: judged }, { door }), /needs revise\.because/, 'a reason of two words is too short');
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: revisedOutcome, revise: {}, verdicts: judged }, { door }), /needs revise\.because/, 'a revision with no reason is refused');
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: revisedOutcome, revise: { because: 'Costs moved again', extra: 1 }, verdicts: judged }, { door }), /revise is/, 'nothing but because and by');
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'existing', answer: revisedOutcome, revise: becauseKiln }, { door }), /not asked by this decision|no answer yet/);
-
-  const reply = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: revisedOutcome, revise: becauseKiln, verdicts: judged }, { door });
-  assert.deepEqual(reply.revised, { step_id: 'outcome', version: 2, previous_version: 1, needs_recheck: ['proof'] });
-  assert.equal(reply.question.step_id, 'proof', 'the earliest step that stands to be asked again is asked next');
-  assert.equal(reply.question.recheck.version, 1);
-  assert.match(reply.recheck_note, /"outcome" was revised/);
-
-  const root = caseView(door, id);
-  assert.deepEqual(root.answered_steps.map(stub => [stub.step_id, stub.version, stub.needs_recheck]), [['scope', 1, false], ['outcome', 2, false], ['proof', 1, true]]);
-  const old = door.value(`decision-step:${id}:001:v001`);
-  assert.equal(old.answer.current_state, outcomeAnswer.current_state, 'the version it replaces is kept as it was');
-  assert.ok(old.superseded_at, 'and says when it was superseded');
-  const current = door.value(nowKey(door, `decision-step:${id}:001`));
-  assert.equal(current.answer.current_state, revisedOutcome.current_state);
-  assert.deepEqual([current.version, current.revised_from, current.because, current.by], [2, 1, becauseKiln.because, settings.revision.by]);
-  assert.equal(door.value(nowKey(door, `decision-step:${id}:002`)).answer.measure, proofAnswer.measure, 'a later step is kept, not deleted');
-
-  const history = await nextDecisionQuestion({ decision_id: id, versions_of: 'outcome' }, { door });
-  assert.deepEqual(history.versions.map(item => [item.version, item.current]), [[1, false], [2, true]]);
-  assert.equal(history.versions[0].answer.current_state, outcomeAnswer.current_state);
-  assert.equal(history.versions[1].because, becauseKiln.because);
-  await assert.rejects(nextDecisionQuestion({ decision_id: id, versions_of: 'existing' }, { door }), /no answer yet/);
-
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: { ...scope, evidence_refs: ['e2'] } }, { door }), /different answer/, 'an earlier answer that was not revised is still refused');
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'proof', answer: { ...proofAnswer, measure: 'Count them in June' } }, { door }), /revise\.because/, 'a re-asked answer that changes needs its reason too');
-  const sameAgain = await answerADecisionQuestion({ decision_id: id, step_id: 'proof', answer: proofAnswer }, { door });
-  assert.deepEqual(sameAgain.confirmed, { step_id: 'proof', version: 1 }, 'the same answer sent again confirms it unchanged');
-  assert.equal(door.value(nowKey(door, `decision-step:${id}:002`)).version, 1);
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'proof', confirm: true, answer: proofAnswer }, { door }), /sent alone/);
-  assert.equal(sameAgain.question, null, 'confirmed unchanged: nothing is asked again');
-  assert.equal(sameAgain.ready_for_decision, true);
-  assert.equal(caseView(door, id).answered_steps[2].needs_recheck, false);
-  assert.equal(door.value(`decision-step:${id}:002:v001`), null, 'a confirmation keeps no version of its own');
-  assert.equal((await answerADecisionQuestion({ decision_id: id, step_id: 'proof', confirm: true }, { door })).replayed, true, 'and a confirmation sent after it replays');
-});
-
-test('a retried identical call replays: the same answer, the same revision, a confirmation again, nothing written twice', async () => {
-  const door = account();
-  const id = await answered(door);
-  await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: revisedOutcome, revise: becauseKiln, verdicts: judged }, { door });
-  door.writes.length = 0;
-  const again = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: revisedOutcome, revise: becauseKiln, verdicts: judged }, { door });
-  assert.equal(again.replayed, true);
-  assert.deepEqual(door.writes, [], 'a revision sent again to the same answer writes nothing');
-  await answerADecisionQuestion({ decision_id: id, step_id: 'proof', confirm: true }, { door });
-  door.writes.length = 0;
-  assert.equal((await answerADecisionQuestion({ decision_id: id, step_id: 'proof', confirm: true }, { door })).replayed, true);
-  assert.deepEqual(door.writes, []);
-  assert.equal((await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door })).replayed, true, 'an answer from earlier replays too');
-  assert.equal(door.value(`decision-step:${id}:001:v002`), null, 'and no third version appears');
-});
-
-test('a revision of a decided decision reopens it: the decision moves to history marked reopened, the answer gets its new version, later answers are asked again, and the decision is made again', async () => {
-  const door = account();
-  const id = await answered(door);
-  await makeTheDecision({ decision_id: id, decision }, { door });
-  const reply = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: revisedOutcome, revise: becauseKiln, verdicts: judged }, { door });
-  assert.deepEqual(reply.revised, { step_id: 'outcome', version: 2, previous_version: 1, needs_recheck: ['proof'] });
-  assert.equal(reply.question.step_id, 'proof', 'the later answer is asked again before anything is decided');
-  assert.equal(reply.reopened.from_generation, 1);
-  assert.equal(reply.reopened.because, becauseKiln.because);
-  assert.equal(reply.decision, null, 'the decision is open');
-  assert.equal(reply.ready_for_decision, false);
-
-  const root = caseView(door, id);
-  assert.equal(root.decision, null);
-  assert.equal(root.status, 'needs_decision');
-  assert.equal(root.decision_generation, 1, 'the generation is kept until the new decision is made');
-  assert.equal(root.decision_history.length, 1);
-  assert.equal(root.decision_history[0].decision.option_id, 'raise', 'the decision it had is kept whole');
-  assert.deepEqual(root.decision_history[0].reopened, { by: 'revision', step_id: 'outcome', because: becauseKiln.because, at: root.decision_history[0].reopened.at });
-  assert.equal(door.value(`decision-step:${id}:001:v001`).answer.current_state, outcomeAnswer.current_state, 'the old answer is still kept');
-  assert.equal(door.value(nowKey(door, `decision-step:${id}:001`)).answer.current_state, revisedOutcome.current_state);
-
-  await assert.rejects(makeTheDecision({ decision_id: id, decision }, { door }), /Complete the guided questions/, 'the open decision is not made while a later answer waits');
-  await answerADecisionQuestion({ decision_id: id, step_id: 'proof', confirm: true }, { door });
-  const made = await makeTheDecision({ decision_id: id, decision: { ...decision, option_id: 'keep', reason: 'Families left at the higher price' } }, { door });
-  assert.equal(made.decision.option_id, 'keep');
-  assert.equal(made.already_decided, undefined);
-  const after = caseView(door, id);
-  assert.equal(after.decision_generation, 2);
-  assert.equal(after.status, 'needs_outcome');
-  assert.equal(after.decision_history.length, 1, 'the decision made again does not repeat the reopened one');
-  assert.equal(after.decision_history[0].decision.option_id, 'raise');
-});
-
-test('a reopened decision keeps its earlier report apart: a result given for the new decision is its own, not a repeat of the old one', async () => {
-  const door = account();
-  const id = await answered(door);
-  await makeTheDecision({ decision_id: id, decision }, { door });
-  await reportADecisionResult({ decision_id: id, result: 'met', summary: 'Twelve families signed up', answered_by: 'person' }, { door });
-  await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: revisedOutcome, revise: becauseKiln, verdicts: judged }, { door });
-  await answerADecisionQuestion({ decision_id: id, step_id: 'proof', confirm: true }, { door });
-  await makeTheDecision({ decision_id: id, decision: { ...decision, option_id: 'keep', reason: 'Families left at the higher price' } }, { door });
-  const met = await reportADecisionResult({ decision_id: id, result: 'met', summary: 'Twelve families signed up', answered_by: 'person' }, { door });
-  assert.equal(met.repeated, undefined);
-  assert.equal(met.reports, 2);
-  assert.equal(met.report.decision_generation, 2);
-});
-
-test('a retried revision of a decided decision replays: it reopens once, and nothing is written twice', async () => {
-  const door = account();
-  const id = await answered(door);
-  await makeTheDecision({ decision_id: id, decision }, { door });
-  await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: revisedOutcome, revise: becauseKiln, verdicts: judged }, { door });
-  door.writes.length = 0;
-  const again = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: revisedOutcome, revise: becauseKiln, verdicts: judged }, { door });
-  assert.equal(again.replayed, true);
-  assert.deepEqual(door.writes, [], 'the same revision sent again writes nothing');
-  assert.equal(caseView(door, id).decision_history.length, 1, 'and reopens nothing twice');
-  assert.equal(door.value(`decision-step:${id}:001:v002`), null);
-});
-
-test('a revision of a decided decision that gives the answer it already has replays, and does not reopen it', async () => {
-  const door = account();
-  const id = await answered(door);
-  await makeTheDecision({ decision_id: id, decision }, { door });
-  const same = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: outcomeAnswer, revise: becauseKiln, verdicts: judged }, { door });
-  assert.equal(same.replayed, true);
-  assert.equal(same.decision.option_id, 'raise', 'the decision stands');
-  assert.equal(caseView(door, id).decision_history, undefined);
-});
-
-test('after a failed result a revision changes the answer and the decision stands until a new one is made, as before', async () => {
-  const door = account();
-  const id = await answered(door);
-  await makeTheDecision({ decision_id: id, decision }, { door });
-  await reportADecisionResult({ decision_id: id, result: 'met', summary: 'Twelve families signed up', answered_by: 'person' }, { door });
-  await reportADecisionResult({ decision_id: id, result: 'failed', summary: 'Only four families signed up', answered_by: 'person' }, { door });
-  const reply = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: revisedOutcome, revise: becauseKiln, verdicts: judged }, { door });
-  assert.equal(reply.question.step_id, 'proof');
-  assert.equal(reply.reopened, undefined, 'a failed result is not a reopen');
-  assert.equal(reply.decision.option_id, 'raise', 'the decision stands until a new one is made');
-  await answerADecisionQuestion({ decision_id: id, step_id: 'proof', confirm: true }, { door });
-  const made = await makeTheDecision({ decision_id: id, decision: { ...decision, option_id: 'keep', reason: 'Families left at the higher price' } }, { door });
-  assert.equal(made.decision.option_id, 'keep');
-  const root = caseView(door, id);
-  assert.equal(root.decision_generation, 2);
-  assert.equal(root.decision_history.length, 1);
-  assert.equal(root.decision_history[0].decision.option_id, 'raise');
-  assert.equal(root.decision_history[0].reopened, undefined, 'the decision kept on a failed result carries no reopen mark');
-});
-
-test('verdicts added to an answered step keep its answer: a new version with the same answer and the verdicts, who graded them and when', async () => {
-  const door = account();
-  const id = await answered(door);
-  keptBeforeVerdicts(door, id);
-  const meets = [{ check: 'outcome-before-after', meets: true, rests_on: 'e2', graded_by: 'second-judge-test' }];
-  const added = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: meets }, { door });
-  assert.deepEqual(added.confirmed, { step_id: 'outcome', version: 2, verdicts_added: ['outcome-before-after'] });
-  assert.equal(added.question, null, 'the answer stands and every question is still answered');
-  assert.equal(added.ready_for_decision, true);
-  const step = door.value(nowKey(door, `decision-step:${id}:001`));
-  assert.equal(step.version, 2);
-  assert.deepEqual(step.answer, outcomeAnswer, 'the answer did not change');
-  assert.deepEqual(step.verdicts.given.map(item => [item.id, item.meets, item.graded_by]), [['outcome-before-after', true, 'second-judge-test']]);
-  assert.ok(step.verdicts.given[0].added_at, 'each verdict added keeps when it came in');
-  assert.ok(step.confirmed_at, 'the version says when it was confirmed');
-  assert.deepEqual(door.value(`decision-step:${id}:001:v001`).verdicts, { given: [] }, 'the version it replaces is kept as it was: no verdicts');
-  assert.equal(caseView(door, id).answered_steps[1].graded, 1);
-  assert.equal(caseView(door, id).answered_steps[1].version, 2);
-
-  const versions = await nextDecisionQuestion({ decision_id: id, versions_of: 'outcome' }, { door });
-  assert.deepEqual(versions.versions.map(item => [item.version, item.current]), [[1, false], [2, true]]);
-  assert.ok(versions.versions[1].confirmed_at, 'the history shows the confirmation');
-});
-
-test('verdicts added to a decided decision keep it decided: nothing reopens, and the decision and its history stand', async () => {
-  const door = account();
-  const id = await answered(door);
-  await makeTheDecision({ decision_id: id, decision }, { door });
-  keptBeforeVerdicts(door, id);
-  const notAsked = await answerADecisionQuestion({ decision_id: id, step_id: 'proof', confirm: true, verdicts: [{ check: 'not-asked', meets: true, rests_on: 'e1', graded_by: 'second-judge-test' }] }, { door });
-  assert.equal(notAsked.replayed, true, 'a verdict for a check the step did not ask is not taken');
-  const reply = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: [{ check: 'outcome-before-after', meets: true, rests_on: 'e2', graded_by: 'second-judge-test' }] }, { door });
-  assert.equal(reply.decision.option_id, 'raise', 'still decided');
-  assert.equal(reply.reopened, undefined);
-  assert.equal(reply.question, null);
-  const root = caseView(door, id);
-  assert.equal(root.decision.option_id, 'raise');
-  assert.equal(root.status, 'needs_outcome');
-  assert.equal(root.decision_generation, 1);
-  assert.equal(root.decision_history, undefined, 'nothing moved to the history');
-  assert.equal(door.value(nowKey(door, `decision-step:${id}:001`)).version, 2);
-  assert.deepEqual(door.value(nowKey(door, `decision-step:${id}:001`)).answer, outcomeAnswer);
-});
-
-test('a verdict confirmation is replayed when sent again, refuses a grounded refusal, takes no verdict that rests on nothing, and never changes a verdict kept', async () => {
-  const door = account();
-  const id = await answered(door);
-  keptBeforeVerdicts(door, id);
-  const refused = [{ check: 'outcome-before-after', meets: false, rests_on: 'e2', missing: 'which state it should end up in', graded_by: 'second-judge-test' }];
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: refused }, { door }), /checklist\.outcome-before-after: .*which state it should end up in/);
-  assert.equal(door.value(nowKey(door, `decision-step:${id}:001`)).version, 1, 'a refused confirmation writes nothing');
-  const restsOnNothing = [{ check: 'outcome-before-after', meets: true, rests_on: 'nothing of this answer', graded_by: 'second-judge-test' }];
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: restsOnNothing }, { door }), /needs a second judge's verdict/, 'a verdict that rests on nothing is not taken, so the step stays ungraded and is refused, not replayed');
-  const ungroundedRefusal = [{ check: 'outcome-before-after', meets: false, rests_on: 'e2', missing: 'a spreadsheet of costs', graded_by: 'second-judge-test' }];
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: ungroundedRefusal }, { door }), /needs a second judge's verdict/, 'an ungrounded refusal is ignored, and the step stays ungraded');
-  const meets = [{ check: 'outcome-before-after', meets: true, rests_on: 'e2', graded_by: 'second-judge-test' }];
-  await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: meets }, { door });
-  door.writes.length = 0;
-  assert.equal((await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: meets }, { door })).replayed, true, 'the same confirmation again replays');
-  assert.deepEqual(door.writes, [], 'and writes nothing');
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: [{ check: 'outcome-before-after', meets: true, rests_on: 'e2', graded_by: 'another-judge' }] }, { door }), /already has a different verdict/, 'a verdict kept is never changed');
-  assert.equal(door.value(nowKey(door, `decision-step:${id}:001`)).version, 2, 'and no third version appears');
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: meets, answer: outcomeAnswer }, { door }), /sent alone/);
-});
-
-test('a verdict confirmation on a step flagged to be asked again takes its verdicts in its turn, clears its flag, and is refused out of turn', async () => {
-  const door = account();
-  const id = await answered(door);
-  keptBeforeVerdicts(door, id);
-  const widened = { decision_context: { worth_weighing: true, compare_existing: true }, omission_reasons: {}, evidence_refs: ['e1'] };
-  await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: widened, revise: { because: 'A nearby class also runs this spring' } }, { door });
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'proof', confirm: true, verdicts: [] }, { door }), /waiting for its "outcome"/);
-  const meets = [{ check: 'outcome-before-after', meets: true, rests_on: 'e2', graded_by: 'second-judge-test' }];
-  const reply = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: meets }, { door });
-  assert.deepEqual(reply.confirmed, { step_id: 'outcome', version: 2, verdicts_added: ['outcome-before-after'] });
-  assert.equal(reply.question.step_id, 'proof', 'the next question is the one still flagged');
-  const root = caseView(door, id);
-  assert.equal(root.answered_steps[1].needs_recheck, false);
-  assert.equal(root.answered_steps[2].needs_recheck, true, 'the step after it is still to be asked again');
-});
-
 test('two evidence adds to one case at the same time both land: the case changed under the first is read again and written under a fresh key', async () => {
   const door = account();
   const { case_id: id } = await startADecision(opened, { door });
@@ -677,9 +240,9 @@ test('an evidence add of eight rows lands as eight single adds do, with refs lon
 test('evidence added at any time is kept with when it came in, the same start still opens that decision, and an answer may cite the new evidence', async () => {
   const door = account();
   const { case_id: id } = await startADecision(opened, { door });
-  await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
-  const citing = { ...outcomeAnswer, evidence_refs: ['e1', 'e3'] };
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: citing, verdicts: judged }, { door }), /is not a ref of this case/, 'evidence not yet added cannot be cited');
+  const citing = { row: STEP_ROW('scope'), answer: 'A made-up answer that rests on the second family request', evidence_refs: ['e1', 'e3'] };
+  const early = await recordMethodAnswers({ decision_id: id, method: METHOD_VIEW, answers: [citing] }, { door });
+  assert.deepEqual([early.recorded.length, early.refused.length], [0, 1], 'evidence not yet added cannot be cited');
   const added = await addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e3', claim: 'Two families asked for a lower price' }] }, { door });
   assert.equal(added.evidence, 3);
   assert.equal(added.added.length, 1);
@@ -692,64 +255,19 @@ test('evidence added at any time is kept with when it came in, the same start st
   await assert.rejects(addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e3', claim: 'Something else' }] }, { door }), /its own ref/);
   await assert.rejects(addDecisionEvidence({ decision_id: id, evidence: [] }, { door }), /from 1 to 64/);
   await assert.rejects(addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e4' }] }, { door }), /needs a ref and either a claim/);
-  const next = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: citing, verdicts: judged }, { door });
-  assert.equal(next.question.step_id, 'proof');
+  const next = await recordMethodAnswers({ decision_id: id, method: METHOD_VIEW, answers: [citing] }, { door });
+  assert.deepEqual([next.recorded.length, next.refused.length], [1, 0], 'the evidence once added can be cited');
 });
 
-test('an answer and an evidence row can be brought in from another of the person\'s decisions: copied as it stood, its evidence comes along, and checked like a typed answer', async () => {
+test('an evidence row can be brought in from another of the person\'s decisions: copied as it stood, with where it came from', async () => {
   const door = account();
   const source = await answered(door);
   const { case_id: id } = await startADecision({ ...opened, source_id: 'chat:pottery-2', evidence: [{ ref: 'e1', claim: opened.evidence[0].claim }] }, { door });
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'scope', from: { decision_id: id, step_id: 'scope' } }, { door }), /revise it instead/, 'a decision is not brought in from itself');
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'scope', from: { decision_id: source, step_id: 'proof' } }, { door }), /decision_context is required/, 'a copied answer is checked for the step it is put into');
-  const scoped = await answerADecisionQuestion({ decision_id: id, step_id: 'scope', from: { decision_id: source, step_id: 'scope' } }, { door });
-  assert.equal(scoped.question.step_id, 'outcome');
-  assert.deepEqual(door.value(nowKey(door, `decision-step:${id}:000`)).from, { decision_id: source, step_id: 'scope', version: 1 });
-  assert.deepEqual(door.value(nowKey(door, `decision-step:${id}:000`)).answer, scope);
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', from: { decision_id: source, step_id: 'outcome' }, verdicts: [{ check: 'outcome-before-after', meets: false, rests_on: 'e2', missing: 'which state it should end up in', graded_by: 'second-judge-test' }] }, { door }), /which state it should end up in/, 'a copied answer meets the same verdicts as a typed one');
-
-  const copied = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', from: { decision_id: source, step_id: 'outcome' }, verdicts: judged }, { door });
-  assert.equal(copied.question.step_id, 'proof');
-  const e2 = caseView(door, id).input.evidence.find(item => item.ref === 'e2');
-  assert.deepEqual(e2.from, { decision_id: source, ref: 'e2' }, 'evidence the copied answer cites comes along, with where it came from');
-  assert.equal(e2.claim, opened.evidence[1].claim);
-  assert.deepEqual(door.value(nowKey(door, `decision-step:${id}:001`)).answer, outcomeAnswer);
-  const replays = door.writes.length;
-  assert.equal((await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', from: { decision_id: source, step_id: 'outcome' }, verdicts: judged }, { door })).replayed, true);
-  assert.equal(door.writes.length, replays, 'the same from again replays');
-
-  // The source changes later: the copy stays as it stood, and a copy that names no version takes the current one.
-  await answerADecisionQuestion({ decision_id: source, step_id: 'outcome', answer: revisedOutcome, revise: becauseKiln, verdicts: judged }, { door });
-  assert.equal(door.value(nowKey(door, `decision-step:${id}:001`)).answer.current_state, outcomeAnswer.current_state, 'the copy did not change with its source');
-  const third = await startADecision({ ...opened, source_id: 'chat:pottery-3' }, { door });
-  await answerADecisionQuestion({ decision_id: third.case_id, step_id: 'scope', from: { decision_id: source, step_id: 'scope' } }, { door });
-  const current = await answerADecisionQuestion({ decision_id: third.case_id, step_id: 'outcome', from: { decision_id: source, step_id: 'outcome' }, verdicts: judged }, { door });
-  assert.equal(current.question.step_id, 'proof');
-  assert.equal(door.value(nowKey(door, `decision-step:${third.case_id}:001`)).answer.current_state, revisedOutcome.current_state);
-  assert.deepEqual(door.value(nowKey(door, `decision-step:${third.case_id}:001`)).from, { decision_id: source, step_id: 'outcome', version: 2 });
-  await assert.rejects(answerADecisionQuestion({ decision_id: third.case_id, step_id: 'proof', from: { decision_id: source, step_id: 'outcome', version: 9 }, verdicts: judged }, { door }), /no answer to "outcome" at version 9/);
-
   const bringing = await addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e9', from: { decision_id: source, ref: 'e1' } }] }, { door });
   assert.deepEqual(bringing.added[0].from, { decision_id: source, ref: 'e1' });
   assert.equal(bringing.added[0].claim, opened.evidence[0].claim);
   await assert.rejects(addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e9', from: { decision_id: source, ref: 'missing' } }] }, { door }), /no evidence missing/);
-});
-
-test('revising the scope asks again every step after it, in method order, and a step the scope now adds is asked where it falls', async () => {
-  const door = account();
-  const id = await answered(door);
-  const widened = { decision_context: { worth_weighing: true, compare_existing: true }, omission_reasons: {}, evidence_refs: ['e1'] };
-  const reply = await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: widened, revise: { because: 'A nearby class also runs this spring' } }, { door });
-  assert.deepEqual(reply.revised.needs_recheck, ['outcome', 'proof'], 'every answer after the scope is marked');
-  assert.equal(reply.question.step_id, 'outcome', 'asked again in method order');
-  await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true }, { door });
-  const second = await answerADecisionQuestion({ decision_id: id, step_id: 'proof', confirm: true }, { door });
-  assert.equal(second.question.step_id, 'existing', 'the step the scope adds is asked after the steps before it');
-  assert.deepEqual(second.question.checklist, [{ id: 'existing-where', check: plainChecks()[1].check }]);
-  assert.equal((await answerADecisionQuestion({ decision_id: id, step_id: 'proof', confirm: true }, { door })).replayed, true, 'a confirmation given before replays and asks nothing again');
-  const done = await answerADecisionQuestion({ decision_id: id, step_id: 'existing', answer: { found: ['a nearby class price list'], checklist: { 'existing-where': { handled: true, how: 'Looked at the price list of the nearby class', evidence_refs: ['e1'] } }, evidence_refs: ['e1'] }, verdicts: [{ check: 'existing-where', meets: true, rests_on: 'e1', graded_by: 'second-judge-test' }] }, { door });
-  assert.equal(done.question, null);
-  assert.equal(done.ready_for_decision, true);
+  await assert.rejects(addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e8', from: { decision_id: id, ref: 'e1' } }]  }, { door }), /revise it instead/);
 });
 
 // A root as the layout before this one wrote it: its evidence, options, results, history and cited pursuits inside it,
@@ -778,8 +296,7 @@ test('a root written the old way still reads, and is laid apart at its next chan
   assert.equal(door.value(id).input.evidence.length, 3, 'the old root holds its evidence');
   assert.equal(door.value(id).answered_steps.length, 3);
 
-  const ready = await nextDecisionQuestion({ decision_id: id }, { door });
-  assert.equal(ready.question, null, 'it reads as it is');
+  assert.equal((await readDecision(door, id, ['scope'])).guidance[0].step_id, 'scope', 'it reads as it is');
   assert.equal((await startADecision(opened, { door })).case_id, id, 'its original input still opens it');
   door.writes.length = 0;
   await makeTheDecision({ decision_id: id, decision: { ...decision, option_id: 'keep', evidence_refs: ['e3'] } }, { door });
@@ -791,8 +308,8 @@ test('a root written the old way still reads, and is laid apart at its next chan
   assert.equal(itemNow(door, id, 'reports', 0).result, 'failed');
   assert.equal(itemNow(door, id, 'decision_history', 0).decision.option_id, 'raise');
   assert.equal(itemNow(door, id, 'cited_pursuits', 0).ref, 'pursuit:camp');
-  assert.equal(door.value(nowKey(door, `decision-answered-step:${id}:002`)).step_id, 'proof');
-  assert.equal(door.value(`decision-method:${root.method_identity}`).method.id, 'plain');
+  assert.equal(itemNow(door, id, 'answered_steps', 2).step_id, 'proof');
+  assert.equal(caseView(door, id).method_view, METHOD_VIEW, 'it keeps the saved view it was opened with');
   assert.deepEqual(door.writes.at(-1).ids.at(0), id, 'the root is in the last write');
   const view = caseView(door, id);
   assert.equal(view.decision.option_id, 'keep');
@@ -803,52 +320,39 @@ test('a root written the old way still reads, and is laid apart at its next chan
 
 test('a decision of any size fits: every record and every door write stays under the 64 KiB cap, and the root does not grow', async t => {
   const door = memoryDoor();
-  const base = plainMethod();
-  const extra = Array.from({ length: 40 }, (_, n) => ({ id: `more-${n}`, question: `What does part ${n} of the made-up placement need?`, fields: [{ name: 'note', label: 'Note' }] }));
-  const method = { ...base, id: 'big', default_for: [], about: 'A made-up method with a very long description of how it works. '.repeat(500), steps: [...base.steps, ...extra], backbone: [...base.backbone, { id: 'more', name: 'More parts', steps: extra.map(step => step.id) }] };
-  door.put(`record:${settings.records.method_row}:big`, `record:${settings.records.method_row}`, method);
-  const checks = Array.from({ length: 300 }, (_, n) => ({ id: `big-check-${String(n).padStart(3, '0')}`, part_of: 'big', step: 'outcome', check: `Does the answer handle point ${n} of the long made-up list of placement concerns?`, good_answer: 'Names the point and how the placement handles it, with the fact that shows it.' }));
-  for (const check of checks) door.put(`record:${settings.records.check_row}:${check.id}`, `record:${settings.records.check_row}`, check);
+  const names = Array.from({ length: 43 }, (_, n) => `part-${String(n).padStart(2, '0')}`);
+  account({ door, steps: names });
   for (let n = 0; n < 30; n += 1) door.put(`pursuit:p${n}`, 'pursuit', { title: `Made-up pursuit ${n} with a long title for the test`, now: 'Where it stands now in plain words', after: 'Where it should end up in plain words', status: 'active' });
   const claim = n => `Made-up fact ${n}: a measured detail about the synthetic placement, its owner, its cost and its timing, written out at length so the case grows.`;
-  const start = { source_id: 'chat:big', goal: 'Decide where the made-up service is placed', method: 'big', evidence: Array.from({ length: 300 }, (_, n) => ({ ref: `e${n + 1}`, claim: claim(n) })), options: opened.options };
+  const start = { source_id: 'chat:big', goal: 'Decide where the made-up service is placed', evidence: Array.from({ length: 300 }, (_, n) => ({ ref: `e${n + 1}`, claim: claim(n) })), options: opened.options };
   const { case_id: id } = await startADecision(start, { door });
-  await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
-  const big = { ...outcomeAnswer, checklist: Object.fromEntries(checks.map((check, n) => [check.id, { handled: true, how: `Point ${n} is handled by the placement as fact ${n + 1} shows`, evidence_refs: [`e${(n % 200) + 1}`] }])) };
-  const verdicts = checks.map(check => ({ check: check.id, meets: true, rests_on: 'e1', graded_by: 'second-judge-test' }));
-  await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: big, verdicts }, { door });
-  await answerADecisionQuestion({ decision_id: id, step_id: 'proof', answer: proofAnswer }, { door });
-  const note = n => ({ note: `Part ${n} is settled by the facts`, evidence_refs: n === 0 ? ['e1', ...Array.from({ length: 30 }, (_, p) => `pursuit:p${p}`)] : ['e1'] });
-  for (const step of extra) await answerADecisionQuestion({ decision_id: id, step_id: step.id, answer: note(Number(step.id.slice(5))) }, { door });
+  const pursuits = Array.from({ length: 30 }, (_, p) => `pursuit:p${p}`);
+  const recorded = await answerAll(door, id, { steps: names, ref: 'e1' });
+  assert.equal(recorded.refused.length, 0);
   for (let call = 0; call < 4; call += 1) {
     const evidence = Array.from({ length: 50 }, (_, n) => ({ ref: `added-${call}-${n}`, claim: claim(1000 + call * 50 + n) }));
     await addDecisionEvidence({ decision_id: id, evidence }, { door });
   }
   for (let round = 0; round < 3; round += 1) {
-    await makeTheDecision({ decision_id: id, decision: { ...decision, option_id: round % 2 ? 'keep' : 'raise' } }, { door });
+    await makeTheDecision({ decision_id: id, decision: { ...decision, option_id: round % 2 ? 'keep' : 'raise', evidence_refs: ['e1', ...pursuits] } }, { door });
     for (let n = 0; n < 4; n += 1) await sayWhatWasDone({ decision_id: id, state: 'done', what_happened: `Round ${round} step ${n}: ${'what was done, in long made-up words. '.repeat(100)}` }, { door });
     await reportADecisionResult({ decision_id: id, result: 'failed', summary: `Round ${round} did not work: ${'the made-up measure was missed. '.repeat(20)}`, answered_by: 'person' }, { door });
   }
-  await answerADecisionQuestion({ decision_id: id, step_id: 'proof', answer: { ...proofAnswer, measure: 'Count the sign ups again' }, revise: { because: 'The measure changed after three failed rounds' } }, { door });
-  for (const step of extra) await answerADecisionQuestion({ decision_id: id, step_id: step.id, confirm: true }, { door });
   const made = await makeTheDecision({ decision_id: id, decision: { ...decision, evidence_refs: ['e1', 'added-3-49'] } }, { door });
   assert.equal(made.decision.evidence_refs[1], 'added-3-49', 'the decision cites evidence added late');
 
   const view = caseView(door, id);
   assert.equal(view.input.evidence.length, 500);
-  assert.equal(view.answered_steps.length, 43);
   assert.equal(view.decision_history.length, 3);
   assert.equal(view.reports.length, 3);
   assert.equal(view.carried_out.length, 12);
   assert.equal(Object.keys(view.cited_pursuits).length, 30);
-  const step = await readStep(door, nowKey(door, `decision-step:${id}:001`));
-  assert.equal(step.verdicts.length, 300, 'a step with hundreds of checks keeps every verdict');
-  assert.equal(step.checklist.length, 300);
+  assert.equal((await methodAnsweredCount(door, id)), 43, 'every row of the method keeps its own answer record');
 
   const bytes = value => Buffer.byteLength(JSON.stringify(value));
-  const mine = [...door.records.entries()].filter(([key]) => key === id || key.includes(`:${id}:`) || key.startsWith(`decision-method:${door.value(id).method_identity}`));
+  const mine = [...door.records.entries()].filter(([key]) => key === id || key.includes(`:${id}:`));
   const total = mine.reduce((sum, [key, kept]) => sum + bytes({ id: key, type: kept.type, value: kept.value }), 0);
-  assert.ok(total > 3 * 64 * 1024, `the case is far larger than one write (${total} bytes)`);
+  assert.ok(total > 64 * 1024, `the case is larger than one write (${total} bytes)`);
   const largestWrite = Math.max(...door.writes.map(write => write.bytes));
   assert.ok(largestWrite <= 64 * 1024, `every door write is under the cap (largest ${largestWrite})`);
   const largestCarried = Math.max(...door.writes.map(write => write.carried));
@@ -860,19 +364,14 @@ test('a decision of any size fits: every record and every door write stays under
   }
   for (const [type, size] of Object.entries(largest)) assert.ok(size <= (type === 'decision' ? 4096 : settings.record_bytes), `${type} records stay small (${size})`);
   const roots = door.writes.filter(write => write.ids.includes(id)).length;
-  assert.ok(roots > 50, 'the root was written at every change');
+  assert.ok(roots >= 20, 'the root was written at every change');
 
   // A reader that reads synchronously joins the same records with the same pure function: `joinDecision` over what the door
   // holds, never the door, is the decision `readDecision` returns.
   const get = (type, key) => (door.records.get(key)?.type === type ? structuredClone(door.records.get(key).value) : null);
-  const stepIds = door.value(id).counts.answered_steps;
-  const every = (await readDecision(door, id, extra.map(item => item.id))).guidance.map(entry => entry.step_id);
-  assert.equal(every.length, stepIds);
-  const synchronous = joinDecision(id, door.value(id), get, every);
-  assert.deepEqual(synchronous, await readDecision(door, id, every));
+  const synchronous = joinDecision(id, door.value(id), get, []);
+  assert.deepEqual(synchronous, await readDecision(door, id, []));
   assert.equal(synchronous.input.evidence.length, 500);
-  assert.equal(synchronous.guidance.every(entry => !entry.lost && entry.answer !== undefined), true);
-  assert.equal(synchronous.method.id, 'big');
   t.diagnostic(`case ${total} bytes; largest write ${largestWrite}; largest record by type ${JSON.stringify(largest)}`);
 });
 
@@ -904,8 +403,7 @@ test('a root written while options were laid apart reads them back and folds the
   const { options, ...input } = root.input;
   options.forEach((option, n) => door.put(`decision-option:${id}:${String(n).padStart(3, '0')}`, 'decision-option', option));
   door.put(id, 'decision', { id: id, ...root, input, counts: { ...root.counts, options: options.length } });
-  const asked = await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
-  assert.equal(asked.question.step_id, 'outcome', 'it reads');
+  await addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e3', claim: 'Two families asked for a lower price' }] }, { door });
   const folded = door.value(id);
   assert.deepEqual(folded.input.options, opened.options, 'its options are back on the root');
   assert.equal(folded.counts.options, undefined);
@@ -1004,7 +502,7 @@ function putOldSteps(door, id) {
 }
 function oldLargeRoot(id) {
   const evidence = Array.from({ length: 300 }, (_, n) => ({ ref: `e${n + 1}`, claim: `Made-up fact ${n}: a synthetic detail about the camp venue, its cost and its timing, written out so the root grows.` }));
-  const method = { ...plainMethod(), about: 'A made-up method with a long description, kept inline as roots once were. '.repeat(340) };
+  const method = { ...legacyMethod(), about: 'A made-up method with a long description, kept inline as roots once were. '.repeat(340) };
   const answered_steps = [
     { step_id: 'scope', answered_at: '2026-01-02T03:04:05.000Z', version: 1, needs_recheck: false },
     { step_id: 'outcome', answered_at: '2026-01-02T03:05:05.000Z', checks: 1, graded: 1, graded_by: 'second-judge-test', version: 1, needs_recheck: false },
@@ -1101,7 +599,7 @@ function oldRootWithHugeClaim(id) {
   let claim = '';
   for (let n = 0; Buffer.byteLength(JSON.stringify(claim)) < 67700; n += 1) claim += line(n);
   const source_id = 'message:2026-01-02T03:04:05.000Z:0a1b2c3d4e5f60718293a4b5c6d7e8f9';
-  const method = { ...plainMethod(), id: 'universal' };
+  const method = { ...legacyMethod(), id: 'universal' };
   return {
     id, source_id, status: 'needs_decision', created_at: '2026-01-02T03:04:05.000Z',
     input: {
@@ -1238,7 +736,7 @@ function oldRootWithLargeField(id) {
   const input = { source_id: 'chat:old-history', goal: 'Pick the made-up camp venue', options: opened.options, evidence: [{ ref: 'e1', claim: 'A made-up fact about the venue' }] };
   return {
     id, source_id: 'chat:old-history', status: 'needs_outcome', created_at: '2026-01-02T03:00:00.000Z',
-    input, original_input: { ...input, note: 'As first given' }, method: plainMethod(), method_history,
+    input, original_input: { ...input, note: 'As first given' }, method: legacyMethod(), method_history,
     carried_out: [{ decision_generation: 1, state: 'done', what_happened: 'A made-up receipt', by: 'test-agent', at: '2026-01-03T03:00:00.000Z' }],
     decision: { option_id: 'raise', reason: 'A made-up reason' },
   };
@@ -1297,37 +795,6 @@ test('a root under the bound is written as before, with no fields in parts', asy
   const [records] = [recordsOf(await readDecision(door, id))];
   assert.equal(records[0].value.fields_in_parts, undefined);
   assert.ok(!records.some(record => record.id.includes(':root-fields')));
-});
-
-test('an answer kept before every check had a verdict is asked again until it is graded, and no decision is made while any step is ungraded', async () => {
-  const door = account();
-  const id = await answered(door);
-  keptBeforeVerdicts(door, id);
-  const asked = await nextDecisionQuestion({ decision_id: id }, { door });
-  assert.equal(asked.question.step_id, 'outcome', 'the ungraded step is the question again');
-  assert.deepEqual(asked.question.ungraded, { checks: 1, graded: 0, version: 1 });
-  assert.match(asked.ungraded_note, /graded for only 0 of its 1 checks/);
-  await assert.rejects(makeTheDecision({ decision_id: id, decision }, { door }), /"outcome" has verdicts for 0 of its 1 checks/);
-  assert.equal(caseView(door, id).decision ?? null, null, 'nothing is decided');
-  const graded = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: judged }, { door });
-  assert.equal(graded.question, null, 'graded, every question is answered');
-  assert.equal(graded.ready_for_decision, true);
-  const made = await makeTheDecision({ decision_id: id, decision }, { door });
-  assert.equal(made.decision.option_id, 'raise');
-});
-
-test('a copied answer leaves out the source decision\'s workflow runs, and the workflows due here are asked of this decision again', async () => {
-  const door = account();
-  const source = await answered(door);
-  const key = nowKey(door, `decision-step:${source}:001`);
-  const kept = door.value(key);
-  kept.answer.workflow_runs = { 'workflow:ran-in-the-source': { required_phase: 'decision', plan: 'run in the source decision' } };
-  door.put(key, 'decision-step', kept);
-  const { case_id: id } = await startADecision({ ...opened, source_id: 'chat:pottery-3', evidence: [{ ref: 'e1', claim: opened.evidence[0].claim }] }, { door });
-  await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
-  const copied = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', from: { decision_id: source, step_id: 'outcome' }, verdicts: judged }, { door });
-  assert.equal(copied.question.step_id, 'proof');
-  assert.equal(door.value(nowKey(door, `decision-step:${id}:001`)).answer.workflow_runs, undefined, 'the copy holds no run of the source decision');
 });
 
 test('a write made from an older read of the case is refused as changed, and nothing of it is written', async () => {
@@ -1403,56 +870,30 @@ test('every decision tool declares the revision record beside its root, with the
   }
 });
 
-test('a child decision names its parent, refuses a missing or its own parent, and is offered a parent\'s standing answer only for a step the method lists as standing', async () => {
-  const door = account();
-  const parent = await answered(door);
-  const { case_id: child } = await startADecision({ ...opened, source_id: 'chat:pottery-child', parent_decision_id: parent }, { door });
-  assert.equal(caseView(door, child).parent.decision_id, parent, 'the child names its parent');
-  await assert.rejects(startADecision({ ...opened, source_id: 'chat:pottery-missing', parent_decision_id: 'source:not-kept' }, { door }), /No decision has that id/, 'a missing parent is refused');
-  await assert.rejects(startADecision({ ...opened, source_id: 'chat:pottery-empty', parent_decision_id: '' }, { door }), /parent/i, 'an empty parent is refused');
-  const record = await readDecision(door, child);
-  assert.deepEqual(await inheritableFrom(door, record, { step_id: 'scope' }), { decision_id: parent, step_id: 'scope', version: 1 }, 'the scope step is standing in the DATA, so the parent\'s answer is offered');
-  assert.equal(await inheritableFrom(door, record, { step_id: 'scope' }, []), null, 'no step is offered when the list names none');
-  assert.equal(await inheritableFrom(door, record, { step_id: 'outcome' }, ['scope']), null, 'a step the list does not name is never offered');
-});
-
-test('a child offered its parent\'s scope takes it with from, and the next question is not scope again', async () => {
-  const door = account();
-  const parent = await answered(door);
-  const { case_id: child } = await startADecision({ ...opened, source_id: 'chat:pottery-taken', parent_decision_id: parent }, { door });
-  const offered = await nextDecisionQuestion({ decision_id: child }, { door });
-  assert.equal(offered.question.step_id, 'scope', 'the child is first asked scope');
-  assert.deepEqual(offered.inherit, { decision_id: parent, step_id: 'scope', version: 1 }, 'the parent\'s scope is offered beside that question');
-  await answerADecisionQuestion({ decision_id: child, step_id: 'scope', from: { decision_id: parent, step_id: 'scope' } }, { door });
-  const after = await nextDecisionQuestion({ decision_id: child }, { door });
-  assert.notEqual(after.question?.step_id, 'scope', 'an inherited scope is not asked again');
-});
-
-test('a scope answer committed between a writer reading the case root and its revision is not lost: the revision is read before the root', async () => {
+test('an evidence add committed between a writer reading the case root and its revision is not lost: the revision is read before the root', async () => {
   const door = account();
   const { case_id: id } = await startADecision(opened, { door });
   const read = door.read.bind(door);
-  // The writer's two reads of the case, in whichever order it makes them; a scope answer commits before the second one.
+  // The writer's two reads of the case, in whichever order it makes them; another add commits before the second one.
   let racing = true, seen = 0, raced = false;
   door.read = async (type, key) => {
     const watched = racing && (key === id || key === `decision-revision:${id}`);
     if (watched && ++seen === 2 && !raced) {
       raced = true;
       racing = false;
-      await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
+      await addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e6', claim: 'A fact that came in at the same time' }] }, { door });
     }
     return read(type, key);
   };
   await addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e5', claim: 'A fact that came in late' }] }, { door });
-  assert.equal(raced, true, 'the scope answer committed between the two reads');
-  assert.deepEqual(door.value(id).counts.answered_steps, 1, 'the committed scope answer is still counted by the case');
-  assert.equal(door.value(nowKey(door, `decision-answered-step:${id}:000`)).step_id, 'scope', 'the scope answer summary is kept beside the root');
+  assert.equal(raced, true, 'the other add committed between the two reads');
+  assert.deepEqual(caseView(door, id).input.evidence.map(row => row.ref), ['e1', 'e2', 'e6', 'e5'], 'both adds are kept');
 });
 
 test('a refused root write of a revision leaves nothing visible: the case reads as it was before the revision', async () => {
   const door = account();
   const { case_id: id } = await startADecision(opened, { door });
-  await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
+  await addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e3', claim: 'Two families asked for a lower price' }] }, { door });
   const write = door.write.bind(door);
   let refused = false;
   // The root of the revision is refused at the door after its parts were written (the change is too large for one message).
@@ -1464,14 +905,10 @@ test('a refused root write of a revision leaves nothing visible: the case reads 
     }
     return write(records, options);
   };
-  const longerSearch = ['the camp price list ' + 'padding text. '.repeat(7000)];
-  const revised = { ...scope, evidence_refs: ['e2'], omission_reasons: { compare_existing: { searched: longerSearch, evidence_refs: ['e2'] } } };
-  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: revised, revise: { because: 'The second fact is the stronger source' } }, { door }), /busy/);
+  await assert.rejects(addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e4', claim: 'A made-up fact. '.repeat(9000) }] }, { door }), /busy/);
   assert.equal(refused, true, 'the root of the revision was refused');
-  const { guidance } = await readDecision(door, id, ['scope']);
-  assert.equal(guidance[0].version, 1, 'the scope answer reads as the one that was kept');
-  assert.deepEqual(guidance[0].answer.evidence_refs, ['e1'], 'the refused revision is not in the answer');
-  assert.equal(caseView(door, id).answered_steps[0].version, 1, 'its summary reads as kept too');
+  assert.deepEqual(caseView(door, id).input.evidence.map(row => row.ref), ['e1', 'e2', 'e3'], 'the refused add is not in the case');
+  assert.equal((await readDecision(door, id)).input.evidence.length, 3, 'and reads as it was');
 });
 
 test('a write refused before its root does not move the revision: a writer that read the case before it is not refused as changed', async () => {

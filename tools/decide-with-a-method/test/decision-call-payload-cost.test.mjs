@@ -14,9 +14,11 @@
 // src/storage/record_store_resources.json `retire`).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { answerADecisionQuestion, nextDecisionQuestion, startADecision } from '../read-data/decisions.mjs';
+import { addDecisionEvidence, startADecision } from '../read-data/decisions.mjs';
+import { recordMethodAnswers } from '../method-rows/answers.mjs';
 import { readDecision } from '../read-data/decision-records.mjs';
-import { account, fill } from './old-engine-for-tests.mjs';
+import { account } from './old-engine-for-tests.mjs';
+import { METHOD_VIEW } from './fixtures.mjs';
 
 const open = (door, mode) => startADecision({
   source_id: `structured-refusal-${mode}`, goal: 'Choose a safe shared collection',
@@ -25,12 +27,14 @@ const open = (door, mode) => startADecision({
 }, { door });
 const callKey = (id, n) => `decision-call:${id}:${String(n).padStart(6, '0')}`;
 
-test('structured refusals stay readable but write a bounded number of SQL statements on both record engines', async () => {
+test('a refused batch of answers writes nothing at all through the door and keeps no call', async () => {
   const door = account();
   const { case_id: id } = await open(door, 'one');
-  const submission = { decision_id: id, step_id: 'wrong', answer: { evidence_refs: ['request'], rows: Array.from({ length: 300 }, (_, n) => ({ id: `item-${n}`, detail: 'kept for a retry' })) } };
+  const answers = Array.from({ length: 300 }, (_, n) => ({ row: `record:method-row:wrong-${n}`, answer: 'kept for a retry', evidence_refs: ['request'] }));
   const writes = door.writes.length;
-  await assert.rejects(answerADecisionQuestion(submission, { door }), /waiting for its/);
+  const reply = await recordMethodAnswers({ decision_id: id, method: METHOD_VIEW, answers }, { door });
+  assert.equal(reply.refused.length, 300);
+  assert.equal(reply.recorded.length, 0);
   assert.equal(door.writes.length, writes, 'a refusal writes nothing');
   assert.equal(door.value(callKey(id, 0)), null, 'no call record holds the refused payload');
 });
@@ -45,8 +49,7 @@ test('changing a legacy whole decision moves its embedded refused answer without
   door.put(id, 'decision', { ...own, input: record.input, method: record.method, guidance: [], calls: [old] });
   assert.deepEqual((await readDecision(door, id)).calls[0].submission, old.submission, 'a whole decision reads as it is');
   // Its next change lays it apart.
-  const { question } = await nextDecisionQuestion({ decision_id: id }, { door });
-  await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: fill(question, { refs: ['request'] }) }, { door });
+  await addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'request-2', claim: 'The same link should also work on a phone.' }] }, { door });
   const call = door.value(callKey(id, 0));
   assert.equal(call.step_id, 'wrong', 'the call is kept');
   assert.equal(call.accepted, false);

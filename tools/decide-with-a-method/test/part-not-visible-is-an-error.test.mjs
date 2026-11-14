@@ -2,9 +2,9 @@
 // the step became lost, and the next write carried a stub in its place. A part read that the door refuses (503) is an error too.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { addDecisionEvidence, answerADecisionQuestion, startADecision } from '../read-data/decisions.mjs';
+import { addDecisionEvidence, startADecision } from '../read-data/decisions.mjs';
 import { readDecision } from '../read-data/decision-records.mjs';
-import { account, fill, judged } from './old-engine-for-tests.mjs';
+import { account, seedSteps } from './old-engine-for-tests.mjs';
 import { refsOfCase } from './fixtures.mjs';
 import { readFileSync } from 'node:fs';
 
@@ -20,9 +20,8 @@ const input = {
 // A case with two answered steps, where the second summary is split into two parts and its second part is not in the door.
 async function caseWithMissingPart() {
   const door = account();
-  const { case_id: id, question: scope } = await startADecision(input, { door });
-  const scoped = await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: fill(scope, { refs: ['user-verbatim'] }) }, { door });
-  await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: fill(scoped.question, { refs: ['user-verbatim'] }), verdicts: judged(scoped.question, 'user-verbatim') }, { door });
+  const { case_id: id } = await startADecision(input, { door });
+  await seedSteps(door, id, ['scope', 'outcome'], { ref: 'user-verbatim' });
   const refs = await refsOfCase(door, id);
   const summaryKey = `${ANSWERED}:${id}:001:c${refs.items.answered_steps[1]}`;
   const partKey = n => `${summaryKey}:part:00${n}`;

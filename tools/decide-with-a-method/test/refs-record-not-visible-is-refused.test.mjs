@@ -3,9 +3,9 @@
 // next write carried the case's legacy keys and lost rows in place of what was there.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { addDecisionEvidence, answerADecisionQuestion, startADecision } from '../read-data/decisions.mjs';
+import { addDecisionEvidence, startADecision } from '../read-data/decisions.mjs';
 import { readDecision } from '../read-data/decision-records.mjs';
-import { account, fill, judged } from './old-engine-for-tests.mjs';
+import { account, seedSteps } from './old-engine-for-tests.mjs';
 import { refsOfCase } from './fixtures.mjs';
 import { readFileSync } from 'node:fs';
 
@@ -19,8 +19,8 @@ const input = {
 
 async function caseWithScope() {
   const door = account();
-  const { case_id: id, question: scope } = await startADecision(input, { door });
-  await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: fill(scope, { refs: ['user-verbatim'] }) }, { door });
+  const { case_id: id } = await startADecision(input, { door });
+  await seedSteps(door, id, ['scope'], { ref: 'user-verbatim' });
   return { door, id };
 }
 

@@ -28,7 +28,8 @@
       "required": [
         "source_id",
         "goal",
-        "evidence"
+        "evidence",
+        "options"
       ],
       "additionalProperties": false,
       "properties": {
@@ -82,160 +83,12 @@
         "method": {
           "type": "string",
           "minLength": 1,
-          "description": "A method id from the person's methods"
+          "description": "The saved view over the person's method rows this decision is answered by (their default method view when left out)"
         },
         "parent_decision_id": {
           "type": "string",
           "minLength": 1,
-          "description": "A decision of the person's this one takes its standing answers from (accepted, never itself)"
-        }
-      }
-    },
-    "tool:next-decision-question": {
-      "type": "object",
-      "required": [
-        "decision_id"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "decision_id": {
-          "type": "string",
-          "minLength": 1,
-          "description": "The decision"
-        },
-        "explain": {
-          "type": "array",
-          "minItems": 1,
-          "maxItems": 128,
-          "items": {
-            "type": "string",
-            "minLength": 1
-          },
-          "description": "Ids of this question's checks whose whole words (what a good answer does, what it refuses) to send back as explained"
-        },
-        "versions_of": {
-          "type": "string",
-          "minLength": 1,
-          "description": "A step of this decision with an answer: its versions are returned instead of the next question"
-        }
-      }
-    },
-    "tool:answer-a-decision-question": {
-      "type": "object",
-      "required": [
-        "decision_id",
-        "step_id"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "decision_id": {
-          "type": "string",
-          "minLength": 1
-        },
-        "step_id": {
-          "type": "string",
-          "minLength": 1
-        },
-        "answer": {
-          "type": "object",
-          "description": "The answer as the question's answer_schema says; not sent with from or with confirm"
-        },
-        "verdicts": {
-          "type": "array",
-          "description": "Your judge's verdicts on this step's checks, as the question's `verdicts` words say: each { check, meets, rests_on, missing?, graded_by }; with confirm, only the checks the step has no verdict for yet are added",
-          "items": {
-            "type": "object",
-            "required": [
-              "check",
-              "meets",
-              "rests_on",
-              "graded_by"
-            ],
-            "properties": {
-              "check": {
-                "type": "string"
-              },
-              "meets": {
-                "type": "boolean"
-              },
-              "rests_on": {
-                "type": "string"
-              },
-              "missing": {
-                "type": "string"
-              },
-              "graded_by": {
-                "type": "string"
-              }
-            }
-          }
-        },
-        "usage": {
-          "type": "object",
-          "description": "What answering cost, as you count it (model calls, tokens, seconds, a model name)"
-        },
-        "from": {
-          "type": "object",
-          "required": [
-            "decision_id",
-            "step_id"
-          ],
-          "additionalProperties": false,
-          "description": "Bring in another of the person's decisions' answer to this step as it stood instead of sending answer",
-          "properties": {
-            "decision_id": {
-              "type": "string",
-              "minLength": 1
-            },
-            "step_id": {
-              "type": "string",
-              "minLength": 1
-            },
-            "version": {
-              "type": "integer",
-              "minimum": 1,
-              "description": "The version of that answer; the current one when left out"
-            }
-          }
-        },
-        "revise": {
-          "type": "object",
-          "required": [
-            "because"
-          ],
-          "additionalProperties": false,
-          "description": "Changes an answer already given: why it changes, in a few words; by names who changed it. On a decided decision it reopens the decision",
-          "properties": {
-            "because": {
-              "type": "string",
-              "minLength": 1,
-              "description": "Why the answer changes, in words; kept on the reopened decision too"
-            },
-            "by": {
-              "type": "string",
-              "minLength": 1,
-              "description": "Who changed it, when not the calling AI"
-            }
-          }
-        },
-        "confirm": {
-          "type": "boolean",
-          "const": true,
-          "description": "Confirms a re-asked answer unchanged, or, with verdicts, adds them to an answered step as a new version of the same answer; sent alone or with verdicts (no answer, from or revise)"
-        }
-      }
-    },
-    "tool:repair-a-decisions-answered-steps": {
-      "type": "object",
-      "required": [
-        "decision_id"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "decision_id": {
-          "type": "string",
-          "minLength": 1,
-          "description": "The decision"
+          "description": "A decision of the person's this one is a child of (never itself)"
         }
       }
     },
@@ -341,36 +194,6 @@
             }
           }
         },
-        "verdicts": {
-          "type": "array",
-          "description": "Your judge's verdicts on this step's checks, as the question's `verdicts` words say: each { check, meets, rests_on, missing?, graded_by }",
-          "items": {
-            "type": "object",
-            "required": [
-              "check",
-              "meets",
-              "rests_on",
-              "graded_by"
-            ],
-            "properties": {
-              "check": {
-                "type": "string"
-              },
-              "meets": {
-                "type": "boolean"
-              },
-              "rests_on": {
-                "type": "string"
-              },
-              "missing": {
-                "type": "string"
-              },
-              "graded_by": {
-                "type": "string"
-              }
-            }
-          }
-        },
         "usage": {
           "type": "object"
         },
@@ -454,10 +277,6 @@
         },
         "by": {
           "type": "string"
-        },
-        "workflow_runs": {
-          "type": "array",
-          "description": "Not accepted: a finished run is named by the engine, never by the words of a say, so any run id here is refused"
         },
         "expected_generation": {
           "type": "integer",
@@ -703,11 +522,6 @@
     }
   },
   "records": {
-    "method_row": "check",
-    "method_list": "list:checks",
-    "method_where": { "kind": "branch" },
-    "method_link": "part_of",
-    "old_method_links": ["extends", "method"],
     "check_row": "check",
     "check_list": "list:checks",
     "check_step_field": "step",
@@ -777,76 +591,39 @@
     "carried": 100,
     "scan": 400
   },
-  "most_cited_refs": 256,
-  "most_explained": 128,
-  "grader": {
-    "grader": "second-judge",
-    "words": "Hand each check of this answer to a second judge with fresh context: a subagent, or a different model where your host offers one, on the same subscription. Give it the check, this answer and the evidence of the case, and nothing of how the answer was drafted. Send its verdicts beside this answer as verdicts: [{ check, meets, rests_on, missing?, graded_by }]. check is the id of a checklist item above; meets says whether the answer meets that check; rests_on quotes words of this answer (at least eight characters) or names an evidence ref of the case; missing, only when meets is false, copies exactly the words of the check the answer does not address; graded_by names that second judge (its model or agent name). A verdict that does not meet these rules is ignored."
-  },
-  "inherit": {
-    "standing_steps": ["scope"]
-  },
   "words": {
+    "read_the_method": "Read the method with tool:read-a-method (method {method}), a page at a time until next is null.",
+    "record_the_answers": "Answer its rows with tool:record-method-answers: one call for as many rows as you can, each answer citing the rows of the method and the evidence of this decision it rests on (add evidence with tool:add-decision-evidence).",
+    "decide_when_answered": "When every row has an answer, choose with tool:make-the-decision.",
+    "method_unanswered": "Method {method} has {count} of its {rows} rows without an answer, the first of them {first}. Answer them with tool:record-method-answers, then decide.",
     "ready": "Every question is answered, so make the decision now with tool:make-the-decision, in this turn: a decision left open changes nothing. Choose the option the evidence supports and send its id from options as option_id. Leave a question to the person only when its answer is their own values, drive or budget, and then ask them that one question; settle every product, architecture, placement, naming or build question from the facts yourself, even when they have objected to every option.",
     "resume": "Do this now: {next_action}. How you will know it worked: {success_measure}. If it does not, bring back what actually happened: a failed result is a fact, and the fastest way to the right next move. Once it works, bring the larger change it makes possible as the next decision.",
     "carry_out": "Do this now, in this same turn: {next_action}. Then name the next step that doing it makes possible and do that too, until this is true: {success_measure}. When it is done, or you reach a wall you cannot get past, call tool:say-what-was-done with decision_id {case_id}: done with what happened, or the exact wall (the file, field, refused command or missing credential). Never end the turn with this step still to do, a list of follow-ups, or a question about whether to do it.",
-    "pursuits_note": "Cite a pursuit in evidence_refs by its id.",
-    "more_pursuits_note": "These are the newest {count}; any other pursuit can be cited by its id.",
-    "no_pursuits_note": "No pursuits are recorded for this person. Use what you already know about them (your memory of them, their files and past conversations).",
-    "no_methods": "This person has no methods to decide with yet: their Checks list (list:checks) has no branch rows.",
     "no_decision": "Name the decision (decision_id).",
     "not_found": "No decision has that id.",
-    "explain_note": "The checklist names each check by its id and question. To read what a good answer to some of them does and what it refuses, call tool:next-decision-question again with explain: [their ids]; answer each check in your own words either way.",
-    "explain_shape": "explain names the ids of this question's checks to explain, from 1 to {count} of them.",
-    "explain_unknown": "This question does not ask {ids}: explain names ids from its checklist or verdict_checks.",
     "new_case": "Give this decision a source_id (choose unique text; an existing conversation, message or file id is not required), goal (what is being decided), evidence (an array of {ref, claim}: the facts and every non-negotiable constraint) and, only if you already hold them, at least two options (each {id, label}); leave options out to let the method's steps generate and rule out the candidates. Correct the input and try again.",
     "evidence_item": "Each evidence item needs a unique ref and claim",
     "option_item": "Each option needs a unique id and label",
     "options_too_large": "A decision holds at most {count} options, {bytes} bytes of them in all: shorten their labels, or group similar options under one, and start it again.",
     "method_name": "method must name a method id",
     "source_changed": "Source {source_id} already has decision {case_id} with different content. Continue that decision with its id, or use a new source_id.",
-    "answer_needs_step": "Answer needs a step_id",
     "already_decided": "This decision already has a decision. Revise one of its answers, with its reason, to reopen it, or report a failed result first.",
-    "reopened_note": "This decision was reopened by a revision of \"{step}\": it has no decision now. Make it again with tool:make-the-decision; the decision it had is kept in its history.",
-    "different_answer": "Step already has a different answer: send it as a revision with revise.because, or confirm the answer it has.",
-    "revise_shape": "revise is { because, by? }: because says in words why the answer changes.",
-    "revise_because": "A revision needs revise.because: the short reason the answer changes, from {min} to {max} words.",
-    "unanswered_step": "Only an answered step can be revised or confirmed, and \"{step}\" has no answer yet.",
-    "revise_inactive": "\"{step}\" is not asked by this decision's method now, so its answer cannot be revised.",
-    "confirm_shape": "confirm must be true when given.",
-    "confirm_alone": "A confirmation is sent alone, or with verdicts: no answer, from or revise.",
-    "confirm_inactive": "\"{step}\" has no answer that this decision's method asks now, so its verdicts cannot be added.",
-    "verdict_taken": "Check {check} already has a different verdict on this answer, and a verdict is never changed: send it with the same meets and graded_by, or leave it out.{why}",
-    "from_and_answer": "Send an answer or from, not both: from brings in another decision's answer as it stood.",
-    "from_shape": "from is { decision_id, step_id, version? }: one of your other decisions, the step to bring in and, optionally, its version.",
     "from_self": "from names this decision: to change its own answer, revise it instead.",
     "parent_invalid": "A parent decision has to be another of your decisions, and not this one.",
     "from_not_found": "No decision has that id to bring an answer or evidence from.",
-    "from_step_missing": "That decision has no answer to \"{step}\" at version {version}.",
-    "recheck_note": "\"{step}\" was revised after this answer was given. Confirm it unchanged (confirm: true, alone), or send a revised answer with revise.because.",
     "evidence_shape": "Each evidence row needs a ref and either a claim, or from { decision_id, ref } to bring it in from another of your decisions.",
     "evidence_count": "Add from 1 to {count} evidence rows at a time.",
     "evidence_ref_taken": "Evidence {ref} already says something else in this decision: give the new row its own ref.",
     "evidence_from_missing": "That decision has no evidence {ref} to bring in.",
-    "versions_shape": "versions_of names a step of this decision that has an answer.",
-    "all_answered": "Every question of this decision is answered ({count}); decide it next.",
-    "out_of_turn": "This decision is waiting for its \"{step}\" question ({count} answered so far), not \"{sent}\". Read it with tool:next-decision-question.",
-    "too_many_refs": "An answer can cite at most {count} different references.",
-    "complete_first": "Complete the guided questions before deciding",
-    "verdicts_missing": "Every check this step asks needs a second judge's verdict beside the answer, and {missing} of its {checks} have none taken ({ids}).{why} The step stays unanswered: hand each check, this answer and the case evidence to the judge, and send its verdicts with the answer.",
-    "ungraded_first": "\"{step}\" has verdicts for {graded} of its {checks} checks, so this decision cannot be made yet: add the judge's verdicts on the rest (confirm: true with verdicts) first.",
-    "ungraded_note": "\"{step}\" is answered but graded for only {graded} of its {checks} checks: send the second judge's verdicts on the rest with confirm: true and verdicts, alone, before anything later is asked.",
     "decision_shape": "Decision needs option, reason, next action, success measure, and evidence refs",
     "generation_shape": "expected_generation must name the positive decision generation being prepared",
     "move_shape": "move, when given, is the chosen move in words",
-    "needs_field": "Decision needs {name}: {ask}",
     "generation_changed": "The prepared decision generation changed. Read the current decision before continuing.",
     "unknown_option": "Decision names an unknown option ({option}): option_id is one of {options}",
     "decision_evidence": "Decision must cite existing evidence",
     "new_decision_needs_failure": "A new decision needs a failed result, or a revised answer that reopens the decision.",
-    "decision_phase_runs": "This decision planned a workflow run its decision needs ({workflows}); name each one's finished run as decision.workflow_runs.<workflow>.run_id and decide again.",
     "person_verdict_shape": "A person's own decision needs decision_id, option_id, next_action, success_measure and person: { said, message_id? }, where said is the person's exact words",
-    "person_verdict_no_person": "Only the person decides without the method: name the message they sent (person.message_id, a message row where they are the speaker), or have them record it on their own signed-in page. An AI saying the person decided is not the person's verdict; to decide yourself, answer the method's questions (tool:next-decision-question) and then call tool:make-the-decision",
+    "person_verdict_no_person": "Only the person decides without the method: name the message they sent (person.message_id, a message row where they are the speaker), or have them record it on their own signed-in page. An AI saying the person decided is not the person's verdict; to decide yourself, read the method (tool:read-a-method), record answers to its rows (tool:record-method-answers) and then call tool:make-the-decision",
     "person_message_missing": "No message {id} is kept in the person's records; name the message the person sent",
     "person_message_not_theirs": "Message {id} was said by {speaker}, not the person; only the person's own words decide without the method",
     "person_words_not_said": "The words in person.said are not in message {id}; quote the person exactly as they wrote it",
@@ -863,18 +640,9 @@
     "observed_at_shape": "observed_at must be a time at or before now",
     "said_shape": "Say state (done or wall) and what_happened: what was done, or the exact wall (the file, field, refused command or missing credential)",
     "said_generation_changed": "The decision generation changed before its carried-out receipt. Read the current decision before continuing.",
-    "run_not_found": "Run {run} is not a record of this account.",
-    "run_wrong_workflow": "Run {run} is not a run of {workflow}: it is a run of {row}.",
-    "run_not_finished": "Run {run} is {status}, not done; a run that was started or is working does not finish its workflow.",
-    "run_no_steps": "Run {run} holds no steps it was started with, so nothing shows what it did.",
-    "run_steps_unproved": "Run {run} does not answer every step it was started with: {steps}.",
-    "run_not_planned": "{label} is not a workflow this decision's accepted plan declared applicable.",
-    "run_binding_shape": "{label} names a run as { run_id } and nothing else; a binding cannot change the accepted plan or its phase.",
     "share_shape": "A rewrite is { situation, options: [words], chosen, why, measured_by }, each one words, and nothing else.",
     "share_not_safe": "The rewrite could still point to someone: {found}. Rewrite those parts in general terms and send it again.",
     "share_check": "Ask {tool} whether these words could point to one person, with exactly this rubric and content, and send its whole answer back as reidentification.",
-    "candidates_note": "This decision was opened with no options. Generate every candidate shape the goal allows, including ones no one has named, run each against every constraint in the evidence, and list in {field} only what no fact eliminated; record each eliminated candidate with the constraint that killed it. What you list there are the options the decision chooses among.",
-    "none_standing": "Every question is answered, but no candidate is still standing, so nothing can be chosen: a constraint eliminated every shape. Bring back the constraint that eliminated the last one and question it, or start a new decision with what you learned.",
     "end_shape": "Name 1 to {most} decisions to end, each { decision_id, because } with its own decision_id, and by: who ends them",
     "end_kept_open": "A decision with status {status} has a result or a correction to keep; it is not ended.",
     "end_changed": "The decision changed after it was read; it is not ended. Read it again before ending it.",
@@ -954,6 +722,7 @@
   },
   "writes": 256,
   "write_bytes": 48000,
+  "unanswered_shown": 5,
   "conflict": {
     "reads": 4,
     "_why": "A case write refused as changed (original_command_conflict) is read again and written again under a fresh key, up to this many reads in all. The tool process is not given the run deadline, so this is not derived from it: it is four attempts, each one read and one write, where a write answers within the door's write bound (5 s, the bound writes are measured under in the decision-case notes)."

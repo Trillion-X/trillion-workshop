@@ -1,7 +1,6 @@
 // Ported from old trillion test/pursuits.test.mjs (tag old-trillion-before-worker-retire, b6ae0ebf81), deleted by
 // Trillion-X/trillion #243. DecisionEngine.recordPursuits and pursuits (src/engine.mjs) are do-work/
-// answer-the-pursuits-page.mjs `pursuitsOf` over the records door; the change question carrying them is
-// tool:answer-a-decision-question (decisions.mjs pursuitsFor); engine.summaries is tool:see-my-decisions; "a second
+// answer-the-pursuits-page.mjs `pursuitsOf` over the records door; an answer or the decision cites one by its id (method-rows/answers.mjs `citable`, decisions.mjs `keepCited`); engine.summaries is tool:see-my-decisions; "a second
 // engine over the same file" is a second reader over the same door.
 // Left out: the record log's earlier values of each pursuit (eeaf.valuesAt): the history of a record is the account's
 // record store's (trillion-rust), which no door read here returns; the ended pursuit is still asserted kept with its
@@ -12,12 +11,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { pursuitsOf } from '../do-work/answer-the-pursuits-page.mjs';
-import { answerADecisionQuestion, startADecision } from '../read-data/decisions.mjs';
+import { makeTheDecision, startADecision } from '../read-data/decisions.mjs';
+import { recordMethodAnswers } from '../method-rows/answers.mjs';
 import { readDecision } from '../read-data/decision-records.mjs';
 import { seeMyDecisions } from '../read-data/work-screen.mjs';
-import { account, fill, judged } from './old-engine-for-tests.mjs';
+import { account, answerAll } from './old-engine-for-tests.mjs';
+import { METHOD_VIEW, STEP_ROW } from './fixtures.mjs';
 
-test('pursuits are kept beside decisions, travel with the change question, and one dropped is ended, not erased', async () => {
+test('pursuits are kept beside decisions, are cited by an answer and by the decision, and one dropped is ended, not erased', async () => {
   const door = account();
   const engine = pursuitsOf(door);
   await assert.rejects(engine.recordPursuits([{ title: 'No after', now: 'x' }]), /where it should get to/);
@@ -32,15 +33,15 @@ test('pursuits are kept beside decisions, travel with the change question, and o
     evidence: [{ ref: 'person:words', claim: 'Wants something to eat.' }],
     options: [{ id: 'fruit', label: 'Fruit' }, { id: 'skip', label: 'Skip' }],
   }, { door });
-  const next = await answerADecisionQuestion({ decision_id: record.case_id, step_id: 'scope', answer: fill(record.question, { refs: ['person:words'] }) }, { door });
-  assert.equal(next.question.step_id, 'outcome');
-  assert.deepEqual(next.question_pursuits.map(item => item.title), ['Lean and strong', 'Pottery school']);
-  assert.equal(next.question_pursuits[0].id, 'pursuit:lean-and-strong');
-  // An answer may cite a current pursuit by its id, and the decision keeps the pursuit's words as they stood.
-  const outcome = refs => ({ ...fill(next.question, { refs: ['person:words'] }), evidence_refs: refs, current_state: 'Hungry, mid-cut.', desired_result: 'Fed without costing the cut.' });
-  const verdicts = judged(next.question, 'person:words');
-  await assert.rejects(answerADecisionQuestion({ decision_id: record.case_id, step_id: 'outcome', answer: outcome(['pursuit:not-recorded']), verdicts }, { door }), /cite case evidence/);
-  await answerADecisionQuestion({ decision_id: record.case_id, step_id: 'outcome', answer: outcome(['person:words', 'pursuit:lean-and-strong']), verdicts }, { door });
+  // An answer, and the decision, may cite a current pursuit by its id; the decision keeps the pursuit's words as they stood.
+  const answer = refs => ({ row: STEP_ROW('scope'), answer: 'Hungry, mid-cut, and fed without costing the cut.', evidence_refs: refs });
+  const refused = await recordMethodAnswers({ decision_id: record.case_id, method: METHOD_VIEW, answers: [answer(['pursuit:not-recorded'])] }, { door });
+  assert.match(refused.refused[0].why, /pursuit:not-recorded/);
+  const kept = await recordMethodAnswers({ decision_id: record.case_id, method: METHOD_VIEW, answers: [answer(['person:words', 'pursuit:lean-and-strong'])] }, { door });
+  assert.equal(kept.recorded.length, 1);
+  await answerAll(door, record.case_id, { ref: 'person:words' });
+  const decision = { option_id: 'fruit', reason: 'Fed without costing the cut.', next_action: 'Eat an apple', success_measure: 'Not hungry in an hour', evidence_refs: ['person:words', 'pursuit:lean-and-strong'] };
+  await makeTheDecision({ decision_id: record.case_id, decision }, { door });
   assert.equal((await readDecision(door, record.case_id)).cited_pursuits['pursuit:lean-and-strong'], 'Lean and strong: now 11% body fat; should be 5 to 7% body fat');
   assert.deepEqual((await seeMyDecisions({}, { door })).summaries[0].pursuits, [{ id: 'pursuit:lean-and-strong', title: 'Lean and strong' }]);
   // A second reader over the same records reads them back, apart from the decisions.

@@ -1,61 +1,39 @@
-// The harness the tests ported from old trillion's DecisionEngine tests share (test/cost, guided, guide-answer-flat,
-// judge-reads-the-case, decision-own-reads and the rest; tag old-trillion-before-worker-retire, b6ae0ebf81, deleted by
-// Trillion-X/trillion #243). Those tests drove src/engine.mjs over a SQLite store and filled each question with
-// scripts/fill-answer.mjs; here the same walks run over this tool's door tools and fixtures.mjs's in-memory door:
-// `account` puts the made-up method in the person's Checks list, `fill` answers a question to its declared shape the way
-// fill-answer did, `judged` is the second judge's passing verdicts on every check a question asks, and `counting` wraps a
-// door so a test can bound what a call reads through it (the old tests counted SQL statements and rows of the store).
+// The harness the tests ported from old trillion's DecisionEngine tests share (test/cost, decision-own-reads and the rest; tag
+// old-trillion-before-worker-retire, b6ae0ebf81, deleted by Trillion-X/trillion #243). Those tests drove src/engine.mjs over a SQLite
+// store; here the same cases run over this tool's door tools and fixtures.mjs's in-memory door: `account` puts the made-up method
+// rows and their saved view in the person's records, `answerAll` answers every row of a decision's method through the pair
+// (method-rows/answers.mjs), `seedSteps` keeps answered steps on a decision in the layout an earlier decision has them (the step
+// walk that wrote them is gone, the layout stays readable), and `counting` wraps a door so a test can bound what a call reads
+// through it (the old tests counted SQL statements and rows of the store).
 import { readFileSync } from 'node:fs';
-import { memoryDoor, plainChecks, plainMethod, today } from './fixtures.mjs';
+import { methodAccount, memoryDoor, STEP_ROW, METHOD_VIEW, today } from './fixtures.mjs';
+import { readDecision, recordsOf, writeDecision } from '../read-data/decision-records.mjs';
+import { recordMethodAnswers } from '../method-rows/answers.mjs';
+import { addDecisionEvidence } from '../read-data/decisions.mjs';
 
 export const settings = JSON.parse(readFileSync(new URL('../read-data/decide-with-a-method.json', import.meta.url), 'utf8'));
-const CHECK = `record:${settings.records.check_row}`;
 
-/** A door holding the made-up method and its check rows (or the ones given), as the person's own Checks list. */
-export function account({ door = memoryDoor(), method = plainMethod(), checks = plainChecks() } = {}) {
-  door.put(`${CHECK}:${method.id}`, CHECK, method);
-  for (const check of checks) door.put(`${CHECK}:${check.id}`, CHECK, check);
-  return door;
+/** A door holding the made-up method rows and the saved view that is the default method (or the steps given). */
+export function account({ door = memoryDoor(), steps } = {}) {
+  return methodAccount(door, steps ? { steps } : {});
 }
 
-const words = name => `A made-up ${name.replace(/_/g, ' ')} in its own words`;
-function valueFor(name, schema) {
-  if (!schema) return words(name);
-  if (schema.type === 'array') return [words(`${name} item`)];
-  if (schema.format === 'date' || /date/i.test(schema.description ?? '') || /\\d\{4\}/.test(schema.pattern ?? '')) return today();
-  if (schema.type === 'object' && schema.properties) return Object.fromEntries((schema.required ?? Object.keys(schema.properties)).map(key => [key, valueFor(key, schema.properties[key])]));
-  return words(name);
+/** Every row of the decision's method answered through the pair, each citing the evidence ref `ref` (added first when the decision has none of that ref). */
+export async function answerAll(door, decisionId, { ref = 'e1', method = METHOD_VIEW, steps = ['scope', 'outcome', 'proof'] } = {}) {
+  const answers = steps.map(step => ({ row: STEP_ROW(step), answer: `A made-up answer to ${step} in its own words`, evidence_refs: [ref] }));
+  return recordMethodAnswers({ decision_id: decisionId, method, answers }, { door });
 }
 
-/** An answer to `question` filled to its declared shape (old scripts/fill-answer.mjs): every switch of a scope question
- * set from `switches` (false when not named) with the reason each switch turned off asks for; every field of any other
- * step; every check of its checklist handled in its own words; each citing `refs`. */
-export function fill(question, { refs, switches = {} } = {}) {
-  const properties = question.answer_schema?.properties ?? {};
-  if (question.step_id === 'scope' || properties.decision_context) {
-    const decision_context = {};
-    const omission_reasons = {};
-    for (const check of question.checks ?? []) {
-      decision_context[check.id] = switches[check.id] ?? false;
-      if (!decision_context[check.id]) {
-        const reason = { evidence_refs: refs };
-        for (const spec of check.skip_requires ?? []) reason[spec.name] = spec.kind === 'list' ? [words(`${spec.name} place`)] : words(spec.name);
-        omission_reasons[check.id] = reason;
-      }
-    }
-    return { decision_context, omission_reasons, evidence_refs: refs };
+/** Answered steps kept on a decision in the layout earlier decisions have them (each step's own record and its summary), one write each. */
+export async function seedSteps(door, id, stepIds, { ref = 'e1' } = {}) {
+  for (const stepId of stepIds) {
+    const record = await readDecision(door, id);
+    const index = record.guidance.length;
+    record.guidance.push({ step_id: stepId, answer: { evidence_refs: [ref], note: `A made-up answer to ${stepId}` }, verdicts: [], judged_checks: 0, answered_at: new Date().toISOString(), version: 1, by: 'calling-ai' });
+    await writeDecision(door, recordsOf(record, [index]), `seed-step:${id}:${stepId}`);
   }
-  const answer = { evidence_refs: refs };
-  for (const name of question.answer_schema?.required ?? []) {
-    if (name === 'evidence_refs' || name === 'checklist') continue;
-    answer[name] = valueFor(name, properties[name]);
-  }
-  if (question.checklist?.length) answer.checklist = Object.fromEntries(question.checklist.map(row => [row.id, { handled: true, how: `Handled ${row.id} for this decision`, evidence_refs: refs }]));
-  return answer;
+  return readDecision(door, id);
 }
-
-/** The second judge's passing verdict on every check `question` asks, each resting on the evidence ref `ref`. */
-export const judged = (question, ref) => (question?.verdict_checks ?? []).map(check => ({ check, meets: true, rests_on: ref, graded_by: 'second-judge-test' }));
 
 /** `door` with every read and every listed row counted: `reads` (ids read one by one), `listed` (rows a list handed
  * back, by type), and `take()` that returns them and starts again. */

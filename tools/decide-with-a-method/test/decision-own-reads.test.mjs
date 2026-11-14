@@ -7,21 +7,21 @@
 // decide-with-a-method.json `records.call`) and an answered step, which no own-field read may open.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { answerADecisionQuestion, startADecision } from '../read-data/decisions.mjs';
+import { startADecision } from '../read-data/decisions.mjs';
 import { laidTogether } from '../read-data/decision-records.mjs';
 import { similarDecisions } from '../read-data/similar-decisions.mjs';
-import { account, counting, fill } from './old-engine-for-tests.mjs';
+import { account, counting, seedSteps } from './old-engine-for-tests.mjs';
 
 test('similar decisions and a decision\'s own fields never read its answers or tries', async () => {
   const base = account();
   const ids = [];
   for (let i = 0; i < 8; i += 1) {
-    const { case_id: id, question } = await startADecision({
+    const { case_id: id } = await startADecision({
       source_id: `long-${i}`, goal: `Decide how the bakery prices its sourdough loaves in season ${i}`,
       evidence: [{ ref: 'e', claim: 'The bakery sells out by noon.' }],
       options: [{ id: 'a', label: 'Raise the price' }, { id: 'b', label: 'Bake more' }],
     }, { door: base });
-    await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: fill(question, { refs: ['e'] }) }, { door: base });
+    await seedSteps(base, id, ['scope'], { ref: 'e' });
     // A long decision: many tries, each keeping what it sent.
     for (let n = 0; n < 30; n += 1) base.put(`decision-call:${id}:${String(n).padStart(6, '0')}`, 'decision-call', { route: 'guide', step_id: 'outcome', accepted: false, reason: 'refused', at: new Date().toISOString(), bytes: 4000, submission: { answer: 'x'.repeat(4000) } });
     base.put(id, 'decision', { ...base.value(id), call_count: 30 });

@@ -129,7 +129,7 @@
       "to": "tools/decide-with-a-method/test/guide-cited-pursuits-bounded.test.mjs",
       "source_identity": "1f:84c078daf2c7efa556db5c53360456c5f5caf99b8fdf33ccec3ffaebd8870f0e",
       "identity": "1f:3d29ca8ac9153eab2eac7a2049332065f06dc8544170f565cfbccff02ce5a5b2",
-      "adapted": "SQL statement and row counts became records read and listed at the door; pursuit citations through tool:answer-a-decision-question; the 257 references refused before any record lookup."
+      "adapted": "SQL statement and row counts became records read and listed at the door; pursuit citations through tool:record-method-answers; the 257 references refused before any record lookup."
     },
     {
       "from": "test/guided.test.mjs",
@@ -163,7 +163,7 @@
       "to": "tools/decide-with-a-method/test/person-answers.test.mjs",
       "source_identity": "1f:def759d4f3cee50451a3ba54bf5d39a2497800dfaa6806569416d8ad18ac43b7",
       "identity": "1f:10ada4184f6b6d7874c22df0f8d187e0ac547fc2b7a0e488af1a5468438ab66e",
-      "adapted": "The in-process MCP tools became tool:start-a-decision and tool:answer-a-decision-question over a made-up method with person-only fields; the MCP elicitation form was left out, no running owner."
+      "adapted": "The in-process MCP tools became tool:start-a-decision and tool:record-method-answers over a made-up method with person-only fields; the MCP elicitation form was left out, no running owner."
     },
     {
       "from": "test/pursuits.test.mjs",

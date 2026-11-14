@@ -1,13 +1,14 @@
 // A decision the person made themselves (tool:record-a-persons-own-decision): their own message, or a run their own
 // signed-in page started, is kept as the decision with their exact words and time as its evidence, and the method's
-// steps are named as decided by the person, never answered. An AI saying the person decided is refused, and a decision
-// an AI makes still walks the method. Every name, message and decision here is made up.
+// method is marked not walked, never answered. An AI saying the person decided is refused, and a decision
+// an AI makes still needs every row of its method answered. Every name, message and decision here is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { makeTheDecision, recordAPersonsOwnDecision, reportADecisionResult, startADecision } from '../read-data/decisions.mjs';
 import { decidedSummary } from '../read-data/work-screen.mjs';
-import { caseView, memoryDoor, plainChecks, plainMethod } from './fixtures.mjs';
+import { caseView } from './fixtures.mjs';
+import { account } from './old-engine-for-tests.mjs';
 
 const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(row => row.payload);
 const settings = JSON.parse(readFileSync(new URL('../read-data/decide-with-a-method.json', import.meta.url), 'utf8'));
@@ -23,13 +24,6 @@ function granted(door, toolId) {
     async *list(input) { need(input.type, 'records:list'); yield* door.list(input); },
     write: async (list, options) => { for (const record of list) need(record.type, 'records:write'); return door.write(list, options); },
   };
-}
-
-function account() {
-  const door = memoryDoor();
-  door.put(`record:${settings.records.method_row}:plain`, `record:${settings.records.method_row}`, plainMethod());
-  for (const check of plainChecks()) door.put(`record:${settings.records.check_row}:${check.id}`, `record:${settings.records.check_row}`, check);
-  return door;
 }
 
 const opened = {
@@ -54,13 +48,11 @@ test('the person\'s own message decides: their words and time are the evidence, 
   const reply = await run({ verdict: { ...verdict({ message_id: MESSAGE_ID, said }), decision_id: id } });
   assert.equal(reply.decided_by, 'person');
   assert.equal(reply.method_walked, false);
-  assert.deepEqual(reply.steps_decided_by_the_person, plainMethod().steps.map(step => step.id));
-  assert.match(reply.note, /decided this themselves \(kept_person_message, 2026-03-01T10:00:00.000Z\).*method was not walked \(4 steps marked decided by the person\)/);
+  assert.match(reply.note, /decided this themselves \(kept_person_message, 2026-03-01T10:00:00.000Z\).*method was not walked/);
   const kept = caseView(door, id);
   assert.equal(kept.status, 'needs_outcome');
   assert.equal(kept.decided_by, 'person');
   assert.equal(kept.method_walked, false);
-  assert.deepEqual(kept.steps_decided_by_the_person, ['scope', 'outcome', 'proof', 'existing']);
   assert.deepEqual(kept.answered_steps, [], 'no step is written as answered');
   assert.equal(kept.decision.option_id, 'open');
   assert.equal(kept.decision.reason, said);
@@ -87,7 +79,7 @@ test('a verdict pressed on the person\'s own signed-in page is the person\'s, at
 
 test('an AI saying the person decided, with no message of theirs and no page run, is refused and told to walk the method', async () => {
   const { door, id, run } = await opening();
-  await assert.rejects(run({ verdict: { ...verdict({ said }), decision_id: id } }), /Only the person decides without the method.*tool:next-decision-question.*tool:make-the-decision/);
+  await assert.rejects(run({ verdict: { ...verdict({ said }), decision_id: id } }), /Only the person decides without the method.*tool:make-the-decision/);
   // An AI cannot set the origin through its input: the field is not the call's, and the engine fills origin from the task.
   await assert.rejects(run({ verdict: { ...verdict({ said }), decision_id: id, origin: 'page' } }), /origin/);
   await assert.rejects(run({ verdict: { ...verdict({ said }), decision_id: id }, origin: 'ai' , run: 'r1' }), /Only the person decides/);
@@ -103,10 +95,10 @@ test('a message the person did not say, or words not in it, is refused', async (
   await assert.rejects(run({ verdict: { ...verdict({ message_id: MESSAGE_ID, said }), decision_id: id, option_id: 'later' } }), /later/);
 });
 
-test('a decision an AI makes still needs the method: make-the-decision refuses before the questions are answered', async () => {
+test('a decision an AI makes still needs the method: make-the-decision refuses before every row is answered', async () => {
   const { door, id } = await opening();
   await assert.rejects(makeTheDecision({ decision_id: id, decision: { option_id: 'open', reason: said, next_action: 'Put up the sign', success_measure: 'More taken in than it costs', evidence_refs: ['e1'] } },
-    { door: granted(door, 'tool:make-the-decision') }), /Complete the guided questions before deciding/);
+    { door: granted(door, 'tool:make-the-decision') }), /Method .* rows without an answer/);
 });
 
 test('the person\'s word stands over a decision already made, which moves to the history', async () => {

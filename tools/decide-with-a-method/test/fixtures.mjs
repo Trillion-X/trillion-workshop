@@ -14,32 +14,16 @@ const carried = value => JSON.stringify(JSON.stringify(value).replace(/[\u007f-\
 
 export const today = () => new Date().toISOString().slice(0, 10);
 
-export const plainMethod = () => ({
-  id: 'plain', kind: 'branch', name: 'Plain method', about: 'A made-up method for the tests', default_for: ['decision'],
-  answer_rules: {
-    field_min_words: 2, list_item_min_words: 2, evidence_min: 1,
-    check: { handled: [{ name: 'how', label: 'How it was handled', kind: 'text', min_words: 1 }], skip: [{ name: 'because', label: 'Why it does not apply', kind: 'text', min_words: 1 }], distinct: true },
-  },
-  checks: [
-    { id: 'worth_weighing', question: 'Is this worth weighing beyond a quick choice?', on_when_any_other_is_on: true, skip_requires: [{ name: 'why_quick', label: 'Why it is quick', kind: 'text', min_words: 2 }] },
-    { id: 'compare_existing', question: 'Could something that already exists do this?', skip_requires: [{ name: 'searched', label: 'Where you looked', kind: 'list', min: 1, min_words: 2, ask: 'Where did you look for something that already does this?' }] },
-  ],
-  backbone: [{ id: 'name', name: 'Name the change', steps: ['outcome'] }, { id: 'test', name: 'Test it', steps: ['proof', 'existing'] }],
-  steps: [
-    { id: 'scope', kind: 'scope', question: 'What kind of decision is this?' },
-    { id: 'outcome', question: 'Name the change: what is in which state now, and which state should it be in?', fields: [{ name: 'desired_result', label: 'Where you want it' }, { name: 'current_state', label: 'Where it is now' }], checks_skippable: false },
-    { id: 'proof', question: 'How will you know it worked?', fields: [{ name: 'check_by', label: 'Check by', kind: 'date' }, { name: 'measure', label: 'What you will measure' }] },
-    { id: 'existing', question: 'What already exists?', when: 'compare_existing', fields: [{ name: 'found', label: 'What you found', kind: 'list' }] },
-  ],
-  decision_fields: [{ name: 'who_it_changes', label: 'Who it changes beyond you', when: 'worth_weighing', ask: 'Who beyond the person does this change?', check: 'Who beyond the person does this move change, and what is different for them?', good_answer: 'Names people beyond the person and one concrete difference for them.', says: 'Who it changes beyond you: {value}.' }],
-  voice: [{ id: 'plain-words', rule: 'Say it in plain words', good_answer: 'Short sentences a person reads once' }],
-});
-
-// Its checks, as rows of the one Checks list: each names the step it sharpens and is part_of its method.
-export const plainChecks = () => [
-  { id: 'outcome-before-after', part_of: 'plain', step: 'outcome', check: 'Have you named what is in which state now and which state it should end up in?', good_answer: 'One before-and-after pair with the facts that show the current state.' },
-  { id: 'existing-where', part_of: 'plain', step: 'existing', when: 'compare_existing', check: 'Where did you look for something that already does this?', good_answer: 'Names the places searched.' },
-];
+// The person's method rows, made up for the tests: one list of method rows, a saved view over them that is the default method of a
+// decision, and one row for each of the steps named. A method is the rows a view keeps (method-rows/view.mjs).
+export const METHOD_VIEW = 'list-view:method-rows:the-universal-steps';
+export const STEP_ROW = id => `record:method-row:universal-steps~%2F${id}`;
+export function methodAccount(door = memoryDoor(), { steps = ['scope', 'outcome', 'proof'], view = METHOD_VIEW } = {}) {
+  door.put('list:method-rows', 'list', { row_type: 'method-row', fields: [{ id: 'id', kind: 'text' }, { id: 'question', kind: 'long-text' }] });
+  door.put(view, 'list-view', { list_id: 'method-rows', view: { id: 'the-universal-steps', label: 'Made-up steps', rules: { kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field: 'question', operator: 'is_not_empty', params: {} }] }, sort: [{ field: 'id', direction: 'asc' }] } });
+  for (const id of steps) door.put(STEP_ROW(id), 'record:method-row', { id, question: `A made-up question for ${id}?` });
+  return door;
+}
 
 export function memoryDoor() {
   const records = new Map();

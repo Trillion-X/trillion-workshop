@@ -2,9 +2,9 @@
 // is refused where it is read or answered, with the step named, instead of being returned as a step or answered again.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { answerADecisionQuestion, nextDecisionQuestion, startADecision } from '../read-data/decisions.mjs';
+import { addDecisionEvidence, makeTheDecision, startADecision } from '../read-data/decisions.mjs';
 import { readDecision } from '../read-data/decision-records.mjs';
-import { account, fill, judged } from './old-engine-for-tests.mjs';
+import { account, seedSteps } from './old-engine-for-tests.mjs';
 import { refsOfCase } from './fixtures.mjs';
 import { readFileSync } from 'node:fs';
 
@@ -20,9 +20,8 @@ const input = {
 // live case holds it: { needs_recheck, version } and no step_id.
 async function caseWithStubStep() {
   const door = account();
-  const { case_id: id, question: scope } = await startADecision(input, { door });
-  const scoped = await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: fill(scope, { refs: ['user-verbatim'] }) }, { door });
-  await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: fill(scoped.question, { refs: ['user-verbatim'] }), verdicts: judged(scoped.question, 'user-verbatim') }, { door });
+  const { case_id: id } = await startADecision(input, { door });
+  await seedSteps(door, id, ['scope', 'outcome'], { ref: 'user-verbatim' });
   const refs = await refsOfCase(door, id);
   const stubKey = `${ANSWERED}:${id}:001:c${refs.items.answered_steps[1]}`;
   assert.ok(door.records.has(stubKey), 'the second summary is in the case');
@@ -35,12 +34,12 @@ test('reading a case with a step that has no step in it refuses, and names the s
   await assert.rejects(() => readDecision(door, id), /not visible/);
 });
 
-test('confirming a step refuses a case with a step that has no step in it', async () => {
+test('adding evidence refuses a case with a step that has no step in it', async () => {
   const { door, id } = await caseWithStubStep();
-  await assert.rejects(() => answerADecisionQuestion({ decision_id: id, step_id: 'scope', confirm: true }, { door }), /not visible/);
+  await assert.rejects(() => addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e3', claim: 'The waiting list grew this month' }] }, { door }), /not visible/);
 });
 
-test('the next question refuses a case with a step that has no step in it', async () => {
+test('making the decision refuses a case with a step that has no step in it', async () => {
   const { door, id } = await caseWithStubStep();
-  await assert.rejects(() => nextDecisionQuestion({ decision_id: id }, { door }), /not visible/);
+  await assert.rejects(() => makeTheDecision({ decision_id: id, decision: { option_id: 'keep', reason: 'Kept.', next_action: 'Keep it', success_measure: 'Families stay', evidence_refs: ['user-verbatim'] } }, { door }), /not visible/);
 });

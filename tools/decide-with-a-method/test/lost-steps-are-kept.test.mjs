@@ -3,8 +3,8 @@
 // step's own record, so the case lost its answered steps for good.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { addDecisionEvidence, answerADecisionQuestion, startADecision } from '../read-data/decisions.mjs';
-import { account, fill, judged } from './old-engine-for-tests.mjs';
+import { addDecisionEvidence, startADecision } from '../read-data/decisions.mjs';
+import { account, seedSteps } from './old-engine-for-tests.mjs';
 import { refsOfCase } from './fixtures.mjs';
 import { readFileSync } from 'node:fs';
 
@@ -18,9 +18,8 @@ const input = {
 
 test('a later write refuses a case whose unreadable step is gone, and changes nothing', async () => {
   const door = account();
-  const { case_id: id, question: scope } = await startADecision(input, { door });
-  const scoped = await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: fill(scope, { refs: ['user-verbatim'] }) }, { door });
-  await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: fill(scoped.question, { refs: ['user-verbatim'] }), verdicts: judged(scoped.question, 'user-verbatim') }, { door });
+  const { case_id: id } = await startADecision(input, { door });
+  await seedSteps(door, id, ['scope', 'outcome'], { ref: 'user-verbatim' });
   const before = (await refsOfCase(door, id)).items.answered_steps;
   assert.equal(before.length, 2, 'two answered steps are kept');
   // The outcome step's own record cannot be read (it is gone from the door), while the decision still holds the step.

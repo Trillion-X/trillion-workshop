@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:050081662ff5dd694085f97d34dee009d8c9bb38d3b3ab5ecb43b36413d8efad"
+  "blake3": "1f:0201fc57259f28b6338d8b1e87b255b226d5ee61ad7708f71ab27835c1f8caea"
  },
  "fields": [
   {
@@ -346,21 +346,6 @@
      "placement:your-computer"
     ],
     "folder": "ask-a-small-model-for-a-verdict"
-   }
-  },
-  {
-   "id": "tool:answer-a-decision-question",
-   "values": {
-    "title": "Answer a decision's question",
-    "job": "Answer the question my method is asking about a decision, with each of its checks; change an answer I gave before with its reason, which reopens a decided decision; confirm an answer that must be asked again, or add the judge's verdicts to an answer I have; or bring in an answer from another of my decisions",
-    "description": "Answers the decision's current question (step_id) with answer as its answer_schema says: every field, every check handled (how) or, where allowed, not applying (because), each citing the decision's evidence refs or the person's current pursuit ids. verdicts are your judge's, beside the answer, one for every check; an answer with fewer is refused (verdicts_missing) and the step stays unanswered; a refusal that rests on the answer or an evidence ref and names words of its check refuses the answer. Out of turn is refused; the same answer again replays. revise changes an answer already given: it names because (why, in a few words) and keeps the old version, and every later answer of the decision is marked to be asked again, so the next question is the earliest of them. On a decided decision, revise reopens it: the decision it had moves to decision_history, marked reopened with its reason and when, and the decision must be made again with tool:make-the-decision. confirm keeps a re-asked answer unchanged; with verdicts it adds them to an answered step, open or decided, as a new version with the same answer, each verdict kept with when it came in; a verdict already kept is never changed, and a decided decision stays decided. from, instead of answer, brings in another of the person's decisions' answer to the same step as it stood (its version, or the current one), with the evidence it cites, and checks it as a typed answer. After a failed result, revise changes the answer and the decision stands until a new one is made. Keeps the answer as its own step record and returns the next question.",
-    "status": "active",
-    "maker": "maker:decide-with-a-method",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "decide-with-a-method"
    }
   },
   {
@@ -1073,7 +1058,7 @@
    "values": {
     "title": "Build the request that starts a seller's payment setup",
     "job": "Build, without sending it, the payment provider (Stripe) request that starts a seller's payment setup and gets their hosted onboarding link, or any other request the folder's operation map names",
-    "description": "Calls buildStripeHttpRequest (process/build-provider-request.mjs) with the input: operation_id names one row of data/provider-operation-map.json (operation:create-connected-account and operation:create-account-link start a seller's setup and its hosted onboarding link; the map has every other operation too), input_facts holds what the request says (operation_subject becomes the form-encoded body of a write or the query of a search, provider_object_ref fills the address, acting_account the Stripe-Account header where the row declares it; a subject id becomes client_reference_id), idempotency_key becomes the Idempotency-Key header of a write, api_version_policy the Stripe-Version (the map's current version when left out) and required_credential_ref the name of the key a sender would use (credential-class:stripe-restricted-key when left out). Answers the finished request: method, url, headers, body, auth { scheme, credential_ref } and api_version. It holds and reads no key, puts no Authorization header on the request, sends nothing and moves no money: the request is for a sender (or a person) to look at first. Refuses an operation the map does not name and a missing provider_object_ref where the address needs one. The old screen also sent the request with the seller's own key and took the seller to the onboarding page the answer names; this run does neither.",
+    "description": "Calls buildStripeHttpRequest (tools/take-payments/do-work/build-provider-request.mjs) with the input: operation_id names one row of tools/take-payments/read-data/provider-operation-map.json (operation:create-connected-account and operation:create-account-link start a seller's setup and its hosted onboarding link; the map has every other operation too), input_facts holds what the request says (operation_subject becomes the form-encoded body of a write or the query of a search, provider_object_ref fills the address, acting_account the Stripe-Account header where the row declares it; a subject id becomes client_reference_id), idempotency_key becomes the Idempotency-Key header of a write, api_version_policy the Stripe-Version (the map's current version when left out) and required_credential_ref the name of the key a sender would use (credential-class:stripe-restricted-key when left out). Answers the finished request: method, url, headers, body, auth { scheme, credential_ref } and api_version. It holds and reads no key, puts no Authorization header on the request, sends nothing and moves no money: the request is for a sender (or a person) to look at first. Refuses an operation the map does not name and a missing provider_object_ref where the address needs one. The old screen also sent the request with the seller's own key and took the seller to the onboarding page the answer names; this run does neither.",
     "status": "active",
     "maker": "maker:seller-payment-setup",
     "licence_class": "licence:maker-own",
@@ -1440,7 +1425,7 @@
    "values": {
     "title": "Check a buyer may open something",
     "job": "Decide whether a buyer may open one gated thing (a page, a lesson, a publication) from the access it requires",
-    "description": "Takes the scope the thing is gated by ({ schema: \"addressed-expiring-value-scope/v1\", value_ref, instance_ref, required_access_refs }) and the buyer. A thing that requires no access is open to any named buyer; otherwise the buyer must hold any one of the required access refs now (tool:see-who-holds-paid-access works that out). Answers only authorized true or false: a scope that is not exactly that schema, no buyer, or access that cannot be worked out is false.",
+    "description": "Takes the scope the thing is gated by ({ schema: \"addressed-expiring-value-scope/v1\", value_ref, instance_ref, required_access_refs }) and the buyer. A thing that requires no access is open to any named buyer; otherwise the buyer must hold any one of the required access refs now (tool:see-who-holds-paid-access works that out). Answers authorized true or false: a scope that is not exactly that schema, no buyer, or access that cannot be worked out is false with no revision. Otherwise the answer carries membership_revision, which changes when the buyer's access changes, so an action admitted on it can fail closed when membership moves.",
     "status": "active",
     "maker": "maker:paid-access",
     "licence_class": "licence:maker-own",
@@ -6997,7 +6982,7 @@
    "values": {
     "title": "Make the decision",
     "job": "Record what my AI decided, why, what to do next and how we will know it worked",
-    "description": "Once every question is answered and every answered step has a verdict for each of its checks: decision is { option_id (one of the options), reason, next_action, success_measure, evidence_refs, move?, and every decision field the decision asks for }. verdicts are your judge's on the decision fields. A decided decision changes when one of its answers is revised (which reopens it) or after a failed result: the decision it had moves to decision_history. Returns what to do now and how to say it.",
+    "description": "Once every row of the decision's method has an answer: decision is { option_id (one of the options), reason, next_action, success_measure, evidence_refs, move?, and every decision field the decision asks for }. A decided decision changes only after a failed result: the decision it had moves to decision_history. Returns what to do now and how to say it.",
     "status": "active",
     "maker": "maker:decide-with-a-method",
     "licence_class": "licence:maker-own",
@@ -7615,21 +7600,6 @@
     ],
     "listed_on": "2026-11-04T12:00:00Z",
     "folder": "publish-a-site-at-its-own-address"
-   }
-  },
-  {
-   "id": "tool:next-decision-question",
-   "values": {
-    "title": "Read a decision's next question",
-    "job": "See the next question my method asks about a decision, or, when all are answered, the options and my similar past decisions",
-    "description": "Reads one of the person's decisions and returns its current question (step_id, question, fields, the checks to answer and their verdict words, the answer_schema), the person's current pursuits when the question weighs them, and the method coverage. A question that asks for a recheck says which step was revised and the version of its answer. With every question answered it returns the options, the decision fields, how to say it, and the person's similar earlier decisions with how each turned out. With versions_of (a step id) it returns that step's versions, oldest first, each with who gave it, when, why it was revised, when it was confirmed, and its answer.",
-    "status": "active",
-    "maker": "maker:decide-with-a-method",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "decide-with-a-method"
    }
   },
   {
@@ -8515,7 +8485,10 @@
     "placements": [
      "placement:small-container"
     ],
-    "folder": "take-payments"
+    "folder": "take-payments",
+    "flags": [
+     "has-a-screen"
+    ]
    }
   },
   {
@@ -10428,7 +10401,7 @@
    "values": {
     "title": "Record a decision I made myself",
     "job": "When I have already decided, keep my own verdict as the decision, with my exact words and when I said them, without my AI walking the method's questions",
-    "description": "The person decided; this keeps their verdict as the decision. Only the person's own word is taken: person.message_id names the message row they sent (type message, speaker person) and person.said must be their exact words in it, or the run comes from their own signed-in page, which the engine attests as the task's origin and no input can set. An AI saying the person decided, with neither, is refused and told to walk the method (tool:next-decision-question, then tool:make-the-decision), which every decision an AI makes still needs. The person's words are kept as an evidence row (person-verdict-<generation>) with where and when they said them; the decision and its root say decided_by person and method_walked false, and every method step not answered is listed as decided by the person (steps_decided_by_the_person), never written as an answer. A decision already made moves to decision_history. next_action and success_measure are what the AI will do now and how it will know it worked. The same verdict again replays.",
+    "description": "The person decided; this keeps their verdict as the decision. Only the person's own word is taken: person.message_id names the message row they sent (type message, speaker person) and person.said must be their exact words in it, or the run comes from their own signed-in page, which the engine attests as the task's origin and no input can set. An AI saying the person decided, with neither, is refused and told to answer the rows of the method (tool:read-a-method, tool:record-method-answers, then tool:make-the-decision), which every decision an AI makes still needs. The person's words are kept as an evidence row (person-verdict-<generation>) with where and when they said them; the decision and its root say decided_by person and method_walked false. A decision already made moves to decision_history. next_action and success_measure are what the AI will do now and how it will know it worked. The same verdict again replays.",
     "status": "active",
     "maker": "maker:decide-with-a-method",
     "licence_class": "licence:maker-own",
@@ -10504,7 +10477,7 @@
    "values": {
     "title": "Record my answers to a method",
     "job": "Record my AI's answers to any number of the rows of a method in one call, each with the rows it cites and the decision's evidence it rests on",
-    "description": "Records answers to a method's rows for a decision: input { decision_id, method, answers: [{ row, answer, cites?, evidence_refs? }], by? }, any number of answers, each about one row of the method (tool:read-a-method). An answer is recorded only when its row is a row of the method, every row it cites is a row of the method, every evidence ref it cites is evidence of the decision, and it passes its strictness: an open value on the row, else on the method, else the default (the answer says something and cites a row or a piece of evidence), a rule tree in the vocabulary of the person's view rules. A review by an AI is asked only where the strictness says review: that answer is kept with review asked. Nothing asks a judge. An answer that fails is named with why and nothing of it is written; the others are recorded, so one wrong answer never holds up the rest. The same answer again is unchanged; a different one is the row's next version. Answers are records of their own, one per decision and row. Returns recorded, unchanged, refused, how many rows of the method the decision has answered and how many the method has.",
+    "description": "Records answers to a method's rows for a decision: input { decision_id, method, answers: [{ row, answer, cites?, evidence_refs? }], by? }, any number of answers, each about one row of the method (tool:read-a-method). An answer is recorded only when its row is a row of the method, every row it cites is a row of the method, every evidence ref it cites is evidence of the decision (or one of the person's current pursuits), and it passes its strictness: an open value on the row, else on the method, else the default (the answer says something and cites a row or a piece of evidence), a rule tree in the vocabulary of the person's view rules. A review by an AI is asked only where the strictness says review: that answer is kept with review asked. Nothing asks a judge. An answer that fails is named with why and nothing of it is written; the others are recorded, so one wrong answer never holds up the rest. The same answer again is unchanged; a different one is the row's next version. Answers are records of their own, one per decision and row. Returns recorded, unchanged, refused, how many rows of the method the decision has answered and how many the method has.",
     "status": "active",
     "maker": "maker:decide-with-a-method",
     "licence_class": "licence:maker-own",
@@ -10989,21 +10962,6 @@
      "placement:your-computer"
     ],
     "folder": "start-a-computer"
-   }
-  },
-  {
-   "id": "tool:repair-a-decisions-answered-steps",
-   "values": {
-    "title": "Put back a decision's answered steps",
-    "job": "Put back the answered steps of a decision whose case lost them, so the decision reads as answered as far as it was",
-    "description": "Reads a decision of the person's own with every answered step whole and puts right each answered step whose summary has lost its grading: from the step's own record when it is there (a summary written for a step the door could not read), otherwise from the step and summary the case's own earlier refs named for that position, the highest version. Then the case's refs name them. No step record, answer, verdict or other summary changes, a position nothing can restore is left as it is, and a decision with nothing to put right is not written. Returns the steps put back by position, step id and where they came from, how many of the decision's answered steps carry their step before and after, and how many it has.",
-    "status": "active",
-    "maker": "maker:decide-with-a-method",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "decide-with-a-method"
    }
   },
   {
@@ -12914,7 +12872,7 @@
    "values": {
     "title": "Start a decision with my method",
     "job": "Start a decision my AI will make with my method: what is being decided, the facts and constraints, and the options only if I already hold them",
-    "description": "Opens a decision in the person's own records from a source_id (the same source always opens the same decision; the same input again is that decision, different input is refused), its goal, its evidence ({ref, claim}, each ref unique: the facts and every non-negotiable constraint) and, only when the caller already holds them, at least two options ({id, label}); with no options the method's own steps generate the candidates and rule them out, and what the rule-out step leaves standing are the options, under the method named or the person's default (their Methods list). The decision keeps the exact method it was opened with. Returns case_id and the first question.",
+    "description": "Opens a decision in the person's own records from a source_id (the same source always opens the same decision; the same input again is that decision, different input is refused), its goal, its evidence ({ref, claim}, each ref unique: the facts and every non-negotiable constraint) and the options ({id, label}, at least two). The decision is answered by the rows of one method, a saved view over the person's method rows (the one named, else their default view): read it with tool:read-a-method and record answers to any number of its rows in one call with tool:record-method-answers. Returns case_id.",
     "status": "active",
     "maker": "maker:decide-with-a-method",
     "licence_class": "licence:maker-own",

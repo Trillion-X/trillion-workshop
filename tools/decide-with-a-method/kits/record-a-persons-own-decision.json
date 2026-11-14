@@ -6,7 +6,8 @@
   "tools": [
     "tool:record-a-persons-own-decision",
     "tool:start-a-decision",
-    "tool:next-decision-question",
+    "tool:read-a-method",
+    "tool:record-method-answers",
     "tool:make-the-decision",
     "tool:see-my-decisions",
     "tool:report-a-decision-result"
@@ -15,7 +16,7 @@
     "1. Open the decision once with tool:start-a-decision (source_id, goal, evidence, options), or use the decision_id it already has.",
     "2. Find the message the person sent with their verdict (a message row with speaker person) and copy their exact words from it.",
     "3. Run tool:record-a-persons-own-decision with decision_id, the option they chose, what you will do now, how you will know it worked, and person { message_id, said }.",
-    "4. Read the answer: decided_by person, method_walked false and the steps marked decided by the person; then do the next action and report the result with tool:report-a-decision-result."
+    "4. Read the answer: decided_by person, method_walked false; then do the next action and report the result with tool:report-a-decision-result."
   ],
   "worked_examples": [
     {
@@ -42,7 +43,7 @@
           }
         }
       },
-      "hands_back": "case_id, decided_by person, method_walked false, steps_decided_by_the_person (every method step), the note saying the person decided it themselves and when, and what to do now."
+      "hands_back": "case_id, decided_by person, method_walked false, the note saying the person decided it themselves and when, and what to do now."
     },
     {
       "title": "An AI claims the person decided, with no message",
@@ -67,7 +68,7 @@
           }
         }
       },
-      "hands_back": "Refused (person_verdict_no_person, read from tools/decide-with-a-method/read-data/decide-with-a-method.json): \"Only the person decides without the method: name the message they sent (person.message_id, a message row where they are the speaker), or have them record it on their own signed-in page. An AI saying the person decided is not the person's verdict; to decide yourself, answer the method's questions (tool:next-decision-question) and then call tool:make-the-decision\""
+      "hands_back": "Refused (person_verdict_no_person, read from tools/decide-with-a-method/read-data/decide-with-a-method.json): \"Only the person decides without the method: name the message they sent (person.message_id, a message row where they are the speaker), or have them record it on their own signed-in page. An AI saying the person decided is not the person's verdict; to decide yourself, read the method (tool:read-a-method), record answers to its rows (tool:record-method-answers) and then call tool:make-the-decision\""
     }
   ]
 }

@@ -173,6 +173,18 @@ test('retracted evidence is not citable, evidence laid beside the decision is', 
   assert.match(done.refused[0].why, /evidence gone/);
 });
 
+test('a current pursuit is citable like evidence, an ended one is not', async () => {
+  const door = account();
+  door.put('pursuit:made-up-goal', 'pursuit', { title: 'A made-up goal', status: 'active' });
+  door.put('pursuit:made-up-ended', 'pursuit', { title: 'An ended made-up goal', status: 'ended' });
+  const done = await record(door, { answers: [
+    { row: ROW('beta'), answer: 'Beta serves the made-up goal', evidence_refs: ['pursuit:made-up-goal'] },
+    { row: ROW('gamma'), answer: 'Gamma cites an ended goal', evidence_refs: ['pursuit:made-up-ended'] },
+  ] });
+  assert.deepEqual(done.recorded.map(item => item.row), [ROW('beta')]);
+  assert.match(done.refused[0].why, /evidence pursuit:made-up-ended/);
+});
+
 test('the default asks only the cheap check: the answer says something and cites a row or a piece of evidence', async () => {
   const done = await record(account(), { answers: [
     { row: ROW('beta'), answer: '', evidence_refs: ['e1'] },

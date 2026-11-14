@@ -251,7 +251,8 @@
               {
                 "package": "decide-with-a-method",
                 "paths": [
-                  "read-data"
+                  "read-data/decision-records.mjs",
+                  "read-data/decide-with-a-method.json"
                 ],
                 "at": "/opt/decide-with-a-method"
               },
