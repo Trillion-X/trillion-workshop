@@ -14,6 +14,8 @@ Run `node tools/start-a-computer/do-work/start-a-computer.mjs OPERATION ...`. Op
 
 A start request names `lease_file`, `machine`, `name`, `ssh`, `port`, `engine` and `product_settings`. Engine inputs include its file, data environment name, data folder and release. Optional inputs include `place_config`, `config_from_release`, `default_places`, `copies`, `public_origin` and `release_feed`. Local file paths are relative to the request file. An update also accepts `layout` overrides; otherwise the running service's own config, current link, state folder, owner and release folder are discovered.
 
+A computer's layout row (`request.host_layout`) may also name the sign-in unit: a unit with `template: serve-better-auth` runs official Better Auth from the Workshop's `tools/better-auth-official` folder (clone, `npm ci`, migrate, `node server.mjs`), with `workshop`, `repository`, `tool_folder`, `node_bin`, `user` and `writable`; its `settings` object is written as JSON to `settings_file`; its secret is named by `secret_vault_key` and read by systemd from `secret_file` (`LoadCredential`), never held in the row. `caddy.routes: ["better-auth"]` with `caddy.auth_port` sends `/api/auth/*` and `/.well-known/oauth-authorization-server*` to it.
+
 Updates back up replaced config, service unit, settings and release pointer. A failed service health check or sign-up response restores them. Explicit rollback uses the same backup and layout. Removal deletes only resources the saved lease owns; adopted machines are forgotten without deleting them.
 
 ## Source and checks

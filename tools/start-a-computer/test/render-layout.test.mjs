@@ -56,3 +56,48 @@ test('differences name a missing file and a changed file, and match when equal',
     { path: '/etc/systemd/system/example-place.service', reason: 'missing on the computer' },
   ]);
 });
+
+// A computer whose layout row names the better-auth unit and route serves sign-in: the unit runs official Better Auth from
+// the Workshop tool folder with its settings from the row, the secret by vault key only, and Caddy sends the auth paths to it.
+const withSignIn = {
+  caddy: { ...layout.caddy, routes: ['better-auth'], auth_port: 7201 },
+  units: [...layout.units, {
+    unit: 'example-sign-in.service', template: 'serve-better-auth', description: 'Example sign-in', user: 'example-sign-in',
+    workshop: '/var/lib/example-sign-in/trillion-workshop', repository: 'https://github.com/Trillion-X/trillion-workshop.git',
+    tool_folder: 'tools/better-auth-official', node_bin: '/opt/node/bin', settings_file: '/var/lib/example-sign-in/settings.json',
+    settings: { port: 7201, base_url: 'https://place.example.test', issuer: 'https://place.example.test', database_path: '/var/lib/example-sign-in/auth.db' },
+    secret_vault_key: 'example-better-auth-secret', secret_file: '/etc/example-sign-in/better-auth-secret',
+    writable: '/var/lib/example-sign-in',
+  }],
+};
+
+test('a layout that names the better-auth unit renders it, its settings file and the Caddy routes to it', () => {
+  const files = renderLayout(withSignIn, SITE_BLOCK);
+  const unit = files.find(file => file.path === '/etc/systemd/system/example-sign-in.service').text;
+  assert.doesNotMatch(unit, /\{[a-z_]+\}/);
+  assert.match(unit, /^LoadCredential=better-auth-secret:\/etc\/example-sign-in\/better-auth-secret$/m);
+  assert.match(unit, /^# BETTER_AUTH_SECRET is the vault key example-better-auth-secret:/m);
+  assert.match(unit, /^Environment=BETTER_AUTH_SETTINGS=\/var\/lib\/example-sign-in\/settings\.json$/m);
+  assert.match(unit, /^ExecStartPre=\/bin\/sh -c 'cd \/var\/lib\/example-sign-in\/trillion-workshop\/tools\/better-auth-official && npm ci --no-audit --no-fund'$/m);
+  assert.match(unit, /exec node server\.mjs'$/m);
+  const settings = files.find(file => file.path === '/var/lib/example-sign-in/settings.json');
+  assert.deepEqual(JSON.parse(settings.text), withSignIn.units[1].settings);
+  const [caddy] = files;
+  for (const host of withSignIn.caddy.site_hosts) {
+    const block = caddy.text.slice(caddy.text.indexOf(`${host} {`));
+    assert.match(block, /^\thandle \/api\/auth\/\* \{\n\t\treverse_proxy 127\.0\.0\.1:7201\n\t\}$/m);
+    assert.match(block, /^\thandle \/\.well-known\/oauth-authorization-server\* \{\n\t\treverse_proxy 127\.0\.0\.1:7201\n\t\}$/m);
+    assert.ok(block.indexOf('handle /api/auth/*') < block.indexOf('reverse_proxy 127.0.0.1:7199'), 'the auth routes sit inside the block, before the catch-all');
+  }
+});
+
+test('a layout without the route renders no auth routes; an unknown route or a route field the row omits is refused', () => {
+  assert.doesNotMatch(renderLayout(layout, SITE_BLOCK)[0].text, /api\/auth/);
+  assert.throws(() => renderLayout({ ...withSignIn, caddy: { ...withSignIn.caddy, routes: ['nope'] } }, SITE_BLOCK), /unknown route nope/);
+  const { auth_port, ...noPort } = withSignIn.caddy;
+  assert.throws(() => renderLayout({ ...withSignIn, caddy: noPort }, SITE_BLOCK), /caddy route better-auth needs auth_port/);
+  const { secret_file, ...noSecret } = withSignIn.units[1];
+  assert.throws(() => renderLayout({ ...withSignIn, units: [layout.units[0], noSecret] }, SITE_BLOCK), /needs secret_file/);
+  const { settings_file, ...noSettingsFile } = withSignIn.units[1];
+  assert.throws(() => renderLayout({ ...withSignIn, units: [layout.units[0], noSettingsFile] }, SITE_BLOCK), /needs settings_file/);
+});

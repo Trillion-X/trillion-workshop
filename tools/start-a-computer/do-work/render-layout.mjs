@@ -3,11 +3,17 @@
 // Renders the files one computer's layout says it runs: the Caddy site file, each service unit and its drop-ins. The
 // layout is that computer's row (request.host_layout, read at run time); the templates are read-data/unit-templates,
 // the units' own text with a {field} for each value a computer declares. A field the row does not give is refused,
-// so a template never renders half-filled.
-import { readFileSync } from 'node:fs';
+// so a template never renders half-filled. A layout's own Caddy routes (caddy.routes) are read-data/caddy-routes files filled
+// from the layout's caddy fields, and a unit's settings object is written as JSON to its settings_file.
+import { existsSync, readFileSync } from 'node:fs';
 
 const TEMPLATE = name => readFileSync(new URL(`../read-data/unit-templates/${name}`, import.meta.url), 'utf8');
-const UNITS = { 'serve-place': TEMPLATE('serve-place.service'), 'serve-computer': TEMPLATE('serve-computer.service'), 'serve-set-up': TEMPLATE('serve-set-up.service') };
+const UNITS = { 'serve-place': TEMPLATE('serve-place.service'), 'serve-computer': TEMPLATE('serve-computer.service'), 'serve-set-up': TEMPLATE('serve-set-up.service'), 'serve-better-auth': TEMPLATE('serve-better-auth.service') };
+const ROUTE = name => {
+  const file = new URL(`../read-data/caddy-routes/${name}.caddy`, import.meta.url);
+  if (!/^[a-z0-9-]+$/.test(name) || !existsSync(file)) throw new Error(`caddy.routes names an unknown route ${name}`);
+  return readFileSync(file, 'utf8').trimEnd();
+};
 const DROP_INS = { nofile: TEMPLATE('nofile.conf'), 'product-settings': TEMPLATE('product-settings.conf') };
 const SYSTEMD = '/etc/systemd/system';
 
@@ -17,11 +23,16 @@ const fill = (template, values, where) => template.replace(/\{([a-z_]+)\}/g, (_,
 });
 
 /** The Caddy site file: one site block per name, each with the layout's port. `siteBlock` is the wrapper the set-up tool
- * uses, with {SITE} and {PORT} still to fill. */
-export const renderCaddy = (siteBlock, { site_hosts, port, releases }) => {
+ * uses, with {SITE} and {PORT} still to fill. The layout's own routes (caddy.routes) go first inside each block. */
+export const renderCaddy = (siteBlock, caddy) => {
+  const { site_hosts, port, releases } = caddy;
   if (!Array.isArray(site_hosts) || !site_hosts.length) throw new Error('caddy.site_hosts needs at least one name');
   if (siteBlock.includes('{releases}') && !releases) throw new Error('caddy.releases needs the folder the /engine-releases/ route serves');
-  return site_hosts.map(host => `${siteBlock.replaceAll('{SITE}', host).replaceAll('{PORT}', String(port)).replaceAll('{releases}', releases ?? '')}\n`).join('');
+  const routes = (caddy.routes ?? []).map(name => fill(ROUTE(name), caddy, `caddy route ${name}`)).join('\n');
+  return site_hosts.map(host => {
+    const block = siteBlock.replaceAll('{SITE}', host).replaceAll('{PORT}', String(port)).replaceAll('{releases}', releases ?? '');
+    return `${routes ? block.replace('\n', `\n${routes}\n`) : block}\n`;
+  }).join('');
 };
 
 /** Every file a layout declares: { path, text }. A unit's drop-ins are the names it lists in `drop_ins`. With the product
@@ -34,6 +45,10 @@ export function renderLayout(layout, siteBlock, productSettings) {
     if (!template) throw new Error(`${where} names an unknown template ${unit.template}`);
     files.push({ path: `${SYSTEMD}/${unit.unit}`, text: fill(template, unit, where) });
     if (productSettings !== undefined && unit.product_settings) files.push({ path: unit.product_settings, text: productSettings });
+    if (unit.settings !== undefined) {
+      if (!unit.settings_file) throw new Error(`${where} gives settings and needs settings_file`);
+      files.push({ path: unit.settings_file, text: `${JSON.stringify(unit.settings, null, 2)}\n` });
+    }
     for (const name of unit.drop_ins ?? []) {
       const dropIn = DROP_INS[name];
       if (!dropIn) throw new Error(`${where} names an unknown drop-in ${name}`);
