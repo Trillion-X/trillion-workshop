@@ -710,9 +710,10 @@ test('bearer: whatever kind of key or token TRILLION_KEY holds reaches the door 
   const apiKey = `tr_${'AbCdEfGh'.repeat(8)}`;
   const token = `${Buffer.from('{"typ":"at+jwt"}').toString('base64url')}.${Buffer.from('{"sub":"x"}').toString('base64url')}.${'s'.repeat(20)}`;
   const nobody = { where: 'nothing kept', read: () => null, write: () => {} };
-  const fake = await fakeDoor({ bearers: [KEY, apiKey, token] });
+  const keptKey = `nm_${'Zz09_-'.repeat(7)}`; // a kept key was only ever required to start with nm_: it need not be hex
+  const fake = await fakeDoor({ bearers: [KEY, keptKey, apiKey, token] });
   try {
-    for (const bearer of [KEY, apiKey, token]) {
+    for (const bearer of [KEY, keptKey, apiKey, token]) {
       const said = await main(['whoami'], seamsFor(home(), { localDoor: () => fake.mcp, store: nobody, env: { CLAUDECODE: '1', TRILLION_KEY: bearer } }));
       assert.match(said, new RegExp(`^account ${ACCOUNT}`), 'the door took the bearer exactly as given');
     }
