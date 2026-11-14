@@ -8,17 +8,8 @@
 //   sidebar holds those rows by a rule over rows (surfaces.json `holds`), and the arrangement keeps them in tabs,
 //   panes and saved layouts like any screen. Nothing names a list, a place or an address.
 //
-//   How a screen is shown is `SHOWS`, keyed by `screen.kind`; a new kind is one entry here (`described` and
-//   `web-address` are drawn by the shared guide, in tool-screen-guide.tsx, fetched when one first opens):
-//     described    Trillion draws it from the tool itself: what it does, a box per input_schema property (one of the
-//                  person's files, chosen, dropped or uploaded, for an input whose `inputs` names the kind of file it
-//                  takes; a row of their lists, found or made with the shared record picker, for an input whose
-//                  schema says it names a thing with `x-record`, tool-inputs.ts), Run, and what it returned: each file the run kept as the file itself (the shared KeptFiles
-//                  view: it plays or shows, with Open), the rest through the shared SchemaValueView (tool-results.ts).
-//                  The screen's `run` names its button and the headings over its boxes and its answer (Send, Sending,
-//                  Sent) when Run is the wrong word for what the tool does. An input the tab's own input already
-//                  carries (a space's place opens a tool with its space_id) is filled, not asked (givenInputs), and
-//                  is never replaced by what a chosen row fills.
+//   How a screen is shown is `SHOWS`, keyed by `screen.kind`; a new kind is one entry here (`web-address` is drawn by the
+//   shared guide, in web-address-screen.tsx, fetched when one first opens):
 //     web-address  the tool's own hosted frontend (`url`), opened from here.
 //     app-entry    an existing Trillion screen that already does the job (`entry`, with `input`).
 //     module       saved { bundle, file } code runs in the shared isolated-module-surface host with named request
@@ -29,14 +20,12 @@
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Blind: this file names no tool, field or job; every word about the tool is the tool's own.
-//   2. A run from here is the same run an AI starts with run_tool (workshop-tool-api.ts, POST /work/api/door/tools:run),
-//      so it shows in the Workshop's runs and every AI can read it.
-//   3. No markup: the guide, the shared value view and the shared screen states draw everything.
-//   4. Every tool has a screen: a description with no `screen` is drawn `described`, from the tool itself, so any tool
-//      a person or a live copy opens shows what it does, its inputs and Run. "This tool has no screen here" is said only
-//      of a screen kind this page cannot draw; a description that could not be read shows the read's failure, with Try
-//      again (and again by itself while the failure may pass).
-//   5. Whatever this host drew is let go of before the next thing draws there (releaseScreenState, then emptying it):
+//   2. No markup: the guide and the shared screen states draw everything.
+//   3. A tool has a screen only when its description declares one: there is no screen drawn from the tool's input
+//      schema. A tool with none is done on the screen that already hosts its job (the file card, the editor, Automations,
+//      the tray) or by the person's AI, and opened here it says "This tool has no screen here". A description that could
+//      not be read shows the read's failure, with Try again (and again by itself while the failure may pass).
+//   4. Whatever this host drew is let go of before the next thing draws there (releaseScreenState, then emptying it):
 //      emptying a host whose shared state is still drawn leaves React holding nodes that are gone, and the next draw
 //      throws and leaves the pane blank.
 
@@ -56,7 +45,7 @@ import screenTools from '../../records/workshop-screen-tool-records.json' with {
 const SCREEN_TOOL_ROWS = screenTools.records.map(record => record.payload).filter(row => row?.screen?.surface);
 import { failedState } from './failure';
 import { goTo } from './open-screen';
-import type { ToolInput, ToolInputSchema } from './tool-inputs';
+import type { ToolInputSchema } from './tool-inputs';
 import { onStoreChange } from './store-changes';
 import { toolScreenRequest } from './tool-screen-requests.mjs';
 import { preserveScreenInputs, type ScreenProps, type Unmount } from './lazy-screen';
@@ -67,10 +56,7 @@ import { declaredCall } from './declared-request';
 import type { PartsScreenHandle, PartsSpec } from './parts-screen';
 
 type ModuleSpec = { bundle?: string; file?: string; package?: string; entry?: string };
-/** `run` names a described screen's button, the heading over its boxes (`asks`) and over its answer (`returned`), as the
- *  tool's own DATA (Send, Sending, Sent). */
-type RunWords = { label?: string; busy_label?: string; icon?: string; returned?: string; asks?: string };
-export type Screen = { kind: string; spec?: PartsSpec; runtime?: string; label?: string; about?: string; shows?: string[]; inputs?: Record<string, ToolInput>; run?: RunWords; icon?: string; url?: string; entry?: string; input?: Record<string, unknown>; module?: ModuleSpec; requests?: Record<string, unknown>; resource_binding?: ResourcePresentationBinding };
+export type Screen = { kind: string; spec?: PartsSpec; runtime?: string; label?: string; about?: string; icon?: string; url?: string; entry?: string; input?: Record<string, unknown>; module?: ModuleSpec; requests?: Record<string, unknown>; resource_binding?: ResourcePresentationBinding };
 export type Descriptor = { id: string; label?: string; job?: string; description?: string; input_schema?: ToolInputSchema; output_schema?: JsonSchema; screen?: Screen };
 type Mount = (element: HTMLElement, props: { surfaceInput?: Record<string, unknown> }) => Unmount;
 type Props = ScreenProps;
@@ -79,23 +65,21 @@ export type Show = (element: HTMLElement, tool: Descriptor, screen: Screen, prop
 export const nameOf = (tool: Descriptor, screen: Screen) => screen.label ?? tool.label ?? tool.id;
 /** The line a person reads about the tool: its screen's own plain line; the AI-facing description only when it has none. */
 export const aboutOf = (tool: Descriptor, screen: Screen) => screen.about ?? tool.description ?? tool.job;
-// The screen of a tool whose description names none (invariant 4).
-const DESCRIBED: Screen = { kind: 'described' };
 // Lets go of whatever the host drew and empties it (invariant 5).
 const letGo = (element: HTMLElement) => () => { releaseScreenState(element); element.replaceChildren(); };
 export const sameInput = (left?: Record<string, unknown>, right?: Record<string, unknown>) => JSON.stringify(left ?? {}) === JSON.stringify(right ?? {});
 
-// The two screens the shared guide draws (a described tool and a web address) come with the guide, fetched when such a
-// screen first opens (./tool-screen-guide), so a tool whose screen is a module or a workspace screen never carries it.
-const guided = (kind: 'described' | 'web-address'): Show => (element, tool, screen, props, screens) => {
+// The `web-address` screen is drawn by the shared guide, which comes with ./web-address-screen, fetched when one first
+// opens, so a tool whose screen is a module or a workspace screen never carries it.
+const webAddressShow: Show = (element, tool, screen, props, screens) => {
   let gone = false;
   let latest = props;
   let shown: Unmount | null = null;
-  import('./tool-screen-guide').then(
+  import('./web-address-screen').then(
     module => {
       if (gone) return;
       releaseScreenState(element);
-      shown = module.GUIDED[kind](element, tool, screen, latest, screens);
+      shown = module.webAddress(element, tool, screen, latest, screens);
     },
     error => { if (!gone) mountScreenState(element, failedState(error, () => location.reload(), `${nameOf(tool, screen)} could not open`)); },
   );
@@ -275,7 +259,7 @@ const moduleScreen: Show = (element, tool, screen, props) => {
   return dispose;
 };
 
-const SHOWS: Record<string, Show> = { described: guided('described'), 'web-address': guided('web-address'), 'app-entry': appEntry, module: moduleScreen, parts: partsScreen };
+const SHOWS: Record<string, Show> = { 'web-address': webAddressShow, 'app-entry': appEntry, module: moduleScreen, parts: partsScreen };
 
 function unavailable(element: HTMLElement): () => void {
   mountScreenState(element, { status: 'empty', icon: 'Wrench', title: 'This tool has no screen here', description: 'Your AI can still use it. Open the Marketplace to see it.', action: goTo('Open the Marketplace', 'trillion.marketplace') });
@@ -335,10 +319,11 @@ export function mountToolScreen(element: HTMLElement, props: Props, screens: Rec
       shownDescriptor = signature;
       savedInput = nextSavedInput;
       unmount();
-      const screen = descriptor.screen ?? DESCRIBED;
-      shownScreenKind = screen.kind;
-      const show = SHOWS[screen.kind];
-      unmount = preserveScreenInputs(element, show ? show(element, descriptor, screen, resolvedProps, screens) : unavailable(element), resolvedProps);
+      // A tool that declares no screen has none: its job is done on the screen that already hosts it, or by the person's AI.
+      const screen = descriptor.screen;
+      shownScreenKind = screen?.kind ?? '';
+      const show = screen ? SHOWS[screen.kind] : undefined;
+      unmount = preserveScreenInputs(element, screen && show ? show(element, descriptor, screen, resolvedProps, screens) : unavailable(element), resolvedProps);
     }).catch(error => {
       // A read that failed says nothing about whether the tool has a screen: it is a failure, tried again, never "no screen".
       // The shared state takes the place of the loading rows in the same host, and lets go of it before the tool draws.

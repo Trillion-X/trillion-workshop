@@ -1244,10 +1244,10 @@
     {
       "source": "Trillion-X/trillion-apps",
       "from": "web/src/workspace/README.md",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "commit": "d00c4e41a8544f298b32fc8ee5ba3c17f0552f68",
       "to": "tools/workspace-screens/web/src/workspace/README.md",
-      "source_identity": "1f:e4f7457be1d7c04a39d9440bd6b0d2e9da884864fde7ad6731b5c85e28b3f83c",
-      "identity": "1f:e4f7457be1d7c04a39d9440bd6b0d2e9da884864fde7ad6731b5c85e28b3f83c",
+      "source_identity": "1f:2b2bf64262f5b2a0b4428f47249c14ac8b223e8c137816e0ab81274edc452702",
+      "identity": "1f:2b2bf64262f5b2a0b4428f47249c14ac8b223e8c137816e0ab81274edc452702",
       "found_by": "byte copy"
     },
     {
@@ -2279,10 +2279,10 @@
     {
       "source": "Trillion-X/trillion-apps",
       "from": "web/src/workspace/native-screen-program.json",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "commit": "d00c4e41a8544f298b32fc8ee5ba3c17f0552f68",
       "to": "tools/workspace-screens/web/src/workspace/native-screen-program.json",
-      "source_identity": "1f:5e27d37ed3fd66ea0986034da76c96060c97b93b24f3fd4ad166cb5c4e06f0a4",
-      "identity": "1f:5e27d37ed3fd66ea0986034da76c96060c97b93b24f3fd4ad166cb5c4e06f0a4",
+      "source_identity": "1f:07cb03e5672c4b1d9ff2070c642fa92cfd36f981c93b94f082607287db6328b4",
+      "identity": "1f:07cb03e5672c4b1d9ff2070c642fa92cfd36f981c93b94f082607287db6328b4",
       "found_by": "byte copy"
     },
     {
@@ -3442,24 +3442,6 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/src/workspace/tool-results.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/workspace-screens/web/src/workspace/tool-results.ts",
-      "source_identity": "1f:ba1b5ad9e77b51ebfba1bbf853f6599b1595ba6a8938c85446f4971c6bd55096",
-      "identity": "1f:ba1b5ad9e77b51ebfba1bbf853f6599b1595ba6a8938c85446f4971c6bd55096",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/src/workspace/tool-screen-guide.tsx",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/workspace-screens/web/src/workspace/tool-screen-guide.tsx",
-      "source_identity": "1f:8dbf20cf3b9a539547ca6984bce878aba6b981f3e4a0e3bdc06658d519f91002",
-      "identity": "1f:8dbf20cf3b9a539547ca6984bce878aba6b981f3e4a0e3bdc06658d519f91002",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
       "from": "web/src/workspace/tool-screen-requests.mjs",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
       "to": "tools/workspace-screens/web/src/workspace/tool-screen-requests.mjs",
@@ -3470,10 +3452,19 @@
     {
       "source": "Trillion-X/trillion-apps",
       "from": "web/src/workspace/tool-screen.tsx",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "commit": "d00c4e41a8544f298b32fc8ee5ba3c17f0552f68",
       "to": "tools/workspace-screens/web/src/workspace/tool-screen.tsx",
-      "source_identity": "1f:2800d98bcaec9f6e2f12911c0b02baf5abc444eabfd4cd037aff483aca8324ae",
-      "identity": "1f:2800d98bcaec9f6e2f12911c0b02baf5abc444eabfd4cd037aff483aca8324ae",
+      "source_identity": "1f:d3998dea79a044fb7c97d4952d6afdca907157164861b60d88d112edac324904",
+      "identity": "1f:d3998dea79a044fb7c97d4952d6afdca907157164861b60d88d112edac324904",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/src/workspace/web-address-screen.tsx",
+      "commit": "d00c4e41a8544f298b32fc8ee5ba3c17f0552f68",
+      "to": "tools/workspace-screens/web/src/workspace/web-address-screen.tsx",
+      "source_identity": "1f:12e950b52aedb582ff976405c1b7283bc5f7eb6a82ec5f60bf37436cf337b471",
+      "identity": "1f:12e950b52aedb582ff976405c1b7283bc5f7eb6a82ec5f60bf37436cf337b471",
       "found_by": "byte copy"
     },
     {
