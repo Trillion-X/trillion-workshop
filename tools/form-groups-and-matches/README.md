@@ -87,3 +87,18 @@ Keeps groups of anything in a person's records (lists, collections, folders, boa
 **Not carried:** the old group read and write targets' engine framing (identity-text read-current frames, write batches, host partition labels, producer requests), the interaction-program descriptor fold with its ten references to old packages, the subject-participant hosted join doorway (access-rule admission, signed owner events, engine CAS writes: joining a group is `add-member` here), the board surfaces and screens (screens), and the group package's board features (layouts, connectors, exports and imports, board analytics), which belong to a board tool.
 
 **Depended on by:** Trillion, which reads `tool-rows.json` when it deploys.
+
+## Carried from interaction-program
+
+The package `interaction-program` is carried whole where this folder had not: `from-bitfield-packages/interaction-program/` holds its files under the package's own paths, byte for byte, with `moved-from.json` (source commit and both identities of each file). Only import paths differ, set to where this repository keeps the matching leaves.
+
+| Carried file | What it is |
+|---|---|
+| `show/mount-community-console.tsx`, `show/mount-community-feed.tsx` | The community console (roles matrix, points, pages, community setup, matchmaking, matches) and the community feed screens. Their data layer still calls the old package runtime (`useBitfieldData`, `sendRequestToBitfieldTarget`), so they open no screen until that is swapped for the records door. |
+| `read-data/console-selectors.mjs`, `read-data/feed-selectors.mjs` | The pure models behind those screens (role matrix, permission toggles, measure, sequence, surface, program and setup models; post models, relative time). |
+| `read-data/interaction-program-fold.mjs` | The one place that knows the `interaction-program` descriptor shape: raw records into typed programs, and the ten references each program names. |
+| `do-work/process-scripts/select-pairs-cli.mjs`, `render-tribe-matches.mjs` | The compute.process mount that turns retrieval shortlists, grouping DATA and consent records into groups, introductions and relationship writes, and the page that shows the matches. |
+| `things-to-store-and-run.json` | The package's records: five `interaction-program` descriptors, the `run-match-cycle` workflow definition, the owner-authored seed DATA, input descriptors and record contracts. Not wired to a row. |
+| `read-data/*.test.mjs`, `tests/contract.test.mjs` | The package's tests: console selectors, feed selectors and the descriptor fold run and pass here (`node --test`); the other tests are held (names end in `.held` or the file reads source by package path), with each reason in `moved-from.json` under `held`. |
+
+The grouping, configuration, capacity and intake-evidence leaves of the package are in `tools/community-logic-match/` and `tools/match-community-members/` (vendored from the package with import paths changed); `read-data/select-groups.mjs`, `expected-value.mjs`, `select-configurations.mjs`, `capacity-assignment.mjs` and `match-evidence.mjs` here are a second implementation of the same jobs and stay until their rows are pointed at the vendored originals.

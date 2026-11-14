@@ -1,0 +1,1518 @@
+{
+  "package": "person-list",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::person-list::primitive-contract",
+      "path": [
+        "package-primitive",
+        "contract"
+      ],
+      "payload": {
+        "kind": "bitfield-package-primitive-contract",
+        "version": 1,
+        "package": "person-list",
+        "capability": "addressed-record-surface",
+        "owns": [
+          "record_field_descriptors",
+          "record_projection_descriptors",
+          "record_metric_descriptors",
+          "record_owner_action_descriptors",
+          "record_surface_descriptors"
+        ],
+        "reuses": [
+          "eeaf-addressed-records",
+          "workflow-slot",
+          "owner-action",
+          "process-session",
+          "ui",
+          "screen-look"
+        ],
+        "new_slot": false,
+        "isolation": "package source reads declared inputs and emits owner-action requests only"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::person-list::factflow::surface",
+      "path": [
+        "package-primitive",
+        "factflow"
+      ],
+      "payload": {
+        "kind": "bitfield-eeaf-factflow",
+        "package": "person-list",
+        "fact_sources": [
+          {
+            "address": "package::person-list::primitive-contract"
+          }
+        ],
+        "interpreter_facts": {
+          "facts": [
+            {
+              "address_label": "person-list.fact.person-list-projection"
+            },
+            {
+              "address_label": "person-list.fact.person-search-request"
+            },
+            {
+              "address_label": "person-list.fact.person-list-action-request"
+            }
+          ],
+          "intents": [
+            {
+              "address_label": "person-list.intent.search-people"
+            }
+          ],
+          "projections": [
+            {
+              "address_label": "person-list.projection.people"
+            },
+            {
+              "address_label": "person-list.projection.person-search"
+            }
+          ],
+          "materializations": [
+            {
+              "address_label": "person-list.surface.person-list"
+            }
+          ]
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::person-list::input::people",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "people",
+        "value_address_label": "people",
+        "value": {
+          "projection": {
+            "op": "rows",
+            "fields": [
+              {
+                "column": 0,
+                "key": "person_ref",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              }
+            ]
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "package": "person-list"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::person-list::input::person-profiles",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "person-profiles",
+        "value_address_label": "person-profiles",
+        "value": {
+          "projection": {
+            "op": "rows",
+            "fields": [
+              {
+                "column": 0,
+                "key": "actor_ref",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "request_json",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              }
+            ]
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "package": "person-list"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::person-list::input::person-search",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "person-search",
+        "value_address_label": "person-search",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "package": "person-list"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::person-list::owner-action::search-people",
+      "path": [
+        "package-primitive",
+        "owner-action"
+      ],
+      "payload": {
+        "kind": "bitfield-owner-action-contract",
+        "package": "person-list",
+        "action": "search-people",
+        "request_shape": "json-object",
+        "response_shape": "json-object",
+        "execution_owner": "chosen-by-package-set-data",
+        "source_imports_allowed": false
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::person-list::workflow-action::record-person-list-action-request",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:person-list.record-person-list-action-request",
+        "partition_key": "runtime-partition",
+        "kind": "action",
+        "is_active": true,
+        "name": "person-list.record-person-list-action-request",
+        "description": "Record one generic person-list-action-request from an opaque owner-action request.",
+        "input_schema": {},
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "event_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "entity|person-list-action-request:",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "event_ref"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "entity"
+                  ],
+                  "payload": {
+                    "table": "entity",
+                    "id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "event_ref"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "person-list-action-request:",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "event_ref"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "event_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "entity_types|person-list-action-request:",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "event_ref"
+                              }
+                            },
+                            "|type:person_list_action_request"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "entity_types"
+                  ],
+                  "payload": {
+                    "table": "entity_types",
+                    "entity_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "event_ref"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "person-list-action-request:",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "event_ref"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "type_id": "type:person_list_action_request"
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "event_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|person-list-action-request:",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "event_ref"
+                              }
+                            },
+                            "|prop:person_list_action_request:action|type:string"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "attribute_fact"
+                  ],
+                  "payload": {
+                    "table": "attribute_fact",
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "event_ref"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "person-list-action-request:",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "event_ref"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "property_id": "prop:person_list_action_request:action",
+                    "type_id": "type:string",
+                    "value_json": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "action"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.stringify",
+                          "args": {
+                            "format": "json"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "event_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|person-list-action-request:",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "event_ref"
+                              }
+                            },
+                            "|prop:person_list_action_request:actor_ref|type:string"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "attribute_fact"
+                  ],
+                  "payload": {
+                    "table": "attribute_fact",
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "event_ref"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "person-list-action-request:",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "event_ref"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "property_id": "prop:person_list_action_request:actor_ref",
+                    "type_id": "type:string",
+                    "value_json": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "actor_ref"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.stringify",
+                          "args": {
+                            "format": "json"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "event_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|person-list-action-request:",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "event_ref"
+                              }
+                            },
+                            "|prop:person_list_action_request:target_ref|type:string"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "attribute_fact"
+                  ],
+                  "payload": {
+                    "table": "attribute_fact",
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "event_ref"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "person-list-action-request:",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "event_ref"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "property_id": "prop:person_list_action_request:target_ref",
+                    "type_id": "type:string",
+                    "value_json": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "target_ref"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.stringify",
+                          "args": {
+                            "format": "json"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "event_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|person-list-action-request:",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "event_ref"
+                              }
+                            },
+                            "|prop:person_list_action_request:requested_at|type:string"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "attribute_fact"
+                  ],
+                  "payload": {
+                    "table": "attribute_fact",
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "event_ref"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "person-list-action-request:",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "event_ref"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "property_id": "prop:person_list_action_request:requested_at",
+                    "type_id": "type:string",
+                    "value_json": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "requested_at"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.stringify",
+                          "args": {
+                            "format": "json"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "event_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|person-list-action-request:",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "event_ref"
+                              }
+                            },
+                            "|prop:person_list_action_request:request|type:json"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "attribute_fact"
+                  ],
+                  "payload": {
+                    "table": "attribute_fact",
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "event_ref"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "person-list-action-request:",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "event_ref"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "property_id": "prop:person_list_action_request:request",
+                    "type_id": "type:json",
+                    "value_json": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": ""
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.stringify",
+                          "args": {
+                            "format": "json"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::person-list::placeable-surface::person-list",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "placeable-surface",
+        "id": "person-list.panel",
+        "label": "People",
+        "material_target": "person-list",
+        "factflow_ref": "package::person-list::factflow::surface",
+        "order": 120,
+        "package_entry": {
+          "package_name": "person-list",
+          "entry_name": "person-list"
+        },
+        "surface_id": "person-list.panel",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000120:person-list.panel"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::person-list::workflow-action::refresh-people",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "remove": false,
+      "payload": {
+        "id": "action:person-list.refresh-people",
+        "partition_key": "runtime-partition",
+        "kind": "action",
+        "is_active": true,
+        "name": "person-list.refresh-people",
+        "description": "Publish the distinct actor refs seen in current facts as the people directory feed.",
+        "input_schema": {},
+        "steps": [
+          {
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "output": {
+                "decode": "bytes"
+              },
+              "input": {
+                "operation": "find-current-items",
+                "in": "attribute_fact",
+                "select": [
+                  "subject_id",
+                  "property_id",
+                  "value_json"
+                ],
+                "where": {
+                  "all": [
+                    {
+                      "field": "property_id",
+                      "in": [
+                        "prop:group_record:actor_ref",
+                        "prop:item_record:actor_ref"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": "people",
+                  "path": [],
+                  "payload_bytes": {
+                    "value_to_bytes": "cell_table",
+                    "rows": {
+                      "source": {
+                        "kind": "bytes",
+                        "ref": "step_0"
+                      },
+                      "format": "json",
+                      "path": [
+                        "items"
+                      ]
+                    },
+                    "group_by": {
+                      "path": [
+                        "value_json"
+                      ]
+                    },
+                    "columns": [
+                      {
+                        "column": 0,
+                        "match": [
+                          {
+                            "path": [
+                              "property_id"
+                            ],
+                            "in": [
+                              "prop:group_record:actor_ref",
+                              "prop:item_record:actor_ref"
+                            ]
+                          }
+                        ],
+                        "source": {
+                          "path": [
+                            "value_json"
+                          ],
+                          "parse": {
+                            "format": "json"
+                          }
+                        },
+                        "value": {
+                          "value_to_bytes": "text"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::person-list::workflow-action::publish-leaderboard-config",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:person-list.publish-leaderboard-config",
+        "partition_key": "runtime-partition",
+        "kind": "action",
+        "is_active": true,
+        "name": "person-list.publish-leaderboard-config",
+        "description": "Publish leaderboard scoring weights and level thresholds (Society data — edit this record to retune points, zero code changes).",
+        "input_schema": {},
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": "leaderboard-config",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "weights": {
+                      "post_created": 5,
+                      "comment_added": 3,
+                      "like_given": 1,
+                      "group_joined": 2,
+                      "quest_completed": 10
+                    },
+                    "levels": [
+                      {
+                        "level": 1,
+                        "name": "Member",
+                        "min_points": 0
+                      },
+                      {
+                        "level": 2,
+                        "name": "Contributor",
+                        "min_points": 10
+                      },
+                      {
+                        "level": 3,
+                        "name": "Regular",
+                        "min_points": 30
+                      },
+                      {
+                        "level": 4,
+                        "name": "Leader",
+                        "min_points": 75
+                      },
+                      {
+                        "level": 5,
+                        "name": "Legend",
+                        "min_points": 150
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::person-list::input::leaderboard-config",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "leaderboard-config",
+        "value_address_label": "leaderboard-config",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "package": "person-list"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::person-list::placeable-surface::leaderboard",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "placeable-surface",
+        "id": "person-list.leaderboard",
+        "label": "Leaderboard",
+        "material_target": "leaderboard",
+        "factflow_ref": "package::person-list::factflow::surface",
+        "order": 125,
+        "package_entry": {
+          "package_name": "person-list",
+          "entry_name": "leaderboard"
+        },
+        "surface_id": "person-list.leaderboard",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000125:person-list.leaderboard"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::person-list::entry::leaderboard",
+      "path": [
+        "packages",
+        "person-list",
+        "entries",
+        "leaderboard"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "leaderboard",
+        "source_path": "show/mount-leaderboard.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-leaderboard"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::person-list::entry::person-list",
+      "path": [
+        "packages",
+        "person-list",
+        "entries",
+        "person-list"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "person-list",
+        "source_path": "show/mount-person-list.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-person-list"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-person-list",
+      "build": {
+        "sequence": {
+          "inputs": [],
+          "input_trees": [],
+          "steps": [
+            {
+              "name": "build",
+              "process": {
+                "argv": [
+                  "node",
+                  "bitfield-package-entry-builder"
+                ],
+                "cwd": ".",
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": ".bitfield-build-output"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              },
+              "workspace_bindings": {
+                "environment": [],
+                "arguments": [
+                  {
+                    "index": 1,
+                    "parts": [
+                      {
+                        "kind": "workspace_root"
+                      },
+                      {
+                        "kind": "literal",
+                        "value": "/scripts/build-package-entry-byte.mjs"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "predecessor_outputs": []
+            }
+          ]
+        },
+        "output": {
+          "step": "build",
+          "mount_path": ".bitfield-build-output"
+        },
+        "request": {
+          "entry_name": "person-list",
+          "source_file": "show/mount-person-list.tsx",
+          "source_kind": "text/typescript-jsx"
+        }
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-leaderboard",
+      "build": {
+        "sequence": {
+          "inputs": [],
+          "input_trees": [],
+          "steps": [
+            {
+              "name": "build",
+              "process": {
+                "argv": [
+                  "node",
+                  "bitfield-package-entry-builder"
+                ],
+                "cwd": ".",
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": ".bitfield-build-output"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              },
+              "workspace_bindings": {
+                "environment": [],
+                "arguments": [
+                  {
+                    "index": 1,
+                    "parts": [
+                      {
+                        "kind": "workspace_root"
+                      },
+                      {
+                        "kind": "literal",
+                        "value": "/scripts/build-package-entry-byte.mjs"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "predecessor_outputs": []
+            }
+          ]
+        },
+        "output": {
+          "step": "build",
+          "mount_path": ".bitfield-build-output"
+        },
+        "request": {
+          "entry_name": "leaderboard",
+          "source_file": "show/mount-leaderboard.tsx",
+          "source_kind": "text/typescript-jsx"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "leaderboard-config",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "weights": {
+          "post_created": 5,
+          "comment_added": 3,
+          "like_given": 1,
+          "group_joined": 2,
+          "quest_completed": 10
+        },
+        "levels": [
+          {
+            "level": 1,
+            "name": "Member",
+            "min_points": 0
+          },
+          {
+            "level": 2,
+            "name": "Contributor",
+            "min_points": 10
+          },
+          {
+            "level": 3,
+            "name": "Regular",
+            "min_points": 30
+          },
+          {
+            "level": 4,
+            "name": "Leader",
+            "min_points": 75
+          },
+          {
+            "level": 5,
+            "name": "Legend",
+            "min_points": 150
+          }
+        ],
+        "metrics": [
+          {
+            "key": "recent",
+            "label": "7 days",
+            "lookback_days": 7,
+            "order": 10
+          },
+          {
+            "key": "month",
+            "label": "30 days",
+            "lookback_days": 30,
+            "order": 20
+          },
+          {
+            "key": "total",
+            "label": "All time",
+            "lookback_days": null,
+            "order": 30
+          }
+        ],
+        "sort_metric_key": "total"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::person-list::input::subject-participants",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "subject-participants",
+        "value_address_label": "subject-participants",
+        "value": {
+          "projection": {
+            "op": "rows",
+            "fields": [
+              {
+                "column": 0,
+                "key": "subject_id",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "subject_ref",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "actor_ref",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 3,
+                "key": "role_ref",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 4,
+                "key": "state_ref",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 5,
+                "key": "created_at",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              }
+            ]
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "package": "person-list"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::person-list::input::record-field-descriptors",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "record-field-descriptors",
+        "value_address_label": "person-list-record-field-descriptors",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "package": "person-list"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::person-list::record-field-descriptors",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "record-field-descriptor-set",
+        "package": "person-list",
+        "fields": [
+          {
+            "key": "display",
+            "label": "Name",
+            "source_keys": [
+              "name",
+              "full_name",
+              "display_name",
+              "title",
+              "label"
+            ],
+            "display_role": "title",
+            "searchable": true,
+            "order": 10
+          },
+          {
+            "key": "summary",
+            "label": "Headline",
+            "source_keys": [
+              "headline",
+              "tagline",
+              "bio",
+              "about",
+              "summary",
+              "description"
+            ],
+            "display_role": "subtitle",
+            "searchable": true,
+            "order": 20
+          },
+          {
+            "key": "place",
+            "label": "Location",
+            "source_keys": [
+              "location",
+              "city"
+            ],
+            "display_role": "detail",
+            "searchable": true,
+            "order": 30
+          }
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::person-list::input::owner-action-descriptors",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "owner-action-descriptors",
+        "value_address_label": "person-list-owner-action-descriptors",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "package": "person-list"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::person-list::owner-action-descriptors",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "record-owner-action-descriptor-set",
+        "package": "person-list",
+        "actions": [
+          {
+            "key": "search",
+            "target": "slot::workflow",
+            "operation": "execute_definition",
+            "definition_id": "action:person-list.record-person-list-action-request",
+            "include_steps": false,
+            "include_output": false,
+            "input_template": {
+              "action": "search"
+            }
+          },
+          {
+            "key": "refresh-primary",
+            "target": "slot::workflow",
+            "operation": "execute_definition",
+            "definition_id": "action:person-list.refresh-people",
+            "include_steps": false,
+            "include_output": false,
+            "input_template": {}
+          },
+          {
+            "key": "refresh-fields",
+            "target": "slot::workflow",
+            "operation": "execute_definition",
+            "definition_id": "action:person-profile.refresh-person-profiles",
+            "include_steps": false,
+            "include_output": false,
+            "input_template": {}
+          },
+          {
+            "key": "add-person",
+            "target": "slot::workflow",
+            "operation": "execute_definition",
+            "definition_id": "action:account-identity.derive",
+            "include_steps": false,
+            "include_output": true,
+            "input_template": {}
+          }
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::person-list::input::record-metric-descriptors",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "record-metric-descriptors",
+        "value_address_label": "person-list-record-metric-descriptors",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "package": "person-list"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::person-list::record-metric-descriptors",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "record-metric-descriptor-set",
+        "package": "person-list",
+        "metrics": [
+          {
+            "key": "recent",
+            "label": "7 days",
+            "lookback_days": 7,
+            "order": 10
+          },
+          {
+            "key": "month",
+            "label": "30 days",
+            "lookback_days": 30,
+            "order": 20
+          },
+          {
+            "key": "total",
+            "label": "All time",
+            "lookback_days": null,
+            "order": 30
+          }
+        ],
+        "sort_metric_key": "total"
+      },
+      "remove": false
+    }
+  ]
+}

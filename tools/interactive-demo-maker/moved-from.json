@@ -1,0 +1,39 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages packages/interactive-demo-maker: each names its source path and commit, the identity of its source bytes and of its bytes here. The first commit that holds them is the byte copy; later commits change import paths. A file whose name ends in .held has the same bytes and cannot load or pass here yet; its reason is in `held`.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/interactive-demo-maker/read-data/configured-record-workspace.ts",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "to": "tools/interactive-demo-maker/from-bitfield-packages/interactive-demo-maker/read-data/configured-record-workspace.ts",
+      "source_identity": "1f:9b1ad42f97f7803b60d14404c472133a917aa0ab8dab55738789846b7ab61c33",
+      "identity": "1f:9b1ad42f97f7803b60d14404c472133a917aa0ab8dab55738789846b7ab61c33"
+    },
+    {
+      "from": "packages/interactive-demo-maker/do-work/configured-record-workspace-actions.ts",
+      "commit": "984b73124efc813ae678f1137bbe9e8c5059b655",
+      "to": "tools/interactive-demo-maker/from-bitfield-packages/interactive-demo-maker/do-work/configured-record-workspace-actions.ts",
+      "source_identity": "1f:bfba28f7593948a32d9e25e1e8e0450dfb063edf9345f83f3adf96f500664f48",
+      "identity": "1f:bfba28f7593948a32d9e25e1e8e0450dfb063edf9345f83f3adf96f500664f48"
+    },
+    {
+      "from": "packages/interactive-demo-maker/tests/interactive-demo-maker-backend.test.ts",
+      "commit": "984b73124efc813ae678f1137bbe9e8c5059b655",
+      "to": "tools/interactive-demo-maker/from-bitfield-packages/interactive-demo-maker/tests/interactive-demo-maker-backend.test.ts.held",
+      "source_identity": "1f:8347e80873eff674c948d58ac100592ed2912e2d76cc386fa3797a72cf19c63e",
+      "identity": "1f:8347e80873eff674c948d58ac100592ed2912e2d76cc386fa3797a72cf19c63e"
+    },
+    {
+      "from": "packages/interactive-demo-maker/things-to-store-and-run.json",
+      "commit": "cf0001ab75c9cc4a59b77608b1a6d1f1755c1bcc",
+      "to": "tools/interactive-demo-maker/from-bitfield-packages/interactive-demo-maker/things-to-store-and-run.json",
+      "source_identity": "1f:77b5dc337ddeae40982c790917acfcf65a2bcdad0b0c5e44aff2d994c0320854",
+      "identity": "1f:77b5dc337ddeae40982c790917acfcf65a2bcdad0b0c5e44aff2d994c0320854"
+    }
+  ],
+  "held": {
+    "tools/interactive-demo-maker/from-bitfield-packages/interactive-demo-maker/tests/interactive-demo-maker-backend.test.ts.held": "vitest: the Workshop runs node:test; the file imports vitest"
+  }
+}

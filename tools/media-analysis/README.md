@@ -43,3 +43,18 @@ The config file (the one argument) may hold `picture_model`, `speech_model`, `qu
 **Depends on:** Python 3.10 or later with numpy, pillow, torch, open_clip_torch, sentence-transformers and tokenizers; ffmpeg and ffprobe.
 
 **Depended on by:** nothing in this repository.
+
+## Carried from the package
+
+`from-bitfield-packages/media-analysis/` holds what the package `media-analysis` kept and `do-work/meaning_index.py` does not do, under the package's own paths, byte for byte, with `moved-from.json`:
+
+| File | What it is |
+|---|---|
+| `do-work/process-scripts/embed-video-frames-clip.py` | One-shot shot-based keyframe sampling (shot detection, hybrid keyframes), CLIP image embedding, near-duplicate removal and a preview sheet. `meaning_index.py` samples at a fixed interval instead. |
+| `do-work/process-scripts/embed-text-clip-query.py` | One-shot CLIP query encoder. |
+| `do-work/process-scripts/make-media-analysis-records-from-command-output.py` | Turns analysis command output into claim, embedding, chapter, thumbnail and error records. |
+| `do-work/process-scripts/test_*.py` | The four Python tests of those scripts (plain scripts run by the Python that holds the models). |
+| `do-work/submit-media-analysis.ts`, `show/MediaAnalysisPanel.tsx`, `show/mount-media-analysis.tsx` | The request builder and the request screen. They call the old package runtime, so they open no screen until swapped for the records door. |
+| `things-to-store-and-run.json` | The package's records (capability, surface, entry, contracts, workflow actions). Not wired to a row. |
+
+The package's media-resolve (bank and stock lookup) is `tools/find-media-for-a-description/`. The package's TRIBE v2 script was not committed in the package (uncommitted file), so only `tools/predict-viewer-response-to-a-video/` holds that job.

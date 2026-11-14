@@ -1,0 +1,94 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages packages/model-response: each names its source path and commit, the identity of its source bytes and of its bytes here. The first commit that holds them is the byte copy; later commits change import paths. A file whose name ends in .held has the same bytes and cannot load or pass here yet; its reason is in `held`.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/model-response/do-work/materialize-addressed-content-parts.mjs",
+      "commit": "ebf06ab600ff691f2e76df7803a88b4a5e8cb8c4",
+      "to": "tools/model-response/from-bitfield-packages/model-response/do-work/materialize-addressed-content-parts.mjs",
+      "source_identity": "1f:559e6a536d09d6c4f89c5aba30651a3b30ea478b16aed8a932d986ae2592779b",
+      "identity": "1f:559e6a536d09d6c4f89c5aba30651a3b30ea478b16aed8a932d986ae2592779b"
+    },
+    {
+      "from": "packages/model-response/do-work/materialize-addressed-content-parts.test.mjs",
+      "commit": "ebf06ab600ff691f2e76df7803a88b4a5e8cb8c4",
+      "to": "tools/model-response/from-bitfield-packages/model-response/do-work/materialize-addressed-content-parts.test.mjs.held",
+      "source_identity": "1f:f06db93b61da0a92f9cede21ff97a3b0b51d555401016fa985c7a5c9cc0e1525",
+      "identity": "1f:f06db93b61da0a92f9cede21ff97a3b0b51d555401016fa985c7a5c9cc0e1525"
+    },
+    {
+      "from": "packages/model-response/do-work/whose-money-pays-for-this.ts",
+      "commit": "7e4af0df56b279d9216ea39286f0933b3899cb70",
+      "to": "tools/model-response/from-bitfield-packages/model-response/do-work/whose-money-pays-for-this.ts",
+      "source_identity": "1f:b505cf32a66a85f679b5a75f4247ce8f66ba71844e45db44f07ef80bf3389fc3",
+      "identity": "1f:b505cf32a66a85f679b5a75f4247ce8f66ba71844e45db44f07ef80bf3389fc3"
+    },
+    {
+      "from": "packages/model-response/do-work/whose-money-pays-for-this.test.ts",
+      "commit": "7e4af0df56b279d9216ea39286f0933b3899cb70",
+      "to": "tools/model-response/from-bitfield-packages/model-response/do-work/whose-money-pays-for-this.test.ts.held",
+      "source_identity": "1f:109e8e100ced3102fa295578b78876b4505d4fbabb7a5c00c451f429a539d372",
+      "identity": "1f:109e8e100ced3102fa295578b78876b4505d4fbabb7a5c00c451f429a539d372"
+    },
+    {
+      "from": "packages/model-response/read-data/an-answer-arriving-in-documents.ts",
+      "commit": "ebf06ab600ff691f2e76df7803a88b4a5e8cb8c4",
+      "to": "tools/model-response/from-bitfield-packages/model-response/read-data/an-answer-arriving-in-documents.ts",
+      "source_identity": "1f:db889324ffbdf20776a64b0f9ba75392fab0bae6e70ca64dca1bcdb4a700311c",
+      "identity": "1f:db889324ffbdf20776a64b0f9ba75392fab0bae6e70ca64dca1bcdb4a700311c"
+    },
+    {
+      "from": "packages/model-response/__tests__/a-streamed-answer-reads-like-any-other.test.ts",
+      "commit": "ebf06ab600ff691f2e76df7803a88b4a5e8cb8c4",
+      "to": "tools/model-response/from-bitfield-packages/model-response/__tests__/a-streamed-answer-reads-like-any-other.test.ts.held",
+      "source_identity": "1f:fb0a4113b09a6430c717ce7573659994c0d20d7f443378a36e0654b6d821bb40",
+      "identity": "1f:fb0a4113b09a6430c717ce7573659994c0d20d7f443378a36e0654b6d821bb40"
+    },
+    {
+      "from": "packages/model-response/__tests__/the-words-of-a-json-answer-still-being-written.test.ts",
+      "commit": "ebf06ab600ff691f2e76df7803a88b4a5e8cb8c4",
+      "to": "tools/model-response/from-bitfield-packages/model-response/__tests__/the-words-of-a-json-answer-still-being-written.test.ts.held",
+      "source_identity": "1f:68b5b7bb235cc07a2ac94c1218aa41c34e4f797222dd448a81628a16fea73fe2",
+      "identity": "1f:68b5b7bb235cc07a2ac94c1218aa41c34e4f797222dd448a81628a16fea73fe2"
+    },
+    {
+      "from": "packages/model-response/do-work/request-model-response.ts",
+      "commit": "5482a2a3cc0d00628e630487f5c41299ce8c392f",
+      "to": "tools/model-response/from-bitfield-packages/model-response/do-work/request-model-response.ts.held",
+      "source_identity": "1f:17eaf0baa3f44d9df65d9f564cdf926106d756964c317135306b6efd5055461c",
+      "identity": "1f:17eaf0baa3f44d9df65d9f564cdf926106d756964c317135306b6efd5055461c"
+    },
+    {
+      "from": "packages/model-response/do-work/request-model-response.test.ts",
+      "commit": "5482a2a3cc0d00628e630487f5c41299ce8c392f",
+      "to": "tools/model-response/from-bitfield-packages/model-response/do-work/request-model-response.test.ts.held",
+      "source_identity": "1f:18e6a65d05b80edb1385ef123ca1d37666e1af4041d83fac005630e15547451a",
+      "identity": "1f:18e6a65d05b80edb1385ef123ca1d37666e1af4041d83fac005630e15547451a"
+    },
+    {
+      "from": "packages/model-response/index.ts",
+      "commit": "6612faac1b2507d9fc13976f3dd29343962d473b",
+      "to": "tools/model-response/from-bitfield-packages/model-response/index.ts.held",
+      "source_identity": "1f:4711cc2d527923539c62ee85cc605042570ac158796fbc49efafcfcf5a789efb",
+      "identity": "1f:4711cc2d527923539c62ee85cc605042570ac158796fbc49efafcfcf5a789efb"
+    },
+    {
+      "from": "packages/model-response/things-to-store-and-run.json",
+      "commit": "5482a2a3cc0d00628e630487f5c41299ce8c392f",
+      "to": "tools/model-response/from-bitfield-packages/model-response/things-to-store-and-run.json",
+      "source_identity": "1f:3714afb3f318c94f2701d5a8a9b6ec894ffc60b2f19d529d07d2ffae493cbf93",
+      "identity": "1f:3714afb3f318c94f2701d5a8a9b6ec894ffc60b2f19d529d07d2ffae493cbf93"
+    }
+  ],
+  "held": {
+    "tools/model-response/from-bitfield-packages/model-response/do-work/whose-money-pays-for-this.test.ts.held": "vitest: the Workshop runs node:test; the file imports vitest",
+    "tools/model-response/from-bitfield-packages/model-response/do-work/materialize-addressed-content-parts.test.mjs.held": "the test reads a fixture image (tests/emergent-capability-graph/fixtures/multimodal/meal-1x1.png) of another package tree that is not carried",
+    "tools/model-response/from-bitfield-packages/model-response/__tests__/a-streamed-answer-reads-like-any-other.test.ts.held": "vitest: the Workshop runs node:test; the file imports vitest",
+    "tools/model-response/from-bitfield-packages/model-response/__tests__/the-words-of-a-json-answer-still-being-written.test.ts.held": "vitest: the Workshop runs node:test; the file imports vitest",
+    "tools/model-response/from-bitfield-packages/model-response/do-work/request-model-response.test.ts.held": "vitest: the Workshop runs node:test; the file imports vitest",
+    "tools/model-response/from-bitfield-packages/model-response/do-work/request-model-response.ts.held": "imports the retired package runtime (sendRequestToBitfieldTarget, createTrustedRuntimeIdMinter) and sends slot::workflow requests; needs the records door and the Workshop model call before it can load",
+    "tools/model-response/from-bitfield-packages/model-response/index.ts.held": "re-exports the held request-model-response.ts"
+  }
+}
