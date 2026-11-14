@@ -76,7 +76,7 @@ export async function writeJoinedCopy(spec, door) {
     ? { code: 'copy_over_size', words: `${name} holds ${bytes} bytes, ${bytes - mostBytes} over the ${mostBytes} to warn at; it is written anyway.` }
     : null;
   const warned = warning ? { warning } : {};
-  const read = (await door.run(READ, { root, folder: '/', paths: [name], content: false, limit: 1 }))?.result?.rows ?? [];
+  const read = (await door.run(READ, { root, folder: '/', paths: [name], content: false, limit: 1 }))?.rows ?? [];
   const current = read.find(row => row.id === name);
   const identity = current ? current.identity ?? current.values?.['file.identity'] ?? null : null;
   const wanted = makeHashCodeHexFromBytes(new TextEncoder().encode(text));

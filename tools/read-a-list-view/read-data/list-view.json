@@ -26,26 +26,26 @@
     "documents": {
       "tool": "tool:read-documents-as-list-rows",
       "input": {"folder": "{of}", "match": "{match}", "root": "{root}", "paths_file": "{paths_file}"},
-      "rows_at": "result.rows",
-      "next_at": "result.next",
-      "change": {"tool": "tool:change-a-document-row", "input": {"folder": "{of}", "root": "{root}"}, "answer_at": "result"},
+      "rows_at": "rows",
+      "next_at": "next",
+      "change": {"tool": "tool:change-a-document-row", "input": {"folder": "{of}", "root": "{root}"}},
       "copy": {"field": "document.text", "parent_field": "document.parent", "index_field": "document.part", "count_field": "document.parts", "identity_field": "file.identity", "changed_field": "file.mtime", "properties_prefix": "note.", "owned_prefixes": ["note.", "file.", "document."]},
       "about": "the markdown documents in a folder the person granted; each document a row, its frontmatter its fields (tools/documents-as-list-rows). As a list's copy (original: list), tool:change-a-document-row writes a whole document or removes one only while it is still the one read; copy names the fields that hold a document's text, its parts and the identity of the file a row was made from"
     },
     "json-items": {
       "tool": "tool:read-json-items-as-list-rows",
       "input": {"root": "{root}", "file": "{file}", "at": "{at}", "key": "{key}"},
-      "rows_at": "result.rows",
-      "next_at": "result.next",
-      "change": {"tool": "tool:change-a-json-item-row", "input": {"root": "{root}", "file": "{file}", "at": "{at}", "key": "{key}", "indent": "{indent}"}, "answer_at": "result"},
+      "rows_at": "rows",
+      "next_at": "next",
+      "change": {"tool": "tool:change-a-json-item-row", "input": {"root": "{root}", "file": "{file}", "at": "{at}", "key": "{key}", "indent": "{indent}"}},
       "copy": {"field": "copy.text", "parent_field": "copy.parent", "index_field": "copy.part", "count_field": "copy.parts", "identity_field": "copy.identity", "changed_field": "file.mtime", "properties_prefix": "", "owned_prefixes": ["copy.", "file."], "list_only": []},
       "about": "the items of one JSON file at one path (rules, checks, any objects with an id; tools/documents-as-list-rows read-data/json-items.mjs): each item a row holding its keys as they are, its JSON text copy.text; a list names its own fields (a switch, who judges the row) in its source content.list_only, and those never reach the file. As a list's copy (original: list), tool:change-a-json-item-row writes or removes one item only while it is still the one read and keeps the rest of the file"
     },
     "namespace-documents": {
       "tool": "tool:read-namespace-documents-as-list-rows",
       "input": {"folder": "{of}", "match": "{match}"},
-      "rows_at": "result.rows",
-      "next_at": "result.next",
+      "rows_at": "rows",
+      "next_at": "next",
       "about": "the markdown documents in a folder of the person's Namespace files, read through the files door; each document a row, its frontmatter its fields (tools/documents-as-list-rows)"
     }
   }

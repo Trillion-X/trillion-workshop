@@ -69,10 +69,41 @@ function connect(address, answerSeconds) {
   return { socket, send, listeners, opened };
 }
 
-async function startBrowser(executable, conventions, window) {
+// The request's own switches for a browser this run starts (`browser.switches`), after the conventions' own: a
+// resolver rule that sends the app's real name to a copy on this computer, or trusting that copy's certificate. The
+// switches this run owns (where the control connection listens, the profile folder) are never the request's.
+const OWNED_SWITCHES = ['--remote-debugging-port', '--remote-debugging-pipe', '--user-data-dir'];
+export function requestSwitches(asked = []) {
+  if (!Array.isArray(asked) || asked.some(item => typeof item !== 'string' || !/^--[a-z0-9-]+(=.*)?$/.test(item))) {
+    throw new Error('browser.switches must be a list of browser switches, each like --name or --name=value.');
+  }
+  const owned = asked.find(item => OWNED_SWITCHES.includes(item.split('=')[0]));
+  if (owned) throw new Error(`browser.switches may not set ${owned.split('=')[0]}: this run sets it.`);
+  return asked;
+}
+
+// The passkeys a journey signs in with (`browser.passkeys`): each page this run opens gets a virtual authenticator that
+// holds them (the DevTools WebAuthn domain), so a passkey sign-in completes with no person at a device. Each is
+// WebAuthn.addCredential's credential: { credentialId, rpId, privateKey, userHandle?, isResidentCredential, signCount? }.
+export function requestPasskeys(asked = []) {
+  if (!Array.isArray(asked) || asked.some(item => !item || typeof item.credentialId !== 'string' || typeof item.rpId !== 'string' || typeof item.privateKey !== 'string')) {
+    throw new Error('browser.passkeys must be a list of passkeys, each { credentialId, rpId, privateKey, userHandle?, isResidentCredential }.');
+  }
+  return asked;
+}
+
+async function holdPasskeys(send, passkeys, conventions) {
+  if (!passkeys.length) return;
+  await send('WebAuthn.enable', { enableUI: false });
+  const { authenticatorId } = await send('WebAuthn.addVirtualAuthenticator', { options: conventions.virtual_authenticator });
+  // A sign count above every earlier use, so the account's own replay check takes the assertion.
+  for (const passkey of passkeys) await send('WebAuthn.addCredential', { authenticatorId, credential: { ...passkey, signCount: Math.floor(Date.now() / 1000) } });
+}
+
+async function startBrowser(executable, conventions, window, switches) {
   const profile = mkdtempSync(join(tmpdir(), 'walk-through-an-app-browser-'));
   const child = spawn(executable, [
-    ...conventions.switches, '--remote-debugging-port=0', `--user-data-dir=${profile}`, `--window-size=${window.width},${window.height}`, 'about:blank',
+    ...conventions.switches, ...switches, '--remote-debugging-port=0', `--user-data-dir=${profile}`, `--window-size=${window.width},${window.height}`, 'about:blank',
   ], { stdio: ['ignore', 'ignore', 'pipe'], detached: PROCESS_GROUPS });
   const end = () => {
     endBrowser(child);
@@ -108,7 +139,7 @@ async function attachedAddress(devtoolsAddress) {
 }
 
 /**
- * Opens the browser. `asked` is the request's `browser` ({ executable?, devtools_address? }). Answers
+ * Opens the browser. `asked` is the request's `browser` ({ executable?, devtools_address?, switches?, passkeys? }). Answers
  * { name, newPage(), close() }. `newPage()` opens a page in a context of its own (its own cookies and storage, so one
  * journey never inherits another's sign-in) and answers { send(method, params), on(listener), close() }: `send` calls
  * a DevTools method on the page, `on` hears its events, `close` ends the page and its context. `close()` ends what
@@ -118,12 +149,15 @@ export async function openBrowser(conventions, window, asked = {}) {
   let ending = () => {};
   let address;
   let name;
+  const switches = requestSwitches(asked.switches);
+  const passkeys = requestPasskeys(asked.passkeys);
   if (asked.devtools_address) {
+    if (switches.length) throw new Error('browser.switches are for a browser this run starts; a browser already listening keeps its own.');
     address = await attachedAddress(asked.devtools_address);
     name = `attached:${asked.devtools_address}`;
   } else {
     const executable = findBrowser(conventions, asked.executable);
-    const started = await startBrowser(executable, conventions, window);
+    const started = await startBrowser(executable, conventions, window, switches);
     address = started.address;
     ending = started.end;
     name = executable;
@@ -145,6 +179,7 @@ export async function openBrowser(conventions, window, asked = {}) {
     const { sessionId } = await link.send('Target.attachToTarget', { targetId, flatten: true });
     const send = (method, params) => link.send(method, params, sessionId);
     await send('Emulation.setDeviceMetricsOverride', { width: window.width, height: window.height, deviceScaleFactor: 1, mobile: false });
+    await holdPasskeys(send, passkeys, conventions);
     let closed = false;
     return {
       send,

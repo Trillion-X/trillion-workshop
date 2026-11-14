@@ -168,8 +168,16 @@ async function handleConnectStart(input, { door }) {
   return json({ authorize_url: address.toString(), service, connection_id: connectionId, expires_at: expiresAt });
 }
 
-// Why a nested run did not answer: the engine's own words (it has replaced every held value in them).
-const failed = answer => String(answer?.error ?? words.not_checked).slice(0, 300);
+// A nested run's result as `{ result }`, or `{ why }` it did not finish: the engine's own words (it has replaced every
+// held value in them), which the door hands over as the failed run's `said` (tools/records-door records-door.mjs
+// resultOfRun). A refusal of the door itself is thrown on.
+async function ran(door, tool, input, key) {
+  try { return { result: await door.run(tool, input, { key }) }; } catch (error) {
+    if (error?.code !== 'tool_run_failed') throw error;
+    return { why: String(error.said ?? words.not_checked).slice(0, 300) };
+  }
+}
+const answered = run => run.why === undefined && run.result !== null && typeof run.result === 'object';
 // `{connection_id}` in a verify row's input template, as the new connection's id.
 const filled = (template, connectionId, chosenId = '') => JSON.parse(JSON.stringify(template).replaceAll('{connection_id}', connectionId).replaceAll('{id}', chosenId));
 
@@ -186,15 +194,15 @@ async function tradeAndCheck(door, descriptor, saved, code) {
     const input = index === 0
       ? { connection, code, redirect_uri: `${redirectOrigin}${acquire.redirect.path}`, ...(saved.code_verifier ? { code_verifier: saved.code_verifier } : {}) }
       : { connection };
-    const answer = await door.run(tool, input, { key: `trade-${index}` });
-    if (answer?.error !== undefined || !answer?.result || typeof answer.result !== 'object') return { why: failed(answer) };
-    if (index === 0) grantedScopes = scopesReportedBy(acquire.granted_scopes, answer.result);
-    traded = answer.result;
+    const trade = await ran(door, tool, input, `trade-${index}`);
+    if (!answered(trade)) return { why: trade.why ?? words.not_checked };
+    if (index === 0) grantedScopes = scopesReportedBy(acquire.granted_scopes, trade.result);
+    traded = trade.result;
   }
   // The last trade's reply names the token where the descriptor says (token_paths), else where it fills its field.
   if (!firstAt(traded, acquire.token_paths ?? [[acquire.fills_field ?? 'access_token']])) return { why: words.no_token };
-  const checked = await door.run(service.verify.tool, filled(service.verify.input, saved.connection_id), { key: 'verify' });
-  if (checked?.error !== undefined || !checked?.result || typeof checked.result !== 'object') return { why: `${words.not_checked} ${failed(checked)}` };
+  const checked = await ran(door, service.verify.tool, filled(service.verify.input, saved.connection_id), 'verify');
+  if (!answered(checked)) return { why: `${words.not_checked} ${checked.why ?? words.not_checked}` };
   const body = checked.result;
   // A sign-in that may reach several accounts (acquire.choose) connects only when it reaches exactly one, whose label
   // and plain values the descriptor's choose names (a secret field of it is kept by the checking row, never read here).
@@ -210,8 +218,8 @@ async function tradeAndCheck(door, descriptor, saved, code) {
     // The service's own row that keeps the chosen account's token (a Page's own token) runs only for the one chosen.
     if (service.choice) {
       const id = firstAt(chosen, [acquire.choose.id_path ?? ['id']]);
-      const kept = id ? await door.run(service.choice.tool, filled(service.choice.input, saved.connection_id, id), { key: 'choice' }) : null;
-      if (!kept || kept.error !== undefined) return { why: `${words.not_checked} ${failed(kept)}` };
+      const kept = id ? await ran(door, service.choice.tool, filled(service.choice.input, saved.connection_id, id), 'choice') : { why: words.not_checked };
+      if (kept.why !== undefined) return { why: `${words.not_checked} ${kept.why}` };
     }
   }
   const secrets = new Set((descriptor.credentialFields ?? []).filter(field => field.secret).map(field => field.id));

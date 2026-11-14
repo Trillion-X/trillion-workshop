@@ -24,7 +24,8 @@
       "--disable-background-networking", "--disable-component-update"
     ],
     "start_seconds": 30,
-    "answer_seconds": 60
+    "answer_seconds": 60,
+    "virtual_authenticator": { "protocol": "ctap2", "transport": "internal", "hasResidentKey": true, "hasUserVerification": true, "isUserVerified": true, "automaticPresenceSimulation": true }
   },
   "window": { "width": 1280, "height": 800 },
   "timing": {

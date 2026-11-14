@@ -14,6 +14,8 @@ import path from 'node:path';
 import {readNewItems} from '../computer/read-new-items.mjs';
 import {inputsDefinition, liveInputs, readable, readersWith, serviceReader, startersOf, toolRunner} from '../computer/inputs.mjs';
 import {listsOverDoor} from '../../records-door/read-data/lists-door.mjs';
+import {openRecordsDoor} from '../../records-door/read-data/records-door.mjs';
+import {startFakeDoor} from '../../records-door/test/fake-door.mjs';
 import {memoryDoor} from '../../watch-my-sources/test/memory-door.mjs';
 
 const rows = JSON.parse(fs.readFileSync(new URL('../computer/computer-sources.json', import.meta.url), 'utf8'));
@@ -144,10 +146,13 @@ test('a tool whose input is a number gets the number', async () => {
   assert.equal(items[0].at, '2027-01-15T08:01:40.000Z');
 });
 
-test('a tool that did not finish is an error, and its answer is read from the door\'s result', async () => {
-  assert.deepEqual(await toolRunner({run: async () => ({status: 200, result: {data: []}, headers: {}})})('tool:x', {}), {data: []});
-  await assert.rejects(toolRunner({run: async () => ({exit_code: 1, error: 'the service is not connected'})})('tool:x', {}), /not connected/);
-  await assert.rejects(toolRunner({run: async () => ({status: 401, result: {error: {message: 'bad key'}}})})('tool:x', {}), /bad key/);
+test('a tool that did not finish is an error, and its answer is the run\'s result', async () => {
+  const door = await startFakeDoor({runs: ['tool:x', 'tool:y'], toolRuns: {'tool:x': {data: []}, 'tool:y': new Error('the service is not connected')}});
+  try {
+    const run = toolRunner(openRecordsDoor({descriptor: door.descriptor}));
+    assert.deepEqual(await run('tool:x', {}), {data: []});
+    await assert.rejects(run('tool:y', {}), /not connected/);
+  } finally { await door.close(); }
 });
 
 test('a service reader says what is wrong with a row that cannot be read', async () => {

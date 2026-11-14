@@ -2,7 +2,7 @@
 // changing only what changed and removing what the source no longer has; a read is records only (no tool runs), paged
 // with no row lost or repeated; the bounds a list keeps; a view's rules decided by the rule filter and its sort; the
 // door over HTTP keeping its key. The documents source is played by a folder of recipes, answered in pages the way
-// tool:read-documents-as-list-rows answers ({ rows, next }, under the run's `result`).
+// tool:read-documents-as-list-rows answers ({ rows, next }, the run's result as door.run hands it over).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
@@ -42,7 +42,7 @@ function bakery({ sources = [{ source: 'documents', of: '/recipes' }], folder = 
       if (tool !== 'tool:read-documents-as-list-rows') throw new Error(`no tool ${tool}`);
       const rest = folder.filter(row => !input.after || row.id > input.after);
       const rows = rest.slice(0, input.limit);
-      return { exit_code: 0, result: { rows, next: rows.length < rest.length ? rows.at(-1).id : null } };
+      return { rows, next: rows.length < rest.length ? rows.at(-1).id : null };
     },
     write: async (rows, { key }) => {
       writes.push({ rows, key });
@@ -163,7 +163,7 @@ test('a refresh streams beyond the view row bound, while a missing rows answer w
   assert.equal(repeated.sources[0].unchanged, limits.rows_per_read + 1);
   assert.equal(big.writes.length, 0);
   const { door, writes } = bakery();
-  const broken = { ...door, run: async () => ({ exit_code: 0, result: { said: 'nothing' } }) };
+  const broken = { ...door, run: async () => ({ said: 'nothing' }) };
   await assert.rejects(refresh(broken), /answered no rows/);
   assert.equal(writes.length, 0);
 });
@@ -180,7 +180,7 @@ test('same-kind sources have disjoint identities, values projections keep source
     '/orders': [{ id: '/shared.md', title: 'Order', values: { 'document.text': 'Two loaves.\n' } }] };
   const selected = { ...door, run: async (tool, input) => {
     runs.push({ tool, input });
-    return { result: { rows: rows[input.folder], next: null } };
+    return { rows: rows[input.folder], next: null };
   } };
   await refresh(selected);
   assert.deepEqual(records.get('record:chore:recipes~%2Fshared.md'), {
@@ -249,7 +249,7 @@ test('an extensionless positive source refreshes through the actual document rea
       paths: ['/LICENSE', '/one.md'], text_extensions: ['', 'md'], content: { part_bytes: 6000 } }] });
     door.run = async (tool, input) => {
       assert.equal(tool, 'tool:read-documents-as-list-rows');
-      return { exit_code: 0, result: await readDocumentRows(input) };
+      return readDocumentRows(input);
     };
     const answer = await refreshRowSources({ names: NAMES, list: 'chores', source_answer_bytes: 28000 }, door);
     assert.equal(answer.sources[0].written, 2);
@@ -270,7 +270,7 @@ test('a failed later source page preserves unread old rows, and a retry complete
   const failed = { ...door, run: async (tool, input) => {
     if (input.after) throw Object.assign(new Error('source unavailable'), { code: 'unavailable' });
     const answer = await door.run(tool, input);
-    return { result: { ...answer.result, next: '/next-page' } };
+    return { ...answer, next: '/next-page' };
   } };
   await assert.rejects(refresh(failed), /source unavailable/);
   assert.equal(records.get('record:chore:documents~%2Fr00000.md')['note.minutes'], 999);
@@ -297,13 +297,13 @@ test('stalled cursors, duplicate source rows and unsafe or duplicate source ids 
   }
   const { door, records } = bakery();
   await refresh(door);
-  const stalled = { ...door, run: async () => ({ result: { rows: [recipe('new', 1)], next: 'same-cursor' } }) };
+  const stalled = { ...door, run: async () => ({ rows: [recipe('new', 1)], next: 'same-cursor' }) };
   await assert.rejects(refresh(stalled), /did not advance/);
   assert.ok(records.has('record:chore:documents~%2Ftart.md'));
-  const duplicate = { ...door, run: async () => ({ result: { rows: [recipe('new', 1), recipe('new', 2)], next: null } }) };
+  const duplicate = { ...door, run: async () => ({ rows: [recipe('new', 1), recipe('new', 2)], next: null }) };
   await assert.rejects(refresh(duplicate), /row id twice/);
   assert.ok(records.has('record:chore:documents~%2Ftart.md'));
-  const incomplete = { ...door, run: async () => ({ result: { rows: [] } }) };
+  const incomplete = { ...door, run: async () => ({ rows: [] }) };
   await assert.rejects(refresh(incomplete), /no continuation or terminal null/);
   assert.ok(records.has('record:chore:documents~%2Ftart.md'), 'missing completion is not an empty completed source');
 });
@@ -318,7 +318,7 @@ test('a multi-page document keeps every ordered text part, including children sh
   const { door, records } = bakery({ sources: [{ source: 'documents', id: 'text', of: '/recipes', content: true }] });
   const paged = { ...door, run: async (tool, input) => {
     const index = input.after ? Number(input.after) : 0;
-    return { result: { rows: [pieces[index]], next: index < 2 ? String(index + 1) : null } };
+    return { rows: [pieces[index]], next: index < 2 ? String(index + 1) : null };
   } };
   await refresh(paged);
   const saved = [...records.entries()].filter(([id]) => id.startsWith('record:chore:text~'))
@@ -334,7 +334,7 @@ test('cancellation after a source read prevents writes and obsolete-row deletion
   const controller = new AbortController();
   const stopped = { ...door, run: async () => {
     controller.abort(new Error('refresh cancelled'));
-    return { result: { rows: [], next: null } };
+    return { rows: [], next: null };
   } };
   await assert.rejects(refresh(stopped, { signal: controller.signal }), /refresh cancelled/);
   assert.equal(writes.length, 0);
@@ -436,7 +436,7 @@ test('a tool the config lists in local_tools runs on the computer, with its fixe
     local_tools: { 'tool:read-documents-as-list-rows': { module: 'documents-as-list-rows/read-data/rows.mjs', export: 'readDocumentRows', input: { root: folder } } } },
   { keyOf: async () => 'made-up-key' });
   const answer = await door.run('tool:read-documents-as-list-rows', { folder: '/', limit: 10 });
-  assert.deepEqual(answer.result.rows.map(row => [row.id, row.values['note.minutes']]), [['/bread.md', 40], ['/buns.md', 25]]);
+  assert.deepEqual(answer.rows.map(row => [row.id, row.values['note.minutes']]), [['/bread.md', 40], ['/buns.md', 25]]);
   await assert.rejects(openDoor({ transport: { url: 'http://127.0.0.1:9/mcp', credential: {} }, records: { address: 'a', read_method: 'r', list_method: 'l' }, tools: { address: 't', run_method: 'run' },
     local_tools: { 'tool:x': { module: 'documents-as-list-rows/read-data/rows.mjs', export: 'nothingLikeThis' } } }, { keyOf: async () => 'k' }).then(one => one.run('tool:x', {})), /exports no nothingLikeThis/);
   await rm(folder, { recursive: true });

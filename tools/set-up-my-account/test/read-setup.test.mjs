@@ -126,6 +126,21 @@ test('the row runs through the door with exactly its rights: setup_facts, its ow
   assert.deepEqual(ROW.invoke.records.runs, ['tool:see-what-is-left-to-set-up']);
 });
 
+// The fake door answers a nested run the way the engine does ({ tool, exit_code, result, replayed }, records-door.mjs
+// TOOL_RUN_ANSWER). On 2026-11-14 a fresh account's Get started page was blank: read-setup handed the page that whole
+// answer instead of the screen inside it, and this row's test passed only because the fake answered the bare screen.
+test('the page gets the drawn screen, never the engine\'s answer around it, and a run that failed is said, not drawn', async () => {
+  const input = { account_id: 'acct-a', user_agent: 'Mozilla/5.0 (Macintosh)', origin: ORIGIN, now: NOW };
+  const sample = { records: [], doorOptions: { workspaceRecords: { 'show-rules': OWN_RULES, 'setup-context': null } }, file_answers: { setup_facts: answered(pendingSetup()) } };
+  const run = await answerOf(ROW, input, { ...sample, tool_runs: { 'tool:see-what-is-left-to-set-up': input => seeWhatIsLeftToSetUp(input) } });
+  assert.equal(run.status, 0, run.error);
+  assert.equal(run.result.title, 'Connect your AI to start');
+  for (const around of ['exit_code', 'replayed', 'tool']) assert.equal(Object.hasOwn(run.result, around), false, around);
+  const failed = await answerOf(ROW, input, { ...sample, tool_runs: { 'tool:see-what-is-left-to-set-up': new Error('the steps could not be drawn') } });
+  assert.notEqual(failed.status, 0);
+  assert.match(failed.error, /tool:see-what-is-left-to-set-up did not finish: the steps could not be drawn/);
+});
+
 // The engine's setup_facts answers the names the account's sign-ins were made under (`signed_in.names`) and no `system`;
 // old /setup/facts drew `devices` from those names (devicesFor({ signedInAs, system, observer, distribution, now }),
 // src/native-setup.mjs:243) and the system from the asking browser. Read here the same way.

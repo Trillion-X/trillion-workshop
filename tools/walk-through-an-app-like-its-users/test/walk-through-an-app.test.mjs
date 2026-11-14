@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
+import { generateKeyPairSync, randomBytes } from 'node:crypto';
 import { existsSync, mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -162,6 +163,33 @@ test('a broken shop fails with evidence and a fix handoff; after the fix, a re-r
     const third = (await run('walk', { app_url: shop.url, journeys, previous_report: second, fixtures_folder: fixtures, evidence_folder: join(evidence, 'third') })).answer.result;
     assert.equal(third.compared_with_previous.find(item => item.step === 'total').state, 'newly_failing', 'a regression after the fix is caught');
     assert.equal(third.journeys[1].verdict, 'passed', 'the learned step replays from the previous report');
+  } finally {
+    await shop.close();
+    rmSync(evidence, { recursive: true, force: true });
+  }
+});
+
+test('a journey signs in with the passkeys the request gives, under a name the request\'s switches send to this computer', { skip: browserProblem ?? false, timeout: 120000 }, async () => {
+  const shop = await startShop({ broken: false });
+  const evidence = mkdtempSync(join(tmpdir(), 'walk-passkey-'));
+  try {
+    // A made-up passkey for the shop's own name: a P-256 key, as a person's authenticator would hold it.
+    const { privateKey } = generateKeyPairSync('ec', { namedCurve: 'P-256' });
+    const credentialId = randomBytes(16).toString('base64');
+    const passkey = { credentialId, rpId: 'localhost', privateKey: privateKey.export({ format: 'der', type: 'pkcs8' }).toString('base64'), userHandle: randomBytes(16).toString('base64'), isResidentCredential: true };
+    const port = new URL(shop.url).port;
+    const journeys = [{ id: 'sign-in', goal: 'A customer signs in with their passkey', steps: [
+      { id: 'open', intent: 'Open the sign-in page', do: { action: 'goto', url: `http://localhost:${port}/sign-in` }, expect: [{ kind: 'title_contains', text: 'Sign in' }] },
+      { id: 'passkey', intent: 'Sign in with the passkey', do: { action: 'click', target: { role: 'button', name: 'Sign in with a passkey' } }, expect: [{ kind: 'text_visible', text: `Signed in with ${credentialId}` }] },
+    ] }];
+    const switches = [`--host-resolver-rules=MAP localhost 127.0.0.1:${port}`];
+    const walked = (await run('walk', { app_url: `http://localhost:${port}/`, journeys, evidence_folder: join(evidence, 'with'), browser: { switches, passkeys: [passkey] } })).answer.result;
+    assert.equal(walked.verdict, 'passed', JSON.stringify(walked.fixes));
+    const without = (await run('walk', { app_url: `http://localhost:${port}/`, journeys, evidence_folder: join(evidence, 'without') })).answer.result;
+    assert.equal(without.verdict, 'failed', 'with no passkey given, none answers');
+    const refused = await run('walk', { app_url: shop.url, journeys, browser: { switches: ['--user-data-dir=/elsewhere'] } });
+    assert.match(refused.answer.error, /may not set --user-data-dir/);
+    assert.match((await run('walk', { app_url: shop.url, journeys, browser: { passkeys: [{ rpId: 'localhost' }] } })).answer.error, /browser.passkeys must be/);
   } finally {
     await shop.close();
     rmSync(evidence, { recursive: true, force: true });

@@ -121,7 +121,7 @@ export async function syncRowSource(input, door) {
     const exact = /^\{(\w+)\}$/.exec(template);
     return [field, exact ? source[exact[1]] : template];
   }).filter(([, value]) => value !== undefined && value !== ''));
-  const changeFiles = async request => at(await door.run(change.tool, { ...changeInput, ...request }), change.answer_at);
+  const changeFiles = request => door.run(change.tool, { ...changeInput, ...request });
 
   // ---- the list's side ----------------------------------------------------------------------------------------------
   const held = new Map(), own = [];

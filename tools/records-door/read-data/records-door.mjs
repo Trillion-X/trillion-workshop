@@ -20,7 +20,9 @@
 //                                                          the lease road (writeLargeFile below; source from whole-file.mjs bufferSource or the sender's fileSource)
 //   await door.run('tool:x', { ... }, { key })              -> another Workshop tool's run (`tools:run` at the Workshop's
 //                                                          address, `tools_resource`, else @workshop-tools), only for a
-//                                                          tool id the row declares in `runs`; the engine refuses others
+//                                                          tool id the row declares in `runs`; the engine refuses others.
+//                                                          Its result, never the engine's answer around it; a run that
+//                                                          failed throws RecordsDoorError `tool_run_failed`
 //
 // A busy account (503, selected_owner_unavailable, or a source answer that began no effect) and a call whose outcome is
 // unknown are sent again with the same request key after a growing wait. Safe reads also retry fetch/body transport
@@ -60,6 +62,30 @@ const WORDS = {
   write_pending: 'The write was kept, but the person\'s records have not settled it yet. Read them again before answering again.',
   refused: 'The records door refused the call.',
 };
+
+// How the engine answers `tools:run`, read in this one place: `run()` below hands its caller the answer's `result`, and
+// throws `tool_run_failed` with the answer's `error` when it holds one; test/fake-door.mjs answers its nested runs from
+// `finished` and `failed`, so no caller unwraps and no test types the answer in by hand. The shapes are the engine's
+// own: trillion-rust src/tool_runs/tools/container.rs answers a finished run `{ tool, exit_code, result, replayed }` and
+// one whose process failed `{ tool, exit_code, error, cause, replayed }`; http.rs `answered` the same with `status` in
+// place of `exit_code`. `finished` has the keys of the answer the engine gave on 2026-11-14 for
+// tool:see-what-is-left-to-set-up on a fresh scratch account. An answer with neither field (a session's state,
+// sessions.rs; a run handed to another computer, `how`) is the run's answer itself.
+export const TOOL_RUN_ANSWER = Object.freeze({
+  result: 'result',
+  error: 'error',
+  finished: (tool, result) => ({ tool, exit_code: 0, result, replayed: false }),
+  failed: (tool, error) => ({ tool, exit_code: 1, error, cause: 'process_exit_unsuccessful', replayed: false }),
+});
+
+export function resultOfRun(tool, answer) {
+  if (answer && typeof answer === 'object' && Object.hasOwn(answer, TOOL_RUN_ANSWER.error)) {
+    const said = answer[TOOL_RUN_ANSWER.error];
+    throw Object.assign(new RecordsDoorError('tool_run_failed', `${tool} did not finish: ${String(typeof said === 'string' ? said : JSON.stringify(said)).slice(0, 300)}`, 'committed'),
+      { tool, cause: answer.cause ?? null, status: answer.status ?? null, said });
+  }
+  return answer && typeof answer === 'object' && Object.hasOwn(answer, TOOL_RUN_ANSWER.result) ? answer[TOOL_RUN_ANSWER.result] : answer;
+}
 
 const pause = ms => new Promise(done => setTimeout(done, ms));
 
@@ -278,8 +304,9 @@ export function recordsDoorFromCall(call, { filesResource, resource, toolsResour
     // Another Workshop tool's run (the brief's contract A): `tools:run` { tool, input } at the Workshop's address, for a
     // tool id the row declares in `runs`. The engine holds it to this run's grant and deadline and derives its
     // idempotency key from this run's; `key` names it within this run, so the same nested run sent again is one run.
+    // Answers the run's result (resultOfRun above), and throws `tool_run_failed` for a run that failed.
     async run(tool, input = {}, { key } = {}) {
-      return call('tools:run', { tool, input }, key, toolsResource);
+      return resultOfRun(tool, await call('tools:run', { tool, input }, key, toolsResource));
     },
   };
 }

@@ -34,7 +34,7 @@ function bakery(folder) {
       door.asked.push({ tool, input });
       // A long document answers its row and its linked text-part rows (<path>#text-part-N).
       const rows = folder.filter(row => !input.paths || input.paths.some(path => row.id === path || row.id.startsWith(`${path}#`)));
-      return { exit_code: 0, result: { rows, next: null } };
+      return { rows, next: null };
     },
     write: async (rows, { key }) => {
       writes.push({ rows, key });

@@ -8,6 +8,14 @@ const page = (title, body, script = '') => `<!doctype html><html lang="en"><head
 const screens = broken => ({
   '/': page('Tiny shop', '<h1>Tiny shop</h1><nav><a href="/cart">Cart</a> <a href="/about">About</a></nav><p>One kind of mug, $29.</p>'),
   '/about': page('About', '<h1>About</h1><a href="/">Home</a>'),
+  // A passkey sign-in, as a shop's sign-in page asks for one: it says which passkey answered, or that none did.
+  '/sign-in': page('Sign in', '<h1>Sign in</h1><button type="button" id="passkey">Sign in with a passkey</button><p id="who" role="status"></p>', `
+    document.getElementById('passkey').addEventListener('click', async () => {
+      try {
+        const got = await navigator.credentials.get({ publicKey: { challenge: new Uint8Array(32), rpId: location.hostname, userVerification: 'required' } });
+        document.getElementById('who').textContent = 'Signed in with ' + btoa(String.fromCharCode(...new Uint8Array(got.rawId)));
+      } catch (error) { document.getElementById('who').textContent = 'No passkey answered'; }
+    });`),
   '/cart': page('Cart', `<h1>Cart</h1>
     <label for="qty">Quantity</label><input id="qty" type="number" value="1" min="1">
     <button type="button" id="update">Update total</button>

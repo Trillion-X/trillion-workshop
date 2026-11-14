@@ -18,7 +18,8 @@
 //   openDoor({ transport: { url, credential: { keychain_item } | { key_file } }, records, tools, local_tools? }, { keyOf? })
 //     → { read, list, run, write, history? }; records may name write_method and history_method
 //   local_tools: { <tool id>: { module, export, input? } }: the module's path under the Workshop's tools folder, the
-//   function it exports, and the input every run of it gets; its answer comes back as a run's `result`.
+//   function it exports, and the input every run of it gets; its answer is the run's result.
+//   `run` answers a run's result, never the engine's answer around it (tools/records-door records-door.mjs resultOfRun).
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { readFile } from 'node:fs/promises';
@@ -26,6 +27,7 @@ import { appendFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import listView from './list-view.json' with { type: 'json' };
 import { wholeAnswer } from '../../records-door/read-data/byte-pages.mjs';
+import { resultOfRun } from '../../records-door/read-data/records-door.mjs';
 
 const PROTOCOL = '2025-06-18';
 // The wait before a busy call is sent again, and how many times: list-view.json door_retry, with the measurement beside it.
@@ -157,11 +159,11 @@ export async function openDoor(config, { keyOf = credentialKey } = {}) {
     if (local) {
       const ran = (await import(new URL(local.module, TOOLS)))[local.export];
       if (typeof ran !== 'function') throw say('bad_config', `local_tools: ${local.module} exports no ${local.export}.`);
-      return { result: await ran({ ...(local.input ?? {}), ...input }) };
+      return ran({ ...(local.input ?? {}), ...input });
     }
-    const answer = await call(tools.address, tools.run_method, { tool, input });
-    if (answer?.error !== undefined || (answer?.exit_code ?? 0) !== 0) throw say('tool_failed', `${tool}: ${String(answer?.error ?? `exit ${answer?.exit_code}`).slice(0, 300)}`);
-    return answer;
+    // The run's result, read out of the engine's answer where the records door reads it (records-door.mjs resultOfRun).
+    try { return resultOfRun(tool, await call(tools.address, tools.run_method, { tool, input })); }
+    catch (error) { throw error?.code === 'tool_run_failed' ? say('tool_failed', error.message) : error; }
   };
   return {
     read: async (type, id) => (await call(records.address, records.read_method, { type, id }))?.value ?? null,

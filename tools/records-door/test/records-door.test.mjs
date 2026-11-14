@@ -584,3 +584,16 @@ test('a record the store answers as its stored body is read and listed as its va
     assert.deepEqual((await client.readRecord('note', 'note:1')).value, { words: 'one', counts: { evidence: 2 } });
   } finally { await door.close(); }
 });
+
+// The engine answers `tools:run` with its own fields around the run's result ({ tool, exit_code, result, replayed });
+// `run` is the one place that reads them, so a caller gets the result and a failed run is an error, never a value.
+test('a nested run answers its result, never the engine\'s answer around it, and a failed run throws', async () => {
+  const door = await startFakeDoor({ runs: ['tool:drawn', 'tool:broken'], toolRuns: { 'tool:drawn': input => ({ title: `Hello ${input.name}` }), 'tool:broken': new Error('the service is not connected') } });
+  try {
+    const client = openRecordsDoor({ descriptor: door.descriptor });
+    assert.deepEqual(await client.run('tool:drawn', { name: 'Ada' }, { key: 'k' }), { title: 'Hello Ada' });
+    await assert.rejects(client.run('tool:broken', {}, { key: 'k2' }), error => error instanceof RecordsDoorError && error.code === 'tool_run_failed'
+      && /tool:broken did not finish: the service is not connected/.test(error.message));
+    await assert.rejects(client.run('tool:undeclared', {}), error => error instanceof RecordsDoorError);
+  } finally { await door.close(); }
+});

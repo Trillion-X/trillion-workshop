@@ -15,6 +15,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+import { TOOL_RUN_ANSWER } from '../read-data/records-door.mjs';
 
 // Engine-wide cap on the records one write carries (own-record-writes.json maxItems); a row may declare fewer.
 const WRITE_CAP = 256;
@@ -23,8 +24,10 @@ const FILES_RESOURCE = '@own-files';
 const FILE_SPAN = 65_536;
 
 // `runs` are the tool ids the row declares it may start (the brief's contract A): `tools:run` { tool, input } at the
-// Workshop's address (`tools_resource`, @workshop-tools) answers `toolRuns[tool](input, key)` (or `{ started: true }`)
-// for one of them, and refuses any other, as the engine does. Every nested run is kept in `runsStarted`.
+// Workshop's address (`tools_resource`, @workshop-tools) runs `toolRuns[tool](input, key)` (or `{ started: true }`)
+// for one of them, and refuses any other, as the engine does. It answers the way the engine answers a run, built by
+// records-door.mjs TOOL_RUN_ANSWER: what the entry gives is the run's `result`, and an Error (given, or thrown) is a run
+// that failed with its message as the `error`. Every nested run is kept in `runsStarted`.
 const TOOLS_RESOURCE = '@workshop-tools';
 
 // `fileAnswers` ({ operation: answer | (input) => answer | Error }) answers another files door operation (setup_facts ...)
@@ -252,9 +255,10 @@ export async function startFakeDoor({ throttleFirst = 0, retryAfter = null, file
     if (typeof tool !== 'string' || !runs.includes(tool)) return refuse(OUTSIDE);
     runsStarted.push({ tool, input, key });
     const answer = toolRuns[tool];
-    if (answer instanceof Error) return refuse(answer.message);
-    if (typeof answer !== 'function') return { structuredContent: answer ?? { started: true } };
-    return Promise.resolve(answer(input, key)).then(structuredContent => ({ structuredContent }), error => refuse(error.message));
+    const failed = error => ({ structuredContent: TOOL_RUN_ANSWER.failed(tool, error.message) });
+    if (answer instanceof Error) return failed(answer);
+    if (typeof answer !== 'function') return { structuredContent: TOOL_RUN_ANSWER.finished(tool, answer ?? { started: true }) };
+    return new Promise(done => done(answer(input, key))).then(result => ({ structuredContent: TOOL_RUN_ANSWER.finished(tool, result) }), failed);
   };
   const server = createServer((request, reply) => {
     const chunks = [];

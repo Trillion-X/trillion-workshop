@@ -42,22 +42,23 @@ const seeded = [list, signInApp('google-sign-in-client-id', CLIENT_ID), signInAp
 const APP_ROWS = 2;
 const startQuery = { service: 'google-account', status: 'Active', read_only: 'true', can_send_as: 'false', can_be_primary: 'false', account: 'someone@example.com' };
 
-// The engine's answer of each nested run, made up: the trade's tokens are already the held word (reply_holds_values).
+// The result of each nested run, made up (the fake door answers it the way the engine does, records-door.mjs
+// TOOL_RUN_ANSWER; a refused trade is a run that failed with the engine's words): the trade's tokens are already the held word (reply_holds_values).
 const onePage = [{ id: '1000000000000001', name: 'Made Up Page' }];
 const twoPages = [...onePage, { id: '1000000000000002', name: 'Another Made Up Page' }];
 const toolRuns = ({ pages = onePage, email = 'someone@example.com', traded = { access_token: HELD, refresh_token: HELD, id_token: HELD, expires_in: 3599, scope: 'openid email https://www.googleapis.com/auth/gmail.readonly', token_type: 'Bearer' }, tradeError = null } = {}) => ({
-  'tool:trade-a-gmail-sign-in-code-for-its-tokens': () => (tradeError ? { tool: 'tool:trade-a-gmail-sign-in-code-for-its-tokens', status: 400, error: tradeError } : { tool: 'tool:trade-a-gmail-sign-in-code-for-its-tokens', status: 200, result: traded }),
-  'tool:google-account-find_my_mailbox': () => ({ tool: 'tool:google-account-find_my_mailbox', status: 200, result: { emailAddress: email, messagesTotal: 3, threadsTotal: 2, historyId: '1' } }),
-  'tool:trade-an-instagram-sign-in-code-for-its-short-token': () => ({ status: 200, result: { access_token: HELD, user_id: 17800000000000001 } }),
-  'tool:trade-a-short-instagram-token-for-a-long-one': () => ({ status: 200, result: { access_token: HELD, token_type: 'bearer', expires_in: 5183944 } }),
-  'tool:check-the-instagram-connection': () => ({ status: 200, result: { user_id: '17800000000000001', username: 'made_up_account', id: '1' } }),
-  'tool:trade-a-facebook-sign-in-code-for-its-short-token': () => ({ status: 200, result: { access_token: HELD, token_type: 'bearer', expires_in: 5183944 } }),
-  'tool:trade-a-short-facebook-token-for-a-long-one': () => ({ status: 200, result: { access_token: HELD, token_type: 'bearer', expires_in: 5183944 } }),
-  'tool:list-the-facebook-pages-a-sign-in-reaches': () => ({ status: 200, result: { data: pages } }),
-  'tool:keep-a-facebook-pages-token': () => ({ status: 200, result: { id: 'kept', access_token: HELD } }),
-  'tool:trade-a-threads-sign-in-code-for-its-short-token': () => ({ status: 200, result: { access_token: HELD, user_id: 17800000000000002 } }),
-  'tool:trade-a-short-threads-token-for-a-long-one': () => ({ status: 200, result: { access_token: HELD, token_type: 'bearer', expires_in: 5183944 } }),
-  'tool:check-the-threads-connection': () => ({ status: 200, result: { id: '17800000000000002', username: 'made_up_threads_account' } }),
+  'tool:trade-a-gmail-sign-in-code-for-its-tokens': () => { if (tradeError) throw new Error(tradeError); return traded; },
+  'tool:google-account-find_my_mailbox': () => ({ emailAddress: email, messagesTotal: 3, threadsTotal: 2, historyId: '1' }),
+  'tool:trade-an-instagram-sign-in-code-for-its-short-token': () => ({ access_token: HELD, user_id: 17800000000000001 }),
+  'tool:trade-a-short-instagram-token-for-a-long-one': () => ({ access_token: HELD, token_type: 'bearer', expires_in: 5183944 }),
+  'tool:check-the-instagram-connection': () => ({ user_id: '17800000000000001', username: 'made_up_account', id: '1' }),
+  'tool:trade-a-facebook-sign-in-code-for-its-short-token': () => ({ access_token: HELD, token_type: 'bearer', expires_in: 5183944 }),
+  'tool:trade-a-short-facebook-token-for-a-long-one': () => ({ access_token: HELD, token_type: 'bearer', expires_in: 5183944 }),
+  'tool:list-the-facebook-pages-a-sign-in-reaches': () => ({ data: pages }),
+  'tool:keep-a-facebook-pages-token': () => ({ id: 'kept', access_token: HELD }),
+  'tool:trade-a-threads-sign-in-code-for-its-short-token': () => ({ access_token: HELD, user_id: 17800000000000002 }),
+  'tool:trade-a-short-threads-token-for-a-long-one': () => ({ access_token: HELD, token_type: 'bearer', expires_in: 5183944 }),
+  'tool:check-the-threads-connection': () => ({ id: '17800000000000002', username: 'made_up_threads_account' }),
 });
 
 const route = (path, query, sample) => runRow(row, { path, method: 'GET', query, body: {}, browser: { user_agent: 'test', origin: '', visitor: '' }, account_id: 'made-up-account' }, sample);

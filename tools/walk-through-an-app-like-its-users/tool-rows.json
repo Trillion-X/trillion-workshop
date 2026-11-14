@@ -64,7 +64,7 @@
             "fixtures_folder": { "type": "string", "description": "The folder upload files are named relative to." },
             "evidence_folder": { "type": "string", "description": "Where pictures, logs, videos and report.json are written." },
             "window": { "type": "object", "properties": { "width": { "type": "integer" }, "height": { "type": "integer" } } },
-            "browser": { "type": "object", "properties": { "executable": { "type": "string" }, "devtools_address": { "type": "string", "description": "A browser already listening, such as http://127.0.0.1:9222 from obscura serve or a Chrome started with --remote-debugging-port." } } }
+            "browser": { "type": "object", "properties": { "executable": { "type": "string" }, "devtools_address": { "type": "string", "description": "A browser already listening, such as http://127.0.0.1:9222 from obscura serve or a Chrome started with --remote-debugging-port." }, "switches": { "type": "array", "items": { "type": "string" }, "description": "More switches for a browser this run starts, such as --host-resolver-rules=MAP app.example.com 127.0.0.1:8443 to walk a copy of the app on this computer under its real name." }, "passkeys": { "type": "array", "items": { "type": "object" }, "description": "Passkeys a journey signs in with, held by a virtual authenticator in every page: each { credentialId, rpId, privateKey, userHandle?, isResidentCredential } (base64, as WebAuthn.addCredential takes them)." } } }
           }
         },
         "output_schema": {
@@ -134,7 +134,7 @@
             "most_screens": { "type": "integer", "minimum": 1, "maximum": 20 },
             "evidence_folder": { "type": "string" },
             "window": { "type": "object", "properties": { "width": { "type": "integer" }, "height": { "type": "integer" } } },
-            "browser": { "type": "object", "properties": { "executable": { "type": "string" }, "devtools_address": { "type": "string" } } }
+            "browser": { "type": "object", "properties": { "executable": { "type": "string" }, "devtools_address": { "type": "string" }, "switches": { "type": "array", "items": { "type": "string" } }, "passkeys": { "type": "array", "items": { "type": "object" } } } }
           }
         },
         "output_schema": {
@@ -215,7 +215,7 @@
             "fixtures_folder": { "type": "string" },
             "evidence_folder": { "type": "string" },
             "window": { "type": "object", "properties": { "width": { "type": "integer" }, "height": { "type": "integer" } } },
-            "browser": { "type": "object", "properties": { "executable": { "type": "string" }, "devtools_address": { "type": "string" } } }
+            "browser": { "type": "object", "properties": { "executable": { "type": "string" }, "devtools_address": { "type": "string" }, "switches": { "type": "array", "items": { "type": "string" } }, "passkeys": { "type": "array", "items": { "type": "object" } } } }
           }
         },
         "output_schema": {

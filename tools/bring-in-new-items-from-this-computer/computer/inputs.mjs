@@ -99,12 +99,9 @@ export const serviceReader = run => async (carrier, since) => {
   return items;
 };
 
-/** run(tool, input) over the person's door: the tool's answer, or a throw saying why it did not finish. */
-export const toolRunner = door => async (tool, input) => {
-  const answer = await door.run(tool, input);
-  if (answer?.exit_code || answer?.status >= 400) throw new Error(String(answer.error ?? answer.result?.error?.message ?? `${tool} did not finish`).slice(0, 300));
-  return answer?.result ?? answer;
-};
+/** run(tool, input) over the person's door: the tool's result, or a throw saying why it did not finish (the door reads
+ * the engine's answer, tools/records-door records-door.mjs resultOfRun). */
+export const toolRunner = door => (tool, input) => door.run(tool, input);
 
 /** The readers a look uses: each local leaf in its own child process, and the `tool` reader in this process. */
 export const readersWith = extra => {
