@@ -1,0 +1,222 @@
+{
+  "about": "The list that links each person to every recording, time and place where their voice was heard or their face seen, as DATA the keeping tool reads: nothing here names a person. Each row is one stretch of one recording. A row never holds a print's numbers; only people who enrolled with consent words are named.",
+  "list": {
+    "id": "appearances",
+    "label": "Where people appeared",
+    "row_type": "appearance",
+    "about": "Every recording and stretch of time where a person's voice was heard or face was seen, and the place it was recorded, kept by tool:keep-who-appeared from what tool:who-is-in-this and tool:find-faces answered. Search it by a name, a recording or a place; open a person's rows to see every recording they are in.",
+    "title_field": "appearance",
+    "fields": [
+      {
+        "id": "appearance",
+        "kind": "text",
+        "label": "Appearance"
+      },
+      {
+        "id": "subject",
+        "kind": "text",
+        "label": "Who (as named, or the unsure or unknown label)"
+      },
+      {
+        "id": "status",
+        "kind": "text",
+        "label": "Named, possible, unknown or superseded"
+      },
+      {
+        "id": "person",
+        "kind": "text",
+        "label": "Person id in the voice and face prints"
+      },
+      {
+        "id": "person_row",
+        "kind": "text",
+        "label": "The person's own row (list/row)"
+      },
+      {
+        "id": "how",
+        "kind": "text",
+        "label": "Heard (voice) or seen (face)"
+      },
+      {
+        "id": "could_be",
+        "kind": "text",
+        "label": "Who it could be, when two or more are too close to tell"
+      },
+      {
+        "id": "heard_as",
+        "kind": "text",
+        "label": "Unknown voice label in its listening"
+      },
+      {
+        "id": "recording",
+        "kind": "file",
+        "label": "Recording"
+      },
+      {
+        "id": "recording_name",
+        "kind": "text",
+        "label": "Recording name"
+      },
+      {
+        "id": "start",
+        "kind": "number",
+        "label": "Start in seconds"
+      },
+      {
+        "id": "end",
+        "kind": "number",
+        "label": "End in seconds"
+      },
+      {
+        "id": "words",
+        "kind": "long-text",
+        "label": "Words said, when heard"
+      },
+      {
+        "id": "score",
+        "kind": "number",
+        "label": "How close the match was"
+      },
+      {
+        "id": "box",
+        "kind": "text",
+        "label": "Face box in pixels (x1, y1, x2, y2), when seen"
+      },
+      {
+        "id": "place",
+        "kind": "text",
+        "label": "Place row (list/row)"
+      },
+      {
+        "id": "place_name",
+        "kind": "text",
+        "label": "Place"
+      },
+      {
+        "id": "recorded_on",
+        "kind": "date",
+        "label": "Recorded on"
+      },
+      {
+        "id": "listening",
+        "kind": "text",
+        "label": "Listening it belongs to"
+      },
+      {
+        "id": "made_by",
+        "kind": "text",
+        "label": "Made by"
+      },
+      {
+        "id": "kept_at",
+        "kind": "date",
+        "label": "Kept"
+      }
+    ],
+    "views": [
+      {
+        "id": "in-recording-order",
+        "label": "In recording order",
+        "columns": {
+          "hidden": [],
+          "order": [
+            "appearance",
+            "subject",
+            "start",
+            "end",
+            "words",
+            "how",
+            "status",
+            "recording_name",
+            "place_name",
+            "recorded_on",
+            "score",
+            "could_be",
+            "heard_as",
+            "person",
+            "person_row",
+            "recording",
+            "box",
+            "place",
+            "listening",
+            "made_by",
+            "kept_at"
+          ]
+        },
+        "groups": [],
+        "search": "",
+        "sort": [
+          {
+            "direction": "asc",
+            "field": "start"
+          }
+        ],
+        "time_zone": "UTC"
+      },
+      {
+        "id": "by-person",
+        "label": "By person",
+        "columns": {
+          "hidden": [],
+          "order": [
+            "subject",
+            "recording_name",
+            "start",
+            "end",
+            "how",
+            "status",
+            "words",
+            "place_name",
+            "recorded_on",
+            "appearance",
+            "score",
+            "could_be",
+            "heard_as",
+            "person",
+            "person_row",
+            "recording",
+            "box",
+            "place",
+            "listening",
+            "made_by",
+            "kept_at"
+          ]
+        },
+        "groups": [],
+        "search": "",
+        "sort": [
+          {
+            "direction": "asc",
+            "field": "subject"
+          },
+          {
+            "direction": "asc",
+            "field": "start"
+          }
+        ],
+        "time_zone": "UTC"
+      }
+    ]
+  },
+  "made_by": "tool:keep-who-appeared",
+  "status": {
+    "named": "named",
+    "possible": "possible",
+    "unknown": "unknown",
+    "superseded": "superseded"
+  },
+  "how": {
+    "voice": "voice",
+    "face": "face"
+  },
+  "print_kinds": {
+    "voice": "voice-print",
+    "face": "face-print"
+  },
+  "words": {
+    "heard": "{subject} heard in {recording} from {from} to {to}",
+    "seen": "{subject} seen in {recording} from {from} to {to}",
+    "unsure": "Unsure ({names}?)",
+    "or": "or"
+  }
+}

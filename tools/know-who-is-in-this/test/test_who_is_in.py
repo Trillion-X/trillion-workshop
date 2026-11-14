@@ -161,8 +161,8 @@ class Turns(unittest.TestCase):
         answers = [{"voice": "ann", "who": who, "score": 0.9, "unsure": []}, {"voice": "ann", "who": who, "score": 0.8, "unsure": []},
                    {"voice": "ann", "who": who, "score": 0.95, "unsure": []}]
         turns = w.speakers_of(segments, answers)
-        self.assertEqual([(t["start"], t["end"], t["text"], t["score"], t["who"], t["me"]) for t in turns],
-                         [(0, 5, "Hello there", 0.8, "Ann", True), (9, 11, "Again", 0.95, "Ann", True)])
+        self.assertEqual([(t["start"], t["end"], t["text"], t["score"], t["who"], t["me"], t["person"]) for t in turns],
+                         [(0, 5, "Hello there", 0.8, "Ann", True, "ann"), (9, 11, "Again", 0.95, "Ann", True, "ann")])
 
     def test_labels_for_unsure_and_unknown_voices_and_a_turn_never_measured_is_unsure_of_its_score(self):
         answer = {"voice": "voice-2", "who": None, "score": 0.4, "unsure": [{"id": "ann", "name": "Ann"}, {"id": "bo", "name": "Bo"}, {"id": "cy", "name": "Cy"}]}
@@ -172,6 +172,7 @@ class Turns(unittest.TestCase):
         segments = [{"start": 0, "end": 2, "text": "a"}, {"start": 2, "end": 4, "text": "b"}]
         answers = [{"voice": "voice-1", "who": None, "score": 0.7, "unsure": []}, {"voice": "voice-1", "who": None, "score": None, "unsure": []}]
         self.assertIsNone(w.speakers_of(segments, answers)[0]["score"])
+        self.assertIsNone(w.speakers_of(segments, answers)[0]["person"])
 
 
 class Faces(unittest.TestCase):

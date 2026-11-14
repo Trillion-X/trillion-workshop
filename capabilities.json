@@ -1717,7 +1717,7 @@
       ]
     },
     {
-      "capability": "tell who is in a recording or a picture: keep a person's voice or face print only with the consent words that say who agreed and how, name the voices of a transcript against those prints, find and name faces in a picture or video, and list the people the prints can name",
+      "capability": "tell who is in a recording or a picture: keep a person's voice or face print only with the consent words that say who agreed and how, name the voices of a transcript against those prints, find and name faces in a picture or video, list the people the prints can name, and keep every recording, time and place where a person was heard or seen as rows linked to that person",
       "owner": ["tools/know-who-is-in-this/"],
       "entry": "tools/know-who-is-in-this/tool-rows.json",
       "evidence": "README.md:3 the old app's enrolment, people and who tools: a print is made only with consent words, a voice is named only when it is clearly one enrolled person (else the people it could be, else an unknown voice that keeps its number through the listening), and prints never leave the device they were made on",

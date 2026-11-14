@@ -232,7 +232,8 @@ def speaker_label(answer, words=None):
 def speakers_of(segments, answers, join_within_seconds=2.0, words=None):
     """Transcript segments ([{ start, end, text }], seconds) with the answer for each span, as turns: consecutive
     segments of the same voice with at most `join_within_seconds` between them are one turn. A turn is as sure of its
-    voice as its least sure segment. Returns [{ start, end, who, me, voice, score, unsure?, text }]."""
+    voice as its least sure segment. Returns [{ start, end, who, person, me, voice, score, unsure?, text }]; `person` is the
+    enrolled person's id when one is named, else None, so a caller keeps who it was without reading the label."""
     turns = []
     for segment, answer in zip(segments, answers):
         entry = {"start": float(segment["start"]), "end": float(segment["end"]), "text": str(segment.get("text", "")).strip(),
@@ -244,7 +245,7 @@ def speakers_of(segments, answers, join_within_seconds=2.0, words=None):
             last["score"] = min(last["score"], entry["score"]) if last["score"] is not None and entry["score"] is not None else None
         else:
             turns.append(entry)
-    return [{"start": t["start"], "end": t["end"], "who": speaker_label(t, words), "me": bool(t["who"] and t["who"]["me"]),
+    return [{"start": t["start"], "end": t["end"], "who": speaker_label(t, words), "person": t["who"]["id"] if t["who"] else None, "me": bool(t["who"] and t["who"]["me"]),
              "voice": t["voice"], "score": t["score"], **({"unsure": [p["name"] for p in t["unsure"]]} if t["unsure"] else {}),
              "text": t["text"]} for t in turns]
 

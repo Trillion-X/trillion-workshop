@@ -1,0 +1,279 @@
+{
+  "about": "Recipe the deploy ships that no list row holds: linking each person to every recording, time and place where their voice was heard or face seen (tools/know-who-is-in-this).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-who-appeared-in-a-recording",
+        "default_for": [
+          "keep-who-appeared"
+        ],
+        "label": "Keep who appeared in a recording",
+        "job": "Hear and see who is in one recording from the voices and faces people enrolled with consent, and keep every stretch as a row linked to that person, the recording, the seconds and the place, so each person's list of recordings builds up and every recording knows who is in it. A voice nobody enrolled keeps its number; when that voice is enrolled later, running this again names every stretch of it.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "file"
+          ],
+          "properties": {
+            "file": {
+              "type": "string",
+              "pattern": "^1f:[0-9a-f]{64}$",
+              "description": "The recording in this account by its content identity"
+            },
+            "recording_name": {
+              "type": "string",
+              "description": "What the recording is called, as the person's files name it"
+            },
+            "listening": {
+              "type": "string",
+              "description": "The listening the recording belongs to, so an unknown voice keeps its number across its recordings"
+            },
+            "look_for": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "voice",
+                  "face"
+                ]
+              },
+              "description": "What to look for; left out, both a voice and, for a picture or video, a face"
+            },
+            "every_seconds": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "For a video, how often a picture is taken to look for faces"
+            },
+            "place": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "row": {
+                  "type": "string",
+                  "description": "The place's row, list-id/row-id"
+                }
+              },
+              "description": "Where the recording was made, when it is known; never guessed from the file's name"
+            },
+            "recorded_on": {
+              "type": "string",
+              "format": "date",
+              "description": "The day it was recorded, when it is known"
+            },
+            "people": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "A person's id in the prints mapped to that person's own row in the person's lists, list-id/row-id"
+            }
+          }
+        },
+        "source": {
+          "from": "what the owner commissioned on 2026-10-04: voice and face recognition that gives every person a growing web of every recording where they were heard or seen",
+          "note": "Runs tool:who-is-in-this and tool:find-faces, which change no file, and keeps what they answered with tool:keep-who-appeared. Nothing is named who has not enrolled with consent words."
+        },
+        "steps": [
+          {
+            "id": "hear",
+            "title": "Hear who spoke",
+            "do": "Skip this step and submit an empty speakers list when look_for is given and leaves out voice. Otherwise find the recording's earlier results first: when its transcript has heard_whole true, pass its timed stretches as segments; when it has none, leave segments out so the tool hears the recording itself. Run tool:who-is-in-this with file, listening and those segments, and submit its speakers and voices_heard exactly as it answered, naming nobody it did not name. A failure or a recording with no speech is submitted as it is, never as a guess.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "speakers"
+              ],
+              "properties": {
+                "tool": {
+                  "type": "string",
+                  "const": "tool:who-is-in-this"
+                },
+                "speakers": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  },
+                  "description": "The speakers array of the tool's answer, unchanged"
+                },
+                "voices_heard": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The tool that names voices exists",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              }
+            ]
+          },
+          {
+            "id": "see",
+            "title": "See who is on screen",
+            "do": "Skip this step and submit an empty faces list when look_for is given and leaves out face, or when the recording is audio only. Otherwise run tool:find-faces with file and every_seconds, and submit its faces exactly as it answered together with the every_seconds it used (2 when none was given). A face it did not name stays unnamed.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "faces"
+              ],
+              "properties": {
+                "tool": {
+                  "type": "string",
+                  "const": "tool:find-faces"
+                },
+                "faces": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  },
+                  "description": "The faces array of the tool's answer, unchanged"
+                },
+                "every_seconds": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The tool that names faces exists",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep each stretch as a row linked to the person",
+            "do": "Run tool:keep-who-appeared with recording set to input.file, recording_name, heard set to the speakers of step hear when it has any, seen set to the faces of step see when it has any (with every_seconds), and listening, people, place and recorded_on from the input. Leave out heard and seen when their lists are empty, and give at least one. Submit its answer exactly. A refusal for missing consent is submitted as the refusal: nothing is linked to a person whose print is gone.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "list_id",
+                "kept",
+                "row_ids"
+              ],
+              "properties": {
+                "tool": {
+                  "type": "string",
+                  "const": "tool:keep-who-appeared"
+                },
+                "list_id": {
+                  "type": "string"
+                },
+                "kept": {
+                  "type": "integer"
+                },
+                "named": {
+                  "type": "integer"
+                },
+                "possible": {
+                  "type": "integer"
+                },
+                "unknown": {
+                  "type": "integer"
+                },
+                "superseded": {
+                  "type": "integer"
+                },
+                "row_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "list-id/row-id of every row kept"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The tool that keeps appearances exists",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              }
+            ]
+          },
+          {
+            "id": "read-back",
+            "title": "Read the rows back by recording",
+            "do": "Run tool:where-someone-appeared with recording set to input.file, and submit every row id it returns as list-id/row-id and the people and recordings it counted. Every row the keep step kept must be among them; a row missing here was not kept.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "tool",
+                "row_ids",
+                "people"
+              ],
+              "properties": {
+                "tool": {
+                  "type": "string",
+                  "const": "tool:where-someone-appeared"
+                },
+                "row_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "list-id/row-id of every row the read returned"
+                },
+                "people": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  },
+                  "description": "The people it counted, each with their id, label and number of rows"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "exists",
+                "says": "The tool that reads appearances exists",
+                "path": [
+                  "this",
+                  "tool"
+                ],
+                "catalog": "tool"
+              },
+              {
+                "kind": "subset-of",
+                "says": "Every row kept is read back",
+                "path": [
+                  "steps",
+                  "keep",
+                  "row_ids"
+                ],
+                "of": [
+                  "this",
+                  "row_ids"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

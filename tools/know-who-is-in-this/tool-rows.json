@@ -1,7 +1,7 @@
 {
   "kind": "tool-rows",
   "record_set": "know-who-is-in-this-tool-rows",
-  "what_this_is": "The Workshop rows for tools/know-who-is-in-this: keep a person's voice or face print only with consent words, name who said each stretch of a transcript, find and name the faces in a picture or video, and list the people the prints can name.",
+  "what_this_is": "The Workshop rows for tools/know-who-is-in-this: keep a person's voice or face print only with consent words, name who said each stretch of a transcript, find and name the faces in a picture or video, list the people the prints can name, keep who appeared in a recording as rows linked to the person, and read where someone appeared.",
   "records": [
     {
       "id": "package::know-who-is-in-this::tool::enrol-a-voice-or-face",
@@ -120,7 +120,10 @@
               {
                 "package": "know-who-is-in-this",
                 "paths": [
-                  "do-work",
+                  "do-work/enrol-a-print.py",
+                  "do-work/find-faces.py",
+                  "do-work/measure.py",
+                  "do-work/who-is-in-this.py",
                   "read-data"
                 ],
                 "at": "/opt/know-who-is-in-this",
@@ -385,7 +388,10 @@
               {
                 "package": "know-who-is-in-this",
                 "paths": [
-                  "do-work",
+                  "do-work/enrol-a-print.py",
+                  "do-work/find-faces.py",
+                  "do-work/measure.py",
+                  "do-work/who-is-in-this.py",
                   "read-data"
                 ],
                 "at": "/opt/know-who-is-in-this",
@@ -611,7 +617,10 @@
               {
                 "package": "know-who-is-in-this",
                 "paths": [
-                  "do-work",
+                  "do-work/enrol-a-print.py",
+                  "do-work/find-faces.py",
+                  "do-work/measure.py",
+                  "do-work/who-is-in-this.py",
                   "read-data"
                 ],
                 "at": "/opt/know-who-is-in-this",
@@ -803,6 +812,508 @@
         "placements": ["placement:your-computer"],
         "maker": "maker:know-who-is-in-this",
         "provenance": {"source":"know-who-is-in-this/read-data/people.mjs, moved from the product repo's computer/know-who.py people"}
+      }
+    },
+    {
+      "id": "package::know-who-is-in-this::tool::keep-who-appeared",
+      "address": "package::know-who-is-in-this::tool::keep-who-appeared",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:keep-who-appeared",
+        "status": "active",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:know-who-is-in-this",
+        "label": "Keep who appeared in a recording",
+        "job": "Link each person whose voice was heard or face seen in a recording to that recording, the seconds and the place, as rows in the person's list of where people appeared",
+        "description": "Takes what tool:who-is-in-this answered (heard) and what tool:find-faces answered (seen) about one recording and keeps one row per stretch in the person's Where people appeared list: who, heard or seen, recording, start and end seconds, the words said, the place it was recorded, and the person's own row when given. A person is named only when the answer named them, and only while their voice-print or face-print still exists with consent words: a print taken out refuses the keep. An unsure stretch keeps the people it could be and an unknown voice keeps its number, so enrolling that voice later names what was kept; a face nobody enrolled is not kept. Keeping the same answer again changes nothing; a changed answer marks the rows it replaces superseded and deletes none. No row holds a print's numbers: the voice-print and face-print record kinds are stays_on_this_device: true and are only read here, to check consent.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "recording"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "recording": {
+              "type": "string",
+              "format": "namespace-file",
+              "description": "The recording, by identity in your files"
+            },
+            "recording_name": {
+              "type": "string",
+              "maxLength": 300,
+              "description": "What the recording is called, for the row's title"
+            },
+            "heard": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The speakers answered by tool:who-is-in-this, as it answered them"
+            },
+            "seen": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The faces answered by tool:find-faces, as it answered them"
+            },
+            "every_seconds": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "The spacing find-faces took pictures at; left out, a sighting covers only its second"
+            },
+            "people": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "A person id in the prints mapped to that person's own row in their lists, written list-id/row-id"
+            },
+            "place": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "maxLength": 300
+                },
+                "row": {
+                  "type": "string",
+                  "description": "The place's row, list-id/row-id"
+                }
+              },
+              "description": "Where the recording was made"
+            },
+            "recorded_on": {
+              "type": "string",
+              "format": "date",
+              "description": "The day it was recorded"
+            },
+            "listening": {
+              "type": "string",
+              "maxLength": 120,
+              "description": "The listening it belongs to, as given to tool:who-is-in-this"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "list_id",
+            "recording",
+            "kept",
+            "row_ids"
+          ],
+          "properties": {
+            "list_id": {
+              "type": "string"
+            },
+            "recording": {
+              "type": "string"
+            },
+            "kept": {
+              "type": "integer"
+            },
+            "named": {
+              "type": "integer"
+            },
+            "possible": {
+              "type": "integer"
+            },
+            "unknown": {
+              "type": "integer"
+            },
+            "superseded": {
+              "type": "integer"
+            },
+            "row_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/know-who-is-in-this",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/know-who-is-in-this/do-work/keep-who-appeared.mjs",
+            "keepWhoAppeared"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "know-who-is-in-this",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/know-who-is-in-this"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "list",
+                "id": "list:appearances",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "record:appearance",
+                "operations": [
+                  "records:list",
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "voice-print",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "face-print",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "recording": "1f:abababababababababababababababababababababababababababababababab",
+              "recording_name": "sample-call.wav",
+              "people": {
+                "sample-one": "people/sample-one"
+              },
+              "heard": [
+                {
+                  "start": 0,
+                  "end": 5,
+                  "who": "Ada Example",
+                  "person": "sample-one",
+                  "me": true,
+                  "voice": "sample-one",
+                  "score": 0.9,
+                  "text": "Hello from a made-up call."
+                }
+              ]
+            },
+            "records": [
+              {
+                "id": "voice-print:sample-one",
+                "type": "voice-print",
+                "value": {
+                  "person": "sample-one",
+                  "name": "Ada Example",
+                  "samples": [
+                    [
+                      1,
+                      0
+                    ]
+                  ],
+                  "consent": [
+                    "Ada Example agreed aloud in a made-up sample"
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "provenance": {
+          "source": "know-who-is-in-this/do-work/keep-who-appeared.mjs: the link from each person to their recordings that the voice and face tools left unkept"
+        }
+      }
+    },
+    {
+      "id": "package::know-who-is-in-this::tool::where-someone-appeared",
+      "address": "package::know-who-is-in-this::tool::where-someone-appeared",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:where-someone-appeared",
+        "status": "active",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:know-who-is-in-this",
+        "label": "Where someone appeared",
+        "job": "List every recording and time where a person was heard or seen, or every person kept for a recording, from the person's list of where people appeared",
+        "description": "Reads the person's Where people appeared list: give a person id, a recording, or words (a name, a place, a spoken word) and it answers each row in recording order, with the people and the recordings those rows name and how many rows each has. Rows a later keep replaced are left out unless include_superseded is true. A read only: it changes nothing and reads no voice or face numbers.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "person": {
+              "type": "string",
+              "description": "A person id in the voice and face prints"
+            },
+            "recording": {
+              "type": "string",
+              "format": "namespace-file",
+              "description": "A recording, by identity in your files"
+            },
+            "how": {
+              "type": "string",
+              "enum": [
+                "voice",
+                "face"
+              ],
+              "description": "Only heard (voice) or only seen (face)"
+            },
+            "words": {
+              "type": "string",
+              "maxLength": 500,
+              "description": "Words asked of the person's own search over this list"
+            },
+            "include_superseded": {
+              "type": "boolean",
+              "description": "Also the rows a later keep replaced"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "appearances",
+            "people",
+            "recordings"
+          ],
+          "properties": {
+            "appearances": {
+              "type": "array"
+            },
+            "people": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "appearances": {
+                    "type": "integer"
+                  }
+                }
+              }
+            },
+            "recordings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "appearances": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/know-who-is-in-this",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/know-who-is-in-this/do-work/where-someone-appeared.mjs",
+            "whereSomeoneAppeared"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "know-who-is-in-this",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/know-who-is-in-this"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:appearance",
+                "operations": [
+                  "records:list",
+                  "records:read",
+                  "records:search"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "person": "sample-one"
+            },
+            "records": [
+              {
+                "id": "record:appearance:sample-row",
+                "type": "record:appearance",
+                "value": {
+                  "person": "sample-one",
+                  "subject": "Ada Example",
+                  "status": "named",
+                  "how": "voice",
+                  "recording": "1f:abababababababababababababababababababababababababababababababab",
+                  "recording_name": "sample-call.wav",
+                  "start": 0,
+                  "end": 5
+                }
+              }
+            ]
+          }
+        ],
+        "provenance": {
+          "source": "know-who-is-in-this/do-work/where-someone-appeared.mjs"
+        }
       }
     }
   ]

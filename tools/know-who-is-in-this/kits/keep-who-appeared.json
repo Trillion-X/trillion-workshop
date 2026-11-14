@@ -1,0 +1,389 @@
+{
+  "start_here": "Say to your AI: \"Keep who appeared in my recording sample-call.wav.\" It runs the keep-who-appeared-in-a-recording recipe: tool:who-is-in-this and tool:find-faces say who was heard and seen, and tool:keep-who-appeared keeps each stretch as a row in list:appearances linked to the person, the recording, the seconds and the place.",
+  "lists": [
+    {
+      "list": "list:appearances",
+      "label": "Where people appeared",
+      "row_type": "record:appearance",
+      "holds": "One stretch of one recording in which a person's voice was heard or face seen: who, heard or seen, the recording, the seconds, the words said, the place and day when known.",
+      "fields": [
+        {
+          "id": "appearance",
+          "kind": "text",
+          "label": "Appearance",
+          "alike": [
+            "title",
+            "summary"
+          ]
+        },
+        {
+          "id": "subject",
+          "kind": "text",
+          "label": "Who (as named, or the unsure or unknown label)",
+          "alike": [
+            "name",
+            "person",
+            "who"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "text",
+          "label": "Named, possible, unknown or superseded",
+          "alike": [
+            "named, possible, unknown or superseded"
+          ]
+        },
+        {
+          "id": "person",
+          "kind": "text",
+          "label": "Person id in the voice and face prints",
+          "alike": [
+            "person id",
+            "contact id"
+          ]
+        },
+        {
+          "id": "person_row",
+          "kind": "text",
+          "label": "The person's own row (list/row)",
+          "alike": [
+            "contact row",
+            "person link"
+          ]
+        },
+        {
+          "id": "how",
+          "kind": "text",
+          "label": "Heard (voice) or seen (face)",
+          "alike": [
+            "heard or seen",
+            "kind of sighting"
+          ]
+        },
+        {
+          "id": "could_be",
+          "kind": "text",
+          "label": "Who it could be, when two or more are too close to tell",
+          "alike": [
+            "who it could be, when two or more are too close to tell"
+          ]
+        },
+        {
+          "id": "heard_as",
+          "kind": "text",
+          "label": "Unknown voice label in its listening",
+          "alike": [
+            "unknown voice label in its listening"
+          ]
+        },
+        {
+          "id": "recording",
+          "kind": "text",
+          "label": "Recording",
+          "alike": [
+            "file",
+            "video",
+            "audio"
+          ]
+        },
+        {
+          "id": "recording_name",
+          "kind": "text",
+          "label": "Recording name",
+          "alike": [
+            "recording name"
+          ]
+        },
+        {
+          "id": "start",
+          "kind": "number",
+          "label": "Start in seconds",
+          "alike": [
+            "from",
+            "starts at"
+          ]
+        },
+        {
+          "id": "end",
+          "kind": "number",
+          "label": "End in seconds",
+          "alike": [
+            "to",
+            "ends at"
+          ]
+        },
+        {
+          "id": "words",
+          "kind": "long-text",
+          "label": "Words said, when heard",
+          "alike": [
+            "transcript",
+            "said"
+          ]
+        },
+        {
+          "id": "score",
+          "kind": "number",
+          "label": "How close the match was",
+          "alike": [
+            "how close the match was"
+          ]
+        },
+        {
+          "id": "box",
+          "kind": "text",
+          "label": "Face box in pixels (x1, y1, x2, y2), when seen",
+          "alike": [
+            "face box in pixels"
+          ]
+        },
+        {
+          "id": "place",
+          "kind": "text",
+          "label": "Place row (list/row)",
+          "alike": [
+            "place row"
+          ]
+        },
+        {
+          "id": "place_name",
+          "kind": "text",
+          "label": "Place",
+          "alike": [
+            "location",
+            "where"
+          ]
+        },
+        {
+          "id": "recorded_on",
+          "kind": "date",
+          "label": "Recorded on",
+          "alike": [
+            "date",
+            "day"
+          ]
+        },
+        {
+          "id": "listening",
+          "kind": "text",
+          "label": "Listening it belongs to",
+          "alike": [
+            "listening it belongs to"
+          ]
+        },
+        {
+          "id": "made_by",
+          "kind": "text",
+          "label": "Made by",
+          "alike": [
+            "made by"
+          ]
+        },
+        {
+          "id": "kept_at",
+          "kind": "date",
+          "label": "Kept",
+          "alike": [
+            "kept"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "sample-heard",
+          "values": {
+            "appearance": "Ada Example heard in sample-call.wav from 0:00 to 0:12",
+            "subject": "Ada Example",
+            "status": "named",
+            "person": "sample-one",
+            "person_row": "people/sample-one",
+            "how": "voice",
+            "recording": "1f:abababababababababababababababababababababababababababababababab",
+            "recording_name": "sample-call.wav",
+            "start": 0,
+            "end": 12.5,
+            "words": "Welcome to the made-up call.",
+            "score": 0.91,
+            "place_name": "Sample room",
+            "recorded_on": "2026-11-01",
+            "made_by": "tool:keep-who-appeared"
+          }
+        },
+        {
+          "id": "sample-seen",
+          "values": {
+            "appearance": "Ada Example seen in sample-call.wav from 0:00 to 0:06",
+            "subject": "Ada Example",
+            "status": "named",
+            "person": "sample-one",
+            "how": "face",
+            "recording": "1f:abababababababababababababababababababababababababababababababab",
+            "recording_name": "sample-call.wav",
+            "start": 0,
+            "end": 6,
+            "score": 0.7,
+            "box": "10, 10, 60, 70",
+            "place_name": "Sample room",
+            "recorded_on": "2026-11-01",
+            "made_by": "tool:keep-who-appeared"
+          }
+        }
+      ],
+      "alike": [
+        "a photo app's People album with every picture a person is in",
+        "a call app's speaker timeline",
+        "a spreadsheet of who appeared in which video"
+      ]
+    }
+  ],
+  "workflows": [],
+  "tools": [
+    "tool:find-faces",
+    "tool:keep-who-appeared",
+    "tool:who-is-in-this"
+  ],
+  "instructions": [
+    "1. Enrol each person once with tool:enrol-a-voice-or-face, saying who agreed and how; nobody is named who has not.",
+    "2. Say \"Run the keep-who-appeared-in-a-recording recipe\" with the recording's identity, and the place and day when you know them.",
+    "3. Read the rows it kept with tool:where-someone-appeared, by person or by recording; a voice nobody enrolled is kept as voice-1, voice-2 and so on.",
+    "4. Enrol an unknown voice later (tool:enrol-a-voice-or-face with heard_voice) and run the workflow again: its stretches become named rows and the unknown ones are marked superseded."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep who appeared in a recording",
+      "ask": "Keep who appeared in a recording",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-who-appeared",
+            "input": {
+              "recording": "1f:abababababababababababababababababababababababababababababababab",
+              "recording_name": "sample-call.wav",
+              "people": {
+                "sample-one": "people/sample-one"
+              },
+              "heard": [
+                {
+                  "start": 0,
+                  "end": 12.5,
+                  "who": "Ada Example",
+                  "person": "sample-one",
+                  "me": true,
+                  "voice": "sample-one",
+                  "score": 0.91,
+                  "text": "Welcome to the made-up call."
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "A recording with one enrolled speaker, named by tool:who-is-in-this for the first 12 seconds, and the person's own row people/sample-one.",
+      "hands_back": "{\"list_id\":\"appearances\",\"kept\":1,\"named\":1,\"possible\":0,\"unknown\":0,\"superseded\":0,\"row_ids\":[\"appearances/<recording>:voice:0:sample-one\"]}"
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for who appears where and its fields. The tool matches each kit field to one of yours (by the map you give, the same id, the same label, or a name in alike), refuses when fewer than least_coverage of the kit's fields match, and otherwise answers the records:write that adds the example rows to your list, leaving your own rows untouched.",
+    "example": {
+      "kit_list": "list:appearances",
+      "into": {
+        "list": "list:who-is-in-my-videos",
+        "row_type": "record:who-in-video",
+        "fields": [
+          {
+            "id": "appearance",
+            "label": "Appearance"
+          },
+          {
+            "id": "subject",
+            "label": "Who (as named, or the unsure or unknown label)"
+          },
+          {
+            "id": "status",
+            "label": "Named, possible, unknown or superseded"
+          },
+          {
+            "id": "person",
+            "label": "Person id in the voice and face prints"
+          },
+          {
+            "id": "person_row",
+            "label": "The person's own row (list/row)"
+          },
+          {
+            "id": "how",
+            "label": "Heard (voice) or seen (face)"
+          },
+          {
+            "id": "could_be",
+            "label": "Who it could be, when two or more are too close to tell"
+          },
+          {
+            "id": "heard_as",
+            "label": "Unknown voice label in its listening"
+          },
+          {
+            "id": "recording",
+            "label": "Recording"
+          },
+          {
+            "id": "recording_name",
+            "label": "Recording name"
+          },
+          {
+            "id": "start",
+            "label": "Start in seconds"
+          },
+          {
+            "id": "end",
+            "label": "End in seconds"
+          },
+          {
+            "id": "words",
+            "label": "Words said, when heard"
+          },
+          {
+            "id": "score",
+            "label": "How close the match was"
+          },
+          {
+            "id": "box",
+            "label": "Face box in pixels (x1, y1, x2, y2), when seen"
+          },
+          {
+            "id": "place",
+            "label": "Place row (list/row)"
+          },
+          {
+            "id": "place_name",
+            "label": "Place"
+          },
+          {
+            "id": "recorded_on",
+            "label": "Recorded on"
+          },
+          {
+            "id": "listening",
+            "label": "Listening it belongs to"
+          },
+          {
+            "id": "made_by",
+            "label": "Made by"
+          },
+          {
+            "id": "kept_at",
+            "label": "Kept"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
+}

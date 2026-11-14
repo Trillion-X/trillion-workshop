@@ -8,7 +8,7 @@ Reads one JSON object on stdin:
   voice_sessions   the person's listening-voices records (filled from their records)
   listening        the listening this recording belongs to; unknown voices keep their number across its recordings
   rules, words, join_within_seconds, max_seconds   optional; see read-data/who_is_in.py
-Prints one JSON line: { speakers: [{ start, end, who, me, voice, score, unsure?, text }], voices_heard, records }.
+Prints one JSON line: { speakers: [{ start, end, who, person, me, voice, score, unsure?, text }], voices_heard, records }.
 `records` holds the listening's listening-voices record, which the tool keeps (kind listening-voices, stays on this device).
 """
 
