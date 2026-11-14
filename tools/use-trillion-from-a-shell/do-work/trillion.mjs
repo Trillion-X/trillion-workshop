@@ -352,7 +352,11 @@ export async function refreshGrant(grant, { fetchImpl = fetch, rules = settings,
  *  login kept, renewed first when it ends within `grant.refresh_before_seconds`. { kind: 'key'|'sign-in', bearer, where,
  *  origin? }, or null when there is none. */
 export async function credentialFor({ env = process.env, store = keyStore(), grants = grantStore(), fetchImpl = fetch, rules = settings, now = Date.now } = {}) {
-  if (bearerOf(env.TRILLION_KEY, rules) !== null) return { kind: 'key', bearer: env.TRILLION_KEY, where: 'TRILLION_KEY' };
+  if (env.TRILLION_KEY) {
+    // A key the person put in TRILLION_KEY is sent as given or not at all: one of no declared kind is refused, never swapped for the kept key.
+    if (bearerOf(env.TRILLION_KEY, rules) === null) throw new TrillionError(fill(rules.bearers.refused, { kinds: rules.bearers.shapes.map(row => row.kind).join(', ') }), { status: 2 });
+    return { kind: 'key', bearer: env.TRILLION_KEY, where: 'TRILLION_KEY' };
+  }
   const key = store.read();
   if (key) return { kind: 'key', bearer: key, where: store.where };
   let grant = grants.read();
@@ -891,6 +895,8 @@ async function signedInClient(context) {
   const credential = await credentialFor({ env: context.env, store: context.store, grants: context.grants, fetchImpl: context.fetchImpl });
   if (!credential) throw new TrillionError(settings.words.no_credential, { status: 3 });
   const door = doorFor({ asked: context.asked, credential, localMcp: context.localMcp() });
+  // The key this computer keeps goes only to this computer's local door or the public origin; any other door gets a key the person gives for it (TRILLION_KEY).
+  if (credential.kind === 'key' && credential.where !== 'TRILLION_KEY' && !door.local && !door.public) throw new TrillionError(fill(settings.words.kept_key_elsewhere, { mcp: door.mcp }), { status: 2 });
   const timeoutSeconds = context.flags.timeout === undefined ? undefined : timeoutOf(context.flags.timeout);
   return trillionClient({ door, credential, fetchImpl: context.fetchImpl, wait: context.wait, ...(timeoutSeconds === undefined ? {} : { timeoutSeconds }) });
 }

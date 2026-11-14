@@ -357,6 +357,7 @@
     "refused_key_at_door": "{door} does not admit this computer's key yet{local}.",
     "local_door_named": "; the key works at this computer's local door {mcp}",
     "local_door": "the Mac app's local door {mcp}",
+    "kept_key_elsewhere": "The key this computer keeps is not sent to {mcp}: that is neither this computer's local door nor the public door. Give the key for that door in TRILLION_KEY.",
     "public_door": "the public door {mcp}",
     "named_door": "the door {mcp}",
     "missing_route": "{door} does not serve {route}.",

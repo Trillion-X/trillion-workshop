@@ -718,7 +718,19 @@ test('bearer: whatever kind of key or token TRILLION_KEY holds reaches the door 
       assert.match(said, new RegExp(`^account ${ACCOUNT}`), 'the door took the bearer exactly as given');
     }
     assert.deepEqual((await credentialFor({ env: { TRILLION_KEY: apiKey }, store: nobody, grants: noGrants })).bearer, apiKey);
-    assert.equal(await credentialFor({ env: { TRILLION_KEY: 'not a key' }, store: nobody, grants: noGrants }), null, 'a value no shape row matches is not a credential');
+    await assert.rejects(credentialFor({ env: { TRILLION_KEY: 'not a key' }, store: nobody, grants: noGrants }), /not a kind of key or token/, 'a value no shape row matches is refused, not skipped');
     assert.deepEqual(settings.bearers.shapes.map(row => row.kind), ['account key', 'API key', 'signed token'], 'the kinds are DATA');
+  } finally { await fake.close(); }
+});
+
+test('bearer: a TRILLION_KEY of no declared kind is refused and never replaced by the kept key; the kept key goes only to the local or the public door', async () => {
+  const fake = await fakeDoor();
+  try {
+    const seams = env => seamsFor(home(), { localDoor: () => null, env: { CLAUDECODE: '1', ...env } });
+    await assert.rejects(main(['whoami', '--origin', fake.origin], seams({ TRILLION_KEY: 'not a key' })), error => error.status === 2 && /not a kind of key or token/.test(error.message));
+    assert.equal(fake.calls.length, 0, 'nothing was sent to the door, least of all the kept key');
+    await assert.rejects(main(['whoami', '--origin', fake.origin], seams({})), error => error.status === 2 && /is not sent to/.test(error.message));
+    assert.equal(fake.calls.length, 0, 'the kept key is not sent to a door that is neither local nor public');
+    assert.match(await main(['whoami', '--origin', fake.origin], seams({ TRILLION_KEY: KEY })), new RegExp(`^account ${ACCOUNT}`), 'a key the person gives for that door is sent');
   } finally { await fake.close(); }
 });
