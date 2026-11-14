@@ -1,0 +1,515 @@
+{
+  "_what": "The task tray beside the Calendar. `lists` are the built-in lists every person has (they cannot be renamed or deleted; a person's own lists follow them): each has `match`, the test a task passes to be in it (calendar-task-views.mjs; `all` and `any` hold tests, a test names a task `field` and one of `is`, `in`, `empty`, `not_empty`, `today`, `today_or_before`), and `move_to`, the fields a task takes when it is moved into the list (absent: nothing moves into it). `display` is the Display menu: how the tray groups, sorts and which tasks it shows (`defaults`, kept as the person's own under `preference_key`). `quick_add` is how the words typed into the new-todo field are read: a word starting with `@` names a list or a time. `priorities` are the quick priority choices (their words are calendar-tasks.json priority_labels). `durations` are the duration chips on a task. `deadline_tones` colour a task's deadline by how near it is, the first row whose `within_days` holds. `menu` is the verbs a todo's menu offers, in order (`kind`: `run` does it, `choices` opens a short list, `panel` opens a small form). The keys that act on the tray are rows of the one keymap (keymap.json, scope `tasks`, verb `task-key`; `with.action` is what it does). Add a built-in list, a way to sort or a duration by adding a row.",
+  "lists": [
+    {
+      "id": "all",
+      "label": "All",
+      "icon": "Layers",
+      "builtin": true,
+      "match": {
+        "all": []
+      }
+    },
+    {
+      "id": "inbox",
+      "label": "Inbox",
+      "icon": "Inbox",
+      "builtin": true,
+      "match": {
+        "all": [
+          {
+            "field": "collection_id",
+            "empty": true
+          },
+          {
+            "field": "smart_list",
+            "empty": true
+          },
+          {
+            "field": "starts_at",
+            "empty": true
+          }
+        ]
+      },
+      "move_to": {
+        "collection_id": null,
+        "smart_list": null
+      }
+    },
+    {
+      "id": "today",
+      "label": "Today",
+      "icon": "CalendarCheck",
+      "builtin": true,
+      "match": {
+        "any": [
+          {
+            "field": "starts_at",
+            "today": true
+          },
+          {
+            "field": "due",
+            "today_or_before": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "other",
+      "label": "Other",
+      "icon": "Archive",
+      "builtin": true,
+      "match": {
+        "all": [
+          {
+            "field": "collection_id",
+            "empty": true
+          },
+          {
+            "field": "smart_list",
+            "is": "other"
+          }
+        ]
+      },
+      "move_to": {
+        "collection_id": null,
+        "smart_list": "other"
+      }
+    },
+    {
+      "id": "email",
+      "label": "Email",
+      "icon": "Mail",
+      "builtin": true,
+      "match": {
+        "all": [
+          {
+            "field": "collection_id",
+            "empty": true
+          },
+          {
+            "field": "smart_list",
+            "is": "email"
+          }
+        ]
+      },
+      "move_to": {
+        "collection_id": null,
+        "smart_list": "email"
+      }
+    },
+    {
+      "id": "calendar",
+      "label": "Calendar",
+      "icon": "CalendarDays",
+      "builtin": true,
+      "match": {
+        "all": [
+          {
+            "field": "collection_id",
+            "empty": true
+          },
+          {
+            "field": "smart_list",
+            "is": "calendar"
+          }
+        ]
+      },
+      "move_to": {
+        "collection_id": null,
+        "smart_list": "calendar"
+      }
+    }
+  ],
+  "quick_add": {
+    "placeholder": "New todo @list @2pm, or compose email",
+    "list_marker": "@",
+    "default_hour": 9,
+    "time_words": {
+      "noon": "12:00",
+      "midnight": "00:00",
+      "morning": "09:00",
+      "evening": "18:00"
+    },
+    "day_words": {
+      "today": 0,
+      "tomorrow": 1
+    },
+    "weekdays": [
+      [
+        "sun",
+        "sunday"
+      ],
+      [
+        "mon",
+        "monday"
+      ],
+      [
+        "tue",
+        "tuesday"
+      ],
+      [
+        "wed",
+        "wednesday"
+      ],
+      [
+        "thu",
+        "thursday"
+      ],
+      [
+        "fri",
+        "friday"
+      ],
+      [
+        "sat",
+        "saturday"
+      ]
+    ],
+    "pattern_12h": "^(\\d{1,2})(?::(\\d{2}))?(am|pm)$",
+    "pattern_24h": "^(\\d{1,2}):(\\d{2})$",
+    "preview": {
+      "list": "Goes to {list}",
+      "time": "Scheduled {when}",
+      "both": "Goes to {list}, scheduled {when}"
+    }
+  },
+  "display": {
+    "preference_key": "calendar-task-display",
+    "defaults": {
+      "group_by": "list",
+      "sort_by": "manual",
+      "show_snoozed": false,
+      "show_empty_lists": false
+    },
+    "group_by": [
+      {
+        "id": "list",
+        "label": "List",
+        "levels": [
+          {
+            "field": "list"
+          }
+        ]
+      },
+      {
+        "id": "scheduled",
+        "label": "Scheduled date",
+        "levels": [
+          {
+            "field": "starts_at",
+            "bucket": "day"
+          }
+        ]
+      },
+      {
+        "id": "date",
+        "label": "Date",
+        "levels": [
+          {
+            "field": "due",
+            "bucket": "day"
+          }
+        ]
+      },
+      {
+        "id": "none",
+        "label": "None",
+        "levels": []
+      }
+    ],
+    "sort_by": [
+      {
+        "id": "manual",
+        "label": "Manual"
+      },
+      {
+        "id": "title",
+        "label": "Title",
+        "field": "title",
+        "direction": "asc",
+        "text": true
+      },
+      {
+        "id": "deadline",
+        "label": "Deadline",
+        "field": "due",
+        "direction": "asc",
+        "empty_last": true
+      },
+      {
+        "id": "newest",
+        "label": "Newest",
+        "field": "created_at",
+        "direction": "desc",
+        "empty_last": true
+      },
+      {
+        "id": "oldest",
+        "label": "Oldest",
+        "field": "created_at",
+        "direction": "asc",
+        "empty_last": true
+      }
+    ],
+    "view": [
+      {
+        "id": "show_snoozed",
+        "label": "Show snoozed todos"
+      },
+      {
+        "id": "show_empty_lists",
+        "label": "Show empty lists"
+      }
+    ],
+    "words": {
+      "heading": "Display",
+      "group_by": "Group by",
+      "sort_by": "Sort by",
+      "view": "View"
+    }
+  },
+  "priorities": [
+    {
+      "value": null,
+      "key": ""
+    },
+    {
+      "value": "high",
+      "key": "p"
+    },
+    {
+      "value": "urgent",
+      "key": "shift+p"
+    }
+  ],
+  "durations": [
+    15,
+    30,
+    45,
+    60,
+    90,
+    120,
+    180,
+    240
+  ],
+  "deadline_tones": [
+    {
+      "id": "overdue",
+      "within_days": -1,
+      "tone": "danger"
+    },
+    {
+      "id": "soon",
+      "within_days": 2,
+      "tone": "warning"
+    },
+    {
+      "id": "later",
+      "within_days": 99999,
+      "tone": "muted"
+    }
+  ],
+  "snooze": {
+    "_what": "Snooze choices in the todo menu: a todo is hidden until the day the choice names (days from today), then comes back.",
+    "choices": [
+      {
+        "id": "tomorrow",
+        "label": "Tomorrow",
+        "days": 1
+      },
+      {
+        "id": "weekend",
+        "label": "Saturday",
+        "weekday": 6
+      },
+      {
+        "id": "next_week",
+        "label": "Next week",
+        "days": 7
+      }
+    ]
+  },
+  "menu": [
+    {
+      "id": "complete",
+      "label": "Mark done",
+      "icon": "Check",
+      "kind": "run"
+    },
+    {
+      "id": "move",
+      "label": "Move to",
+      "icon": "FolderInput",
+      "kind": "choices"
+    },
+    {
+      "id": "priority",
+      "label": "Set priority",
+      "icon": "Flag",
+      "kind": "choices"
+    },
+    {
+      "id": "schedule",
+      "label": "Schedule",
+      "icon": "CalendarClock",
+      "kind": "panel"
+    },
+    {
+      "id": "unschedule",
+      "label": "Move to Inbox",
+      "icon": "Inbox",
+      "kind": "run"
+    },
+    {
+      "id": "duration",
+      "label": "Set duration",
+      "icon": "Clock3",
+      "kind": "choices"
+    },
+    {
+      "id": "repeat",
+      "label": "Repeat",
+      "icon": "Repeat2",
+      "kind": "panel"
+    },
+    {
+      "id": "deadline",
+      "label": "Set deadline",
+      "icon": "CalendarCheck",
+      "kind": "panel"
+    },
+    {
+      "id": "snooze",
+      "label": "Snooze",
+      "icon": "BellOff",
+      "kind": "choices"
+    },
+    {
+      "id": "copy",
+      "label": "Copy title",
+      "icon": "Copy",
+      "kind": "run"
+    },
+    {
+      "id": "duplicate",
+      "label": "Duplicate task",
+      "icon": "CopyPlus",
+      "kind": "run"
+    },
+    {
+      "id": "delete",
+      "label": "Delete",
+      "icon": "Trash2",
+      "kind": "run"
+    }
+  ],
+  "words": {
+    "lists_label": "Lists",
+    "add_list": "New list",
+    "add_list_name": "List name",
+    "add_list_create": "Create list",
+    "add_list_created": "List created",
+    "switch_list": "Switch list",
+    "list_empty": "Nothing in {list} yet.",
+    "group_none": "Inbox",
+    "group_add": "New todo in {list}",
+    "group_toggle": "Fold or open {list}",
+    "marked": "{count} selected",
+    "marked_clear": "Clear selection",
+    "marked_done": "Mark done",
+    "marked_move": "Move to",
+    "marked_delete": "Delete",
+    "marked_done_result": "{count} todos done",
+    "marked_delete_result": "{count} todos deleted",
+    "marked_move_result": "{count} todos moved to {list}",
+    "marked_partial": "{changed} changed, {refused} could not change",
+    "undo": "Undo",
+    "menu_priority_none": "None",
+    "menu_repeat_off": "Does not repeat",
+    "menu_deadline_none": "No date",
+    "menu_unsnooze": "Bring back now",
+    "menu_reopen": "Reopen task",
+    "menu_more": "More actions",
+    "title_copied": "Title copied",
+    "title_copy_failed": "The title could not be copied",
+    "deleted": "Todo deleted",
+    "moved": "Moved to {list}",
+    "priority_set": "Priority set",
+    "deadline_set": "Deadline set",
+    "deadline_cleared": "Deadline cleared",
+    "duration_set": "Duration set",
+    "snoozed": "Snoozed until {when}",
+    "unsnoozed": "Brought back",
+    "scheduled": "Scheduled {when}",
+    "repeat_set": "Repeat set",
+    "repeat_cleared": "Repeat removed",
+    "timer_start": "Start timer",
+    "timer_stop": "Stop timer",
+    "timer_logged": "{minutes} min logged",
+    "timer_short": "Under a minute, not logged",
+    "timer_spent": "{minutes} min spent",
+    "deadline_chip": "Deadline {date}",
+    "deadline_none": "No deadline",
+    "duration_chip": "Duration {duration}",
+    "format_label": "Format selected text",
+    "card_more": "More actions for this todo",
+    "mail_imported": "{count} emails added as todos",
+    "mail_import_none": "No new emails to add",
+    "mail_import_failed": "The emails could not be added",
+    "plan_off": "AI scheduling is off. Turn it on in Settings to plan your todos.",
+    "plan_incomplete_lists": "Some of your lists could not be read, so planning stopped. Try again.",
+    "mail_import_off": "Turn on Emails as todos first, then import."
+  },
+  "formats": [
+    {
+      "id": "bold",
+      "label": "Bold",
+      "icon": "Bold",
+      "wrap": [
+        "**",
+        "**"
+      ]
+    },
+    {
+      "id": "italic",
+      "label": "Italic",
+      "icon": "Italic",
+      "wrap": [
+        "_",
+        "_"
+      ]
+    },
+    {
+      "id": "strike",
+      "label": "Strikethrough",
+      "icon": "Strikethrough",
+      "wrap": [
+        "~~",
+        "~~"
+      ]
+    },
+    {
+      "id": "link",
+      "label": "Link",
+      "icon": "Link",
+      "wrap": [
+        "[",
+        "](https://)"
+      ],
+      "select_after": "https://"
+    },
+    {
+      "id": "list",
+      "label": "Bulleted list",
+      "icon": "List",
+      "prefix": "- "
+    }
+  ],
+  "card_menu": [
+    "complete",
+    "move",
+    "priority",
+    "snooze",
+    "copy"
+  ]
+}

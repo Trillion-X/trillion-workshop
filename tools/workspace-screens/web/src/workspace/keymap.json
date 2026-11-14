@@ -1,0 +1,1327 @@
+{
+ "_what": "The one key table for every screen; a screen that adds its own key table repeats it. The ONE keymap: every key chord Trillion's pages answer, as DATA (src/workspace/keymap.mjs reads it, keymap-runtime.ts listens, keymap-settings.tsx lets the person re-record each one under Settings, Shortcuts). Another feature adds its keys by adding rows here and registering the verb its row names (registerVerb in keymap-runtime.ts); it never listens for keys on its own. A row is `{ chord, verb, scope, words }`: `chord` is modifiers then a key joined by `+` (`mod` is Cmd on a Mac and Ctrl elsewhere; `ctrl`, `alt`, `shift` and `meta` are themselves; the key is a name from `keys`) or null when the row starts with no key; `verb` names what runs; `scope` names a row of `scopes` where it works; `words` is what the person reads. A global row may carry `host` naming something only the Mac app itself does (`toggle-app` shows or hides Trillion); it then has no `verb` on the page to run. A row may also carry `with` (what its verb is handed, for example the screen `open-screen` opens) and `id` (its name when two rows share one verb; the verb is its name otherwise). A person's own keys are kept as their account record `workspace-preference:` + `preference` (`{ <row name>: chord | null }`, null being a key taken away). `scopes`: a screen scope may be `within` another (a narrower place inside it: an event focused inside the calendar, the task tray beside it); while both match the narrower one's row is heard first. Kind `global` is registered with the computer itself, so it works while another app is in front (the Mac app registers it; it needs a modifier); kind `app` works on every Trillion page; kind `screen` works only while the page holds an element matching its `selector`. `keys` maps each key name to the KeyboardEvent.code it is (`code`), the Mac virtual key code the host registers (`mac`) and how it is shown (`shown`). `plain_keys` decides keys pressed alone (no modifier): they never run while the person is typing in a field, and run only when no menu, list, tab or slider holds the keyboard (`held`); the same goes for a key with only Shift or Option, which can type a character. `host` is how the Mac app hears the `global` rows: the page tells them on message channel `channel` (macos/App/global-keys.json says the same) and the app calls `window.<page_entry>.pressed(<row name>)` when one is pressed. `reserved` are chords the system keeps for itself and cannot be taken. `words` is every sentence the Shortcuts page and the host say.",
+ "preference": "keymap-overrides",
+ "host": {
+  "channel": "trillionHotkeys",
+  "page_entry": "trillionKeymap"
+ },
+ "modifier_order": [
+  "mod",
+  "ctrl",
+  "meta",
+  "alt",
+  "shift"
+ ],
+ "host_modifiers": {
+  "mod": "command",
+  "meta": "command",
+  "ctrl": "control",
+  "alt": "option",
+  "shift": "shift"
+ },
+ "shown_modifiers": {
+  "mac": {
+   "mod": "⌘",
+   "ctrl": "⌃",
+   "meta": "⌘",
+   "alt": "⌥",
+   "shift": "⇧"
+  },
+  "other": {
+   "mod": "Ctrl",
+   "ctrl": "Ctrl",
+   "meta": "Meta",
+   "alt": "Alt",
+   "shift": "Shift"
+  }
+ },
+ "plain_keys": {
+  "typing": "input, textarea, select, [contenteditable], [role=\"textbox\"]",
+  "held": "[role=\"option\"], [role=\"menuitem\"], [role=\"menuitemradio\"], [role=\"menuitemcheckbox\"], [role=\"tab\"], [role=\"listbox\"], [role=\"menu\"], [role=\"combobox\"], [role=\"slider\"]"
+ },
+ "reserved": [
+  "mod+q",
+  "mod+w",
+  "mod+h",
+  "mod+m",
+  "mod+tab",
+  "mod+space",
+  "mod+c",
+  "mod+v",
+  "mod+x",
+  "mod+z",
+  "mod+a"
+ ],
+ "scopes": [
+  {
+   "id": "global",
+   "kind": "global",
+   "label": "From any app"
+  },
+  {
+   "id": "app",
+   "kind": "app",
+   "label": "In Trillion"
+  },
+  {
+   "id": "mail",
+   "kind": "screen",
+   "label": "In Mail, with a message open",
+   "selector": "[data-email-message-open]"
+  },
+  {
+   "id": "tasks",
+   "kind": "screen",
+   "label": "In the task list beside the calendar",
+   "selector": "[data-schedule-tray]:focus-within",
+   "within": "calendar"
+  },
+  {
+   "id": "calendar",
+   "kind": "screen",
+   "label": "In the calendar",
+   "selector": "[data-schedule-calendar]"
+  },
+  {
+   "id": "calendar-event",
+   "kind": "screen",
+   "label": "In the calendar, with an event focused",
+   "selector": "[data-hour-grid-item]:focus-within",
+   "within": "calendar"
+  }
+ ],
+ "rows": [
+  {
+   "chord": "mod+k",
+   "verb": "find-anything",
+   "scope": "app",
+   "words": "Find anything"
+  },
+  {
+   "chord": "mod+shift+space",
+   "verb": "message-box",
+   "scope": "app",
+   "words": "Write to your AIs"
+  },
+  {
+   "chord": null,
+   "id": "message-box-anywhere",
+   "verb": "message-box",
+   "scope": "global",
+   "words": "Write to your AIs from any app"
+  },
+  {
+   "chord": null,
+   "id": "show-hide-trillion",
+   "verb": "show-hide-trillion",
+   "host": "toggle-app",
+   "scope": "global",
+   "words": "Show or hide Trillion"
+  },
+  {
+   "chord": "mod+comma",
+   "id": "open-settings",
+   "verb": "open-screen",
+   "with": {
+    "id": "trillion.settings"
+   },
+   "scope": "app",
+   "words": "Open settings"
+  },
+  {
+   "chord": "alt+m",
+   "id": "toggle-theme",
+   "verb": "toggle-theme",
+   "scope": "app",
+   "words": "Switch between light and dark"
+  },
+  {
+   "chord": "mod+slash",
+   "id": "open-shortcuts",
+   "verb": "open-screen",
+   "with": {
+    "id": "trillion.settings",
+    "surfaceInput": {
+     "page": "shortcuts"
+    }
+   },
+   "scope": "app",
+   "words": "Open shortcuts"
+  },
+  {
+   "chord": "i",
+   "id": "go-mail",
+   "verb": "open-screen",
+   "with": {
+    "id": "trillion.mail"
+   },
+   "scope": "app",
+   "words": "Go to mail"
+  },
+  {
+   "chord": "c",
+   "id": "go-calendar",
+   "verb": "open-screen",
+   "with": {
+    "id": "trillion.calendar"
+   },
+   "scope": "app",
+   "words": "Go to calendar"
+  },
+  {
+   "chord": "m",
+   "id": "go-lists",
+   "verb": "open-screen",
+   "with": {
+    "id": "trillion.lists"
+   },
+   "scope": "app",
+   "words": "Go to lists"
+  },
+  {
+   "chord": null,
+   "id": "join-upcoming-call",
+   "verb": "join-upcoming-call",
+   "scope": "global",
+   "words": "Join the call that is starting"
+  },
+  {
+   "chord": null,
+   "id": "record-a-meeting",
+   "verb": "open-screen",
+   "with": {
+    "id": "trillion.record-audio"
+   },
+   "scope": "global",
+   "words": "Record a meeting"
+  },
+  {
+   "chord": null,
+   "id": "new-task-anywhere",
+   "verb": "open-screen",
+   "with": {
+    "id": "trillion.calendar",
+    "surfaceInput": {
+     "new_task": true
+    }
+   },
+   "scope": "global",
+   "words": "Make a to-do from any app"
+  },
+  {
+   "chord": "r",
+   "id": "mail-reply",
+   "verb": "mail-command",
+   "with": {
+    "command": "reply"
+   },
+   "scope": "mail",
+   "words": "Reply to the open message"
+  },
+  {
+   "chord": "shift+r",
+   "id": "mail-reply-all",
+   "verb": "mail-command",
+   "with": {
+    "command": "reply_all"
+   },
+   "scope": "mail",
+   "words": "Reply to everyone on the open message"
+  },
+  {
+   "chord": "f",
+   "id": "mail-forward",
+   "verb": "mail-command",
+   "with": {
+    "command": "forward"
+   },
+   "scope": "mail",
+   "words": "Forward the open message"
+  },
+  {
+   "chord": "d",
+   "id": "mail-done",
+   "verb": "mail-command",
+   "with": {
+    "command": "done"
+   },
+   "scope": "mail",
+   "words": "Mark the open message done"
+  },
+  {
+   "chord": "u",
+   "id": "mail-unread",
+   "verb": "mail-command",
+   "with": {
+    "command": "unread"
+   },
+   "scope": "mail",
+   "words": "Mark the open message unread (or read)"
+  },
+  {
+   "chord": "backspace",
+   "id": "mail-delete",
+   "verb": "mail-command",
+   "with": {
+    "command": "delete"
+   },
+   "scope": "mail",
+   "words": "Move the open message to Trash"
+  },
+  {
+   "chord": "p",
+   "id": "mail-priority",
+   "verb": "mail-command",
+   "with": {
+    "command": "priority"
+   },
+   "scope": "mail",
+   "words": "Set the priority of the open message"
+  },
+  {
+   "chord": "h",
+   "id": "mail-schedule",
+   "verb": "mail-command",
+   "with": {
+    "command": "schedule"
+   },
+   "scope": "mail",
+   "words": "Schedule the open message"
+  },
+  {
+   "chord": "k",
+   "id": "mail-deadline",
+   "verb": "mail-command",
+   "with": {
+    "command": "deadline"
+   },
+   "scope": "mail",
+   "words": "Set a deadline on the open message"
+  },
+  {
+   "chord": "mod+d",
+   "id": "mail-duplicate",
+   "verb": "mail-command",
+   "with": {
+    "command": "duplicate"
+   },
+   "scope": "mail",
+   "words": "Duplicate the task for the open message"
+  },
+  {
+   "chord": "d",
+   "id": "task-done",
+   "verb": "task-key",
+   "with": {
+    "action": "complete"
+   },
+   "scope": "tasks",
+   "words": "Mark done"
+  },
+  {
+   "chord": "l",
+   "id": "task-move",
+   "verb": "task-key",
+   "with": {
+    "action": "move"
+   },
+   "scope": "tasks",
+   "words": "Move to list"
+  },
+  {
+   "chord": "h",
+   "id": "task-schedule",
+   "verb": "task-key",
+   "with": {
+    "action": "schedule"
+   },
+   "scope": "tasks",
+   "words": "Schedule"
+  },
+  {
+   "chord": "k",
+   "id": "task-deadline",
+   "verb": "task-key",
+   "with": {
+    "action": "deadline"
+   },
+   "scope": "tasks",
+   "words": "Set deadline"
+  },
+  {
+   "chord": "p",
+   "id": "task-priority",
+   "verb": "task-key",
+   "with": {
+    "action": "priority",
+    "value": "high"
+   },
+   "scope": "tasks",
+   "words": "Set priority"
+  },
+  {
+   "chord": "shift+p",
+   "id": "task-super-priority",
+   "verb": "task-key",
+   "with": {
+    "action": "priority",
+    "value": "urgent"
+   },
+   "scope": "tasks",
+   "words": "Set super priority"
+  },
+  {
+   "chord": "backspace",
+   "id": "task-delete",
+   "verb": "task-key",
+   "with": {
+    "action": "delete"
+   },
+   "scope": "tasks",
+   "words": "Delete"
+  },
+  {
+   "chord": "mod+d",
+   "id": "task-duplicate",
+   "verb": "task-key",
+   "with": {
+    "action": "duplicate"
+   },
+   "scope": "tasks",
+   "words": "Duplicate"
+  },
+  {
+   "chord": "down",
+   "id": "task-next",
+   "verb": "task-key",
+   "with": {
+    "action": "next"
+   },
+   "scope": "tasks",
+   "words": "Next todo"
+  },
+  {
+   "chord": "up",
+   "id": "task-previous",
+   "verb": "task-key",
+   "with": {
+    "action": "previous"
+   },
+   "scope": "tasks",
+   "words": "Previous todo"
+  },
+  {
+   "chord": "shift+down",
+   "id": "task-extend-next",
+   "verb": "task-key",
+   "with": {
+    "action": "extend_next"
+   },
+   "scope": "tasks",
+   "words": "Select the next todo too"
+  },
+  {
+   "chord": "shift+up",
+   "id": "task-extend-previous",
+   "verb": "task-key",
+   "with": {
+    "action": "extend_previous"
+   },
+   "scope": "tasks",
+   "words": "Select the previous todo too"
+  },
+  {
+   "chord": "right",
+   "id": "task-next-list",
+   "verb": "task-key",
+   "with": {
+    "action": "next_list"
+   },
+   "scope": "tasks",
+   "words": "Next list"
+  },
+  {
+   "chord": "left",
+   "id": "task-previous-list",
+   "verb": "task-key",
+   "with": {
+    "action": "previous_list"
+   },
+   "scope": "tasks",
+   "words": "Previous list"
+  },
+  {
+   "chord": "s",
+   "id": "task-switch-list",
+   "verb": "task-key",
+   "with": {
+    "action": "switch_list"
+   },
+   "scope": "tasks",
+   "words": "Switch lists"
+  },
+  {
+   "chord": "n",
+   "id": "task-new-todo",
+   "verb": "task-key",
+   "with": {
+    "action": "new_todo"
+   },
+   "scope": "tasks",
+   "words": "New todo"
+  },
+  {
+   "chord": "left",
+   "id": "calendar-previous",
+   "verb": "calendar-sideways",
+   "scope": "calendar",
+   "words": "Go to the previous week, month or day (with an event focused: the event on the previous day)",
+   "with": {
+    "by": -1
+   }
+  },
+  {
+   "chord": "right",
+   "id": "calendar-next",
+   "verb": "calendar-sideways",
+   "scope": "calendar",
+   "words": "Go to the next week, month or day (with an event focused: the event on the next day)",
+   "with": {
+    "by": 1
+   }
+  },
+  {
+   "chord": "k",
+   "id": "calendar-previous-key",
+   "verb": "calendar-shift",
+   "scope": "calendar",
+   "words": "Go to the previous week, month or day",
+   "with": {
+    "by": -1
+   }
+  },
+  {
+   "chord": "j",
+   "id": "calendar-next-key",
+   "verb": "calendar-shift",
+   "scope": "calendar",
+   "words": "Go to the next week, month or day",
+   "with": {
+    "by": 1
+   }
+  },
+  {
+   "chord": "t",
+   "id": "calendar-today",
+   "verb": "calendar-today",
+   "scope": "calendar",
+   "words": "Go to today"
+  },
+  {
+   "chord": "shift+p",
+   "id": "calendar-date-picker",
+   "verb": "calendar-date-picker",
+   "scope": "calendar",
+   "words": "Show the date picker"
+  },
+  {
+   "chord": "d",
+   "id": "calendar-view-day",
+   "verb": "calendar-view",
+   "scope": "calendar",
+   "words": "Show one day",
+   "with": {
+    "choice": "day"
+   }
+  },
+  {
+   "chord": "w",
+   "id": "calendar-view-week",
+   "verb": "calendar-view",
+   "scope": "calendar",
+   "words": "Show the week",
+   "with": {
+    "choice": "week"
+   }
+  },
+  {
+   "chord": "m",
+   "id": "calendar-view-month",
+   "verb": "calendar-view",
+   "scope": "calendar",
+   "words": "Show the month",
+   "with": {
+    "choice": "month"
+   }
+  },
+  {
+   "chord": "alt+v",
+   "id": "calendar-cycle-view",
+   "verb": "calendar-cycle-view",
+   "scope": "calendar",
+   "words": "Switch between day, week and month"
+  },
+  {
+   "chord": "alt+t",
+   "id": "calendar-rolling",
+   "verb": "calendar-rolling",
+   "scope": "calendar",
+   "words": "Start the week today or on the first day of the week"
+  },
+  {
+   "chord": "alt+a",
+   "id": "calendar-all-day",
+   "verb": "calendar-all-day",
+   "scope": "calendar",
+   "words": "Show or hide the all-day events"
+  },
+  {
+   "chord": "z",
+   "id": "calendar-time-zones",
+   "verb": "calendar-time-zones",
+   "scope": "calendar",
+   "words": "Change time zones"
+  },
+  {
+   "chord": "s",
+   "id": "calendar-share-link",
+   "verb": "calendar-share-link",
+   "scope": "calendar",
+   "words": "Pick times to share as a booking link"
+  },
+  {
+   "chord": "a",
+   "id": "calendar-people",
+   "verb": "calendar-people",
+   "scope": "calendar",
+   "words": "Choose whose busy times to show"
+  },
+  {
+   "chord": "shift+1",
+   "id": "calendar-person-1",
+   "verb": "calendar-person",
+   "scope": "calendar",
+   "words": "Show or hide a person's busy times, in the order of the People list",
+   "with": {
+    "nth": 1
+   }
+  },
+  {
+   "chord": "shift+2",
+   "id": "calendar-person-2",
+   "verb": "calendar-person",
+   "scope": "calendar",
+   "words": "Show or hide a person's busy times, in the order of the People list",
+   "with": {
+    "nth": 2
+   }
+  },
+  {
+   "chord": "shift+3",
+   "id": "calendar-person-3",
+   "verb": "calendar-person",
+   "scope": "calendar",
+   "words": "Show or hide a person's busy times, in the order of the People list",
+   "with": {
+    "nth": 3
+   }
+  },
+  {
+   "chord": "shift+4",
+   "id": "calendar-person-4",
+   "verb": "calendar-person",
+   "scope": "calendar",
+   "words": "Show or hide a person's busy times, in the order of the People list",
+   "with": {
+    "nth": 4
+   }
+  },
+  {
+   "chord": "shift+5",
+   "id": "calendar-person-5",
+   "verb": "calendar-person",
+   "scope": "calendar",
+   "words": "Show or hide a person's busy times, in the order of the People list",
+   "with": {
+    "nth": 5
+   }
+  },
+  {
+   "chord": "shift+6",
+   "id": "calendar-person-6",
+   "verb": "calendar-person",
+   "scope": "calendar",
+   "words": "Show or hide a person's busy times, in the order of the People list",
+   "with": {
+    "nth": 6
+   }
+  },
+  {
+   "chord": "shift+7",
+   "id": "calendar-person-7",
+   "verb": "calendar-person",
+   "scope": "calendar",
+   "words": "Show or hide a person's busy times, in the order of the People list",
+   "with": {
+    "nth": 7
+   }
+  },
+  {
+   "chord": "shift+8",
+   "id": "calendar-person-8",
+   "verb": "calendar-person",
+   "scope": "calendar",
+   "words": "Show or hide a person's busy times, in the order of the People list",
+   "with": {
+    "nth": 8
+   }
+  },
+  {
+   "chord": "shift+9",
+   "id": "calendar-person-9",
+   "verb": "calendar-person",
+   "scope": "calendar",
+   "words": "Show or hide a person's busy times, in the order of the People list",
+   "with": {
+    "nth": 9
+   }
+  },
+  {
+   "chord": "escape",
+   "id": "calendar-hide-people",
+   "verb": "calendar-hide-people",
+   "scope": "calendar",
+   "words": "Hide everyone else's busy times"
+  },
+  {
+   "chord": "mod+equal",
+   "id": "calendar-zoom-in",
+   "verb": "calendar-zoom",
+   "scope": "calendar",
+   "words": "Zoom the calendar in",
+   "with": {
+    "steps": 1
+   }
+  },
+  {
+   "chord": "mod+shift+equal",
+   "id": "calendar-zoom-in-plus",
+   "verb": "calendar-zoom",
+   "scope": "calendar",
+   "words": "Zoom the calendar in",
+   "with": {
+    "steps": 1
+   }
+  },
+  {
+   "chord": "mod+minus",
+   "id": "calendar-zoom-out",
+   "verb": "calendar-zoom",
+   "scope": "calendar",
+   "words": "Zoom the calendar out",
+   "with": {
+    "steps": -1
+   }
+  },
+  {
+   "chord": "shift+slash",
+   "id": "calendar-shortcuts",
+   "verb": "calendar-shortcuts",
+   "scope": "calendar",
+   "words": "Show the keyboard shortcuts"
+  },
+  {
+   "chord": "x",
+   "id": "calendar-select-upcoming",
+   "verb": "calendar-focus-upcoming",
+   "scope": "calendar",
+   "words": "Select the current or next event"
+  },
+  {
+   "chord": "n",
+   "id": "calendar-new-now",
+   "verb": "calendar-new-now",
+   "scope": "calendar",
+   "words": "New event starting now"
+  },
+  {
+   "chord": "up",
+   "id": "calendar-focus-up",
+   "verb": "calendar-focus-neighbor",
+   "scope": "calendar-event",
+   "words": "Focus the event above",
+   "with": {
+    "direction": "up"
+   }
+  },
+  {
+   "chord": "down",
+   "id": "calendar-focus-down",
+   "verb": "calendar-focus-neighbor",
+   "scope": "calendar-event",
+   "words": "Focus the event below",
+   "with": {
+    "direction": "down"
+   }
+  },
+  {
+   "chord": "enter",
+   "id": "calendar-open",
+   "verb": "calendar-open",
+   "scope": "calendar-event",
+   "words": "Preview the event"
+  },
+  {
+   "chord": "space",
+   "id": "calendar-open-space",
+   "verb": "calendar-open",
+   "scope": "calendar-event",
+   "words": "Preview the event"
+  },
+  {
+   "chord": "shift+up",
+   "id": "calendar-move-earlier",
+   "verb": "calendar-move",
+   "scope": "calendar-event",
+   "words": "Move the event 15 minutes earlier",
+   "with": {
+    "direction": -1
+   }
+  },
+  {
+   "chord": "shift+down",
+   "id": "calendar-move-later",
+   "verb": "calendar-move",
+   "scope": "calendar-event",
+   "words": "Move the event 15 minutes later",
+   "with": {
+    "direction": 1
+   }
+  },
+  {
+   "chord": "backspace",
+   "id": "calendar-delete",
+   "verb": "calendar-action",
+   "scope": "calendar-event",
+   "words": "Delete the event",
+   "with": {
+    "action": [
+     "calendar.event_remove"
+    ]
+   }
+  },
+  {
+   "chord": "d",
+   "id": "calendar-done",
+   "verb": "calendar-action",
+   "scope": "calendar-event",
+   "words": "Mark done",
+   "with": {
+    "action": [
+     "calendar.task_complete",
+     "calendar.task_reopen",
+     "calendar.event_done",
+     "calendar.event_reopen"
+    ]
+   }
+  },
+  {
+   "chord": "y",
+   "id": "calendar-going",
+   "verb": "calendar-action",
+   "scope": "calendar-event",
+   "words": "Going",
+   "with": {
+    "action": [
+     "calendar.rsvp_going"
+    ]
+   }
+  },
+  {
+   "chord": "n",
+   "id": "calendar-not-going",
+   "verb": "calendar-action",
+   "scope": "calendar-event",
+   "words": "Not going",
+   "with": {
+    "action": [
+     "calendar.rsvp_not_going"
+    ]
+   }
+  },
+  {
+   "chord": "p",
+   "id": "calendar-privacy",
+   "verb": "calendar-action",
+   "scope": "calendar-event",
+   "words": "Make the event private or not",
+   "with": {
+    "action": [
+     "calendar.privacy"
+    ]
+   }
+  },
+  {
+   "chord": "v",
+   "id": "calendar-join",
+   "verb": "calendar-action",
+   "scope": "calendar-event",
+   "words": "Join the call",
+   "with": {
+    "action": [
+     "calendar.join_call"
+    ]
+   }
+  },
+  {
+   "chord": "1",
+   "id": "calendar-color-1",
+   "verb": "calendar-action",
+   "scope": "calendar-event",
+   "words": "Change the event colour",
+   "with": {
+    "action": [
+     "calendar.color_choice"
+    ],
+    "choice": "1"
+   }
+  },
+  {
+   "chord": "2",
+   "id": "calendar-color-2",
+   "verb": "calendar-action",
+   "scope": "calendar-event",
+   "words": "Change the event colour",
+   "with": {
+    "action": [
+     "calendar.color_choice"
+    ],
+    "choice": "2"
+   }
+  },
+  {
+   "chord": "3",
+   "id": "calendar-color-3",
+   "verb": "calendar-action",
+   "scope": "calendar-event",
+   "words": "Change the event colour",
+   "with": {
+    "action": [
+     "calendar.color_choice"
+    ],
+    "choice": "3"
+   }
+  },
+  {
+   "chord": "4",
+   "id": "calendar-color-4",
+   "verb": "calendar-action",
+   "scope": "calendar-event",
+   "words": "Change the event colour",
+   "with": {
+    "action": [
+     "calendar.color_choice"
+    ],
+    "choice": "4"
+   }
+  },
+  {
+   "chord": "5",
+   "id": "calendar-color-5",
+   "verb": "calendar-action",
+   "scope": "calendar-event",
+   "words": "Change the event colour",
+   "with": {
+    "action": [
+     "calendar.color_choice"
+    ],
+    "choice": "5"
+   }
+  },
+  {
+   "chord": "6",
+   "id": "calendar-color-6",
+   "verb": "calendar-action",
+   "scope": "calendar-event",
+   "words": "Change the event colour",
+   "with": {
+    "action": [
+     "calendar.color_choice"
+    ],
+    "choice": "6"
+   }
+  },
+  {
+   "chord": "7",
+   "id": "calendar-color-7",
+   "verb": "calendar-action",
+   "scope": "calendar-event",
+   "words": "Change the event colour",
+   "with": {
+    "action": [
+     "calendar.color_choice"
+    ],
+    "choice": "7"
+   }
+  },
+  {
+   "chord": "8",
+   "id": "calendar-color-8",
+   "verb": "calendar-action",
+   "scope": "calendar-event",
+   "words": "Change the event colour",
+   "with": {
+    "action": [
+     "calendar.color_choice"
+    ],
+    "choice": "8"
+   }
+  },
+  {
+   "chord": "9",
+   "id": "calendar-color-9",
+   "verb": "calendar-action",
+   "scope": "calendar-event",
+   "words": "Change the event colour",
+   "with": {
+    "action": [
+     "calendar.color_choice"
+    ],
+    "choice": "9"
+   }
+  },
+  {
+   "chord": "mod+d",
+   "id": "calendar-duplicate",
+   "verb": "calendar-action",
+   "scope": "calendar-event",
+   "words": "Duplicate the event",
+   "with": {
+    "action": [
+     "calendar.event_duplicate",
+     "calendar.task_duplicate"
+    ]
+   }
+  },
+  {
+   "chord": null,
+   "id": "calendar-copy",
+   "verb": "calendar-action",
+   "scope": "calendar-event",
+   "words": "Copy the event's details",
+   "with": {
+    "action": [
+     "calendar.copy"
+    ]
+   }
+  }
+ ],
+ "join_upcoming": {
+  "from_minutes_ago": 10,
+  "until_minutes_ahead": 30,
+  "look_ahead_hours": 2
+ },
+ "words": {
+  "title": "Shortcuts",
+  "subtitle": "Click to personalize",
+  "none": "No key",
+  "press": "Press the new keys",
+  "cancel": "Press Escape to cancel, or Delete to take the key away.",
+  "reset": "Back to the usual key",
+  "reset_all": "Back to every usual key",
+  "saved": "{words} is now {chord}.",
+  "removed": "{words} has no key now.",
+  "restored": "{words} is back to {chord}.",
+  "restored_none": "{words} is back to having no key.",
+  "taken": "{chord} already does “{words}”. Pick other keys, or take that one away first.",
+  "reserved": "{chord} is kept by the computer. Pick other keys.",
+  "needs_modifier": "A key that works from any app needs Command, Control or Option held with it.",
+  "failed": "Your keys could not be saved. Try again.",
+  "no_call": "No call is starting. Join works when a call with a link starts within the next half hour.",
+  "call_failed": "Your calendar could not be read, so no call was joined. Try again.",
+  "global_note": "These work while another app is in front, on the Mac app.",
+  "global_unavailable": "Only the Mac app can listen from any app, so these keys are kept but wait there."
+ },
+ "keys": {
+  "a": {
+   "code": "KeyA",
+   "mac": 0,
+   "shown": "A"
+  },
+  "s": {
+   "code": "KeyS",
+   "mac": 1,
+   "shown": "S"
+  },
+  "d": {
+   "code": "KeyD",
+   "mac": 2,
+   "shown": "D"
+  },
+  "f": {
+   "code": "KeyF",
+   "mac": 3,
+   "shown": "F"
+  },
+  "h": {
+   "code": "KeyH",
+   "mac": 4,
+   "shown": "H"
+  },
+  "g": {
+   "code": "KeyG",
+   "mac": 5,
+   "shown": "G"
+  },
+  "z": {
+   "code": "KeyZ",
+   "mac": 6,
+   "shown": "Z"
+  },
+  "x": {
+   "code": "KeyX",
+   "mac": 7,
+   "shown": "X"
+  },
+  "c": {
+   "code": "KeyC",
+   "mac": 8,
+   "shown": "C"
+  },
+  "v": {
+   "code": "KeyV",
+   "mac": 9,
+   "shown": "V"
+  },
+  "b": {
+   "code": "KeyB",
+   "mac": 11,
+   "shown": "B"
+  },
+  "q": {
+   "code": "KeyQ",
+   "mac": 12,
+   "shown": "Q"
+  },
+  "w": {
+   "code": "KeyW",
+   "mac": 13,
+   "shown": "W"
+  },
+  "e": {
+   "code": "KeyE",
+   "mac": 14,
+   "shown": "E"
+  },
+  "r": {
+   "code": "KeyR",
+   "mac": 15,
+   "shown": "R"
+  },
+  "y": {
+   "code": "KeyY",
+   "mac": 16,
+   "shown": "Y"
+  },
+  "t": {
+   "code": "KeyT",
+   "mac": 17,
+   "shown": "T"
+  },
+  "1": {
+   "code": "Digit1",
+   "mac": 18,
+   "shown": "1"
+  },
+  "2": {
+   "code": "Digit2",
+   "mac": 19,
+   "shown": "2"
+  },
+  "3": {
+   "code": "Digit3",
+   "mac": 20,
+   "shown": "3"
+  },
+  "4": {
+   "code": "Digit4",
+   "mac": 21,
+   "shown": "4"
+  },
+  "6": {
+   "code": "Digit6",
+   "mac": 22,
+   "shown": "6"
+  },
+  "5": {
+   "code": "Digit5",
+   "mac": 23,
+   "shown": "5"
+  },
+  "equal": {
+   "code": "Equal",
+   "mac": 24,
+   "shown": "="
+  },
+  "9": {
+   "code": "Digit9",
+   "mac": 25,
+   "shown": "9"
+  },
+  "7": {
+   "code": "Digit7",
+   "mac": 26,
+   "shown": "7"
+  },
+  "minus": {
+   "code": "Minus",
+   "mac": 27,
+   "shown": "-"
+  },
+  "8": {
+   "code": "Digit8",
+   "mac": 28,
+   "shown": "8"
+  },
+  "0": {
+   "code": "Digit0",
+   "mac": 29,
+   "shown": "0"
+  },
+  "bracketright": {
+   "code": "BracketRight",
+   "mac": 30,
+   "shown": "]"
+  },
+  "o": {
+   "code": "KeyO",
+   "mac": 31,
+   "shown": "O"
+  },
+  "u": {
+   "code": "KeyU",
+   "mac": 32,
+   "shown": "U"
+  },
+  "bracketleft": {
+   "code": "BracketLeft",
+   "mac": 33,
+   "shown": "["
+  },
+  "i": {
+   "code": "KeyI",
+   "mac": 34,
+   "shown": "I"
+  },
+  "p": {
+   "code": "KeyP",
+   "mac": 35,
+   "shown": "P"
+  },
+  "enter": {
+   "code": "Enter",
+   "mac": 36,
+   "shown": "Enter"
+  },
+  "l": {
+   "code": "KeyL",
+   "mac": 37,
+   "shown": "L"
+  },
+  "j": {
+   "code": "KeyJ",
+   "mac": 38,
+   "shown": "J"
+  },
+  "quote": {
+   "code": "Quote",
+   "mac": 39,
+   "shown": "'"
+  },
+  "k": {
+   "code": "KeyK",
+   "mac": 40,
+   "shown": "K"
+  },
+  "semicolon": {
+   "code": "Semicolon",
+   "mac": 41,
+   "shown": ";"
+  },
+  "backslash": {
+   "code": "Backslash",
+   "mac": 42,
+   "shown": "\\"
+  },
+  "comma": {
+   "code": "Comma",
+   "mac": 43,
+   "shown": ","
+  },
+  "slash": {
+   "code": "Slash",
+   "mac": 44,
+   "shown": "/"
+  },
+  "n": {
+   "code": "KeyN",
+   "mac": 45,
+   "shown": "N"
+  },
+  "m": {
+   "code": "KeyM",
+   "mac": 46,
+   "shown": "M"
+  },
+  "period": {
+   "code": "Period",
+   "mac": 47,
+   "shown": "."
+  },
+  "tab": {
+   "code": "Tab",
+   "mac": 48,
+   "shown": "Tab"
+  },
+  "space": {
+   "code": "Space",
+   "mac": 49,
+   "shown": "Space"
+  },
+  "backquote": {
+   "code": "Backquote",
+   "mac": 50,
+   "shown": "`"
+  },
+  "backspace": {
+   "code": "Backspace",
+   "mac": 51,
+   "shown": "Delete"
+  },
+  "escape": {
+   "code": "Escape",
+   "mac": 53,
+   "shown": "Esc"
+  },
+  "left": {
+   "code": "ArrowLeft",
+   "mac": 123,
+   "shown": "←"
+  },
+  "right": {
+   "code": "ArrowRight",
+   "mac": 124,
+   "shown": "→"
+  },
+  "down": {
+   "code": "ArrowDown",
+   "mac": 125,
+   "shown": "↓"
+  },
+  "up": {
+   "code": "ArrowUp",
+   "mac": 126,
+   "shown": "↑"
+  }
+ }
+}

@@ -1,0 +1,21 @@
+{
+  "_what": "The words of the Add pages picker on Connections (src/workspace/add-pages.tsx, placed by `section` in src/account-screens.mjs): the pages (screens) this account is offered, from the Marketplace catalogue and the app's own, each added to one of the person's sidebar lists. `read` is where the lists and every row a list can hold are read (src/sidebar.mjs read) and `change` where an add is sent (the same verb change_sidebar takes). `shown_most` bounds how many matching rows are drawn at once.",
+  "section": { "id": "add-pages", "heading": "Add pages", "body": "Pages from the Marketplace and your own apps. Choose a list and add a page to it; it shows in your sidebar at once." },
+  "read": "/work/api/sidebar",
+  "change": "/work/api/sidebar/change",
+  "shown_most": 50,
+  "words": {
+    "loading": "Loading your pages",
+    "failed": "Your pages could not load",
+    "search": "Search pages",
+    "list": "Add to list",
+    "no_lists": "You have no sidebar lists to add to yet. Make one from the sidebar's Add a list.",
+    "add": "Add",
+    "added": "In this list",
+    "adding": "Adding",
+    "none": "No page matches that.",
+    "more": "Showing the first {count}. Search to narrow them.",
+    "done": "{page} is in {list}.",
+    "not_added": "That page was not added. Try again."
+  }
+}

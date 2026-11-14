@@ -1,0 +1,14 @@
+{
+  "_what": "The words of the workspace's focus at the top of the sidebar (parts/ui/show/rule-filter/FocusEditor.tsx, mounted by src/workspace/main.tsx): what the whole workspace is about now and the menu that switches it. {count} is how many things a focus on several names. `opens` are the menu's last rows, each opening a screen by its id (All pursuits: every pursuit, the invitations waiting for an answer and the archived ones), since that list is reached from the switcher rather than being a row of the sidebar.",
+  "words": {
+    "everything": "Everything",
+    "several": "{count} things",
+    "filtered": "Filtered",
+    "more": "Focus on more than one…",
+    "label": "What the workspace is about",
+    "search": "Find a pursuit"
+  },
+  "opens": [
+    { "id": "all-pursuits", "label": "All pursuits", "icon": "compass", "screen": "trillion.pursuits" }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "_what": "Words and choices of the mail preferences panel: the signature that is appended to messages written here, and which kinds of email a reminder covers. The signature lives in Gmail (the connected account's primary send-as address); the reminder kinds are the person's own saved preference `mail-preferences`. `kinds` are the types of email a reminder can cover: `calendar` matches a message that carries a calendar invitation, `other` everything an `email` row does not claim; add a kind by adding a row.",
+  "preference_key": "mail-preferences",
+  "kinds": [
+    { "id": "email", "label": "Email" },
+    { "id": "calendar", "label": "Calendar" },
+    { "id": "other", "label": "Other" }
+  ],
+  "default_kinds": ["email", "calendar", "other"],
+  "most_signature_chars": 10000,
+  "words": {
+    "title": "Email",
+    "saving": "Saving…",
+    "retry": "Try again",
+    "account": "Google account",
+    "no_account": "Connect a Google account to set up its signature.",
+    "signature_title": "Signature",
+    "signature_help": "Appended at the end of all outgoing messages.",
+    "signature_label": "Signature",
+    "signature_save": "Save",
+    "signature_saved": "Signature saved in Gmail.",
+    "signature_cleared": "Signature removed from Gmail.",
+    "signature_failed": "Gmail did not save the signature.",
+    "signature_lossy": "This signature has formatting or links. Saving here replaces it with plain text.",
+    "signature_too_long": "A signature can have at most {most} characters.",
+    "signature_unavailable": "Gmail did not return a signature to edit.",
+    "reminder_title": "When do you want to be reminded of an email?",
+    "reminder_help": "A reminder is a notification at the time you schedule an email.",
+    "reminder_kinds": "Types of email",
+    "reminder_none": "No types",
+    "reminder_saved": "Reminder choice saved.",
+    "reminder_failed": "The reminder choice was not saved.",
+    "loading": "Opening mail settings",
+    "failed": "Mail settings could not be read."
+  }
+}

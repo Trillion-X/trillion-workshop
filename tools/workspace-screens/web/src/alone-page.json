@@ -1,0 +1,37 @@
+{
+  "_what": "Settings for a screen shown alone in its page (src/workspace/alone-page.tsx): the screen a row marks `shown_alone` fills the page with no sidebar and no arrangement, for a host app's small window (the Mac app's menu bar panel). `host_channel` is the name of the message channel a host app listens on (window.webkit.messageHandlers.<name>); a page with no such channel tells nobody. `words` are every word the page itself shows (the shortcut row's words are src/workspace/panel-shortcut.tsx's, the menu bar item's rows' (`menubar` and `settings`, by the host's row id) are src/workspace/panel-settings.tsx's, the Set up this Mac section's are src/workspace/panel-setup.tsx's).",
+  "host_channel": "trillionHost",
+  "words": {
+    "back": "Back",
+    "missing": "This screen is not here any more",
+    "shortcut": "Show this panel with a shortcut",
+    "shortcut_note": "A key you press in any app to show or hide this panel.",
+    "shortcut_off": "Off",
+    "setup": "Set up this Mac",
+    "setup_note": "What Trillion keeps set up on this Mac, one step at a time. Each can be taken back.",
+    "undo": "Undo",
+    "apply": "Do it",
+    "permissions": "Switches Trillion needs",
+    "permissions_note": "Opens the setting and stands a guide beside it.",
+    "open_guide": "Open guide",
+    "menubar": "Menu bar",
+    "settings": {
+      "enabled": {
+        "title": "Show Trillion in the menu bar",
+        "note": "Off hides the item. The panel still opens from its shortcut or a Trillion link."
+      },
+      "meetings_within": {
+        "title": "Show meetings starting within",
+        "note": "The item counts down to the next meeting that starts inside this time."
+      },
+      "title_length": {
+        "title": "Title length",
+        "unit": " pt"
+      },
+      "app_icon": {
+        "title": "App icon",
+        "note": "The picture the Dock shows for Trillion."
+      }
+    }
+  }
+}

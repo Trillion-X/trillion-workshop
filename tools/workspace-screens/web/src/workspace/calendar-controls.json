@@ -1,0 +1,377 @@
+{
+  "_what": "Words and verified workspace destinations for CalendarControls. Preferences and hidden sources are entirely caller-owned; this file provides no storage or persistence.",
+  "title": "Calendar settings",
+  "sources": "Calendars",
+  "sourceCountNames": {
+    "one": "Calendar",
+    "other": "Calendars"
+  },
+  "preferences": "Calendar preferences",
+  "defaultCalendar": "Default calendar",
+  "defaultCalendarHelp": "New events you create will go here.",
+  "chooseDefaultCalendar": "Choose a calendar",
+  "noWritableCalendar": "Select a writable calendar first.",
+  "calendarColor": "Color for {calendar}",
+  "weekStart": "Week starts",
+  "calendarZoom": "Calendar zoom",
+  "defaultEventDuration": "Default event duration",
+  "defaultEventDurationUnit": "minutes",
+  "defaultEventDurationMin": 5,
+  "defaultEventDurationMax": 480,
+  "defaultEventDurationStep": 5,
+  "hourHeightOptions": [
+    {
+      "value": 42,
+      "label": "Compact",
+      "description": "Broader overview of the day, see more events"
+    },
+    {
+      "value": 78,
+      "label": "Cozy",
+      "description": "Focus more on the current time, see fewer events"
+    }
+  ],
+  "workHours": "Working hours",
+  "workStart": "Start",
+  "workEnd": "End",
+  "workSchedules": {
+    "title": "Preferred times",
+    "newSchedule": "New preferred time",
+    "newScheduleName": "Preferred time",
+    "scheduleName": "Name",
+    "schedulePlaceholder": "Work, evenings, or another schedule",
+    "chooseSchedule": "Edit preferred time",
+    "defaultSchedule": "Use for scheduling",
+    "noDefault": "Use working hours",
+    "empty": "Add preferred times for different hours and breaks throughout the week.",
+    "weekdayLabels": [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ],
+    "available": "Available",
+    "unavailable": "Break",
+    "toggleDay": "Available on {day}",
+    "start": "{day} start {interval}",
+    "end": "{day} end {interval}",
+    "addInterval": "Add hours",
+    "removeInterval": "Remove {day} hours {interval}",
+    "save": "Save preferred times",
+    "nameRequired": "Give each preferred time a name.",
+    "intervalInvalid": "Choose an end after each start and keep the hours from overlapping.",
+    "addBreak": "Add break on {day}",
+    "breakBetween": "Break {start}–{end}",
+    "describeLabel": "Describe your week",
+    "describePlaceholder": "Weekdays 9 to 5, break 12 to 1, Saturday 10 to 2",
+    "describeConfirm": "Confirm",
+    "describePreview": "Understood: {hours}",
+    "describeIssues": {
+      "empty": "Describe the days and hours you are available.",
+      "no_times": "Add hours for \"{text}\".",
+      "unreadable_times": "Could not read the hours in \"{text}\". Try \"Mon-Fri 9 to 5\".",
+      "no_days": "Say which days \"{text}\" applies to.",
+      "break_without_hours": "\"{text}\" is a break, but no hours come before it."
+    },
+    "menu": {
+      "label": "Preferred time actions",
+      "rename": {
+        "label": "Rename",
+        "icon": "pencil"
+      },
+      "makeDefault": {
+        "label": "Make default",
+        "icon": "star"
+      },
+      "createBookingLink": {
+        "label": "Create booking link",
+        "icon": "link"
+      },
+      "delete": {
+        "label": "Delete",
+        "icon": "trash-2"
+      }
+    }
+  },
+  "weekends": "Show weekends",
+  "timezone": "Time zone",
+  "showSource": "Show {source}",
+  "connected": "Connected",
+  "notConnected": "Not connected",
+  "busyTimesOnly": "Busy times only",
+  "readOnly": "Read only",
+  "unavailable": "Could not load this calendar.",
+  "unavailableSelection": "{calendar} from {account} is no longer available.",
+  "remove": "Remove",
+  "newTask": "New task",
+  "taskInbox": "Tasks",
+  "navigation": [
+    {
+      "id": "connections",
+      "label": "Connections",
+      "href": "/connections"
+    },
+    {
+      "id": "mail",
+      "label": "Mail",
+      "href": "/email"
+    },
+    {
+      "id": "notifications",
+      "label": "Notifications",
+      "href": "/notification-settings"
+    },
+    {
+      "id": "recording",
+      "label": "Meeting recording",
+      "href": "/record-audio"
+    },
+    {
+      "id": "continuous-recording",
+      "label": "Continuous recording",
+      "href": "/always-recording"
+    }
+  ],
+  "workdays": "Working days",
+  "accounts": "Accounts and calendars",
+  "availabilityLinks": "Availability links",
+  "loadingAccounts": "Loading connected calendars",
+  "addAccount": "Add another Google account",
+  "addAccountHref": "/work/connect/google-calendar",
+  "composition": {
+    "kept_at": "screen-arrangement-of::trillion.calendar-settings::controls",
+    "words": {
+      "arrange": "Arrange controls",
+      "done": "Done arranging",
+      "layout": "Calendar settings"
+    },
+    "arrangement": {
+      "kind": "split",
+      "dir": "column",
+      "unit": "px",
+      "keep": true,
+      "sizes": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "children": [
+        {
+          "kind": "pane",
+          "surfaces": [
+            "heading"
+          ]
+        },
+        {
+          "kind": "pane",
+          "surfaces": [
+            "accounts"
+          ]
+        },
+        {
+          "kind": "pane",
+          "surfaces": [
+            "sources"
+          ]
+        },
+        {
+          "kind": "pane",
+          "surfaces": [
+            "preferences-title"
+          ]
+        },
+        {
+          "kind": "pane",
+          "surfaces": [
+            "default-calendar"
+          ]
+        },
+        {
+          "kind": "pane",
+          "surfaces": [
+            "workdays"
+          ]
+        },
+        {
+          "kind": "pane",
+          "surfaces": [
+            "week-start"
+          ]
+        },
+        {
+          "kind": "pane",
+          "surfaces": [
+            "zoom"
+          ]
+        },
+        {
+          "kind": "pane",
+          "surfaces": [
+            "time-format"
+          ]
+        },
+        {
+          "kind": "pane",
+          "surfaces": [
+            "date-format"
+          ]
+        },
+        {
+          "kind": "pane",
+          "surfaces": [
+            "event-duration"
+          ]
+        },
+        {
+          "kind": "pane",
+          "surfaces": [
+            "display"
+          ]
+        },
+        {
+          "kind": "pane",
+          "surfaces": [
+            "work-hours"
+          ]
+        },
+        {
+          "kind": "pane",
+          "surfaces": [
+            "work-schedules"
+          ]
+        },
+        {
+          "kind": "pane",
+          "surfaces": [
+            "weekends"
+          ]
+        },
+        {
+          "kind": "pane",
+          "surfaces": [
+            "timezone"
+          ]
+        },
+        {
+          "kind": "pane",
+          "surfaces": [
+            "navigation"
+          ]
+        }
+      ]
+    }
+  },
+  "startWeekToday": "Start the week today instead of on the first day of the week",
+  "people": "People",
+  "connectYours": "Connect your calendar",
+  "peopleHelp": "Their busy times, from the calendars they share with this space. Press Shift and a number to show or hide one.",
+  "showPerson": "Show {person}'s busy times",
+  "calendarZoomHelp": "Choose a preferred zoom for calendar events.",
+  "zoomTip": "Use ⌘ + / ⌘ −, or hold ⌘ and drag over the hour labels in the calendar to fine tune.",
+  "zoomCustom": "Fine-tuned: neither choice is selected while the zoom is set in between.",
+  "defaultEventDurationHelp": "Set how long new events should be by default.",
+  "timeZones": {
+    "title": "Time zones",
+    "help": "Drag to re-order your time zones. The one equal to this device's is the main column; the others are shown beside it.",
+    "zone": "Time zone",
+    "nickname": "Nickname",
+    "nicknamePlaceholder": "e.g. Home",
+    "add": "Add a time zone",
+    "chooseZone": "Add a time zone, e.g. New York",
+    "remove": "Remove {zone}",
+    "reorder": "Move {zone}",
+    "thisDevice": "This device",
+    "max": 5
+  },
+  "timeFormat": "Time format",
+  "timeFormatHelp": "Choose the way times are displayed.",
+  "timeFormats": [
+    {
+      "id": "12",
+      "label": "12 hour format",
+      "hour12": true
+    },
+    {
+      "id": "24",
+      "label": "24 hour format",
+      "hour12": false
+    }
+  ],
+  "dateFormat": "Date format",
+  "dateFormatHelp": "Choose the way dates are displayed.",
+  "dateFormats": [
+    {
+      "id": "month-day-year",
+      "label": "Month-Day-Year",
+      "locale": "en-US"
+    },
+    {
+      "id": "day-month-year",
+      "label": "Day-Month-Year",
+      "locale": "en-GB"
+    }
+  ],
+  "display": {
+    "title": "Display",
+    "eventCheckboxes": {
+      "title": "Display checkboxes on events",
+      "help": "Events can be marked done in the calendar. When disabled, they are displayed as done automatically once they are over."
+    },
+    "privateByDefault": {
+      "title": "Private events by default",
+      "help": "New events will be set as private. Others see private events as \"Busy\"."
+    }
+  },
+  "calendarTable": {
+    "title": "Calendar settings",
+    "help": "Customize the calendar types for each calendar.",
+    "calendar": "Calendar",
+    "color": "Color",
+    "type": "Type",
+    "menubar": "Menubar"
+  },
+  "calendarTypes": [
+    {
+      "id": "regular",
+      "label": "Regular"
+    },
+    {
+      "id": "background",
+      "label": "Background"
+    }
+  ],
+  "menubarChoices": [
+    {
+      "id": "auto",
+      "label": "Auto",
+      "counts": "within"
+    },
+    {
+      "id": "always",
+      "label": "Always show",
+      "counts": "always"
+    },
+    {
+      "id": "never",
+      "label": "Never show",
+      "counts": "never"
+    }
+  ]
+}

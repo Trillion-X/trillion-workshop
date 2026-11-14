@@ -1,0 +1,31 @@
+{
+  "_what": "Words and date groups for the Notes list: the recency groups every recording row falls in, and the row-menu words for copying a public link and saving a PDF (src/workspace/note-list.ts).",
+  "recency": {
+    "field_label": "When",
+    "groups": [
+      { "label": "Today", "within_days": 0 },
+      { "label": "Last week", "within_days": 7 },
+      { "label": "Previous 30 days", "within_days": 30 }
+    ],
+    "past": "Past",
+    "undated": "No date"
+  },
+  "public_link": {
+    "label": "Copy public link",
+    "done": "Public link copied to clipboard",
+    "detail": "Anyone with the link will be able to view this note",
+    "failed": "The public link could not be copied",
+    "unreadable": "The link could not be made. Try again."
+  },
+  "webhook": {
+    "label": "Send webhook",
+    "destination": "webhook"
+  },
+  "pdf": {
+    "label": "Download PDF",
+    "done": "PDF saved",
+    "failed": "The PDF could not be saved",
+    "no_transcript": "This recording has no transcript yet.",
+    "transcript_heading": "Transcript"
+  }
+}

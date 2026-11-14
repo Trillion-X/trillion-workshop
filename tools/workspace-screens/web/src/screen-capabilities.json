@@ -1,0 +1,102 @@
+{
+  "about": "What a connected AI can change on the person's Trillion screen, as DATA (src/screen-capabilities.mjs). Every AI reads it as one paragraph of the MCP instructions, and each row's `when` is added to the description of every tool the row names, so the instructions and the tools teach the same thing. A new way to shape the screen is a new row here naming its tools; nothing else changes. test/screen-capabilities.test.mjs checks every named tool exists.",
+  "opening": "The person's screen is yours to shape, not only their data. When you finish something they can see, change how they work, or notice them going back and forth between screens, change their Trillion screen for them in the same turn instead of describing what they could do: it shows on their open page at once, without a refresh. Read what is there first, then change it. The ways to shape it, each with when to use it and how to do it well:",
+  "capabilities": [
+    {
+      "id": "tours",
+      "name": "Guided tours",
+      "tools": [
+        "read_tours",
+        "save_tour",
+        "show_tour"
+      ],
+      "what": "a short tour that blurs the page and points at the real thing, one glance card per step",
+      "when": "after you finish work they can see (a file you made, a list or layout you built, something you fixed or connected), end the turn with a short tour pointing at it (save_tour with show_now true); also when they ask how something works or where something is",
+      "well": "two to five steps, every one pointing at the real control it talks about (save_tour refuses a step that points at nothing) and saying what is happening there now, in the present (\"We're opening your launch list now\"), with an act when the step can do it for them; each a glance card (an icon, a title, the one number or fact that matters, at most two short lines), never a paragraph; open the exact thing you made first (target_preparation, with a screen from read_layouts opens_one_thing and its input) and point at it with target_ref, setting centered_when_target_missing so the step still shows on a phone, where the sidebar is closed"
+    },
+    {
+      "id": "whats-new",
+      "name": "What's new",
+      "tools": [
+        "save_tour"
+      ],
+      "what": "a what's-new card: a tour filed under the category \"What is new\"",
+      "when": "when something they use changed while they were away (you connected a service, added a tool, changed their lists), shown once the next time they are on their page",
+      "well": "one or two steps saying what they can do now, never what you changed inside Trillion"
+    },
+    {
+      "id": "layouts",
+      "name": "Layouts",
+      "tools": [
+        "read_layouts",
+        "save_layout",
+        "open_layout"
+      ],
+      "what": "several screens side by side in panes on their page, kept by name in their Layouts menu",
+      "when": "when they work across two or more screens at once (a decision and its files, Media beside a draft, messages beside a pursuit) or ask to see things together: make the layout and open it (open_now true) instead of offering it; their old arrangement stays one click away as Previous layout",
+      "well": "at most three panes; put the exact thing you made in a pane (a screen from opens_one_thing with its input), not only the screen that lists it; start from read_layouts current so you rearrange what they have; name it for the job (\"This week's video\"), not for the screens, and file it under a category when they keep several; a narrow window shows one pane at a time, so put the one that matters most first"
+    },
+    {
+      "id": "sidebar",
+      "name": "The sidebar",
+      "tools": [
+        "read_sidebar",
+        "note_in_sidebar",
+        "change_sidebar"
+      ],
+      "what": "their sidebar: a note on a list or row pointing them at something, lists you make, rows moved, coloured or kept at the top, and lists or rows that show only while a rule holds",
+      "when": "when something waits for them in one place, put a note with a count there and take it off once they did it; when things they keep coming back to belong together, make a list of them; when something matters only for a while, show it only for that while (shown_when)",
+      "well": "one note per thing, one sentence saying what to do there; never rename, move or remove lists they made unless they ask"
+    },
+    {
+      "id": "chat",
+      "name": "This chat",
+      "tools": [
+        "show_file",
+        "finish_work"
+      ],
+      "what": "the conversation itself: files shown in place (a picture, a video, a sound) and cards under a finished job",
+      "when": "whenever they should see a file you made or found, show it with show_file instead of describing it; when a job ends, put its answer as cards in finish_work result.show",
+      "well": "cards like a tour's: a title, the one value, a few facts, chips that open the thing"
+    },
+    {
+      "id": "looks",
+      "name": "Looks",
+      "tools": [
+        "list_looks",
+        "read_look",
+        "save_look",
+        "wear_look"
+      ],
+      "what": "how all of Trillion looks (colours, type, corners), worn everywhere they are signed in",
+      "when": "only when they ask for a different look, or say the screen is hard to read (bigger text, more contrast)",
+      "well": "start from the look they wear, change only the tokens they asked about, keep text readable against its background, and tell them how to go back"
+    },
+    {
+      "id": "lists",
+      "name": "Lists",
+      "tools": [
+        "list_lists",
+        "read_list",
+        "save_list",
+        "put_list_rows"
+      ],
+      "what": "tables of their own things (customers, leads, ideas, a reading list), each a screen with its own views",
+      "when": "when they keep track of several things of one kind across messages, files or notes: make the list, fill it from what you found, then show it with a tour or a layout",
+      "well": "fields named the way they would name them; for a slice of the same rows make a view, not a second list"
+    },
+    {
+      "id": "show-rules",
+      "name": "When things show",
+      "tools": [
+        "read_show_rules",
+        "set_show_rule",
+        "remove_show_rule"
+      ],
+      "what": "rules that show, hide or silence any notice, tour or layout by when it is, which device they are on, how the page was opened or what kind it is",
+      "when": "when they say something interrupts them, comes at the wrong time or on the wrong device, or should only appear sometimes (quiet on the phone, no tours when they open a link, a layout only in the mornings)",
+      "well": "one rule per wish, named in their words, with an until when they asked for a while; never turn off a whole kind of news when they asked for one device or one time"
+    }
+  ],
+  "closing": "Anything else on their screen is a tool too: find_tool_for_job finds tools that make screens (a link page, a posting calendar, a public app). Do all of it well: plain words about their work, never ids, tool names, file paths or how you did it; one change that helps beats five; it must work on a phone and in a narrow pane as well as on a wide window; after a change, say in one line what changed and where, as something already on their screen."
+}

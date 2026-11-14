@@ -1,0 +1,28 @@
+{
+  "_what": "How fast Trillion feels to the person, timed in their own sessions (src/workspace/felt-speed.ts): each moment is one thing they wait for, from the moment they asked to the moment it showed. Each device keeps its last kept_samples timings of a moment on itself and writes one row per moment (and per screen, for a screen opening) to the person's own list below, at most once per write_every_seconds per row, so every AI reads what the person actually waited (read_list) beside what the proof accounts measure. A wait the page could not see to its end (the tab was put away) or could not complete (the connection was lost) is not kept; a wait past wait_most_ms is kept as wait_most_ms. budget_ms is how long it may take (the screens' budget is screen_ms in scripts/workspace-budgets.json).",
+  "kept_samples": 50,
+  "write_every_seconds": 600,
+  "wait_most_ms": 30000,
+  "moments": [
+    { "id": "opening", "label": "Opening Trillion", "budget_ms": 1000 },
+    { "id": "find-anything", "label": "Find anything (Command-K)", "budget_ms": 100 },
+    { "id": "screen-open", "label": "Opening a screen", "budget_ms": 100 }
+  ],
+  "list": {
+    "id": "how-fast-trillion-feels",
+    "label": "How fast Trillion feels",
+    "icon": "Gauge",
+    "about": "How long you waited in your own sessions, timed on each of your devices: opening Trillion, Find anything and each screen. Typical is the middle of your last timings, slowest the slowest tenth.",
+    "title_field": "moment",
+    "fields": [
+      { "id": "moment", "label": "What you waited for", "kind": "text" },
+      { "id": "device", "label": "Device", "kind": "text", "free_text_because": "The page writes the kind of device it was waited on (phone, computer) as it measures, never typed by the person." },
+      { "id": "typical_ms", "label": "Typical (ms)", "kind": "number" },
+      { "id": "slowest_ms", "label": "Slowest tenth (ms)", "kind": "number" },
+      { "id": "last_ms", "label": "Last time (ms)", "kind": "number" },
+      { "id": "times", "label": "Times timed", "kind": "number" },
+      { "id": "budget_ms", "label": "May take (ms)", "kind": "number" },
+      { "id": "timed_at", "label": "Last timed", "kind": "date" }
+    ]
+  }
+}

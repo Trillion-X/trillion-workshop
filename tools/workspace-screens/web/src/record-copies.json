@@ -1,0 +1,21 @@
+{
+  "about": "What a copy of the person's records on one of their devices, an undo and a read of an earlier moment may do through /records/* (src/record-copies.mjs). rows_per_answer: the most changes one settle answer carries; most_rows_sent and most_chars_sent: the largest one-request upload a copy may send. An oversized request is refused intact so the sender can retry in bounded batches. changeable_types: the record types a copy may send changes for and an undo may take back; every other type is changed only by the tools that check it (payments, plans, decisions), so a change to one is answered as a conflict. kept-apart holds the versions a conflict met (parts/record-log record-sync.mjs). Adding a type is a row here. sealed is a record only the person's devices can open (parts/sealed-records): the store takes it only whole, as a sealed value, and never reads inside it. sealable_types: the kinds a device may turn into a sealed record and back (the sheet's Only my devices switch). sealing: the person's one sealing record ({ salt, key_id }, no secret), so every device derives the same key from the passphrase and knows a wrong one. settle_wait: when the person's store answers a settle with a status of at least busy_status_at_least or takes slow_ms or longer, the Worker answers that person's settles itself for wait_seconds without waking the store (src/settle-wait.mjs), so copies never keep a busy store busy.",
+  "changeable_types": [
+    "pursuit",
+    "kept-apart", "kept-apart/shared-member",
+    "sealed",
+    "sealing"
+  ],
+  "rows_per_answer": 5000,
+  "most_rows_sent": 200,
+  "most_chars_sent": 4000000,
+  "sealable_types": [
+    "pursuit",
+    "message"
+  ],
+  "settle_wait": {
+    "busy_status_at_least": 500,
+    "slow_ms": 5000,
+    "wait_seconds": 600
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "_what": "The words of point-at-anything.tsx: the hint while pointing, the card about what was picked, and what a picked element is called when it has no words of its own (kinds, by tag).",
+  "surface": "Point at anything",
+  "revision": "current",
+  "hint": "Press anything to change it",
+  "stop": "Done",
+  "picked": "You picked",
+  "close": "Close",
+  "ask_label": "What should change?",
+  "ask_placeholder": "Say it in your words: rounder, bigger, move it, a different list…",
+  "no_words": "(no words: look at the element and suggest the change)",
+  "every_one_like_it": "Change every one like it",
+  "undo": "Undo",
+  "kinds": {
+    "img": "A picture",
+    "svg": "An icon",
+    "button": "A button",
+    "input": "A field",
+    "textarea": "A text box",
+    "a": "A link",
+    "other": "This part of the screen"
+  }
+}

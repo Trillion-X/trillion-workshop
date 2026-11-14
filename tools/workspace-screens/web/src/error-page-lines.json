@@ -1,0 +1,29 @@
+{
+  "about": "Lines shown on the error page, one at random. Each is a line of Trillion's own voice, with the id naming the piece. Add or remove a row to change what shows.",
+  "lines": [
+    {
+      "id": "wv-0157",
+      "quote": "The whole question is how you accelerate the pursuit of your aim as fast as humanly possible."
+    },
+    {
+      "id": "wv-0152",
+      "quote": "Pursuing your aim as fast as possible and breaking through plateaus is universal, so it applies in any domain."
+    },
+    {
+      "id": "wv-0223",
+      "quote": "The question is, are you working on the biggest needle mover?"
+    },
+    {
+      "id": "wv-0240",
+      "quote": "Whatever you're pursuing, Trillion moves you way further, way faster."
+    },
+    {
+      "id": "wv-0250",
+      "quote": "It removes what's slowing you down, improves what's left, then accelerates."
+    },
+    {
+      "id": "wv-0260",
+      "quote": "There are a hundred things you could do. One will move the needle most."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "kinds": {
+    "edit": { "noun": "edit", "plural": "edits" },
+    "draft": { "noun": "draft", "plural": "drafts" },
+    "upload": { "noun": "upload in progress", "plural": "uploads in progress" },
+    "recording": { "noun": "recording", "plural": "recordings" },
+    "form": { "noun": "unsent form", "plural": "unsent forms" }
+  },
+  "unknown_kind": { "noun": "unsaved item", "plural": "unsaved items" },
+  "refusal": "{count} unsaved: {list}.",
+  "separator": ", "
+}

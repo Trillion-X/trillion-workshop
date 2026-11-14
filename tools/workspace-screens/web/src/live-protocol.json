@@ -1,0 +1,92 @@
+{
+  "_what": "The rules of the live socket (src/live-protocol.mjs), read by the store's end (src/live-screen.mjs) and the page's end (src/workspace/store-changes.ts). Every number and word here is DATA: change it and both ends follow, no code change.",
+  "batching": {
+    "_what": "Same-type events are handed to their handler together. The batch size is how many events fit in `target_ms` at the handler's measured cost per event (a moving average weighted by `smoothing`), never below `min` or above `max`; it starts at `start`.",
+    "start": 10,
+    "min": 1,
+    "max": 200,
+    "target_ms": 8,
+    "smoothing": 0.3
+  },
+  "freshness": {
+    "_what": "An id is fresh while the store has acknowledged a subscription to it, else until `ttl_ms` (spread by +/- `jitter` so every id does not expire together). An invalidation deletes that freshness. More than `burst` invalidations of one id inside `burst_ms` are ignored. The store accepts at most `max_subscriptions` ids per socket; the rest stay on the time limit.",
+    "ttl_ms": 300000,
+    "jitter": 0.2,
+    "burst": 5,
+    "burst_ms": 10000,
+    "max_subscriptions": 1000
+  },
+  "requests": {
+    "_what": "A request the page makes is numbered and answered by `reply_to`. The page pings every `ping_ms` (the store answers `pong` without waking) and closes a socket that has said nothing for `dead_ms`, failing every request still waiting with the error named `closed_error`.",
+    "ping_ms": 10000,
+    "dead_ms": 90000,
+    "ping_text": "ping",
+    "pong_text": "pong",
+    "closed_error": "LiveSocketClosed",
+    "types": [
+      "ping",
+      "subscribe",
+      "catch_up",
+      "window"
+    ]
+  },
+  "boot": {
+    "_what": "What the store tells a page as it opens (the `hello` of its first frame). `rows` are instructions the store can give a page: the first row with `active` true is sent as `hello.instruction`. `actions` says what the page does for each code. Turn a row on to steer every open page without shipping a new build. `repeat_guard_ms`: the page acts on a reload or clear-cache instruction once in this long, so a row left on cannot loop the page.",
+    "rows": [
+      {
+        "code": "reload",
+        "active": false,
+        "said": "Trillion has an update. Reloading."
+      },
+      {
+        "code": "clear_cache",
+        "active": false,
+        "said": "Clearing what this device kept so it can start fresh."
+      },
+      {
+        "code": "re_auth",
+        "active": false,
+        "said": "Sign in again to keep going."
+      },
+      {
+        "code": "paused",
+        "active": false,
+        "said": "Access to this account is paused."
+      }
+    ],
+    "actions": {
+      "reload": "reload",
+      "clear_cache": "clear-kept",
+      "re_auth": "sign-in",
+      "paused": "stop"
+    },
+    "repeat_guard_ms": 600000
+  },
+  "counters": {
+    "_what": "A scope that numbers its notices 1, 2, 3 is checked for holes: a number past the next one expected is a hole named in `hole_log`, and one catch-up request per scope (the `catch_up` request type, `after` the last number held) fills it.",
+    "hole_log": "live hole"
+  },
+  "windows": {
+    "_what": "A long list is subscribed by window ({ from, to }). The store answers with ordered ops: `sync` replaces the window, `insert`, `update` and `delete` change one row at an index, `invalidate` drops a window so it is read again. Each carries the list's total and, when known, its online count. The store holds one window per list per socket and sends the ops after every change; the page asks again on every new socket or store epoch.",
+    "ops": [
+      "sync",
+      "insert",
+      "update",
+      "delete",
+      "invalidate"
+    ]
+  },
+  "dirty": {
+    "_what": "A small notice says a kind of state is stale and carries its version or hash; the page reads it again through the one read path only when the version differs from the one it holds.",
+    "kinds_are_reads": true
+  },
+  "early": {
+    "_what": "The page opens its live socket from a tiny inline script before the app's code has loaded, and keeps every frame until the app takes the socket over (window.trillionEarlySocket, store-changes.ts). A socket the app has not taken by `give_up_ms` is closed, so a page whose app never listens holds nothing open.",
+    "path": "/work/live",
+    "give_up_ms": 15000,
+  "last_listener_grace_ms": 2000,
+  "_last_listener_grace_ms": "How long the page keeps its live socket after the last screen listening to it stopped (src/workspace/store-changes.ts): a screen that remounts stops its listener and starts a new one in the same moment, and closing at once made every remount close the socket with 1000 and open another (the affected account's book saw a socket end every few seconds, 2026-10-20).",
+  "stream_lock": "trillion-store-changes-stream",
+  "_stream_lock": "The Web Lock the tab owning the browser's one live socket holds (src/workspace/store-changes.ts). The early script opens no socket while another tab holds it: a tab that does not lead never takes its early socket, and each one it opened was given up after give_up_ms, a full subscribe admission on the account's book for nothing (2026-10-20)."
+  }
+}

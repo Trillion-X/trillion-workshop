@@ -1,0 +1,21 @@
+{
+  "_what": "Which record types the live socket numbers and windows for (src/live-scopes.mjs). A record scope is the person's record log seen as a numbered scope: each frame carries the newest log number, and a page that sees a jump asks once for what changed after the number it held, so only the screens drawing that type read again. `read` names the store-change read (src/workspace/store-change-reads.json) those screens listen for. A window list is the newest records of a type, newest first, held per socket and kept up to date by ops. Add a row to number or window another type; nothing else changes. `watch` is how many rows the screen that draws the list asks to hold.",
+  "record_scopes": [
+    {
+      "scope": "messages",
+      "type": "message",
+      "read": "messages"
+    }
+  ],
+  "windows": [
+    {
+      "list": "messages",
+      "type": "message",
+      "read": "messages",
+      "most": 200,
+      "watch": 50
+    }
+  ],
+  "catch_up_pages": 20,
+  "catch_up_page_size": 200
+}

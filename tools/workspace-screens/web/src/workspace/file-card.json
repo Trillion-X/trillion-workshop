@@ -1,0 +1,254 @@
+{
+  "_what": "What a file's card says and in what order (src/workspace/file-card.ts, drawn by parts/ui/show/file-card). The card's actions are never listed here: they are the person's own Workshop tools whose screen marks an input as taking a file of this kind, and the screens that open on one (GET /work/api/workshop/for-file). Here: `lead` orders them (tool and screen ids first in this order, the rest in the order the Workshop lists them), `lead_count` how many are buttons before the ⋯ menu, `facts` the chips (FactChips fields: kind formats the value, chip.order places it), `fact_kinds` what kind each fact is to a rule, `suggestions` the next step offered when its `when` rule (a formula-engine rule tree over the fact row, decided by filterRowsByRules) holds and its action is one the card offers, `related` how many files from the same folder show, and `said` every word the card's frame says. Each part also asks the person's show rules (showOf, subject file-card), so any action, section or suggestion can be hidden or held by a rule. A new fact, suggestion or word is a row here.",
+  "lead": [
+    "tool:screen-media-edit",
+    "tool:check-a-post",
+    "tool:screen-files",
+    "tool:transcribe-file",
+    "tool:who-is-in-this",
+    "tool:screen-file",
+    "tool:read-file-words"
+  ],
+  "lead_count": 3,
+  "related": 6,
+  "facts": [
+    {
+      "id": "duration",
+      "label": "Length",
+      "kind": "duration",
+      "icon": "Clock",
+      "chip": {
+        "order": 1
+      }
+    },
+    {
+      "id": "captured_at",
+      "label": "Captured",
+      "kind": "date",
+      "icon": "Calendar",
+      "chip": {
+        "order": 2
+      }
+    },
+    {
+      "id": "people",
+      "label": "People",
+      "kind": "number",
+      "unit": "people",
+      "icon": "UsersRound",
+      "chip": {
+        "order": 3
+      }
+    },
+    {
+      "id": "words",
+      "label": "Words",
+      "kind": "number",
+      "unit": "words",
+      "icon": "Captions",
+      "chip": {
+        "order": 4,
+        "details": [
+          "language"
+        ]
+      }
+    },
+    {
+      "id": "language",
+      "label": "Language",
+      "kind": "text",
+      "icon": "Languages"
+    },
+    {
+      "id": "place",
+      "label": "Place",
+      "kind": "text",
+      "icon": "MapPin",
+      "chip": {
+        "order": 5
+      }
+    },
+    {
+      "id": "camera",
+      "label": "Camera",
+      "kind": "text",
+      "icon": "Camera",
+      "chip": {
+        "order": 6
+      }
+    },
+    {
+      "id": "resolution",
+      "label": "Size on screen",
+      "kind": "text",
+      "icon": "Scan",
+      "chip": {
+        "order": 7
+      }
+    },
+    {
+      "id": "bytes",
+      "label": "Size",
+      "kind": "bytes",
+      "icon": "HardDrive",
+      "chip": {
+        "order": 8,
+        "details": [
+          "folder"
+        ]
+      }
+    },
+    {
+      "id": "folder",
+      "label": "Folder",
+      "kind": "text",
+      "icon": "Folder"
+    }
+  ],
+  "fact_kinds": [
+    {
+      "id": "kind",
+      "kind": "choice"
+    },
+    {
+      "id": "words",
+      "kind": "number"
+    },
+    {
+      "id": "people",
+      "kind": "number"
+    },
+    {
+      "id": "unnamed",
+      "kind": "number"
+    },
+    {
+      "id": "duration",
+      "kind": "duration"
+    }
+  ],
+  "suggestions": [
+    {
+      "id": "hear-it",
+      "label": "Find out what is said in it",
+      "icon": "AudioLines",
+      "action": "tool:transcribe-file",
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "kind",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "video",
+                "audio"
+              ]
+            }
+          },
+          {
+            "kind": "rule",
+            "field": "words",
+            "operator": "is_unknown",
+            "params": {}
+          }
+        ]
+      }
+    },
+    {
+      "id": "name-speakers",
+      "label": "Name who is speaking",
+      "icon": "UsersRound",
+      "action": "tool:who-is-in-this",
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "words",
+            "operator": "greater_than",
+            "params": {
+              "value": 0
+            }
+          },
+          {
+            "kind": "rule",
+            "field": "people",
+            "operator": "is_unknown",
+            "params": {}
+          }
+        ]
+      }
+    },
+    {
+      "id": "name-the-rest",
+      "label": "Name the voices not known yet",
+      "icon": "UserRoundSearch",
+      "action": "tool:who-is-in-this",
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "unnamed",
+            "operator": "greater_than",
+            "params": {
+              "value": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "cut-it",
+      "label": "Make an edit from what was said",
+      "icon": "Scissors",
+      "action": "tool:screen-media-edit",
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "kind",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "video"
+              ]
+            }
+          },
+          {
+            "kind": "rule",
+            "field": "words",
+            "operator": "greater_than",
+            "params": {
+              "value": 0
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "unknown_voice": "^Someone \\(",
+  "said": {
+    "more": "More you can do with this",
+    "people": "Who is in it",
+    "words": "What was said",
+    "related": "In the same folder",
+    "next": "Next step",
+    "all_words": "Show everything said",
+    "facts": "About this file",
+    "opened": "Opened",
+    "started": "Started",
+    "done": "Done"
+  }
+}

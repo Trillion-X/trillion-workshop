@@ -1,0 +1,56 @@
+{
+  "_what": "How the Workflows screens read a workflow's steps (src/work-workflows.mjs): each state a step can be in, its words and tone; who answers a step, matched by the start of the name its ask carries or by the step's own kind, with the icon and words shown for it. The kinds of automation the Automations list shows (a trigger, a schedule, a workflow, one run of a workflow), with their words, tone and icon. A maker marked `published` made a workflow for everyone: it is not this person's automation, so the Automations list leaves it out and the Marketplace lists it under Workflows. Adding a kind of step, a state or a kind of automation is a row here.",
+  "states": {
+    "done": { "label": "Done", "tone": "success", "flow": "completed" },
+    "waiting-ai": { "label": "Waiting on your AI", "tone": "warning", "pulse": true, "flow": "active" },
+    "tool-working": { "label": "A tool is working on it", "tone": "info", "pulse": true, "flow": "active" },
+    "tool-waiting": { "label": "Waiting on a tool", "tone": "warning", "flow": "active" },
+    "agent-working": { "label": "Handed to an agent", "tone": "info", "pulse": true, "flow": "active" },
+    "failed": { "label": "Needs another try", "tone": "error", "flow": "failed" },
+    "interrupted": { "label": "Trying again", "tone": "warning", "pulse": true, "flow": "active" },
+    "stuck": { "label": "Could not be reached", "tone": "error", "flow": "failed" },
+    "not-yet": { "label": "Not reached yet", "tone": "idle" },
+    "not-started": { "label": "Ready to run", "tone": "idle" }
+  },
+  "run_states": {
+    "working": { "label": "Running", "tone": "info" },
+    "finished": { "label": "Finished", "tone": "success" },
+    "failed": { "label": "Stopped", "tone": "error" },
+    "stuck": { "label": "Stuck", "tone": "warning" }
+  },
+  "askers": [
+    { "prefix": "tool:", "icon": "Wrench", "who": "A tool" },
+    { "prefix": "agent:", "icon": "Bot", "who": "One of your agents" },
+    { "prefix": "ai", "icon": "Sparkles", "who": "Your AI" }
+  ],
+  "kinds": {
+    "check": { "icon": "ShieldCheck", "who": "Trillion checks the step before it" }
+  },
+  "other": { "icon": "GitBranch", "who": "Trillion" },
+  "automation_states": {
+    "on": { "label": "On", "tone": "success", "flow": "completed" },
+    "off": { "label": "Off", "tone": "idle" }
+  },
+  "test_words": {
+    "_what": "How the automation editor names one test a rule's `when.where` holds, from the test's own values: the field, these words for its comparison, then its value (\"Text contains 'invoice'\"). A comparison with no row here is named by its own key in words.",
+    "contains": "contains",
+    "equals": "is",
+    "one_of": "is one of",
+    "starts_with": "starts with",
+    "present": "is filled in"
+  },
+  "automation_makers": {
+    "trillion": { "label": "Trillion", "tone": "info" },
+    "you": { "label": "You", "tone": "neutral" },
+    "another-account": { "label": "Another account", "tone": "neutral", "published": true }
+  },
+  "workflow_makers": { "Trillion": "trillion", "this account": "you", "another account": "another-account" },
+  "automation_kinds": {
+    "trigger": { "label": "Trigger", "tone": "info", "icon": "Zap" },
+    "schedule": { "label": "Schedule", "tone": "success", "icon": "CalendarClock" },
+    "workflow": { "label": "Workflow", "tone": "neutral", "icon": "Workflow" },
+    "run": { "label": "Run", "tone": "neutral", "icon": "Play" }
+  },
+  "board_palette": { "_what": "What a workflow's board offers to add from its Add step palette: the kinds of step that are always there (each written as its own step: its id, the words on the button and under it, its icon, the section it files under, and the step it starts as; one that `takes_words` is always offered and, when the person typed words, is written as those words), and the section the Marketplace's tools file under when the person searches for one. A new kind of step is a row here.", "label": "Add step", "placeholder": "Search steps and tools", "steps": [ { "id": "ai", "label": "Your AI does it", "detail": "A step your AI does, in your words", "icon": "Sparkles", "section": "Steps", "takes_words": true, "step": { "title": "New step", "do": "Say what this step does." } } ], "tools_section": "Tools", "tool_icon": "Wrench", "tools_shown": 8 },
+  "value_kinds": { "_what": "How a step's answer reads on the line out of it and in its card: each field it hands on and its kind in plain words (a JSON Schema type), so a person sees what flows from one step to the next.", "string": "words", "number": "a number", "integer": "a number", "boolean": "yes or no", "array": "a list", "object": "details", "other": "something", "hands_on": "What it hands on", "more": "+{n}" }
+}

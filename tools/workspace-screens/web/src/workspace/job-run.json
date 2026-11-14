@@ -1,0 +1,162 @@
+{
+  "_what": "How one job reads when the person watches it (src/workspace/job-run.tsx over parts/ui/show/run-view): the state of the work as a tinted tile with its words read aloud (`states`, picked from the work's own state in that order), each step's tile by whether the call worked and whether it only read or changed something (`step`: read, changed, ok when that is not known, failed), the seconds since the step before as the step's value (`gap_unit`), the row while someone holds it (`working`, {name} is who), the details a step opens into (`detail`: each fact's label read aloud and its icon), what each step made or read as chips (the first `read_shown`, the rest counted with `more`), the box under a job for telling whoever has it more (`follow_up`), the graph beside an opened job of the AI on it, what it does, the tools it called, the other AIs it asked and its skills (`graph`: each group's title and icon, and how each state reads and flows), the buttons, and what the view says when it cannot load. Owned by src/workspace/job-run.tsx.",
+  "states": {
+    "withdrawn": { "label": "Withdrawn", "icon": "CircleMinus", "tone": "neutral" },
+    "stuck": {
+      "label": "Stuck",
+      "icon": "TriangleAlert",
+      "tone": "bad"
+    },
+    "working": {
+      "label": "On it",
+      "icon": "LoaderCircle",
+      "tone": "info"
+    },
+    "done": {
+      "label": "Done",
+      "icon": "Check",
+      "tone": "good"
+    },
+    "waiting": {
+      "label": "Waiting for someone to take it",
+      "icon": "Hourglass",
+      "tone": "attention"
+    }
+  },
+  "step": {
+    "linked": {
+      "icon": "Link",
+      "tone": "neutral"
+    },
+    "ok": {
+      "icon": "Check",
+      "tone": "good"
+    },
+    "read": {
+      "icon": "BookOpen",
+      "tone": "good"
+    },
+    "changed": {
+      "icon": "PenLine",
+      "tone": "good"
+    },
+    "failed": {
+      "icon": "CircleX",
+      "tone": "bad"
+    }
+  },
+  "working": {
+    "title": "{name} is working",
+    "icon": "LoaderCircle",
+    "tone": "info"
+  },
+  "detail": {
+    "association": { "label": "Work association", "icon": "Link" },
+    "work": { "label": "Recorded work reference", "icon": "Link" },
+    "actor": { "label": "Original caller", "icon": "Bot" },
+    "actor_basis": { "label": "Caller evidence", "icon": "FileSearch" },
+    "recorded_agent": { "label": "Historical agent reference", "icon": "Bot" },
+    "recorder": { "label": "Recorded through", "icon": "AppWindow" },
+    "call_result": { "label": "Call result", "icon": "ArrowRight" },
+    "app": {
+      "label": "From",
+      "icon": "AppWindow"
+    },
+    "model": {
+      "label": "Model",
+      "icon": "Cpu"
+    },
+    "tool": {
+      "label": "Tool",
+      "icon": "Wrench"
+    },
+    "at": {
+      "label": "When",
+      "icon": "Clock"
+    }
+  },
+  "decision_chip": "Decision",
+  "untitled": "Your message",
+  "steps_label": "Recorded activity",
+  "related_association": "Related record; work association not captured",
+  "named_caller": "Caller-named card: {name}",
+  "actions": {
+    "take": "I'll do it",
+    "finish": "Mark done",
+    "withdraw-waiting": "Withdraw waiting work"
+  },
+  "loading": "Opening this job",
+  "failed": "This job could not load",
+  "read_shown": 2,
+  "more": "+{count} more",
+  "gap_unit": "s",
+  "follow_up": {
+    "label": "Tell it more",
+    "placeholder": "Ask a follow-up or change what it is doing",
+    "send": "Send",
+    "busy": "Sending",
+    "sent": "Sent to {name}",
+    "sent_anyone": "Sent to your AIs"
+  },
+  "graph": {
+    "label": "How this AI works",
+    "calls_evidence": "Only calls with a captured work link and a caller-named card matching this job's AI appear here. Other recorded activity remains in the run. A returned call does not verify the job's outcome.",
+    "groups": {
+      "tools": {
+        "title": "Tools",
+        "icon": "Wrench"
+      },
+      "helpers": {
+        "title": "Other AIs it asked",
+        "icon": "Users"
+      },
+      "skills": {
+        "title": "Skills",
+        "icon": "Sparkles"
+      }
+    },
+    "instructions": {
+      "title": "What it does",
+      "icon": "ScrollText"
+    },
+    "agent_icon": "Bot",
+    "uses": "{count} times",
+    "used_once": "once",
+    "details": {
+      "calls": "Call evidence",
+      "what": "What it does",
+      "model": "Model",
+      "app": "From",
+      "last": "Last time",
+      "why": "What went wrong"
+    },
+    "looks": {
+      "returned": { "label": "Call returned", "tone": "info" },
+      "withdrawn": { "label": "Withdrawn", "tone": "idle" },
+      "working": {
+        "label": "On it",
+        "tone": "info",
+        "pulse": true,
+        "flow": "active"
+      },
+      "done": {
+        "label": "Done",
+        "tone": "success",
+        "flow": "completed"
+      },
+      "failed": {
+        "label": "Did not work",
+        "tone": "error",
+        "flow": "failed"
+      },
+      "waiting": {
+        "label": "Waiting",
+        "tone": "warning"
+      },
+      "part": {
+        "label": "",
+        "tone": "idle"
+      }
+    }
+  }
+}

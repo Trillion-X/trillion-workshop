@@ -1,0 +1,9 @@
+{
+  "_what": "Where files sent with a message from the composer (parts/ui/show/composer) are kept in the person's Files, read by src/workspace/send-message.ts. Each message's files go in a folder of their own beneath `folder`, named by the moment it was sent, so two pictures both called image.png never meet. `route` is where a message to the AIs goes through the device outbox (src/workspace/share-outbox.ts): its path and the body field its client id travels in. `kept` is what the person is told when the account could not be reached and the outbox is sending it again.",
+  "folder": "/Sent to your AIs",
+  "route": {
+    "path": "/work/api/messages/send-all",
+    "key_field": "client_id"
+  },
+  "kept": "Waiting to send. This device has it and will send it as soon as your account answers."
+}

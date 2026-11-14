@@ -1,0 +1,36 @@
+{
+  "_what": "What every ⋯ menu offers for the thing it is about (src/workspace/menu-rows.ts, installed into the shared ActionMenu through parts/ui/show/action-menu/menu-rows.ts). `sources` is the ordered list of where rows come from; each names the reader that lists them (`from`: page, the rows a part of the page offers from its own state, such as arranging the screen a pane shows; versions; sharing, one Share row opening the one sharing sheet; tools; saved-actions; formats), the kinds of thing it offers rows for (`for_kinds`, empty for every kind), and how its rows sit: `nest` puts them in one submenu with this label and icon, otherwise they sit in the menu itself, each source its own group. Tools nest by the folder each tool sits in, named by the sidebar list that holds that folder (surfaces.json sidebar_collections); a tool in no folder sits in the source's own menu. Saved actions nest by the person's own folders. Formats nest by their category. `carries` says which tool inputs a thing fills with its own id: each row whose `kinds` hold the thing's kind (every kind when it names none) gives the input `format` it fills, `{kind}` standing for the thing's kind, so a tool whose required input says `format` `trillion:decision` is offered on every decision and one saying `trillion:screen` on every screen. Every row is shown or hidden by the person's show rules (subject `menu-row`, src/workspace/show-rules.json), with the facts `rule_facts` lists. A new source is a row here and its reader; a new tool, saved action or format needs nothing here at all.",
+  "sources": [
+    { "id": "page", "from": "page", "for_kinds": [], "group": "page" },
+    { "id": "inspection", "from": "inspection", "for_kinds": [], "group": "inspection" },
+    { "id": "versions", "from": "versions", "for_kinds": [], "group": "versions" },
+    { "id": "sharing", "from": "sharing", "for_kinds": [], "group": "share" },
+    { "id": "tools", "from": "tools", "for_kinds": [], "group": "tools" },
+    { "id": "send", "from": "saved-actions", "for_kinds": [], "group": "send", "nest": { "label": "Send to your AI", "icon": "Sparkles" } },
+    { "id": "formats", "from": "formats", "for_kinds": ["file", "record", "decision"], "group": "send", "nest": { "label": "Make it into", "icon": "Shapes" } }
+  ],
+  "share": { "about": "The one Share row (the sharing sheet, src/workspace/sharing-sheet.tsx) on everything that names what it is: a record, a file, one part of a record, or a pursuit (`space:<id>`).", "label": "Share", "icon": "Share2", "kinds_as_space": ["space"] },
+  "inspection": { "label": "How this happened", "icon": "Route", "screen": "trillion.activity-trace" },
+  "carries": [
+    { "format": "namespace-file", "kinds": ["file"] },
+    { "format": "trillion:{kind}" }
+  ],
+  "write": {
+    "label": "Write to your AI",
+    "icon": "PenLine",
+    "placeholder": "What should your AI do with {title}?",
+    "send": "Send",
+    "sent": "Sent to your AI",
+    "with_action": "Your AI will"
+  },
+  "send_to": ["private"],
+  "format_words": "Make {title} into a {format}, following the {format} format.",
+  "from": "Trillion menu",
+  "from_agent": "trillion-web",
+  "said": {
+    "sent": "Sent to your AI",
+    "done": "Done",
+    "opened": "Opened"
+  },
+  "buckets": 100
+}

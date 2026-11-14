@@ -1,0 +1,246 @@
+{
+  "_what": "The Trillion apps a person can put on their devices, one row per kind, read by src/devices.mjs for every place they are offered: the devices section of Use Trillion in your AI (which the welcome tour's devices step points at), start_setup's install.devices, and the setup prompt's {devices_step}. A row says what it is (title, body, and domain: the web address whose logo leads its row), how Trillion knows this account already has it (installed_when.signs_in_as: the names the app signs in under; a sign-in on the account under one of these names means it is installed), what each app brings that a web page cannot (brings: ids such as listen; a screen that needs one offers, right there, the apps that bring it and that this account does not have yet, through /work/api/screens/get-the-app?for=<id>, headed by words.brings.<id>), on which systems its link is also drawn as a code to scan with a phone (scan_on: a computer, for an app that goes on a phone; /devices/scan draws only links listed here), what it offers once installed (once_installed: a tour, such as how to share to Trillion from it, by its id in src/workspace/walkthroughs, or `queue`: a job in src/queued-work.json the person's own AI is handed, such as putting free AI models on the Mac), and where to get it per system (get: one entry per set of systems, `systems` either \"any\" or system ids; `href` is the public install address, or null with `not_yet` saying honestly why it cannot be installed yet). `systems` tells a device's system from its User-Agent, first match wins (an iPhone's User-Agent also says Mac OS X, and an Android one says Linux, so they come first). `words` are the section's and the setup prompt's own words. A new device kind, a new system or a newly published link is one change here; nothing that draws or composes changes. Distribution-backed routes require a fresh operator-owned observation. Their configured href is only a Check access recovery address until current distribution and observer eligibility are known; it never proves installation. Provider constraints are public, and a personal preference cannot create provider evidence.",
+  "systems": [
+    {
+      "id": "ios",
+      "label": "an iPhone or iPad",
+      "user_agent_has": [
+        "iPhone",
+        "iPad"
+      ]
+    },
+    {
+      "id": "android",
+      "label": "an Android phone",
+      "user_agent_has": [
+        "Android"
+      ]
+    },
+    {
+      "id": "macos",
+      "label": "a Mac",
+      "user_agent_has": [
+        "Macintosh",
+        "Mac OS X",
+        "darwin",
+        "Darwin",
+        "macOS"
+      ]
+    },
+    {
+      "id": "windows",
+      "label": "Windows",
+      "user_agent_has": [
+        "Windows",
+        "win32",
+        "Win64"
+      ]
+    },
+    {
+      "id": "linux",
+      "label": "Linux",
+      "user_agent_has": [
+        "Linux",
+        "X11",
+        "linux"
+      ]
+    }
+  ],
+  "devices": [
+    {
+      "id": "iphone",
+      "title": "Trillion on your iPhone",
+      "domain": "apple.com",
+      "body": "Add photos, videos, links and notes to Trillion from any app's Share button, follow running work on your Lock Screen, and keep Trillion widgets on your Home Screen.",
+      "installed_when": {
+        "signs_in_as": [
+          "Add to Trillion for iPhone"
+        ]
+      },
+      "brings": [
+        "listen",
+        "share"
+      ],
+      "scan_on": [
+        "macos",
+        "windows",
+        "linux"
+      ],
+      "once_installed": {
+        "label": "Show me how to share to Trillion",
+        "tour": "iphone-share"
+      },
+      "get": [
+        {
+          "systems": "any",
+          "label": "Get it on TestFlight",
+          "href": "https://testflight.apple.com/join/6pNXRtSD",
+          "distribution_source": "native-ios",
+          "channels": [
+            "public_link",
+            "store"
+          ],
+          "not_yet": "Trillion is checking beta access. Once access is ready, this step will show the installation link and instructions."
+        }
+      ]
+    },
+    {
+      "id": "watch",
+      "title": "Trillion on your Apple Watch",
+      "domain": "apple.com",
+      "body": "Your needle mover on your wrist and on your watch face, one press to tell your AIs something, and what is waiting for you, each opening to itself. It signs in with your iPhone.",
+      "installed_when": {
+        "signs_in_as": [
+          "Trillion for Apple Watch"
+        ]
+      },
+      "get": [
+        {
+          "systems": "any",
+          "label": "Comes with the iPhone app on TestFlight",
+          "href": "https://testflight.apple.com/join/6pNXRtSD",
+          "distribution_source": "native-ios",
+          "channels": [
+            "public_link",
+            "store"
+          ],
+          "not_yet": "Trillion is checking beta access. Once access is ready, this step will show the installation link and instructions."
+        }
+      ]
+    },
+    {
+      "id": "extension",
+      "title": "Send to Trillion for Chrome",
+      "domain": "chrome.com",
+      "body": "Send any page, selection or screenshot from your browser to Trillion. Works in Chrome, Arc, Dia, Edge and Brave.",
+      "installed_when": {
+        "signs_in_as": [
+          "Send to Trillion"
+        ]
+      },
+      "brings": [
+        "share"
+      ],
+      "get": [
+        {
+          "systems": [
+            "macos",
+            "windows",
+            "linux"
+          ],
+          "label": "Add to Chrome",
+          "href": "https://chromewebstore.google.com/detail/send-to-trillion/hlcppfhpcfmlinjmjkiadmbnnboadlnh"
+        }
+      ]
+    },
+    {
+      "id": "desktop",
+      "title": "Trillion for your computer",
+      "domain": "gettrillion.ai",
+      "body": "Trillion in its own window and in your menu bar, with recording, and every file you keep in Trillion as a drive in Finder: open any of them at once, however much you keep.",
+      "installed_when": {
+        "signs_in_as": [
+          "Trillion for Mac",
+          "Trillion on this Mac"
+        ]
+      },
+      "brings": [
+        "listen",
+        "drive"
+      ],
+      "once_installed": {
+        "label": "Set up free AI on this Mac",
+        "queue": "set-up-free-models"
+      },
+      "get": [
+        {
+          "systems": [
+            "macos"
+          ],
+          "label": "Download for Mac",
+          "href": "https://app.gettrillion.ai/download/Trillion.dmg"
+        },
+        {
+          "systems": [
+            "windows"
+          ],
+          "label": "Download for Windows",
+          "href": null,
+          "not_yet": "Not out yet for Windows."
+        },
+        {
+          "systems": [
+            "linux"
+          ],
+          "label": "Download for Linux",
+          "href": null,
+          "not_yet": "Not out yet for Linux."
+        }
+      ]
+    }
+  ],
+  "words": {
+    "heading": "Trillion on your devices",
+    "body": "Each link opens in a new tab.",
+    "on_this_device": "You are on {system}.",
+    "installed": "Installed",
+    "not_yet": "Not out yet",
+    "scan": "Scan with your phone to get it",
+    "setup_step": "Offer me the Trillion apps for my devices, one link each, and skip any I already have:{devices}",
+    "brings": {
+      "listen": {
+        "heading": "Keep listening when this page is closed",
+        "body": "Trillion hears what is said in your meetings and calls, with your phone in your pocket or your Mac asleep, and keeps each person's words as theirs."
+      }
+    }
+  },
+  "distribution": {
+    "record_prefix": "device-distribution:",
+    "max_age_seconds": 300,
+    "clock_skew_seconds": 15,
+    "max_routes": 50,
+    "max_input_chars": 64000,
+    "history_limit": 12,
+    "sources": [
+      {
+        "id": "native-ios",
+        "owner": "Trillion release owner",
+        "allowed_hosts": [
+          "testflight.apple.com",
+          "apps.apple.com"
+        ],
+        "refresh_tool": "tool:read-app-distribution",
+        "check_label": "Check TestFlight access",
+        "labels": {
+          "public_link": "Join the beta",
+          "store": "Install the app"
+        },
+        "channels": [
+          "public_link",
+          "store"
+        ],
+        "product_families": [
+          "IPHONE"
+        ]
+      }
+    ],
+    "words": {
+      "unknown": "Trillion is checking access to this app. A download link alone does not confirm beta access.",
+      "stale": "Trillion needs to check the app release again before offering this download.",
+      "no_route": "No verified installation route is available yet. Trillion needs to prepare access.",
+      "waiting": "Trillion needs to prepare access to this app before you can install it.",
+      "check_access": "Check access",
+      "ineligible": "This device does not meet the current beta requirements. Check access from an eligible iPhone, or ask Trillion to resolve this setup requirement."
+    },
+    "observers": [
+      {
+        "device_family": "IPHONE",
+        "user_agent_pattern": "iPhone.*?OS ([0-9_]+)"
+      },
+      {
+        "device_family": "IPAD",
+        "user_agent_pattern": "iPad.*?OS ([0-9_]+)"
+      }
+    ]
+  }
+}

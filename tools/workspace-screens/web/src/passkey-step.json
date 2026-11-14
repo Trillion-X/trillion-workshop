@@ -1,0 +1,20 @@
+{
+  "comment": "How the browser's passkey step ended, in words a person reads (src/passkey-step.mjs). errors is keyed by the step ('sign-in' uses a passkey, 'make' makes one) and then by the name of the error the browser threw (a WebAuthn DOMException name); 'any' answers a name for every step. Each row: said (the words), kind (how the screen marks them: done, cancelled or error) and already (true when the step finished because this device already holds a passkey for the account, which is success, not failure). unknown is said for an error with no name and no message. opening is added after words that carry on into Trillion.",
+  "errors": {
+    "sign-in": {
+      "NotAllowedError": { "said": "No Trillion passkey was found on this device, or the step was closed. Sign in with your email and password, or choose \"Email me a code\".", "kind": "cancelled" }
+    },
+    "make": {
+      "NotAllowedError": { "said": "The passkey step was closed or timed out before a passkey was made. Nothing changed. You can try again.", "kind": "cancelled" },
+      "InvalidStateError": { "said": "This device already has a passkey for Trillion.", "kind": "done", "already": true }
+    },
+    "any": {
+      "AbortError": { "said": "The passkey step stopped before it finished. Nothing changed. You can try again.", "kind": "cancelled" },
+      "SecurityError": { "said": "This browser refused a passkey for this address. Open app.gettrillion.ai and try again.", "kind": "error" },
+      "NotSupportedError": { "said": "This browser can't use passkeys. Sign in with your email and password instead.", "kind": "error" },
+      "ConstraintError": { "said": "This device can't keep a passkey for Trillion. Try your phone, or sign in with your email and password.", "kind": "error" }
+    }
+  },
+  "unknown": "The passkey step didn't finish. Please try again.",
+  "opening": "Opening Trillion…"
+}

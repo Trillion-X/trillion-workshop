@@ -1,0 +1,18 @@
+{
+  "_what": "Names the person gives to the colours their calendars offer (src/workspace/colour-names.mjs), as DATA. The names are one account record under `record_key`, { <colour>: <name> }, so every device and every calendar shows the same names. `most_names` and `most_name_chars` bound what is kept. `read_days` is how many days of the calendar are read to learn which colours the person's calendars offer. `words` are every word the page shows.",
+  "record_key": "calendar.colour-names",
+  "most_names": 64,
+  "most_name_chars": 40,
+  "read_days": 1,
+  "words": {
+    "title": "Colour names",
+    "body": "Give each calendar colour a name of your own. The names show wherever you pick a colour for an event.",
+    "name_label": "Name for this colour",
+    "reset": "Back to the usual name",
+    "loading": "Loading your colours",
+    "failed": "Your colours could not be loaded.",
+    "retry": "Try again",
+    "empty": "Connect a calendar and the colours it offers show here.",
+    "unsaved": "This could not be saved. Try again."
+  }
+}

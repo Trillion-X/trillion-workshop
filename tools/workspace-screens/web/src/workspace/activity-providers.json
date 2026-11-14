@@ -1,0 +1,10 @@
+{
+  "_what": "Optional provider marks for AI app names that are already known. The Activity screen reads this as data; an app not listed keeps its own registered picture or initials. Add a name here when its provider is verified.",
+  "names": {
+    "Claude": "anthropic",
+    "Claude Code": "anthropic",
+    "ChatGPT": "openai",
+    "Codex": "openai",
+    "Grok": "x"
+  }
+}

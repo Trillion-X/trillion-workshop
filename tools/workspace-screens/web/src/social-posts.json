@@ -1,0 +1,195 @@
+{
+  "_what": "How a person's posts are kept and sent (src/social-posts.mjs). `record_type` is the kind of record a post is kept as, so a rule can watch it (set_rule when { recorded: \"post\" }). The link a post carries gets `link_tags` added, each a query parameter whose value is fixed (`value`) or taken from the post (`from`: post_id, platform or account_id), so a sign-up that came from a post says which post and where; `link_joiner` goes between the words and the link. `media_wait_seconds` is how long a post's video address stays readable by the place that fetches it. `outcome_states` turns each publisher outcome into the state a destination is in; `resend_states` are the states publish_post sends again by itself (never one whose outcome is unknown, which is resent only when named in resend). `outcome_words` are the plain words for a failed destination, the first row matching its retry kind or a word in its code or message; `{platform}` and `{detail}` are filled in. `publish_tool_id` is the tool a schedule runs to publish a post at its time. `voice_tools` are the Workshop tools that keep the person's writing voice (tools/how-someone-does-their-thing in Trillion-X/trillion-workshop): the tool each /posts/voice route runs (`by_field` is the input a save names who saved it in) and the tool a person's change of a draft's words is handed to. `ready_limits` are the limits a place's `format` may set on a file (src/post-ready.mjs), each the `limit` name in a media kind, the file `fact` it is compared with (byte_length, duration_seconds, or aspect: width over height), whether the fact must stay `at_most` or `at_least` the limit, the `unit` it is written in, and the fact's plain name; a new kind of limit is a row here. `ready_words` are the plain words for each thing a ready check finds, with `{platform}`, `{kind}` and the rest filled in. `calendar_max_days` is the longest span one calendar read covers.",
+  "record_type": "post",
+  "link_tags": [
+    {
+      "param": "utm_source",
+      "from": "platform"
+    },
+    {
+      "param": "utm_medium",
+      "value": "social"
+    },
+    {
+      "param": "utm_content",
+      "from": "post_id"
+    }
+  ],
+  "link_joiner": "\n\n",
+  "media_wait_seconds": 21600,
+  "list_limit": 50,
+  "calendar_max_days": 400,
+  "max_destinations": 30,
+  "max_caption_characters": 20000,
+  "publish_tool_id": "tool:publish-a-post",
+  "voice_tools": {
+    "routes": {
+      "/posts/voice/read": { "tool_id": "tool:read-voice" },
+      "/posts/voice/save": { "tool_id": "tool:save-voice", "by_field": "by" },
+      "/posts/voice/forget": { "tool_id": "tool:forget-voice" }
+    },
+    "edit_tool_id": "tool:keep-a-voice-edit"
+  },
+  "outcome_states": {
+    "published": "posted",
+    "scheduled": "on its way",
+    "accepted": "on its way",
+    "processing": "on its way",
+    "failed": "failed",
+    "not-submitted": "failed",
+    "cancelled": "failed",
+    "unknown": "not known"
+  },
+  "resend_states": [
+    "failed",
+    "not sent"
+  ],
+  "outcome_words": [
+    {
+      "retry": "after-reconnect",
+      "says": "{platform} needs you to sign in again. Ask your AI for the {platform} connect link, sign in, then publish again."
+    },
+    {
+      "contains_any": [
+        "reconnect",
+        "unauthor",
+        "expired",
+        "revoked",
+        "token"
+      ],
+      "says": "{platform} needs you to sign in again. Ask your AI for the {platform} connect link, sign in, then publish again."
+    },
+    {
+      "retry": "after-delay",
+      "says": "{platform} is asking to slow down. Publish again later; the places that already have the post are not sent it again."
+    },
+    {
+      "contains_any": [
+        "rate",
+        "quota",
+        "too many"
+      ],
+      "says": "{platform} is asking to slow down. Publish again later; the places that already have the post are not sent it again."
+    },
+    {
+      "contains_any": [
+        "duration",
+        "file size",
+        "too large",
+        "aspect",
+        "resolution",
+        "codec",
+        "media",
+        "video"
+      ],
+      "says": "{platform} did not accept this video: {detail}"
+    },
+    {
+      "contains_any": [
+        "character",
+        "length",
+        "too long"
+      ],
+      "says": "The words are too long for {platform}. Shorten the caption for {platform} and publish again."
+    }
+  ],
+  "outcome_fallback": "{platform} did not publish it: {detail}",
+  "not_known_words": "It is not known whether {platform} took the post. Look on {platform}; if it is not there, publish again naming this account in resend.",
+  "ready_limits": [
+    {
+      "limit": "max_bytes",
+      "fact": "byte_length",
+      "keeps": "at_most",
+      "unit": "bytes",
+      "fact_name": "size"
+    },
+    {
+      "limit": "min_seconds",
+      "fact": "duration_seconds",
+      "keeps": "at_least",
+      "unit": "seconds",
+      "fact_name": "length"
+    },
+    {
+      "limit": "max_seconds",
+      "fact": "duration_seconds",
+      "keeps": "at_most",
+      "unit": "seconds",
+      "fact_name": "length"
+    },
+    {
+      "limit": "min_aspect",
+      "fact": "aspect",
+      "keeps": "at_least",
+      "unit": "shape",
+      "fact_name": "shape"
+    },
+    {
+      "limit": "max_aspect",
+      "fact": "aspect",
+      "keeps": "at_most",
+      "unit": "shape",
+      "fact_name": "shape"
+    }
+  ],
+  "ready_words": {
+    "ready": "Ready for {platform}.",
+    "not_connected": "This account is no longer connected. Connect it again from Connections.",
+    "not_ready": "{said}",
+    "needs_media": "{platform} does not post words alone. Add a video or picture.",
+    "media_gone": "This post's video or picture is no longer in your files. Choose one that is.",
+    "kind_not_taken": "{platform} does not take this kind of file ({media_type}). It takes: {kinds}.",
+    "takes_no_files": "{platform} takes words only. Leave the video or picture out of the post for {platform}.",
+    "type_not_taken": "{platform} does not take this kind of {kind} file ({media_type}). It takes: {types}.",
+    "too_many_characters": "The words for {platform} are {count} characters; it takes at most {max}. Shorten the words for {platform}.",
+    "setting_missing": "{platform} needs its {name} filled in.",
+    "setting_too_long": "The {name} for {platform} is {count} characters; it takes at most {max}.",
+    "setting_refused_characters": "The {name} for {platform} cannot contain {characters}.",
+    "at_most": "The {kind}'s {fact_name} is {value}; {platform} takes at most {limit}.",
+    "at_least": "The {kind}'s {fact_name} is {value}; {platform} needs at least {limit}.",
+    "not_known": "Trillion does not know the {kind}'s {fact_name}, so {platform}'s limit ({limit}) was not checked.",
+    "all_ready": "Ready for every place it is going.",
+    "some_not_ready": "Not ready yet for {platforms}.",
+    "pick_places": "Pick where it goes: {places}.",
+    "connect_places": "Pick where it goes: connect {platforms} in Connections, then choose it here.",
+    "no_places": "Pick where it goes: connect a place to post in Connections."
+  },
+  "first_contact": {
+    "_what": "A post reaches someone when its words name them (`names`, a pattern whose first group is the handle, read over the caption and each place's own caption) or when it lists them in `reaches` (people found outside Trillion, each with where they were found). Such a post is approved only by the person, pressing Approve on their own signed-in page: an AI's approval is refused with `words.person_only` and the Posts screen as the next call. `most` people per post, `provenance_most` places each was found.",
+    "names": "(?:^|[^A-Za-z0-9_@.])@([A-Za-z0-9_]{1,30})",
+    "most": 20,
+    "provenance_most": 5,
+    "words": {
+      "person_only": "This post reaches {names}. A first message to someone is approved only by the person: show it to them on their Posts screen, where they read it and press Approve.",
+      "reaches": "reaches lists the people this post contacts first (at most {most}), each { network, handle, profile_url, provenance: [{ source, url, title, posted_at }] } with at least one place they were found, as tool:find-people-outside-trillion gives them."
+    },
+    "next_call": {
+      "tool": "show_screen",
+      "arguments": {
+        "screen": "Posts"
+      }
+    },
+    "grounded": {
+      "_what": "Before a first message is shown to the person, the person's own computer asks the measured decision `decision` (src/decision-evals.json, its words and the judge it is wired to) whether the message says only what was found of each person it reaches (`found`, each provenance title, joined by `joiner`) and what the person seeks of them (reaches[].sought). The answer is kept on the post as grounded; not grounded, the AI is told so in `words.not_grounded`.",
+      "decision": "outreach-message-grounded",
+      "found": "a post titled '{title}'",
+      "joiner": "; ",
+      "words": {
+        "not_grounded": "Kept as a draft, but this message to {names} may say something not found in what was saved of them. Rewrite it with only what was saved and what your person seeks, before you show it to them."
+      }
+    }
+  },
+  "hold": {
+    "_what": "Delivery options a post may carry besides its approved content (src/social-posts.mjs): `hold_seconds` keeps a send waiting that long after publish so it can be taken back with undo_post (0 or none: sends at once), `abort_on_reply` names a conversation: when someone else writes in it after the send was armed, the send is cancelled instead of going out. Neither changes what was approved.",
+    "max_seconds": 900,
+    "words": {
+      "holding": "Held. It goes out at {at} unless you take it back with undo_post before then.",
+      "still_held": "It is held until {at}; undo_post takes it back before then.",
+      "undone": "Taken back. The post is a draft again; nothing was sent. Approve it again when it is ready.",
+      "nothing_to_undo": "{post_id} is not waiting to go out (it is {status}), so there is nothing to take back. read_post shows where it is.",
+      "replied": "Not sent: someone wrote in the conversation after this was set to go out, so the post is a draft again. Read what they said, then approve it again if it still fits.",
+      "bad_seconds": "hold_seconds is a whole number of seconds from 0 to {max}.",
+      "bad_reply": "abort_on_reply is { conversation_id } of the conversation whose reply should stop the send, or null."
+    }
+  }
+}

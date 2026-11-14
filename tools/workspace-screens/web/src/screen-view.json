@@ -1,0 +1,297 @@
+{
+  "_what": "Trillion's screens drawn inside an AI app (ChatGPT, Claude) through the MCP Apps standard (src/screen-view.mjs, src/workspace/screen-view.tsx). `view` is the one view document every screen is drawn in: its ui:// address, the fixed script and stylesheet addresses it loads from this service (fixed because an AI app keeps the document between deploys), and its height inside a chat: every tool result opens the full workspace in `whole_px`, including the controls inside the host height allowance. Full screen asks the host for a larger box without changing the workspace. `compact_px` and `expanded_px` remain for older view scripts. `reads` are the addresses a screen drawn there may read and change through the app's own sign-in (the screen_read tool): the workspace's own reads, minus what is done only in Trillion itself (sign-in methods, keys, saved logins, devices). `tools` names the tools whose answer is shown as a screen: each row's `address` is a workspace address made of its parts, a text or a value read `from` the tool's input or result by `field`; a tool whose answer lacks a needed value shows the row's `otherwise` address when it has one, else no screen. A row with `result_screen: true` instead declares that its owner returns the exact destination under `trillion/screen`; the shared adapter validates that destination and advertises the renderer before the call, without a separate show_screen call. An omitted target selects no screen (for example, deliberate save-only); static host metadata may still open an outer panel. `whole` names the workspace itself without requiring a selected screen. Every ordinary screen result also opens in that same shared workspace (the person's sidebar and arrangement, src/workspace/mount-workspace.ts), with the exact requested screen and input selected. `words` are what the person and the app read. Every successfully opened screen also carries a quiet Open in Trillion control for the same address; the view counts shown, pressed and full-open moments through the shared interaction store. `placements` are the places an AI app can open a screen from besides the model's own call, as data: each place names the entrypoint type the host calls it (ChatGPT: home is its sidebar entry, `global`; side-panel is a tab beside a conversation, `thread`), and a `tools` row lists the places its screen sits in, with the title the host shows (a side panel's title is never the app's own name). src/screen-view.mjs turns these rows into each host's entrypoints; a host opens such a tool with no input, so a row with a placement must run with none.",
+  "view": {
+    "uri": "ui://trillion/screen.html",
+    "script": "/workspace/screen-view.js",
+    "stylesheet": "/workspace/workspace.css",
+    "compact_px": 420,
+    "expanded_px": 760,
+    "whole_px": 760
+  },
+  "whole": {
+    "names": [
+      "Trillion",
+      "Everything",
+      "Workspace",
+      "My workspace",
+      "The whole workspace",
+      "/"
+    ],
+    "label": "Trillion",
+    "address": "/"
+  },
+  "placements": {
+    "home": {
+      "chatgpt": "global"
+    },
+    "side-panel": {
+      "chatgpt": "thread"
+    }
+  },
+  "reads": {
+    "paths": [
+      "/work/api/"
+    ],
+    "refused_paths": [
+      "/work/api/account/",
+      "/work/api/logins/",
+      "/work/api/devices/"
+    ],
+    "headers": [
+      "accept",
+      "content-type",
+      "range",
+      "idempotency-key",
+      "x-time-zone"
+    ],
+    "text_types": [
+      "application/json",
+      "text/",
+      "application/javascript",
+      "image/svg+xml"
+    ]
+  },
+  "tools": {
+    "make_controls": {
+      "result_screen": true
+    },
+    "open_trillion": {
+      "address": [
+        "/"
+      ],
+      "placements": [
+        {
+          "in": "home",
+          "title": "Home"
+        }
+      ]
+    },
+    "list_decisions": {
+      "address": [
+        "/decisions"
+      ],
+      "placements": [
+        {
+          "in": "side-panel",
+          "title": "Decisions"
+        }
+      ]
+    },
+    "export_decision": {
+      "address": [
+        "/decisions/",
+        {
+          "from": "input",
+          "field": "case_id"
+        }
+      ]
+    },
+    "list_pursuits": {
+      "address": [
+        "/progress"
+      ],
+      "placements": [
+        {
+          "in": "side-panel",
+          "title": "Pursuits"
+        }
+      ]
+    },
+    "read_awareness": {
+      "address": [
+        "/progress"
+      ],
+      "placements": [
+        {
+          "in": "side-panel",
+          "title": "Awareness"
+        }
+      ]
+    },
+    "open_space": {
+      "address": [
+        "/spaces/",
+        {
+          "from": "input",
+          "field": "space_id"
+        }
+      ]
+    },
+    "read_activity": {
+      "address": [
+        "/activity"
+      ]
+    },
+    "copies_in_step": {
+      "address": [
+        "/devices"
+      ]
+    },
+    "settle_two_versions": {
+      "address": [
+        "/devices"
+      ]
+    },
+    "list_media": {
+      "address": [
+        "/media"
+      ]
+    },
+    "list_lists": {
+      "address": [
+        "/lists"
+      ]
+    },
+    "read_list": {
+      "address": [
+        "/lists/",
+        {
+          "from": "input",
+          "field": "list_id"
+        }
+      ]
+    },
+    "read_list_view": {
+      "address": [
+        "/lists/",
+        {
+          "from": "input",
+          "field": "list_id"
+        },
+        "?view=",
+        {
+          "from": "input",
+          "field": "view_id"
+        }
+      ]
+    },
+    "run_tool": {
+      "result_screen": true,
+      "address": [
+        "/workshop/runs/",
+        {
+          "from": "result",
+          "field": "task_id"
+        }
+      ],
+      "focused_if": { "from": "result", "field": "state", "equals": "waiting_for_input" }
+    },
+    "read_task": {
+      "result_screen": true,
+      "address": [
+        "/workshop/runs/",
+        {
+          "from": "input",
+          "field": "task_id"
+        }
+      ],
+      "focused_if": { "from": "result", "field": "state", "equals": "waiting_for_input" }
+    },
+    "save_tool": { "result_screen": true },
+    "describe_workflow": {
+      "address": [
+        "/workflows/",
+        {
+          "from": "input",
+          "field": "workflow_id"
+        }
+      ]
+    },
+    "start_workflow": {
+      "address": [
+        "/workflows/",
+        {
+          "from": "result",
+          "field": "run_id"
+        }
+      ],
+      "otherwise": [
+        "/workflows"
+      ]
+    },
+    "read_workflow_run": {
+      "address": [
+        "/workflows/",
+        {
+          "from": "input",
+          "field": "run_id"
+        }
+      ],
+      "otherwise": [
+        "/workflows"
+      ]
+    },
+    "submit_workflow_step": {
+      "address": [
+        "/workflows/",
+        {
+          "from": "input",
+          "field": "run_id"
+        }
+      ]
+    },
+    "list_posts": {
+      "address": [
+        "/use/tool%3Acheck-a-post"
+      ]
+    },
+    "check_post": {
+      "address": [
+        "/use/tool%3Acheck-a-post"
+      ]
+    },
+    "draft_post": {
+      "address": [
+        "/use/tool%3Acheck-a-post/",
+        {
+          "from": "result",
+          "field": "post_id"
+        }
+      ],
+      "otherwise": [
+        "/use/tool%3Acheck-a-post"
+      ]
+    },
+    "read_post": {
+      "address": [
+        "/use/tool%3Acheck-a-post/",
+        {
+          "from": "input",
+          "field": "post_id"
+        }
+      ]
+    }
+  },
+  "words": {
+    "title": "Trillion",
+    "invoking": "Opening Trillion",
+    "invoked": "Showing Trillion",
+    "description": "Your full Trillion workspace, with its sidebar, saved arrangement and the requested screen selected. Navigate and work here in the chat.",
+    "opening": "Opening the screen",
+    "could_not_open": "This screen could not open",
+    "focused_update_failed": "Your work is still here. Retry the update when you are ready.",
+    "no_screen_title": "Trillion did not open here",
+    "no_screen": "Open Trillion to see your work.",
+    "screen_failed": "This screen could not open in the chat.",
+    "open_trillion": "Open Trillion",
+    "open_workspace": "Open workspace",
+    "refresh": "Refresh",
+    "retry": "Try again",
+    "catalog_loading": "Loading the rest of your workspace\u2026",
+    "catalog_failed": "Some workspace items could not load. Refresh to try again.",
+    "target_unavailable": "The requested screen is unavailable. Refresh or open its address in Trillion.",
+    "show_more": "Show more",
+    "show_less": "Show less",
+    "full_screen": "Full screen",
+    "back": "Back",
+    "back_to_chat": "Back to the chat",
+    "whole_described": "Trillion itself (the whole workspace: the person's sidebar and their own arrangement of screens, where a sidebar row opens in place)",
+    "unknown_screen": "Trillion has no screen named \"{asked}\". Name one of these, or an address of one: {screens}.",
+    "refused_read": "This is done in Trillion itself, at app.gettrillion.ai.",
+    "request_refused": "This request could not run.",
+    "outcome_unknown": "The result is unknown. Check this request before trying again.",
+    "outside_read": "A screen in a chat reads only Trillion's own screens.",
+    "read_said": "Read for the Trillion screen in this chat ({status}).",
+    "open_full_trillion": "Open in Trillion"
+  }
+}

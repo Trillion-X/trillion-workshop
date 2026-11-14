@@ -1,0 +1,17 @@
+{
+  "about": "How a space's share sheet makes it open to everyone (src/space-open.mjs; the share sheet src/workspace/sharing-sheet.tsx SpaceSharing, Who else can open it). A space is open to everyone when its own rules let anyone read it (src/community.mjs openToEveryone), and then it shows in Open to you for everyone. Opening it adds `allow` to the space's rules and adds `actions` to the exception list of every deny rule named in `denies` (the rule each space starts with that keeps outsiders out), because a deny that holds always wins; closing takes both away. `shown_only` are the words a rules read adds to each rule for people (src/space-permissions.mjs coverOf), left out when the rules are saved again. Nothing here is code: another way of opening a space is another row.",
+  "allow": {
+    "id": "anyone-reads",
+    "effect": "allow",
+    "says": "Anyone can find this pursuit and read what is in it.",
+    "who": { "kind": "anyone" },
+    "actions": ["read_space"]
+  },
+  "denies": ["outsiders"],
+  "shown_only": ["covers", "except"],
+  "actions": ["read_space"],
+  "choices": [
+    { "id": "members", "label": "Only people in it", "detail": "Only its members can open it. Invite people above.", "icon": "Lock" },
+    { "id": "open", "label": "Anyone can find it", "detail": "It shows in Open to you, and anyone can read what is in it.", "icon": "Globe" }
+  ]
+}

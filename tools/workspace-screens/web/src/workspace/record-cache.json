@@ -1,0 +1,11 @@
+{
+  "_what": "The signed-in workspace's shared record cache budget, read by src/workspace/records.ts. max_items bounds present and absent labels together; max_bytes and max_record_bytes count each address's UTF-8 bytes, compact JSON UTF-8 bytes, estimated decoded JavaScript object/array/string expansion, and item_overhead_bytes. A missing label is remembered only for missing_ttl_ms. max_parallel_reads bounds a store-change refresh without skipping any cached address, and refresh_batch is how many labels one refresh request reads (the store reads several labels of one request together). A refresh batch of at least absent_guard.min_labels held labels in which more than most_absent_share of them come back absent is not believed (it looks like a broken answer, not that many deletions): those labels are asked one at a time and only that answer removes one. Active consumers, startup DATA and local writes waiting for the store stay resident; inactive least-recently-used values leave the cache and load again when next read.",
+  "max_items": 128,
+  "max_bytes": 8388608,
+  "max_record_bytes": 4194304,
+  "item_overhead_bytes": 128,
+  "missing_ttl_ms": 30000,
+  "max_parallel_reads": 4,
+  "refresh_batch": 16,
+  "absent_guard": { "min_labels": 4, "most_absent_share": 0.5 }
+}

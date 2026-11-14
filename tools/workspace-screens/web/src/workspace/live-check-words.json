@@ -1,0 +1,8 @@
+{
+  "_what": "The words the held card's check line says on its own (src/workspace/waiting-screen.tsx): while the first answer is on its way (at most `first_answer_seconds`), when a read of the check could not be made, and what a failed check promises. Everything else the check line says is the answer's own `card.check.words`.",
+  "first_answer_seconds": 3,
+  "checking": "Checking…",
+  "could_not_read": "Couldn't check just now",
+  "retry_note": "Trillion will look again by itself.",
+  "last_seen": "As of {when}"
+}

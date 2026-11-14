@@ -1,0 +1,143 @@
+{
+  "about": "What a browser sees when an address it opened fails (src/browser-pages.mjs, reached through parts/ui/show/server-rendered-page/page-egress.mjs). Rows are read in order and the first whose `when` matches is used: `host` matches the address's host (the live host's calm rows: how the workspace looks, `picture`, at full width, never a broken page), `path_starts` matches the start of the address, `status` the answer's status, and a row with no `when` matches everything. `route_words: true` shows what the route itself said (a plain line such as 'This link has expired') in place of `body`, unless it is one of `quiet_words`, which add nothing to the heading. An action's `href` is an address, or `{ \"from\": \"request\", \"key\": \"path\" }` for the address that failed. `quote: true` adds one line of Trillion's own voice from src/error-page-lines.json. `illustration` is `{ src, alt }`, the drawing above the words (assets/illustrations/, served under /workspace/illustrations/). `emphasis` is the look word every such page's words are drawn in (the shared page shell's centred card). An action's `again_seconds` presses it by itself after that many seconds (twice at most for one address), saying its `pending` words meanwhile. `ask_ai: true` adds the person's own AI as the way forward: their chosen AI (remembered from the workspace in the trillion_choice_ai cookie, src/ask-your-ai.mjs) as a button, and every AI app that opens a chat from an address as a logo chip under the actions, after `ask.choose` (no AI chosen yet) or `ask.others`, each opening a new chat in a new tab with `ask.prompt` ({heading} what failed, {page} the address, {said} what the route said).",
+  "quiet_words": ["Not found", "Not found.", "Not allowed.", "Method not allowed", "Unauthorized", "invalid_request", "invalid_token", "Invalid access token", "Missing or invalid access token"],
+  "emphasis": "welcome",
+  "ask": {
+    "chosen": "Ask {label}",
+    "choose": "Or ask your AI",
+    "others": "Or another AI",
+    "prompt": "Something in Trillion did not work and I want your help. What failed: {heading}. Where: {page}. What Trillion answered: {said}. Use your Trillion connection to check what happened and fix it or do it another way. If you are not connected to Trillion yet, help me connect first."
+  },
+  "situations": [
+    {
+      "when": { "host": "live.gettrillion.ai", "status": 429 },
+      "picture": { "src": "/workspace/illustrations/live-workspace.webp", "type": "image/webp", "alt": "Trillion's workspace" },
+      "title": "Trillion, live",
+      "heading": "Lots of people are trying Trillion from here",
+      "body": "A new live copy opens from this address again within the hour. This is how it looks, and your own Trillion is ready now.",
+      "actions": [{ "label": "Make your own Trillion", "href": "https://app.gettrillion.ai/account?create", "tone": "primary" }, { "label": "Try again", "href": { "from": "request", "key": "path" }, "tone": "quiet" }]
+    },
+    {
+      "when": { "host": "live.gettrillion.ai", "status_at_least": 500 },
+      "picture": { "src": "/workspace/illustrations/live-workspace.webp", "type": "image/webp", "alt": "Trillion's workspace" },
+      "title": "Trillion, live",
+      "heading": "Trillion is opening",
+      "body": "This live copy takes a moment longer today. This is how it looks, and it tries again by itself.",
+      "actions": [{ "label": "Try again", "href": { "from": "request", "key": "path" }, "tone": "primary", "again_seconds": 6, "pending": "Opening" }]
+    },
+    {
+      "when": { "path_starts": "/mcp" },
+      "illustration": { "src": "/workspace/illustrations/sign-in.webp", "alt": "" },
+      "title": "For AI apps",
+      "heading": "This address is for your AI app",
+      "body": "Paste it into ChatGPT, Claude or another AI app as a connector, and the app signs you in to Trillion. To see your own Trillion, open it here.",
+      "actions": [{ "label": "Go to your Trillion", "href": "/", "tone": "primary" }, { "label": "How to connect an AI app", "href": "/docs", "tone": "quiet" }]
+    },
+    {
+      "when": { "path_starts": "/oauth/" },
+      "illustration": { "src": "/workspace/illustrations/sign-in.webp", "alt": "" },
+      "title": "For AI apps",
+      "heading": "This address is for your AI app",
+      "body": "Your AI app uses it while it signs you in. To see your own Trillion, open it here.",
+      "actions": [{ "label": "Go to your Trillion", "href": "/", "tone": "primary" }]
+    },
+    {
+      "when": { "path_starts": "/authorize" },
+      "illustration": { "src": "/workspace/illustrations/link-expired.webp", "alt": "" },
+      "title": "Connect from your AI app",
+      "heading": "Start connecting from your AI app",
+      "body": "This page opens when an AI app asks to connect to Trillion, and this time it did not say enough to carry on. Go back to your app and choose Connect again.",
+      "actions": [{ "label": "Go to your Trillion", "href": "/", "tone": "primary" }, { "label": "How to connect an AI app", "href": "/docs", "tone": "quiet" }]
+    },
+    {
+      "when": { "path_starts": "/dav" },
+      "illustration": { "src": "/workspace/illustrations/sign-in.webp", "alt": "" },
+      "title": "Your files as a drive",
+      "heading": "This address opens your files as a drive",
+      "body": "Your computer connects to it with your personal key as the password. To see your files in the browser, open your Trillion.",
+      "actions": [{ "label": "Go to your Trillion", "href": "/", "tone": "primary" }]
+    },
+    {
+      "when": { "status": 401 },
+      "illustration": { "src": "/workspace/illustrations/sign-in.webp", "alt": "" },
+      "title": "Sign in to continue",
+      "heading": "Sign in to continue",
+      "body": "This is part of someone's Trillion. Sign in and it opens.",
+      "route_words": true,
+      "actions": [{ "label": "Sign in", "href": "/account", "tone": "primary" }]
+    },
+    {
+      "when": { "status": 403 },
+      "illustration": { "src": "/workspace/illustrations/sign-in.webp", "alt": "" },
+      "title": "Sign in to continue",
+      "heading": "Sign in to continue",
+      "body": "This belongs to another account, or the link that opened it no longer works. Sign in with the account it belongs to.",
+      "route_words": true,
+      "actions": [{ "label": "Sign in", "href": "/account", "tone": "primary" }, { "label": "Go to your Trillion", "href": "/", "tone": "quiet" }]
+    },
+    {
+      "when": { "status": 404 },
+      "illustration": { "src": "/workspace/illustrations/not-found.webp", "alt": "" },
+      "title": "This page isn't here",
+      "heading": "This page isn't here",
+      "body": "The link may be old, or the address may have a typo. Everything you keep in Trillion is still where you left it.",
+      "route_words": true,
+      "actions": [{ "label": "Go to your Trillion", "href": "/", "tone": "primary" }]
+    },
+    {
+      "when": { "status": 405 },
+      "illustration": { "src": "/workspace/illustrations/not-found.webp", "alt": "" },
+      "title": "This page isn't here",
+      "heading": "There is no page at this address",
+      "body": "Something uses this address behind the scenes, so there is nothing here to read.",
+      "actions": [{ "label": "Go to your Trillion", "href": "/", "tone": "primary" }]
+    },
+    {
+      "when": { "status": 410 },
+      "illustration": { "src": "/workspace/illustrations/link-expired.webp", "alt": "" },
+      "title": "This link has expired",
+      "heading": "This link has expired",
+      "body": "Links like this one work for a short time. Ask for a new one, or open your Trillion.",
+      "route_words": true,
+      "actions": [{ "label": "Go to your Trillion", "href": "/", "tone": "primary" }]
+    },
+    {
+      "when": { "status": 429 },
+      "illustration": { "src": "/workspace/illustrations/something-broke.webp", "alt": "" },
+      "title": "Too many tries",
+      "heading": "Too many tries in a row",
+      "body": "Wait a minute, then try again.",
+      "route_words": true,
+      "ask_ai": true,
+      "actions": [{ "label": "Try again", "href": { "from": "request", "key": "path" }, "tone": "primary", "again_seconds": 30, "pending": "Trying again" }]
+    },
+    {
+      "when": { "status": 503 },
+      "illustration": { "src": "/workspace/illustrations/something-broke.webp", "alt": "" },
+      "title": "Not ready yet",
+      "heading": "This isn't ready yet",
+      "body": "Trillion is getting ready and tries again by itself.",
+      "route_words": true,
+      "ask_ai": true,
+      "actions": [{ "label": "Try again", "href": { "from": "request", "key": "path" }, "tone": "primary", "again_seconds": 4, "pending": "Trying again" }]
+    },
+    {
+      "when": { "status_at_least": 500 },
+      "illustration": { "src": "/workspace/illustrations/something-broke.webp", "alt": "" },
+      "title": "Something broke",
+      "heading": "Something broke on our side",
+      "body": "Your work is safe. Trillion tries again by itself, and your AI can help if it keeps happening.",
+      "quote": true,
+      "ask_ai": true,
+      "actions": [{ "label": "Try again", "href": { "from": "request", "key": "path" }, "tone": "primary", "again_seconds": 4, "pending": "Trying again" }]
+    },
+    {
+      "illustration": { "src": "/workspace/illustrations/something-broke.webp", "alt": "" },
+      "title": "This didn't work",
+      "heading": "This didn't work",
+      "body": "Go back and try again, or open your Trillion.",
+      "route_words": true,
+      "actions": [{ "label": "Go to your Trillion", "href": "/", "tone": "primary" }]
+    }
+  ]
+}

@@ -1,0 +1,1369 @@
+{
+  "_what": "The field indexes a person's record store keeps, as DATA read by src/record-engine.mjs and passed to parts/record-log. Each row names a record type, an index name and the field paths it orders by (each path a list of field names into the record; a path through a content-addressed object, such as a decision's method, follows the link). An index entry exists for a record only when every path holds a value of its own (a scalar or a list of scalars). A field read (fields.after, fields.idsWhere, fields.newestPerGroup) or a range (scan, lastPerGroup) over an index not listed here is refused by name: a new question over records is a new row here, never a scan and never code.",
+  "indexes": [
+    {
+      "type": "list-trash",
+      "name": "list-removed",
+      "paths": [
+        ["list_id"],
+        ["removed_at"]
+      ],
+      "_read_by": "src/lists.mjs removedRows: a list's recently removed rows, newest first, a page at a time"
+    },
+    {
+      "type": "list-proposal",
+      "name": "list-proposals",
+      "paths": [
+        ["list_id"],
+        ["status"],
+        ["proposed_at"]
+      ],
+      "_read_by": "src/list-proposals.mjs proposals: a list's proposed changes in one state (pending first to review), newest first, a page at a time"
+    },
+    {
+      "type": "list-snapshot",
+      "name": "list-snapshots",
+      "paths": [
+        ["list_id"],
+        ["created_at"]
+      ],
+      "_read_by": "src/lists.mjs keepSnapshot: a list's held snapshots oldest first, so the oldest and the expired go first"
+    },
+    {
+      "type": "availability-reservation-hold",
+      "name": "calendar-end",
+      "where": [
+        { "path": ["state"], "not": ["released"] }
+      ],
+      "paths": [
+        ["calendar_identity"],
+        ["occupied_end_sort_key"]
+      ],
+      "_read_by": "parts/calendar-booker availability-link-eeaf-store: bounded current hold probes by exact calendar incarnation and occupied interval end"
+    },
+    {
+      "type": "availability-reservation-hold",
+      "name": "by-reservation",
+      "paths": [
+        ["reservation_id"]
+      ],
+      "_read_by": "src/record-model.json availability reservation erasure: cascade private interval holds from their owning reservation"
+    },
+    {
+      "type": "availability-reservation",
+      "name": "by-link",
+      "paths": [
+        ["link_id"]
+      ],
+      "_read_by": "src/record-model.json availability link erasure: cascade reservations from the owning availability link"
+    },
+    {
+      "type": "availability-reservation",
+      "name": "link-grant-held",
+      "backfill": "availability-reservation-link-grant",
+      "where": [
+        { "path": ["state"], "not": ["cancelled", "failed"] }
+      ],
+      "paths": [
+        ["link_id"],
+        ["grant_ref"]
+      ],
+      "_read_by": "parts/calendar-booker availability-link-eeaf-store countGrantReservations: how many held bookings one share grant holds on one link (a link's per_grant_max)"
+    },
+    {
+      "type": "availability-operation",
+      "name": "by-reservation",
+      "paths": [
+        ["reservation_id"]
+      ],
+      "_read_by": "src/record-model.json availability reservation erasure: erase attributable private operation inputs while retaining operation receipts"
+    },
+    {
+      "type": "record:configuration",
+      "name": "target",
+      "paths": [
+        [
+          "target"
+        ]
+      ],
+      "_read_by": "src/configurations.mjs: bounded target-specific saved configuration pages with stable identity cursors"
+    },
+    {
+      "type": "commercial-event",
+      "name": "by-funnel",
+      "backfill": "commercial-event-funnel",
+      "paths": [
+        ["funnel_id"]
+      ],
+      "_read_by": "src/commercial-events.mjs commercialEventsFor: exact-funnel event pages, without enumerating unrelated account history; old records join through bounded background index work"
+    },
+    {
+      "type": "record:sent",
+      "name": "sent_at",
+      "backfill": "sent-order",
+      "paths": [
+        [
+          "sent_at"
+        ]
+      ],
+      "_read_by": "src/sent.mjs: a bounded sent-time page with stable record-id ties; retained records join through existing index maintenance"
+    },
+    {
+      "type": "record:waiting-on-you",
+      "name": "open-status",
+      "backfill": "waiting-open-status",
+      "where": [
+        {
+          "path": [
+            "status"
+          ],
+          "not": [
+            "Done"
+          ]
+        }
+      ],
+      "paths": [
+        [
+          "status"
+        ]
+      ],
+      "_read_by": "src/lists.mjs read(open): only unsettled waiting rows, including declared starts; old rows join on the scheduler through fillOpen"
+    },
+    {
+      "type": "decision",
+      "name": "created_at",
+      "paths": [
+        [
+          "created_at"
+        ]
+      ],
+      "_read_by": "src/decision-store.mjs summaries, countSince, newestIds, createdPage (DecisionEngine.undecidedMessages), goals"
+    },
+    {
+      "type": "decision",
+      "name": "decided_at",
+      "paths": [
+        [
+          "decided_at"
+        ]
+      ],
+      "_read_by": "src/decision-store.mjs decidedBetween, decidedIds"
+    },
+    {
+      "type": "decision",
+      "name": "goal",
+      "paths": [
+        [
+          "input",
+          "goal"
+        ]
+      ],
+      "_read_by": "src/decision-store.mjs goals, src/message-decision.mjs carryEarlierMessageGoals"
+    },
+    {
+      "type": "decision",
+      "name": "method",
+      "paths": [
+        [
+          "method",
+          "id"
+        ]
+      ],
+      "_read_by": "src/decision-store.mjs goals"
+    },
+    {
+      "type": "decision-call",
+      "name": "step_id",
+      "paths": [
+        [
+          "step_id"
+        ]
+      ],
+      "_read_by": "src/decision-store.mjs callsAt"
+    },
+    {
+      "type": "message",
+      "name": "recorded_at",
+      "paths": [
+        [
+          "recorded_at"
+        ]
+      ],
+      "_read_by": "src/awareness.mjs awarenessInputs"
+    },
+    {
+      "type": "message",
+      "name": "speaker",
+      "backfill": "message-speaker-v1",
+      "paths": [
+        [
+          "speaker"
+        ],
+        [
+          "app"
+        ],
+        [
+          "at"
+        ]
+      ],
+      "carry": [
+        [
+          "captured_road"
+        ]
+      ],
+      "carry_presence": [],
+      "_read_by": "src/messages.mjs unnamedSpeakers and capturedTurns (the same bounded speaker window carries capture provenance; no separate capture index or prompt read after backfill)"
+    },
+    {
+      "type": "voice-session",
+      "name": "app-started",
+      "paths": [
+        [
+          "app"
+        ],
+        [
+          "first_at"
+        ]
+      ],
+      "_read_by": "src/voice-sessions.mjs rowsFor (the stretch of one app a new turn lands in) and window (each app's stretches, newest first)"
+    },
+    {
+      "type": "message",
+      "name": "capture",
+      "retired": true,
+      "backfill": "message-capture-v1",
+      "paths": [
+        [
+          "captured_road"
+        ],
+        [
+          "speaker"
+        ],
+        [
+          "app"
+        ],
+        [
+          "at"
+        ]
+      ],
+      "_read_by": "retired: capture provenance now travels with the speaker entry; bounded idle cleanup removes previously stored capture keys"
+    },
+    {
+      "type": "ask-again",
+      "name": "at",
+      "paths": [
+        [
+          "at"
+        ]
+      ],
+      "_read_by": "src/person-store.mjs askAgainWaiting (words the classifier never answered about, oldest first)"
+    },
+    {
+      "type": "message",
+      "name": "conversation_id",
+      "paths": [
+        [
+          "conversation_id"
+        ]
+      ],
+      "_read_by": "src/messages.mjs"
+    },
+    {
+      "type": "arrival",
+      "name": "message_id",
+      "backfill": "arrival-task-map-v1",
+      "paths": [
+        [
+          "message_id"
+        ]
+      ],
+      "carry": [
+        [
+          "files"
+        ]
+      ],
+      "_read_by": "src/messages.mjs correctProvenance, src/person-store.mjs arrivalsOf, src/task-map-reads.mjs drawnArrivals (what the task map draws of a message's arrivals, from the entries alone: their words are never read)"
+    },
+    {
+      "type": "arrival",
+      "name": "at",
+      "paths": [
+        [
+          "at"
+        ]
+      ],
+      "_read_by": "src/automations.mjs readHealth"
+    },
+    {
+      "type": "asked",
+      "name": "at",
+      "paths": [
+        [
+          "at"
+        ]
+      ],
+      "_read_by": "src/moments.mjs gatherMoment (the recordings asked about in a range)"
+    },
+    {
+      "type": "arrival",
+      "name": "route_at",
+      "paths": [
+        [
+          "route"
+        ],
+        [
+          "at"
+        ]
+      ],
+      "_read_by": "src/automations.mjs readHealth (newest arrival per route)"
+    },
+    {
+      "type": "agent-card",
+      "name": "reader",
+      "paths": [
+        [
+          "found_by",
+          "reader"
+        ],
+        [
+          "found_by",
+          "takes_work"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs cardIdsOf"
+    },
+    {
+      "type": "agent-card",
+      "name": "taker",
+      "paths": [
+        [
+          "found_by",
+          "takes_work"
+        ],
+        [
+          "found_by",
+          "source_id"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs takerIds, cardsForSource, anyTaker"
+    },
+    {
+      "type": "agent-card",
+      "name": "reaches",
+      "paths": [
+        [
+          "found_by",
+          "reaches"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs reachableCards"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "time",
+      "backfill": "handoff-time-projection-v1",
+      "paths": [
+        [
+          "found_by",
+          "open"
+        ],
+        [
+          "found_by",
+          "handed_at"
+        ]
+      ],
+      "carry": [
+        [
+          "handoff_id"
+        ],
+        [
+          "handed_at"
+        ],
+        [
+          "state"
+        ],
+        [
+          "from_agent"
+        ],
+        [
+          "to_agent"
+        ],
+        [
+          "taken_by"
+        ],
+        [
+          "preferred_agent"
+        ],
+        [
+          "in_the_way_by"
+        ],
+        [
+          "finished_at"
+        ],
+        [
+          "result_record"
+        ]
+      ],
+      "carry_presence": [
+        [
+          "result",
+          "withdrawn_by"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs openHandoffs, newestOpen, finishedHandoffs (exact scalar and withdrawal-presence projections from descriptor-attested index payloads; legacy and unsupported requests retain record projection)"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "newest",
+      "backfill": "handoff-newest-task-map-v1",
+      "paths": [
+        [
+          "found_by",
+          "handed_at"
+        ]
+      ],
+      "carry": [
+        [
+          "parent_handoff_id"
+        ],
+        [
+          "case_id"
+        ],
+        [
+          "state"
+        ],
+        [
+          "input",
+          "arrived",
+          "message_id"
+        ],
+        [
+          "input",
+          "arrived",
+          "asked_id"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs newestHandoffs ({ taskMap: true } answers what the task map draws of each job from the entries alone: a job's words and results are never read)"
+    },
+    {
+      "type": "sharing",
+      "name": "chain",
+      "backfill": "sharing-chain-v1",
+      "paths": [
+        [
+          "chain"
+        ]
+      ],
+      "_read_by": "src/record-sharing.mjs chainSharingRows (the choices that cover the records linked to theirs)"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "notice_waiting",
+      "backfill": "work-notifications-v1",
+      "paths": [
+        [
+          "state"
+        ],
+        [
+          "handed_at"
+        ],
+        [
+          "from_agent"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs notificationWork (eligible waiting work by its notification time)"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "notice_waiting_origin",
+      "backfill": "work-notifications-origin-v1",
+      "paths": [
+        [
+          "state"
+        ],
+        [
+          "from_agent"
+        ],
+        [
+          "handed_at"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs notificationWork: newest entries per non-excluded sender group, skipping sender history by prefix"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "notice_taken",
+      "backfill": "work-notifications-v1",
+      "paths": [
+        [
+          "state"
+        ],
+        [
+          "taken_at"
+        ],
+        [
+          "from_agent"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs notificationWork (eligible taken work by its notification time)"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "notice_taken_origin",
+      "backfill": "work-notifications-origin-v1",
+      "paths": [
+        [
+          "state"
+        ],
+        [
+          "from_agent"
+        ],
+        [
+          "taken_at"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs notificationWork: newest entries per non-excluded sender group, skipping sender history by prefix"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "notice_finished",
+      "backfill": "work-notifications-v1",
+      "paths": [
+        [
+          "state"
+        ],
+        [
+          "finished_at"
+        ],
+        [
+          "from_agent"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs notificationWork (eligible finished work by its notification time)"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "notice_finished_origin",
+      "backfill": "work-notifications-origin-v1",
+      "paths": [
+        [
+          "state"
+        ],
+        [
+          "from_agent"
+        ],
+        [
+          "finished_at"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs notificationWork: newest entries per non-excluded sender group, skipping sender history by prefix"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "queue",
+      "paths": [
+        [
+          "found_by",
+          "open"
+        ],
+        [
+          "found_by",
+          "to_agent"
+        ],
+        [
+          "found_by",
+          "rank"
+        ],
+        [
+          "found_by",
+          "handed_at"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs openQueue"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "pending",
+      "paths": [
+        [
+          "state"
+        ],
+        [
+          "found_by",
+          "to_agent"
+        ],
+        [
+          "found_by",
+          "rank"
+        ],
+        [
+          "found_by",
+          "handed_at"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs pendingAddressedTo, waitingCount"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "pending_reader",
+      "paths": [
+        [
+          "found_by",
+          "to_reader"
+        ],
+        [
+          "found_by",
+          "rank"
+        ],
+        [
+          "found_by",
+          "handed_at"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs pendingForReader (waiting work addressed to any card of one reader, in the order it is taken)"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "open_rank",
+      "paths": [
+        [
+          "found_by",
+          "open"
+        ],
+        [
+          "found_by",
+          "rank"
+        ],
+        [
+          "found_by",
+          "handed_at"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs ownWorkWaiting (the oldest open work at or above a priority, without walking every open job)"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "dependents",
+      "where": [
+        {
+          "path": [
+            "found_by",
+            "dep_ids"
+          ],
+          "not": [
+            null,
+            ""
+          ]
+        }
+      ],
+      "paths": [
+        [
+          "found_by",
+          "open"
+        ],
+        [
+          "found_by",
+          "dep_ids"
+        ],
+        [
+          "found_by",
+          "handed_at"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs dependentsOf (the open jobs waiting on other work, with the ids they wait on, so the ones waiting on one job are the only ones read)"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "addressed",
+      "paths": [
+        [
+          "found_by",
+          "open"
+        ],
+        [
+          "found_by",
+          "to_agent"
+        ],
+        [
+          "found_by",
+          "handed_at"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs openAddressedTo"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "held",
+      "paths": [
+        [
+          "found_by",
+          "open"
+        ],
+        [
+          "found_by",
+          "taken_by"
+        ],
+        [
+          "found_by",
+          "handed_at"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs heldBy"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "source",
+      "paths": [
+        [
+          "found_by",
+          "open"
+        ],
+        [
+          "found_by",
+          "source_id"
+        ],
+        [
+          "found_by",
+          "to_agent"
+        ],
+        [
+          "found_by",
+          "handed_at"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs unaddressedForSource"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "preferred",
+      "paths": [
+        [
+          "found_by",
+          "open"
+        ],
+        [
+          "found_by",
+          "prefer_until"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs openQueue (work only preferred for an agent)"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "takeable",
+      "paths": [
+        [
+          "found_by",
+          "take_from"
+        ],
+        [
+          "found_by",
+          "rank"
+        ],
+        [
+          "found_by",
+          "handed_at"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs takeableEntries (the work addressed to nobody that an agent may take: ready for anyone from the start under '', the rest by the time it becomes ready, each in the order it is taken; work stuck, waiting on other work, named to an agent or closing has no entry)"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "takeable_source",
+      "paths": [
+        [
+          "found_by",
+          "take_source"
+        ],
+        [
+          "found_by",
+          "own_from"
+        ],
+        [
+          "found_by",
+          "rank"
+        ],
+        [
+          "found_by",
+          "handed_at"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs takeableEntries (the same work for an owner of the chat it came from, who may take it before its silence window ends)"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "lapsing",
+      "paths": [
+        [
+          "found_by",
+          "to_agent"
+        ],
+        [
+          "found_by",
+          "take_by"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs takeable.lapsed (open work whose asker stops waiting at take_by, per addressee, oldest first)"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "lapse_at",
+      "paths": [
+        [
+          "found_by",
+          "take_by"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs takeable.earliest (the earliest take_by of any open work, the first entry: one key read whatever the index holds)"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "depends",
+      "paths": [
+        [
+          "found_by",
+          "open"
+        ],
+        [
+          "found_by",
+          "depends"
+        ],
+        [
+          "found_by",
+          "handed_at"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs dependentsOf"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "parent",
+      "paths": [
+        [
+          "parent_handoff_id"
+        ],
+        [
+          "found_by",
+          "handed_at"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs handedOnFrom, handedOnFromMany, partsPage"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "message",
+      "paths": [
+        [
+          "input",
+          "arrived",
+          "message_id"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs fromMessage"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "asked",
+      "paths": [
+        [
+          "input",
+          "arrived",
+          "asked_id"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs fromMessage"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "blocked-open",
+      "backfill": "handoff-blocked-open",
+      "where": [
+        {
+          "path": [
+            "in_the_way"
+          ],
+          "not": [
+            null,
+            ""
+          ]
+        },
+        {
+          "path": [
+            "state"
+          ],
+          "not": [
+            "finished"
+          ]
+        }
+      ],
+      "paths": [
+        [
+          "handed_at"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs blockedOpen (work something stands in the way of, by the time handed; only unfinished jobs with blocking words have entries)"
+    },
+    {
+      "type": "told-the-person",
+      "name": "message",
+      "backfill": "told-message",
+      "paths": [
+        [
+          "item",
+          "refs",
+          "message_id"
+        ]
+      ],
+      "_read_by": "parts/record-log record-log-store erase (a message erased takes what the person was told of it, built from its words, with it: src/record-model.json erase_with)"
+    },
+    {
+      "type": "notice-list",
+      "name": "handoff",
+      "backfill": "notice-handoff",
+      "paths": [
+        [
+          "item",
+          "refs",
+          "handoff_id"
+        ]
+      ],
+      "_read_by": "parts/record-log record-log-store erase (a job erased takes the notices that quote its words with it: src/record-model.json erase_with)"
+    },
+    {
+      "type": "message-duplicate-correction",
+      "name": "kept",
+      "paths": [
+        [
+          "kept_id"
+        ]
+      ],
+      "_read_by": "parts/record-log record-log-store erase (a message erased takes the manual copies kept as its duplicates with it: src/record-model.json erase_with)"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "home-origin",
+      "retired": true,
+      "paths": [
+        [
+          "found_by",
+          "open"
+        ],
+        [
+          "handed_at"
+        ],
+        [
+          "state"
+        ],
+        [
+          "in_the_way"
+        ],
+        [
+          "parent_handoff_id"
+        ],
+        [
+          "said"
+        ],
+        [
+          "from_agent"
+        ]
+      ],
+      "_read_by": "nothing: kept no more since `said` is erasable (a key's text would hold its words); named only so erasing a job takes out the key it built before (record-log-store retiredKeysOf)"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "home-open",
+      "backfill": "handoff-home-open",
+      "paths": [
+        [
+          "found_by",
+          "open"
+        ],
+        [
+          "handed_at"
+        ],
+        [
+          "state"
+        ],
+        [
+          "in_the_way"
+        ],
+        [
+          "parent_handoff_id"
+        ],
+        [
+          "from_agent"
+        ]
+      ],
+      "carry": [
+        [
+          "said"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs homeOpen (the open work as Home's workstreams card draws it, from the entries alone: every row from its key, its words (`said`, erasable) carried sealed in the entry's value and opened as read; no job is read to draw a row)"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "review",
+      "paths": [
+        [
+          "found_by",
+          "open"
+        ],
+        [
+          "found_by",
+          "review_at"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs nextReviewAt, dueReviews"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "review_next",
+      "paths": [
+        [
+          "found_by",
+          "open"
+        ],
+        [
+          "found_by",
+          "review_depends"
+        ],
+        [
+          "found_by",
+          "review_at"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs nextReviewAt once every open job carries review_depends (review_ready's twin without the jobs that wait on work still open, which are woken by the write that finishes that work, so the earliest review is never found by walking them)"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "review_ready",
+      "backfill": "review-ready-v1",
+      "paths": [
+        [
+          "found_by",
+          "open"
+        ],
+        [
+          "found_by",
+          "depends"
+        ],
+        [
+          "found_by",
+          "review_at"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs nextReviewAt (the earliest review of work waiting on nothing, and of the few jobs that wait on other work)"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "wake_timing",
+      "paths": [
+        [
+          "found_by",
+          "open"
+        ],
+        [
+          "found_by",
+          "wake_to"
+        ],
+        [
+          "found_by",
+          "rank"
+        ],
+        [
+          "found_by",
+          "wake_from"
+        ],
+        [
+          "handoff_id"
+        ],
+        [
+          "found_by",
+          "handed_at"
+        ],
+        [
+          "found_by",
+          "state"
+        ],
+        [
+          "found_by",
+          "taken_by"
+        ],
+        [
+          "found_by",
+          "generation"
+        ],
+        [
+          "found_by",
+          "hold_until"
+        ],
+        [
+          "found_by",
+          "in_the_way"
+        ],
+        [
+          "found_by",
+          "in_the_way_by"
+        ],
+        [
+          "found_by",
+          "in_the_way_at"
+        ],
+        [
+          "found_by",
+          "blocked_kind"
+        ],
+        [
+          "found_by",
+          "depth"
+        ],
+        [
+          "found_by",
+          "source_id"
+        ],
+        [
+          "found_by",
+          "active_at"
+        ],
+        [
+          "found_by",
+          "silence"
+        ],
+        [
+          "found_by",
+          "from_person"
+        ],
+        [
+          "found_by",
+          "prefer_until"
+        ],
+        [
+          "found_by",
+          "needs"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs scheduledWake, openScheduledHandoffs (an open job's timing facts in due-time order, per addressee and priority, for the own AI's clock)",
+      "backfill": "handoff-wake-origin"
+    },
+    {
+      "type": "agent-handoff",
+      "name": "wake_person",
+      "paths": [
+        [
+          "found_by",
+          "open"
+        ],
+        [
+          "found_by",
+          "wake_to"
+        ],
+        [
+          "found_by",
+          "rank"
+        ],
+        [
+          "found_by",
+          "wake_from"
+        ],
+        [
+          "handoff_id"
+        ],
+        [
+          "found_by",
+          "handed_at"
+        ],
+        [
+          "found_by",
+          "state"
+        ],
+        [
+          "found_by",
+          "taken_by"
+        ],
+        [
+          "found_by",
+          "generation"
+        ],
+        [
+          "found_by",
+          "hold_until"
+        ],
+        [
+          "found_by",
+          "in_the_way"
+        ],
+        [
+          "found_by",
+          "in_the_way_by"
+        ],
+        [
+          "found_by",
+          "in_the_way_at"
+        ],
+        [
+          "found_by",
+          "blocked_kind"
+        ],
+        [
+          "found_by",
+          "depth"
+        ],
+        [
+          "found_by",
+          "source_id"
+        ],
+        [
+          "found_by",
+          "active_at"
+        ],
+        [
+          "found_by",
+          "silence"
+        ],
+        [
+          "found_by",
+          "from_person"
+        ],
+        [
+          "found_by",
+          "prefer_until"
+        ],
+        [
+          "found_by",
+          "needs"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs scheduledWake (person-origin jobs exempt from the daily cap at any priority, in due-time order; background backfill builds older checkpoint keys before readiness)",
+      "backfill": "handoff-wake-origin",
+      "where": [
+        {
+          "path": [
+            "found_by",
+            "from_person"
+          ],
+          "not": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "type": "agent-delivery",
+      "name": "due",
+      "paths": [
+        [
+          "found_by",
+          "state"
+        ],
+        [
+          "found_by",
+          "next_at"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs dueDeliveries, nextDeliveryAt"
+    },
+    {
+      "type": "agent-delivery",
+      "name": "subject",
+      "paths": [
+        [
+          "found_by",
+          "subject_id"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs deliveriesFor"
+    },
+    {
+      "type": "agent-delivery",
+      "name": "agent",
+      "paths": [
+        [
+          "found_by",
+          "agent_id"
+        ],
+        [
+          "found_by",
+          "state"
+        ],
+        [
+          "found_by",
+          "created_at"
+        ]
+      ],
+      "_read_by": "src/agent-records.mjs deadDeliveries, waitingFor, streamWaiting"
+    },
+    {
+      "type": "setting",
+      "name": "tool_choice_at",
+      "backfill": "tool-choice-at-v1",
+      "where": [
+        {
+          "path": [
+            "value",
+            "choice_id"
+          ],
+          "not": [
+            null,
+            ""
+          ]
+        }
+      ],
+      "paths": [
+        [
+          "value",
+          "at"
+        ]
+      ],
+      "_read_by": "src/tool-choice-keep.mjs (the choices kept for tool jobs by when each was last offered or chosen from, oldest first: only those hold an entry, so the sweep that drops the ones unused for 30 days is one seek and a page)"
+    },
+    {
+      "type": "resource-input-interpretation",
+      "name": "wake_at",
+      "paths": [
+        [
+          "wake_at"
+        ]
+      ],
+      "where": [
+        {
+          "path": [
+            "state"
+          ],
+          "not": [
+            "complete",
+            "cancelled"
+          ]
+        }
+      ],
+      "_read_by": "src/resource-input-capture.mjs bounded resource alarm and claim recovery"
+    },
+    {
+      "type": "booking",
+      "name": "bookable",
+      "paths": [
+        ["bookable_id"],
+        ["start_ms"]
+      ],
+      "_read_by": "src/booking.mjs BookingBook bookedOn: the sessions on one bookable from a time on (open times, never a time booked twice)"
+    },
+    {
+      "type": "booking",
+      "name": "grant",
+      "paths": [
+        ["grant"],
+        ["start_ms"]
+      ],
+      "_read_by": "src/booking.mjs BookingBook bookingsOf: the sessions booked under one grant (what it has left)"
+    },
+    {
+      "type": "plan",
+      "name": "updated_at",
+      "paths": [
+        ["updated_at"]
+      ],
+      "backfill": "plan-updated-at-v1",
+      "_read_by": "src/plan-records.mjs collectionPage: newest bounded plan summaries with stable record-id ties"
+    }
+  ]
+}

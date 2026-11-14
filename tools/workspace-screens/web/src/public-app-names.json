@@ -1,0 +1,81 @@
+{
+  "schema": "trillion.public-app-names",
+  "about": "Every installed public app has one readable name and is served at <name>.<host> on every row of `hosts` (src/public-app-names.mjs). The name is the one the person chose, else the app's own words (its page title, then its app id), else `random_words` words from src/readable-names.json, claimed in one name list so no two apps share it. The row marked `primary` is the address Trillion hands out; a row with `ids` also answers the old <32-character id>.<host> address, which sends a page read on to the named address (301). A renamed app keeps its earlier name, which sends visitors on to the new one. A person's own domain is added on top through claim_public_app_domain. A new host is one more row here plus its wildcard DNS record (*.<host>, proxied); `zone` is the Cloudflare zone the host lives in, and the deploy adds the matching Worker route in that zone from these rows and, for a row with `attach_bare_host`, attaches the bare host as a Worker custom domain, which is what gets Cloudflare to issue the certificate covering *.<host>. A visit to the bare host itself goes to `home`. A row with `forward` was once the primary host: every name and view on it sends a page read on to the same name on the primary host (301), so moving customer sites to another host is one primary row added and the old row marked `forward`. Customer sites live on trillion.run, a domain of their own, so a site's pages never share a site with the app's sign-in (the separation vercel.app, netlify.app and github.io keep, and the reason trillion.run is asked onto the Public Suffix List); sites.gettrillion.ai, the first host, forwards.",
+  "hosts": [
+    {
+      "suffix": "trillion.run",
+      "zone": "trillion.run",
+      "primary": true,
+      "attach_bare_host": true,
+      "home": "https://app.gettrillion.ai/sites"
+    },
+    {
+      "suffix": "sites.gettrillion.ai",
+      "zone": "gettrillion.ai",
+      "forward": true,
+      "attach_bare_host": true,
+      "home": "https://app.gettrillion.ai/sites"
+    },
+    {
+      "suffix": "app.gettrillion.ai",
+      "zone": "gettrillion.ai",
+      "ids": true
+    }
+  ],
+  "views": {
+    "about": "Every published version and the saved draft of a named app also have their own address, <view>--<name>.<host>: <view> is the first `length` characters of that version's revision (the hex after 1f:). One label, so the host's wildcard certificate covers it; a name never holds `separator`, so a view never shadows an app. A view is read-only and asks search engines not to list it.",
+    "separator": "--",
+    "length": 12
+  },
+  "pattern": "^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$",
+  "first_words": 4,
+  "longest": 40,
+  "more_word_tries": 256,
+  "random_words": 2,
+  "reserved": [
+    "www",
+    "app",
+    "apps",
+    "api",
+    "mcp",
+    "admin",
+    "root",
+    "mail",
+    "email",
+    "docs",
+    "help",
+    "support",
+    "status",
+    "login",
+    "signin",
+    "sign-in",
+    "account",
+    "accounts",
+    "billing",
+    "trillion",
+    "gettrillion",
+    "sites",
+    "site",
+    "share",
+    "invite",
+    "marketplace",
+    "workshop",
+    "security",
+    "abuse",
+    "official",
+    "verify"
+  ],
+  "words": {
+    "refused": "A name is 3 to 40 lowercase letters, numbers and hyphens, like field-notes.",
+    "reserved": "That name is kept for Trillion. Choose another.",
+    "taken": "Another app already uses that name. Choose another.",
+    "exhausted": "A readable app address could not be found. Choose another name."
+  },
+  "install": {
+    "about": "Every public app can be added to a phone, tablet or computer as its own app (Add to Home Screen, Add to Dock, Install): an app that ships no web app manifest of its own is served one at `path`, named from its page title (else its readable name) with the icons its home page links, and each of its pages points at it. An app with its own manifest keeps it.",
+    "path": "/.well-known/trillion-app.webmanifest",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#ffffff"
+  }
+}

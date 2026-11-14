@@ -1,0 +1,114 @@
+{
+  "schema": "trillion.record-scope",
+  "about": "Which pursuits each of a person's records belongs to, as DATA the one scope owner reads (src/record-scope.mjs). The links it follows are the links records already carry: every `links` row of src/record-sharing.json (a decision's cited_pursuits), plus the `links` rows here, plus the person's own choices (a record-scope record). A link { from, field, to } says a record of stored type `from` names records of kind `to` in `field` (an id, a list of ids, or an object keyed by ids). A link with `each` reads a list of objects instead, each naming its own kind at `each.kind` and its id at `each.id` (a message's about). `refs` turns an id named with a kind into the id the rest of Trillion knows that record by (a file named by its identity is `file:<identity>`, a tool by its id is `tool:<tool id>`, as src/record-sharing.mjs names them). A link `kept_by` \"model\" is kept by the record store itself as participation under its `role` (src/record-model.json declares it among the kind's parts), a key of the store's pages, so it costs no scope_links row (one row and two index entries for each record named): read back through the store's holdersOf where the index is read. `stored_prefixes` name the kind of a record that is not kept as an EEAF record, by the start of its id. `dimensions` are what a record is scoped by, each with the query `param` that names its chosen values: `through_links` true means reached through any chain of links (a message about a decision that cites a pursuit is in that pursuit, and a pursuit scoped under another pursuit is inside it). `values_from` names where the dimension's values are read: `pursuits` (the person's own pursuits, src/pursuit-rooms.mjs). `room` is where a value's people and shared things are, the same thing (src/pursuit-rooms.mjs): `field` names the room on the value, so what is in a chosen pursuit's room, or in the rooms of the pursuits inside it, is in that pursuit too: links naming the room (`target_kind`), the copies of the person's records the Network holds there (src/record-offers.mjs ownCopiesIn) and the things its members put there; `param` is the earlier parameter that named rooms directly, still read, each room standing for its pursuit. `kinds` are the kinds of record a screen or an AI asks for, each covering the stored types listed; `space_kind` and `space_origin` project Space-made items through a fresh membership-checked Network read without private copies; `space_items` true covers all things members added to the chosen pursuits' rooms. `lists` are the workspace list answers that take a `scope` parameter, which the workspace sends on every read of them while the person's Focus is set (src/workspace/api.ts narrowListsBy); a list of capabilities everyone uses whatever they focus on (the Workshop's tools) is not one of them: `path` is the address, a segment { param } matching any one segment under that name; each `rows` entry says where the rows are (`at`), how a row names its record (`ref`: `path` inside the row, `or_path` when the first is absent, a `prefix`, or `prefix_by` a field of the row), and `in_space` the room a row is in: `param`, every row is in the room named by the address, or `path` inside the row (a calendar's meeting names its own room). A row in the room of a chosen pursuit is in that pursuit. `values` are the words and icons a filter shows for each dimension. `refused` are the words said when a request cannot be answered.",
+  "links": [
+    { "from": "message", "field": ["about"], "each": { "kind": ["kind"], "id": ["id"] } },
+    {"from": "execution", "field": ["links", "source_ref"], "to": "record"},
+    {"from": "execution", "field": ["links", "handoff_id"], "to": "handoff"},
+    {"from": "execution", "field": ["links", "case_id"], "to": "record"},
+    {"from": "execution", "field": ["links", "work_ref"], "to": "record"},
+    {"from": "execution", "field": ["links", "proof_ref"], "to": "record"},
+    {"from": "execution", "field": ["links", "record_ref"], "to": "record"},
+    {"from": "execution", "field": ["links", "record_refs"], "to": "record", "kept_by": "model", "role": "record_refs"},
+    {"from": "execution", "field": ["links", "sent_ref"], "to": "record"},
+    {"from": "execution", "field": ["links", "task_id"], "to": "task"},
+    {"from": "execution", "field": ["links", "effect_ref"], "to": "effect"},
+    {"from": "execution", "field": ["parent_call_id"], "to": "execution-call"},
+    {"from": "execution", "field": ["corrects"], "to": "record"},
+    {"from": "record:note-from-member", "field": ["work_ref"], "to": "handoff"},
+    {"from": "record:note-from-member", "field": ["proof_ref"], "to": "record"},
+    {"from": "record:note-from-member", "field": ["execution_ref"], "to": "record"},
+    {"from": "agent-handoff", "field": ["input", "source_ref"], "to": "record"},
+    {"from": "record:sent", "field": ["execution_ref"], "to": "record"},
+    {"from": "record:sent", "field": ["effect_ref"], "to": "effect"},
+    {"from": "record:sent", "field": ["by", "task_id"], "to": "task"},
+    { "from": "trigger-rule", "field": ["when", "space_id"], "to": "space" },
+    { "from": "record-stance", "field": ["about"], "each": { "kind": ["kind"], "id": ["id"] } }
+  ],
+  "naming": {
+    "about": "How a record that names another reads in that record's trace (trace_item's records, a decision page's What came after). `title`: per stored type, the places its words may be, the first one found wins; a type with no row reads as its kind. `at`: the places a record keeps when it was made, the first one found wins.",
+    "title": {
+      "message": [["text"]],
+      "execution": [["operation"]],
+      "record:note-from-member": [["note"]],
+      "agent-handoff": [["job"]],
+      "record:sent": [["subject"]],
+      "record-stance": [["said"]],
+      "plan": [["title"], ["goal"]]
+    },
+    "at": [["at"], ["recorded_at"], ["changed_at"], ["created_at"], ["captured_at"], ["sent_at"]],
+    "title_length": 200
+  },
+  "refs": {
+    "file": { "prefix": "file:" },
+    "task": { "prefix": "task:" },
+    "effect": { "prefix": "effect:" },
+    "execution-call": { "prefix": "execution:" },
+    "handoff": { "prefix": "agent-handoff:" },
+    "tool": { "prefix": "tool:" }
+  },
+  "stored_prefixes": [
+    { "prefix": "file:", "kind": "file" },
+    { "prefix": "tool:", "kind": "tool" },
+    { "prefix": "marketplace-install:", "kind": "marketplace-install" },
+    { "prefix": "activity:", "kind": "activity" },
+    { "prefix": "task:", "kind": "task" },
+    { "prefix": "effect:", "kind": "effect" }
+  ],
+  "dimensions": [
+    { "id": "pursuit", "param": "pursuits", "through_links": true, "values_from": "pursuits", "room": { "field": "space_id", "target_kind": "space", "param": "spaces" } }
+  ],
+  "kinds": [
+    { "id": "decisions", "label": "Decisions", "types": ["decision"] },
+    { "id": "pursuits", "label": "Pursuits", "types": ["pursuit"], "space_kind": "pursuit", "space_origin": "made in this pursuit" },
+    { "id": "messages", "label": "Messages", "types": ["message"] },
+    { "id": "files", "label": "Files", "types": ["file"] },
+    { "id": "tools", "label": "Tools", "types": ["tool"] },
+    { "id": "marketplace-installations", "label": "Marketplace installations", "types": ["marketplace-install"] },
+    { "id": "automations", "label": "Automations", "types": ["trigger-rule", "schedule"] },
+    { "id": "activity", "label": "AI activity", "types": ["activity"] },
+    { "id": "space-items", "label": "Things in pursuits", "space_items": true }
+  ],
+  "lists": [
+    {
+      "path": ["work", "api", "calendar"],
+      "rows": [{ "at": ["items"], "ref": { "path": ["ref"] }, "in_space": { "path": ["space_id"] } }]
+    },
+    { "path": ["work", "api", "decisions"], "rows": [
+      { "at": ["summaries"], "ref": { "path": ["case_id"] } },
+      { "at": ["pursuits"], "ref": { "path": ["id"] } }
+    ] },
+    { "path": ["work", "api", "activity"], "rows": [
+      { "at": ["items"], "ref": { "path": ["seq"], "prefix": "activity:" } }
+    ] },
+    { "path": ["work", "api", "media", "library"], "rows": [
+      { "at": ["rows"], "ref": { "path": ["file"], "or_path": ["identity"], "prefix": "file:" } }
+    ] },
+    { "path": ["work", "api", "namespace", "names"], "rows": [
+      { "at": ["names"], "ref": { "path": ["identity"], "prefix": "file:" } }
+    ] },
+    { "path": ["work", "api", "messages", "thread"], "rows": [
+      { "at": ["messages"], "ref": { "path": ["id"] } }
+    ] },
+    { "path": ["work", "api", "workflows"], "rows": [
+      { "at": ["automations"], "ref": { "path": ["id"], "prefix_by": { "field": ["kind"], "prefixes": { "trigger": "trigger-rule:", "schedule": "schedule:" } } } }
+    ] },
+    { "path": ["work", "api", "spaces", { "param": "space_id" }, "items"], "rows": [
+      { "at": ["items"], "ref": { "path": ["provenance", "your_private_record"] }, "in_space": { "param": "space_id" } }
+    ] }
+  ],
+  "values": {
+    "pursuit": { "label": "Pursuits", "icon": "Target" }
+  },
+  "page": { "default": 50, "max": 200, "backfill_records": 500, "walk_hops": 8 },
+  "refused": {
+    "nothing_chosen": "Choose at least one pursuit.",
+    "not_your_pursuit": "is not one of your pursuits.",
+    "not_in_your_trillion": "is not in your Trillion.",
+    "inside_itself": "is this pursuit or a pursuit set under it, so it cannot also hold it: choose a pursuit outside it.",
+    "merge_into_inside": "is set under the pursuit being joined into it, so it cannot take that pursuit's place: move it out from under that pursuit first, or join them the other way round.",
+    "private_reach": "This sign-in reaches only some of your pursuits, so it cannot read or change which pursuits your private records belong to.",
+    "unknown_kind": "is not a kind of record Trillion lists. The kinds are:",
+    "bad_scope": "scope is a JSON object like {\"pursuits\": [\"pursuit:launch\"]}, or {\"saved\": \"<screen id>\"} for the scope you saved."
+  }
+}

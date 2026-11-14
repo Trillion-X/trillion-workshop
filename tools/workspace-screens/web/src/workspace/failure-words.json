@@ -1,0 +1,42 @@
+{
+  "_about": "The words of every failed state in the workspace (src/workspace/failure.ts, drawn by parts/ui/show/screen-state): the plain reasons when Trillion could not be reached, broke, refused, has no owner for the address in the version running (absent, a 404 failure_code no-owner, src/workspace/api.ts), or did not answer a read within api.ts READ_MOST_MS (slow) in words not written for a person (src/workspace/api.ts), `read_kept` (said beside the reason on a refused read's failed state only, since a read changes nothing; the fallbacks themselves never claim an outcome, test/failure-words-gate.test.mjs), `still_opening` (the note a page shows when its cover lifted before the workspace was drawn, src/workspace/opening-cover.mjs), the retry button and what it says while it tries again by itself after each wait in retry_after_ms, the Ask your AI button (chosen: once the person has picked their AI, {label} its name; unchosen: before; choose: the tiles' heading and the small button beside it), the AI connected to their Trillion offered first (connected: its tile, {app} the app's name, connected_unnamed when the app gave none; fix: its button on a failure; do: its button on a screen waiting for something; sent: what is said once it has the job), and ask_prompt, the words handed to an AI: {title} what failed, {page} the page's address, {said} what Trillion answered. A connected AI is handed the job through src/queued-work.json's ask-my-ai row (title: what the person met, request: the words for the AI, page: where). `asks` are screens waiting for something the person's AI can do (an empty screen), by name: its title and the words handed to their AI.",
+  "unreached": "Trillion could not be reached. Check your connection, then try again.",
+  "broke": "Trillion had a problem answering. Try again in a moment.",
+  "refused": "Trillion could not do that just now.",
+  "absent": "This part of Trillion is not in the version you are running.",
+  "read_kept": "Nothing was lost.",
+  "slow": "Trillion is taking too long to answer. Try again in a moment.",
+  "still_opening": "Still opening your workspace. Trillion is taking a moment to answer.",
+  "pursuits_not_loaded": "Your pursuits did not load yet. They show here as soon as Trillion answers.",
+  "retry": "Try again",
+  "retrying": "Trying again",
+  "retry_after_ms": [1500, 5000],
+  "ask": { "chosen": "Ask {label}", "unchosen": "Ask your AI", "choose": "Choose your AI", "icon": "Sparkles" },
+  "ask_prompt": "Something in Trillion did not work and I want your help. What failed: {title}. Where: {page}. What Trillion answered: {said}. Use your Trillion connection to check what happened and fix it or do it another way. If you are not connected to Trillion yet, help me connect first.",
+  "asks": {
+    "decisions": {
+      "title": "No decisions yet",
+      "prompt": "Use Trillion to help me decide the next choice I face: look at my pursuits and what is going on, then start a decision with me."
+    },
+    "formats": {
+      "title": "No formats yet",
+      "prompt": "Find a content format I like in what I have shared and saved, and save it to my Trillion formats."
+    },
+    "marketplace": {
+      "title": "Nothing in the marketplace yet",
+      "prompt": "Find or build a Trillion tool or workflow that would help one of my pursuits, and publish it to the Trillion marketplace if it would help others too."
+    },
+    "automations": {
+      "title": "No automations yet",
+      "prompt": "Set up one automation in my Trillion that saves me time, such as a morning summary of my pursuits, and tell me what you set up."
+    },
+    "runs": {
+      "title": "No runs yet",
+      "prompt": "Find a Trillion tool for a job I keep doing by hand (or build one), run it for me, and show me what it made."
+    },
+    "spaces": {
+      "title": "You are not in a pursuit yet",
+      "prompt": "Start a Trillion project pursuit for one of my pursuits and tell me who I could invite into it."
+    }
+  }
+}

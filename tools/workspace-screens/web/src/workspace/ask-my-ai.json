@@ -1,0 +1,7 @@
+{
+  "what_this_is": "Words and names for Ask my AI (src/workspace/ask-my-ai.ts): the one way a screen asks the person's own AI and gets its answer back. `definition_prefix` is how a screen's dispatch names a job row of src/queued-work.json (ask-my-ai:<job id>); `result_text_keys` are where a finished job's result may carry its words when it has no `show` cards, tried in order.",
+  "definition_prefix": "ask-my-ai:",
+  "result_text_keys": ["text", "outcome", "answer"],
+  "no_answer": "Your AI finished without sending any words back. Open AI work to see what it did.",
+  "stopped": "Stopped."
+}

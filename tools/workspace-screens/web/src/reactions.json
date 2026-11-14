@@ -1,0 +1,17 @@
+{
+  "schema": "trillion.reactions",
+  "about": "The reactions anyone offers on anything (src/responses.mjs). `palette` is what the reaction picker offers first, in order: each { symbol, glyph, label }, where symbol is the reaction's kept identity, glyph what it draws and label what it says on hover and to a screen reader. Anything outside the palette is the person's own: any emoji, or an https picture or GIF, kept by its glyph. `picture_label` is what a reaction that is a picture or GIF says on hover and to a screen reader, never its address. `vote` is the symbol a community feed counts against its votes_per_member budget; it draws as the vote count, not in the reaction row. `limits` bound what one reaction or anchor may hold. A new reaction is one palette row.",
+  "vote": "vote",
+  "picture_label": "Picture",
+  "palette": [
+    { "symbol": "thumbs-up", "glyph": "👍", "label": "Like" },
+    { "symbol": "heart", "glyph": "❤️", "label": "Love" },
+    { "symbol": "laugh", "glyph": "😂", "label": "Funny" },
+    { "symbol": "party", "glyph": "🎉", "label": "Celebrate" },
+    { "symbol": "eyes", "glyph": "👀", "label": "Looking at it" },
+    { "symbol": "done", "glyph": "✅", "label": "Done" },
+    { "symbol": "fire", "glyph": "🔥", "label": "Fire" },
+    { "symbol": "think", "glyph": "🤔", "label": "Thinking about it" }
+  ],
+  "limits": { "emoji_characters": 32, "picture_address": 2000, "anchor_bytes": 4096 }
+}

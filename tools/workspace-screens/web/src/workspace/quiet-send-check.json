@@ -1,0 +1,10 @@
+{
+  "_what": "What the message box tells the sender before a message goes to someone outside their working hours, or to someone who is not in the pursuit (src/workspace/quiet-send-check.ts). The modes a person chooses for what happens when someone writes to them then are the rows of parts/timed-action/do-work/quiet-hours.json. `{names}` is the people's names, `{when}` the time they next work, in the sender's own zone.",
+  "remember_key": "quiet-nudges",
+  "remember_most": 200,
+  "quiet": "{names} is outside working hours until {when}. Send again to send it anyway.",
+  "quiet_many": "{names} are outside working hours; the first back is at {when}. Send again to send it anyway.",
+  "away": "{names} is not in this pursuit and will not see this. Send again to send it anyway.",
+  "away_many": "{names} are not in this pursuit and will not see this. Send again to send it anyway.",
+  "join": " and "
+}

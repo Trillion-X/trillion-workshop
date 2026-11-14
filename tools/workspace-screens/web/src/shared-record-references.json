@@ -1,0 +1,15 @@
+{
+  "about": "Semantic references carried by any shared record. These fields describe references, never permission. Namespace names and content identities resolve only to files already admitted to the same space; item references resolve only to readable records there. Explicit parts precede legacy single-file fields. No URL is used as a source of access.",
+  "page_size": 6,
+  "maximum_page_size": 24,
+  "fields": [
+    { "field": "video_parts", "many": true, "role": "media", "source": "file" },
+    { "field": "recording_file", "role": "media", "source": "file" },
+    { "field": "recording", "role": "media", "source": "file" },
+    { "field": "other_clips", "many": true, "role": "media", "source": "file" },
+    { "field": "transcript_file", "role": "transcript", "source": "file" },
+    { "field": "transcript_item", "role": "transcript", "source": "item" },
+    { "field": "files", "many": true, "role": "file", "source": "file" },
+    { "field": "attachments", "many": true, "role": "file", "source": "file" }
+  ]
+}

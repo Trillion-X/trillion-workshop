@@ -1,0 +1,9 @@
+{
+  "_what": "The row the page offers on a screen's ⋯ menu to open that screen in the Trillion Mac app on this computer (src/workspace/open-in-mac-app.ts, which asks the Mac helper's listener described in computer/open-from-web.json). It is offered only on a Mac, only once the listener has answered that the app is here, and never inside the Mac app itself. `recheck_seconds` is how long an answer of 'not here' is kept before the page asks again; `probe_seconds` is how long the page waits for the answer.",
+  "label": "Open in the Trillion Mac app",
+  "icon": "MonitorUp",
+  "opened": "Opened in the Trillion Mac app",
+  "failed": "The Trillion Mac app did not open it. Open Trillion on this Mac and try again.",
+  "recheck_seconds": 300,
+  "probe_seconds": 2
+}

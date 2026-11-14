@@ -1,0 +1,69 @@
+{
+  "_what": "The message box every screen opens (src/workspace/global-composer.tsx): the screen it is (`surface_id`, a row of surfaces.json that floats it over the work in the arrangement's overlay layer). The keys that open and close it from anywhere are the `message-box` rows of keymap.json. Its `docked` section is the same box docked under a note, the Media list and the calendar (DockedComposer): its words, the example questions its placeholder walks through (`examples`, one each time it is drawn, in order), what it adds so the AI knows the question is about the person's meetings and notes (`scope`), the What's New pill above it (`changelog`: how far back an entry still counts as new and where the dismissed entry is remembered), and how the pill, the mode choice (Ask, or Note at the moment playing) and the box are placed (`composition`, the screen arrangement's own DATA).",
+  "surface_id": "trillion.message-box",
+  "docked": {
+    "words": {
+      "label": "Ask about your meetings",
+      "placeholder": "Ask anything...",
+      "example": "{ask} For example: {example}",
+      "send": "Ask your AIs",
+      "mode_ask": "Ask",
+      "mode_note": "Note at {time}",
+      "modes_label": "What this box does",
+      "send_note": "Keep this note"
+    },
+    "examples": [
+      "Find all meetings about the redesign project",
+      "What did we decide about pricing last week?",
+      "List every action item I owe this month",
+      "Who was in the meeting about the launch?"
+    ],
+    "scope": "About my meetings and notes: ",
+    "changelog": {
+      "fresh_days": 14,
+      "kept_at": "trillion:ask-bar:changelog-seen",
+      "pill": "New: {title}",
+      "open": "Show me",
+      "dismiss": "Dismiss"
+    },
+    "composition": {
+      "arrangement": {
+        "kind": "split",
+        "dir": "column",
+        "unit": "px",
+        "keep": true,
+        "sizes": [
+          0,
+          0,
+          0
+        ],
+        "children": [
+          {
+            "kind": "pane",
+            "surfaces": [
+              "changelog"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "mode"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "box"
+            ]
+          }
+        ]
+      },
+      "kept_at": "screen-arrangement-of::trillion.ask-bar::bottom-dock",
+      "words": {
+        "arrange": "Arrange the ask bar",
+        "done": "Done arranging",
+        "layout": "Ask bar"
+      }
+    }
+  }
+}

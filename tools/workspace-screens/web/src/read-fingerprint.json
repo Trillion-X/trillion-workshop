@@ -1,0 +1,9 @@
+{
+  "_what": "The short answer to a read the page already holds (src/read-fingerprint.mjs). A page that holds the last answer to a read sends `request_header` with the fingerprint of that answer's body; when the Worker's answer to the same read has the same fingerprint it sends `{ \"same\": true }` with `answer_header` set to `1` instead of the whole body, and the page uses what it holds. `fingerprint_characters` is how much of the BLAKE3 hash is sent (32 hex characters, 128 bits). Only a read whose body is at most `most_bytes` is compared, and an answer that carries any of `keep_whole_when_headers` (the page reads those headers beside the body) is always sent whole. `path_prefix` is where reads are answered this way.",
+  "request_header": "x-have",
+  "answer_header": "x-trillion-same",
+  "fingerprint_characters": 32,
+  "most_bytes": 1000000,
+  "path_prefix": "/work/api/",
+  "keep_whole_when_headers": ["x-trillion-collection-coverage", "x-trillion-next-before"]
+}

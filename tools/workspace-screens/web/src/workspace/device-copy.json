@@ -1,0 +1,6 @@
+{
+  "_what": "How the page keeps the person's records on this device (src/workspace/device-copy.ts): the worker's fixed address, the route its settle requests go to, and the shortest time between two settles that the page starts itself (coming back online always settles).",
+  "worker": "/workspace/device-copy-worker.js",
+  "settle_url": "/work/records/settle",
+  "settle_at_most_every_seconds": 30
+}

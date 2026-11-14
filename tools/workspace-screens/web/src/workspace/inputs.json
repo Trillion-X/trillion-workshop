@@ -1,0 +1,269 @@
+{
+  "viewer-access-refs": {
+    "address": "viewer-access-refs"
+  },
+  "published-records": {
+    "address": "package::screen-arrangement::screen-reply-provider-feed"
+  },
+  "package-entry-by-address-label": {
+    "address_from_param": "addressLabel"
+  },
+  "layout-state": {
+    "address": "screen-arrangement-layout-state"
+  },
+  "embedded-workspace-layout-state": {
+    "address": "embedded-workspace-layout-state"
+  },
+  "layout-state-by-address-label": {
+    "address_from_param": "addressLabel"
+  },
+  "selector-source-by-address-label": {
+    "address_from_param": "addressLabel"
+  },
+  "selector-source-by-address": {
+    "address_from_param": "address"
+  },
+  "always-mount-companions": {
+    "address": "screen-arrangement-always-mount-companions"
+  },
+  "layout-presets": {
+    "address": "layout-presets",
+    "missing": "empty-list"
+  },
+  "placeable-surface-list-by-address-label": {
+    "address_from_param": "addressLabel"
+  },
+  "placeable-surfaces": {
+    "address": "placeable-surfaces",
+    "missing": "empty-list"
+  },
+  "placeable-surface-feed": {
+    "address": "placeable-surface-list::trillion"
+  },
+  "editable-screen-look-themes": {
+    "address": "package::screen-look::published-records",
+    "missing": "empty-list"
+  },
+  "current-screen-look": {
+    "address": "screen-look",
+    "missing": "empty-list"
+  },
+  "own-screen-look-themes": {
+    "address": "screen-look-own-themes",
+    "missing": "empty-list"
+  },
+  "reply-provider-feed": {
+    "address": "package::sidebar::reply-provider-feed"
+  },
+  "sidebar-placement": {
+    "address": "sidebar-placement",
+    "missing": "empty-list"
+  },
+  "placeable-surface-list": {
+    "address": "placeable-surface-list::main-workspace",
+    "missing": "empty-list"
+  },
+  "group-owned-feed": {
+    "address": "space-board-group-feed",
+    "missing": "empty-list"
+  },
+  "action-affordance-feed": {
+    "address": "space-board-actions",
+    "missing": "empty-list"
+  },
+  "mark-operations": {
+    "address": "addressed-marks.operations"
+  },
+  "mark-styles": {
+    "address": "addressed-marks.styles"
+  },
+  "mark-tools": {
+    "address": "addressed-marks.tools"
+  },
+  "walkthrough-progress": {
+    "address": "guided-overlay::walkthrough-progress"
+  },
+  "sidebar-notes": {
+    "address": "sidebar-notes"
+  },
+  "sidebar-looks": {
+    "address": "sidebar-looks"
+  },
+  "sidebar-seen": {
+    "address": "sidebar-seen"
+  },
+  "show-rules": {
+    "address": "show-rules"
+  },
+  "workflow-canvas-definitions": {
+    "address": "workflow-canvas-definitions",
+    "missing": "empty-list"
+  },
+  "workflow-canvas-triggers": {
+    "address": "workflow-canvas-triggers",
+    "missing": "empty-list"
+  },
+  "workflow-canvas-layout": {
+    "address": "workflow-canvas-layout",
+    "missing": "empty-list"
+  },
+  "own-walkthroughs": {
+    "address": "guided-overlay::own-walkthroughs",
+    "missing": "empty-list"
+  },
+  "walkthrough-show-asked": {
+    "address": "guided-overlay::show-asked"
+  },
+  "own-layouts": {
+    "address": "screen-arrangement-own-layouts",
+    "missing": "empty-list"
+  },
+  "layout-open-asked": {
+    "address": "screen-arrangement-open-asked"
+  },
+  "ca-owned-feed": {
+    "address": "package::documents::ca-owned-feed",
+    "missing": "empty-list"
+  },
+  "ca-registry-feed": {
+    "address": "package::documents::ca-registry-feed",
+    "missing": "empty-list"
+  },
+  "ca-titled-pool-feed": {
+    "address": "package::documents::ca-titled-pool-feed",
+    "missing": "empty-list"
+  },
+  "ca-content-pool-feed": {
+    "address": "package::documents::ca-content-pool-feed",
+    "missing": "empty-list"
+  },
+  "ca-document-index-feed": {
+    "address": "package::documents::ca-document-index-feed",
+    "missing": "empty-list"
+  },
+  "item-records": {
+    "address": "item-records",
+    "missing": "empty-list"
+  },
+  "liveProcessSessionEvents": {
+    "address_from_param": "eventsAddress"
+  },
+  "recordVideoRecordings": {
+    "address": "record-video-recordings",
+    "missing": "empty-list"
+  },
+  "recordAudioRecordings": {
+    "address": "record-audio-recordings",
+    "missing": "empty-list"
+  },
+  "recording-session": {
+    "address": "record-video-recording-session"
+  },
+  "recordVideoCompletionReasonRefs": {
+    "address": "record-video-completion-reason-refs"
+  },
+  "recordVideoCapturePolicy": {
+    "address": "record-video-capture-policy"
+  },
+  "recordVideoPageLayoutState": {
+    "address": "record-video-page-layout-state"
+  },
+  "recordAudioCompletionReasonRefs": {
+    "address": "record-audio-completion-reason-refs"
+  },
+  "recordAudioCapturePolicy": {
+    "address": "record-audio-capture-policy"
+  },
+  "descriptorRecords": {
+    "address": "package::record-audio::descriptor-records-feed",
+    "missing": "empty-list"
+  },
+  "descriptorAuthority": {
+    "address": "visual-database.descriptors::record-audio::authority"
+  },
+  "cellExpressionRecords": {
+    "address": "package::record-audio::cell-expression-feed",
+    "missing": "empty-list"
+  },
+  "evaluatorDescriptors": {
+    "address": "package::record-audio::evaluator-descriptors"
+  },
+  "mutationSettlementPolicy": {
+    "address": "visual-database.mutation-settlement-policy"
+  },
+  "chat-session-window": {
+    "address": "chat-session-window"
+  },
+  "selected-chat-message-window": {
+    "address_from_param": "sessionId"
+  },
+  "selected-text-for-next-agent-request": {
+    "address": "selected-text-for-next-agent-request"
+  },
+  "producer-record-by-address-label": {
+    "address_from_param": "addressLabel"
+  },
+  "current-project": {
+    "address": "current-project"
+  },
+  "addressed-exchange-context-grants": {
+    "address": "addressed-exchange-context-grants",
+    "missing": "empty-list"
+  },
+  "addressed-exchange-conversations": {
+    "address": "addressed-exchange-conversations",
+    "missing": "empty-list"
+  },
+  "addressed-exchange-message-pages": {
+    "address": "addressed-exchange-message-pages",
+    "missing": "empty-list"
+  },
+  "addressed-exchange-participants": {
+    "address": "addressed-exchange-participants",
+    "missing": "empty-list"
+  },
+  "addressed-exchange-turns": {
+    "address": "addressed-exchange-turns",
+    "missing": "empty-list"
+  },
+  "agent-profile-participants": {
+    "address": "agent-profile-participants",
+    "missing": "empty-list"
+  },
+  "chat-model-descriptors": {
+    "address": "chat-model-descriptors",
+    "missing": "empty-list"
+  },
+  "chat-owned-records": {
+    "address": "chat-owned-records",
+    "missing": "empty-list"
+  },
+  "cli-registry": {
+    "address": "cli-registry",
+    "missing": "empty-list"
+  },
+  "ledger-observations": {
+    "address": "ledger-observations",
+    "missing": "empty-list"
+  },
+  "notification-events": {
+    "address": "notification-events",
+    "missing": "empty-list"
+  },
+  "operation-records": {
+    "address": "operation-records",
+    "missing": "empty-list"
+  },
+  "presets": {
+    "address": "presets",
+    "missing": "empty-list"
+  },
+  "progression-projections": {
+    "address": "progression-projections",
+    "missing": "empty-list"
+  },
+  "workflow-action-records": {
+    "address": "workflow-action-records",
+    "missing": "empty-list"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "what_this_is": "How a page keeps a live room open (src/workspace/live-room.ts): how long a change waits for the room to say it kept it, how soon a dropped connection opens again, and the words a change that was not kept says. A room is any shared store the Worker opens as a records socket (src/board-room.mjs): a pursuit's board and every record placed in that pursuit (src/workspace/record-places.json).",
+  "change_wait_ms": 15000,
+  "reconnect_after_ms": 1500,
+  "most_reconnect_after_ms": 30000,
+  "words": {
+    "not_kept": "The connection dropped before that change was kept. It reconnects by itself; make the change again."
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "_what": "How the page sends a small write the person never waits on (a tour choice, a layout change, marking a screen seen or a notification read): src/workspace/quiet-writes.ts. A write is kept on this device until the person's store accepts it. `together_ms`: writes made within this long of the last send ride together in one request. `request_timeout_ms`: the maximum time to wait for both the response and its body; a timeout releases the key and retries the kept write. `waits_ms`: how long to wait before sending a write again after the store was busy or could not be reached, one per try; the last one repeats for as long as the page is open. `again_statuses` and every status from `again_from_status` up mean the store did not take it this time (busy, signed out for a moment, too many at once); any other refusal is for good, and the person is told once. `retry_after_max_ms`: the longest a store's Retry-After is waited out (a wait longer than the table's last wait still never passes this). `kept_under`: the name of the device copy, in the account's own sealed store of kept answers. The copy holds one `session` per open tab (its writes and when it last beat), so two tabs never overwrite each other's waiting writes: a tab beats every `sessions.heartbeat_ms`, leaving or hiding the page lets go of its session at once, and a session silent for `sessions.silent_after_ms` is claimed by the next tab to look (when it opens, and at each beat), which sends its writes; the device copy is changed under the browser lock `sessions.lock` when the browser has locks; a page that holds it longer than `sessions.lock_wait_ms` (two of the device store's longest opens: a hidden web view the system stopped in the middle of a change) has it taken from it, which is safe because every write here is safe to send again. A page sends what an earlier page left as it loads, whatever its own first reads answer. A write refused for good is not lost with its notice: it is kept as a dead letter for `dead_letters.keep_days` days (at most `dead_letters.most`), with the write whole, so the person can try it again or drop it (catch-up.tsx state `not-saved`). `refused`: what the person reads when a write was refused for good.",
+  "together_ms": 600,
+  "request_timeout_ms": 15000,
+  "waits_ms": [1000, 3000, 10000, 30000, 60000],
+  "again_statuses": [401, 408, 425, 429],
+  "again_from_status": 500,
+  "retry_after_max_ms": 120000,
+  "kept_under": "quiet-writes:waiting",
+  "sessions": { "heartbeat_ms": 10000, "silent_after_ms": 45000, "lock": "trillion:quiet-writes:device-copy", "lock_wait_ms": 8000 },
+  "dead_letters": { "keep_days": 30, "most": 50 },
+  "refused": {
+    "kind": "error",
+    "title": "A change could not be saved",
+    "detail": "It was not kept. Make the change again to keep it."
+  }
+}

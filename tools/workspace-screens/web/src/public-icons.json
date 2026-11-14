@@ -1,0 +1,10 @@
+[
+  { "name": "favicon.svg", "copy": true },
+  { "name": "favicon.ico", "sizes": [16, 32, 48], "framing": "small" },
+  { "name": "icon-48.png", "size": 48, "framing": "small" },
+  { "name": "icon.png", "size": 256, "framing": "full" },
+  { "name": "icon-192.png", "size": 192, "framing": "full" },
+  { "name": "icon-512.png", "size": 512, "framing": "full" },
+  { "name": "icon-maskable-512.png", "size": 512, "framing": "maskable" },
+  { "name": "apple-touch-icon.png", "size": 180, "framing": "full" }
+]

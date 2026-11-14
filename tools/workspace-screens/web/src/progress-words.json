@@ -1,0 +1,90 @@
+{
+  "_what": "Every word the progress lines, the share card and the public share page say (src/progress-trends.mjs, src/share-pages.mjs). Destinations are where a share can go: each a label, the web address its logo is read from (domain) or a named icon and the address it opens, with {url} and {text} filled in (encoded). Adding a place to share is one row here.",
+  "trends_heading": "Over time",
+  "trends_body": "Each point is one of your decisions, oldest on the left.",
+  "trend_deciding": {
+    "label": "Time to decide",
+    "better": "Down from {before} in your earlier decisions",
+    "worse": "Up from {before} in your earlier decisions",
+    "once": "Typical time so far"
+  },
+  "trend_goals": {
+    "label": "Goals hit",
+    "detail": "{met} of {known} decisions with a result reached their goal",
+    "none": "No results yet. Say how a decision went and it shows here."
+  },
+  "stat_decisions": "Decisions made",
+  "stat_referred": "Joined from your link",
+  "share_heading": "Share your progress",
+  "share_body": "The card shows your numbers only, never what your decisions were about.",
+  "card": {
+    "headline_faster": "Deciding {change}% faster",
+    "headline_goals": "{share}% of my goals hit",
+    "headline_count": "{count} decisions made",
+    "stat_decisions": "Decisions",
+    "stat_deciding": "Time to decide",
+    "stat_goals": "Goals hit",
+    "stat_deciding_before": "was {before}",
+    "line_label": "Time to decide, each decision",
+    "footer": "gettrillion.ai",
+    "headline_count_one": "1 decision made"
+  },
+  "share_text": "{headline}. I make my decisions with Trillion.",
+  "page": {
+    "title": "{headline} · Trillion",
+    "description": "Numbers from one person's own decisions with Trillion. Only the numbers are shared, never what the decisions were about.",
+    "body": "These are one person's own numbers, measured by Trillion as they decided and as they said how each decision went. What the decisions were about stays private.",
+    "cta_heading": "Make your next decision with Trillion",
+    "cta_body": "Trillion works inside the AI you already use. Each choice is weighed against what you are working toward, and every result makes the next decision better.",
+    "cta": "Try Trillion",
+    "image_alt": "A card of decision numbers: {headline}",
+    "gone_title": "This link was taken down",
+    "gone_body": "The person who shared it removed it.",
+    "invite_title": "Try Trillion · Trillion"
+  },
+  "actions": {
+    "share": "Share",
+    "copy": "Copy link",
+    "copied": "Link copied",
+    "save": "Save image",
+    "failed": "Your card could not be made in this browser. Copy the link instead, or try again."
+  },
+  "destinations": [
+    {
+      "id": "x",
+      "label": "X",
+      "href": "https://twitter.com/intent/tweet?text={text}&url={url}",
+      "domain": "x.com"
+    },
+    {
+      "id": "linkedin",
+      "label": "LinkedIn",
+      "href": "https://www.linkedin.com/sharing/share-offsite/?url={url}",
+      "domain": "linkedin.com"
+    },
+    {
+      "id": "facebook",
+      "label": "Facebook",
+      "href": "https://www.facebook.com/sharer/sharer.php?u={url}",
+      "domain": "facebook.com"
+    },
+    {
+      "id": "whatsapp",
+      "label": "WhatsApp",
+      "href": "https://wa.me/?text={text}%20{url}",
+      "domain": "whatsapp.com"
+    },
+    {
+      "id": "sms",
+      "label": "Text message",
+      "icon": "MessageSquareText",
+      "href": "sms:?&body={text}%20{url}"
+    },
+    {
+      "id": "email",
+      "label": "Email",
+      "icon": "Mail",
+      "href": "mailto:?subject={text}&body={url}"
+    }
+  ]
+}

@@ -1,0 +1,240 @@
+{
+  "_what": "Where a meeting note can be sent from its Share row and Share via panel, and every word they show. A destination is a row: add one here and it appears. kind link copies the note's public link; mail sends through the person's connected Gmail; service hands the note to the person's tool place whose name contains `match` (src/share-destinations.mjs). `connect_row` is the Connections row opened when the place is not set up.",
+  "words": {
+    "row_label": "Share this note",
+    "via": "Share via",
+    "panel_title": "Share via",
+    "filter": "Filter destinations",
+    "filter_placeholder": "Filter destinations",
+    "none": "No destination matches.",
+    "reading": "Checking where this note can go",
+    "read_failed": "Where this note can go could not be read.",
+    "retry": "Try again",
+    "back": "All destinations",
+    "send": "Send",
+    "sending": "Sending",
+    "connect": "Set up",
+    "link_added": "The link to this note is added when you send.",
+    "sent": "Sent to {destination}.",
+    "queued": "Your account is busy. The share is kept and goes when it is back; send again to retry.",
+    "refused": "{destination} did not take it: {reason}",
+    "failed": "It could not be sent. Try again.",
+    "missing": "Fill in {field}.",
+    "bad_email": "Enter a valid email address.",
+    "bad_address": "Enter a public https address, like https://example.com/hook.",
+    "no_address": "Connect your Google account again to see its email address before sending.",
+    "mail_subject": "{title}",
+    "more": "More"
+  },
+  "destinations": [
+    {
+      "id": "email",
+      "label": "Email",
+      "icon": "Mail",
+      "kind": "mail",
+      "vendor": "google-account",
+      "connect_row": "google-account",
+      "fields": [
+        {
+          "id": "to",
+          "label": "To",
+          "kind": "email",
+          "required": true,
+          "placeholder": "name@example.com"
+        },
+        {
+          "id": "subject",
+          "label": "Subject",
+          "kind": "text",
+          "required": true,
+          "from": "title"
+        },
+        {
+          "id": "body",
+          "label": "Message",
+          "kind": "long",
+          "placeholder": "Add a message"
+        }
+      ]
+    },
+    {
+      "id": "copy-link",
+      "label": "Copy link",
+      "icon": "Link",
+      "kind": "link"
+    },
+    {
+      "id": "notion",
+      "label": "Notion",
+      "icon": "FileText",
+      "kind": "service",
+      "match": "notion",
+      "connect_row": "notion",
+      "fields": [
+        {
+          "id": "workspace",
+          "label": "Workspace",
+          "kind": "text",
+          "placeholder": "Workspace name"
+        },
+        {
+          "id": "database",
+          "label": "Database",
+          "kind": "text",
+          "required": true,
+          "placeholder": "Database id"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "kind": "text",
+          "required": true,
+          "from": "title"
+        }
+      ]
+    },
+    {
+      "id": "attio",
+      "label": "Attio",
+      "icon": "Users",
+      "kind": "service",
+      "match": "attio",
+      "connect_row": "attio",
+      "fields": [
+        {
+          "id": "title",
+          "label": "Title",
+          "kind": "text",
+          "required": true,
+          "from": "title"
+        },
+        {
+          "id": "note",
+          "label": "Message",
+          "kind": "long"
+        }
+      ]
+    },
+    {
+      "id": "craft",
+      "label": "Craft",
+      "icon": "NotebookPen",
+      "kind": "service",
+      "match": "craft",
+      "connect_row": "craft",
+      "fields": [
+        {
+          "id": "title",
+          "label": "Title",
+          "kind": "text",
+          "required": true,
+          "from": "title"
+        },
+        {
+          "id": "note",
+          "label": "Message",
+          "kind": "long"
+        }
+      ]
+    },
+    {
+      "id": "hubspot",
+      "label": "HubSpot",
+      "icon": "Building2",
+      "kind": "service",
+      "match": "hubspot",
+      "connect_row": "hubspot",
+      "fields": [
+        {
+          "id": "title",
+          "label": "Title",
+          "kind": "text",
+          "required": true,
+          "from": "title"
+        },
+        {
+          "id": "note",
+          "label": "Message",
+          "kind": "long"
+        }
+      ]
+    },
+    {
+      "id": "pipedrive",
+      "label": "Pipedrive",
+      "icon": "Handshake",
+      "kind": "service",
+      "match": "pipedrive",
+      "connect_row": "pipedrive",
+      "fields": [
+        {
+          "id": "title",
+          "label": "Title",
+          "kind": "text",
+          "required": true,
+          "from": "title"
+        },
+        {
+          "id": "note",
+          "label": "Message",
+          "kind": "long"
+        }
+      ]
+    },
+    {
+      "id": "webhook",
+      "label": "Webhook",
+      "icon": "Webhook",
+      "kind": "service",
+      "match": "webhook",
+      "connect_row": "webhook",
+      "fields": [
+        {
+          "id": "address",
+          "label": "Address",
+          "kind": "url",
+          "required": true,
+          "placeholder": "https://example.com/hook"
+        },
+        {
+          "id": "title",
+          "label": "Title",
+          "kind": "text",
+          "required": true,
+          "from": "title"
+        },
+        {
+          "id": "note",
+          "label": "Message",
+          "kind": "long"
+        }
+      ]
+    },
+    {
+      "id": "slack",
+      "label": "Slack",
+      "icon": "MessageSquare",
+      "kind": "service",
+      "match": "slack",
+      "connect_row": "slack",
+      "fields": [
+        {
+          "id": "channel",
+          "label": "Channel",
+          "kind": "text",
+          "required": true,
+          "placeholder": "#channel"
+        },
+        {
+          "id": "note",
+          "label": "Message",
+          "kind": "long"
+        }
+      ]
+    }
+  ],
+  "limits": {
+    "places_read": 200,
+    "text": 8000
+  }
+}

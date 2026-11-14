@@ -1,0 +1,6 @@
+{
+  "_what": "Which of the person's own records Home (src/workspace/home-screen.tsx) reads through the records door (src/workspace/records-door.ts, GET /work/api/door/records:list) and writes through the same door (records:write). `pursuits.type` is the type of a goal's record; a goal's value carries its own id. `messages.read` is the list read of the messages Home's message card draws, newest first. `open_work.read` is the open run of the declared agent-handoff order (open, then handed_at; the engine's S2h settings `orders`), whose value text starts `[1,` for open work, newest handed first. `most` caps how many records each read takes.",
+  "pursuits": { "type": "pursuit" },
+  "messages": { "read": { "type": "message", "reverse": true }, "most": 100 },
+  "open_work": { "read": { "type": "agent-handoff", "order": "agent-handoff/open_handed_at", "prefix": "[1,", "reverse": true }, "most": 100 }
+}

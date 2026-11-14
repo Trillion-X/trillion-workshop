@@ -1,0 +1,21 @@
+{
+  "_what": "Settings of src/take-me-there.mjs (tool:take-me-there). `link`: the address a notice carries opens the arrangement and starts the tour (the page reads `layout` and `tour` from its address, src/workspace/main.tsx); `base` only makes a card's relative address whole to read its path. The notice kind is a row of records/tell-the-person.json. The arrangement and walkthrough are kept under `category`. `focus_sizes`: the thing's pane against what is put beside it. `fallback_points_at`: where the walkthrough points when the Waiting on you row names no control of its own (`points_at` on a row of src/waiting-on-you.json). `step_id`, `step_icon`, `step_placement`: the walkthrough step made when the caller gives none.",
+  "link": { "layout": "layout", "tour": "tour", "fallback": "/", "base": "https://app.gettrillion.ai" },
+  "notice_kind": "take-me-there",
+  "category": "Opened for you",
+  "focus_sizes": [3, 2],
+  "fallback_points_at": "[data-opened-item], [data-trillion-screen]",
+  "step_id": "your-part",
+  "step_icon": "Hand",
+  "step_placement": { "prefer": "left" },
+  "words": {
+    "needs_thing": "Say which thing to take them to: thing, the id of one card from tool:what-is-waiting-on-me (make it first, such as draft_post for a post to approve).",
+    "not_waiting": "{thing} is not waiting on them now (it is not made yet, or it is already done), so nothing was opened: make it first, then take them to it with the id tool:what-is-waiting-on-me gives.",
+    "outside": "{thing} opens outside Trillion ({address}), so nothing was opened; give them that address instead.",
+    "your_part": "Your part",
+    "tour_title": "{action}: {title}",
+    "opened": "Their open Trillion page opens on {title}.",
+    "tour": "A walkthrough points at {action} there.",
+    "told": "They were told, with a link that opens it on any device."
+  }
+}
