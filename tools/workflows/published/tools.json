@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:0201fc57259f28b6338d8b1e87b255b226d5ee61ad7708f71ab27835c1f8caea"
+  "blake3": "1f:7e46e3d9083430ae63ce2fa2ed0d1122c0d93cd58a3cfd9b92e400e6f39ec046"
  },
  "fields": [
   {
@@ -2996,6 +2996,21 @@
    }
   },
   {
+   "id": "tool:delete-a-mail-draft",
+   "values": {
+    "title": "Delete a draft",
+    "job": "Delete one draft permanently.",
+    "description": "Delete one draft permanently. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+    "status": "active",
+    "maker": "maker:read-and-write-mail",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "read-and-write-mail"
+   }
+  },
+  {
    "id": "tool:delete-archive-and-put-back-my-files",
    "values": {
     "title": "Delete, archive and put back my files",
@@ -3722,6 +3737,24 @@
    }
   },
   {
+   "id": "tool:find-mail",
+   "values": {
+    "title": "Find mail",
+    "job": "Find messages: the ones in a folder (inbox, starred, sent, drafts, trash or all; the inbox when none is given), or, when text is given, the ones matching it across all mail, written in the provider's own search words (from:, to:, subject:, after: where it takes them). One page at a time: pass next_page_token to go on.",
+    "description": "Find messages: the ones in a folder (inbox, starred, sent, drafts, trash or all; the inbox when none is given), or, when text is given, the ones matching it across all mail, written in the provider's own search words (from:, to:, subject:, after: where it takes them). One page at a time: pass next_page_token to go on. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+    "status": "active",
+    "maker": "maker:read-and-write-mail",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "read-and-write-mail",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:find-media-for-a-description",
    "values": {
     "title": "Find a picture or clip that fits a description (runs on your computer)",
@@ -3749,6 +3782,24 @@
      "placement:your-computer"
     ],
     "folder": "generate-and-judge-sound-effects"
+   }
+  },
+  {
+   "id": "tool:find-my-mailbox",
+   "values": {
+    "title": "Find a mailbox's address",
+    "job": "Find which address a connected mail account belongs to, and where its mail stands now (cursor: the point list-new-mail goes on from).",
+    "description": "Find which address a connected mail account belongs to, and where its mail stands now (cursor: the point list-new-mail goes on from). Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+    "status": "active",
+    "maker": "maker:read-and-write-mail",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "read-and-write-mail",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -4637,348 +4688,6 @@
      "placement:small-container"
     ],
     "folder": "referral-codes-and-rewards"
-   }
-  },
-  {
-   "id": "tool:google-account-clear_primary_signature",
-   "values": {
-    "title": "Clear primary email signature",
-    "job": "Clear the primary Gmail SendAs signature by sending an empty signature to the exact sendAsEmail where isPrimary is true in list_send_as. The provider response is the saved value; read list_send_as again to verify. This operation does not manage aliases.",
-    "description": "Clear the primary Gmail SendAs signature by sending an empty signature to the exact sendAsEmail where isPrimary is true in list_send_as. The provider response is the saved value; read list_send_as again to verify. This operation does not manage aliases. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
-    "status": "active",
-    "maker": "maker:read-and-write-gmail",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:public-web-address"
-    ],
-    "folder": "read-and-write-gmail"
-   }
-  },
-  {
-   "id": "tool:google-account-create_draft",
-   "values": {
-    "title": "Create email draft",
-    "job": "Save a plain-text Gmail draft. raw is a base64url-encoded RFC 2822 message; thread_id is optional for a reply draft.",
-    "description": "Save a plain-text Gmail draft. raw is a base64url-encoded RFC 2822 message; thread_id is optional for a reply draft. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
-    "status": "active",
-    "maker": "maker:read-and-write-gmail",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:public-web-address"
-    ],
-    "folder": "read-and-write-gmail"
-   }
-  },
-  {
-   "id": "tool:google-account-delete_draft",
-   "values": {
-    "title": "Delete email draft",
-    "job": "Delete one Gmail draft permanently.",
-    "description": "Delete one Gmail draft permanently. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
-    "status": "active",
-    "maker": "maker:read-and-write-gmail",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:public-web-address"
-    ],
-    "folder": "read-and-write-gmail"
-   }
-  },
-  {
-   "id": "tool:google-account-find_my_mailbox",
-   "values": {
-    "title": "Read mailbox details",
-    "job": "Find which Gmail address a connection belongs to, and where its mail stands now",
-    "description": "Find which Gmail address a connection belongs to, and where its mail stands now Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
-    "status": "active",
-    "maker": "maker:read-and-write-gmail",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:public-web-address"
-    ],
-    "folder": "read-and-write-gmail",
-    "flags": [
-     "read-only"
-    ]
-   }
-  },
-  {
-   "id": "tool:google-account-list_drafts",
-   "values": {
-    "title": "List email drafts",
-    "job": "List your Gmail drafts, newest first.",
-    "description": "List your Gmail drafts, newest first. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
-    "status": "active",
-    "maker": "maker:read-and-write-gmail",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:public-web-address"
-    ],
-    "folder": "read-and-write-gmail",
-    "flags": [
-     "read-only"
-    ]
-   }
-  },
-  {
-   "id": "tool:google-account-list_new_mail",
-   "values": {
-    "title": "Read new email",
-    "job": "List the mail that reached this Gmail inbox since a point in its history",
-    "description": "List the mail that reached this Gmail inbox since a point in its history Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
-    "status": "active",
-    "maker": "maker:read-and-write-gmail",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:public-web-address"
-    ],
-    "folder": "read-and-write-gmail",
-    "flags": [
-     "read-only"
-    ]
-   }
-  },
-  {
-   "id": "tool:google-account-list_send_as",
-   "values": {
-    "title": "Read sending addresses and signatures",
-    "job": "Read Gmail SendAs identities and signatures. Use the single row whose isPrimary is true for the account's primary signature; aliases are outside this operation.",
-    "description": "Read Gmail SendAs identities and signatures. Use the single row whose isPrimary is true for the account's primary signature; aliases are outside this operation. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
-    "status": "active",
-    "maker": "maker:read-and-write-gmail",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:public-web-address"
-    ],
-    "folder": "read-and-write-gmail",
-    "flags": [
-     "read-only"
-    ]
-   }
-  },
-  {
-   "id": "tool:google-account-modify_mail",
-   "values": {
-    "title": "Organize email",
-    "job": "Add or remove Gmail labels on one message. Use INBOX to archive, UNREAD to change read status, and STARRED to star or unstar it.",
-    "description": "Add or remove Gmail labels on one message. Use INBOX to archive, UNREAD to change read status, and STARRED to star or unstar it. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
-    "status": "active",
-    "maker": "maker:read-and-write-gmail",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:public-web-address"
-    ],
-    "folder": "read-and-write-gmail"
-   }
-  },
-  {
-   "id": "tool:google-account-modify_mail_thread",
-   "values": {
-    "title": "Organize email conversation",
-    "job": "Add or remove Gmail labels on every message of one conversation. Use INBOX to archive the whole conversation.",
-    "description": "Add or remove Gmail labels on every message of one conversation. Use INBOX to archive the whole conversation. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
-    "status": "active",
-    "maker": "maker:read-and-write-gmail",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:public-web-address"
-    ],
-    "folder": "read-and-write-gmail"
-   }
-  },
-  {
-   "id": "tool:google-account-read_a_mail",
-   "values": {
-    "title": "Read email",
-    "job": "Read a whole Gmail message: its headers and its text, each part's body in base64url",
-    "description": "Read a whole Gmail message: its headers and its text, each part's body in base64url Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
-    "status": "active",
-    "maker": "maker:read-and-write-gmail",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:public-web-address"
-    ],
-    "folder": "read-and-write-gmail",
-    "flags": [
-     "read-only"
-    ]
-   }
-  },
-  {
-   "id": "tool:google-account-read_draft",
-   "values": {
-    "title": "Read email draft",
-    "job": "Read one draft and its full message. The draft id comes from list_drafts.",
-    "description": "Read one draft and its full message. The draft id comes from list_drafts. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
-    "status": "active",
-    "maker": "maker:read-and-write-gmail",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:public-web-address"
-    ],
-    "folder": "read-and-write-gmail",
-    "flags": [
-     "read-only"
-    ]
-   }
-  },
-  {
-   "id": "tool:google-account-read_mail_headers",
-   "values": {
-    "title": "Read email headers",
-    "job": "Read who sent a Gmail message, to whom, its subject, when, and its first lines",
-    "description": "Read who sent a Gmail message, to whom, its subject, when, and its first lines Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
-    "status": "active",
-    "maker": "maker:read-and-write-gmail",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:public-web-address"
-    ],
-    "folder": "read-and-write-gmail",
-    "flags": [
-     "read-only"
-    ]
-   }
-  },
-  {
-   "id": "tool:google-account-read_mail_thread",
-   "values": {
-    "title": "Read email conversation",
-    "job": "Read the list of one Gmail conversation in order: each message's id, labels, preview line and time, and its sender, recipients, subject and message id. Message words are not included; read one message with read_a_mail.",
-    "description": "Read the list of one Gmail conversation in order: each message's id, labels, preview line and time, and its sender, recipients, subject and message id. Message words are not included; read one message with read_a_mail. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
-    "status": "active",
-    "maker": "maker:read-and-write-gmail",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:public-web-address"
-    ],
-    "folder": "read-and-write-gmail",
-    "flags": [
-     "read-only"
-    ]
-   }
-  },
-  {
-   "id": "tool:google-account-restore_mail",
-   "values": {
-    "title": "Restore email",
-    "job": "Restore a Gmail message from Trash.",
-    "description": "Restore a Gmail message from Trash. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
-    "status": "active",
-    "maker": "maker:read-and-write-gmail",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:public-web-address"
-    ],
-    "folder": "read-and-write-gmail"
-   }
-  },
-  {
-   "id": "tool:google-account-restore_mail_thread",
-   "values": {
-    "title": "Restore email conversation",
-    "job": "Restore every message of one Gmail conversation from Trash.",
-    "description": "Restore every message of one Gmail conversation from Trash. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
-    "status": "active",
-    "maker": "maker:read-and-write-gmail",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:public-web-address"
-    ],
-    "folder": "read-and-write-gmail"
-   }
-  },
-  {
-   "id": "tool:google-account-search_mail",
-   "values": {
-    "title": "Search email",
-    "job": "Find Gmail messages matching a search, written as in Gmail's own search box (from:, to:, subject:, after:)",
-    "description": "Find Gmail messages matching a search, written as in Gmail's own search box (from:, to:, subject:, after:) Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
-    "status": "active",
-    "maker": "maker:read-and-write-gmail",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:public-web-address"
-    ],
-    "folder": "read-and-write-gmail",
-    "flags": [
-     "read-only"
-    ]
-   }
-  },
-  {
-   "id": "tool:google-account-send_draft",
-   "values": {
-    "title": "Send email draft",
-    "job": "Send an existing Gmail draft by draft_id. Sending consumes the draft, so repeating the same draft id cannot send it a second time.",
-    "description": "Send an existing Gmail draft by draft_id. Sending consumes the draft, so repeating the same draft id cannot send it a second time. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
-    "status": "active",
-    "maker": "maker:read-and-write-gmail",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:public-web-address"
-    ],
-    "folder": "read-and-write-gmail"
-   }
-  },
-  {
-   "id": "tool:google-account-trash_mail",
-   "values": {
-    "title": "Move email to Trash",
-    "job": "Move a Gmail message to Trash, where it can still be restored.",
-    "description": "Move a Gmail message to Trash, where it can still be restored. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
-    "status": "active",
-    "maker": "maker:read-and-write-gmail",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:public-web-address"
-    ],
-    "folder": "read-and-write-gmail"
-   }
-  },
-  {
-   "id": "tool:google-account-trash_mail_thread",
-   "values": {
-    "title": "Move email conversation to Trash",
-    "job": "Move every message of one Gmail conversation to Trash, where it can still be restored.",
-    "description": "Move every message of one Gmail conversation to Trash, where it can still be restored. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
-    "status": "active",
-    "maker": "maker:read-and-write-gmail",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:public-web-address"
-    ],
-    "folder": "read-and-write-gmail"
-   }
-  },
-  {
-   "id": "tool:google-account-update_draft",
-   "values": {
-    "title": "Edit email draft",
-    "job": "Replace the contents of an existing Gmail draft. raw is a base64url-encoded RFC 2822 message.",
-    "description": "Replace the contents of an existing Gmail draft. raw is a base64url-encoded RFC 2822 message. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
-    "status": "active",
-    "maker": "maker:read-and-write-gmail",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:public-web-address"
-    ],
-    "folder": "read-and-write-gmail"
-   }
-  },
-  {
-   "id": "tool:google-account-update_send_as_signature",
-   "values": {
-    "title": "Update email signature",
-    "job": "Set a Gmail SendAs signature using the exact sendAsEmail from the row where isPrimary is true in list_send_as. Gmail sanitizes the HTML and returns its saved value; read list_send_as again to verify provider state. This operation does not manage aliases.",
-    "description": "Set a Gmail SendAs signature using the exact sendAsEmail from the row where isPrimary is true in list_send_as. Gmail sanitizes the HTML and returns its saved value; read list_send_as again to verify provider state. This operation does not manage aliases. Runs as the Google account the input's connection names, with the value the person's vault holds for it (placed only as the request leaves, never shown).",
-    "status": "active",
-    "maker": "maker:read-and-write-gmail",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:public-web-address"
-    ],
-    "folder": "read-and-write-gmail"
    }
   },
   {
@@ -6099,6 +5808,24 @@
    }
   },
   {
+   "id": "tool:list-mail-drafts",
+   "values": {
+    "title": "List drafts",
+    "job": "List the person's drafts, one page at a time: each draft id with its message id and thread id. Read one with read-a-mail-draft.",
+    "description": "List the person's drafts, one page at a time: each draft id with its message id and thread id. Read one with read-a-mail-draft. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+    "status": "active",
+    "maker": "maker:read-and-write-mail",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "read-and-write-mail",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:list-my-conversations-newest-first",
    "values": {
     "title": "List my conversations newest first",
@@ -6149,6 +5876,24 @@
      "placement:public-web-address"
     ],
     "folder": "social-posts",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:list-new-mail",
+   "values": {
+    "title": "List mail that arrived since a point",
+    "job": "List the mail that reached the inbox since a point in its history (since: the cursor find-my-mailbox or an earlier list-new-mail answered).",
+    "description": "List the mail that reached the inbox since a point in its history (since: the cursor find-my-mailbox or an earlier list-new-mail answered). Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+    "status": "active",
+    "maker": "maker:read-and-write-mail",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "read-and-write-mail",
     "flags": [
      "read-only"
     ]
@@ -6234,6 +5979,24 @@
     "folder": "saved-examples",
     "flags": [
      "has-a-screen"
+    ]
+   }
+  },
+  {
+   "id": "tool:list-send-as-addresses",
+   "values": {
+    "title": "List the addresses a mailbox sends as",
+    "job": "List the addresses the mailbox can send as, each with whether it is the primary one and the signature the provider holds for it (null when the provider holds none).",
+    "description": "List the addresses the mailbox can send as, each with whether it is the primary one and the signature the provider holds for it (null when the provider holds none). Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+    "status": "active",
+    "maker": "maker:read-and-write-mail",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "read-and-write-mail",
+    "flags": [
+     "read-only"
     ]
    }
   },
@@ -7747,6 +7510,36 @@
    }
   },
   {
+   "id": "tool:organize-a-conversation",
+   "values": {
+    "title": "Add or remove labels on a conversation",
+    "job": "Add or remove neutral labels on every message of one conversation: remove inbox to archive the whole conversation.",
+    "description": "Add or remove neutral labels on every message of one conversation: remove inbox to archive the whole conversation. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+    "status": "active",
+    "maker": "maker:read-and-write-mail",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "read-and-write-mail"
+   }
+  },
+  {
+   "id": "tool:organize-mail",
+   "values": {
+    "title": "Add or remove labels on a message",
+    "job": "Add or remove neutral labels on one message: remove inbox to archive it, add or remove unread to change its read state, add or remove starred to star it. Answers the labels it has now.",
+    "description": "Add or remove neutral labels on one message: remove inbox to archive it, add or remove unread to change its read state, add or remove starred to star it. Answers the labels it has now. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+    "status": "active",
+    "maker": "maker:read-and-write-mail",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "read-and-write-mail"
+   }
+  },
+  {
    "id": "tool:organize-saved-browser-tabs",
    "values": {
     "title": "Sort my saved browser tabs into folders by my rules",
@@ -9069,6 +8862,24 @@
    }
   },
   {
+   "id": "tool:read-a-conversation",
+   "values": {
+    "title": "Read a conversation",
+    "job": "Read the messages of one conversation as headers, previews and labels, with no message text; read one message with read-a-mail.",
+    "description": "Read the messages of one conversation as headers, previews and labels, with no message text; read one message with read-a-mail. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+    "status": "active",
+    "maker": "maker:read-and-write-mail",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "read-and-write-mail",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:read-a-fields-history",
    "values": {
     "title": "Read a field's history as lines",
@@ -9127,6 +8938,42 @@
      "placement:your-computer"
     ],
     "folder": "read-a-list-view"
+   }
+  },
+  {
+   "id": "tool:read-a-mail",
+   "values": {
+    "title": "Read a whole message",
+    "job": "Read one whole message: its headers, its plain text, the web links in it and the files it carries (names, kinds, sizes).",
+    "description": "Read one whole message: its headers, its plain text, the web links in it and the files it carries (names, kinds, sizes). Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+    "status": "active",
+    "maker": "maker:read-and-write-mail",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "read-and-write-mail",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:read-a-mail-draft",
+   "values": {
+    "title": "Read a draft",
+    "job": "Read one draft as a neutral message (needs_original says whether editing it as plain text would lose attachments, formatting or a Bcc line).",
+    "description": "Read one draft as a neutral message (needs_original says whether editing it as plain text would lose attachments, formatting or a Bcc line). Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+    "status": "active",
+    "maker": "maker:read-and-write-mail",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "read-and-write-mail",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -9612,6 +9459,24 @@
      "placement:small-container"
     ],
     "folder": "live-match-scores"
+   }
+  },
+  {
+   "id": "tool:read-mail-headers",
+   "values": {
+    "title": "Read who a message is from and its subject",
+    "job": "Read who sent a message, to whom, its subject and when, with its labels and preview line. Its text is not included: read it with read-a-mail.",
+    "description": "Read who sent a message, to whom, its subject and when, with its labels and preview line. Its text is not included: read it with read-a-mail. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+    "status": "active",
+    "maker": "maker:read-and-write-mail",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "read-and-write-mail",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -11116,6 +10981,36 @@
    }
   },
   {
+   "id": "tool:restore-a-conversation",
+   "values": {
+    "title": "Restore a conversation from the trash",
+    "job": "Restore every message of one conversation from the trash.",
+    "description": "Restore every message of one conversation from the trash. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+    "status": "active",
+    "maker": "maker:read-and-write-mail",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "read-and-write-mail"
+   }
+  },
+  {
+   "id": "tool:restore-mail",
+   "values": {
+    "title": "Restore a message from the trash",
+    "job": "Restore one message from the trash.",
+    "description": "Restore one message from the trash. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+    "status": "active",
+    "maker": "maker:read-and-write-mail",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "read-and-write-mail"
+   }
+  },
+  {
    "id": "tool:resume-importing-my-conversations",
    "values": {
     "title": "Resume importing all my conversations",
@@ -11340,6 +11235,21 @@
      "placement:small-container"
     ],
     "folder": "ask-questions-sort-answers-follow-up"
+   }
+  },
+  {
+   "id": "tool:save-a-mail-draft",
+   "values": {
+    "title": "Save a draft",
+    "job": "Keep a plain-text draft: a new one, or the one named by draft_id replaced. Give from (the mailbox address), to (addresses joined by commas), subject and text; thread_id, in_reply_to and references make it a reply where the provider takes them. Nothing is sent. Run with the same request key to repeat a save safely.",
+    "description": "Keep a plain-text draft: a new one, or the one named by draft_id replaced. Give from (the mailbox address), to (addresses joined by commas), subject and text; thread_id, in_reply_to and references make it a reply where the provider takes them. Nothing is sent. Run with the same request key to repeat a save safely. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+    "status": "active",
+    "maker": "maker:read-and-write-mail",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "read-and-write-mail"
    }
   },
   {
@@ -12217,6 +12127,21 @@
    }
   },
   {
+   "id": "tool:send-a-mail-draft",
+   "values": {
+    "title": "Send a draft",
+    "job": "Send an existing draft. Sending consumes the draft, so the same draft id cannot send twice; the same request key answers the first send.",
+    "description": "Send an existing draft. Sending consumes the draft, so the same draft id cannot send twice; the same request key answers the first send. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+    "status": "active",
+    "maker": "maker:read-and-write-mail",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "read-and-write-mail"
+   }
+  },
+  {
    "id": "tool:send-a-message-on-this-mac",
    "values": {
     "title": "Send a message in Messages on this Mac",
@@ -12415,6 +12340,21 @@
     "flags": [
      "keeps-records"
     ]
+   }
+  },
+  {
+   "id": "tool:set-a-mail-signature",
+   "values": {
+    "title": "Set a mailbox signature",
+    "job": "Set the signature of one address the mailbox sends as (address from list-send-as-addresses), as the HTML the provider takes; an empty signature clears it. The answer is what the provider saved.",
+    "description": "Set the signature of one address the mailbox sends as (address from list-send-as-addresses), as the HTML the provider takes; an empty signature clears it. The answer is what the provider saved. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+    "status": "active",
+    "maker": "maker:read-and-write-mail",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "read-and-write-mail"
    }
   },
   {
@@ -12658,7 +12598,10 @@
     "placements": [
      "placement:small-container"
     ],
-    "folder": "lessons-and-learning-paths"
+    "folder": "lessons-and-learning-paths",
+    "flags": [
+     "has-a-screen"
+    ]
    }
   },
   {
@@ -13604,6 +13547,36 @@
      "placement:your-computer"
     ],
     "folder": "audio-transcription"
+   }
+  },
+  {
+   "id": "tool:trash-a-conversation",
+   "values": {
+    "title": "Move a conversation to the trash",
+    "job": "Move every message of one conversation to the trash, where it can still be restored.",
+    "description": "Move every message of one conversation to the trash, where it can still be restored. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+    "status": "active",
+    "maker": "maker:read-and-write-mail",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "read-and-write-mail"
+   }
+  },
+  {
+   "id": "tool:trash-mail",
+   "values": {
+    "title": "Move a message to the trash",
+    "job": "Move one message to the trash, where it can still be restored.",
+    "description": "Move one message to the trash, where it can still be restored. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+    "status": "active",
+    "maker": "maker:read-and-write-mail",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "read-and-write-mail"
    }
   },
   {
