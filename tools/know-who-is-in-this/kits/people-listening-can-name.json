@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:people-listening-can-name's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"List the people my voice and face prints can name, without their voice or face numbers\", with {}. It runs tool:people-listening-can-name and answers {\"people\":[{\"id\":\"sample-one\",\"name\":\"Ada Example\",\"me\":true,\"voice_samples\":2,\"face_samples\":1,\"consent\":[\"Ada Example agreed aloud in a made-up sample\",\"Ada Example agreed in writing in a made-up sample\"]},{\"id\":\"sample-two\",\"name\":\"Sam Example\",\"me\":false,\"voice_samples\":1,\"face_samples\":0,\"consent\":[\"Sam Example agreed aloud in a made-up sample\"]}]}",
   "lists": [],

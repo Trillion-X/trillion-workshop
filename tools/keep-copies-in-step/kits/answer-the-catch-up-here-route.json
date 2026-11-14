@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:answer-the-catch-up-here-route's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Answer the Trillion page route POST /work/api/catch-up/here: keep how this device stands and answer the page as old Trillion did\", with {\"path\":\"/catch-up/here\",\"method\":\"POST\",\"query\":{},\"body\":{\"device_id\":\"d-sample01\",\"state\":\"caught-up\"},\"browser\":{}}. It runs tool:answer-the-catch-up-here-route and answers {\"status\":200,\"body\":{\"device\":{\"device_id\":\"d-sample01\",\"title\":\"\",\"kind\":\"\",\"state\":\"caught-up\",\"waiting\":0,\"seen_at\":\"2026-11-14T00:50:25.274Z\"},\"written\":true}}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:see-if-my-copies-are-in-step's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Show me whether every copy of my things is in step, and which records two of my devices changed apart\", with {\"thing_type\":\"note\"}. It runs tool:see-if-my-copies-are-in-step and answers {\"devices\":[],\"versions\":[],\"other_kinds\":[]}",
   "lists": [],

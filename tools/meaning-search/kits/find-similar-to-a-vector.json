@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:find-similar-to-a-vector's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Find the moments in my recordings, pictures or documents closest in meaning to a query vector, such as the picture vector of some words, and say the file and time of each\", with {\"index_id\":\"synthetic-pictures\",\"query_vector_base64\":\"eyJ2ZWN0b3IiOlsxLDAsMCwwXX0=\"}. It runs tool:find-similar-to-a-vector and answers {\"index_id\":\"synthetic-pictures\",\"result\":{\"items\":[],\"considered\":0,\"skipped\":0,\"min_score\":0},\"model_id\":\"synthetic-picture-model\",\"model_version\":\"1\",\"points_to\":{}}",
   "lists": [],

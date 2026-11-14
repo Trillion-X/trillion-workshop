@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:name-my-next-commitment's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Say what is happening now or next on my calendar, with a countdown, as the line the Mac menu bar shows\", with {\"now\":\"2026-01-01T10:00:00.000Z\",\"within_hours\":2,\"items\":[{\"title\":\"Design review\",\"source\":\"work\",\"starts_at\":\"2026-01-01T10:12:00.000Z\",\"ends_at\":\"2026-01-01T10:50:00.000Z\"}]}. It runs tool:name-my-next-commitment and answers {\"line\":\"Design review · in 12 min\",\"within_hours\":2,\"reach_ends_at\":\"2026-01-01T12:00:00.000Z\",\"look_ahead_minutes\":1440,\"refresh_seconds\":60}",
   "lists": [],

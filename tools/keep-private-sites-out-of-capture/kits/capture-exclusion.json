@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:capture-exclusion's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Say which categories of places (banking, health, social, shopping, adult content, entertainment) a screen or browser capture must not read, whether one address is in them, turn a category on or off for the person, and take in more domains as a cursor diff\", with {\"action\":\"check\",\"address\":\"https://www.chase.com/accounts\"}. It runs tool:capture-exclusion and answers {\"category\":\"banking-finance\"}",
   "lists": [],

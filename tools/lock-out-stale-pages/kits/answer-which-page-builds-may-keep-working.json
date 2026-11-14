@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:answer-which-page-builds-may-keep-working's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Say which builds of the Trillion page may keep working, so an open tab the store moved past shows a reload screen\", with {\"path\":\"/client-version\",\"method\":\"GET\",\"query\":{},\"body\":{}}. It runs tool:answer-which-page-builds-may-keep-working and answers {\"status\":200,\"body\":{\"minimum_generation\":1,\"lock_out_before\":null}}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:cost-measurement-ledger's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Append cost observations once, keep forecasts by version, and aggregate only comparable measured units\", with {\"action\":\"save_billing\",\"request_key\":\"sample-billing-1\",\"billing\":{\"provider\":\"vendor\",\"billing_id\":\"invoice-1\",\"version\":1,\"billing_period_start\":\"2026-10-01\",\"billing_period_end\":\"2026-10-31\",\"currency\":\"USD\",\"unit\":\"invoice\",\"source_revision\":\"rev\",\"observed_at\":\"2026-10-31\",\"scope\":\"unknown\",\"amount\":null}}. It runs tool:cost-measurement-ledger and answers {\"saved\":true,\"id\":\"record:cost-measurement-billing:invoice-1:v1\",\"type\":\"record:cost-measurement-billing\",\"scope\":\"unknown\"}",
   "lists": [],

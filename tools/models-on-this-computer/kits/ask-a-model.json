@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:ask-a-model's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Ask a model served on the person's own computer (a local model, free to run) a conversation or a yes-or-no question about some words, instead of a service billed per word\", with {\"messages\":[{\"role\":\"user\",\"content\":\"Say hello to Ada Example.\"}]}. It runs tool:ask-a-model and answers {\"id\":\"chatcmpl-60\",\"object\":\"chat.completion\",\"created\":1794617432,\"model\":\"gemma3:4b\",\"system_fingerprint\":\"fp_ollama\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"Hello Ada Example! It's nice to meet you. 😊 \\n\\nIs there anything you'd like to chat about?\"},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":16,\"prompt_tokens_details\":{\"cached_tokens\":11},\"completion_tokens\":27 ...",
   "lists": [],

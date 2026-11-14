@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:cut-a-hostname-over-to-a-new-address's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Point one exact hostname of mine at a new server's address, keeping every other DNS record and route, and roll it back if I ask\", with {\"action\":\"prepare\",\"cutover\":\"dns-cutover-door-two\",\"hostname\":\"door.example.com\",\"address\":\"198.51.100.24\"}. It runs tool:cut-a-hostname-over-to-a-new-address and answers {\"state\":\"prepared\",\"hostname\":\"door.example.com\",\"address\":\"198.51.100.24\",\"mode\":\"record\",\"original\":{\"id\":\"a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1\",\"name\":\"door.example.com\",\"type\":\"A\",\"content\":\"192.0.2.10\",\"proxiable\":true,\"proxied\":false,\"ttl\":300,\"settings\":{},\"meta\":{},\"comment\":null,\"tags\":[],\"created_on\":\"2025-06-01T09:00:00.000000Z\",\"modified_on\":\"2025-06-01T09:00:00.000000Z\"},\"current\":null ...",
   "lists": [],

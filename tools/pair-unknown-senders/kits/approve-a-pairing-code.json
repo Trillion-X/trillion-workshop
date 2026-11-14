@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:approve-a-pairing-code's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Let a waiting sender's messages through by approving the pairing code they were given\", with {\"code\":\"ab23 cd45\",\"source_id\":\"events:sample\"}. It runs tool:approve-a-pairing-code and answers {\"source_id\":\"events:sample\",\"sender\":\"Ada Example\",\"said\":\"Ada Example is paired for events:sample.\"}",
   "lists": [],

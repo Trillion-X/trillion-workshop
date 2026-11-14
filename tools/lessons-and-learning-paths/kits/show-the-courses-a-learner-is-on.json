@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:show-the-courses-a-learner-is-on's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Show the learning page for one learner: each course as its lessons in order, how many are done, the lesson they are on now, and each lesson's words\", with {\"courses\":[{\"id\":\"course:bread\",\"title\":\"Baking bread\",\"lessons\":[{\"id\":\"knead\",\"title\":\"Knead\",\"body\":\"Work the dough.\"},{\"id\":\"proof\",\"title\":\"Proof\"}]}],\"done\":[{\"course_id\":\"course:bread\",\"lesson_id\":\"knead\"}]}. It runs tool:show-the-courses-a-learner-is-on and answers {\"courses\":[{\"course_id\":\"course:bread\",\"title\":\"Baking bread\",\"about\":null,\"done\":1,\"of\":2,\"lessons\":[{\"lesson_id\":\"knead\",\"title\":\"Knead\",\"status\":\"complete\",\"body\":\"Work the dough.\"},{\"lesson_id\":\"proof\",\"title\":\"Proof\",\"status\":\"active\",\"body\":null}]}]}",
   "lists": [],

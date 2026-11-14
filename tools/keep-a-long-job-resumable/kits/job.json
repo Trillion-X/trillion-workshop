@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:job's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep a long job on the person's computer (a meeting summary, a transcription) under a key, so starting it twice gives the same job, its output so far is kept in numbered pieces, and any client can resume reading from a cursor or cancel it\", with {\"action\":\"start\",\"key\":\"sample-meeting-summary-1\",\"seed\":{\"topic\":\"Weekly sync with Ada Example\"}}. It runs tool:job and answers {\"id\":\"898f5b84838a1894\",\"state\":\"running\",\"stream_url\":\"trillion-job://898f5b84838a1894\",\"expires_at\":\"2026-11-14T01:50:24.921Z\",\"seed\":{\"topic\":\"Weekly sync with Ada Example\"},\"version\":1,\"chunks\":0}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:find-similar-by-meaning's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Find the moments in my recordings or documents whose words or transcript are closest in meaning to what I ask, and say the file and time of each\", with {\"index_id\":\"synthetic-words\",\"query_text\":\"a made-up question\"}. It runs tool:find-similar-by-meaning and answers {\"index_id\":\"synthetic-words\",\"result\":{\"items\":[{\"address\":\"/Sets/lines.jsonl#0\",\"score\":1,\"index_id\":\"synthetic-words\",\"model_id\":\"synthetic-words-model\",\"model_version\":\"1\",\"descriptor_revision\":\"1f:0000000000000000000000000000000000000000000000000000000000000000\",\"model_provenance_ref\":\"model:synthetic-words-model@1\" ...",
   "lists": [],

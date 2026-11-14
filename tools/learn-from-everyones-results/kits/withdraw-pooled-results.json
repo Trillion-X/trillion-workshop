@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:withdraw-pooled-results's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Remove every noisy result one person ever gave the pool when they stop sharing\", with {\"contributor\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}. It runs tool:withdraw-pooled-results and answers {\"removed\":1}",
   "lists": [],

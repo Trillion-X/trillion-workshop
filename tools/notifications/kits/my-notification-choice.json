@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:my-notification-choice's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Show the options a notification setting offers this person and which one they chose\", with {\"setting\":\"sample-digest\"}. It runs tool:my-notification-choice and answers {\"setting\":\"sample-digest\",\"heading\":\"Sample digest\",\"explanation\":\"How often a made-up digest arrives.\",\"options\":[{\"id\":\"daily\",\"label\":\"Daily\",\"description\":\"\",\"current\":true},{\"id\":\"weekly\",\"label\":\"Weekly\",\"description\":\"\",\"current\":false}],\"current\":\"daily\",\"status\":\"ready\",\"said\":\"The current choice is daily.\"}",
   "lists": [],

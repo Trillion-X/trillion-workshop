@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:write-legal-documents's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Write a business's terms of service, privacy policy, refund policy or waiver from its facts\", with {\"documents\":[\"terms\"],\"facts\":{\"business_legal_name\":\"Harbor Coaching LLC\",\"service_name\":\"Harbor Coaching\",\"site_url\":\"https://harbor.example\",\"contact_email\":\"user-a4af8001@example.com\",\"service_description\":\"One-to-one swim coaching sessions booked online.\",\"has_accounts\":true,\"has_paid_offers\":true}}. It runs tool:write-legal-documents and answers {\"documents\":[{\"document_type\":\"terms\",\"title\":\"Terms of Service\",\"text\":\"# Terms of Service\\n\\nThese Terms of Service (the \\\"Terms\\\") are a binding agreement between you and Harbor Coaching LLC (\\\"we\\\", \\\"us\\\") governing your use of Harbor Coaching and the services offered at https://harbor.example.\\n\\nYou accept these Terms by checking the acceptance box presented at signup or purchase, or by ...",
   "lists": [],

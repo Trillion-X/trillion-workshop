@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:refresh-measurement-history's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Collect configured operation evidence and save current history directly on a timed or record wake without an AI\", with {}. It runs tool:refresh-measurement-history and answers {\"physical_refresh\":{\"invocation\":\"1f:771350c116fb407c3a9c0dbcd04e220185ba64e3f3246453016681555e1e02dd\",\"appended\":{\"inserted\":5,\"replayed\":0,\"receipts\":[{\"changed\":5,\"write_count\":5}]},\"measurements\":[{\"event_id\":\"1f:771350c116fb407c3a9c0dbcd04e220185ba64e3f3246453016681555e1e02dd:wall_until_final_persist_ms\",\"provider\":\"native-computer\",\"operation\":\"collector.process\" ...",
   "lists": [],

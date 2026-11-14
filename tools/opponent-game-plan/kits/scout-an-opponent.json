@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:scout-an-opponent's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Look up an opponent: list the people scouted, and pull together everything on file about one (what they are good and weak at, what worked and failed against them, their style and ratings) and which notes are trusted enough to plan from\", with {\"operation\":\"search\",\"rows\":[{\"payload\":{\"kind\":\"subject\",\"subjectId\":\"p:1\",\"subjectKind\":\"player\",\"label\":\"Alder\",\"payload\":{\"isSelf\":true},\"createdAt\":\"2026-01-01T09:00:00.000Z\"}},{\"payload\":{\"kind\":\"subject\",\"subjectId\":\"p:2\",\"subjectKind\":\"player\",\"label\":\"Birch\",\"payload\":{},\"createdAt\":\"2026-01-01T09:00:00.000Z\"}}]}. It runs tool:scout-an-opponent and answers {\"opponents\":[{\"subjectId\":\"p:2\",\"name\":\"Birch\",\"facts\":{},\"styleLabels\":[],\"reportCount\":0,\"profileCount\":0,\"workedCount\":0,\"failedCount\":0}]}",
   "lists": [],

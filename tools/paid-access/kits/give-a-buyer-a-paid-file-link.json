@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:give-a-buyer-a-paid-file-link's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Give a buyer a short-lived link to a file they paid for, and refuse anyone who has not paid\", with {\"object_key\":\"no-such-file.pdf\",\"subject\":\"buyer@example.com\"}. It runs tool:give-a-buyer-a-paid-file-link and answers {\"status\":\"unavailable\",\"reason\":\"governing-item-missing\"}",
   "lists": [],

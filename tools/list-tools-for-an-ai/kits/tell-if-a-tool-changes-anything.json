@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:tell-if-a-tool-changes-anything's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Tell whether a tool only reads or changes things, from its own operation name\", with {\"tool\":{\"id\":\"tool:list-sample-things\"}}. It runs tool:tell-if-a-tool-changes-anything and answers {\"write_class\":\"read\"}",
   "lists": [],

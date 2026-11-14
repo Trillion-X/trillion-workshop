@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:point-editor-projects-at-new-places's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"On the person's own computer, point their Premiere Pro projects and DaVinci Resolve's open project at clips that moved to a new place, such as their Trillion files connected as a drive\", with {\"moves\":[{\"from\":\"/work/sample/Card/CLIP\",\"to\":\"/work/sample/Drive/Clips\"}],\"projects\":[]}. It runs tool:point-editor-projects-at-new-places and answers {\"projects\":[],\"resolve\":{\"state\":\"not-running\",\"relinked\":[],\"failed\":[]},\"said\":\"No editor project named these clips.\"}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:import-markdown-file-as-editable-document's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Turn a Markdown file into the editable document scene tree, keeping its structure and source spans\", with {\"source_path\":\"source.md\",\"output_path\":\"editable.json\"}. It runs tool:import-markdown-file-as-editable-document and answers {\"kind\":\"editable-document-import-file\",\"output_path\":\"/granted-IGjUvh/editable.json\",\"output_bytes\":992,\"block_count\":2,\"source_identity\":\"1f:5cd221eaa9d128f8c63d813b09cefe9e69e13cdd72a84662716ca5fdfd5982d6\",\"round_trip\":\"passed\"}",
   "lists": [],

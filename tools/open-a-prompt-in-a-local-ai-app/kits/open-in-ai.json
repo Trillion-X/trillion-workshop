@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:open-in-ai's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Hand one prompt (an issue, a task) to a coding AI app the person already has on their computer, such as Claude Code or Codex\", with {\"app\":\"claude-code\",\"prompt\":\"Summarise the notes for Ada Example.\"}. It runs tool:open-in-ai and answers {\"outcome\":\"launched\",\"app\":\"claude-code\",\"via\":\"url\",\"command\":\"open\",\"prompt_chars\":36,\"said\":\"Opened the prompt in Claude Code.\"}",
   "lists": [],

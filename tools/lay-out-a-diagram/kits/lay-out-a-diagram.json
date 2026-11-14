@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:lay-out-a-diagram's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Lay out a diagram of boxes and arrows so few arrows cross, and give me the positions, the arrow routes, how many arrows cross and a picture of it as SVG\", with {\"nodes\":[{\"id\":\"Order received\"},{\"id\":\"Packed\"},{\"id\":\"Shipped\"},{\"id\":\"Delivered\"}],\"edges\":[{\"from\":\"Order received\",\"to\":\"Delivered\"},{\"from\":\"Packed\",\"to\":\"Shipped\"}]}. It runs tool:lay-out-a-diagram and answers {\"width\":246.5,\"height\":136,\"nodes\":[{\"id\":\"Order received\",\"x\":0,\"y\":0,\"width\":125,\"height\":38,\"rank\":0,\"order\":0,\"lane\":null},{\"id\":\"Packed\",\"x\":165,\"y\":0,\"width\":79,\"height\":38,\"rank\":0,\"order\":1,\"lane\":null},{\"id\":\"Shipped\",\"x\":162.5,\"y\":98,\"width\":84,\"height\":38,\"rank\":1,\"order\":1,\"lane\":null},{\"id\":\"Delivered\",\"x\":16.5,\"y\":98,\"width\":92,\"height\":38,\"rank\":1,\"order\":0,\"lane\":null}] ...",
   "lists": [],

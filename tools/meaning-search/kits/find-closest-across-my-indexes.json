@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:find-closest-across-my-indexes's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Find the moments across all my recordings and pictures, kept in several indexes, closest in meaning to a query vector, best first across all of them, and say the file and time of each\", with {\"index_ids\":[\"synthetic-a\",\"synthetic-b\"],\"query_vector_base64\":\"eyJ2ZWN0b3IiOlsxLDAsMCwwXX0=\"}. It runs tool:find-closest-across-my-indexes and answers {\"index_ids\":[\"synthetic-a\",\"synthetic-b\"],\"result\":{\"items\":[],\"considered\":0,\"skipped\":0,\"min_score\":0},\"model_id\":\"synthetic-picture-model\",\"model_version\":\"1\",\"points_to\":{}}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-meeting-link's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Read a meeting link through the declared meeting-app routes: which app it is for, what it asks (join, start, schedule, launch) and its parameters, with the host checked first and secret parameters hidden\", with {\"link\":\"zoommtg://zoom.us/join?confno=123456789&uname=Ada%20Example\"}. It runs tool:read-meeting-link and answers {\"route\":\"zoom-links\",\"action\":\"join\",\"params\":{\"confno\":\"123456789\",\"uname\":\"Ada Example\"},\"secret_params\":[],\"redacted\":\"zoommtg://zoom.us/join?confno=123456789&uname=Ada Example\"}",
   "lists": [],

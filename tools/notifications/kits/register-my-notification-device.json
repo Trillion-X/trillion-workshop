@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:register-my-notification-device's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Register this device to receive or read my notices\", with {\"route\":\"live\",\"address\":\"device-a-12345678\"}. It runs tool:register-my-notification-device and answers {\"device_id\":\"1f91b115aa6ca27b87d055d39dcf6ba138735d1756242ab5d19a0e3e628e236216\",\"changed\":true,\"devices\":[{\"device_id\":\"1f91b115aa6ca27b87d055d39dcf6ba138735d1756242ab5d19a0e3e628e236216\",\"route\":\"live\",\"label\":\"A Mac\",\"added_at\":\"2026-11-14T00:50:33.598Z\"}],\"said\":\"This device is registered for notices.\"}",
   "lists": [],

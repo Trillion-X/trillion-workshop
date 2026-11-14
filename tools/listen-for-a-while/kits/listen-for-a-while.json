@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:listen-for-a-while's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Listen in on a meeting or a room until a time I give, and keep each person's turn as it is said\", with {\"until\":\"2026-11-03T15:30:00-07:00\",\"model_path\":\"/models/sample-whisper.bin\",\"listening\":\"sample-meeting\",\"finish_seconds\":0}. It runs tool:listen-for-a-while and answers {\"listening\":\"sample-meeting\",\"pieces\":0,\"turns\":0,\"rows_written\":0,\"left_out\":0,\"let_go\":0,\"blocked\":null,\"paused\":null,\"transcriber\":null,\"sounds_kept\":0,\"leaves\":[{\"id\":\"words\",\"what\":\"The words of each turn, with who said it\",\"to\":\"your records, as heard rows\"}],\"stays\":[{\"id\":\"voices\",\"what\":\"Voice numbers used to tell people apart\",\"to\":\"stay on this computer\"},{\"id\":\"hearing\",\"what\":\"The ...",
   "lists": [],

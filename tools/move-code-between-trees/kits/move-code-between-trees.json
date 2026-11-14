@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:move-code-between-trees's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Move groups of code files from one repository to another byte for byte, with every file they import and their tests, delete the originals so one copy remains, and prove the moved files are the same bytes and still load and pass their tests\", with {\"step\":\"plan\",\"row\":{\"id\":\"move:sample-app-to-sample-box\",\"destination\":{\"shared_folder\":\"tools/shared-code\"},\"groups\":[]},\"source_folder\":\".\",\"destination_folder\":\".\"}. It runs tool:move-code-between-trees and answers {\"move\":\"move:sample-app-to-sample-box\",\"source\":{\"commit\":\"0123456789abcdef0123456789abcdef01234567\"},\"destination\":{\"commit\":\"0123456789abcdef0123456789abcdef01234567\",\"shared_folder\":\"tools/shared-code\",\"package\":null},\"groups\":[],\"files\":[],\"importers\":[],\"packages_to_add\":{}}",
   "lists": [],

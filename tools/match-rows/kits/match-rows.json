@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:match-rows's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Pair rows from two places that describe the same thing: a bank or card line and its receipt, both sides of a transfer between accounts, a payment and the invoices it paid, a statement line and a bookkeeping row, a calendar event and a timesheet entry.\", with {\"left\":[{\"id\":\"card-1\",\"amount\":-42.5,\"date\":\"2026-10-01\",\"description\":\"Corner Coffee Roasters\"}],\"right\":[{\"id\":\"receipt-1\",\"amount\":42.5,\"date\":\"2026-10-01\",\"description\":\"Corner Coffee Roasters receipt\"}]}. It runs tool:match-rows and answers {\"matched\":[{\"left\":\"card-1\",\"right\":\"receipt-1\",\"confidence\":1,\"reasons\":[{\"field\":\"amount\",\"score\":1,\"said\":\"amount is the same.\"},{\"field\":\"date\",\"score\":1,\"said\":\"date is the same day.\"},{\"field\":\"description\",\"score\":1,\"said\":\"description shares corner, coffee, roasters.\"}]}],\"suggested\":[],\"kept\":[],\"unmatched_left\":[],\"unmatched_right\":[]}",
   "lists": [],

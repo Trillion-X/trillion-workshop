@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:refresh-provider-prices's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Read the current version of the declared provider price DATA and return provider-qualified unit prices with source revisions\", with {}. It runs tool:refresh-provider-prices and answers {\"format\":\"provider-price-input/1\",\"source_revision\":\"public-tariffs-2026-10-31\",\"observed_at\":\"2026-10-31\",\"sources\":[{\"id\":\"aws-dynamodb-pricing\",\"url\":\"https://aws.amazon.com/dynamodb/pricing/\",\"scope\":\"US East (N. Virginia), Standard table class, on-demand rates from AWS pricing example\",\"accessed_at\":\"2026-10-31\"},{\"id\":\"aws-s3-pricing\",\"url\":\"https://aws.amazon.com/s3/pricing/\",\"scope\":\"S3 ...",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:say-how-this-device-stands's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep how this device of mine stands: caught up, offline or still holding changes\", with {\"device_id\":\"d-sample01\",\"state\":\"caught-up\",\"request_key\":\"sample-report\",\"now\":\"2026-01-01T00:00:00.000Z\"}. It runs tool:say-how-this-device-stands and answers {\"device\":{\"device_id\":\"d-sample01\",\"title\":\"\",\"kind\":\"\",\"state\":\"caught-up\",\"waiting\":0,\"seen_at\":\"2026-01-01T00:00:00.000Z\"},\"written\":true}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:send-live-activity-update's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Start, update or end the one Live Activity board for running work\", with {\"update_id\":\"empty-sample\",\"board_key\":\"running\",\"items\":[]}. It runs tool:send-live-activity-update and answers {\"board_key\":\"running\",\"update_id\":\"empty-sample\",\"state\":\"not-running\",\"accepted\":0,\"attempted\":0,\"said\":\"Nothing is running to show.\"}",
   "lists": [],

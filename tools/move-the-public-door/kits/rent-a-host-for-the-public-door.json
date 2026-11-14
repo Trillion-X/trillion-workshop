@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:rent-a-host-for-the-public-door's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Rent one server for my public door from my hosting service, or adopt a box I already run, and keep its lease\", with {\"provider\":\"hetzner\",\"lease\":\"host-lease-door-two\",\"name\":\"door-two\",\"public_key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMadeUpSampleKeyForTheDoorSampleOnly00000000 door@example.com\",\"lifetime\":\"service\"}. It runs tool:rent-a-host-for-the-public-door and answers {\"schema\":\"portable-host-lease/1\",\"provider\":\"hetzner\",\"name\":\"door-two\",\"serverType\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\",\"lifetime\":\"service\",\"startedAt\":1794617431744,\"expiresAt\":null,\"state\":\"running\",\"serverId\":4711,\"sshKeyId\":2323,\"address\":\"198.51.100.24\"}",
   "lists": [],

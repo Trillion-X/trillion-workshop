@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:pick-a-small-good-moment's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Pick the small good moment to play when something good happens or a phrase is typed: its words and motion, from the moment rows I give, so once-only moments play once and the words change each time\", with {\"moments\":[{\"id\":\"moment:first-tour\",\"on\":{\"event_kind\":\"tour.finished\"},\"once\":true,\"words\":\"Your first tour is done.\"},{\"id\":\"moment:tour\",\"on\":{\"event_kind\":\"tour.finished\"},\"words\":[\"Tour {count} done.\",\"Another one done.\"],\"motion\":\"rise\"}],\"event\":{\"event_kind\":\"tour.finished\"},\"memory\":{\"counts\":{\"event:tour.finished\":2},\"played\":{\"moment:first-tour\":1,\"moment:tour\":1}}}. It runs tool:pick-a-small-good-moment and answers {\"moment\":{\"id\":\"moment:tour\",\"motion\":\"rise\",\"mark\":\"\",\"words\":\"Another one done.\"},\"remember\":{\"counts\":{\"event:tour.finished\":3},\"played\":{\"moment:first-tour\":1,\"moment:tour\":2}}}",
   "lists": [],

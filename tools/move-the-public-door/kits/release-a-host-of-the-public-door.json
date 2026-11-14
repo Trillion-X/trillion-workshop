@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:release-a-host-of-the-public-door's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Remove the server and SSH key one of my public door's host leases rented, and only those\", with {\"lease\":\"host-lease-door-two\"}. It runs tool:release-a-host-of-the-public-door and answers {\"schema\":\"portable-host-lease/1\",\"provider\":\"hetzner\",\"name\":\"door-two\",\"serverType\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\",\"lifetime\":\"service\",\"startedAt\":1793786400000,\"expiresAt\":null,\"state\":\"removed\",\"serverId\":4711,\"sshKeyId\":2323,\"address\":\"198.51.100.24\",\"removedAt\":1794617432419}",
   "lists": [],

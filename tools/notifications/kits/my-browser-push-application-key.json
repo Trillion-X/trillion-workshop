@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:my-browser-push-application-key's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Get the public key browsers need to register for notices\", with {}. It runs tool:my-browser-push-application-key and answers {\"applicationServerKey\":\"BIR-b6XwPBS4qAwIeWqK8koa0abYC2Z4-ZSQr7JoN3ZK5aGcsSiJ2yKtRbyPqxUYYXAzht-qfd4wD4jL4a0cj6w\",\"said\":\"The browser push key is ready for device registration.\"}",
   "lists": [],

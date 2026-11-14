@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:send-notification-to-my-devices's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Send one already-recorded notice through my registered Apple devices\", with {\"notification_id\":\"missing\",\"audience\":\"person:me\"}. It runs tool:send-notification-to-my-devices and answers {\"notification_id\":\"missing\",\"recorded\":false,\"delivered\":false,\"stage\":\"unavailable\",\"said\":\"There is no recorded notification missing. Record it first.\"}",
   "lists": [],

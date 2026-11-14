@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:compare-two-diagrams's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Tell me what changed between two versions of a diagram: boxes and arrows added, removed or changed, and what changed on each\", with {\"before\":{\"nodes\":[{\"id\":\"Order received\"},{\"id\":\"Packed\"}],\"edges\":[{\"from\":\"Order received\",\"to\":\"Packed\"}]},\"after\":{\"nodes\":[{\"id\":\"Order received\"},{\"id\":\"Packed\"},{\"id\":\"Shipped\"}],\"edges\":[{\"from\":\"Order received\",\"to\":\"Packed\"},{\"from\":\"Packed\",\"to\":\"Shipped\"}]}}. It runs tool:compare-two-diagrams and answers {\"nodes\":{\"added\":[\"Shipped\"],\"removed\":[],\"changed\":[]},\"edges\":{\"added\":[\"Packed -> Shipped\"],\"removed\":[],\"changed\":[]}}",
   "lists": [],

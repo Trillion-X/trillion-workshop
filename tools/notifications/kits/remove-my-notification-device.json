@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:remove-my-notification-device's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Stop sending or queueing notices for one of my devices\", with {\"device_id\":\"missing\"}. It runs tool:remove-my-notification-device and answers {\"device_id\":\"missing\",\"removed\":false,\"said\":\"That device was not registered.\"}",
   "lists": [],

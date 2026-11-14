@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:add-a-pooled-result's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep one person's noisy yes or no about a shared situation in the pool everyone learns from, under their random contributor id\", with {\"contributor\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"situation\":\"sample-situation-1\",\"worked\":true}. It runs tool:add-a-pooled-result and answers {\"added\":true}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:randomize-a-result's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Turn whether something worked into the one noisy yes or no that may leave my account to teach everyone, so nobody can tell my real result\", with {\"worked\":true,\"rules\":{\"epsilon\":1}}. It runs tool:randomize-a-result and answers {\"worked\":true}",
   "lists": [],

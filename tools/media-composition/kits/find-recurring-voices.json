@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:find-recurring-voices's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Group recurring voices across audio and video files, keep stable voice clusters, and show which files contain the same speaker\", with {\"files\":[\"https://files.example.test/namespace/bytes/1f:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\"]}. It runs tool:find-recurring-voices and answers {\"clusters\":[{\"voice_id\":\"voice:08451a388152eed3198ff2c0\",\"person_name\":null,\"new_segments\":1,\"files\":[\"1f:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\"],\"needs_name\":true}],\"segments\":[{\"file\":\"1f:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\",\"from\":0,\"to\":6,\"voice_id\":\"voice:08451a388152eed3198ff2c0\",\"similarity\":null,\"person_name\":null}] ...",
   "lists": [],

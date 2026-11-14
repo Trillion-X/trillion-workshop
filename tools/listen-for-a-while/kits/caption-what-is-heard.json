@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:caption-what-is-heard's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Show the captions of a listening and fix a word, a speaker or a line in them\", with {\"listening\":\"sample-meeting\",\"ops\":[{\"op\":\"edit\",\"id\":\"heard:sample-meeting:1000\",\"text\":\"The garden budget comes next.\"}]}. It runs tool:caption-what-is-heard and answers {\"listening\":\"sample-meeting\",\"on\":true,\"lines\":[{\"id\":\"heard:sample-meeting:1000\",\"start\":\"2026-11-03T22:00:01.000Z\",\"end\":\"2026-11-03T22:00:03.000Z\",\"speaker\":\"Someone (voice-2)\",\"me\":false,\"text\":\"The garden budget comes next.\",\"heard_as\":{\"text\":\"The garden budget is next.\",\"speaker\":\"Someone (voice-2)\"}},{\"id\":\"heard:sample-meeting:5000\",\"start\":\"2026-11-03T22:00:05.000Z\" ...",
   "lists": [],

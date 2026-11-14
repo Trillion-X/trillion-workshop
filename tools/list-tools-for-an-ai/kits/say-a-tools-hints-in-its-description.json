@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:say-a-tools-hints-in-its-description's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Make a tool's description say in words what its read-only, destructive, idempotent and open-world hints say\", with {\"tool\":{\"name\":\"remove_sample\",\"description\":\"Removes one sample thing.\",\"annotations\":{\"readOnlyHint\":false,\"destructiveHint\":true,\"idempotentHint\":false,\"openWorldHint\":false}}}. It runs tool:say-a-tools-hints-in-its-description and answers {\"name\":\"remove_sample\",\"description\":\"Removes one sample thing. Can remove or overwrite something the person kept: confirm with the person before calling it unless they already asked for exactly this.\",\"annotations\":{\"readOnlyHint\":false,\"destructiveHint\":true,\"idempotentHint\":false,\"openWorldHint\":false}}",
   "lists": [],

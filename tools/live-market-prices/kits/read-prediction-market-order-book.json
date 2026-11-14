@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-prediction-market-order-book's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"See the buy and sell offers on one prediction market outcome: the best prices, the gap between them and how much is offered\", with {\"token_id\":\"0\"}. It runs tool:read-prediction-market-order-book and answers {\"book\":{\"token_id\":\"0\",\"market\":\"0xsamplecondition0001\",\"timestamp\":\"1793750400000\",\"hash\":\"samplehash0001\",\"bids\":[{\"price\":0.4,\"size\":100},{\"price\":0.41,\"size\":50}],\"asks\":[{\"price\":0.44,\"size\":75},{\"price\":0.43,\"size\":20}],\"best_bid\":0.41,\"best_ask\":0.43,\"best_bid_size\":50,\"best_ask_size\":20,\"spread\":0.020000000000000018,\"midpoint\":0.42,\"bid_depth\":150,\"ask_depth\":95,\"levels\":4} ...",
   "lists": [],

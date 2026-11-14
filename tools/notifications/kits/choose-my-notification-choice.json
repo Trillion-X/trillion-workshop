@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:choose-my-notification-choice's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep one of a notification setting's options as this person's choice\", with {\"setting\":\"sample-digest\",\"choice\":\"daily\"}. It runs tool:choose-my-notification-choice and answers {\"setting\":\"sample-digest\",\"choice\":\"daily\",\"previous\":null,\"changed\":true,\"said\":\"sample-digest is now daily.\"}",
   "lists": [],

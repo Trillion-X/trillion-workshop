@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:settle-two-versions's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Settle a record two of my devices changed apart: keep one version, keep both, or keep a merged one\", with {\"id\":\"kept-apart:plan-7\",\"keep\":\"one\",\"side\":\"kept-1\",\"thing_type\":\"note\",\"request_key\":\"sample-settle\"}. It runs tool:settle-two-versions and answers {\"settled\":{\"id\":\"kept-apart:plan-7\",\"thing\":{\"kind\":\"note\",\"id\":\"plan-7\",\"title\":\"Launch plan\"},\"keep\":\"one\"},\"written\":[\"plan-7\",\"kept-apart:plan-7\"]}",
   "lists": [],

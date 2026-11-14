@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:add-a-shared-situation's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep one situation a person made safe to show strangers, with its meaning, so others can learn how similar decisions turned out\", with {\"entry\":{\"what\":\"Asked a made-up question before a sample launch\"},\"embedding\":[1,0,0]}. It runs tool:add-a-shared-situation and answers {\"situation\":\"b723ecb8-db94-4e4f-a446-9da149fd0576\"}",
   "lists": [],

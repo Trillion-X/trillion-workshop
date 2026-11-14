@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:my-notification-devices's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"List the devices registered to show or read my notices\", with {}. It runs tool:my-notification-devices and answers {\"devices\":[],\"said\":\"0 devices are registered.\"}",
   "lists": [],

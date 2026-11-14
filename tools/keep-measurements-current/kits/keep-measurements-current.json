@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:keep-measurements-current's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Discover operation catalogs, source revisions and execution receipts, then return current neutral measurement observations and forecast coverage\", with {\"action\":\"read_source_config\"}. It runs tool:keep-measurements-current and answers {\"schema\":\"measurement-source-config/1\",\"source_roots\":[{\"id\":\"workshop\",\"path\":\"/made-up/source\"}],\"receipt_roots\":[{\"id\":\"workshop\",\"path\":\"/made-up/receipts\",\"source_id\":\"workshop\"}],\"meter_book\":{\"path\":\"meter-definitions.json\"},\"price_book\":{\"source_tool\":\"tool:refresh-provider-prices\"}}",
   "lists": [],

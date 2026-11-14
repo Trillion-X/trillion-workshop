@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:list-public-prediction-markets's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"See which prediction markets are open right now, what each asks, its outcomes, their prices and its trading volume\", with {\"limit\":1}. It runs tool:list-public-prediction-markets and answers {\"markets\":[{\"id\":\"100001\",\"question\":\"Will the sample event happen by 2030?\",\"slug\":\"will-the-sample-event-happen-by-2030\",\"condition_id\":\"0xsamplecondition0001\",\"outcomes\":[\"Yes\",\"No\"],\"outcome_prices\":[\"0.42\",\"0.58\"],\"token_ids\":[\"1111\",\"2222\"],\"volume\":12345.67,\"liquidity\":890.12,\"active\":true,\"closed\":false,\"accepting_orders\":true,\"end_date\":\"2030-12-31T12:00:00Z\" ...",
   "lists": [],

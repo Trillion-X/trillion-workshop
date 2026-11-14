@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:pick-the-release-a-host-runs's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Tell which release of a published tool a given Trillion version runs, or which version it needs\", with {\"row\":{\"id\":\"tool:sample\",\"label\":\"second\",\"minimum_host_version\":\"2026.10.1\",\"earlier_releases\":[{\"id\":\"tool:sample\",\"label\":\"first\"}]},\"host_version\":\"2026.9.28\"}. It runs tool:pick-the-release-a-host-runs and answers {\"release\":{\"id\":\"tool:sample\",\"label\":\"first\"}}",
   "lists": [],

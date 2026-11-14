@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:apply-a-pair-state-message's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Update a multi-camera recording session when one device (a camera, a watch, a remote control) joins, leaves, reports its state or hands over the primary role\", with {\"session\":{\"id\":\"session-sample\",\"states\":[\"idle\",\"recording\"]},\"message\":{\"session\":\"session-sample\",\"device\":\"camera-one\",\"type\":\"join\",\"role\":\"primary\"}}. It runs tool:apply-a-pair-state-message and answers {\"session\":{\"id\":\"session-sample\",\"states\":[\"idle\",\"recording\"],\"primary\":\"camera-one\",\"devices\":{\"camera-one\":{\"state\":\"idle\",\"role\":\"primary\"}}}}",
   "lists": [],

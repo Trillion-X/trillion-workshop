@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:check-a-model-loops-calls's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Say, from the tool calls a model loop made in order, when it should be nudged for repeating itself and when the job should be given back because it keeps repeating or its tools keep failing\", with {\"calls\":[{\"name\":\"read_note\",\"args\":{\"title\":\"Plan\"}},{\"name\":\"read_note\",\"args\":{\"title\":\"Plan\"}},{\"name\":\"read_note\",\"args\":{\"title\":\"Plan\"}},{\"name\":\"list_notes\",\"args\":{}}]}. It runs tool:check-a-model-loops-calls and answers {\"steps\":[{\"at\":2,\"nudge\":\"You have made the same read_note call 3 times and it has not moved the job. Read what it answered, then do something different, or end the job with finish_work or say_what_is_in_the_way.\"}]}",
   "lists": [],

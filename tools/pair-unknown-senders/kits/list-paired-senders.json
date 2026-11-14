@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:list-paired-senders's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"List which senders are paired and which pairing codes are waiting, for one source or all\", with {}. It runs tool:list-paired-senders and answers {\"waiting\":[],\"paired\":[]}",
   "lists": [],

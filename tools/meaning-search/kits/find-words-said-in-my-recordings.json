@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:find-words-said-in-my-recordings's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Find the spoken lines in my recordings that say all of some words, and say the file and time of each\", with {\"index_ids\":[\"synthetic-said\"],\"query_text\":\"made-up words\"}. It runs tool:find-words-said-in-my-recordings and answers {\"index_ids\":[\"synthetic-said\"],\"lines\":[{\"address\":\"/Sets/said.jsonl#0\",\"file\":\"/Clips/made-up.m4a\",\"start\":0,\"end\":null,\"text\":\"some made-up words here\"}]}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:grant-paid-access-to-people's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Give people paid access by hand, all at once or one by one (members who moved over from another place, a gift, a pass with an end date), and end a grant I gave\", with {\"grants\":[{\"subject\":\"member@example.com\",\"access_ref\":\"access:sample-course\"}]}. It runs tool:grant-paid-access-to-people and answers {\"written\":1,\"already\":0,\"refused\":[]}",
   "lists": [],

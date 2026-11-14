@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:see-where-the-public-door-runs's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"See where my public door runs now and which hosting and DNS services it can move between\", with {}. It runs tool:see-where-the-public-door-runs and answers {\"current\":{\"kind\":\"public-door-placement\",\"id\":\"current\",\"name\":\"Where the public door runs\",\"hosting_provider\":\"own-box\",\"dns_provider\":\"names\",\"hostname\":\"door.example.com\",\"server_id\":null,\"address\":\"192.0.2.10\",\"dns_record\":null,\"lease_file\":null,\"proof\":{\"health\":\"/healthz\",\"download\":\"/download/App.dmg\"}},\"hosting_providers\":[{\"id\":\"own-box\",\"name\":\"Your own box over SSH\",\"move_ready\":true ...",
   "lists": [],

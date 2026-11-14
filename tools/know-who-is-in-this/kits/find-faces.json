@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:find-faces's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Find every face in a picture or video and name the ones that belong to people who agreed to be known\", with {\"file\":\"sample-picture.png\"}. It runs tool:find-faces and answers {\"faces\":[]}",
   "lists": [],

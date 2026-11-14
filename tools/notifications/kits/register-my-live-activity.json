@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:register-my-live-activity's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep this iPhone Live Activity token so this account can update or end it\", with {\"board_key\":\"running\",\"token\":\"0123456789abcdef0123456789abcdef\",\"app\":\"com.example.app\"}. It runs tool:register-my-live-activity and answers {\"board_key\":\"running\",\"kept\":true,\"ended\":false,\"changed\":true,\"said\":\"The Live Activity is registered.\"}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:name-a-heard-voice's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Put a person's name on what they said in a listening before I enrolled their voice\", with {\"listening\":\"sample-meeting\",\"voices\":[\"voice-2\"],\"name\":\"Sam Example\"}. It runs tool:name-a-heard-voice and answers {\"listening\":\"sample-meeting\",\"name\":\"Sam Example\",\"voices\":[\"voice-2\"],\"renamed\":1,\"said\":\"1 turns are now Sam Example's.\"}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:make-a-plain-work-title's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Give a piece of work a short plain title from its own words, so a person sees what it is at a glance\", with {\"job\":\"Handoff: fix h_4677423f69aed1fb495164bc so the [login](https://x.com/a) page works.\"}. It runs tool:make-a-plain-work-title and answers {\"title\":\"Fix so the login page works\",\"from\":\"job\"}",
   "lists": [],

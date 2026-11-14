@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:check-a-buyer-may-open's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Decide whether a buyer may open one gated thing (a page, a lesson, a publication) from the access it requires\", with {\"subject\":\"buyer@example.com\",\"scope\":{\"schema\":\"addressed-expiring-value-scope/v1\",\"value_ref\":\"page:sample\",\"instance_ref\":\"page:sample:1\",\"required_access_refs\":[]}}. It runs tool:check-a-buyer-may-open and answers {\"authorized\":true}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:who-is-in-this's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Name who said each stretch of a call or recording, from the voices of people who agreed to be known\", with {\"file\":\"sample-call.wav\",\"listening\":\"standup\",\"segments\":[{\"start\":0,\"end\":5,\"text\":\"Hello from a made-up call.\"}]}. It runs tool:who-is-in-this and answers {\"speakers\":[{\"start\":0,\"end\":5,\"who\":\"Someone (voice-1)\",\"me\":false,\"voice\":\"voice-1\",\"score\":-1,\"text\":\"Hello from a made-up call.\"}],\"voices_heard\":[\"voice-1\"],\"records\":[{\"kind\":\"listening-voices\",\"id\":\"listening-voices:standup\",\"listening\":\"standup\",\"unknown\":[{\"id\":\"voice-1\",\"mean\":[0.0648835381516442,0.07467360114067076,0.07119001509722611,0.0644501006216696,0.07542574470901567 ...",
   "lists": [],

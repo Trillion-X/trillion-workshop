@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:decide-a-video-at-ingest's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Decide whether an uploaded video is kept as it came, converted to the one playable format (MP4), or kept with the reason it could not be converted, and give the conversion's arguments\", with {\"name\":\"/clips/take 1.mov\",\"media_type\":\"video/quicktime\",\"byte_length\":1000000}. It runs tool:decide-a-video-at-ingest and answers {\"action\":\"convert\",\"said\":\"QuickTime MOV is not kept as it came: it is made MP4 so every screen can play it.\",\"plan\":{\"from\":\"video/quicktime\",\"to\":\"video/mp4\",\"output_name\":\"/clips/take 1.mp4\",\"args\":[\"-v\",\"error\",\"-nostdin\",\"-y\",\"-i\",\"{input}\",\"-c:v\",\"libx264\",\"-pix_fmt\",\"yuv420p\",\"-c:a\",\"aac\",\"-movflags\",\"+faststart\",\"{output}\"]},\"converts\":\"QuickTime MOV, WebM, AVI, Matroska MKV, animated ...",
   "lists": [],

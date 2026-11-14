@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:pair-an-unknown-sender's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Hold a message from a sender the person has not paired yet and give that sender a short code the person can approve\", with {\"source_id\":\"events:sample\",\"sender\":\"sender-one\"}. It runs tool:pair-an-unknown-sender and answers {\"code\":\"H2BMNFA2\",\"expires_at\":\"2026-11-14T01:50:34.724Z\",\"said\":\"sender-one is not paired yet. Their code is H2BMNFA2 until 2026-11-14T01:50:34.724Z; approve it to let their messages through.\"}",
   "lists": [],

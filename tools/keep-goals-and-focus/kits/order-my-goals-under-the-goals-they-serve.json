@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:order-my-goals-under-the-goals-they-serve's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep my goals in the order they are shown, each one under the goal it serves, so a goal with several parents is shown once and none is hidden by a missing parent or a loop\", with {\"goals\":[{\"id\":\"grow-food\",\"title\":\"Grow our own food\",\"parents\":[\"life\"]},{\"id\":\"life\",\"title\":\"A calm, healthy year\"},{\"id\":\"run\",\"title\":\"Run a 10k\",\"parents\":[\"life\",\"missing\"]}]}. It runs tool:order-my-goals-under-the-goals-they-serve and answers {\"rows\":[{\"id\":\"life\",\"title\":\"A calm, healthy year\",\"depth\":0,\"shown_under\":null,\"parents\":[]},{\"id\":\"grow-food\",\"title\":\"Grow our own food\",\"depth\":1,\"shown_under\":\"life\",\"parents\":[\"life\"]},{\"id\":\"run\",\"title\":\"Run a 10k\",\"depth\":1,\"shown_under\":\"life\",\"parents\":[\"life\"]}],\"count\":3}",
   "lists": [],

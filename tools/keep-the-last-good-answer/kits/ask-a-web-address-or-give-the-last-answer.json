@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:ask-a-web-address-or-give-the-last-answer's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Ask a web address for its answer and keep that answer; when the address cannot answer, give back the last answer it gave, so a feed or service that is down does not leave the person with nothing\", with {\"address\":\"https://feeds.example.test/daily-prices.json\",\"key\":\"daily-prices\"}. It runs tool:ask-a-web-address-or-give-the-last-answer and answers {\"origin\":\"from-the-source\",\"answer\":{\"items\":[{\"name\":\"Sample loaf\",\"price\":4.5}]},\"kept_at\":\"2026-11-14T00:50:26.693Z\",\"source_failure\":null,\"keep_failure\":null,\"kept_failure\":null,\"retry_after_seconds\":null,\"said\":\"The address answered and the answer is kept.\"}",
   "lists": [],

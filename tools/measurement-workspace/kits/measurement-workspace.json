@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:measurement-workspace's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Review provider and operation usage, forecasts, unknown coverage, and billed history in my account\", with {}. It runs tool:measurement-workspace and answers {\"screen\":\"Cost measurements\",\"opens\":\"/lists/cost-measurements\"}",
   "lists": [],

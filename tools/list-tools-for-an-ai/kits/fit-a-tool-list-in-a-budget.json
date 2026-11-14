@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:fit-a-tool-list-in-a-budget's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Shrink a list of tools for an AI so it fits in a number of characters, keeping as much detail as fits\", with {\"tools\":[{\"name\":\"sample_tool\",\"description\":\"Lists sample things. It takes nothing and changes nothing.\",\"inputSchema\":{\"type\":\"object\"}}],\"budget_chars\":60}. It runs tool:fit-a-tool-list-in-a-budget and answers {\"tools\":[{\"name\":\"sample_tool\",\"inputSchema\":{\"type\":\"object\"}}],\"listing\":{\"level\":\"schema-only\",\"chars\":56,\"budget_chars\":60,\"fits\":true,\"tools\":1,\"said\":\"This list was shortened to fit 60 characters (level schema-only). Ask again with a larger budget_chars, or none, for every tool in full.\"}}",
   "lists": [],

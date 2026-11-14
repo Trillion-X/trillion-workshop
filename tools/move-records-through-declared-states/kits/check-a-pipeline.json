@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:check-a-pipeline's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Check a sales pipeline or any set of stages for mistakes: stages nothing can reach, a way out of a finished stage, or a move to a stage that does not exist\", with {\"stages\":[{\"key\":\"lead\",\"label\":\"Lead\"},{\"key\":\"call-booked\",\"label\":\"Call booked\"},{\"key\":\"proposal\",\"label\":\"Proposal sent\"},{\"key\":\"won\",\"label\":\"Won\",\"terminal\":true},{\"key\":\"lost\",\"label\":\"Lost\",\"terminal\":true},{\"key\":\"archived\",\"label\":\"Archived\"}],\"transitions\":[{\"from\":\"lead\",\"to\":\"call-booked\"},{\"from\":\"lead\",\"to\":\"lost\"},{\"from\":\"call-booked\",\"to\":\"proposal\"},{\"from\":\"call-booked\" .... It runs tool:check-a-pipeline and answers {\"sound\":false,\"problems\":[\"no move from the start ever reaches \\\"archived\\\"\"],\"reachable\":[\"lead\",\"call-booked\",\"lost\",\"proposal\",\"won\"],\"unreachable\":[\"archived\"]}",
   "lists": [],

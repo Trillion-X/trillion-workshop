@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:name-a-voice's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Attach a person's name to one voice cluster after identifying that voice\", with {\"voice_id\":\"voice-1\",\"person_name\":\"Sam Example\",\"known_voices\":[{\"value\":{\"voice_id\":\"voice-1\"}}]}. It runs tool:name-a-voice and answers {\"binding\":{\"kind\":\"media-person-binding\",\"id\":\"voice-1\",\"voice_id\":\"voice-1\",\"person_name\":\"Sam Example\",\"named_at\":\"2026-11-14T00:50:30.608887+00:00\"},\"voice_id\":\"voice-1\",\"person_name\":\"Sam Example\"}",
   "lists": [],

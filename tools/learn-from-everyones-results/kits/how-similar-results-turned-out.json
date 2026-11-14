@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:how-similar-results-turned-out's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Say how often things worked for other people in situations like mine, without anyone's own result being readable\", with {\"embedding\":[1,0,0],\"rules\":{\"epsilon\":1,\"min_people\":1,\"shards\":2,\"query_epsilon\":1,\"people_bucket\":1,\"share_step\":0.1,\"min_similarity\":0.5}}. It runs tool:how-similar-results-turned-out and answers {\"enough\":true,\"people_at_least\":2,\"worked_share\":0}",
   "lists": [],

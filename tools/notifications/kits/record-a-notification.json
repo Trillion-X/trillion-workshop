@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:record-a-notification's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Record one notification event for the audience the caller names, so it is kept and can be read back; nothing is delivered\", with {\"notification_id\":\"sample-notice-1\",\"kind\":\"report\",\"audience_refs\":[\"person:sample\"],\"conversation_ref\":\"conversation:sample-1\",\"privacy_class\":\"private\",\"title\":\"Sample report\",\"body\":\"A made-up report is ready.\",\"occurred_at\":\"2026-11-03T12:00:00Z\",\"source_refs\":[\"source:sample-1\"],\"proof_refs\":[\"proof:sample-1\"]}. It runs tool:record-a-notification and answers {\"notification_id\":\"sample-notice-1\",\"recorded\":true,\"said\":\"sample-notice-1 is recorded for 1 audience; nothing was delivered.\"}",
   "lists": [],
