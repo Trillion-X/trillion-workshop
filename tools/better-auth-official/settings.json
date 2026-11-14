@@ -8,8 +8,7 @@
   "session_cookie_name": "__Host-trillion_session",
   "passkey": {
     "rp_id": "localhost",
-    "rp_name": "Trillion",
-    "origin": "http://localhost:8792"
+    "rp_name": "Trillion"
   },
   "trusted_origins": [
     "http://localhost:8792"
@@ -29,5 +28,10 @@
   },
   "device": {
     "verification_uri": "/device"
+  },
+  "attached_origins": {
+    "ask_url": null,
+    "cache_ms": 60000,
+    "related_url": null
   }
 }

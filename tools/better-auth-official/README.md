@@ -18,14 +18,25 @@ session token works as `Authorization: Bearer`). The session cookie is `__Host-t
 
 ## settings.json
 
-`port`, `base_url`, `base_path`, `issuer`, `audience`, `database_path`, `session_cookie_name`, `passkey` (`rp_id`, `rp_name`,
-`origin`), `trusted_origins`, `two_factor_issuer`, `mcp` (`login_page`, `consent_page`, `resource`), `disabled_paths`, `device` (`verification_uri`) and
+`port`, `base_url`, `base_path`, `issuer`, `audience`, `database_path`, `session_cookie_name`, `passkey` (`rp_id`, `rp_name`),
+`trusted_origins`, `attached_origins` (`ask_url`, `cache_ms`, `related_url`), `two_factor_issuer`, `mcp` (`login_page`, `consent_page`, `resource`), `disabled_paths`, `device` (`verification_uri`) and
 `email` (`command`, an argv that gets each message as JSON on stdin, or `outbox`, a file each message is appended to).
 
 `disabled_paths` is `["/token"]`: the JWT docs' OAuth Provider Mode says to turn off the session JWT route when MCP is on,
 because session JWTs share the access tokens' signing key. OAuth and MCP clients get tokens from `/api/auth/oauth2/token`.
 Empty `disabled_paths` and `GET /api/auth/token` hands back a session JWT (EdDSA; `kid` names the JWKS key; claims `sub`,
 `iss`, `aud`, `exp`, `iat`, `email`, `name`).
+
+## Attached names
+
+Every name a live account attached signs in with no settings change. `trustedOrigins` is a function
+(attached-origins.mjs): the home `trusted_origins`, and a request's own `Origin` when it is https with no port and
+`attached_origins.ask_url?domain=<host>` (the front door's certificate ask) answers 200; each answer is kept `cache_ms`.
+Passkeys keep one `rp_id` (the plugin has one) and use WebAuthn Related Origin Requests: `GET /.well-known/webauthn`
+answers `{origins}`, the home origins plus `related_url`'s list, and the plugin takes a reported origin that
+`trustedOrigins` names because `passkey` sets no `origin`. Browsers without related origins (Firefox), and names past the fifth distinct
+registrable domain in that list (the clients' limit), make passkeys only on the home name. Start-a-computer's `every_name_routes: ["better-auth"]`
+sends each attached name's `/api/auth/*` here.
 
 ## Sign-in pages
 

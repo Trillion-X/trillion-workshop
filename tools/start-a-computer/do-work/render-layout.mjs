@@ -43,8 +43,9 @@ export const renderCaddy = (siteBlock, caddy) => {
 };
 
 /** A computer whose caddy row names `site_file` gets that whole file (read-data/caddy-sites/<site_file>.caddy): each
- * {{field}} in it is the row's own value (a list is joined with spaces), and {{routes}} is the row's routes (caddy.routes),
- * each filled as in a site block. Caddy's own {placeholders} are left as they are. */
+ * {{field}} in it is the row's own value (a list is joined with spaces), and a {{routes}} or {{<name>_routes}} slot is that
+ * list of route names in the row (caddy.routes, caddy.every_name_routes), each filled as in a site block. A line that is
+ * only a routes slot the row leaves empty is no line at all. Caddy's own {placeholders} are left as they are. */
 const SITE_FILE = name => {
   const file = new URL(`../read-data/caddy-sites/${name}.caddy`, import.meta.url);
   if (!/^[a-z0-9-]+$/.test(name) || !existsSync(file)) throw new Error(`caddy.site_file names an unknown site file ${name}`);
@@ -52,9 +53,10 @@ const SITE_FILE = name => {
 };
 const renderSiteFile = caddy => {
   const where = `caddy site file ${caddy.site_file}`;
-  const routes = (caddy.routes ?? []).map(name => fill(ROUTE(name), caddy, `caddy route ${name}`)).join('\n');
-  return SITE_FILE(caddy.site_file).replace(/\{\{([a-z_]+)\}\}/g, (_, key) => {
-    if (key === 'routes') return routes;
+  const routes = key => (caddy[key] ?? []).map(name => fill(ROUTE(name), caddy, `caddy route ${name}`)).join('\n');
+  const isRoutes = key => key === 'routes' || key.endsWith('_routes');
+  return SITE_FILE(caddy.site_file).replace(/^\{\{([a-z_]+)\}\}\n/gm, (line, key) => isRoutes(key) && !routes(key) ? '' : line).replace(/\{\{([a-z_]+)\}\}/g, (_, key) => {
+    if (isRoutes(key)) return routes(key);
     if (caddy[key] === undefined) throw new Error(`${where} needs ${key}`);
     return Array.isArray(caddy[key]) ? caddy[key].join(' ') : String(caddy[key]);
   });

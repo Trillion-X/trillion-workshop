@@ -30,7 +30,23 @@ test('a caddy row that names a site file renders that whole file from the row, w
   assert.doesNotMatch(file.text, /oauth-authorization-server\* \{/, 'discovery stays with the engine unless the row names better-auth-discovery');
   for (const own of ['{args[0]}', '{client_ip}', '{host}', '{uri}', '{$CADDY_STORAGE_PASSWORD}']) assert.ok(file.text.includes(own), `Caddy's ${own} is left as it is`);
   const lines = file.text.split('\n').length, templateLines = TEMPLATE.split('\n').length;
-  assert.equal(lines, templateLines + 2, 'the routes slot is the one line that grows (the route block is three lines)');
+  assert.equal(lines, templateLines + 1, 'the routes slot grows by two (the route block is three lines) and the empty every-name slot line goes');
+});
+
+test('every other name\'s routes (every_name_routes) go first in the on-demand block, so an attached name reaches the sign-in tool', () => {
+  const [file] = renderLayout({ caddy: { ...caddy, every_name_routes: ['better-auth'] }, units: [] }, SITE_BLOCK);
+  const onDemand = file.text.slice(file.text.indexOf('\nhttps:// {') + 1);
+  assert.match(onDemand, /^https:\/\/ \{\n\ttls \{\n\t\ton_demand\n\t\}\n\thandle \/api\/auth\/\* \{\n\t\treverse_proxy 127\.0\.0\.1:8792\n\t\}\n/);
+  const [home] = renderLayout({ caddy: { ...caddy, routes: ['better-auth', 'better-auth-webauthn'] }, units: [] }, SITE_BLOCK);
+  assert.match(home.text, /^door\.example\.test \{[\s\S]*\thandle \/\.well-known\/webauthn \{\n\t\treverse_proxy 127\.0\.0\.1:8792\n\t\}[\s\S]*\nhttps:\/\/ \{/m);
+});
+
+test('a routes slot the row leaves empty is no line at all, so a row without every_name_routes renders the file as before', () => {
+  const [without] = renderLayout({ caddy, units: [] }, SITE_BLOCK);
+  const [empty] = renderLayout({ caddy: { ...caddy, every_name_routes: [] }, units: [] }, SITE_BLOCK);
+  assert.equal(empty.text, without.text);
+  assert.doesNotMatch(without.text, /^https:\/\/ \{\n\ttls \{\n\t\ton_demand\n\t\}\n\n/m);
+  assert.throws(() => renderLayout({ caddy: { ...caddy, every_name_routes: ['nope'] }, units: [] }, SITE_BLOCK), /caddy\.routes names an unknown route nope/);
 });
 
 test('a site file field the row does not give, or an unknown site file, is refused', () => {

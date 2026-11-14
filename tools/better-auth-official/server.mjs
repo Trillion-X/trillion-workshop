@@ -6,12 +6,16 @@ import { createServer } from 'node:http';
 import { toNodeHandler } from 'better-auth/node';
 import { auth, settings } from './auth.mjs';
 import { pageAnswer } from './pages.mjs';
+import { relatedOrigins } from './attached-origins.mjs';
 
 const handler = toNodeHandler(auth);
 const ours = url => url.startsWith(`${settings.base_path}/`) || url.startsWith('/.well-known/');
 
 createServer((request, response) => {
   const url = request.url ?? '';
+  if (url === '/.well-known/webauthn' && request.method === 'GET') {
+    return relatedOrigins(settings).then(body => response.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'max-age=300' }).end(JSON.stringify(body)));
+  }
   if (ours(url)) return handler(request, response);
   const answer = request.method === 'GET' || request.method === 'HEAD' ? pageAnswer(url) : null;
   if (answer) return response.writeHead(answer.status, answer.headers).end(request.method === 'HEAD' ? undefined : answer.body);

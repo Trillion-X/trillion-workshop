@@ -17,6 +17,7 @@ import { cimd } from '@better-auth/cimd';
 import { fetchClientMetadataResource } from '@better-auth/cimd/node';
 import { emailHook } from './send-email.mjs';
 import { cookieOptions } from './cookie-options.mjs';
+import { trustedOriginsFor } from './attached-origins.mjs';
 
 const settingsPath = resolve(process.env.BETTER_AUTH_SETTINGS ?? new URL('./settings.json', import.meta.url).pathname);
 export const settings = JSON.parse(readFileSync(settingsPath, 'utf8'));
@@ -29,7 +30,8 @@ export const auth = betterAuth({
   baseURL: settings.base_url,
   basePath: settings.base_path,
   database: new DatabaseSync(databasePath),
-  trustedOrigins: settings.trusted_origins,
+  // The home origins, and every verified attached origin at request time (attached-origins.mjs).
+  trustedOrigins: trustedOriginsFor(settings),
   disabledPaths: settings.disabled_paths,
   advanced: cookieOptions(settings),
   emailAndPassword: {
@@ -39,7 +41,9 @@ export const auth = betterAuth({
     },
   },
   plugins: [
-    passkey({ rpID: settings.passkey.rp_id, rpName: settings.passkey.rp_name, origin: settings.passkey.origin }),
+    // No fixed `origin`: the passkey plugin then expects the base URL's origin, and an attached origin when trustedOrigins
+    // names it (its related origins, /.well-known/webauthn), as its docs say.
+    passkey({ rpID: settings.passkey.rp_id, rpName: settings.passkey.rp_name }),
     twoFactor({ issuer: settings.two_factor_issuer }),
     emailOTP({
       async sendVerificationOTP({ email, otp, type }) {
