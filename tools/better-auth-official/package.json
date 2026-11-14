@@ -1,0 +1,16 @@
+{
+  "name": "trillion-better-auth-official",
+  "private": true,
+  "type": "module",
+  "description": "Official Better Auth (TypeScript), set up as its docs show; its own dependencies stay here.",
+  "dependencies": {
+    "@better-auth/api-key": "1.7.23",
+    "@better-auth/cimd": "1.7.23",
+    "@better-auth/mcp": "1.7.23",
+    "@better-auth/passkey": "1.7.23",
+    "better-auth": "1.7.23"
+  },
+  "devDependencies": {
+    "auth": "1.7.23"
+  }
+}

@@ -1447,6 +1447,13 @@
       "source_still_in": {"repo_kind": "upstream open-source repository", "paths": ["better-auth-rs/better-auth-rs"]}
     },
     {
+      "capability": "sign people in with official Better Auth (passwords, passkeys, two factor, codes, magic links, API keys) and be the OAuth server MCP clients connect through",
+      "owner": ["tools/better-auth-official/"],
+      "entry": "tools/better-auth-official/tool-rows.json",
+      "evidence": "better-auth 1.7.23 docs: Node integration, node:sqlite, email-password, passkey, two-factor, email-otp, magic-link, multi-session, api-key, jwt, mcp, cimd, device-authorization and bearer plugins",
+      "source_still_in": {"repo_kind": "upstream open-source repository", "paths": ["better-auth/better-auth"]}
+    },
+    {
       "capability": "render film frames as square-grid pointillist pictures",
       "owner": ["tools/pointillist-film/"],
       "entry": "tools/pointillist-film/tool-rows.json",

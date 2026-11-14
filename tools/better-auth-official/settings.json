@@ -1,0 +1,33 @@
+{
+  "port": 8792,
+  "base_url": "http://localhost:8792",
+  "base_path": "/api/auth",
+  "issuer": "http://localhost:8792",
+  "audience": "http://localhost:8792",
+  "database_path": "data/better-auth.db",
+  "session_cookie_name": "__Host-trillion_session",
+  "passkey": {
+    "rp_id": "localhost",
+    "rp_name": "Trillion",
+    "origin": "http://localhost:8792"
+  },
+  "trusted_origins": [
+    "http://localhost:8792"
+  ],
+  "two_factor_issuer": "Trillion",
+  "mcp": {
+    "login_page": "/sign-in",
+    "consent_page": "/consent",
+    "resource": "https://app.gettrillion.ai/mcp"
+  },
+  "disabled_paths": [
+    "/token"
+  ],
+  "email": {
+    "outbox": "data/outbox.jsonl",
+    "command": null
+  },
+  "device": {
+    "verification_uri": "/device"
+  }
+}
