@@ -6,11 +6,11 @@
 # names, the node release it names for this machine kind in each unit's node_bin folder that has no node yet (checked against
 # its sha256 before anything is unpacked), the account and the folders each unit names (its state folder, from its config
 # when it has one, its releases folder when it has one), a key a unit's layout names when the key is not there yet, and a
-# firewall that admits SSH, HTTP and HTTPS only. The files a layout renders (the
+# firewall that admits only the set-up data's firewall_allow ports (none is set up when it is null). The files a layout renders (the
 # Caddy site file, each unit and its drop-ins) are written by apply-layout in start-a-computer.mjs, so this script names no
 # path a layout does not give.
 #
-# LAYOUT is the computer's layout row as JSON (request.host_layout, read at run time); SET_UP is settings.json `machine`.
+# LAYOUT is the computer's layout row as JSON (request.host_layout, read at run time); SET_UP is settings.json `machine` with the layout row's own `machine` fields over it.
 # FRONT_DOOR_CADDY, given when the layout's caddy row has `front_door`, is "PATH URL SHA256" of this machine's architecture
 # (settings.json caddy_front_door): that Caddy is fetched and installed at PATH only when its SHA-256 is SHA256.
 set -eu
@@ -45,6 +45,10 @@ printf '%s' "$LAYOUT" | jq -r '.units[] | [.user, (.state // ((.config // "") | 
     head -c 32 /dev/urandom | base64 -w0 | install -o "$user" -g "$user" -m 0400 /dev/stdin "$key"
   fi
 done
+# The folders a unit names (`folders`) that its program needs and does not make itself, such as an engine's accounts folder.
+printf '%s' "$LAYOUT" | jq -r '.units[] | .user as $user | (.folders // [])[] | [$user, .] | @tsv' | while IFS="$(printf '\t')" read -r user folder; do
+  install -d -o "$user" -g "$user" -m 0700 "$folder"
+done
 if [ -n "$FRONT_DOOR_CADDY" ]; then
   set -- $FRONT_DOOR_CADDY
   if ! printf '%s  %s\n' "$3" "$1" | sha256sum -c --status 2>/dev/null; then
@@ -54,8 +58,8 @@ if [ -n "$FRONT_DOOR_CADDY" ]; then
     chmod 0755 "$1.new" && mv "$1.new" "$1"
   fi
 fi
-ufw allow 22/tcp >/dev/null
-ufw allow 80/tcp >/dev/null
-ufw allow 443/tcp >/dev/null
-ufw --force enable >/dev/null
+if printf '%s' "$SET_UP" | jq -e '.firewall_allow | type == "array"' >/dev/null; then
+  printf '%s' "$SET_UP" | jq -r '.firewall_allow[]' | while read -r port; do ufw allow "$port" >/dev/null; done
+  ufw --force enable >/dev/null
+fi
 echo "set-up $(uname -m)"

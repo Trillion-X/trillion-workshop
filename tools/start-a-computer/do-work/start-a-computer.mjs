@@ -109,7 +109,14 @@ export async function hostLayoutState(machine, layout, run = onMachine, product,
     if (head !== wanted) moves.push({ unit, from: head, to: wanted });
   }
   found.push(...moves.map(({ unit, from, to }) => ({ path: unit.workshop, reason: `runs Workshop ${from}; its row follows ${to}` })));
-  return { rendered, live, found, present, moves };
+  // A unit whose config follows a signed release feed and has no `current` release yet gets its first one at the apply.
+  const firsts = [];
+  for (const unit of units.filter(row => row.settings?.release_feed)) {
+    const current = `${unit.settings.release_feed.releases}/current`;
+    if (!await run(machine, `test -e ${q(current)} || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })) firsts.push(unit);
+  }
+  found.push(...firsts.map(unit => ({ path: `${unit.settings.release_feed.releases}/current`, reason: 'no release yet; its signed feed gives the first' })));
+  return { rendered, live, found, present, moves, firsts };
 }
 
 const asUser = unit => `runuser -u ${q(unit.user)} --`;
@@ -122,15 +129,48 @@ export async function workshopCommitOf(unit, fetchImpl = fetch) {
     return unit.workshop_commit;
   }
   const { urls, public_keys: keys, target } = unit.workshop_feed;
+  const entry = await newestSigned(urls, keys, target, fetchImpl);
+  if (!entry) throw new Error(`${unit.unit}: no feed in workshop_feed answered a ${target} entry one of its keys signed.`);
+  return entry.commit;
+}
+
+/** The newest entry for `target` that one of `keys` signed, from the first of `urls` that answers one; null when none does. */
+export async function newestSigned(urls, keys, target, fetchImpl = fetch) {
   for (const url of urls) {
     const answer = await fetchImpl(url).catch(() => null);
     if (!answer?.ok) continue;
     const { releases = [] } = await answer.json();
     const signed = releases.filter(entry => entry.target === target && /^[0-9a-f]{40}$/.test(entry.commit ?? '')
       && keys.some(key => { try { return verifyEntry(entry, key); } catch { return false; } }));
-    if (signed.length) return signed.reduce((newest, entry) => (entry.sequence > newest.sequence ? entry : newest)).commit;
+    if (signed.length) return signed.reduce((newest, entry) => (entry.sequence > newest.sequence ? entry : newest));
   }
-  throw new Error(`${unit.unit}: no feed in workshop_feed answered a ${target} entry one of its keys signed.`);
+  return null;
+}
+
+/** A unit's first engine release, from the signed feed its config follows (`settings.release_feed`): the newest entry for the
+ * target the machine reports that one of the feed's keys signed, downloaded on the machine as the unit's user into the
+ * feed's releases folder, refused unless its byte count and BLAKE3 content identity are the entry's, unpacked beside the
+ * others with the entry as its release.json, and made `current` by the release's own `release switch`, the follower's own
+ * pointer. From then on the engine follows the feed itself (trillion-rust src/native_entry/computer/releases.rs). */
+export async function firstRelease(machine, unit, run = onMachine, fetchImpl = fetch) {
+  const feed = unit.settings.release_feed, target = await measuredTarget(machine, run);
+  const entry = await newestSigned(feed.urls, feed.public_keys, target, fetchImpl);
+  if (!entry) throw new Error(`${unit.unit}: no feed in its release_feed answered a ${target} entry one of its keys signed.`);
+  if (!/^1f:[0-9a-f]{64}$/.test(entry.content ?? '') || !Number.isSafeInteger(entry.bytes) || !/^https:\/\/\S+$/.test(entry.url ?? '')) {
+    throw new Error(`${unit.unit}: the signed entry for ${entry.commit} has no https url, content identity or byte count.`);
+  }
+  const at = `${feed.releases}/${entry.commit}`, part = q(`${at}.tar.gz.part`);
+  const script = [
+    'set -eu',
+    'command -v b3sum >/dev/null || { echo "b3sum is not installed (settings.json machine.packages)." >&2; exit 4; }',
+    `curl -fsSL --max-time 900 -o ${part} ${q(entry.url)}`,
+    `if [ "$(stat -c %s ${part})" != ${q(entry.bytes)} ] || [ "1f:$(b3sum --no-names ${part})" != ${q(entry.content)} ]; then rm -f ${part}; echo "The release at ${entry.url} is not the one its signed entry names." >&2; exit 5; fi`,
+    `mv ${part} ${q(`${at}.tar.gz`)}`,
+    `install -d -m 0700 ${q(at)} && tar -xzf ${q(`${at}.tar.gz`)} -C ${q(at)} && cat > ${q(`${at}/release.json`)}`,
+    `${q(`${at}/${unit.engine_file}`)} release switch ${q(feed.releases)} ${q(entry.commit)} >/dev/null`,
+  ].join('\n');
+  await run(machine, `${asUser(unit)} sh -c ${q(script)}`, JSON.stringify(entry));
+  return entry.commit;
 }
 
 /** One file's text on the computer, or undefined when it is absent. */
@@ -144,11 +184,12 @@ async function readIfPresent(machine, run, path) {
  * `NAME.bak-STAMP`. `held` maps a unit's `secret_vault_key` to the value the person's vault holds under that name; the value
  * reaches the computer only on the SSH channel's standard input, sealed there by systemd-creds at the unit's `secret_file`. */
 export async function applyHostLayout(machine, layout, run = onMachine, product, held = {}, deps = {}) {
-  const { rendered, live, present, moves } = await hostLayoutState(machine, layout, run, product, deps);
+  const { rendered, live, present, moves, firsts } = await hostLayoutState(machine, layout, run, product, deps);
   const writes = rendered.filter(({ path, text }) => live[path] !== text);
   const absent = path => run(machine, `${path} || exit 3`).then(() => false, error => { if (error.code === 3) return true; throw error; });
   const nodes = [...new Set(layout.units.map(unit => unit.node_bin).filter(Boolean))];
   const nodeMissing = (await Promise.all(nodes.map(bin => absent(`test -x ${q(`${bin}/node`)}`)))).includes(true);
+  const foldersMissing = (await Promise.all(layout.units.flatMap(unit => (unit.folders ?? []).map(folder => absent(`test -d ${q(folder)}`))))).includes(true);
   const secretUnits = layout.units.filter(unit => unit.secret_file);
   const missing = [];
   for (const unit of secretUnits) if (await absent(`test -s ${q(unit.secret_file)}`)) missing.push(unit);
@@ -168,7 +209,7 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
     if (!unit.tool_folder || await tree(from).catch(() => null) !== await tree(to)) toolChanged.push(unit.unit);
   }
   const moved = moves.length ? { moved: moves.map(({ unit, from, to }) => ({ path: unit.workshop, from, to })) } : {};
-  if (!writes.length && !missing.length && !nodeMissing && !toolChanged.length) return { written: [], restarted: [], ...removed, ...moved };
+  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !toolChanged.length && !firsts.length) return { written: [], restarted: [], ...removed, ...moved };
   // Set-up makes what is missing (packages, node, accounts, folders); a computer whose accounts and node all exist needs
   // none, and running it would refresh the package lists on every apply.
   const accounts = await Promise.all(layout.units.map(unit => run(machine, `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
@@ -177,12 +218,17 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
   const door = layout.caddy?.front_door;
   const doorCaddy = door ? await frontDoorCaddy(machine, run) : null;
   const caddyMissing = door ? await run(machine, `printf '%s  %s\\n' ${q(doorCaddy.sha256)} ${q(doorCaddy.binary)} | sha256sum -c --status || exit 3`).then(() => false, error => { if (error.code === 3) return true; throw error; }) : false;
-  if (accounts.includes(false) || caddyMissing || nodeMissing) await run(machine, `sh -s -- ${q(JSON.stringify(layout))} ${q(JSON.stringify(SETTINGS.machine))}${door ? ` ${q(`${doorCaddy.binary} ${doorCaddy.url} ${doorCaddy.sha256}`)}` : ''}`, readFileSync(SETUP));
+  // The set-up data is settings.json `machine` with the row's own `machine` fields over it (its packages, its firewall).
+  if (accounts.includes(false) || caddyMissing || nodeMissing || foldersMissing) await run(machine, `sh -s -- ${q(JSON.stringify(layout))} ${q(JSON.stringify({ ...SETTINGS.machine, ...layout.machine }))}${door ? ` ${q(`${doorCaddy.binary} ${doorCaddy.url} ${doorCaddy.sha256}`)}` : ''}`, readFileSync(SETUP));
   for (const unit of missing) {
     await run(machine, `install -d -m 0700 ${q(dirname(unit.secret_file))} && umask 077 && systemd-creds encrypt --name=${q(unit.secret_name)} - ${q(unit.secret_file)}`, held[unit.secret_vault_key]);
   }
-  // A product settings file is the unit's own: its user owns it and it is private (0600), as serve writes it.
-  const owner = path => layout.units.find(unit => unit.product_settings === path)?.user;
+  // A unit's first engine release comes from its signed feed once set-up has made its user, folders and packages.
+  const released = [];
+  for (const unit of firsts) released.push({ unit: unit.unit, commit: await firstRelease(machine, unit, run, deps.fetchImpl ?? fetch) });
+  // A product settings file and an engine config are the unit's own: its user owns them and they are private (0600), as serve
+  // writes them.
+  const owner = path => layout.units.find(unit => unit.product_settings === path || unit.config === path)?.user;
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   for (const { path, text } of writes) {
     if (live[path] !== undefined) await run(machine, `cp -p ${q(path)} ${q(`${path}.bak-${stamp}`)}`);
@@ -201,27 +247,28 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
       await run(machine, `install -d -m 0755 ${q(dirname(path))} && install -m 0644 -o root -g root /dev/stdin ${q(path)}`, text);
     }
   }
-  const unitOf = path => layout.units.find(unit => unit.product_settings === path)?.unit ?? path.match(/\/([^/]+\.service)(?:\.d\/[^/]+)?$/)?.[1];
-  const units = [...new Set([...writes.map(({ path }) => unitOf(path)), ...missing.map(unit => unit.unit), ...toolChanged].filter(Boolean))];
+  const unitOf = path => layout.units.find(unit => [unit.product_settings, unit.config, unit.settings_file].includes(path))?.unit ?? path.match(/\/([^/]+\.service)(?:\.d\/[^/]+)?$/)?.[1];
+  const units = [...new Set([...writes.map(({ path }) => unitOf(path)), ...missing.map(unit => unit.unit), ...toolChanged, ...firsts.map(unit => unit.unit)].filter(Boolean))];
   const running = new Set([...writes.filter(({ path }) => live[path] !== undefined).map(({ path }) => unitOf(path)),
-    ...[...missing.map(unit => unit.unit), ...toolChanged].filter(name => live[`/etc/systemd/system/${name}`] !== undefined)]);
+    ...[...missing.map(unit => unit.unit), ...toolChanged, ...firsts.map(unit => unit.unit)].filter(name => live[`/etc/systemd/system/${name}`] !== undefined)]);
   if (units.length) await run(machine, 'systemctl daemon-reload');
   // Caddy is restarted, never only enabled, when its front-door drop-in changes: the drop-in swaps the program itself.
   for (const unit of units) {
-    await run(machine, running.has(unit) || unit === 'caddy.service' ? `systemctl restart ${q(unit)}` : `systemctl enable ${q(unit)} >/dev/null 2>&1`);
+    await run(machine, running.has(unit) || unit === 'caddy.service' ? `systemctl restart ${q(unit)}` : `systemctl enable --now ${q(unit)} >/dev/null 2>&1`);
   }
   if (writes.some(({ path }) => path === CADDYFILE) && !units.includes('caddy.service')) await run(machine, 'systemctl reload caddy');
-  // The boot check: each restarted unit must answer the health row its layout names (else the tool default), on the machine
-  // itself, so a unit that starts and crashes, or a route that is not served, fails the apply instead of passing it.
+  // The boot check: each restarted unit must answer its own health row (`health`, `health_listen`), else the one its layout
+  // names, else the tool default, on the machine itself, so a unit that starts and crashes, or a route that is not served, fails the apply instead of passing it.
   const booted = [];
   for (const unit of units) {
-    const health = healthOf({ health: layout.health }, {});
-    const listen = layout.health_listen ?? layout.caddy?.listen ?? `127.0.0.1:${layout.caddy?.port}`;
+    const row = layout.units.find(given => given.unit === unit) ?? {};
+    const health = healthOf({ health: row.health ?? layout.health }, {});
+    const listen = row.health_listen ?? layout.health_listen ?? layout.caddy?.listen ?? `127.0.0.1:${layout.caddy?.port}`;
     const status = await healthStatus(machine, { listen }, layout.caddy?.site_hosts?.[0] ?? '', { ...health, where: 'machine' }, { fetchImpl: undefined, wait: pause, tries: 12, run });
     if (status !== health.status) throw Object.assign(new Error(`${unit} answered ${status ?? 'nothing'} on ${health.path}, not ${health.status}, after its restart.`), { unit, status });
     booted.push(unit);
   }
-  return { written: writes.map(({ path }) => path), restarted: units, booted, ...(missing.length ? { sealed: missing.map(unit => unit.secret_name) } : {}), ...removed, ...moved };
+  return { written: writes.map(({ path }) => path), restarted: units, booted, ...(missing.length ? { sealed: missing.map(unit => unit.secret_name) } : {}), ...(released.length ? { released } : {}), ...removed, ...moved };
 }
 
 const CADDYFILE = '/etc/caddy/Caddyfile';
@@ -673,17 +720,27 @@ async function readOwnRecord(id) {
   return answer?.value;
 }
 
+/** The product settings text a layout's units read, from the request's product data (`product_data`, checked by content
+ * identity), its page look's static folder beside the file the unit that names `product_settings` reads; undefined when the
+ * request names no product data. */
+export function layoutProduct(request, layout) {
+  if (request.product_data === undefined) return undefined;
+  const unit = layout.units.find(row => row.product_settings);
+  if (!unit) throw refused('product_data is given but no unit of the layout names a product_settings file.');
+  return productSettingsOf(readProductData(request), unit.product_settings).bytes.toString('utf8');
+}
+
 /** Apply a computer's layout row to the computer the request names (`machine.address`, `ssh`), already running: the same
- * apply a start does, with the values its units name by vault name (`held`). */
-export async function applyALayout(request, { held = {}, run = onMachine, readRow } = {}) {
+ * apply a start does, with the values its units name by vault name (`held`) and the request's product data. */
+export async function applyALayout(request, { held = {}, run = onMachine, readRow, fetchImpl = fetch } = {}) {
   const layout = await hostLayoutOf(request, readRow);
-  return applyHostLayout({ ssh: request.ssh, address: request.machine.address }, layout, run, undefined, held);
+  return applyHostLayout({ ssh: request.ssh, address: request.machine.address }, layout, run, layoutProduct(request, layout), held, { fetchImpl });
 }
 
 /** What the computer the request names runs that its layout row does not render: [] when it matches. */
-export async function layoutDifferences(request, { run = onMachine, readRow } = {}) {
+export async function layoutDifferences(request, { run = onMachine, readRow, fetchImpl = fetch } = {}) {
   const layout = await hostLayoutOf(request, readRow);
-  return { differences: await hostLayoutDifferences({ ssh: request.ssh, address: request.machine.address }, layout, run) };
+  return { differences: await hostLayoutDifferences({ ssh: request.ssh, address: request.machine.address }, layout, run, layoutProduct(request, layout), { fetchImpl }) };
 }
 
 export function readRequest(file) {

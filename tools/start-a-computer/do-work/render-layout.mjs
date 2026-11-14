@@ -74,6 +74,20 @@ const renderFrontDoor = (door, sites) => {
   ].join('\n\n') + '\n';
 };
 
+/** A unit's settings object as the file it reads: its `settings_file`, or, for an engine unit (one that names the `config` its
+ * `serve` reads), that config. An engine config's `new_accounts` are the product settings' starting account rows with the
+ * row's own `new_accounts` over them, so the row names only what is this computer's; its `release_feed.releases` must be
+ * the unit's `releases`, the folder whose `current` the unit starts. */
+const unitSettings = (unit, productSettings, where) => {
+  if (unit.settings_file) return { path: unit.settings_file, text: `${JSON.stringify(unit.settings, null, 2)}\n` };
+  if (!unit.config) throw new Error(`${where} gives settings and needs settings_file or config`);
+  if (productSettings === undefined) throw new Error(`${where} gives its engine config and needs the product data for its new_accounts`);
+  const feed = unit.settings.release_feed;
+  if (feed && feed.releases !== unit.releases) throw new Error(`${where} release_feed.releases must be the unit's releases ${unit.releases}`);
+  const config = { ...unit.settings, new_accounts: { ...JSON.parse(productSettings).new_accounts, ...unit.settings.new_accounts } };
+  return { path: unit.config, text: `${JSON.stringify(config, null, 2)}\n` };
+};
+
 /** Every file a layout declares: { path, text }. A unit's drop-ins are the names it lists in `drop_ins`. With the product
  * settings' text (the verified product data), each unit that names a `product_settings` file declares that file too. */
 export function renderLayout(layout, siteBlock, productSettings) {
@@ -86,10 +100,7 @@ export function renderLayout(layout, siteBlock, productSettings) {
     if (!template) throw new Error(`${where} names an unknown template ${unit.template}`);
     files.push({ path: `${SYSTEMD}/${unit.unit}`, text: fill(template, unit, where) });
     if (productSettings !== undefined && unit.product_settings) files.push({ path: unit.product_settings, text: productSettings });
-    if (unit.settings !== undefined) {
-      if (!unit.settings_file) throw new Error(`${where} gives settings and needs settings_file`);
-      files.push({ path: unit.settings_file, text: `${JSON.stringify(unit.settings, null, 2)}\n` });
-    }
+    if (unit.settings !== undefined) files.push(unitSettings(unit, productSettings, where));
     for (const name of unit.drop_ins ?? []) {
       const dropIn = DROP_INS[name];
       if (!dropIn) throw new Error(`${where} names an unknown drop-in ${name}`);

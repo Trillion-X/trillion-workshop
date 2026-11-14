@@ -16,8 +16,9 @@
     }
   },
   "machine": {
-    "_what": "What set-up-the-machine.sh installs: the apt packages, and the node release each unit node_bin folder gets when it has none (from nodejs.org's SHASUMS256.txt for that release, read 2026-11-13).",
-    "packages": ["caddy", "jq", "ufw", "git", "curl"],
+    "_what": "What set-up-the-machine.sh installs: the apt packages (b3sum checks a first engine release against its signed BLAKE3 content identity), the node release each unit node_bin folder gets when it has none (from nodejs.org's SHASUMS256.txt for that release, read 2026-11-13), and the ports the firewall admits (firewall_allow). A layout row's own `machine` object replaces any of these fields for that computer: a computer whose firewall another program keeps names firewall_allow null.",
+    "firewall_allow": ["22/tcp", "80/tcp", "443/tcp"],
+    "packages": ["caddy", "jq", "ufw", "git", "curl", "b3sum"],
     "node": {
       "version": "v24.22.3",
       "files": {
