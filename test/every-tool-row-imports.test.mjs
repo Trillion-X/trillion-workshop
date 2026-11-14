@@ -43,7 +43,10 @@ test('a folder that is not the top of a git repository is refused, not judged by
 test('reading the imports of a long file takes time in proportion to its size', async () => {
   const { specsOf } = await import('../test-helpers/tool-row-imports.mjs');
   const word = 'export a b c d e f g h i j ';
-  const clock = reps => { const start = process.hrtime.bigint(); specsOf(word.repeat(reps) + "import x from './x.mjs';"); return Number(process.hrtime.bigint() - start) / 1e6; };
+  // The fastest of five reads: on a loaded computer one read can be paused by other work, which says nothing about the scan,
+  // and the fastest is the time the scan itself takes.
+  const once = text => { const start = process.hrtime.bigint(); specsOf(text); return Number(process.hrtime.bigint() - start) / 1e6; };
+  const clock = reps => { const text = word.repeat(reps) + "import x from './x.mjs';"; return Math.min(...Array.from({ length: 5 }, () => once(text))); };
   clock(200);
   const small = Math.max(clock(2000), 1);
   const large = clock(8000);

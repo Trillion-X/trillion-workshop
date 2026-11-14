@@ -1574,8 +1574,17 @@
               {
                 "package": "workflows",
                 "paths": [
-                  "do-work",
-                  "read-data"
+                  "do-work/native_checklist_gate.py",
+                  "do-work/checklist_gate.py",
+                  "read-data/checklist_rows.py",
+                  "read-data/gate_answers.py",
+                  "read-data/gate_audit.py",
+                  "read-data/gate_library.py",
+                  "read-data/gate_pieces.py",
+                  "read-data/gate_reports.py",
+                  "read-data/gate_runs.py",
+                  "read-data/library_applications.py",
+                  "read-data/library_checks.py"
                 ],
                 "at": "/opt/workflows"
               },
@@ -1732,8 +1741,17 @@
               {
                 "package": "workflows",
                 "paths": [
-                  "do-work",
-                  "read-data"
+                  "do-work/native_checklist_gate.py",
+                  "do-work/checklist_gate.py",
+                  "read-data/checklist_rows.py",
+                  "read-data/gate_answers.py",
+                  "read-data/gate_audit.py",
+                  "read-data/gate_library.py",
+                  "read-data/gate_pieces.py",
+                  "read-data/gate_reports.py",
+                  "read-data/gate_runs.py",
+                  "read-data/library_applications.py",
+                  "read-data/library_checks.py"
                 ],
                 "at": "/opt/workflows"
               },

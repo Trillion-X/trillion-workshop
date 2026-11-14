@@ -105,7 +105,8 @@ export async function readInputs(input, door) {
 
 // The worker as a child: standard input the request, standard output its JSON lines. Tests hand in their own `start`.
 export function startWorker(action, request, { python = 'python3', worker = WORKER } = {}) {
-  const child = spawn(python, ['-I', worker, action], { stdio: ['pipe', 'pipe', 'inherit'] });
+  // -B: the worker writes no bytecode beside itself, so a run leaves the tool's folder (read-only where it is installed) as it was.
+  const child = spawn(python, ['-I', '-B', worker, action], { stdio: ['pipe', 'pipe', 'inherit'] });
   child.stdin.on('error', () => {});
   child.stdin.end(JSON.stringify(request));
   return child;
