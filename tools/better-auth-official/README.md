@@ -18,7 +18,7 @@ session token works as `Authorization: Bearer`). The session cookie is `__Host-t
 
 ## settings.json
 
-`port`, `base_url`, `base_path`, `issuer`, `audience`, `database_path`, `session_cookie_name`, `account_claim` (`field`, `claim`), `api_key` (`prefix`, `rate_limit` in the plugin's own `rateLimit` shape), `internal` (`host`, `port`, `verify_path`), `key_check` (`path`, `use`), `computer_proof` (the proof domains, window, row domain and address context, the same values as trillion-rust computers/settings.json), `passkey` (`rp_id`, `rp_name`),
+`port`, `base_url`, `base_path`, `issuer`, `audience`, `database_path`, `session_cookie_name`, `account_claim` (`field`, `claim`, `create`), `api_key` (`prefix`, `rate_limit` in the plugin's own `rateLimit` shape), `internal` (`host`, `port`, `verify_path`), `key_check` (`path`, `use`), `computer_proof` (the proof domains, window, row domain and address context, the same values as trillion-rust computers/settings.json), `passkey` (`rp_id`, `rp_name`),
 `trusted_origins`, `attached_origins` (`ask_url`, `cache_ms`, `related_url`), `two_factor_issuer`, `mcp` (`login_page`, `consent_page`, `resource`), `disabled_paths`, `device` (`verification_uri`) and
 `email` (`command`, an argv that gets each message as JSON on stdin, or `outbox`, a file each message is appended to).
 
@@ -33,7 +33,7 @@ Empty `disabled_paths` and `GET /api/auth/token` hands back a session JWT (EdDSA
 field with `input: false`, so no sign-up or update sets it) and the claim it goes out as (`trillion_account`, a 64-hex
 account address). The session JWT is its default payload plus that claim (the jwt plugin's `definePayload`), and MCP
 access tokens (`at+jwt`, `aud` holding `mcp.resource`) carry it through the OAuth provider's `customAccessTokenClaims`
-(account-claim.mjs). A user with no account gets no claim.
+(account-claim.mjs). A user with no account gets no claim. With `account_claim.create` (`url`, the engine's loopback `POST /accounts/create` on the same computer, such as `http://127.0.0.1:7199/accounts/create`, and `timeout_ms`) a new person's account is made there by the `databaseHooks.user.create.before` hook (`accountCreate`): the engine answers `{"address"}` and the user row is written with it, so the first pass carries the account; a computer that refuses or does not answer refuses the sign-up and no user row is written (trillion-rust src/native_entry/computer/account_create.rs, c0539be7e). No `create`: no account is made here. test/account-create.test.mjs runs against a stand-in computer, or against a scratch engine when `ACCOUNT_CREATE_URL` names its operation.
 
 ## The engine's API key check
 

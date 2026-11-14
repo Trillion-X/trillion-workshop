@@ -19,7 +19,7 @@ import { fetchClientMetadataResource } from '@better-auth/cimd/node';
 import { emailHook } from './send-email.mjs';
 import { cookieOptions } from './cookie-options.mjs';
 import { trustedOriginsFor } from './attached-origins.mjs';
-import { accountFields, accessTokenClaims, keyAccount, sessionPayload } from './account-claim.mjs';
+import { accountCreate, accountFields, accessTokenClaims, keyAccount, sessionPayload } from './account-claim.mjs';
 
 const settingsPath = resolve(process.env.BETTER_AUTH_SETTINGS ?? new URL('./settings.json', import.meta.url).pathname);
 export const settings = JSON.parse(readFileSync(settingsPath, 'utf8'));
@@ -38,6 +38,8 @@ export const auth = betterAuth({
   advanced: cookieOptions(settings),
   // The account a person signed in to, which every pass carries (account-claim.mjs); the person cannot set it.
   user: { additionalFields: accountFields(settings) },
+  // A new person gets their account at the computer beside this tool before their user row is written (account-claim.mjs).
+  databaseHooks: { user: { create: { before: accountCreate(settings) } } },
   emailAndPassword: {
     enabled: true,
     sendResetPassword: async ({ user, url, token }) => {
