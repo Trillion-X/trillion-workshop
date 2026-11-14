@@ -46,14 +46,28 @@
     "codes": ["workshop_run_in_progress"]
   },
   "direct_calls": {
-    "_what": "The flags `trillion op` and `trillion call` take, per command; any other flag is refused before anything is sent (parseArgs makes every unknown --flag a true, so an unchecked one was silently dropped: `op ... records:write --dry-run` removed a record on 2026-11-13). `--dry-run` is op only: it sends nothing and prints the request it would have sent {address, method, request_key, input}; a method in dry_run_refuses is refused instead, with that request in the refusal, because the engine has no dry run for it.",
+    "_what": "The flags `trillion op` and `trillion call` take, per command; any other flag is refused before anything is sent (parseArgs makes every unknown --flag a true, so an unchecked one was silently dropped: `op ... records:write --dry-run` removed a record on 2026-11-13). `--dry-run` is op only: it prints the request it would have sent {address, method, request_key, input} and sends nothing, except that for `dry_run_reads_first.method` (records:write) it reads each target row with `read_method` and prints, per row, the current value, the new value, a field-by-field diff, the fields the write drops, and `removes` for a value null; no write is sent.",
     "flags": {
       "op": ["request-key", "timeout", "origin", "json", "help", "dry-run"],
       "call": ["request-key", "timeout", "origin", "json", "help"]
     },
-    "dry_run_refuses": ["records:write"]
+    "dry_run_reads_first": {
+      "method": "records:write",
+      "read_method": "records:read",
+      "removes": "REMOVES THIS ROW",
+      "no_validate_route": "The engine has no validate-only route for records:write (own-record-writes.json input_schema holds only records), so this preview cannot say whether the engine would refuse the write."
+    }
   },
   "install": {
+    "follow": {
+      "_what": "Where the installed command finds the Workshop copy it runs: the first of runtime_files that exists names the engine's state folder in `state_field`; <state>/<installs_folder>/<current> is the Workshop install the engine keeps current (current is `current_field` of <state>/<installs_folder>/<state_file>), and `program` is the command inside it. Nothing found, or the copy is this file: the installed copy runs itself.",
+      "runtime_files": ["~/Library/Application Support/Trillion/local-runtime.json", "~/.config/trillion/local-runtime.json"],
+      "state_field": "state",
+      "installs_folder": "workshop-installs",
+      "state_file": "state.json",
+      "current_field": "current",
+      "program": "tools/use-trillion-from-a-shell/do-work/trillion.mjs"
+    },
     "folder": "~/.trillion/cli/program",
     "files": [
       "trillion.mjs",
@@ -222,7 +236,7 @@
     ]
   },
   "update": {
-    "workshop": "This trillion command is kept up to date by the Workshop installer: it updates only when `trillion setup` is run from a newer Workshop copy of the program; it never fetches code by itself."
+    "workshop": "The installed trillion command follows the Workshop: each run it finds the Workshop copy this computer's engine has installed (install.follow) and runs that copy instead of itself, so a Workshop update reaches every command at once. `trillion setup` run from the Workshop copy also refreshes the installed files, which stay as the fallback when no Workshop copy is found. The command never fetches code by itself."
   },
   "ag_ui": {
     "_what": "`trillion serve --ag-ui URL` (ag-ui-agent.mjs): any AG-UI agent at URL runs each job this AI takes. tools: the Trillion tools the agent is offered as AG-UI frontend tools; each call it makes of one is made by this program as this AI. max_turns: the most runs of the agent one job gets (each answered tool call starts the next). run_seconds: the longest one run is waited for. quiet_seconds: the longest the agent may send nothing while it is waited on (a silence watchdog; time spent running its tools here does not count). answer_chars: the most characters of a tool's answer given back to the agent. max_frame_chars and max_events bound what one run may send. context is the ambient line every run is given ({handoff_id}). words: what is recorded when something goes wrong, in plain words.",
@@ -306,7 +320,6 @@
   "work_list_limit": 20,
   "words": {
     "unknown_flag": "trillion {command} does not take --{flag}; it takes {known}. Nothing was sent.",
-    "dry_run_refused": "trillion op --dry-run cannot preview {method}: the engine has no dry run for it, so nothing was sent. The request it would have sent:\n{request}",
     "no_credential": "This computer has no Trillion key or sign-in. Run trillion login (or trillion setup) first.",
     "sign_in_ended": "This computer's sign-in to Trillion has ended. Run trillion login to sign in again.",
     "refused": "{door} refused this computer's credential.",

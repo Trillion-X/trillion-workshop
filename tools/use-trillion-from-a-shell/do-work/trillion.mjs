@@ -44,7 +44,7 @@ import { chmodSync, existsSync, lstatSync, mkdirSync, readFileSync, readlinkSync
 import { createServer } from 'node:http';
 import { homedir, hostname } from 'node:os';
 import { basename, dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { runOnAgUi } from './ag-ui-agent.mjs';
 import { makeHashCodeHexFromBytes, requestKeyForEngine } from './packs/read-data/identity.mjs';
 import { settledWrite } from './packs/read-data/settled-write.mjs';
@@ -1035,6 +1035,33 @@ const readJson = async (raw, example) => {
   throw new TrillionError(`The input is one JSON object, for example ${example}.`, { status: 2 });
 };
 
+/** Every path of `value` that holds a leaf (a non-object, or an array, kept whole), as `a.b` -> leaf. */
+const leaves = (value, path = '', out = {}) => {
+  if (object(value)) { for (const [name, inner] of Object.entries(value)) leaves(inner, path ? `${path}.${name}` : name, out); }
+  else out[path] = value;
+  return out;
+};
+
+/** What a records:write would do, read and not sent: per row its current value (records:read), the new value, the field-by-field
+ *  diff, the fields the write drops, and `removes` for a value null. Nothing is written: the engine has no validate-only route. */
+export async function dryRunWrite(client, request, { rules = settings } = {}) {
+  const rule = rules.direct_calls.dry_run_reads_first;
+  const rows = [];
+  for (const item of Array.isArray(request.input?.records) ? request.input.records : []) {
+    const read = await client.op(request.address, rule.read_method, { id: item?.id }, { idempotent: true });
+    const current = read?.value ?? null;
+    const next = item?.value ?? null;
+    const before = current === null ? {} : leaves(current), after = next === null ? {} : leaves(next);
+    const diff = [...new Set([...Object.keys(before), ...Object.keys(after)])].sort()
+      .filter(path => JSON.stringify(before[path]) !== JSON.stringify(after[path]))
+      .map(path => ({ field: path, before: path in before ? before[path] : null, after: path in after ? after[path] : null, change: !(path in before) ? 'added' : !(path in after) ? 'dropped' : 'changed' }));
+    rows.push({ id: item?.id, type: item?.type ?? read?.type ?? null,
+      action: next === null ? (current === null ? 'nothing to remove' : rule.removes) : current === null ? 'creates this row' : diff.length ? 'replaces this row' : 'no change',
+      current, new: next, diff, dropped_fields: diff.filter(entry => entry.change === 'dropped').map(entry => entry.field) });
+  }
+  return { dry_run: true, sent: false, request, rows, note: rule.no_validate_route };
+}
+
 /** Runs one command line; answers the text to print. `seams` carries what tests replace: store, grants, state, open, env,
  *  fetchImpl, wait, place, localDoor (the local door's MCP address, or null), computerName and model. */
 export async function main(argv, seams = {}) {
@@ -1079,8 +1106,8 @@ export async function main(argv, seams = {}) {
     if (flags['dry-run'] === true) {
       const request = { address: need(words[0], 'Name the address: trillion op ADDRESS METHOD JSON.'), method: need(words[1], 'Name the method: trillion op ADDRESS METHOD JSON.'),
         request_key: flags['request-key'] ?? randomUUID(), input: await readJson(words[2], '{"id": "..."}') };
-      if (settings.direct_calls.dry_run_refuses.includes(request.method)) throw new TrillionError(fill(settings.words.dry_run_refused, { method: request.method, request: JSON.stringify(request, null, 2) }), { status: 2 });
-      return JSON.stringify(request, null, 2);
+      if (request.method !== settings.direct_calls.dry_run_reads_first.method) return JSON.stringify(request, null, 2);
+      return JSON.stringify(await dryRunWrite(await signedInClient(context), request), null, 2);
     }
   }
   // A work command's words are checked before anything is sent.
@@ -1145,11 +1172,35 @@ export async function main(argv, seams = {}) {
 }
 
 
+/** The Workshop copy of this command that the installed copy runs, or null (rules.install.follow). Only the installed copy follows:
+ *  a copy run from anywhere else (the Workshop's own, a checkout) runs itself, so the two never hand off to each other. */
+export function workshopProgram({ rules = settings, home = homedir(), here = HERE, self = fileURLToPath(import.meta.url) } = {}) {
+  const follow = rules.install.follow;
+  const real = path => { try { return realpathSync(path); } catch { return null; } };
+  if (real(here) !== real(expand(rules.install.folder, home))) return null;
+  for (const file of follow.runtime_files) {
+    let state;
+    try { state = JSON.parse(readFileSync(expand(file, home), 'utf8'))[follow.state_field]; } catch { continue; }
+    if (typeof state !== 'string') continue;
+    let current;
+    try { current = JSON.parse(readFileSync(join(state, follow.installs_folder, follow.state_file), 'utf8'))[follow.current_field]; } catch { continue; }
+    if (typeof current !== 'string' || !/^[\w.-]+$/.test(current)) continue;
+    const program = real(join(state, follow.installs_folder, current, follow.program));
+    if (program !== null && program !== real(self)) return program;
+  }
+  return null;
+}
+
 // Run when started as a program (directly, or through the link setup puts on PATH).
 const startedAsProgram = (() => { try { return realpathSync(process.argv[1] ?? '') === realpathSync(fileURLToPath(import.meta.url)); } catch { return false; } })();
 if (startedAsProgram) {
-  main(process.argv.slice(2)).then(text => { if (text) process.stdout.write(`${text}\n`); }, error => {
-    process.stderr.write(`${error instanceof TrillionError ? error.message : `trillion: ${error.stack ?? error}`}\n`);
-    process.exitCode = error instanceof TrillionError ? error.status : 1;
+  // The installed copy runs the Workshop's copy when there is one; a copy that cannot be loaded leaves this one to run.
+  let run = { main, TrillionError };
+  const followed = workshopProgram();
+  if (followed !== null) run = await import(pathToFileURL(followed).href).catch(() => run);
+  run.main(process.argv.slice(2)).then(text => { if (text) process.stdout.write(`${text}\n`); }, error => {
+    const known = error instanceof run.TrillionError || error instanceof TrillionError;
+    process.stderr.write(`${known ? error.message : `trillion: ${error.stack ?? error}`}\n`);
+    process.exitCode = known ? error.status : 1;
   });
 }
