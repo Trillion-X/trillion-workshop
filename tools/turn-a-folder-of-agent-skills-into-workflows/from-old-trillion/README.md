@@ -4,4 +4,4 @@ Files of old trillion whose job is this tool's (turn a folder of agent skills in
 
 | Old path | Here | Status |
 |---|---|---|
-| `scripts/skills-to-workflows.mjs` | `scripts/skills-to-workflows.mjs.held` | held: ERR_UNKNOWN_FILE_EXTENSION |
+| `scripts/skills-to-workflows.mjs` | `scripts/skills-to-workflows.mjs.held` | held: ported into `../read-data/skills-into-workflows.mjs` and `../data/skill-import-rules.json` (the bytes stay as the receipt) |

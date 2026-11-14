@@ -1,0 +1,257 @@
+{
+  "kind": "package-set-records",
+  "record_set": "turn-a-folder-of-agent-skills-into-workflows-tool-rows",
+  "what_this_is": "The Workshop row for the tool in tools/turn-a-folder-of-agent-skills-into-workflows: a person's own agent skills (the rows of their agent-skills list) turned into workflows in their own account, ported from old Trillion's scripts/skills-to-workflows.mjs and its import rules (from-old-trillion/ holds the original bytes).",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:turn-my-agent-skills-into-workflows",
+        "label": "Turn my agent skills into workflows my AI can find and run",
+        "status": "active",
+        "job": "Take the agent skills I have installed (the rows of my agent-skills list) and make each one a workflow in my own account, leaving out any skill that names a secret key, a folder on my computer, an email address, a phone number or one of my private words",
+        "description": "Reads the rows of the person's own agent-skills list (record:agent-skill; a long file is several rows, joined in order). A skill is a folder holding a SKILL.md with a name and a description. Each skill whose text is clean becomes one workflow in the person's own list of workflows: a row whose id is workflow: then skill- then the skill's name and one step whose instructions are the skill's, with its text files (smallest first, within a size budget) under files. A skill whose SKILL.md or shipped files match a secret key, a computer path, an email address, a phone number, or a word in input.private_words stays home, and the answer names it and the kind of reason, never the text. Writes only into the person's own account, never the public Workshop. The same skills write the same ids, so a re-run updates; a workflow whose skill is gone is named under stale and left alone. input.dry_run answers what would be made and left out and writes nothing; input.folder keeps only skills under that folder. What is screened and the size budget are data (data/skill-import-rules.json), not code.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "private_words": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Words naming your private people, businesses or systems; a skill holding one stays home."
+            },
+            "folder": {
+              "type": "string",
+              "description": "Only skills whose folder is under this path (as the skills list records it)."
+            },
+            "dry_run": {
+              "type": "boolean",
+              "description": "Say what would be made and left out, and write nothing."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "made",
+            "home",
+            "stale",
+            "written",
+            "dry_run"
+          ],
+          "properties": {
+            "made": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The workflow ids made (workflow: then skill- then the skill's name)."
+            },
+            "home": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "skill": {
+                    "type": "string"
+                  },
+                  "reasons": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "description": "Skills left out, each with the reasons (never the text)."
+            },
+            "stale": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Workflows of earlier runs whose skill is gone or held back; they are left as they are."
+            },
+            "written": {
+              "type": "integer",
+              "description": "Rows written."
+            },
+            "dry_run": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/turn-a-folder-of-agent-skills-into-workflows/read-data/skills-into-workflows.mjs",
+            "turnSkillsIntoWorkflows"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "task": {
+              "fill": {
+                "from": "task"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "turn-a-folder-of-agent-skills-into-workflows",
+                "paths": [
+                  "read-data/skills-into-workflows.mjs",
+                  "data/skill-import-rules.json"
+                ],
+                "at": "/opt/turn-a-folder-of-agent-skills-into-workflows"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "read-data/recipe-problems.mjs",
+                  "read-data/wake-problems.mjs",
+                  "read-data/step-agents.mjs",
+                  "recipe-check-kinds.json",
+                  "host-tools.json",
+                  "recipe-wake-causes.json"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "most_writes": 50,
+            "rights": [
+              {
+                "kind": "record:agent-skill",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "record:workflow-recipe",
+                "operations": [
+                  "records:list",
+                  "records:write"
+                ],
+                "prefix": "record:workflow-recipe:skill-"
+              },
+              {
+                "kind": "record:workflow-step",
+                "operations": [
+                  "records:write"
+                ],
+                "prefix": "record:workflow-step:skill-"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:workflows",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$.made",
+            "contains": "workflow:skill-tidy-notes",
+            "records": [
+              {
+                "id": "record:agent-skill:sample~/skills/tidy-notes/SKILL.md",
+                "type": "record:agent-skill",
+                "value": {
+                  "file.path": "/skills/tidy-notes/SKILL.md",
+                  "file.folder": "/skills/tidy-notes",
+                  "file.name": "SKILL.md",
+                  "file.ext": "md",
+                  "document.text": "---\nname: tidy-notes\ndescription: Tidies a pile of notes into one page.\n---\nRead every note. Group them. Write one page.\n"
+                }
+              },
+              {
+                "id": "record:agent-skill:sample~/skills/tidy-notes/template.md",
+                "type": "record:agent-skill",
+                "value": {
+                  "file.path": "/skills/tidy-notes/template.md",
+                  "file.folder": "/skills/tidy-notes",
+                  "file.name": "template.md",
+                  "file.ext": "md",
+                  "document.text": "A page: title, three groups, one next step."
+                }
+              },
+              {
+                "id": "record:agent-skill:sample~/skills/open-folder/SKILL.md",
+                "type": "record:agent-skill",
+                "value": {
+                  "file.path": "/skills/open-folder/SKILL.md",
+                  "file.folder": "/skills/open-folder",
+                  "file.name": "SKILL.md",
+                  "file.ext": "md",
+                  "document.text": "---\nname: open-folder\ndescription: Reads a folder of notes.\n---\nOpen ~/Documents/notes and read them.\n"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

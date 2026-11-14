@@ -14,7 +14,7 @@ const STEP_ANATOMY_TEXT = ['when', 'done_when', 'if_missing', 'why', 'good_answe
 const STEP_ANATOMY_LISTS = ['came_from', 'part_of'];
 
 const JSON_FIELDS = {
-  recipe: ['input_schema', 'source', 'wakes', 'definition', 'skill'],
+  recipe: ['input_schema', 'source', 'wakes', 'definition', 'skill', 'files'],
   step: ['checks', 'run_tool', 'actor_policy', 'lanes', 'lanes_from'],
 };
 

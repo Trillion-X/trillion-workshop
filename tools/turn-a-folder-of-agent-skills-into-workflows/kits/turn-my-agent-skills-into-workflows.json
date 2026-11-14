@@ -1,0 +1,215 @@
+{
+  "start_here": "Say to your AI: \"Turn my agent skills into workflows. My private words are Acme Corp and Project Falcon. Do a dry run first.\" It runs tool:turn-my-agent-skills-into-workflows on the skills in your agent-skills list and tells you which skills would become workflows and which stay home, and why.",
+  "lists": [
+    {
+      "list": "list:agent-skills",
+      "label": "Agent skills",
+      "row_type": "record:agent-skill",
+      "holds": "One row per file of each agent skill folder you have installed (a long file is several rows, in parts). A skill is a folder holding a SKILL.md with a name and a description. (The rows keep these as file.path, file.folder and document.text.)",
+      "fields": [
+        {
+          "id": "file_path",
+          "kind": "text",
+          "label": "File path",
+          "alike": [
+            "path",
+            "file",
+            "location"
+          ]
+        },
+        {
+          "id": "file_folder",
+          "kind": "text",
+          "label": "Skill folder",
+          "alike": [
+            "folder",
+            "directory",
+            "skill"
+          ]
+        },
+        {
+          "id": "document_text",
+          "kind": "long-text",
+          "label": "Text",
+          "alike": [
+            "body",
+            "content",
+            "text"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "tidy-notes-skill",
+          "values": {
+            "file_path": "/skills/tidy-notes/SKILL.md",
+            "file_folder": "/skills/tidy-notes",
+            "document_text": "---\nname: tidy-notes\ndescription: Tidies a pile of notes into one page.\n---\nRead every note. Group them. Write one page.\n"
+          }
+        },
+        {
+          "id": "tidy-notes-template",
+          "values": {
+            "file_path": "/skills/tidy-notes/template.md",
+            "file_folder": "/skills/tidy-notes",
+            "document_text": "A page: title, three groups, one next step."
+          }
+        }
+      ],
+      "alike": [
+        "the folder of skills your AI app keeps",
+        "a notes app folder of instructions",
+        "a list of saved prompts"
+      ]
+    },
+    {
+      "list": "list:workflows",
+      "label": "Workflows",
+      "row_type": "record:workflow-recipe",
+      "holds": "One row per workflow in your own account: its id, title, what it is for, and (as text) its input, source and files. Each has step rows (record:workflow-step) holding what the AI does.",
+      "fields": [
+        {
+          "id": "recipe",
+          "kind": "text",
+          "label": "Workflow id",
+          "alike": [
+            "id",
+            "name",
+            "slug"
+          ]
+        },
+        {
+          "id": "title",
+          "kind": "text",
+          "label": "Title",
+          "alike": [
+            "name",
+            "label"
+          ]
+        },
+        {
+          "id": "job",
+          "kind": "long-text",
+          "label": "What it is for",
+          "alike": [
+            "description",
+            "purpose",
+            "summary"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "skill-tidy-notes",
+          "values": {
+            "recipe": "workflow:skill-tidy-notes",
+            "title": "Tidy notes",
+            "job": "Tidies a pile of notes into one page."
+          }
+        },
+        {
+          "id": "skill-plan-a-trip",
+          "values": {
+            "recipe": "workflow:skill-plan-a-trip",
+            "title": "Plan a trip",
+            "job": "Plans a trip from a few wishes."
+          }
+        }
+      ],
+      "alike": [
+        "a list of saved playbooks",
+        "a library of how-to pages",
+        "a runbook folder"
+      ]
+    }
+  ],
+  "workflows": [],
+  "tools": [
+    "tool:turn-my-agent-skills-into-workflows",
+    "tool:start-a-recipe-run"
+  ],
+  "instructions": [
+    "1. Make sure your agent-skills list holds your installed skills (each file of each skill folder is a record:agent-skill row).",
+    "2. Say \"Turn my agent skills into workflows, dry run first\", with any words that name your private people, businesses or systems in private_words.",
+    "3. Read what comes back: made (the workflows that would be written), home (each skill left out, with the kind of reason: a secret key, a folder on your computer, an email address, a phone number or a private word) and stale (workflows of earlier runs whose skill is gone).",
+    "4. Fix or remove what a left-out skill names, then say it again without dry_run: each clean skill is written as workflow: then skill- then the skill's name in your own account, with its text files under files.",
+    "5. Run one: say \"Run the id it was written under\" with what you want done in request; the AI starts it with tool:start-a-recipe-run."
+  ],
+  "worked_examples": [
+    {
+      "title": "A dry run keeps the skill that names a computer folder at home",
+      "ask": "Turn my agent skills into workflows, dry run first.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:turn-my-agent-skills-into-workflows",
+            "input": {
+              "dry_run": true,
+              "private_words": [
+                "Acme Corp"
+              ]
+            }
+          }
+        }
+      },
+      "given": "Two skills in your list: tidy-notes (clean) and open-folder, whose SKILL.md says to open a folder under ~/Documents.",
+      "hands_back": "made: [\"workflow:skill-tidy-notes\"], home: [{ skill: \"open-folder\", reasons: [\"SKILL.md names a folder on one person's computer\"] }], written: 0. The text that matched is never printed."
+    },
+    {
+      "title": "Run the workflow a skill became",
+      "ask": "Run workflow:skill-tidy-notes on these notes.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:skill-tidy-notes",
+              "request": "Tidy my three notes about the garden."
+            }
+          }
+        }
+      },
+      "workflow": "workflow:skill-tidy-notes",
+      "step": "follow-the-skill",
+      "given": "workflow:skill-tidy-notes was written by an earlier run.",
+      "hands_back": "A job for your AI whose one step, follow-the-skill, holds the skill's instructions and lists its files (template.md) to read from the workflow's files."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list of workflows you already keep and its fields. The tool matches each kit field to one of yours (by the map you give, the same id, the same label, or a name in alike), refuses when fewer than least_coverage of the kit's fields match, and otherwise answers the records:write that adds the example rows to your list, leaving your own rows untouched.",
+    "example": {
+      "kit_list": "list:workflows",
+      "into": {
+        "list": "list:playbooks",
+        "row_type": "record:playbook",
+        "fields": [
+          {
+            "id": "recipe",
+            "label": "Workflow id"
+          },
+          {
+            "id": "title",
+            "label": "Title"
+          },
+          {
+            "id": "job",
+            "label": "Purpose"
+          }
+        ]
+      },
+      "field_map": {
+        "job": "job"
+      }
+    }
+  }
+}

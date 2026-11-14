@@ -1,0 +1,117 @@
+{
+  "about": "How read-data/skills-into-workflows.mjs turns a person's own agent skills (rows of their agent-skills list, each file in parts) into workflows in their own account. One skill becomes one workflow: its instructions are the one step's do, and its text files ride along under files. Ported from old Trillion's records/skill-import-rules.json (scripts/skills-to-workflows.mjs, src/skill-rows.mjs, commit 99651cea06). The rows go only into the person's own account, so the old sharing rule (a skill ships only when its maker may share it) is not a gate here; the licence a skill declares rides on the row's source. A skill stays home when any text that would ship matches a never_share pattern or one of the person's private words. Changing what is screened is a row here, never a change to the script.",
+  "id_prefix": "workflow:skill-",
+  "recipe_row_type": "record:workflow-recipe",
+  "step_row_type": "record:workflow-step",
+  "skill_row_type": "record:agent-skill",
+  "skill_file_name": "SKILL.md",
+  "licence_words": [
+    {
+      "words": "MIT License",
+      "licence": "MIT"
+    },
+    {
+      "words": "Permission is hereby granted, free of charge",
+      "licence": "MIT"
+    },
+    {
+      "words": "Apache License",
+      "licence": "Apache-2.0"
+    },
+    {
+      "words": "BSD 3-Clause",
+      "licence": "BSD-3-Clause"
+    },
+    {
+      "words": "BSD 2-Clause",
+      "licence": "BSD-2-Clause"
+    },
+    {
+      "words": "ISC License",
+      "licence": "ISC"
+    },
+    {
+      "words": "Mozilla Public License",
+      "licence": "MPL-2.0"
+    },
+    {
+      "words": "This is free and unencumbered software",
+      "licence": "Unlicense"
+    },
+    {
+      "words": "CC0 1.0",
+      "licence": "CC0-1.0"
+    }
+  ],
+  "author_words": [
+    {
+      "comment": "A licence's copyright line names who holds it: 'Copyright (c) 2026 Some Name' reads 'Some Name'. A skill's own front-matter author wins over this.",
+      "pattern": "^\\s*Copyright\\s*(?:\\(c\\)|\u00a9)?\\s*(?:\\d{4}(?:\\s*[-,\u2013]\\s*\\d{4})*\\s+)?(?:by\\s+)?(.+?)\\s*$",
+      "group": 1
+    }
+  ],
+  "budget": {
+    "comment": "describe_workflow returns a row whole, so a skill's row stays under max_row_characters. Its SKILL.md always goes in; text files beside it go in, smallest first, while they fit; the rest are named under files_left_out.",
+    "max_row_characters": 200000,
+    "max_file_characters": 80000
+  },
+  "text_files": [
+    "md",
+    "mdx",
+    "txt",
+    "json",
+    "yaml",
+    "yml",
+    "toml",
+    "csv",
+    "tsv",
+    "py",
+    "js",
+    "mjs",
+    "cjs",
+    "ts",
+    "tsx",
+    "jsx",
+    "sh",
+    "html",
+    "css",
+    "svg",
+    "sql",
+    "rb",
+    "go",
+    "rs",
+    "swift",
+    "xml"
+  ],
+  "skipped_folders": [
+    "node_modules",
+    ".git",
+    "dist",
+    "build",
+    "__pycache__",
+    ".venv"
+  ],
+  "never_share": [
+    {
+      "id": "secret-key",
+      "says": "holds what looks like a secret key or token",
+      "pattern": "(?:\\b(?:sk|pk|rk)_(?:live|test)_[A-Za-z0-9]{10,})|(?:\\bsk-[A-Za-z0-9_-]{20,})|(?:\\bAKIA[0-9A-Z]{16}\\b)|(?:\\bgh[pousr]_[A-Za-z0-9]{30,})|(?:\\bxox[abprs]-[A-Za-z0-9-]{10,})|(?:-----BEGIN [A-Z ]*PRIVATE KEY-----)|(?:\\bAIza[0-9A-Za-z_-]{30,})|(?:\\beyJ[A-Za-z0-9_-]{20,}\\.[A-Za-z0-9_-]{20,}\\.)"
+    },
+    {
+      "id": "computer-path",
+      "says": "names a folder on one person's computer",
+      "pattern": "(?:/[U]sers/[A-Za-z])|(?:/home/[a-z])|(?:[A-Za-z]:\\\\[U]sers\\\\)|(?:/Volumes/[A-Za-z])|(?:~/(?:dev|Desktop|Documents|Downloads|Library|Movies|Pictures)\\b)|(?:~/\\.[a-z])"
+    },
+    {
+      "id": "email-address",
+      "says": "holds an email address",
+      "pattern": "(?<=[A-Za-z0-9._%+-])(?<!git)[@](?!(?:[A-Za-z0-9-]+\\.)*example\\.)(?!(?<=(?:^|[^\\w.%+-])\\w[@])\\w\\.[a-z]{2,3}\\b)(?!(?:example|yourdomain|domain|company|email|test|acme|acmehq|getacme|globex|vendor|you|co|that-domain)\\.[a-z]{2,4}\\b)(?!users\\.noreply\\.github\\.com\\b)[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)*\\.(?:com|org|net|io|ai|co|dev|app|house|so|me|us|uk)\\b",
+      "comment": "An address whose domain has an example label (RFC 2606 example.com, example.org, example.net, or any sub.example.co.uk), or a one-letter name at a one-letter domain (a, the at sign, b.co), is an illustration, never a real person's."
+    },
+    {
+      "id": "phone-number",
+      "says": "holds a phone number",
+      "pattern": "(?<![\\w.])\\+\\d{1,3}[ .-]?\\(?\\d{2,4}\\)?[ .-]\\d{3}[ .-]\\d{3,4}(?![\\w.])"
+    }
+  ]
+}
