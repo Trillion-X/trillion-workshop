@@ -12,6 +12,9 @@
 // refusal rules (a stopped setup is not restarted without restart; a failed or stuck run resumes; a finished one has
 // nothing to start). Each owner is the Workshop tool that does that step; a step whose owner is not in `available_tools`
 // (the caller's tools:list) is marked unavailable and is never called.
+import policy from '../read-data/setup-policy.json' with { type: 'json' };
+import { defaultRecipeFor } from '../../workflows/read-data/public-recipes.mjs';
+
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 
 // The owner of each prepare step, in the order the old ensure() runs them.
@@ -22,7 +25,10 @@ const STEPS = [
   { id: 'timed_work', owner: 'tool:run-at-a-time' },
 ];
 const READ_BACK = 'tool:read-setup';
-const WORKFLOW_KEY = 'account-setup:v1';
+// The setup run is a run of the shipped recipe whose default_for names the policy's purpose, under the policy's request
+// key: the same run tool:read-setup reads back (set-up-my-account read-setup.mjs).
+const WORKFLOW_KEY = policy.workflow.request_key;
+const setupRecipe = () => defaultRecipeFor(policy.workflow.default_for);
 const DONE_STEPS = STEPS.map(step => step.id);
 
 export function startOrResumeTheFirstSetup(input) {
@@ -51,7 +57,7 @@ export function startOrResumeTheFirstSetup(input) {
     if (done.has(step.id)) return { id: step.id, status: 'done', owner: step.owner };
     if (!step.owner || !input.available_tools.includes(step.owner)) return { id: step.id, status: 'unavailable', owner: step.owner };
     const call = step.id === 'workflow'
-      ? { tool: step.owner, input: { request_key: WORKFLOW_KEY, ...(resuming ? { run_id: workflow.run_id, resume: true } : {}) } }
+      ? { tool: step.owner, input: { row: setupRecipe(), ...(resuming ? { run_id: workflow.run_id, resume: true } : {}) }, request_key: WORKFLOW_KEY }
       : { tool: step.owner, input: { account_id: input.account_id } };
     return { id: step.id, status: 'call', owner: step.owner, call, read_back: readBack };
   });

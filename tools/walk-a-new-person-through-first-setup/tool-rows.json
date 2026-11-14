@@ -116,6 +116,14 @@
         "at": "/opt/walk-a-new-person-through-first-setup"
        },
        {
+        "package": "workflows",
+        "paths": [
+         "read-data/public-recipes.mjs",
+         "recipes"
+        ],
+        "at": "/opt/workflows"
+       },
+       {
         "package": "shared-code",
         "paths": [
          "src/server-instruction-paragraphs.mjs",
@@ -385,6 +393,14 @@
          "read-data"
         ],
         "at": "/opt/walk-a-new-person-through-first-setup"
+       },
+       {
+        "package": "workflows",
+        "paths": [
+         "read-data/public-recipes.mjs",
+         "recipes"
+        ],
+        "at": "/opt/workflows"
        },
        {
         "package": "shared-code",

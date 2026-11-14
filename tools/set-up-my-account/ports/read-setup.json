@@ -32,8 +32,8 @@
   },
   {
    "repository": "trillion-workshop",
-   "path": "tools/walk-a-new-person-through-first-setup/from-old-trillion/src/setup-runtime.mjs.held",
-   "why": "readSetupReference reads one cited setup evidence reference for the setup runtime; it gathers no screen facts."
+   "path": "tools/set-up-my-account/from-old-trillion/src/setup-runtime.mjs",
+   "why": "Its readSetupReference reads one cited setup evidence reference for the setup runtime and gathers no screen facts; the runtime itself (makeSetupRuntime) is what read-setup hands the screen as facts.runtime."
   },
   {
    "repository": "trillion-workshop",

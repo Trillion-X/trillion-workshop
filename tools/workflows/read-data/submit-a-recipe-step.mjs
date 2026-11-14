@@ -14,10 +14,11 @@
 // (for example `exists` with no catalog to look in) is listed under `unchecked`, never reported as passed. Earlier
 // steps' answers are what `steps.<id>` reads, so every earlier step must have its answer kept first.
 //
-// The kept answer is the ai-job row `<run>#answer:<step>`, status done. The first answer kept for a step stays: a
+// The kept answer is the ai-job row `<run>#answer:<step>`, status done, with the time it was kept (`kept_at`). The first
+// answer kept for a step stays: a
 // submit that comes again finds it and changes nothing.
 
-import { laneIds, laneJobId, runStep, runsLaneJobs } from './step-agents.mjs';
+import { answerId, laneIds, laneJobId, runStep, runsLaneJobs } from './step-agents.mjs';
 import { checkResults, valuesAt } from './recipe-check-results.mjs';
 import { readFileSync } from 'node:fs';
 import { resolveItem } from './citation-resolvers.mjs';
@@ -26,7 +27,7 @@ import { schemaProblems } from './answer-schema.mjs';
 const JOB_KIND = 'ai-job';
 const CHECK_VOCABULARY = JSON.parse(readFileSync(new URL('../recipe-check-kinds.json', import.meta.url), 'utf8'));
 const ALLOWED_INPUT = new Set(['run', 'step', 'answer']);
-export const answerId = (run, step) => `${run}#answer:${step}`;
+export { answerId };
 
 export async function submitARecipeStep({ input = {}, task = {} } = {}, { door, resolvers }) {
   for (const key of Object.keys(input)) if (!ALLOWED_INPUT.has(key)) throw new Error(`input.${key} is not taken: the checks look jobs up in the records themselves, never in what the caller gives.`);
@@ -82,7 +83,7 @@ export async function submitARecipeStep({ input = {}, task = {} } = {}, { door, 
   if (failed.length) throw new Error(`The answer to step "${stepId}" fails: ${failed.map(result => `${result.says} (failing: ${JSON.stringify(result.failing)})`).join('; ')}`);
   // Every source a passing citation was judged against, with the head it held, so the kept answer says what it was judged on.
   const judgedAgainst = [...new Set([...looked.values()].flat().map(one => one.against).filter(Boolean))].sort();
-  const value = { kind: JOB_KIND, status: 'done', row: parent.row, label: `${parent.label}: answer of ${step.title ?? step.id}`, parent: run, step: stepId, answer, finished_by: 'workflow:submit-a-recipe-step', ...(judgedAgainst.length ? { judged_against: judgedAgainst } : {}) };
+  const value = { kind: JOB_KIND, status: 'done', row: parent.row, label: `${parent.label}: answer of ${step.title ?? step.id}`, parent: run, step: stepId, answer, finished_by: 'workflow:submit-a-recipe-step', kept_at: new Date().toISOString(), ...(judgedAgainst.length ? { judged_against: judgedAgainst } : {}) };
   await door.write([{ id, type: JOB_KIND, value }], { key: `${run}:${stepId}:answer` });
   return {
     status: 'kept', answer_id: id, ...(judgedAgainst.length ? { judged_against: judgedAgainst } : {}),

@@ -15,9 +15,10 @@
     {
       "from": "records/setup-workflow-records.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/give-every-account-ready-made-workflows-and-defaults/from-old-trillion/records/setup-workflow-records.json",
+      "to": "tools/workflows/recipes/setup-with-your-ai.json",
       "source_identity": "1f:47b613db4b6837c04b36cd22f2e8739f41c096cef17c9a0b84a063a2b36a21a8",
-      "identity": "1f:47b613db4b6837c04b36cd22f2e8739f41c096cef17c9a0b84a063a2b36a21a8"
+      "identity": "1f:50722e766c1821441690c08fb97f69b6750a0531b27ccf9b74f05cc83fce23aa",
+      "adapted": true
     }
   ]
 }

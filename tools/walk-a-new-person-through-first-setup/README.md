@@ -10,13 +10,13 @@ Ported from old trillion `src/setup-plan.mjs` and `src/setup-installs.mjs` at ta
 |---|---|---|
 | `src/setup-plan.mjs` | Ported in part | `setupPlan` and `setupInstructions` are `do-work/setup-plan.mjs`. The policy is `read-data/setup-policy.json` (copied byte for byte from the tag). The lens is handed in as `lens` instead of a module-level `useLens`. `setupTools` (the MCP `start_setup` and `read_setup` surface and its HTTP reads of `/setup/runtime`, `/setup/requirements`, `/pursuits`, `/connections`, `/network/ensure-profile`, `/setup/devices`, `/computer-sources` and `/agents/find`) is not carried: the caller reads those and hands them in, and the Workshop row is the surface. |
 | `src/setup-installs.mjs` | Ported | `do-work/setup-installs.mjs`, with its imports pointed at the Workshop folders that now hold the same modules. |
-| `src/setup-runtime.mjs` | Held | `from-old-trillion/src/setup-runtime.mjs.held`. It is the saved run's write path (preparing and resuming the workflow run). Not ported yet. |
+| `src/setup-runtime.mjs` | Moved | `tools/set-up-my-account/from-old-trillion/src/setup-runtime.mjs`, moved wholesale on 2026-11-14: this tool is a projection that reads no storage, and set-up-my-account's `tool:read-setup` is the one read of setup facts, so the runtime reads the setup run there and hands it to the screen (and to this tool's `setupPlan` through its caller). Its test stays held in `from-old-trillion/test/`. |
 | `src/setup-policy.json` | Ported | `read-data/setup-policy.json`. |
 | `test/setup-plan.test.mjs`, `test/setup-runtime.test.mjs` | Held | Still in `from-old-trillion/test/`. The plan's own behaviour is tested by `test/walk-a-new-person-through-first-setup.test.mjs`. |
 
 ## Gap
 
-`start_setup` is the write path that starts or resumes the saved run. Its decision is now `tool:start-or-resume-the-first-setup` (`do-work/start-or-resume-the-first-setup.mjs`): it returns the ordered owner calls, each with a read-back, and writes nothing. The runner that makes those calls is the caller's, so the old `src/setup-runtime.mjs` stays held. The plan's own words still say `start_setup` and `read_setup` (the old MCP names) until the plan names the Workshop tool ids.
+`start_setup` is the write path that starts or resumes the saved run. Its decision is now `tool:start-or-resume-the-first-setup` (`do-work/start-or-resume-the-first-setup.mjs`): it returns the ordered owner calls, each with a read-back, and writes nothing. The runner that makes those calls is the caller's. The workflow call starts the setup recipe (the shipped recipe whose `default_for` names the policy's purpose, `tools/workflows/read-data/public-recipes.mjs`) as `input.row`, under the policy's `request_key` as the run's request key, so the run it starts is the run `tool:read-setup` reads back. The plan's own words still say `start_setup` and `read_setup` (the old MCP names) until the plan names the Workshop tool ids.
 
 ## Files
 

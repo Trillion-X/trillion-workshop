@@ -1,10 +1,13 @@
 {
+  "about": "Recipe the deploy ships that no list row holds: setting a person up with their AI (default_for setup), the run set-up-my-account reads Get started from (from-old-trillion/src/setup-runtime.mjs through read-a-recipe-run.mjs). Moved from give-every-account-ready-made-workflows-and-defaults/from-old-trillion/records/setup-workflow-records.json (old trillion tag old-trillion-before-worker-retire).",
   "records": [
     {
       "id": "workflow:setup-with-your-ai",
       "payload": {
         "id": "workflow:setup-with-your-ai",
-        "default_for": ["setup"],
+        "default_for": [
+          "setup"
+        ],
         "label": "Set up my whole Trillion experience",
         "kind": "workflow-recipe",
         "job": "Set up and verify the whole personal Trillion experience with minimal human effort: identity, AI connection, hooks, durable background work, devices, permissions, widgets, sources, pursuits and a checked first result.",

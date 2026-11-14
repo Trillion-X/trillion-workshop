@@ -20,11 +20,11 @@
 // last two are named so the run can fix them. A workflow with no condition is named in unconditioned, so the run can
 // judge it by its words and write the condition it judged back onto the workflow's row.
 
-import { readdirSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { filterRecords } from '../../formulas/do-work/requests.mjs';
 import { conditionProblems, FIRES_WHEN } from './fires-when.mjs';
+import { publicRecipes } from './public-recipes.mjs';
 
-const RECIPES = new URL('../recipes/', import.meta.url);
 const ROW_TYPES = JSON.parse(readFileSync(new URL('../arrivals/recipe-row-types.json', import.meta.url), 'utf8'));
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -37,10 +37,8 @@ const parsed = (value, where) => {
 // The installed catalog: every recipe of the files beside this module, by id.
 function catalogRecipes() {
   const byId = new Map();
-  for (const name of readdirSync(RECIPES).filter(file => file.endsWith('.json')).sort()) {
-    for (const { payload } of JSON.parse(readFileSync(new URL(name, RECIPES), 'utf8')).records ?? []) {
-      if (payload?.id && !byId.has(payload.id)) byId.set(payload.id, { label: payload.label, conditions: payload[FIRES_WHEN.field] });
-    }
+  for (const payload of publicRecipes()) {
+    if (payload.id && !byId.has(payload.id)) byId.set(payload.id, { label: payload.label, conditions: payload[FIRES_WHEN.field] });
   }
   return byId;
 }

@@ -13,6 +13,13 @@
 //     - the account's own show rules and its own setup context are its records `show-rules` and `setup-context`
 //       (old readSetupPolicy's ownRead('/show-rules') and ownRead('/records?label=setup-context'));
 //     - the account id is the page's admitted account (contract B), old facts()'s owner_user_id;
+//     - the setup runtime, when `setup_facts` carries none: old facts() read it from the account's setup runtime owner
+//       (src/native-setup.mjs:104-158, makeSetupRuntime over makeSetupWorkflow). Here the setup run is a recipe run, so
+//       the runtime moved here (from-old-trillion/src/setup-runtime.mjs) reads its workflow from the run itself: the recipe whose
+//       default_for names the policy's purpose (tools/workflows public-recipes.mjs), its run under the policy's request
+//       key and its kept answers (tools/workflows read-a-recipe-run.mjs). The other readers old trillion had (defaults,
+//       timed work, event intake, agents) have no owner read here yet and answer unavailable, which the screen shows as
+//       unknown; none of them decides a step (read-data/setup-steps.mjs, a live step is judged by its own checks);
 //   then it runs tool:see-what-is-left-to-set-up with them (contract A: the row declares it in `runs`).
 //
 // NON-NEGOTIABLE INVARIANTS
@@ -27,6 +34,11 @@
 import showRules from '../read-data/show-rules.json' with { type: 'json' };
 import setupSettings from '../read-data/setup-steps.json' with { type: 'json' };
 import { devicesFor, installationObserver, systemOf } from '../../set-up-my-devices-and-cameras/src/devices.mjs';
+import capabilityPolicy from '../read-data/setup-policy.json' with { type: 'json' };
+import { makeSetupRuntime, makeSetupWorkflow } from '../from-old-trillion/src/setup-runtime.mjs';
+import { readARecipeRun } from '../../workflows/read-data/read-a-recipe-run.mjs';
+import { defaultRecipeFor } from '../../workflows/read-data/public-recipes.mjs';
+import { makeHashCodeHexFromJson } from '../../content-identity/read-data/identity.mjs';
 
 const SCREEN_TOOL = 'tool:see-what-is-left-to-set-up';
 const SETUP_FACTS = 'setup_facts';
@@ -53,6 +65,33 @@ async function ownRecord(door, label) {
   }
 }
 
+/** The setup runtime, read from the setup run itself (see the PURPOSE above), or what makes it unavailable. Nothing is
+ *  written: the run and its kept answers are read once, and the old owner's receipt and session are not kept by a read. */
+async function setupRuntime(door, now) {
+  const policy = capabilityPolicy.workflow;
+  const recipe = defaultRecipeFor(policy.default_for);
+  const workflow = async () => {
+    if (!recipe) throw new Error('No setup workflow is published.');
+    const run = await readARecipeRun({ recipe, request_key: policy.request_key }, { door });
+    const kept = new Map(run.steps.filter(step => step.kept).map(step => [step.id, step]));
+    const shape = run.exists ? {
+      state: run.status === 'failed' ? 'failed' : run.finished ? 'finished' : 'working',
+      done: Object.fromEntries([...kept.values()].map(step => [step.id,
+        { admitted_at: step.kept_at, output_identity: makeHashCodeHexFromJson(step.answer), kept_answer: step.answer_id }])),
+    } : null;
+    return makeSetupWorkflow({
+      policy: { ...policy, id: recipe }, definitions: capabilityPolicy.requirements, identity: makeHashCodeHexFromJson,
+      readRun: id => (id === run.run ? shape : null),
+      readOutput: (id, step) => (id === run.run ? kept.get(step)?.answer ?? null : null),
+      readReference: () => ({ value: null }),
+      readScope: () => ({ computers: [] }),
+      owner: () => { throw new Error('A read starts no setup run.'); },
+      now: () => new Date(now),
+    }).read();
+  };
+  return makeSetupRuntime({ read: { workflow }, now: () => now }).read();
+}
+
 /** tool:read-setup: { user_agent?, origin?, account_id } → the Get started screen. */
 export async function readSetup(input = {}, { door } = {}) {
   if (!object(input)) throw new Error('Send one JSON object: { user_agent?, origin?, account_id }.');
@@ -76,9 +115,11 @@ export async function readSetup(input = {}, { door } = {}) {
   const now = typeof input.now === 'string' && Number.isFinite(Date.parse(input.now)) ? Date.parse(input.now) : Date.now();
   const devices = signedIn ? devicesFor({ signedInAs: signedIn, system, observer: installationObserver(userAgent), distribution: null, now }) : undefined;
   const [rules, personalContext] = await Promise.all([ownRecord(door, showRules.record), ownRecord(door, setupSettings.policy.context_record)]);
+  const runtime = object(answer.facts) && Object.hasOwn(answer.facts, 'runtime') ? undefined : await setupRuntime(door, now);
   const request = {
     account_id: accountId,
-    facts: { ...(object(answer.facts) ? answer.facts : {}), ...(devices && !object(answer.facts?.devices) && !Array.isArray(answer.facts?.devices) ? { devices } : {}) },
+    facts: { ...(object(answer.facts) ? answer.facts : {}), ...(devices && !object(answer.facts?.devices) && !Array.isArray(answer.facts?.devices) ? { devices } : {}),
+      ...(runtime ? { runtime } : {}) },
     ...Object.fromEntries(BESIDE.filter(name => Object.hasOwn(answer, name)).map(name => [name, answer[name]])),
     ...(Object.hasOwn(answer, 'system') ? {} : { system }),
     ...(rules !== undefined ? { rules } : {}),

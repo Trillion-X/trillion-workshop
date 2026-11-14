@@ -7,10 +7,10 @@
     {
       "from": "src/setup-capability-evidence.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/show-each-setup-step-with-the-real-things-found/from-old-trillion/src/setup-capability-evidence.mjs.held",
+      "to": "tools/show-each-setup-step-with-the-real-things-found/from-old-trillion/src/setup-capability-evidence.mjs",
       "source_identity": "1f:f5da4ca022b1cf01b5da65455d01493fdadfaf5d7a07bcd34b28d58f5aa3e83f",
-      "identity": "1f:d1ea33a478606d874d50b06135caf5b9b9e1ace1e57a9777b862dd8ef560d653",
-      "held": true
+      "identity": "1f:b9bde767ba90b6a2cc4e8cd6e80b06f4b2937d77059b3f3f8d8243292c2e4d59",
+      "held": false
     },
     {
       "from": "src/setup-known.mjs",

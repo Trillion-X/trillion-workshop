@@ -60,8 +60,12 @@ export function laneIds(step, answers) {
   return Array.isArray(step.lanes) ? [...step.lanes] : Array.from({ length: agents }, (_, at) => `${step.id}-${at + 1}`);
 }
 
-// The answers kept so far for the run's steps before `stepId`, by step id: what `lanes_from` and the checks read.
+// The id of the run of `recipe` started under `requestKey` (start-a-recipe-run.mjs), and the id of the checked answer
+// of `step` of `run` (submit-a-recipe-step.mjs): the one place each id is made, read by every tool of a run.
+export const runId = (recipe, requestKey) => `ai-job:${recipe}:${requestKey}`;
 export const answerId = (run, step) => `${run}#answer:${step}`;
+
+// The answers kept so far for the run's steps before `stepId`, by step id: what `lanes_from` and the checks read.
 export async function keptAnswers(door, run, steps, stepId) {
   const answers = {};
   for (const before of steps.slice(0, steps.findIndex(item => item.id === stepId))) {

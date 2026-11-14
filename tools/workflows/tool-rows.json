@@ -51,6 +51,8 @@
                 "paths": [
                   "read-data/start-a-recipe-run.mjs",
                   "read-data/recipe-rows.mjs",
+                  "read-data/step-agents.mjs",
+                  "read-data/public-recipes.mjs",
                   "recipes",
                   "arrivals"
                 ],
@@ -426,6 +428,7 @@
                 "package": "workflows",
                 "paths": [
                   "read-data/choose-the-workflows-that-fire.mjs",
+                  "read-data/public-recipes.mjs",
                   "read-data/fires-when.mjs",
                   "recipes",
                   "arrivals",

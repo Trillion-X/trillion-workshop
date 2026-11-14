@@ -25,14 +25,6 @@
       "identity": "1f:a3d2f086c75e935a7dc29859d9f734ac0038f5cb10bafd128ab31a19d5ab5b86"
     },
     {
-      "from": "src/setup-runtime.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/walk-a-new-person-through-first-setup/from-old-trillion/src/setup-runtime.mjs.held",
-      "source_identity": "1f:df5b990ea245aff9de901e0023ea761208d82aca9510cb4bdac95276eb397a4b",
-      "identity": "1f:eb1e10e8d95bf3946cf33457808f7203ecba1be920f1615897c8a76b18fb8239",
-      "held": true
-    },
-    {
       "from": "test/setup-plan.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/walk-a-new-person-through-first-setup/from-old-trillion/test/setup-plan.test.mjs.held",

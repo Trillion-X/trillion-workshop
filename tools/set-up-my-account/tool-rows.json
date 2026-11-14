@@ -131,7 +131,7 @@
               {
                 "package": "set-up-my-account",
                 "paths": [
-                  "do-work",
+                  "do-work/see-what-is-left-to-set-up.mjs",
                   "read-data"
                 ],
                 "at": "/opt/set-up-my-account"
@@ -320,9 +320,49 @@
                 "package": "set-up-my-account",
                 "paths": [
                   "do-work",
-                  "read-data"
+                  "read-data",
+                  "from-old-trillion/src"
                 ],
                 "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "read-data/read-a-recipe-run.mjs",
+                  "read-data/step-agents.mjs",
+                  "read-data/public-recipes.mjs",
+                  "recipes"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "learn-a-workflow-from-a-job",
+                "paths": [
+                  "src/scheduler.mjs"
+                ],
+                "at": "/opt/learn-a-workflow-from-a-job"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "src/scheduler.json",
+                  "harness/setup.json"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "see-what-my-ais-did",
+                "paths": [
+                  "from-old-trillion/src/work-results.mjs"
+                ],
+                "at": "/opt/see-what-my-ais-did"
+              },
+              {
+                "package": "show-each-setup-step-with-the-real-things-found",
+                "paths": [
+                  "from-old-trillion/src/setup-capability-evidence.mjs"
+                ],
+                "at": "/opt/show-each-setup-step-with-the-real-things-found"
               },
               {
                 "package": "set-up-my-devices-and-cameras",
@@ -444,6 +484,13 @@
                 "operations": [
                   "workspace:read"
                 ]
+              },
+              {
+                "kind": "ai-job",
+                "operations": [
+                  "records:read"
+                ],
+                "prefix": "ai-job:workflow:setup-with-your-ai:"
               }
             ],
             "runs": [

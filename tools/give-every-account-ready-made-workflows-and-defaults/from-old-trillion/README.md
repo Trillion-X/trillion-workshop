@@ -12,4 +12,4 @@ Files old trillion main still held at 5dc302be37 with no copy in any new reposit
 
 | Old path | Here |
 |---|---|
-| `records/setup-workflow-records.json` | `records/setup-workflow-records.json` |
+| `records/setup-workflow-records.json` | moved to `tools/workflows/recipes/setup-with-your-ai.json` |

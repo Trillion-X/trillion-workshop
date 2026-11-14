@@ -7,9 +7,16 @@
 // Rules, schedules, listeners and providers retain their existing create/edit/remove/stop/reset management owners.
 // The loop's input is a message kept in this account, or, for work handed through Trillion with no message behind it,
 // that work's own kept job: an AI is never asked to invent a person's message to have something to answer.
+// Moved wholesale from old trillion src/setup-runtime.mjs (tag old-trillion-before-worker-retire) by way of
+// tools/walk-a-new-person-through-first-setup/from-old-trillion/src/setup-runtime.mjs.held; only its imports and its run
+// lookups changed. A setup run is a recipe run (tools/workflows): its id is the run read's `runId` of the setup recipe and
+// the policy's request key, and its checked answers are the run's kept answers, so the separate verification receipt
+// the old owner saved is the kept verify-outcome answer itself (read-setup.mjs supplies readRun and readOutput over
+// tools/workflows/read-data/read-a-recipe-run.mjs). Nothing here writes: no receipt or session is kept by a read.
 import { withoutSecrets } from '../../../learn-a-workflow-from-a-job/src/scheduler.mjs';
-import { workResultWords } from './work-results.mjs';
-import { nativeSourceReturn, setupCapabilityEvidence } from '../../../show-each-setup-step-with-the-real-things-found/from-old-trillion/src/setup-capability-evidence.mjs.held';
+import { workResultWords } from '../../../see-what-my-ais-did/from-old-trillion/src/work-results.mjs';
+import { nativeSourceReturn, setupCapabilityEvidence } from '../../../show-each-setup-step-with-the-real-things-found/from-old-trillion/src/setup-capability-evidence.mjs';
+import { runId } from '../../../workflows/read-data/step-agents.mjs';
 
 export const SETUP_RUNTIME_PATH = '/setup/runtime';
 const toolCall = (tool, args = {}, reason = null) => ({ tool, arguments: args, ...(reason ? { reason } : {}) });
@@ -246,7 +253,7 @@ export function verifySetupEvidence({ inventory, configuration, output, definiti
 
 /** One durable workflow in this account. The key is policy DATA; the workflow owner supplies its normal identity. */
 export function makeSetupWorkflow({ policy, definitions = [], identity, readRun, readOutput, readReference, readScope, readReceipt, writeReceipt, readSession, writeSession, owner, now = () => new Date() }) {
-  const runFor = request_key => `run:${identity({ workflow_id: policy.id, request_key }).slice(3, 27)}`;
+  const runFor = request_key => runId(policy.id, request_key);
   const base_run_id = runFor(policy.request_key), session_id = `setup-session:${base_run_id}`;
   const current = () => {
     const saved = readSession?.(session_id);
@@ -292,10 +299,13 @@ export function makeSetupWorkflow({ policy, definitions = [], identity, readRun,
       withdrawn: Boolean(run?.withdrawal), started_at: run?.started_at ?? null, finished_at: run?.finished_at ?? null,
       step_now: run?.waiting?.[0]?.step_id ?? null, verification_step: policy.verification_step,
       verification_admitted_at: admitted?.admitted_at ?? null,
-      verified: Boolean(intact && evidence?.verified && receipt),
+      // A kept answer of the verification step is kept only after its checks passed, and never changes once kept, so it
+      // is the owner verification the old saved receipt was; a receipt kept by an earlier owner still counts.
+      verified: Boolean(intact && evidence?.verified && (receipt || admitted?.kept_answer)),
       evidence_protocol: SETUP_EVIDENCE_PROTOCOL,
       ...(evidence ? { evidence: { ready: evidence.verified, capabilities: evidence.capabilities, references: evidence.references, problems: evidence.problems, loop: evidence.loop } } : {}),
-      ...(receipt ? { receipt: { ref: receipt_id, verified_at: receipt.verified_at } } : {}),
+      ...(receipt ? { receipt: { ref: receipt_id, verified_at: receipt.verified_at } }
+        : intact && evidence?.verified && admitted?.kept_answer ? { receipt: { ref: admitted.kept_answer, verified_at: admitted.admitted_at } } : {}),
       ...(output && proofIntact ? { verification: output } : {}),
       ...(inventory.intact ? { inventory: inventory.output, inventory_admitted_at: inventory.admitted.admitted_at } : {}),
       ...(policy.configuration_step && configurationIntact ? { configuration: configuration.output, configuration_admitted_at: configuration.admitted.admitted_at } : {}),

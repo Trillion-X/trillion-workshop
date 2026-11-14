@@ -21,11 +21,12 @@
 // The job's id is `ai-job:<recipe id>:<request key>`. A wake's request key is its cause key, one per firing, and a
 // call at the door brings its own retry key, so a firing or a call that comes again finds its job and changes nothing.
 
-import { readdirSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { recipeFromRows } from './recipe-rows.mjs';
+import { runId } from './step-agents.mjs';
+import { publicRecipe } from './public-recipes.mjs';
 import { filterRecords } from '../../formulas/do-work/requests.mjs';
 
-const RECIPES = new URL('../recipes/', import.meta.url);
 const JOB_KIND = 'ai-job';
 const ROW_TYPES = JSON.parse(readFileSync(new URL('../arrivals/recipe-row-types.json', import.meta.url), 'utf8'));
 const ARRIVALS = JSON.parse(readFileSync(new URL('../arrivals/arrival-sources.json', import.meta.url), 'utf8'));
@@ -76,21 +77,12 @@ async function arrivedSeeds(sourceId, cause, door) {
     .filter(item => typeof item.words === 'string' && item.words.trim());
 }
 
-// The public recipe with this id, read from the recipe files beside this module.
-function publicRecipe(id) {
-  for (const name of readdirSync(RECIPES).filter(file => file.endsWith('.json'))) {
-    const found = JSON.parse(readFileSync(new URL(name, RECIPES), 'utf8')).records.find(record => record.payload?.id === id);
-    if (found) return found.payload;
-  }
-  throw new Error(`No recipe ${id} is in the person's workflows or the recipes folder.`);
-}
-
 export async function startARecipeRun({ input = {}, task = {} } = {}, { door }) {
   const { row, ...given } = input;
   if (typeof row !== 'string' || !row) throw new Error('input.row must name the recipe to start.');
   if (typeof task.request_key !== 'string' || !task.request_key) throw new Error('task.request_key is missing.');
   const recipe = (await ownRecipe(row, door)) ?? publicRecipe(row);
-  const id = `${JOB_KIND}:${row}:${task.request_key}`;
+  const id = runId(row, task.request_key);
   if (await door.read(JOB_KIND, id)) return { job: id, status: 'already-there' };
   if (given[ARRIVALS.input_field] !== undefined) {
     const seeds = await arrivedSeeds(given[ARRIVALS.input_field], task.cause, door);

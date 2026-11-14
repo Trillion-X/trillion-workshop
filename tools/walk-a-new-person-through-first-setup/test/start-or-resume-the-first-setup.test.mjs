@@ -66,3 +66,21 @@ test('a request that is not one of its shapes is refused', () => {
   assert.throws(() => startOrResumeTheFirstSetup({ account_id: account, available_tools: OWNED }), /runtime/);
   assert.throws(() => startOrResumeTheFirstSetup({ account_id: account, available_tools: OWNED, runtime: fresh, done_steps: ['nope'] }), /done_steps/);
 });
+
+// The workflow step's call is one start-a-recipe-run takes as it is: the setup recipe (the shipped recipe whose
+// default_for names the policy's purpose) in input.row, and the policy's request key as the run's request key, so the
+// run it starts is the run tool:read-setup reads back (on 2026-11-14 the call named no row and was refused).
+test('the workflow call names the setup recipe and the policy key, and the starter takes it', async () => {
+  const { startARecipeRun } = await import('../../workflows/read-data/start-a-recipe-run.mjs');
+  const { defaultRecipeFor } = await import('../../workflows/read-data/public-recipes.mjs');
+  const { runId } = await import('../../workflows/read-data/step-agents.mjs');
+  const policy = JSON.parse((await import('node:fs')).readFileSync(new URL('../../set-up-my-account/read-data/setup-policy.json', import.meta.url), 'utf8')).workflow;
+  const plan = startOrResumeTheFirstSetup({ account_id: 'acct-a', available_tools: OWNED, runtime: fresh });
+  const { call } = plan.steps.find(step => step.id === 'workflow');
+  const recipe = defaultRecipeFor(policy.default_for);
+  assert.deepEqual(call, { tool: 'tool:start-a-recipe-run', input: { row: recipe }, request_key: policy.request_key });
+  const held = new Map();
+  const door = { read: async (_kind, id) => held.get(id)?.value ?? null, async *list() {}, write: async records => { for (const record of records) held.set(record.id, record); } };
+  const started = await startARecipeRun({ input: call.input, task: { request_key: call.request_key } }, { door });
+  assert.deepEqual(started, { job: runId(recipe, policy.request_key), status: 'written' });
+});
