@@ -1,0 +1,93 @@
+// packages/group/do-work/open-external.test.ts
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { openExternalHref, isSafeExternalHref } from '@/packages/group/do-work/open-external';
+
+describe('openExternalHref (#210 — never hijacks the shell frame)', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  it('opens via a transient anchor with target=_blank + rel=noopener noreferrer', () => {
+    let clicked: HTMLAnchorElement | null = null;
+    const realClick = HTMLAnchorElement.prototype.click;
+    HTMLAnchorElement.prototype.click = function (this: HTMLAnchorElement) { clicked = this; };
+    try {
+      openExternalHref('https://notion.so/some/page');
+    } finally {
+      HTMLAnchorElement.prototype.click = realClick;
+    }
+    expect(clicked).not.toBeNull();
+    expect(clicked!.target).toBe('_blank');
+    expect(clicked!.rel).toBe('noopener noreferrer');
+    expect(clicked!.href).toContain('notion.so');
+  });
+
+  it('removes the anchor after clicking (no orphan node navigates later)', () => {
+    openExternalHref('https://example.com');
+    // jsdom anchor.click is a no-op nav; the element must not linger in the DOM.
+    expect(document.querySelectorAll('a').length).toBe(0);
+  });
+
+  it('never calls window.open (the WKWebView-hijacking path)', () => {
+    const spy = vi.spyOn(window, 'open').mockImplementation(() => null);
+    openExternalHref('https://notion.so');
+    expect(spy).not.toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  it('is a no-op for empty/nullish href (absent → no-op)', () => {
+    const before = document.body.innerHTML;
+    openExternalHref('');
+    openExternalHref(null);
+    openExternalHref(undefined);
+    expect(document.body.innerHTML).toBe(before);
+  });
+
+  // Convergence audit batch-6 (self + Codex GPT-5.5): the anchor-click sink must FAIL CLOSED on a
+  // dangerous URL scheme. A `javascript:` href in an anchor click executes in the studio's own
+  // origin, and a link href can arrive from an untrusted imported/shared board.
+  it('REFUSES a dangerous scheme (javascript:/data:/vbscript:/blob:/file:) — no anchor is clicked', () => {
+    const realClick = HTMLAnchorElement.prototype.click;
+    let clicked = false;
+    HTMLAnchorElement.prototype.click = function () { clicked = true; };
+    try {
+      for (const bad of [
+        'javascript:alert(document.domain)',
+        'JavaScript:alert(1)', // scheme is case-insensitive
+        'java\tscript:alert(1)', // tab-obfuscated — browsers strip it, so must be caught
+        ' javascript:alert(1)', // leading space
+        'data:text/html,<script>alert(1)</script>',
+        'vbscript:msgbox(1)',
+        'blob:https://evil/x',
+        'file:///etc/passwd',
+      ]) {
+        clicked = false;
+        openExternalHref(bad);
+        expect(clicked, `must refuse ${JSON.stringify(bad)}`).toBe(false);
+      }
+    } finally {
+      HTMLAnchorElement.prototype.click = realClick;
+    }
+    expect(document.querySelectorAll('a').length).toBe(0); // nothing left in the DOM either
+  });
+
+  it('isSafeExternalHref: allows http/https/mailto/tel + schemeless, rejects the script schemes', () => {
+    for (const ok of ['https://x.com', 'http://x.com', 'mailto:a@example.com', 'tel:+15551234', 'notion.so/page', '/relative/path'])
+      expect(isSafeExternalHref(ok), ok).toBe(true);
+    for (const bad of ['javascript:alert(1)', 'JAVASCRIPT:alert(1)', 'data:x', 'vbscript:x', 'blob:x', 'file:///x', 'java\tscript:x'])
+      expect(isSafeExternalHref(bad), bad).toBe(false);
+    expect(isSafeExternalHref('')).toBe(false);
+    expect(isSafeExternalHref(null)).toBe(false);
+  });
+
+  it('still opens a legitimate mailto: / tel: link (allow-list is not over-broad)', () => {
+    const realClick = HTMLAnchorElement.prototype.click;
+    let clicked: HTMLAnchorElement | null = null;
+    HTMLAnchorElement.prototype.click = function (this: HTMLAnchorElement) { clicked = this; };
+    try {
+      openExternalHref('mailto:coach@example.com');
+    } finally {
+      HTMLAnchorElement.prototype.click = realClick;
+    }
+    expect(clicked).not.toBeNull();
+    expect(clicked!.href).toContain('mailto:coach@example.com');
+  });
+});

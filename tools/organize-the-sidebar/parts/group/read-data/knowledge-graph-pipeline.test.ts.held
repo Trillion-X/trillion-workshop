@@ -1,0 +1,46 @@
+// packages/group/read-data/knowledge-graph-pipeline.test.ts
+//
+// END-TO-END proof (engine-independent): the person's relation and activity
+// records -> projectKnowledgeGraph -> this package's adapter -> the committed
+// foldKnowledgeGraphFeed -> BoardItems. The edges are the generic record graph
+// (product/record-model.json relations and activities), never an invented
+// {source,target,relation} family.
+
+import { describe, expect, it } from 'vitest';
+import { projectKnowledgeGraph } from './read-knowledge-graph';
+import { connectionGraphToFeedModel } from './knowledge-graph-adapter';
+import { foldKnowledgeGraphFeed } from './knowledge-graph-feed';
+
+const RELATIONS = [
+  { id: 'relation:1', value: { subject: 'person:ada', role: 'coached', object: 'person:ben' } },
+  { id: 'relation:2', value: { subject: 'person:ada', role: 'mentored', object: 'person:cara' } },
+  { id: 'note:1', value: { text: 'not a relation, must be ignored' } },
+];
+
+describe('knowledge-graph pipeline: record graph -> projection -> adapter -> feed', () => {
+  it('projects relation records into a connection graph, then into renderable board items', () => {
+    const projection = projectKnowledgeGraph(RELATIONS);
+    expect(projection.connections).toHaveLength(2);
+    const { model, dropped } = connectionGraphToFeedModel(projection);
+    expect(dropped).toEqual({ nodes: 0, connections: 0 });
+    const result = foldKnowledgeGraphFeed(model);
+    expect(result.diagnostics.nodeCount).toBe(3);
+    expect(result.diagnostics.edgeCount).toBe(2);
+    expect(result.diagnostics.missingEndpointCount).toBe(0);
+    expect(result.items.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('an activity with several participants folds into a hub', () => {
+    const activity = { id: 'activity:1', value: { kind: 'meeting', at: '2026-10-01T10:00:00Z', participants: [{ record: 'a' }, { record: 'b' }, { record: 'c' }] } };
+    const result = foldKnowledgeGraphFeed(connectionGraphToFeedModel(projectKnowledgeGraph([activity])).model);
+    expect(result.diagnostics.hubCount).toBe(1);
+    expect(result.diagnostics.edgeCount).toBe(3);
+  });
+
+  it('no records renders an honest empty graph (no fake nodes)', () => {
+    const result = foldKnowledgeGraphFeed(connectionGraphToFeedModel(projectKnowledgeGraph([])).model);
+    expect(result.diagnostics.nodeCount).toBe(0);
+    expect(result.diagnostics.edgeCount).toBe(0);
+    expect(result.items).toEqual([]);
+  });
+});

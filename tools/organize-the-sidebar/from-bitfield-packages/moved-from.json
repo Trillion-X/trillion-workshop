@@ -1,0 +1,2389 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages packages/group (the original package, at its last commit on the branch checked out; files the package holds only as uncommitted edits are not carried). Each names its source path and commit, the identity of its source bytes and of its bytes here. The first commit that holds them is the byte copy; later commits change import paths.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "a-persons-first-name-made-up",
+      "find": "\\bBrian\\b",
+      "replace": "Rosa",
+      "means": "Comments and fixtures named the person who owned the product; a public tree holds made-up names only."
+    },
+    {
+      "id": "a-persons-first-name-made-up-lower",
+      "find": "\\bbrian\\b",
+      "replace": "rosa",
+      "means": "A fixture id spelled the same person lower case."
+    },
+    {
+      "id": "a-business-name-made-up",
+      "find": "\\bEthos\\b",
+      "replace": "Example",
+      "means": "A fixture named a real business; the made-up name stands in."
+    },
+    {
+      "id": "a-business-name-made-up-lower",
+      "find": "\\bethos\\b",
+      "replace": "example",
+      "means": "The same business spelled lower case in an id or a host name."
+    },
+    {
+      "id": "an-address-made-up-on-example",
+      "find": "\\b([\\w.%+-]+)@(?!example\\.com\\b)(?:[\\w-]+\\.)+[A-Za-z]{2,}\\b",
+      "replace": "$1@example.com",
+      "means": "A test or example address shaped like a real one; the same name on example.com."
+    },
+    {
+      "id": "a-home-folder-made-neutral",
+      "find": "[/]Users[/][\\w.-]+",
+      "replace": "/workspace",
+      "means": "A path in a person's home folder; a neutral folder instead."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/group/do-work/apply-producer-output.test.ts",
+      "commit": "80b1eefde10b0a20e616e24552e60cf4dfb2f332",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/apply-producer-output.test.ts.held",
+      "identity": "1f:ebdbcfba045f19ed443107e2a144956d5a79dc621292464be78a8c02a6d1d2b3",
+      "source_identity": "1f:ebdbcfba045f19ed443107e2a144956d5a79dc621292464be78a8c02a6d1d2b3"
+    },
+    {
+      "from": "packages/group/do-work/arrowhead-catalog.test.ts",
+      "commit": "45998c850078972390212c5c5aaa1826871fd9a7",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/arrowhead-catalog.test.ts",
+      "source_identity": "1f:8bb6a9145e26cbdb11f8e7b768cd486ca0c1988758ed040e595f3d04a1c00856",
+      "identity_at_move": "1f:8bb6a9145e26cbdb11f8e7b768cd486ca0c1988758ed040e595f3d04a1c00856",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/attribute-consistency.test.ts",
+      "commit": "abe1cd4773b4ae55a4706cf9d0a8b23ee4763a41",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/attribute-consistency.test.ts",
+      "source_identity": "1f:8a388e3fb549b72f7ac5aca2290b0ebde8257959fc2a1fe8f435d9ff350efbb7",
+      "identity_at_move": "1f:8a388e3fb549b72f7ac5aca2290b0ebde8257959fc2a1fe8f435d9ff350efbb7",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/batch-actions.test.ts",
+      "commit": "c00137d8d6b8584b7b29ea3497df624120275f8a",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/batch-actions.test.ts.held",
+      "identity": "1f:aa7dcfd70a9019b3a5410f127f0247f2f764d96f150d877bbaa0f36fd94d1786",
+      "source_identity": "1f:aa7dcfd70a9019b3a5410f127f0247f2f764d96f150d877bbaa0f36fd94d1786"
+    },
+    {
+      "from": "packages/group/do-work/board-attention-actions.test.ts",
+      "commit": "41b9ec878f97b247e0cd4af92e0ee9decf254ffd",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-attention-actions.test.ts.held",
+      "identity": "1f:b77105a1854cc9f756b1fea7dbdbf51578cbc534c8a37cd3980129cb73b0b615",
+      "source_identity": "1f:b77105a1854cc9f756b1fea7dbdbf51578cbc534c8a37cd3980129cb73b0b615"
+    },
+    {
+      "from": "packages/group/do-work/board-balance-actions.test.ts",
+      "commit": "dd3fbb3cec21b84bbc1c72229a8a0bdf225cce21",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-balance-actions.test.ts.held",
+      "identity": "1f:b43c79e9593b39ed5c7083c182178c45ee02c006f17b5ff416b60d6c634428c9",
+      "source_identity": "1f:b43c79e9593b39ed5c7083c182178c45ee02c006f17b5ff416b60d6c634428c9"
+    },
+    {
+      "from": "packages/group/do-work/board-balance.test.ts",
+      "commit": "917a0b943f57746e8e14d6eeb34d35bb6aa4d51c",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-balance.test.ts",
+      "source_identity": "1f:c1e86ba3757329901dac3f73546a29bb30e59e28b9dcfc9cb8a3f5aff267f713",
+      "identity_at_move": "1f:c1e86ba3757329901dac3f73546a29bb30e59e28b9dcfc9cb8a3f5aff267f713",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/board-bottlenecks.test.ts",
+      "commit": "3a70aa1ae39365d3d4113212b9797e6cb480ebfb",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-bottlenecks.test.ts",
+      "source_identity": "1f:106b35031496a41663cee785d5c0a987722d0943bdc85764fa560962aebc3609",
+      "identity_at_move": "1f:106b35031496a41663cee785d5c0a987722d0943bdc85764fa560962aebc3609",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/board-card-merge.test.ts",
+      "commit": "22f7cd6fbdd87ce911538e1a86adea66687a2c75",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-card-merge.test.ts.held",
+      "identity": "1f:639ea98de53dc2c5b2fd3839213616c8ae016c4a55917f9578d6b0fcaca09644",
+      "source_identity": "1f:639ea98de53dc2c5b2fd3839213616c8ae016c4a55917f9578d6b0fcaca09644"
+    },
+    {
+      "from": "packages/group/do-work/board-card-split.test.ts",
+      "commit": "e5edbdfa996f40d1f606acfa0cf3091c18766b6d",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-card-split.test.ts.held",
+      "identity": "1f:5901ce9b09ac9bad1bfce44cca19062d8343f0456726a11668a4c1d40ce34cf5",
+      "source_identity": "1f:5901ce9b09ac9bad1bfce44cca19062d8343f0456726a11668a4c1d40ce34cf5"
+    },
+    {
+      "from": "packages/group/do-work/board-checklist-actions.test.ts",
+      "commit": "7633c9470a74aa497acc2ab0fafeb17b9bb973a3",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-checklist-actions.test.ts.held",
+      "identity": "1f:d76a924fafd95944038fe31388d7cc3a3aea6cbb7f1b1fcbfe868ab3f2aeb99f",
+      "source_identity": "1f:d76a924fafd95944038fe31388d7cc3a3aea6cbb7f1b1fcbfe868ab3f2aeb99f"
+    },
+    {
+      "from": "packages/group/do-work/board-clipboard.test.ts",
+      "commit": "c0e34def34d3de8de89935e96355907a44505ea0",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-clipboard.test.ts",
+      "source_identity": "1f:902f5459893a24568c3f50cda80d8189483ac10d06bdd6cda6cd7120ade48c37",
+      "identity_at_move": "1f:902f5459893a24568c3f50cda80d8189483ac10d06bdd6cda6cd7120ade48c37",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/board-comments-actions.test.ts",
+      "commit": "5ba6c4217537907b3652545ff915547dde47f552",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-comments-actions.test.ts.held",
+      "identity": "1f:da581f99f2a0d065b39fe792419470c2fe7f904e311c811902f4e14b0c3a466b",
+      "source_identity": "1f:da581f99f2a0d065b39fe792419470c2fe7f904e311c811902f4e14b0c3a466b"
+    },
+    {
+      "from": "packages/group/do-work/board-components.test.ts",
+      "commit": "2276f1eff115bec46fb9d9f03f1be2d57709039b",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-components.test.ts",
+      "source_identity": "1f:002ce1e350a87a0f22edeaa598f698a1d034af4d9f5e6444fb1a18c889e40e43",
+      "identity_at_move": "1f:002ce1e350a87a0f22edeaa598f698a1d034af4d9f5e6444fb1a18c889e40e43",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/board-composition-gauntlet.test.ts",
+      "commit": "9a4220de6dc44f749343fe828a39c09383d0f30b",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-composition-gauntlet.test.ts.held",
+      "identity": "1f:de1b4e20da4ab21a34293112d1ea09df8e16fdbb434a2bf9fdd2fa8f5f0886ee",
+      "source_identity": "1f:de1b4e20da4ab21a34293112d1ea09df8e16fdbb434a2bf9fdd2fa8f5f0886ee"
+    },
+    {
+      "from": "packages/group/do-work/board-critical-path-actions.test.ts",
+      "commit": "a12d697609c927874b79b17071fb3b6ebe6080d5",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-critical-path-actions.test.ts.held",
+      "identity": "1f:0bd8717a2ca181a146138fcde9b390c57768134022546c3351b1bd966b77f5bc",
+      "source_identity": "1f:0bd8717a2ca181a146138fcde9b390c57768134022546c3351b1bd966b77f5bc"
+    },
+    {
+      "from": "packages/group/do-work/board-csv-import.test.ts",
+      "commit": "5fa43291512fcf883dc71c75b1d6925f95526845",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-csv-import.test.ts.held",
+      "identity": "1f:03bf91049e94c6c26887bb220bc421f05dce71ee6ae59790bd28d2682f66211b",
+      "source_identity": "1f:03bf91049e94c6c26887bb220bc421f05dce71ee6ae59790bd28d2682f66211b"
+    },
+    {
+      "from": "packages/group/do-work/board-csv.test.ts",
+      "commit": "03720da5856ed01ca04413a86976cfa0eb2b2d28",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-csv.test.ts.held",
+      "identity": "1f:c660621efa0fd25964e6c43f521f31f0aca3ac786bfcff56c0e54b44305d9969",
+      "source_identity": "1f:c660621efa0fd25964e6c43f521f31f0aca3ac786bfcff56c0e54b44305d9969"
+    },
+    {
+      "from": "packages/group/do-work/board-cut.test.ts",
+      "commit": "a783cb4888a7040283119c6dc0d5cf0e5966cefb",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-cut.test.ts.held",
+      "identity": "1f:295aa17280a40dd2be88f8f3ec9459f9034cc8a566479d2d052ba9bab0a25190",
+      "source_identity": "1f:295aa17280a40dd2be88f8f3ec9459f9034cc8a566479d2d052ba9bab0a25190"
+    },
+    {
+      "from": "packages/group/do-work/board-cycles.test.ts",
+      "commit": "79bc11161bc11ffaf05d0f75edb74cb621f25c51",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-cycles.test.ts",
+      "source_identity": "1f:8e0ae980437d1d916d1dd4110f9c9b05253744aa10dcaa2aa1c191db843612bb",
+      "identity_at_move": "1f:8e0ae980437d1d916d1dd4110f9c9b05253744aa10dcaa2aa1c191db843612bb",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/board-date-coverage.test.ts",
+      "commit": "aa4a104c4c9a9158699def7bb826babef8c4aa79",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-date-coverage.test.ts.held",
+      "identity": "1f:b72e1d3a99cfe38dd61caf00ce8a4f03df1cb11533c9642aaf9ed61d12f4a6a1",
+      "source_identity": "1f:b72e1d3a99cfe38dd61caf00ce8a4f03df1cb11533c9642aaf9ed61d12f4a6a1"
+    },
+    {
+      "from": "packages/group/do-work/board-diff-actions.test.ts",
+      "commit": "9e51f560bf29abf6ea4876217658ba449a79c0a5",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-diff-actions.test.ts",
+      "source_identity": "1f:1f60f9f697253467a5497b352dde4911ffea14f333221e143b76c9a99564ea05",
+      "identity_at_move": "1f:1f60f9f697253467a5497b352dde4911ffea14f333221e143b76c9a99564ea05",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/board-digest-actions.test.ts",
+      "commit": "fefc741264d15cb939c738c1a0179d5efe6cd736",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-digest-actions.test.ts.held",
+      "identity": "1f:8527f4486c51221545e3a1c2b433a5b23b214d144c8eaba8a9e6e648c1bd3358",
+      "source_identity": "1f:8527f4486c51221545e3a1c2b433a5b23b214d144c8eaba8a9e6e648c1bd3358"
+    },
+    {
+      "from": "packages/group/do-work/board-document-exports.test.ts",
+      "commit": "ce457ff693714e054b4b5d5b3fbe769e9cbf64d1",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-document-exports.test.ts.held",
+      "identity": "1f:a446174ccac00153817620e8f966a9b5d898f11c916bfc48cf00d769906212a6",
+      "source_identity": "1f:a446174ccac00153817620e8f966a9b5d898f11c916bfc48cf00d769906212a6"
+    },
+    {
+      "from": "packages/group/do-work/board-dot.test.ts",
+      "commit": "c54026d44be973575217605be3aeff75c2b408f5",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-dot.test.ts.held",
+      "identity": "1f:49bbc7c3a2b18894b811b0cf90ec09d0aea79af0e54c710f9a326d6a976e5872",
+      "source_identity": "1f:49bbc7c3a2b18894b811b0cf90ec09d0aea79af0e54c710f9a326d6a976e5872"
+    },
+    {
+      "from": "packages/group/do-work/board-due-date-actions.test.ts",
+      "commit": "7ff4740388e0e4e24a76bd1bc03b34f5e6925d45",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-due-date-actions.test.ts.held",
+      "identity": "1f:3774c3c075e7e1e807b88263b97211275e5025a85654ffdd3cd1398079f49438",
+      "source_identity": "1f:3774c3c075e7e1e807b88263b97211275e5025a85654ffdd3cd1398079f49438"
+    },
+    {
+      "from": "packages/group/do-work/board-export-tree.test.ts",
+      "commit": "b199a495e88d139be6bf17d23158695967fc5b47",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-export-tree.test.ts.held",
+      "identity": "1f:c348a3fdfb4e194373bd7840dd77e346c516979373fb3a1ae1f59d10a0b80a61",
+      "source_identity": "1f:c348a3fdfb4e194373bd7840dd77e346c516979373fb3a1ae1f59d10a0b80a61"
+    },
+    {
+      "from": "packages/group/do-work/board-finish-line-actions.test.ts",
+      "commit": "6966f28144bb619cd43e000f8e15b3ecae48a119",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-finish-line-actions.test.ts.held",
+      "identity": "1f:ebf6f553592efc820d98889203cb0554e35f26e86c4faeaa7e21496ba8bd95f1",
+      "source_identity": "1f:ebf6f553592efc820d98889203cb0554e35f26e86c4faeaa7e21496ba8bd95f1"
+    },
+    {
+      "from": "packages/group/do-work/board-forecast-actions.test.ts",
+      "commit": "8621e4158f7c22b85e9a83cec7c1f971820db854",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-forecast-actions.test.ts.held",
+      "identity": "1f:333f61c8c2c05c8ffb7fa2aabccfad6859b5e3268d29c644b3915b031b013521",
+      "source_identity": "1f:333f61c8c2c05c8ffb7fa2aabccfad6859b5e3268d29c644b3915b031b013521"
+    },
+    {
+      "from": "packages/group/do-work/board-frames.test.ts",
+      "commit": "dea31c51a6e8602ef798f31e5e6fb469bcbd5f0c",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-frames.test.ts.held",
+      "identity": "1f:c626db1c0ac908bf66a211304731cb0fdabf0732f4ba46b0b6c7c22d6c9a0d05",
+      "source_identity": "1f:c626db1c0ac908bf66a211304731cb0fdabf0732f4ba46b0b6c7c22d6c9a0d05"
+    },
+    {
+      "from": "packages/group/do-work/board-freemind.test.ts",
+      "commit": "138d424ed8fdd7acc7ab8884f802637c19c6ef46",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-freemind.test.ts.held",
+      "identity": "1f:f1fb34c33e4d33f2201bf11f3c9602f37e0d7baff8d99980253469ca7fb3cae3",
+      "source_identity": "1f:f1fb34c33e4d33f2201bf11f3c9602f37e0d7baff8d99980253469ca7fb3cae3"
+    },
+    {
+      "from": "packages/group/do-work/board-graphml-import.test.ts",
+      "commit": "a66c384ca3cf77241aab9d446fe38cb67def88c0",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-graphml-import.test.ts.held",
+      "identity": "1f:551d969e9f3409abc387187b74b59bb944fe8b84f8960eaf50418fba1e3cb188",
+      "source_identity": "1f:551d969e9f3409abc387187b74b59bb944fe8b84f8960eaf50418fba1e3cb188"
+    },
+    {
+      "from": "packages/group/do-work/board-graphml.test.ts",
+      "commit": "bf4fd963de5f829008881f60f7b7e6ce63c70066",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-graphml.test.ts.held",
+      "identity": "1f:c99e49c21f9d4679ce7939c5ab243448821acbb0182458dde85d22ded6804ebb",
+      "source_identity": "1f:c99e49c21f9d4679ce7939c5ab243448821acbb0182458dde85d22ded6804ebb"
+    },
+    {
+      "from": "packages/group/do-work/board-habit-actions.test.ts",
+      "commit": "2e0b7eba76dad5f82561872ab1f09ffd64a3f5d2",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-habit-actions.test.ts.held",
+      "identity": "1f:ce5a06993e34cbeb7c68450da8e26772a21c6e3233e2d024b9e26878f7745ce5",
+      "source_identity": "1f:ce5a06993e34cbeb7c68450da8e26772a21c6e3233e2d024b9e26878f7745ce5"
+    },
+    {
+      "from": "packages/group/do-work/board-hubs.test.ts",
+      "commit": "e0946c7f1e1e8e00b8f0c2083baf75b4c2cea567",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-hubs.test.ts.held",
+      "identity": "1f:621eeafe1a70787d0bc1efe168b4b275a9089e71c1269dedc79949f817ff830a",
+      "source_identity": "1f:621eeafe1a70787d0bc1efe168b4b275a9089e71c1269dedc79949f817ff830a"
+    },
+    {
+      "from": "packages/group/do-work/board-icalendar-import.test.ts",
+      "commit": "c78917993e254951739768def06382e84d98affe",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-icalendar-import.test.ts.held",
+      "identity": "1f:006593fe1be2a9afb7a1c9ec6272eb1e442e187ebd531282c15629537bbd0ec3",
+      "source_identity": "1f:906b434ba5368b38fc57a19a40c96d4cb768823d1ed001c31272c59d9629fe38",
+      "calls": [
+        "an-address-made-up-on-example"
+      ]
+    },
+    {
+      "from": "packages/group/do-work/board-icalendar.test.ts",
+      "commit": "125c4d13c002a8bd3559ed1d0f06c604a94f700a",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-icalendar.test.ts.held",
+      "identity": "1f:ff7dd53236110193396e640109b76d384cd685d529bb70b2d9df8ec682f75edd",
+      "source_identity": "1f:7cd52a7f4e68c5528763c67dd017b3d0fa7b8be9c7bcdae01332dbbd686678e1",
+      "calls": [
+        "an-address-made-up-on-example"
+      ]
+    },
+    {
+      "from": "packages/group/do-work/board-importance-actions.test.ts",
+      "commit": "e4459114705cc9f7a44ccda0ec68809d086ffb89",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-importance-actions.test.ts.held",
+      "identity": "1f:e55a05eb6db1c65c20ceb5978b70fd7bf18d3e8f45ef776fe809248b459cafaa",
+      "source_identity": "1f:e55a05eb6db1c65c20ceb5978b70fd7bf18d3e8f45ef776fe809248b459cafaa"
+    },
+    {
+      "from": "packages/group/do-work/board-markdown.test.ts",
+      "commit": "cb615c3d076f79751e3237c04f0b0e105d309d04",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-markdown.test.ts.held",
+      "identity": "1f:fcd42fb6d0ea21a5d25e2fad39d8185b4c092eaefff1ea69bc546ef82411aa8a",
+      "source_identity": "1f:fcd42fb6d0ea21a5d25e2fad39d8185b4c092eaefff1ea69bc546ef82411aa8a"
+    },
+    {
+      "from": "packages/group/do-work/board-mermaid-import.test.ts",
+      "commit": "e60b9e168ecdf3190e76ba089675c2ef8e74f0e5",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-mermaid-import.test.ts.held",
+      "identity": "1f:8a12d29399056a18c2b6800646082a099a11828454ca3e63715044fe92dc9a54",
+      "source_identity": "1f:8a12d29399056a18c2b6800646082a099a11828454ca3e63715044fe92dc9a54"
+    },
+    {
+      "from": "packages/group/do-work/board-mermaid.test.ts",
+      "commit": "c729e566d81e11e54c7bbea7fa14662797a72182",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-mermaid.test.ts.held",
+      "identity": "1f:2e49e8a0199bfa4a9a69db5813bf3372a34b10d909a27e9c43ed89a005f86ed2",
+      "source_identity": "1f:2e49e8a0199bfa4a9a69db5813bf3372a34b10d909a27e9c43ed89a005f86ed2"
+    },
+    {
+      "from": "packages/group/do-work/board-metric-actions.test.ts",
+      "commit": "009036c9709de54afb13466d892145ffb422b803",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-metric-actions.test.ts.held",
+      "identity": "1f:8f14cc2bd2ae2dc430997a6562248a320671d195abefbfeb111b6254aedea539",
+      "source_identity": "1f:8f14cc2bd2ae2dc430997a6562248a320671d195abefbfeb111b6254aedea539"
+    },
+    {
+      "from": "packages/group/do-work/board-momentum-actions.test.ts",
+      "commit": "41b9ec878f97b247e0cd4af92e0ee9decf254ffd",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-momentum-actions.test.ts.held",
+      "identity": "1f:8cd28f0cc202e7511091195a6b172d17a0749f1ec8b6c17b12df5832838480af",
+      "source_identity": "1f:8cd28f0cc202e7511091195a6b172d17a0749f1ec8b6c17b12df5832838480af"
+    },
+    {
+      "from": "packages/group/do-work/board-next-focus-actions.test.ts",
+      "commit": "946dc4c0f50ad034840b09d6f0c0b6c560dee136",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-next-focus-actions.test.ts.held",
+      "identity": "1f:1564c6697daabf3cdb10567765e86fc3e5ffd2beec91e52baf5455b3fe997cda",
+      "source_identity": "1f:1564c6697daabf3cdb10567765e86fc3e5ffd2beec91e52baf5455b3fe997cda"
+    },
+    {
+      "from": "packages/group/do-work/board-opml-import.test.ts",
+      "commit": "21d7d615c71931017a655d2a8627fd897c5dbf7e",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-opml-import.test.ts.held",
+      "identity": "1f:cab3a260db2626e89735dfc43f1d5119e18c343ee88f1d808a5a25b22cd46e3a",
+      "source_identity": "1f:cab3a260db2626e89735dfc43f1d5119e18c343ee88f1d808a5a25b22cd46e3a"
+    },
+    {
+      "from": "packages/group/do-work/board-opml.test.ts",
+      "commit": "cb3e9daea38e5e5f1442fe0df4ff8b2cedf7d9c5",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-opml.test.ts.held",
+      "identity": "1f:3e69dfac696fe13addfbd2c8c68b48707ac59260a3a6632b25aca1aa476993b4",
+      "source_identity": "1f:3e69dfac696fe13addfbd2c8c68b48707ac59260a3a6632b25aca1aa476993b4"
+    },
+    {
+      "from": "packages/group/do-work/board-order.test.ts",
+      "commit": "83e72a5969a34ebac293692e7a8d468ef99fcdce",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-order.test.ts",
+      "source_identity": "1f:b9ea0f14adfff0cfe49739b57176768650cec3de771edeea3817a0b3100bfb2a",
+      "identity_at_move": "1f:b9ea0f14adfff0cfe49739b57176768650cec3de771edeea3817a0b3100bfb2a",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/board-outline.test.ts",
+      "commit": "4963bf207192af3a9887bb2b1492f26c454a71d5",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-outline.test.ts.held",
+      "identity": "1f:8fca65314819b77f0d1b883e52288cf2422f1f0595b16c8975055778a2669a95",
+      "source_identity": "1f:8fca65314819b77f0d1b883e52288cf2422f1f0595b16c8975055778a2669a95"
+    },
+    {
+      "from": "packages/group/do-work/board-readiness-actions.test.ts",
+      "commit": "9b5c788dc6762664390bcce5b9fadeb21ebb8f9c",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-readiness-actions.test.ts.held",
+      "identity": "1f:b77ff4b77debf059bccf7757e5d3bc9c4df0cabea3194e05dca6c01a1a4afe8d",
+      "source_identity": "1f:b77ff4b77debf059bccf7757e5d3bc9c4df0cabea3194e05dca6c01a1a4afe8d"
+    },
+    {
+      "from": "packages/group/do-work/board-rollup-actions.test.ts",
+      "commit": "8039b7712f921bfcb497ac08fb7dad56d1993e53",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-rollup-actions.test.ts.held",
+      "identity": "1f:ff06c64077339eb97068dee3a9a211cc68afc2eb1682b1afe12aec2e8a981bc0",
+      "source_identity": "1f:ff06c64077339eb97068dee3a9a211cc68afc2eb1682b1afe12aec2e8a981bc0"
+    },
+    {
+      "from": "packages/group/do-work/board-sources-sinks.test.ts",
+      "commit": "96d5c13bf945cc322d3f9947d6f43dd0c92dad0a",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-sources-sinks.test.ts.held",
+      "identity": "1f:d3ee5d69e382f19f038de55932ca2c3793fc65ab401219c5629495d1b499c7d6",
+      "source_identity": "1f:d3ee5d69e382f19f038de55932ca2c3793fc65ab401219c5629495d1b499c7d6"
+    },
+    {
+      "from": "packages/group/do-work/board-subject-bag.test.ts",
+      "commit": "0173caf531e9325da6b7c92d40e5144bb603589d",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-subject-bag.test.ts.held",
+      "identity": "1f:194d75655c3f2bc085c3d939473e593ec45b84e42c1908fe8e6f5631dda42357",
+      "source_identity": "1f:194d75655c3f2bc085c3d939473e593ec45b84e42c1908fe8e6f5631dda42357"
+    },
+    {
+      "from": "packages/group/do-work/board-svg.test.ts",
+      "commit": "7128e8cc97e9847a96a30c553e40e3e915baf319",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-svg.test.ts.held",
+      "identity": "1f:dea46f98b3b61c4d716a3446c77f8f37912022ed1955998e99b3c75059c899bd",
+      "source_identity": "1f:dea46f98b3b61c4d716a3446c77f8f37912022ed1955998e99b3c75059c899bd"
+    },
+    {
+      "from": "packages/group/do-work/board-tag-canonicalize.test.ts",
+      "commit": "db6d2f9b545b88fb17c352c7aaac868ccd8a39e3",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-tag-canonicalize.test.ts",
+      "source_identity": "1f:e144c3912293826a5c2911e11166ad584753d923178e92fd07c70296b68d8a0c",
+      "identity_at_move": "1f:e144c3912293826a5c2911e11166ad584753d923178e92fd07c70296b68d8a0c",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/board-tag-hygiene.test.ts",
+      "commit": "a5c5ee4e3bf91e0dcdf51f8b03b92afbce5f7cc2",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-tag-hygiene.test.ts",
+      "source_identity": "1f:fafa3297cda5615db8364e422d195e59a75f7d430d80860708426af1849163eb",
+      "identity_at_move": "1f:fafa3297cda5615db8364e422d195e59a75f7d430d80860708426af1849163eb",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/board-text-replace.test.ts",
+      "commit": "29c207b98a15956bdf90cab1ee77960b40ed83e7",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-text-replace.test.ts.held",
+      "identity": "1f:27ba45fb23f90f56b4920f15914200c542ca24dc2f1cbd40491cb90abf18c99e",
+      "source_identity": "1f:27ba45fb23f90f56b4920f15914200c542ca24dc2f1cbd40491cb90abf18c99e"
+    },
+    {
+      "from": "packages/group/do-work/board-tidiness.test.ts",
+      "commit": "978f1585f866f5662d89760a54d93825fa0dbaa7",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-tidiness.test.ts",
+      "source_identity": "1f:3e1a14b1d2a1d6c50f4074205943fbe04315a3c9f873a6d0c74ca5240a607087",
+      "identity_at_move": "1f:3e1a14b1d2a1d6c50f4074205943fbe04315a3c9f873a6d0c74ca5240a607087",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/board-time-log-actions.test.ts",
+      "commit": "12f52897cbcf691799ecdff4c7d59152ff09f654",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-time-log-actions.test.ts.held",
+      "identity": "1f:39c530544d82eb25dbeb9509646a6444ec30df9c305fcd13bc69f8a61b10190e",
+      "source_identity": "1f:39c530544d82eb25dbeb9509646a6444ec30df9c305fcd13bc69f8a61b10190e"
+    },
+    {
+      "from": "packages/group/do-work/board-votes-actions.test.ts",
+      "commit": "33a09c8f509c1e67bc417b4d02ae44ce180d2aa5",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-votes-actions.test.ts.held",
+      "identity": "1f:961152ea037c6bacb13baf6e302932d1ed36ab2e88c6bb2cfda038a56a85de06",
+      "source_identity": "1f:961152ea037c6bacb13baf6e302932d1ed36ab2e88c6bb2cfda038a56a85de06"
+    },
+    {
+      "from": "packages/group/do-work/branch-collapse.test.ts",
+      "commit": "43126a1bc65963a601904c0a338ae35f7808cfea",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/branch-collapse.test.ts.held",
+      "identity": "1f:7c21907581f92b7058225b9a9d7a44a794423305f12e19f091cd4f23ea5265d5",
+      "source_identity": "1f:7c21907581f92b7058225b9a9d7a44a794423305f12e19f091cd4f23ea5265d5"
+    },
+    {
+      "from": "packages/group/do-work/branch-color-assignments.test.ts",
+      "commit": "fe41c7b72d33765f0f806fd4ed9f868b1e9017d3",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/branch-color-assignments.test.ts.held",
+      "identity": "1f:b91c2416613e666a4a3b9f87a4bc9e4fd5e0b9f4bc2a659368138b542108df68",
+      "source_identity": "1f:b91c2416613e666a4a3b9f87a4bc9e4fd5e0b9f4bc2a659368138b542108df68"
+    },
+    {
+      "from": "packages/group/do-work/branch-toggle-states.test.ts",
+      "commit": "11286dca09bc25256a5f03ba5f257620dbc43ea7",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/branch-toggle-states.test.ts.held",
+      "identity": "1f:4ced10d8f7a78676640888b50e966f89d35bca6afd4445a82b2b225c8a2139c0",
+      "source_identity": "1f:4ced10d8f7a78676640888b50e966f89d35bca6afd4445a82b2b225c8a2139c0"
+    },
+    {
+      "from": "packages/group/do-work/capsule-import.test.ts",
+      "commit": "d4929c117efa84b012ae831775d87c4c4f74eb78",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/capsule-import.test.ts",
+      "source_identity": "1f:6615a05ef25432b726743e6c249ee1bc976a3a5bb02027292bc6db7e153e4f7f",
+      "identity_at_move": "1f:6615a05ef25432b726743e6c249ee1bc976a3a5bb02027292bc6db7e153e4f7f",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/catmull-rom.test.ts",
+      "commit": "1299ff03e6c6941399e61929810c2e2dbec34f39",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/catmull-rom.test.ts",
+      "source_identity": "1f:7b1886d8e49f067bdab74d04ea10e67ff88ec3f0e13b4e59f14bba7899a26d15",
+      "identity_at_move": "1f:7b1886d8e49f067bdab74d04ea10e67ff88ec3f0e13b4e59f14bba7899a26d15",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/circle-layout.test.ts",
+      "commit": "4c07c0b97957aab95403a77f263f6a0575d904f9",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/circle-layout.test.ts",
+      "source_identity": "1f:3ceee622d5454c6a1920b711cc3ff6832fc155664a1ecc7af2f415aff4ce9af8",
+      "identity_at_move": "1f:3ceee622d5454c6a1920b711cc3ff6832fc155664a1ecc7af2f415aff4ce9af8",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/cluster-hull.test.ts",
+      "commit": "04c9b002c80222a515b7e1fd1a3f3bbb5c266a2f",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/cluster-hull.test.ts.held",
+      "identity": "1f:d8e51f55182e6d40cb88c0d9e9ad9172d3c7bd7635051c27cf8c537cb4f376ca",
+      "source_identity": "1f:d8e51f55182e6d40cb88c0d9e9ad9172d3c7bd7635051c27cf8c537cb4f376ca"
+    },
+    {
+      "from": "packages/group/do-work/collection-basket.test.ts",
+      "commit": "a2fe962fa322b3da936af7e838b0d6b651b4e2a5",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/collection-basket.test.ts",
+      "source_identity": "1f:db88c72374e52a0fb7c64a8547838a912fc899db623f9ec064be8bd52c89e120",
+      "identity_at_move": "1f:db88c72374e52a0fb7c64a8547838a912fc899db623f9ec064be8bd52c89e120",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/connector-branch-colors.test.ts",
+      "commit": "b626a46db28f12cf39088706bddc9fe5725abb8a",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/connector-branch-colors.test.ts.held",
+      "identity": "1f:972e517a904a0e69157eafc370b31d41556617e677004651053131c4b27a793e",
+      "source_identity": "1f:972e517a904a0e69157eafc370b31d41556617e677004651053131c4b27a793e"
+    },
+    {
+      "from": "packages/group/do-work/connector-corners.test.ts",
+      "commit": "4f609549ee7d14b8dabd20280ccf79e3146b72aa",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/connector-corners.test.ts",
+      "source_identity": "1f:05a779418f85ef9636084f6f4d0513ff4209641afa15b7256d031e7a1e18bb78",
+      "identity_at_move": "1f:05a779418f85ef9636084f6f4d0513ff4209641afa15b7256d031e7a1e18bb78",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/connector-fan.test.ts",
+      "commit": "a850b22848e3876b0d30ef0e73af54f609802ae2",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/connector-fan.test.ts",
+      "source_identity": "1f:b7b4ad0ab7ba2c50ddb6c2793fdd689025f33d94ffa13d512e3435c21787700b",
+      "identity_at_move": "1f:b7b4ad0ab7ba2c50ddb6c2793fdd689025f33d94ffa13d512e3435c21787700b",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/connector-geometry.test.ts",
+      "commit": "64af77b9bebb9101afbe75df79095c311680ac4f",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/connector-geometry.test.ts",
+      "source_identity": "1f:c48f1717272510e0d4e41914b019ec20382628f9c029c6ca2478528fbe7c2e45",
+      "identity_at_move": "1f:c48f1717272510e0d4e41914b019ec20382628f9c029c6ca2478528fbe7c2e45",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/connector-jumps.test.ts",
+      "commit": "508c93b729b4db0c4c487edda4cb765dfc69246c",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/connector-jumps.test.ts",
+      "source_identity": "1f:eb1239dbde00a9fd10c1a89e33647fca79d812e951b56339f87b9946f558093b",
+      "identity_at_move": "1f:eb1239dbde00a9fd10c1a89e33647fca79d812e951b56339f87b9946f558093b",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/connector-self-loop.test.ts",
+      "commit": "d52b170c39962b20d38f76a7a2d2f776a8813a72",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/connector-self-loop.test.ts",
+      "source_identity": "1f:af6ac23c5823fd7c045e292100c05de432f23e4a99025fc29e00e23fe058476d",
+      "identity_at_move": "1f:af6ac23c5823fd7c045e292100c05de432f23e4a99025fc29e00e23fe058476d",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/cross-board-paste.test.ts",
+      "commit": "4ad0a666478e67c35f7fe103b8ab1c49696fce9b",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/cross-board-paste.test.ts.held",
+      "identity": "1f:dd8b5d8f08b4931aea9b1e70ae8dcc38857d0a011badec712aa5c52dd18ad758",
+      "source_identity": "1f:dd8b5d8f08b4931aea9b1e70ae8dcc38857d0a011badec712aa5c52dd18ad758"
+    },
+    {
+      "from": "packages/group/do-work/density-field.test.ts",
+      "commit": "f0da7f4217393acba420fca4cc83b7f193f4e04c",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/density-field.test.ts",
+      "source_identity": "1f:80230c8a20f48058f2cfbe0fac2c214ff3ec6d50e805434395fb6485a4e19657",
+      "identity_at_move": "1f:80230c8a20f48058f2cfbe0fac2c214ff3ec6d50e805434395fb6485a4e19657",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/fit-to-contents.test.ts",
+      "commit": "10c0b45b3970e94f6f7c34cda19f27ba10d85359",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/fit-to-contents.test.ts",
+      "source_identity": "1f:a3931ca782955595e130d0dd5a33392a65bf7c7e407c004613b3c1a89ce77332",
+      "identity_at_move": "1f:a3931ca782955595e130d0dd5a33392a65bf7c7e407c004613b3c1a89ce77332",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/frame-border.test.ts",
+      "commit": "385b309a085cb4c855c70400906c80a206f59d8f",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/frame-border.test.ts.held",
+      "identity": "1f:5c7f0d834eee5398c2ada7c299a93ad110982c774950c8370570bf62250c1795",
+      "source_identity": "1f:5c7f0d834eee5398c2ada7c299a93ad110982c774950c8370570bf62250c1795"
+    },
+    {
+      "from": "packages/group/do-work/group-from-containment-projection.test.ts",
+      "commit": "7a663c49502767951eb6ebe286a7e1bd1e2a8595",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/group-from-containment-projection.test.ts.held",
+      "identity": "1f:a41e695107f3f9b35f6aa769a697b190cc1905b70f4746ddab24e30bb7e0db56",
+      "source_identity": "1f:a41e695107f3f9b35f6aa769a697b190cc1905b70f4746ddab24e30bb7e0db56"
+    },
+    {
+      "from": "packages/group/do-work/group-membership-actions.test.ts",
+      "commit": "c9840a4024ea38e573f01df6c7b20a3b28b7d698",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/group-membership-actions.test.ts.held",
+      "identity": "1f:99519a2c20fdc19abb576f38cf276b0e6f7ff7e3481317bedcaa9cdb27af31ef",
+      "source_identity": "1f:99519a2c20fdc19abb576f38cf276b0e6f7ff7e3481317bedcaa9cdb27af31ef"
+    },
+    {
+      "from": "packages/group/do-work/group-mutation-writes.test.ts",
+      "commit": "c8c39e8e57b1c1b02aa970954bde72a1d3d45ec7",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/group-mutation-writes.test.ts",
+      "source_identity": "1f:6534312a8585c899d35a0e1aecee72d8018ad536457d0ef7fccf25bde8dfe018",
+      "identity_at_move": "1f:6534312a8585c899d35a0e1aecee72d8018ad536457d0ef7fccf25bde8dfe018",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/group-resize.test.ts",
+      "commit": "fa49393c9f9ee3aecb6ff12723e2f07c6bac9aa7",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/group-resize.test.ts",
+      "source_identity": "1f:ad870b4ff24d6a5cab3c214d80e953d3bc9faa8de1b22a0c8f330b8d57cba668",
+      "identity_at_move": "1f:ad870b4ff24d6a5cab3c214d80e953d3bc9faa8de1b22a0c8f330b8d57cba668",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/link-enrich-roundtrip.test.ts",
+      "commit": "040ecced9b1120faf87d39d8f19ee727bac4e778",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/link-enrich-roundtrip.test.ts.held",
+      "identity": "1f:cc1be6bf31e528c10f071bc6d17f8bd6a3108c54c322a3c0940f8289d4465d1f",
+      "source_identity": "1f:cc1be6bf31e528c10f071bc6d17f8bd6a3108c54c322a3c0940f8289d4465d1f"
+    },
+    {
+      "from": "packages/group/do-work/materialize-selection-target.test.ts",
+      "commit": "f357e850bb94e0db960804c89bb0b04f27fb1109",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/materialize-selection-target.test.ts.held",
+      "identity": "1f:2502b4a9702f499e66f0b4d81df383df9b306aeb8e6b66688a0ed9ee06872325",
+      "source_identity": "1f:2502b4a9702f499e66f0b4d81df383df9b306aeb8e6b66688a0ed9ee06872325"
+    },
+    {
+      "from": "packages/group/do-work/mind-map-journey.test.ts",
+      "commit": "30c0dbd603b6dce60743257dc53c8f8093b555b2",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/mind-map-journey.test.ts.held",
+      "identity": "1f:5b9db4a9f48077454929cbc5817a80da0f364b6ac2581b70b696f372aa186ff9",
+      "source_identity": "1f:5b9db4a9f48077454929cbc5817a80da0f364b6ac2581b70b696f372aa186ff9"
+    },
+    {
+      "from": "packages/group/do-work/mind-map-layout.test.ts",
+      "commit": "3af3956d46ba49ebd465a7c5695d23ee20423529",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/mind-map-layout.test.ts.held",
+      "identity": "1f:ee7e9ba3e82c43bbeb8c4b53c049c7374d412bc15a015628f17a3ebdb8fb11e2",
+      "source_identity": "1f:ee7e9ba3e82c43bbeb8c4b53c049c7374d412bc15a015628f17a3ebdb8fb11e2"
+    },
+    {
+      "from": "packages/group/do-work/mind-map-topology.test.ts",
+      "commit": "a1ed96800a0af890ac71e36f0f6ed04d8c905d25",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/mind-map-topology.test.ts.held",
+      "identity": "1f:9155c64c9673387e97e116c9e10d0501c513b129b5ed3e60f3f285e53f90abd6",
+      "source_identity": "1f:9155c64c9673387e97e116c9e10d0501c513b129b5ed3e60f3f285e53f90abd6"
+    },
+    {
+      "from": "packages/group/do-work/open-external.test.ts",
+      "commit": "a0a2ad4610eea97dadbf2cb527c483dabc4ef3c6",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/open-external.test.ts.held",
+      "identity": "1f:a63f590a6b61b4f184337543593c5afe5beef0ad6e8cea2a3fb553a73d75a1ec",
+      "source_identity": "1f:abe380f77ece1ec982fea2d3ce30e6bf12e1b15b6242d7196c59293d31c12b07",
+      "calls": [
+        "an-address-made-up-on-example"
+      ]
+    },
+    {
+      "from": "packages/group/do-work/orthogonal-route.test.ts",
+      "commit": "5026559da271f9219fb9348a51c35dfd1306f3cb",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/orthogonal-route.test.ts",
+      "source_identity": "1f:3d3f6f26fae812d2424e596dedbc310883c3db3ccd6a9cb5d4a0b463029cb8c4",
+      "identity_at_move": "1f:3d3f6f26fae812d2424e596dedbc310883c3db3ccd6a9cb5d4a0b463029cb8c4",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/rainbow-mindmap-journey.test.ts",
+      "commit": "88a07cc4a2dd609e224867a43b0f88e23371e38a",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/rainbow-mindmap-journey.test.ts.held",
+      "identity": "1f:8dc746dea742556d99c33ecfe61ad71e231f1b1aaa946200e896fe56540bb4ba",
+      "source_identity": "1f:8dc746dea742556d99c33ecfe61ad71e231f1b1aaa946200e896fe56540bb4ba"
+    },
+    {
+      "from": "packages/group/do-work/reading-tour-actions.test.ts",
+      "commit": "a11a00d788a334bba745a45df81a376b002444fd",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/reading-tour-actions.test.ts.held",
+      "identity": "1f:4002b7db36ec8dfd04066e6fb25079c3a1aeeea4ff09fb467af38d52c3e4ff31",
+      "source_identity": "1f:4002b7db36ec8dfd04066e6fb25079c3a1aeeea4ff09fb467af38d52c3e4ff31"
+    },
+    {
+      "from": "packages/group/do-work/reconcile-board-producer.test.ts",
+      "commit": "d39120d82dec6880987c4a760ae6d1c9b2b3fc84",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/reconcile-board-producer.test.ts.held",
+      "identity": "1f:1bdf04f06c663f459fe39228f23b5424472bb51b996255d538c7bcb9ed4dc6f8",
+      "source_identity": "1f:1bdf04f06c663f459fe39228f23b5424472bb51b996255d538c7bcb9ed4dc6f8"
+    },
+    {
+      "from": "packages/group/do-work/reconcile-consume-seam.test.ts",
+      "commit": "a7fa3b78d49092e7a6f9b4fa3330fc9d63ae14c3",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/reconcile-consume-seam.test.ts.held",
+      "calls": [
+        "a-persons-first-name-made-up"
+      ],
+      "identity": "1f:ce99d079bc015b0ce58baab9578ed7ca36c5aefa3e946c37fb08186904901aa5",
+      "source_identity": "1f:91f04cbe09a4663485f8457b98968dff816b6a3bb9f08b1339bec2b17ef220d1"
+    },
+    {
+      "from": "packages/group/do-work/reconcile-feed-into-store.test.ts",
+      "commit": "56d9bc50cfbf1aeeacd35145dda44d2ccf6f3821",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/reconcile-feed-into-store.test.ts.held",
+      "identity": "1f:3d23a3c66c8391ff88223f3666e8ebe49865e70164dbf1d448778dd7868f9e75",
+      "source_identity": "1f:3d23a3c66c8391ff88223f3666e8ebe49865e70164dbf1d448778dd7868f9e75"
+    },
+    {
+      "from": "packages/group/do-work/reconcile-output-from-items.test.ts",
+      "commit": "f59ca5a5a24b320ca02c786550d672e69c5e1b5b",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/reconcile-output-from-items.test.ts.held",
+      "calls": [
+        "a-persons-first-name-made-up"
+      ],
+      "identity": "1f:276ce1d4472bb72b760cd6d974eb411b2d8449edc5616fa2208e16578478f4f3",
+      "source_identity": "1f:88e76e627790cf64b9aa0b6164801994d9c148a8f1a30d731815f36fa0df7bf7"
+    },
+    {
+      "from": "packages/group/do-work/request-board-output.test.ts",
+      "commit": "345a16b8dfbcadaf681a84b99ddd31d104d32d48",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/request-board-output.test.ts.held",
+      "identity": "1f:3a686c49b1c15e16d1d1890a79f9c504a8421ce21ac05cb420c3e867ca528efd",
+      "source_identity": "1f:3a686c49b1c15e16d1d1890a79f9c504a8421ce21ac05cb420c3e867ca528efd"
+    },
+    {
+      "from": "packages/group/do-work/review-share-references.test.ts",
+      "commit": "7a397ee192a47a5bee1e3a843511c8e896525832",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/review-share-references.test.ts.held",
+      "identity": "1f:eb024ead68dcc87ecb13b411bc926d135219e12d611b4e2528bdbb07df14070a",
+      "source_identity": "1f:eb024ead68dcc87ecb13b411bc926d135219e12d611b4e2528bdbb07df14070a"
+    },
+    {
+      "from": "packages/group/do-work/sanitize-capsule-html.test.ts",
+      "commit": "abd6311feb1199dbc3a6d7278353ff1c31311bf6",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/sanitize-capsule-html.test.ts.held",
+      "identity": "1f:5de6da5563c1852e1da5971a94f87ebf4330ca6db9bd60c67380102fbd2c9bb0",
+      "source_identity": "1f:5de6da5563c1852e1da5971a94f87ebf4330ca6db9bd60c67380102fbd2c9bb0"
+    },
+    {
+      "from": "packages/group/do-work/shape-geometry.test.ts",
+      "commit": "fa49393c9f9ee3aecb6ff12723e2f07c6bac9aa7",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/shape-geometry.test.ts",
+      "source_identity": "1f:d33916a4c1509e21c70af2759c52d6d961038c601b11b9ae7e2f4574af32df95",
+      "identity_at_move": "1f:d33916a4c1509e21c70af2759c52d6d961038c601b11b9ae7e2f4574af32df95",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/spatial-clusters.test.ts",
+      "commit": "413962850163d56cde5ace8337af0481ef7e3753",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/spatial-clusters.test.ts",
+      "source_identity": "1f:3e13a7e94473b79ef56624b51ac28a8a83cbd80ac17861d5b644074568bf99e7",
+      "identity_at_move": "1f:3e13a7e94473b79ef56624b51ac28a8a83cbd80ac17861d5b644074568bf99e7",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/do-work/treemap.test.ts",
+      "commit": "0407fdbeb07aa719aea0f67f31ff0b3d8936e8a7",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/treemap.test.ts",
+      "source_identity": "1f:1add0296d0d97455200901ba7fe72c2853a47f8835e9b1a844f99d95b98ce926",
+      "identity_at_move": "1f:1add0296d0d97455200901ba7fe72c2853a47f8835e9b1a844f99d95b98ce926",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/read-data/action-affordance-feed-contract.test.mjs",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/action-affordance-feed-contract.test.mjs",
+      "identity": "1f:4897557c225ace59be179ee3af351ce852cf8a0bbf4598ad19872e75aeb4be96",
+      "source_identity": "1f:4897557c225ace59be179ee3af351ce852cf8a0bbf4598ad19872e75aeb4be96"
+    },
+    {
+      "from": "packages/group/read-data/application-board-surface-contribution.test.ts",
+      "commit": "e0022dc3e90dd7760015c7086613f85219d54324",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/application-board-surface-contribution.test.ts.held",
+      "identity": "1f:a97f05179ad283f042df27d5373a46ac74bead77db14940a871180377ea3f2e8",
+      "source_identity": "1f:a97f05179ad283f042df27d5373a46ac74bead77db14940a871180377ea3f2e8"
+    },
+    {
+      "from": "packages/group/read-data/arrangement-artifact.test.ts",
+      "commit": "2591ea807359dab85e79c864787ad1924f904b44",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/arrangement-artifact.test.ts",
+      "source_identity": "1f:82d5e3ea711eb6f0c89229beb66e2cd74e3cde719a4f67b2cfb095f4b7218771",
+      "identity_at_move": "1f:82d5e3ea711eb6f0c89229beb66e2cd74e3cde719a4f67b2cfb095f4b7218771",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/read-data/arrangement-library-actions.test.ts",
+      "commit": "1343fcbd2d9a2e0eef01b2533f447175adc5a5ee",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/arrangement-library-actions.test.ts.held",
+      "identity": "1f:cca1bf30aa22502bed1362527b705ce389740dfe9255075db03c3228a1d3a963",
+      "source_identity": "1f:cca1bf30aa22502bed1362527b705ce389740dfe9255075db03c3228a1d3a963"
+    },
+    {
+      "from": "packages/group/read-data/board-agenda.test.ts",
+      "commit": "e82a3655895d755d733f1e34e2d309721220fbe5",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-agenda.test.ts.held",
+      "identity": "1f:29a39c9122e848e9958c818b30872701d20277eec5f510fe5e751166f742673a",
+      "source_identity": "1f:29a39c9122e848e9958c818b30872701d20277eec5f510fe5e751166f742673a"
+    },
+    {
+      "from": "packages/group/read-data/board-cluster-facet.test.ts",
+      "commit": "ce457ff693714e054b4b5d5b3fbe769e9cbf64d1",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-cluster-facet.test.ts.held",
+      "identity": "1f:7170c42a0d58e04a45c04a9ca9d77c8ddfd71b09f5fe8be51bc6011292cf5b63",
+      "source_identity": "1f:7170c42a0d58e04a45c04a9ca9d77c8ddfd71b09f5fe8be51bc6011292cf5b63"
+    },
+    {
+      "from": "packages/group/read-data/board-communities.test.ts",
+      "commit": "50b2b6e830f597b5dc36507104a15e89932603f4",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-communities.test.ts.held",
+      "identity": "1f:acba5a80020994c94f5d6adea4f4d209b9e21ce96561448a2b9b00c9cd0de338",
+      "source_identity": "1f:acba5a80020994c94f5d6adea4f4d209b9e21ce96561448a2b9b00c9cd0de338"
+    },
+    {
+      "from": "packages/group/read-data/board-completion.test.ts",
+      "commit": "06cd1761f060dd70246391f113d20be6924a470b",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-completion.test.ts",
+      "source_identity": "1f:b8ed32925940b0bf37b698a695e887cf27aa2ddeb2a37b465af31afbe3a26790",
+      "identity_at_move": "1f:b8ed32925940b0bf37b698a695e887cf27aa2ddeb2a37b465af31afbe3a26790",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/read-data/board-connector-legend.test.ts",
+      "commit": "272fbc3bfd60e7dff9f22c18851823f5f7fb0a68",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-connector-legend.test.ts",
+      "source_identity": "1f:d0a3557061170249a2e783ff44a3986c4f9774725ea9fbbffbc61eca64a660bd",
+      "identity_at_move": "1f:d0a3557061170249a2e783ff44a3986c4f9774725ea9fbbffbc61eca64a660bd",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/read-data/board-cooccurrence.test.ts",
+      "commit": "9520cc9bf1be841f76d6d4c356a9700370851abb",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-cooccurrence.test.ts.held",
+      "identity": "1f:ab4d353f149890133b181d4e768b7d33b411f1c08b03c3dfe65680e30c420235",
+      "source_identity": "1f:ab4d353f149890133b181d4e768b7d33b411f1c08b03c3dfe65680e30c420235"
+    },
+    {
+      "from": "packages/group/read-data/board-crosstab.test.ts",
+      "commit": "15b6eca7c6e42e5155b363afcee16132df8442c3",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-crosstab.test.ts.held",
+      "identity": "1f:ab75d8dc106e5843c354459c5d03c08d188e434365f5e083f062eea4f2eb107b",
+      "source_identity": "1f:ab75d8dc106e5843c354459c5d03c08d188e434365f5e083f062eea4f2eb107b"
+    },
+    {
+      "from": "packages/group/read-data/board-entity-index.test.ts",
+      "commit": "cd4e5f4653c0106dd9b4858a25751dfed6ed88fa",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-entity-index.test.ts.held",
+      "identity": "1f:64fce863334a2f807d3bed73256749ad135398b33756e874e76a08ad6ea939c9",
+      "source_identity": "1f:4a255e0fa66e376c2fa0e7897123dfd7d9c7392cfb7d069fa5064e8e1fcff7d7",
+      "calls": [
+        "an-address-made-up-on-example"
+      ]
+    },
+    {
+      "from": "packages/group/read-data/board-facet-balance.test.ts",
+      "commit": "c967ee570b8f791b34e5a64ac5dab7c5a398e076",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-facet-balance.test.ts.held",
+      "identity": "1f:d1e7059ae9e3ae8dd5f9a78145a2afe9571047e21390f519d54db190da290298",
+      "source_identity": "1f:d1e7059ae9e3ae8dd5f9a78145a2afe9571047e21390f519d54db190da290298"
+    },
+    {
+      "from": "packages/group/read-data/board-facet-census.test.ts",
+      "commit": "0e4cb2500f95b0641e269aad1234713c50e763de",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-facet-census.test.ts.held",
+      "identity": "1f:44543e670fb4ee97e2951cc0fc085597ba277380ee6c3b4a0ca5e2ede1fadd96",
+      "source_identity": "1f:44543e670fb4ee97e2951cc0fc085597ba277380ee6c3b4a0ca5e2ede1fadd96"
+    },
+    {
+      "from": "packages/group/read-data/board-facet-pivot.test.ts",
+      "commit": "779ee2aff08819599125715f8c9fd469084da4c8",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-facet-pivot.test.ts.held",
+      "identity": "1f:c98a41d5ee759ef845658e23acb95fa602ece0a2c481d2a1fd14208bb7a3a280",
+      "source_identity": "1f:c98a41d5ee759ef845658e23acb95fa602ece0a2c481d2a1fd14208bb7a3a280"
+    },
+    {
+      "from": "packages/group/read-data/board-health.test.ts",
+      "commit": "6d272bec0e5cc1174d65319fa48600d904ff11e6",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-health.test.ts.held",
+      "identity": "1f:3182aafb95dbbb1faa053aab8175f367aa1176a1e8a14fab5b4a6a9473cf6071",
+      "source_identity": "1f:3182aafb95dbbb1faa053aab8175f367aa1176a1e8a14fab5b4a6a9473cf6071"
+    },
+    {
+      "from": "packages/group/read-data/board-importance.test.ts",
+      "commit": "63ed689d3b470ca27df5164049333a936354bae0",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-importance.test.ts.held",
+      "identity": "1f:4de022586913dd54cd85537a4259a1ad30a2c388557abb2d5c5dd72fb05dde2b",
+      "source_identity": "1f:4de022586913dd54cd85537a4259a1ad30a2c388557abb2d5c5dd72fb05dde2b"
+    },
+    {
+      "from": "packages/group/read-data/board-islands.test.ts",
+      "commit": "48a0df989660b507eece1fe5a256252a5d43c444",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-islands.test.ts.held",
+      "identity": "1f:fb8ad24c87bfd52cbf60cb40161ed8c7de46aeced6d6573aef2f42edc41cb6a5",
+      "source_identity": "1f:fb8ad24c87bfd52cbf60cb40161ed8c7de46aeced6d6573aef2f42edc41cb6a5"
+    },
+    {
+      "from": "packages/group/read-data/board-measure-bucket.test.ts",
+      "commit": "2636eff6e19415c50b95cb9829ead00dd6246149",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-measure-bucket.test.ts.held",
+      "identity": "1f:041957c1bb65253976cc6897d124c595afd41250fa5fa497853874d89725c044",
+      "source_identity": "1f:041957c1bb65253976cc6897d124c595afd41250fa5fa497853874d89725c044"
+    },
+    {
+      "from": "packages/group/read-data/board-mentions.test.ts",
+      "commit": "4f5e47534c995453d0877bf2d728bb801f8524ad",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-mentions.test.ts",
+      "source_identity": "1f:0beadccd5c7fa7516d4f5f009c93dd1892101fd69bc82643a55bca815bccea76",
+      "identity_at_move": "1f:0beadccd5c7fa7516d4f5f009c93dd1892101fd69bc82643a55bca815bccea76",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/read-data/board-numbered-outline.test.ts",
+      "commit": "259929585e4f6885bd5c8f855666b3a8ae1cef11",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-numbered-outline.test.ts.held",
+      "identity": "1f:ceef87d2aab2f4f2251c73f2274067d1cdab38e74dcbf0dff93e161560127c7c",
+      "source_identity": "1f:ceef87d2aab2f4f2251c73f2274067d1cdab38e74dcbf0dff93e161560127c7c"
+    },
+    {
+      "from": "packages/group/read-data/board-orphans.test.ts",
+      "commit": "36eaf2bacc7d18c8391cdba0451b34507f3c7a30",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-orphans.test.ts.held",
+      "identity": "1f:9ab7b7790cebf99afb52e73e9bc8a20ae027710384a359b063715d0b3eed2ba8",
+      "source_identity": "1f:9ab7b7790cebf99afb52e73e9bc8a20ae027710384a359b063715d0b3eed2ba8"
+    },
+    {
+      "from": "packages/group/read-data/board-questions.test.ts",
+      "commit": "8a8d5f0b7bb191f88cdb6e02f7cfd2782eeee2cd",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-questions.test.ts",
+      "source_identity": "1f:30feb6981078665d1368e67f10c90ebc77ce5b1b454179aaea6835a8ca7a5d28",
+      "identity_at_move": "1f:30feb6981078665d1368e67f10c90ebc77ce5b1b454179aaea6835a8ca7a5d28",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/read-data/board-reading-order.test.ts",
+      "commit": "02587314c5d855989ef8dc5634e2724c0fea1c55",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-reading-order.test.ts.held",
+      "identity": "1f:be66baeaef359edcd8bacb56bad74647594c9924b3f2546f860955eb50da1312",
+      "source_identity": "1f:be66baeaef359edcd8bacb56bad74647594c9924b3f2546f860955eb50da1312"
+    },
+    {
+      "from": "packages/group/read-data/board-report.test.ts",
+      "commit": "88e30a662b881b7cfe13a5fb39effe2367b74978",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-report.test.ts.held",
+      "identity": "1f:dcc31ef637d98933a1046582c26c2956f2d1ef5e90d43586ff4d1e71b4a8de0e",
+      "source_identity": "1f:dcc31ef637d98933a1046582c26c2956f2d1ef5e90d43586ff4d1e71b4a8de0e"
+    },
+    {
+      "from": "packages/group/read-data/board-split-candidates.test.ts",
+      "commit": "72b93b7f38ec801bcce198f93069194ba63c34f0",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-split-candidates.test.ts.held",
+      "identity": "1f:78e691cf81df5fb9152a4213019c4c70e3db50199c07898840a6c7910669c7ad",
+      "source_identity": "1f:78e691cf81df5fb9152a4213019c4c70e3db50199c07898840a6c7910669c7ad"
+    },
+    {
+      "from": "packages/group/read-data/board-summary.test.ts",
+      "commit": "54e203565c0797f700677b43e29752482f614986",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-summary.test.ts.held",
+      "identity": "1f:0bb21b6bdda3d8440747b63c8de25cb5c6dc3b2d294b853458fa983605bbd47a",
+      "source_identity": "1f:0bb21b6bdda3d8440747b63c8de25cb5c6dc3b2d294b853458fa983605bbd47a"
+    },
+    {
+      "from": "packages/group/read-data/board-tag-coverage.test.ts",
+      "commit": "e27a6aec8c1c62397bde184fc5f130a488c4a733",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-tag-coverage.test.ts.held",
+      "identity": "1f:ddc69c1bc8ed5fe8ef05f41529662471eb1fe1d0e133f4e7577ed9f5e3f0df7f",
+      "source_identity": "1f:ddc69c1bc8ed5fe8ef05f41529662471eb1fe1d0e133f4e7577ed9f5e3f0df7f"
+    },
+    {
+      "from": "packages/group/read-data/board-template-apply.test.ts",
+      "commit": "2591ea807359dab85e79c864787ad1924f904b44",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-template-apply.test.ts.held",
+      "identity": "1f:e0f3851c259acbc4e389504b7af25d9efe09c54abc9639aa7bff895347120584",
+      "source_identity": "1f:e0f3851c259acbc4e389504b7af25d9efe09c54abc9639aa7bff895347120584"
+    },
+    {
+      "from": "packages/group/read-data/board-themes.test.ts",
+      "commit": "9734a71546d50bf6aee26e9c3786efd6b58c3386",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-themes.test.ts.held",
+      "identity": "1f:1813a4d928ca39c58ce2685b200f4ba45e6134c9ba763bc257027392d78ab45c",
+      "source_identity": "1f:1813a4d928ca39c58ce2685b200f4ba45e6134c9ba763bc257027392d78ab45c"
+    },
+    {
+      "from": "packages/group/read-data/board-titles.test.ts",
+      "commit": "9f26d6f17d4a7ee60b240880468112da66a32174",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-titles.test.ts",
+      "source_identity": "1f:3de7ce329df3be6eb0e49920e682eabd424fcb9870d01ed030d53e8391a0fc79",
+      "identity_at_move": "1f:3de7ce329df3be6eb0e49920e682eabd424fcb9870d01ed030d53e8391a0fc79",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/read-data/board-to-capsule-source.test.ts",
+      "commit": "3318816cda2d910ef5dd853f4ba744f2ac8a6112",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-to-capsule-source.test.ts.held",
+      "identity": "1f:c3269829c87d149b30f1ef1d884f453837ed1cc490d4e15af400c75593dc42f9",
+      "source_identity": "1f:c3269829c87d149b30f1ef1d884f453837ed1cc490d4e15af400c75593dc42f9"
+    },
+    {
+      "from": "packages/group/read-data/board-tree.test.ts",
+      "commit": "71b1f05587b0b91d1fb61035beba1dcf12460416",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-tree.test.ts.held",
+      "identity": "1f:5b1ff1e884406e192a469bff36684bf21aa19dddcb10e36315fee2634134050f",
+      "source_identity": "1f:5b1ff1e884406e192a469bff36684bf21aa19dddcb10e36315fee2634134050f"
+    },
+    {
+      "from": "packages/group/read-data/board-view-store.test.ts",
+      "commit": "3c0f7b22be527cddf5ac37466a2fe325de21b3a9",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/board-view-store.test.ts.held",
+      "identity": "1f:29542166594e6c8cd6b3c3faef613495654c7068932b5197d0a9775a357930c6",
+      "source_identity": "1f:29542166594e6c8cd6b3c3faef613495654c7068932b5197d0a9775a357930c6"
+    },
+    {
+      "from": "packages/group/read-data/box-select.test.ts",
+      "commit": "8351a1cab698eca80649633a404c10cf48af12c0",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/box-select.test.ts",
+      "source_identity": "1f:d8d46f713ac88d2e2a78ca3b3e4e745551aa14bfdc9506f5e11a3693c9e56a3b",
+      "identity_at_move": "1f:d8d46f713ac88d2e2a78ca3b3e4e745551aa14bfdc9506f5e11a3693c9e56a3b",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/read-data/camera-frame.test.ts",
+      "commit": "6c6680a373b9d751272fde6b0e03efbe09428557",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/camera-frame.test.ts.held",
+      "identity": "1f:0786408af307f9233347c2c06481899cd6f289873e360ac37567792e11813010",
+      "source_identity": "1f:0786408af307f9233347c2c06481899cd6f289873e360ac37567792e11813010"
+    },
+    {
+      "from": "packages/group/read-data/card-completion.test.ts",
+      "commit": "8039b7712f921bfcb497ac08fb7dad56d1993e53",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/card-completion.test.ts",
+      "source_identity": "1f:cd83858683f70bf4239425a2200ac3915347dc2ffa30fd765f15d5de088e59b6",
+      "identity_at_move": "1f:cd83858683f70bf4239425a2200ac3915347dc2ffa30fd765f15d5de088e59b6",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/read-data/card-progress-view.test.ts",
+      "commit": "2c09c290759dba957a0cd93109d6ca90b395167a",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/card-progress-view.test.ts",
+      "source_identity": "1f:13dd2bb35a87b64f8fe9b589e3fc612eeb8254d2e8ede2059574d7004afad676",
+      "identity_at_move": "1f:13dd2bb35a87b64f8fe9b589e3fc612eeb8254d2e8ede2059574d7004afad676",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/read-data/card-references.test.ts",
+      "commit": "c8adf54ca51209a6b77d16402440ede25f9af623",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/card-references.test.ts",
+      "source_identity": "1f:a812099af09e7f7d547ce8e0591c82669533293d56cf3ed20e37ca30bb867779",
+      "identity_at_move": "1f:a812099af09e7f7d547ce8e0591c82669533293d56cf3ed20e37ca30bb867779",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/read-data/collection-pipeline.test.ts",
+      "commit": "fcd94399722cebd4580ee0e7a7746fa41fee743e",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/collection-pipeline.test.ts.held",
+      "identity": "1f:247987eb461da4049ac53da9c4eb340bc92ee2419e09b4fa41a38715c7bcac55",
+      "source_identity": "1f:247987eb461da4049ac53da9c4eb340bc92ee2419e09b4fa41a38715c7bcac55"
+    },
+    {
+      "from": "packages/group/read-data/collection-store.test.ts",
+      "commit": "2591ea807359dab85e79c864787ad1924f904b44",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/collection-store.test.ts.held",
+      "identity": "1f:e70a5381e1b194af07cc5684f13566526241216f87673159ae22270f7753781e",
+      "source_identity": "1f:e70a5381e1b194af07cc5684f13566526241216f87673159ae22270f7753781e"
+    },
+    {
+      "from": "packages/group/read-data/connect-new-note.test.ts",
+      "commit": "5edb6adda124ac647c1b32a70c96368c4c9deeca",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/connect-new-note.test.ts.held",
+      "identity": "1f:75c681e06bfbaca014cc33c51e2c0990d14052738bf02a8a1df5222ceb9f217c",
+      "source_identity": "1f:75c681e06bfbaca014cc33c51e2c0990d14052738bf02a8a1df5222ceb9f217c"
+    },
+    {
+      "from": "packages/group/read-data/delivery-placement.test.ts",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/delivery-placement.test.ts.held",
+      "identity": "1f:d441771cdc31a0dbc1a7edeb3cf46d9627f4d4a5b0f3424004523d6a91a5bc0a",
+      "source_identity": "1f:d441771cdc31a0dbc1a7edeb3cf46d9627f4d4a5b0f3424004523d6a91a5bc0a"
+    },
+    {
+      "from": "packages/group/read-data/duplicate-board.test.ts",
+      "commit": "2a7c1ca0beeaf74ae6431df51f0070763ef10188",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/duplicate-board.test.ts.held",
+      "identity": "1f:d7e1dabbc65b60da355376d4352f6882e55b6d1a3949f3421bbb49ace2968765",
+      "source_identity": "1f:d7e1dabbc65b60da355376d4352f6882e55b6d1a3949f3421bbb49ace2968765"
+    },
+    {
+      "from": "packages/group/read-data/duplicate-connectors.test.ts",
+      "commit": "a575d0fa11f358ac0e4ecdfaacde0a035a04d2e2",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/duplicate-connectors.test.ts",
+      "source_identity": "1f:fb531f28fcf47c76dc8fe5d560f00c181068df88e5fa2550d0ff54227f73bd6f",
+      "identity_at_move": "1f:fb531f28fcf47c76dc8fe5d560f00c181068df88e5fa2550d0ff54227f73bd6f",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/read-data/feed-board-projection.test.ts",
+      "commit": "a286307cd9c3f4dc569d9bc6aa557d2285523792",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/feed-board-projection.test.ts",
+      "source_identity": "1f:8fe2f016aba9e25700454732105ff5340c4a25fbf1575e7389111147b527c151",
+      "identity_at_move": "1f:8fe2f016aba9e25700454732105ff5340c4a25fbf1575e7389111147b527c151",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/read-data/finite-coord.test.ts",
+      "commit": "9caf33c774f459fd861989059fc00485ae9d2fe8",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/finite-coord.test.ts",
+      "source_identity": "1f:22977e1e2bee0e85f071d08a33a9b5ac374b37e48031fbcd7ac9e7c201291885",
+      "identity_at_move": "1f:22977e1e2bee0e85f071d08a33a9b5ac374b37e48031fbcd7ac9e7c201291885",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/read-data/group-board-model.test.ts",
+      "commit": "0c21c03c4d555800cbb3cfca01d5ed4e5431b974",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/group-board-model.test.ts.held",
+      "identity": "1f:a668f595e839068d21c565cb6619c1002704a64cb4c69b1209c1dd68cc6bc85d",
+      "source_identity": "1f:a668f595e839068d21c565cb6619c1002704a64cb4c69b1209c1dd68cc6bc85d"
+    },
+    {
+      "from": "packages/group/read-data/group-board.test.ts",
+      "commit": "d08606bf068de0f1f326c160660c5533d23209a6",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/group-board.test.ts.held",
+      "calls": [
+        "a-business-name-made-up-lower"
+      ],
+      "identity": "1f:20697576cada0c8d1b3e2f6bbd0ba0a1c92231ab7c55501f32445513485573b5",
+      "source_identity": "1f:6771b39def251411204b4a691f85b4da57f3d546b97582f89e668b0424b2c746"
+    },
+    {
+      "from": "packages/group/read-data/highlight-html.test.ts",
+      "commit": "70a17ed8dce5c698b4473e9a1dabdddc5f0c1085",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/highlight-html.test.ts.held",
+      "identity": "1f:28be9c5e829b630b36c3e3b527b1836e7937c03facb5db8969554d8a341f5c5a",
+      "source_identity": "1f:28be9c5e829b630b36c3e3b527b1836e7937c03facb5db8969554d8a341f5c5a"
+    },
+    {
+      "from": "packages/group/read-data/item-lock-predicate.test.ts",
+      "commit": "ad569f3a6746723660799e9fb9fa1b2f538db9ff",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/item-lock-predicate.test.ts.held",
+      "identity": "1f:43826fd097eb2b1be88e166d0cb351017de469193929f49d7f28c9a9793c6ffa",
+      "source_identity": "1f:43826fd097eb2b1be88e166d0cb351017de469193929f49d7f28c9a9793c6ffa"
+    },
+    {
+      "from": "packages/group/read-data/knowledge-graph-feed.test.ts",
+      "commit": "42ee80ffaee20ea8f03807a6f001bf7124ea41fe",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/knowledge-graph-feed.test.ts",
+      "calls": [
+        "a-persons-first-name-made-up",
+        "a-persons-first-name-made-up-lower",
+        "a-business-name-made-up",
+        "a-business-name-made-up-lower"
+      ],
+      "source_identity": "1f:f73cad3a5920ffe380f7510edacfa1e89907aa8344fee034e29573db19f920a9",
+      "identity_at_move": "1f:e776a8158824e5247cab2058a7120d15965bd706165f9f7e07af243183b7a774",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/read-data/knowledge-graph-pipeline.test.ts",
+      "commit": "df466425ac2ff86803916b94b28ba2771782b959",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/knowledge-graph-pipeline.test.ts.held",
+      "identity": "1f:a4cbf837aeda40c32de400f8493fbff8538548a9a190ab068834765a944fb088",
+      "source_identity": "1f:a4cbf837aeda40c32de400f8493fbff8538548a9a190ab068834765a944fb088"
+    },
+    {
+      "from": "packages/group/read-data/knowledge-graph-view.test.ts",
+      "commit": "4dbb7d10edba622bacc66b941d0f2d42ce3ce203",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/knowledge-graph-view.test.ts",
+      "source_identity": "1f:12da773701a56e1c3a5ab6b4c446b7687bcb230f350debd5e51e719c31c96df7",
+      "identity_at_move": "1f:12da773701a56e1c3a5ab6b4c446b7687bcb230f350debd5e51e719c31c96df7",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/read-data/linkify-html.test.ts",
+      "commit": "2eb86369027b909eb0375bf520872e0c501bc6c6",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/linkify-html.test.ts.held",
+      "identity": "1f:b7d82ee46d5355ce45cc100ce42536936d9d7ea993c95bd95711cb3b95b600f4",
+      "source_identity": "1f:7dc8e3d39b48688d97a7d57d46376871313519114e8d579622e34fe39813a2d2",
+      "calls": [
+        "an-address-made-up-on-example"
+      ]
+    },
+    {
+      "from": "packages/group/read-data/named-record-index.test.ts",
+      "commit": "cbf36a917622176f6b9664a7c757044deea5e988",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/named-record-index.test.ts.held",
+      "identity": "1f:2cb8d528f953d7538cd1e68ef1bf753dd80aee1b241b2a7dd7cea673eb707298",
+      "source_identity": "1f:2cb8d528f953d7538cd1e68ef1bf753dd80aee1b241b2a7dd7cea673eb707298"
+    },
+    {
+      "from": "packages/group/read-data/presence.test.ts",
+      "commit": "292749a9ac959a8e6b032a8285032e5bc9c66722",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/presence.test.ts.held",
+      "identity": "1f:1f7b8965bf97f0fcbc5b558e06035265dc1a71224e28f3a608fd3a1f16398ca3",
+      "source_identity": "1f:1f7b8965bf97f0fcbc5b558e06035265dc1a71224e28f3a608fd3a1f16398ca3"
+    },
+    {
+      "from": "packages/group/read-data/read-knowledge-graph.test.ts",
+      "commit": "df466425ac2ff86803916b94b28ba2771782b959",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/read-knowledge-graph.test.ts.held",
+      "identity": "1f:d15b2aabead15dc2ab24578a69f664aa0b44cbe581cd2b612f0bdb539e5b4a96",
+      "source_identity": "1f:d15b2aabead15dc2ab24578a69f664aa0b44cbe581cd2b612f0bdb539e5b4a96"
+    },
+    {
+      "from": "packages/group/read-data/reduced-table.test.ts",
+      "commit": "5b4fd9913b469536487f7bb9bfb0140eb23e376f",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/reduced-table.test.ts.held",
+      "identity": "1f:4353a3132f42fb1af7072ce7d27e2d857f54f26e5f5c34b31b971cab856cbfa2",
+      "source_identity": "1f:4353a3132f42fb1af7072ce7d27e2d857f54f26e5f5c34b31b971cab856cbfa2"
+    },
+    {
+      "from": "packages/group/read-data/relation-kind-catalog.test.ts",
+      "commit": "7443a49d79b575a697dfaf6afbefe99c5972a380",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/relation-kind-catalog.test.ts",
+      "source_identity": "1f:a1fe442f591a89d1a0466a63edfad4b376874e5d39df8d8e4a0ab74338eefc43",
+      "identity_at_move": "1f:a1fe442f591a89d1a0466a63edfad4b376874e5d39df8d8e4a0ab74338eefc43",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/read-data/relationship-graph.test.ts",
+      "commit": "a630cccc7d6c03910bc5267f4f26ed00b9492886",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/relationship-graph.test.ts",
+      "source_identity": "1f:3785181d6413f1f3e93dd9d4434d42b12bb0954350f7347b9f415d0d000766f6",
+      "identity_at_move": "1f:3785181d6413f1f3e93dd9d4434d42b12bb0954350f7347b9f415d0d000766f6",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/read-data/report-export.test.ts",
+      "commit": "7e59516ff64dc1485038926d880e9e3b4bcd47df",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/report-export.test.ts.held",
+      "identity": "1f:45deec46573e447967c5070e76b0f8cd721e57049a4a4f573afdad5ec5a1ed46",
+      "source_identity": "1f:45deec46573e447967c5070e76b0f8cd721e57049a4a4f573afdad5ec5a1ed46"
+    },
+    {
+      "from": "packages/group/read-data/report-row-select.test.ts",
+      "commit": "402a75705520241a6099efac91465b428df5e8b6",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/report-row-select.test.ts",
+      "source_identity": "1f:2ff9855f5ca34d231a78944339c7f09331a4dca3f9a462c3a512ae7b5d76656b",
+      "identity_at_move": "1f:2ff9855f5ca34d231a78944339c7f09331a4dca3f9a462c3a512ae7b5d76656b",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/read-data/saved-arrangement.test.ts",
+      "commit": "219d3222c74359a5e9759aea5adf7580b6050929",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/saved-arrangement.test.ts.held",
+      "calls": [
+        "a-persons-first-name-made-up"
+      ],
+      "identity": "1f:aef5aa3b6b57f56a641d4eb8f0a1ed05a07fe67a08fa4fad9c0c1635b6417e7b",
+      "source_identity": "1f:99d171f06f932a28b6b5dae91e3187f7a49770c211d532a582589961279b44e1"
+    },
+    {
+      "from": "packages/group/read-data/saved-report-store.test.ts",
+      "commit": "46f539314e432847c85559d7ccaad32aa123c38e",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/saved-report-store.test.ts.held",
+      "identity": "1f:f90554aa074cb45aa699c872740d4ba0e6f5068717b74dc872e80309adb8b5d9",
+      "source_identity": "1f:f90554aa074cb45aa699c872740d4ba0e6f5068717b74dc872e80309adb8b5d9"
+    },
+    {
+      "from": "packages/group/read-data/saved-smart-set.test.ts",
+      "commit": "3c5915302286124c9762ee392aef88e75c9dd4b7",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/saved-smart-set.test.ts.held",
+      "identity": "1f:894a995beed6b2ffaf9cf2177bf86e2543f63494f986efdd34d3c363767da728",
+      "source_identity": "1f:894a995beed6b2ffaf9cf2177bf86e2543f63494f986efdd34d3c363767da728"
+    },
+    {
+      "from": "packages/group/read-data/select-matching.test.ts",
+      "commit": "9ec6cde87a0b35ef17ba142e24f17e7706fc9205",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/select-matching.test.ts.held",
+      "identity": "1f:0b96dd6e3cea017bbcb0f70491cbddd29a6f8740cbd7f2e03f61c051489fa152",
+      "source_identity": "1f:0b96dd6e3cea017bbcb0f70491cbddd29a6f8740cbd7f2e03f61c051489fa152"
+    },
+    {
+      "from": "packages/group/read-data/selection-grow.test.ts",
+      "commit": "051804ed1d0b258618d4d72ffdca8e18dfa7c3c7",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/selection-grow.test.ts",
+      "source_identity": "1f:710325e2c50827f28a8262fe622e56b502c55b977b0690793ba4af4986194421",
+      "identity_at_move": "1f:710325e2c50827f28a8262fe622e56b502c55b977b0690793ba4af4986194421",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/read-data/selection-summary.test.ts",
+      "commit": "4693a4262b28ef8e97c83bdeaae44a3c2aaf8f30",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/selection-summary.test.ts.held",
+      "identity": "1f:2dcb547151fa402e2c6ac3ab298d9afff431a0d6645cc05d25eae04de5e737b0",
+      "source_identity": "1f:2dcb547151fa402e2c6ac3ab298d9afff431a0d6645cc05d25eae04de5e737b0"
+    },
+    {
+      "from": "packages/group/read-data/selection-to-template.test.ts",
+      "commit": "7bad4b27a300aea0ccd9a8cacbb9e2a846d96d48",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/selection-to-template.test.ts",
+      "source_identity": "1f:18cd3f56e10d4d06535d1d5bedec6de8e6c37a993edc618bd85ec957cbe9b663",
+      "identity_at_move": "1f:18cd3f56e10d4d06535d1d5bedec6de8e6c37a993edc618bd85ec957cbe9b663",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/read-data/share-capsule.test.ts",
+      "commit": "d8e5962840616fae83c6c59903866d880c89a9e4",
+      "to": "tools/organize-the-sidebar/parts/group/read-data/share-capsule.test.ts",
+      "source_identity": "1f:a90a6804a3a736361a823a05a74b38ab7eedfbf041b26d22be50e042bfda378c",
+      "identity_at_move": "1f:a90a6804a3a736361a823a05a74b38ab7eedfbf041b26d22be50e042bfda378c",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/AppearancePresetControl.test.tsx",
+      "commit": "fba006619f6e7a32d5fd751e127a5f0042bb62b0",
+      "to": "tools/organize-the-sidebar/parts/group/show/AppearancePresetControl.test.tsx",
+      "source_identity": "1f:ab3c94937881b007d0ced5f1b95d9706e748b5044526e12834219a3385400245",
+      "identity_at_move": "1f:ab3c94937881b007d0ced5f1b95d9706e748b5044526e12834219a3385400245",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/ArrangeMenu.test.tsx",
+      "commit": "9383247011100e7cef697b11825529786e519acf",
+      "to": "tools/organize-the-sidebar/parts/group/show/ArrangeMenu.test.tsx",
+      "source_identity": "1f:a65fcd35f05efffe454f607fc4b137a72d4fc94decc849d19d53b10b196e8dcc",
+      "identity_at_move": "1f:a65fcd35f05efffe454f607fc4b137a72d4fc94decc849d19d53b10b196e8dcc",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/BoardBackgroundPicker.test.tsx",
+      "commit": "d5d3f2b97323e3eeb29b030dce3dfcb3931e14d3",
+      "to": "tools/organize-the-sidebar/parts/group/show/BoardBackgroundPicker.test.tsx",
+      "source_identity": "1f:0b5b6c88901a4ea102a64f00bf918a946c2a297f7061ef92c1b0c3314abef284",
+      "identity_at_move": "1f:0b5b6c88901a4ea102a64f00bf918a946c2a297f7061ef92c1b0c3314abef284",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/BoardBalanceReadout.test.tsx",
+      "commit": "917a0b943f57746e8e14d6eeb34d35bb6aa4d51c",
+      "to": "tools/organize-the-sidebar/parts/group/show/BoardBalanceReadout.test.tsx",
+      "source_identity": "1f:090ce487ee1e58b146dba617bc0a6a98684f8ee3d6c9aa564dfd5dbfc5455e25",
+      "identity_at_move": "1f:090ce487ee1e58b146dba617bc0a6a98684f8ee3d6c9aa564dfd5dbfc5455e25",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/BoardBottlenecksReadout.test.tsx",
+      "commit": "3a70aa1ae39365d3d4113212b9797e6cb480ebfb",
+      "to": "tools/organize-the-sidebar/parts/group/show/BoardBottlenecksReadout.test.tsx",
+      "source_identity": "1f:286bee7009f999950667a9cd9735b1c55d8fbc6803d75b76193223a1e16771c9",
+      "identity_at_move": "1f:286bee7009f999950667a9cd9735b1c55d8fbc6803d75b76193223a1e16771c9",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/BoardChromeMenu.test.tsx",
+      "commit": "4c66b2dc8aec9a2d50cd0da5300621033b63c7ed",
+      "to": "tools/organize-the-sidebar/parts/group/show/BoardChromeMenu.test.tsx",
+      "source_identity": "1f:b5736a458bbc38c861a3b40cc2ef3c7c465cf440fab72cf95b9c7c0a3d6c1d57",
+      "identity_at_move": "1f:b5736a458bbc38c861a3b40cc2ef3c7c465cf440fab72cf95b9c7c0a3d6c1d57",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/BoardComponentsReadout.test.tsx",
+      "commit": "2276f1eff115bec46fb9d9f03f1be2d57709039b",
+      "to": "tools/organize-the-sidebar/parts/group/show/BoardComponentsReadout.test.tsx",
+      "source_identity": "1f:d7994f3d90ccbe9ffd23d9046c51d8ff2e59df650b4d02180afc82647db93e03",
+      "identity_at_move": "1f:d7994f3d90ccbe9ffd23d9046c51d8ff2e59df650b4d02180afc82647db93e03",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/BoardCyclesReadout.test.tsx",
+      "commit": "79bc11161bc11ffaf05d0f75edb74cb621f25c51",
+      "to": "tools/organize-the-sidebar/parts/group/show/BoardCyclesReadout.test.tsx",
+      "source_identity": "1f:e1d88a572299aff3f4970075712d9b57f3c5c871b8d06da63ba1666a98b909b2",
+      "identity_at_move": "1f:e1d88a572299aff3f4970075712d9b57f3c5c871b8d06da63ba1666a98b909b2",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/BoardExportPanel.test.tsx",
+      "commit": "99e03a7554c5bda5f86ad4989399785f19b96ba2",
+      "to": "tools/organize-the-sidebar/parts/group/show/BoardExportPanel.test.tsx",
+      "source_identity": "1f:465189eefc119a7ae2a95fac7d199e7a925496a6335009ce498eef72fae5c2c0",
+      "identity_at_move": "1f:465189eefc119a7ae2a95fac7d199e7a925496a6335009ce498eef72fae5c2c0",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/BoardHubsReadout.test.tsx",
+      "commit": "e0946c7f1e1e8e00b8f0c2083baf75b4c2cea567",
+      "to": "tools/organize-the-sidebar/parts/group/show/BoardHubsReadout.test.tsx",
+      "source_identity": "1f:febde7c7350a584683027f80a44548e2ec7358ce9e465498eae59ffa02ae0a56",
+      "identity_at_move": "1f:febde7c7350a584683027f80a44548e2ec7358ce9e465498eae59ffa02ae0a56",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/BoardLayersPanel.render.test.tsx",
+      "commit": "af6665043e4a1762cc99991aea9bd41b6a76cb0f",
+      "to": "tools/organize-the-sidebar/parts/group/show/BoardLayersPanel.render.test.tsx",
+      "source_identity": "1f:454f4b0573e605e702b368d78ebc245d4009e54290f309c22a4a53d0c8820415",
+      "identity_at_move": "1f:454f4b0573e605e702b368d78ebc245d4009e54290f309c22a4a53d0c8820415",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/BoardMarkLayers.done.test.tsx",
+      "commit": "af6665043e4a1762cc99991aea9bd41b6a76cb0f",
+      "to": "tools/organize-the-sidebar/parts/group/show/BoardMarkLayers.done.test.tsx",
+      "source_identity": "1f:1c5b6cb699365058edd85b13b8acbdcdf364b617c8a4b30250b7c936d360ab0c",
+      "identity_at_move": "1f:1c5b6cb699365058edd85b13b8acbdcdf364b617c8a4b30250b7c936d360ab0c",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/BoardOrderReadout.test.tsx",
+      "commit": "83e72a5969a34ebac293692e7a8d468ef99fcdce",
+      "to": "tools/organize-the-sidebar/parts/group/show/BoardOrderReadout.test.tsx",
+      "source_identity": "1f:4e2b8184eca43f2fe965a8167b0ba41dbadc029e8f3da5ed6aa71b65c32729b3",
+      "identity_at_move": "1f:4e2b8184eca43f2fe965a8167b0ba41dbadc029e8f3da5ed6aa71b65c32729b3",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/BoardOutlineReadout.test.tsx",
+      "commit": "d064f851de8b248d7a1ededf72f033cc6ff3ab89",
+      "to": "tools/organize-the-sidebar/parts/group/show/BoardOutlineReadout.test.tsx",
+      "source_identity": "1f:976b2a41ebef457a3ada098e0a93b39b92a339064cc4e47288ab9a5a911d48c0",
+      "identity_at_move": "1f:976b2a41ebef457a3ada098e0a93b39b92a339064cc4e47288ab9a5a911d48c0",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/BoardSizeRhythmReadout.test.tsx",
+      "commit": "abe1cd4773b4ae55a4706cf9d0a8b23ee4763a41",
+      "to": "tools/organize-the-sidebar/parts/group/show/BoardSizeRhythmReadout.test.tsx",
+      "source_identity": "1f:e245540e009129679b5f77c1d4326c8be0b52515be22010764d48a288e75d190",
+      "identity_at_move": "1f:e245540e009129679b5f77c1d4326c8be0b52515be22010764d48a288e75d190",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/BoardSwitcherMenu.render.test.tsx",
+      "commit": "a1b882ddf048427ec39f232d2c046ab21d79b0ed",
+      "to": "tools/organize-the-sidebar/parts/group/show/BoardSwitcherMenu.render.test.tsx",
+      "source_identity": "1f:420af23b159cde01ee132518b6ade686b2c29263b85b39a61c34764dde877a35",
+      "identity_at_move": "1f:420af23b159cde01ee132518b6ade686b2c29263b85b39a61c34764dde877a35",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/BoardTidinessReadout.test.tsx",
+      "commit": "999657d588cc9e5572d5f7100eda9854ae8a1baa",
+      "to": "tools/organize-the-sidebar/parts/group/show/BoardTidinessReadout.test.tsx",
+      "source_identity": "1f:e3b67aaaaf895a386e2c95a1dfb0f2c4129e09b9315d7e9029f0e4df635dc5d4",
+      "identity_at_move": "1f:e3b67aaaaf895a386e2c95a1dfb0f2c4129e09b9315d7e9029f0e4df635dc5d4",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/BoardToolsPanel.test.tsx",
+      "commit": "22a4692ab7c500e85c6830e8f7820e63faf42f0d",
+      "to": "tools/organize-the-sidebar/parts/group/show/BoardToolsPanel.test.tsx",
+      "source_identity": "1f:6674d9ba2cb68a9699fbc15e3e3f60f545c5bd6a2d9e0afd07502ce859edd9fc",
+      "identity_at_move": "1f:6674d9ba2cb68a9699fbc15e3e3f60f545c5bd6a2d9e0afd07502ce859edd9fc",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/BoardVotesLayer.render.test.tsx",
+      "commit": "af6665043e4a1762cc99991aea9bd41b6a76cb0f",
+      "to": "tools/organize-the-sidebar/parts/group/show/BoardVotesLayer.render.test.tsx",
+      "source_identity": "1f:0a4789bc2271d31d330cf1ea37c06e2d415564578e8cff49f598e973e3ec1049",
+      "identity_at_move": "1f:0a4789bc2271d31d330cf1ea37c06e2d415564578e8cff49f598e973e3ec1049",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/ClusterHullOverlay.test.tsx",
+      "commit": "04c9b002c80222a515b7e1fd1a3f3bbb5c266a2f",
+      "to": "tools/organize-the-sidebar/parts/group/show/ClusterHullOverlay.test.tsx",
+      "source_identity": "1f:6e086878b19a6bdde3d9524cf4fbb6188d7ff3496b68a81f68d2ba5d42b24ec3",
+      "identity_at_move": "1f:6e086878b19a6bdde3d9524cf4fbb6188d7ff3496b68a81f68d2ba5d42b24ec3",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/CollectionBasketBar.test.tsx",
+      "commit": "582d7e7bb00ae270078041a3530c469f9dc9c038",
+      "to": "tools/organize-the-sidebar/parts/group/show/CollectionBasketBar.test.tsx",
+      "source_identity": "1f:0ad4a685f8875e6ef830bf45e5388c48598a2034cd0e880ee89aa97be0ed91ea",
+      "identity_at_move": "1f:0ad4a685f8875e6ef830bf45e5388c48598a2034cd0e880ee89aa97be0ed91ea",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/CollectionSaveButton.test.tsx",
+      "commit": "9383247011100e7cef697b11825529786e519acf",
+      "to": "tools/organize-the-sidebar/parts/group/show/CollectionSaveButton.test.tsx",
+      "source_identity": "1f:eb43c1a2e6c0b289cf272bee8344efaa628b457c0017a57163fb68018c5fc48f",
+      "identity_at_move": "1f:eb43c1a2e6c0b289cf272bee8344efaa628b457c0017a57163fb68018c5fc48f",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/CommentsReviewPanel.render.test.tsx",
+      "commit": "af6665043e4a1762cc99991aea9bd41b6a76cb0f",
+      "to": "tools/organize-the-sidebar/parts/group/show/CommentsReviewPanel.render.test.tsx",
+      "source_identity": "1f:395dd0769e0de6f1dee9e58ceb3fb85effb25f7a77352d8dd32bddb8c41e9555",
+      "identity_at_move": "1f:395dd0769e0de6f1dee9e58ceb3fb85effb25f7a77352d8dd32bddb8c41e9555",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/ConnectorFormatControls.test.tsx",
+      "commit": "7abfac7eeb96b63e38977e699df4c8c8208dcb54",
+      "to": "tools/organize-the-sidebar/parts/group/show/ConnectorFormatControls.test.tsx",
+      "source_identity": "1f:0ed21fe6a2553bf8b5a5d32029b594ba7c183a5242deb96e37013c7569feb4ae",
+      "identity_at_move": "1f:0ed21fe6a2553bf8b5a5d32029b594ba7c183a5242deb96e37013c7569feb4ae",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/ConnectorLayer.test.tsx",
+      "commit": "45998c850078972390212c5c5aaa1826871fd9a7",
+      "to": "tools/organize-the-sidebar/parts/group/show/ConnectorLayer.test.tsx",
+      "source_identity": "1f:40f95ad9720ec4e40d1f4f47857630c64b620789ec65ebbfcb19dfe6b7aa7b97",
+      "identity_at_move": "1f:40f95ad9720ec4e40d1f4f47857630c64b620789ec65ebbfcb19dfe6b7aa7b97",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/DensityHeatmapOverlay.test.tsx",
+      "commit": "f0da7f4217393acba420fca4cc83b7f193f4e04c",
+      "to": "tools/organize-the-sidebar/parts/group/show/DensityHeatmapOverlay.test.tsx",
+      "source_identity": "1f:3a8dd2330cd50c14eaafcbcfe207cfecd5d30a96602202dc60a92ce524b40b3d",
+      "identity_at_move": "1f:3a8dd2330cd50c14eaafcbcfe207cfecd5d30a96602202dc60a92ce524b40b3d",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/FacetChipGroup.test.tsx",
+      "commit": "487516f8a030382536e0212400eeeb98fc171600",
+      "to": "tools/organize-the-sidebar/parts/group/show/FacetChipGroup.test.tsx",
+      "source_identity": "1f:f3173cca419a95bd9872b1add660796d69ad015dc126272d3c0d92b407bb6927",
+      "identity_at_move": "1f:f3173cca419a95bd9872b1add660796d69ad015dc126272d3c0d92b407bb6927",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/InsightsMenu.grouping.test.ts",
+      "commit": "b5ff2ced20058974760d403b4084e09f6fa7d9a4",
+      "to": "tools/organize-the-sidebar/parts/group/show/InsightsMenu.grouping.test.ts.held",
+      "identity": "1f:03443a2937705ffaa901d1895a378e4dd62b082e6a4d8063f202d42c4118beba",
+      "source_identity": "1f:03443a2937705ffaa901d1895a378e4dd62b082e6a4d8063f202d42c4118beba"
+    },
+    {
+      "from": "packages/group/show/ItemStylePicker.test.tsx",
+      "commit": "16aa4d5fb523b26d4ffb24c88de468651231a1c4",
+      "to": "tools/organize-the-sidebar/parts/group/show/ItemStylePicker.test.tsx",
+      "source_identity": "1f:9049980d103cfbf0c7c3470f4b5177796f05b34707144848627a456b2f563904",
+      "identity_at_move": "1f:9049980d103cfbf0c7c3470f4b5177796f05b34707144848627a456b2f563904",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/LinkGallery.test.tsx",
+      "commit": "41ab11104faf4684938f09b9303c89faca82b60c",
+      "to": "tools/organize-the-sidebar/parts/group/show/LinkGallery.test.tsx",
+      "source_identity": "1f:ec540e28495257c8c5cf1110c6e512333f90ee89ae243c2f0d20f8b19ade05af",
+      "identity_at_move": "1f:ec540e28495257c8c5cf1110c6e512333f90ee89ae243c2f0d20f8b19ade05af",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/LinkItem.test.tsx",
+      "commit": "5a285e18fb7ba031c09fa2d1ba4d358ad9436589",
+      "to": "tools/organize-the-sidebar/parts/group/show/LinkItem.test.tsx",
+      "source_identity": "1f:90dcb5fd4143fb9e5ad3447e88d4b2561c46d4dcbea025f10524abf4c100c1c4",
+      "identity_at_move": "1f:90dcb5fd4143fb9e5ad3447e88d4b2561c46d4dcbea025f10524abf4c100c1c4",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/MarkerPicker.test.tsx",
+      "commit": "2932136d8d4350ee29e10efd6a4ee42e32680449",
+      "to": "tools/organize-the-sidebar/parts/group/show/MarkerPicker.test.tsx",
+      "source_identity": "1f:559482ed2e879a58dc34f79c2fd438536fd5f8d470e24025b06eb3fd477763c8",
+      "identity_at_move": "1f:559482ed2e879a58dc34f79c2fd438536fd5f8d470e24025b06eb3fd477763c8",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/MediaPaletteStrip.test.tsx",
+      "commit": "754550041a1f24132069de60bc225dc4e5787e44",
+      "to": "tools/organize-the-sidebar/parts/group/show/MediaPaletteStrip.test.tsx",
+      "source_identity": "1f:d4212537a2d1e246138527f4e7bc58973d9ab99481e38f43074770f583da9e62",
+      "identity_at_move": "1f:d4212537a2d1e246138527f4e7bc58973d9ab99481e38f43074770f583da9e62",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/RankedJumpList.render.test.tsx",
+      "commit": "af6665043e4a1762cc99991aea9bd41b6a76cb0f",
+      "to": "tools/organize-the-sidebar/parts/group/show/RankedJumpList.render.test.tsx",
+      "source_identity": "1f:75e962df244806542dcb3b1ebb5b59ff8242d8e24fcecbfb3477c99943be47c7",
+      "identity_at_move": "1f:75e962df244806542dcb3b1ebb5b59ff8242d8e24fcecbfb3477c99943be47c7",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/RelationInspector.test.tsx",
+      "commit": "61d7313f585e820bcce075a6d55cd75ea720dd43",
+      "to": "tools/organize-the-sidebar/parts/group/show/RelationInspector.test.tsx",
+      "source_identity": "1f:9292d9f08286eaf4609de32ab1f550f5f4baf9643abc32e583d4d4227de08c5d",
+      "identity_at_move": "1f:9292d9f08286eaf4609de32ab1f550f5f4baf9643abc32e583d4d4227de08c5d",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/RotateHandle.test.tsx",
+      "commit": "8d863a21a8d8fac1c4843b7b1a8801ef00ab4cbe",
+      "to": "tools/organize-the-sidebar/parts/group/show/RotateHandle.test.tsx",
+      "source_identity": "1f:11370a33f3dc566e17d4a949622cc7cbd6f35ed7493aa08ef9297d4b24ba0dc8",
+      "identity_at_move": "1f:11370a33f3dc566e17d4a949622cc7cbd6f35ed7493aa08ef9297d4b24ba0dc8",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/SavedArrangementGallery.render.test.tsx",
+      "commit": "487516f8a030382536e0212400eeeb98fc171600",
+      "to": "tools/organize-the-sidebar/parts/group/show/SavedArrangementGallery.render.test.tsx",
+      "calls": [
+        "a-persons-first-name-made-up"
+      ],
+      "source_identity": "1f:10b5a6e8e7d75756a46452f72d22bd2b242fbe57afad80d5e40f323fa2e98ea9",
+      "identity_at_move": "1f:66a27d1d8aca3a84fa286d63c5dec9575c8315bf7dda757fd737d08696792eda",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/SavedArrangementGallery.test.ts",
+      "commit": "9e51f560bf29abf6ea4876217658ba449a79c0a5",
+      "to": "tools/organize-the-sidebar/parts/group/show/SavedArrangementGallery.test.ts.held",
+      "identity": "1f:ace3456f2fd75ea1a79865dd97cb4389505882578ded39a3cfc9d7cff76f13d9",
+      "source_identity": "1f:ace3456f2fd75ea1a79865dd97cb4389505882578ded39a3cfc9d7cff76f13d9"
+    },
+    {
+      "from": "packages/group/show/SavedItemsStrip.test.tsx",
+      "commit": "5c93b55fa7eb2221fe3c5db2ce152592c7f1572e",
+      "to": "tools/organize-the-sidebar/parts/group/show/SavedItemsStrip.test.tsx",
+      "source_identity": "1f:ed57c089993e1d0ef1e8ae0f581d96fa633e0d40c484f0542a745318d9302d29",
+      "identity_at_move": "1f:ed57c089993e1d0ef1e8ae0f581d96fa633e0d40c484f0542a745318d9302d29",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/SelectionHud.test.tsx",
+      "commit": "06cc9d75a342056456a3d1e51a1b0b3ca2a43353",
+      "to": "tools/organize-the-sidebar/parts/group/show/SelectionHud.test.tsx",
+      "source_identity": "1f:e5597bcf3ce9838e8980b972466b8139ffe7bac5190f30ae1b8b0415761d400f",
+      "identity_at_move": "1f:e5597bcf3ce9838e8980b972466b8139ffe7bac5190f30ae1b8b0415761d400f",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/ShareScopeControl.test.tsx",
+      "commit": "1cd7c366fa2dda18af4c58938d23682ef8838368",
+      "to": "tools/organize-the-sidebar/parts/group/show/ShareScopeControl.test.tsx",
+      "source_identity": "1f:59eeac87c2965f06a29a6da36973ae0b68522f9047cc47b9af3033d123eb8330",
+      "identity_at_move": "1f:59eeac87c2965f06a29a6da36973ae0b68522f9047cc47b9af3033d123eb8330",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/ShelfToolButton.addvariant.test.tsx",
+      "commit": "d02a26f0a5e76bacb5eb5dc47a141556444c6aa0",
+      "to": "tools/organize-the-sidebar/parts/group/show/ShelfToolButton.addvariant.test.tsx",
+      "source_identity": "1f:d3ead3a3fe938aee1b6d5b9e073944b9b82e16d701f6be5dc1ac9f748dce424b",
+      "identity_at_move": "1f:d3ead3a3fe938aee1b6d5b9e073944b9b82e16d701f6be5dc1ac9f748dce424b",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/SmartSetStrip.restore.test.tsx",
+      "commit": "3c5915302286124c9762ee392aef88e75c9dd4b7",
+      "to": "tools/organize-the-sidebar/parts/group/show/SmartSetStrip.restore.test.tsx",
+      "source_identity": "1f:bf556d35538ad8bc51ad7b9fea78d7c5aefe1893bfb058ef3f070156e5eb7426",
+      "identity_at_move": "1f:bf556d35538ad8bc51ad7b9fea78d7c5aefe1893bfb058ef3f070156e5eb7426",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/SnapGuideLayer.test.tsx",
+      "commit": "323e1170735d2ae80f525c58fe16d1eaee00a355",
+      "to": "tools/organize-the-sidebar/parts/group/show/SnapGuideLayer.test.tsx",
+      "source_identity": "1f:f54e48fd8f6f7fd12edcabcc111499fdd440193a6d08ee2442126774951e6094",
+      "identity_at_move": "1f:f54e48fd8f6f7fd12edcabcc111499fdd440193a6d08ee2442126774951e6094",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/TagAffinityReadout.test.tsx",
+      "commit": "6bf899b685a74343a91d38b5995afa4166608b4c",
+      "to": "tools/organize-the-sidebar/parts/group/show/TagAffinityReadout.test.tsx",
+      "source_identity": "1f:5666b7542814c60cf93f9a0efc433f5badbd6bbdd48ae753d855e323247f4dec",
+      "identity_at_move": "1f:5666b7542814c60cf93f9a0efc433f5badbd6bbdd48ae753d855e323247f4dec",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/TagChipStrip.test.tsx",
+      "commit": "8b75dcfc51590ecaa443d1bb83c9293e78ae49db",
+      "to": "tools/organize-the-sidebar/parts/group/show/TagChipStrip.test.tsx",
+      "source_identity": "1f:40f82a20010a1a1d3e77938f1cfcb6a36a1c910a6f819928b353964ed8509a21",
+      "identity_at_move": "1f:40f82a20010a1a1d3e77938f1cfcb6a36a1c910a6f819928b353964ed8509a21",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/TagCloud.test.tsx",
+      "commit": "b2b2122344f756965084eb8dbccbe11c19f00909",
+      "to": "tools/organize-the-sidebar/parts/group/show/TagCloud.test.tsx",
+      "source_identity": "1f:3f9822b8613814a23243685aa8be8a01fd75b870cc99c7e6333cad27164ed5b2",
+      "identity_at_move": "1f:3f9822b8613814a23243685aa8be8a01fd75b870cc99c7e6333cad27164ed5b2",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/TimeLogPanel.test.tsx",
+      "commit": "f391e6ffeb9ec7e3ffa0fce82a0a2691b773001b",
+      "to": "tools/organize-the-sidebar/parts/group/show/TimeLogPanel.test.tsx",
+      "source_identity": "1f:fa9bbe97fc993dc6438decfcbd4be86600f3d9270e89ab57433a16d692c72319",
+      "identity_at_move": "1f:fa9bbe97fc993dc6438decfcbd4be86600f3d9270e89ab57433a16d692c72319",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/TreemapOverlay.test.tsx",
+      "commit": "0407fdbeb07aa719aea0f67f31ff0b3d8936e8a7",
+      "to": "tools/organize-the-sidebar/parts/group/show/TreemapOverlay.test.tsx",
+      "source_identity": "1f:02811df97c5d58e38c69d70d393b6734cccaf5a640d8b5e83c1d007efbd567c9",
+      "identity_at_move": "1f:02811df97c5d58e38c69d70d393b6734cccaf5a640d8b5e83c1d007efbd567c9",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/WalkthroughOverlay.project.test.tsx",
+      "commit": "025dea5ff59ae7ef10c8872d88d6af5fa8933173",
+      "to": "tools/organize-the-sidebar/parts/group/show/WalkthroughOverlay.project.test.tsx",
+      "source_identity": "1f:1522befc26e206554c475c77e575ae98416b43b149c2f630eb4219a0cc2e8daf",
+      "identity_at_move": "1f:1522befc26e206554c475c77e575ae98416b43b149c2f630eb4219a0cc2e8daf",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/WalkthroughOverlay.render.test.tsx",
+      "commit": "b101f4817b5e09f93a7fdca940fa1041b9371d46",
+      "to": "tools/organize-the-sidebar/parts/group/show/WalkthroughOverlay.render.test.tsx",
+      "source_identity": "1f:c2e60aca17663f9bdc8bba677af9e4086d2bb95b209244c3c5d65332887cb15b",
+      "identity_at_move": "1f:c2e60aca17663f9bdc8bba677af9e4086d2bb95b209244c3c5d65332887cb15b",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/__tests__/SettingInfoOverlay.test.tsx",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/organize-the-sidebar/parts/group/show/__tests__/SettingInfoOverlay.test.tsx",
+      "source_identity": "1f:6a03de3b00a7a2ba229932fd779d9b0e4a779a12803984ebfb930270b79d01ed",
+      "identity_at_move": "1f:6a03de3b00a7a2ba229932fd779d9b0e4a779a12803984ebfb930270b79d01ed",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/addressed-placeable-surface-placement.test.ts",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/organize-the-sidebar/parts/group/show/addressed-placeable-surface-placement.test.ts.held",
+      "identity": "1f:55e90d8473fa7049b0bc0fabc4852a4f7466609462a716b0647211b0314d8a4e",
+      "source_identity": "1f:55e90d8473fa7049b0bc0fabc4852a4f7466609462a716b0647211b0314d8a4e"
+    },
+    {
+      "from": "packages/group/show/arrange-by-axis.test.ts",
+      "commit": "587d6e81323341627235d4d1dc11e662d831445e",
+      "to": "tools/organize-the-sidebar/parts/group/show/arrange-by-axis.test.ts",
+      "source_identity": "1f:f2d907a086c6e67a8f2b671312e1f464ca54f3b0bd0cd368b9903b5f49dd34b0",
+      "identity_at_move": "1f:f2d907a086c6e67a8f2b671312e1f464ca54f3b0bd0cd368b9903b5f49dd34b0",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/arrange-by-field.test.ts",
+      "commit": "587d6e81323341627235d4d1dc11e662d831445e",
+      "to": "tools/organize-the-sidebar/parts/group/show/arrange-by-field.test.ts",
+      "source_identity": "1f:3dbfbb931e268db4cd9e72721e42d9c9144c39f7b85a481e0d330e28c08634f4",
+      "identity_at_move": "1f:3dbfbb931e268db4cd9e72721e42d9c9144c39f7b85a481e0d330e28c08634f4",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/arrange-matrix.test.ts",
+      "commit": "ecbd19e67cee7fa31eb1fc77df15249166a50ed8",
+      "to": "tools/organize-the-sidebar/parts/group/show/arrange-matrix.test.ts",
+      "source_identity": "1f:95919dcf3c65fd96e719eb91007f0b63c93c2e1674abae5f2ea9c2687d8ad40f",
+      "identity_at_move": "1f:95919dcf3c65fd96e719eb91007f0b63c93c2e1674abae5f2ea9c2687d8ad40f",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/arrange-strategies.test.ts",
+      "commit": "d84be4af14b9d92f527feabadffa6cb341d36301",
+      "to": "tools/organize-the-sidebar/parts/group/show/arrange-strategies.test.ts",
+      "source_identity": "1f:99c725346aeb53d9258f9d4b008a5bdf2bc26236fb6661f86cb217ad4ec540ca",
+      "identity_at_move": "1f:99c725346aeb53d9258f9d4b008a5bdf2bc26236fb6661f86cb217ad4ec540ca",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/ask-ai-affordance.test.ts",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/organize-the-sidebar/parts/group/show/ask-ai-affordance.test.ts.held",
+      "calls": [
+        "a-persons-first-name-made-up"
+      ],
+      "identity": "1f:0d3d5fc685e5ccf057d9718a93d64f74a2a7536f236f10beaa2ea32a9174dd2e",
+      "source_identity": "1f:e03c3b6c3195591536c8f65ca7fc5c03df503537a57eba051fada244e3ca0505"
+    },
+    {
+      "from": "packages/group/show/board-action-affordances.test.ts",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/organize-the-sidebar/parts/group/show/board-action-affordances.test.ts.held",
+      "identity": "1f:ff5acd4a674d9c236a61d3a2a3a1a6cd23b8d2f7838f262456acff8ed171bbd7",
+      "source_identity": "1f:ff5acd4a674d9c236a61d3a2a3a1a6cd23b8d2f7838f262456acff8ed171bbd7"
+    },
+    {
+      "from": "packages/group/show/board-commit-history.test.ts",
+      "commit": "f4b609e5d5dfd7b00fa69ced81277dfcf8026419",
+      "to": "tools/organize-the-sidebar/parts/group/show/board-commit-history.test.ts.held",
+      "identity": "1f:498214d7338b715edbcc3215359e39af3c26cdb6184d803d69fb9865a7bcd1b1",
+      "source_identity": "1f:498214d7338b715edbcc3215359e39af3c26cdb6184d803d69fb9865a7bcd1b1"
+    },
+    {
+      "from": "packages/group/show/board-insight-lenses.test.ts",
+      "commit": "ee13cd2076952af754a1ef7c356f20f41984b5ec",
+      "to": "tools/organize-the-sidebar/parts/group/show/board-insight-lenses.test.ts.held",
+      "identity": "1f:5f8b53e41480bd4ae581a25fd9e86de3f8df4aa39d6cfb0d5cc1cfdbf2517167",
+      "source_identity": "1f:5f8b53e41480bd4ae581a25fd9e86de3f8df4aa39d6cfb0d5cc1cfdbf2517167"
+    },
+    {
+      "from": "packages/group/show/board-inspection.test.ts",
+      "commit": "0d561c38aa7fe52047ae8d083a1c47a1ccd969f0",
+      "to": "tools/organize-the-sidebar/parts/group/show/board-inspection.test.ts.held",
+      "identity": "1f:e2f0613d6fc5ddf506a86df820d409f2b1921f94031d711d868bcd5abb6ea762",
+      "source_identity": "1f:e2f0613d6fc5ddf506a86df820d409f2b1921f94031d711d868bcd5abb6ea762"
+    },
+    {
+      "from": "packages/group/show/board-item-facets.test.ts",
+      "commit": "07780356499401d41b6eaa59bd9aa7b6b65c89f5",
+      "to": "tools/organize-the-sidebar/parts/group/show/board-item-facets.test.ts.held",
+      "identity": "1f:3ba5d1efaac7272a5ed3caec989043fdb5e71bd378db10b53ecda704f817c8fe",
+      "source_identity": "1f:3ba5d1efaac7272a5ed3caec989043fdb5e71bd378db10b53ecda704f817c8fe"
+    },
+    {
+      "from": "packages/group/show/board-layer-rows.test.ts",
+      "commit": "c7362084a9d3947728d8bc45c364ef348c973343",
+      "to": "tools/organize-the-sidebar/parts/group/show/board-layer-rows.test.ts.held",
+      "identity": "1f:47f1cac3e8d96a9d107c64a174d2649ebd3dce17aff3483223ba04ac320fdc96",
+      "source_identity": "1f:47f1cac3e8d96a9d107c64a174d2649ebd3dce17aff3483223ba04ac320fdc96"
+    },
+    {
+      "from": "packages/group/show/board-load-deadline.test.ts",
+      "commit": "7e69b0cff5ad1052d4ec56dcac48f65fca35d2f6",
+      "to": "tools/organize-the-sidebar/parts/group/show/board-load-deadline.test.ts.held",
+      "identity": "1f:c58afd9a0adb3965c016f0dc3aeda726a1a67aac8bcc6494e3924e8c086e1e62",
+      "source_identity": "1f:c58afd9a0adb3965c016f0dc3aeda726a1a67aac8bcc6494e3924e8c086e1e62"
+    },
+    {
+      "from": "packages/group/show/board-output-destinations.test.ts",
+      "commit": "11c3c90644ff46d777537ab10be7573f752beea3",
+      "to": "tools/organize-the-sidebar/parts/group/show/board-output-destinations.test.ts.held",
+      "identity": "1f:87f6a1710c16b92e560523db8b945a3732576d0cefb5142df4ad64e06d27c48c",
+      "source_identity": "1f:ec0f2cf3a53661df1a51bf5bf461a84b1eedbebb509e7248b1a3641bead0bb91",
+      "calls": [
+        "a-home-folder-made-neutral"
+      ]
+    },
+    {
+      "from": "packages/group/show/board-selection-chrome-visibility.test.ts",
+      "commit": "c50f0df58496cf83ef1c12883f492b5555899297",
+      "to": "tools/organize-the-sidebar/parts/group/show/board-selection-chrome-visibility.test.ts",
+      "source_identity": "1f:8fd57b149efe49aa69b37cf6b9f38b0cb658f9e1096154f49f086159be36afd4",
+      "identity_at_move": "1f:8fd57b149efe49aa69b37cf6b9f38b0cb658f9e1096154f49f086159be36afd4",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/board-selection-chrome-visibility.ts",
+      "commit": "c50f0df58496cf83ef1c12883f492b5555899297",
+      "to": "tools/organize-the-sidebar/show/board-selection-chrome-visibility.ts",
+      "calls": [
+        "a-persons-first-name-made-up"
+      ],
+      "identity": "1f:de0f08a24b96a2622fede05108ac28aa836d9eaa8007038428d997b770f9d2b1",
+      "source_identity": "1f:aa0e6066e985419255163610253d4527be1cef81f464958f534bf5be2706a573"
+    },
+    {
+      "from": "packages/group/show/board-shapes.readShapeCatalog.test.ts",
+      "commit": "7d36f4d509225e65ca88b1f0f50650dea39be75b",
+      "to": "tools/organize-the-sidebar/parts/group/show/board-shapes.readShapeCatalog.test.ts",
+      "source_identity": "1f:a76a554c9c1a69a01ea79dde6cdf85cdf0c367e68a78087303cf3260138cb954",
+      "identity_at_move": "1f:a76a554c9c1a69a01ea79dde6cdf85cdf0c367e68a78087303cf3260138cb954",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/board-shapes.test.ts",
+      "commit": "8fef376144c7ba4dbd1dab089348a264870a797d",
+      "to": "tools/organize-the-sidebar/parts/group/show/board-shapes.test.ts",
+      "source_identity": "1f:6f00cf303b78e2c32d8216130e53509d19bfd1c71c831e34889e1171dfe74c46",
+      "identity_at_move": "1f:6f00cf303b78e2c32d8216130e53509d19bfd1c71c831e34889e1171dfe74c46",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/board-shortcuts.test.ts",
+      "commit": "7fa7eb40ae4d75ffd63ddd50237f867ff2d71d09",
+      "to": "tools/organize-the-sidebar/parts/group/show/board-shortcuts.test.ts.held",
+      "identity": "1f:5c4009865e3376c055c227bf8750dbfe89bd5d6f29a8eec28f3fa12d9ff1fe93",
+      "source_identity": "1f:5c4009865e3376c055c227bf8750dbfe89bd5d6f29a8eec28f3fa12d9ff1fe93"
+    },
+    {
+      "from": "packages/group/show/board-stamps.readStampCatalog.test.ts",
+      "commit": "47e252af8be952d60b569232b113cc7daa99f717",
+      "to": "tools/organize-the-sidebar/parts/group/show/board-stamps.readStampCatalog.test.ts.held",
+      "identity": "1f:be95950a28a16e664738aa788543aaaf0ceaa2352e3a6167b7ef0df234d4a557",
+      "source_identity": "1f:be95950a28a16e664738aa788543aaaf0ceaa2352e3a6167b7ef0df234d4a557"
+    },
+    {
+      "from": "packages/group/show/board-svg-transforms.test.ts",
+      "commit": "0efe5b413795b5ec6cc8fb38b5e0961a85dfdceb",
+      "to": "tools/organize-the-sidebar/parts/group/show/board-svg-transforms.test.ts.held",
+      "identity": "1f:e25ed479e0677ca61037594e51386c8e99bf2d1f8b87b131c188bb8767048ae2",
+      "source_identity": "1f:e25ed479e0677ca61037594e51386c8e99bf2d1f8b87b131c188bb8767048ae2"
+    },
+    {
+      "from": "packages/group/show/board-templates.test.ts",
+      "commit": "31a314a1e911c78eb19bca2698cbc1725914ab1a",
+      "to": "tools/organize-the-sidebar/parts/group/show/board-templates.test.ts.held",
+      "identity": "1f:d476c3f11921d1e6fbd3f7f2ae7f4f57319c24e3e1c5f8be1373842241a636e5",
+      "source_identity": "1f:d476c3f11921d1e6fbd3f7f2ae7f4f57319c24e3e1c5f8be1373842241a636e5"
+    },
+    {
+      "from": "packages/group/show/camera-frame.test.ts",
+      "commit": "9da39852aea3c565ee97bf2bc84516a2089f1780",
+      "to": "tools/organize-the-sidebar/parts/group/show/camera-frame.test.ts",
+      "source_identity": "1f:5e4479e94cfb13874a490a58c8350dc0fa2ceee0855cc2033cfe256d39826c24",
+      "identity_at_move": "1f:5e4479e94cfb13874a490a58c8350dc0fa2ceee0855cc2033cfe256d39826c24",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/connector-facets.test.ts",
+      "commit": "aa2ff7c3b633335997b68a2862ecfb127ff81499",
+      "to": "tools/organize-the-sidebar/parts/group/show/connector-facets.test.ts.held",
+      "identity": "1f:a83677d1bc28eafc2d0aace1aba8b02ad02b8c9c869c2abbbf92e08d1e6a9d4d",
+      "source_identity": "1f:a83677d1bc28eafc2d0aace1aba8b02ad02b8c9c869c2abbbf92e08d1e6a9d4d"
+    },
+    {
+      "from": "packages/group/show/connector-model.test.ts",
+      "commit": "ec35e2c5558b0137b7345704d1ad2cfb92dc9c59",
+      "to": "tools/organize-the-sidebar/parts/group/show/connector-model.test.ts.held",
+      "identity": "1f:5034692f1bc7c5c5e19986d04c96a6f3f61be8c2fb970752aa08a6f84e750671",
+      "source_identity": "1f:5034692f1bc7c5c5e19986d04c96a6f3f61be8c2fb970752aa08a6f84e750671"
+    },
+    {
+      "from": "packages/group/show/connector-models.test.ts",
+      "commit": "7443a49d79b575a697dfaf6afbefe99c5972a380",
+      "to": "tools/organize-the-sidebar/parts/group/show/connector-models.test.ts",
+      "source_identity": "1f:cb20e1c459c01ba9e809d954f1bd0f7dab24bce8450fae3640d7286bb1862619",
+      "identity_at_move": "1f:cb20e1c459c01ba9e809d954f1bd0f7dab24bce8450fae3640d7286bb1862619",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/content-similar-facet.test.tsx",
+      "commit": "d85dbe765ae0347a1c060980783358a8b2723519",
+      "to": "tools/organize-the-sidebar/parts/group/show/content-similar-facet.test.tsx",
+      "source_identity": "1f:9234070051f64c182bc9b57621af2d62b076daad15ce114c59e79ed5b104f359",
+      "identity_at_move": "1f:9234070051f64c182bc9b57621af2d62b076daad15ce114c59e79ed5b104f359",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/crop-rect.test.ts",
+      "commit": "7abd439434954c17485f75601dc7689ce78c5ba7",
+      "to": "tools/organize-the-sidebar/parts/group/show/crop-rect.test.ts.held",
+      "identity": "1f:8a72535897593ad3aa0a1a0aabcf7af2997a48bb94f7bb3779b730d5113d6e3a",
+      "source_identity": "1f:8a72535897593ad3aa0a1a0aabcf7af2997a48bb94f7bb3779b730d5113d6e3a"
+    },
+    {
+      "from": "packages/group/show/default-item-size.integration.test.ts",
+      "commit": "0ac0f0290f5e69d1fc7dadf2ea87dda9cb48fbfc",
+      "to": "tools/organize-the-sidebar/parts/group/show/default-item-size.integration.test.ts.held",
+      "identity": "1f:4ae5a51d962aff61851c60a1aa4e3eca8cdb471e0cbe669e67c942bff45cb6b7",
+      "source_identity": "1f:4ae5a51d962aff61851c60a1aa4e3eca8cdb471e0cbe669e67c942bff45cb6b7"
+    },
+    {
+      "from": "packages/group/show/document-imports.test.ts",
+      "commit": "c54026d44be973575217605be3aeff75c2b408f5",
+      "to": "tools/organize-the-sidebar/parts/group/show/document-imports.test.ts.held",
+      "identity": "1f:cd81520476e370ad3a3e2641d4770322d751d57480af8de3a911f6ba8e97f308",
+      "source_identity": "1f:cd81520476e370ad3a3e2641d4770322d751d57480af8de3a911f6ba8e97f308"
+    },
+    {
+      "from": "packages/group/show/graph-layout.test.ts",
+      "commit": "ad6b405d490db6a60f8d6a2657331e5903ab0168",
+      "to": "tools/organize-the-sidebar/parts/group/show/graph-layout.test.ts",
+      "source_identity": "1f:c0e35fd42ec0b708738985e51330410206cfb0e1cf4a83a3f3045b5d4ed3f2c2",
+      "identity_at_move": "1f:c0e35fd42ec0b708738985e51330410206cfb0e1cf4a83a3f3045b5d4ed3f2c2",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/import-router.test.ts",
+      "commit": "c78917993e254951739768def06382e84d98affe",
+      "to": "tools/organize-the-sidebar/parts/group/show/import-router.test.ts.held",
+      "identity": "1f:0aa9ca92c0a6a153ccbb0eb07070794546554497a3456b6e7cb956a780140243",
+      "source_identity": "1f:0aa9ca92c0a6a153ccbb0eb07070794546554497a3456b6e7cb956a780140243"
+    },
+    {
+      "from": "packages/group/show/insight-lenses.test.tsx",
+      "commit": "710dd0224d17523fe8510bf8817981882b1fb1ae",
+      "to": "tools/organize-the-sidebar/parts/group/show/insight-lenses.test.tsx",
+      "source_identity": "1f:fbf696bc6ae1990c84b4f49ee9e3df8079c5d6de2a1e3d813321fcc8b8f05591",
+      "identity_at_move": "1f:fbf696bc6ae1990c84b4f49ee9e3df8079c5d6de2a1e3d813321fcc8b8f05591",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/item-add-strategies.test.ts",
+      "commit": "af6665043e4a1762cc99991aea9bd41b6a76cb0f",
+      "to": "tools/organize-the-sidebar/parts/group/show/item-add-strategies.test.ts.held",
+      "calls": [
+        "a-persons-first-name-made-up"
+      ],
+      "identity": "1f:cd9cc7c96226ff28a202d655956a0ddd2842e6140af1a7cad49f3547f97b99ab",
+      "source_identity": "1f:58414332493e1a8388526a0c8d5d535c6eda18298fc65df37f5ea66cc8de9b1d"
+    },
+    {
+      "from": "packages/group/show/item-add-strategies.ts",
+      "commit": "cab46e6b80098f672e86ab004c1f7630af8eb771",
+      "to": "tools/organize-the-sidebar/show/item-add-strategies.ts",
+      "calls": [
+        "a-persons-first-name-made-up"
+      ],
+      "source_identity": "1f:6dccaef03d385cfee8b5da612cecb1f9248d9a81f5a0a8fc782650116858a2ae",
+      "identity_at_move": "1f:61ae67af447d1d37cf91c990c4a3a9c894b0bf698abc22d559cdd148a9ba316e",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/item-appearance.test.ts",
+      "commit": "93e9da49df432364b3de93d629c11c697dc0ff21",
+      "to": "tools/organize-the-sidebar/parts/group/show/item-appearance.test.ts",
+      "source_identity": "1f:e2c32b33d75ad8759e4eae1c4d75042dccae267291f672323147e62673c7761b",
+      "identity_at_move": "1f:e2c32b33d75ad8759e4eae1c4d75042dccae267291f672323147e62673c7761b",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/item-fill.test.ts",
+      "commit": "15a4226a237a7b5a5a8dba4f40e50f2734288481",
+      "to": "tools/organize-the-sidebar/parts/group/show/item-fill.test.ts",
+      "source_identity": "1f:a2c15d63a0793305c24f4706936e5f2e21447430dc3dd1468fcbd06b6790abad",
+      "identity_at_move": "1f:a2c15d63a0793305c24f4706936e5f2e21447430dc3dd1468fcbd06b6790abad",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/item-renderers.guarded-media.test.tsx",
+      "commit": "1c4c9b4f13cdd0ff3ca07977252f45d8cc89363d",
+      "to": "tools/organize-the-sidebar/parts/group/show/item-renderers.guarded-media.test.tsx",
+      "source_identity": "1f:4a3972967c4a11321ce3823eff21c152fd1769e3061b5c33fb2765e1dbbab3a2",
+      "identity_at_move": "1f:4a3972967c4a11321ce3823eff21c152fd1769e3061b5c33fb2765e1dbbab3a2",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/item-renderers.test.tsx",
+      "commit": "e36378aaa310ec4281dfa280a549f87c51be7963",
+      "to": "tools/organize-the-sidebar/parts/group/show/item-renderers.test.tsx",
+      "calls": [
+        "a-persons-first-name-made-up",
+        "a-business-name-made-up",
+        "a-business-name-made-up-lower"
+      ],
+      "source_identity": "1f:7da6b04b3192afc296f61ac6190b79eb8291e395d658b30e5bbb7262e5cd3e90",
+      "identity_at_move": "1f:885d0604a1388c6a83b5c590f7c69df81de94ce91bc510347d653eaf08ab4691",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/item-similarity.test.ts",
+      "commit": "228885ca86281c76a51441588480040ed653eac9",
+      "to": "tools/organize-the-sidebar/parts/group/show/item-similarity.test.ts",
+      "source_identity": "1f:1a331f63382fbf8f55a3e8b443dc808cb1376ead524ec697d7d60d6b4effbb60",
+      "identity_at_move": "1f:1a331f63382fbf8f55a3e8b443dc808cb1376ead524ec697d7d60d6b4effbb60",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/live-production-render.test.tsx",
+      "commit": "1ca245dc1d4d5ec493302afa68b33c653e2841f2",
+      "to": "tools/organize-the-sidebar/parts/group/show/live-production-render.test.tsx",
+      "source_identity": "1f:d674830f95ced5b443386379e4c2a7c2b8edfb7dca19f7db1ef0836d9e472e51",
+      "identity_at_move": "1f:d674830f95ced5b443386379e4c2a7c2b8edfb7dca19f7db1ef0836d9e472e51",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/markdown-to-drafts.test.ts",
+      "commit": "e76a1375733ef6b5eef7882bfe1bbe2da4f61398",
+      "to": "tools/organize-the-sidebar/parts/group/show/markdown-to-drafts.test.ts.held",
+      "identity": "1f:481948d30084369481a2c22e25a7f3907ac57f17a81f939bac43b33ef21c60a7",
+      "source_identity": "1f:481948d30084369481a2c22e25a7f3907ac57f17a81f939bac43b33ef21c60a7"
+    },
+    {
+      "from": "packages/group/show/mount-group-board.test.tsx",
+      "commit": "c3138a96b5199c9f0e7b15f96326a9ef5435b6cc",
+      "to": "tools/organize-the-sidebar/parts/group/show/mount-group-board.test.tsx",
+      "source_identity": "1f:e25b8e7962272e848502d77ea9eea275167aebbfc7d8cab0f9ca54733dc55708",
+      "identity_at_move": "1f:e25b8e7962272e848502d77ea9eea275167aebbfc7d8cab0f9ca54733dc55708",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/mount-group-board.tsx",
+      "commit": "a6005157ebca49a01df419f312d89015f23aa0c4",
+      "to": "tools/organize-the-sidebar/show/mount-group-board.tsx",
+      "source_identity": "1f:e34cd6a7252316db0c62b03a8a55439ace5e399b1ab9aaf20ac14bb3dafc86a9",
+      "identity_at_move": "1f:e34cd6a7252316db0c62b03a8a55439ace5e399b1ab9aaf20ac14bb3dafc86a9",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/mount-knowledge-graph.test.tsx",
+      "commit": "df466425ac2ff86803916b94b28ba2771782b959",
+      "to": "tools/organize-the-sidebar/parts/group/show/mount-knowledge-graph.test.tsx",
+      "source_identity": "1f:56afc40702a87338c232607daf28b9bc6642f20cf6e353290197ec31508480aa",
+      "identity_at_move": "1f:56afc40702a87338c232607daf28b9bc6642f20cf6e353290197ec31508480aa",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/mount-live-feed-board.helpers.test.ts",
+      "commit": "14cc50652db4d637df6e496033bf2457c72736be",
+      "to": "tools/organize-the-sidebar/parts/group/show/mount-live-feed-board.helpers.test.ts.held",
+      "identity": "1f:b319622629277a557f1ff4e392e12638910a39bbc39a1f098c479b9a547c79ab",
+      "source_identity": "1f:b319622629277a557f1ff4e392e12638910a39bbc39a1f098c479b9a547c79ab"
+    },
+    {
+      "from": "packages/group/show/mount-live-feed-board.test.tsx",
+      "commit": "df6ecd94919af8bb88d1c97c4a2dafca8fb1bed3",
+      "to": "tools/organize-the-sidebar/parts/group/show/mount-live-feed-board.test.tsx",
+      "source_identity": "1f:31f68ce6a92a782dcdcd5f592d795f268e7cf50d2d768ed11c277d4734bff645",
+      "identity_at_move": "1f:31f68ce6a92a782dcdcd5f592d795f268e7cf50d2d768ed11c277d4734bff645",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/mount-live-feed-board.tsx",
+      "commit": "a6005157ebca49a01df419f312d89015f23aa0c4",
+      "to": "tools/organize-the-sidebar/show/mount-live-feed-board.tsx",
+      "source_identity": "1f:7a26c4eb78f1dae728fe7a16be76a29c81aee319dae2daf3865cfd99a953c361",
+      "identity_at_move": "1f:7a26c4eb78f1dae728fe7a16be76a29c81aee319dae2daf3865cfd99a953c361",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/node-accessibility.test.ts",
+      "commit": "e36378aaa310ec4281dfa280a549f87c51be7963",
+      "to": "tools/organize-the-sidebar/parts/group/show/node-accessibility.test.ts.held",
+      "identity": "1f:a21b623d52b9eaa48b2f8c22e63601366e9e6b3ba2b6a2faabbf7bebf857bf55",
+      "source_identity": "1f:a21b623d52b9eaa48b2f8c22e63601366e9e6b3ba2b6a2faabbf7bebf857bf55"
+    },
+    {
+      "from": "packages/group/show/note-color-variants.test.ts",
+      "commit": "7d36f4d509225e65ca88b1f0f50650dea39be75b",
+      "to": "tools/organize-the-sidebar/parts/group/show/note-color-variants.test.ts.held",
+      "identity": "1f:7d2f508451cfe1ce58f2d46c7e4a803343011ab5c3bc3c6590db43ab46316a66",
+      "source_identity": "1f:7d2f508451cfe1ce58f2d46c7e4a803343011ab5c3bc3c6590db43ab46316a66"
+    },
+    {
+      "from": "packages/group/show/note-edit-session.test.tsx",
+      "commit": "573b318e5cd7d5dd78d9ae2a175985fb0e610b64",
+      "to": "tools/organize-the-sidebar/parts/group/show/note-edit-session.test.tsx",
+      "source_identity": "1f:1f73af56e7c37c6ab01f738450b61f315e51192a126c65428d2d61ad05115dbf",
+      "identity_at_move": "1f:1f73af56e7c37c6ab01f738450b61f315e51192a126c65428d2d61ad05115dbf",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/placeable-surface-shelf.test.ts",
+      "commit": "fe39d35349110cdaaf45b9a308e0e044f0a73bd6",
+      "to": "tools/organize-the-sidebar/parts/group/show/placeable-surface-shelf.test.ts.held",
+      "identity": "1f:3c7425267b9f9401cfc0850837631fba74f75bb444f0bd0e3d95b563e0b0d45f",
+      "source_identity": "1f:3c7425267b9f9401cfc0850837631fba74f75bb444f0bd0e3d95b563e0b0d45f"
+    },
+    {
+      "from": "packages/group/show/presence-channel.test.ts",
+      "commit": "97db090dcdff19ca77c3ac9e2715ffa673117b6b",
+      "to": "tools/organize-the-sidebar/parts/group/show/presence-channel.test.ts",
+      "source_identity": "1f:2074ffcea47a726300f56d39a2a1818ba004fd25603afbd40ac7f8ae1278dca0",
+      "identity_at_move": "1f:2074ffcea47a726300f56d39a2a1818ba004fd25603afbd40ac7f8ae1278dca0",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/report-controls.test.ts",
+      "commit": "f3f3881a2e9f5a6aa5c51074f7dc3f786444b548",
+      "to": "tools/organize-the-sidebar/parts/group/show/report-controls.test.ts.held",
+      "identity": "1f:16d7811194dc0a7ca1e6e5d167b349693819b3fab387bd6efb5d6906e0d7ffe2",
+      "source_identity": "1f:16d7811194dc0a7ca1e6e5d167b349693819b3fab387bd6efb5d6906e0d7ffe2"
+    },
+    {
+      "from": "packages/group/show/rotated-transform.test.ts",
+      "commit": "e758a2373033e01c12f22188bf402cda6f74275e",
+      "to": "tools/organize-the-sidebar/parts/group/show/rotated-transform.test.ts.held",
+      "identity": "1f:f01455c7744d6a0d416889e6080849c1155b69611cc8c46967269f981e3c5e09",
+      "source_identity": "1f:f01455c7744d6a0d416889e6080849c1155b69611cc8c46967269f981e3c5e09"
+    },
+    {
+      "from": "packages/group/show/selection-actions.test.ts",
+      "commit": "972dbc2b56a635d84c07887c0de0e9a0dee46155",
+      "to": "tools/organize-the-sidebar/parts/group/show/selection-actions.test.ts.held",
+      "identity": "1f:5bef38c10aa14ef017193ebaaf72fba7c3af82115e8179d3af398c30846267b3",
+      "source_identity": "1f:5bef38c10aa14ef017193ebaaf72fba7c3af82115e8179d3af398c30846267b3"
+    },
+    {
+      "from": "packages/group/show/selection-capabilities.test.ts",
+      "commit": "93e9da49df432364b3de93d629c11c697dc0ff21",
+      "to": "tools/organize-the-sidebar/parts/group/show/selection-capabilities.test.ts.held",
+      "identity": "1f:6a0fdb7368d365a496323c53df51f296b6accc4c1ba7ba14f69668a6b7219b90",
+      "source_identity": "1f:6a0fdb7368d365a496323c53df51f296b6accc4c1ba7ba14f69668a6b7219b90"
+    },
+    {
+      "from": "packages/group/show/shape-variants.test.ts",
+      "commit": "7d36f4d509225e65ca88b1f0f50650dea39be75b",
+      "to": "tools/organize-the-sidebar/parts/group/show/shape-variants.test.ts.held",
+      "identity": "1f:f91d248f5f31817915d30f046d1be619a83d27e19cafd62b6662d8f42989e4c5",
+      "source_identity": "1f:f91d248f5f31817915d30f046d1be619a83d27e19cafd62b6662d8f42989e4c5"
+    },
+    {
+      "from": "packages/group/show/snap-guides.test.ts",
+      "commit": "1493888cff3598938b19bbdb7e847d37e24c56cc",
+      "to": "tools/organize-the-sidebar/parts/group/show/snap-guides.test.ts",
+      "source_identity": "1f:67a0c2fc65d8d1112bf456da21adcd69c80e2a6394dc9d76d1e00f7c6b364197",
+      "identity_at_move": "1f:67a0c2fc65d8d1112bf456da21adcd69c80e2a6394dc9d76d1e00f7c6b364197",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/spatial-cluster-facet.test.tsx",
+      "commit": "413962850163d56cde5ace8337af0481ef7e3753",
+      "to": "tools/organize-the-sidebar/parts/group/show/spatial-cluster-facet.test.tsx",
+      "source_identity": "1f:4bb3e62d68ae11bc9b8554bbf91b5de0bf74bbbffff3e9dc63b8d4434dc0ae24",
+      "identity_at_move": "1f:4bb3e62d68ae11bc9b8554bbf91b5de0bf74bbbffff3e9dc63b8d4434dc0ae24",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/stamp-tool.test.tsx",
+      "commit": "47e252af8be952d60b569232b113cc7daa99f717",
+      "to": "tools/organize-the-sidebar/parts/group/show/stamp-tool.test.tsx",
+      "source_identity": "1f:e0d249708277278967c1c340d075fefcb23026a220f5af8a70fd85b128ea3768",
+      "identity_at_move": "1f:e0d249708277278967c1c340d075fefcb23026a220f5af8a70fd85b128ea3768",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/stroke-style.test.ts",
+      "commit": "1493888cff3598938b19bbdb7e847d37e24c56cc",
+      "to": "tools/organize-the-sidebar/parts/group/show/stroke-style.test.ts",
+      "source_identity": "1f:0b7e16ba641e4cfcc5da236c9e6f1285abb49c64cf4e49d454610985f44caf39",
+      "identity_at_move": "1f:0b7e16ba641e4cfcc5da236c9e6f1285abb49c64cf4e49d454610985f44caf39",
+      "byte_copy_commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+    },
+    {
+      "from": "packages/group/show/timeline-axis.test.ts",
+      "commit": "3c2f9acec77a8727645618235931b8a9685ec332",
+      "to": "tools/organize-the-sidebar/parts/group/show/timeline-axis.test.ts.held",
+      "identity": "1f:404a0405f5bead4e2486580ad5501656dc12bdd58eee4265f966dbb3cd6aee46",
+      "source_identity": "1f:404a0405f5bead4e2486580ad5501656dc12bdd58eee4265f966dbb3cd6aee46"
+    }
+  ],
+  "held": {
+    "tools/organize-the-sidebar/parts/group/do-work/apply-producer-output.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/batch-actions.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-attention-actions.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-balance-actions.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-card-merge.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-card-split.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-checklist-actions.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-comments-actions.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-composition-gauntlet.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-critical-path-actions.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-csv-import.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-csv.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-cut.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-date-coverage.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-digest-actions.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-document-exports.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-dot.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-due-date-actions.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-export-tree.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-finish-line-actions.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-forecast-actions.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-frames.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-freemind.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-graphml-import.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-graphml.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-habit-actions.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-hubs.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-icalendar-import.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-icalendar.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-importance-actions.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-markdown.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-mermaid-import.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-mermaid.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-metric-actions.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-momentum-actions.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-next-focus-actions.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-opml-import.test.ts.held": "SyntaxError: Identifier 'finiteCoord' has already been declared",
+    "tools/organize-the-sidebar/parts/group/do-work/board-opml.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-outline.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-readiness-actions.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-rollup-actions.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-sources-sinks.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-subject-bag.test.ts.held": "loads tools/organize-the-sidebar/do-work/reconcile-board-producer.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-svg.test.ts.held": "SyntaxError: Identifier 'shapeSvgPathById' has already been declared",
+    "tools/organize-the-sidebar/parts/group/do-work/board-text-replace.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-time-log-actions.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/board-votes-actions.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/branch-collapse.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/branch-color-assignments.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/branch-toggle-states.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/cluster-hull.test.ts.held": "TypeError: expect.arrayContaining is not a function",
+    "tools/organize-the-sidebar/parts/group/do-work/connector-branch-colors.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/cross-board-paste.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/frame-border.test.ts.held": "loads tools/organize-the-sidebar/do-work/frame-border.ts, which imports `../../ui/show/visual-layer-stack/frame-border` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/group-from-containment-projection.test.ts.held": "loads tools/organize-the-sidebar/do-work/group-from-containment-projection.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/group-membership-actions.test.ts.held": "loads tools/organize-the-sidebar/do-work/group-membership-actions.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/link-enrich-roundtrip.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/materialize-selection-target.test.ts.held": "loads tools/organize-the-sidebar/read-data/read-group-board.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/mind-map-journey.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/mind-map-layout.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/mind-map-topology.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/open-external.test.ts.held": "ReferenceError: document is not defined",
+    "tools/organize-the-sidebar/parts/group/do-work/rainbow-mindmap-journey.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/reading-tour-actions.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/reconcile-board-producer.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/reconcile-consume-seam.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/reconcile-feed-into-store.test.ts.held": "loads tools/organize-the-sidebar/do-work/reconcile-feed-into-store.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/reconcile-output-from-items.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/do-work/request-board-output.test.ts.held": "imports `src/workspace/process-result` from tools/organize-the-sidebar/do-work/request-board-output.ts, which this tree does not hold",
+    "tools/organize-the-sidebar/parts/group/do-work/review-share-references.test.ts.held": "imports `tools/organize-the-sidebar/parts/group/do-work/review-share-references` from tools/organize-the-sidebar/parts/group/do-work/review-share-references.test.ts, which this tree does not hold",
+    "tools/organize-the-sidebar/parts/group/do-work/sanitize-capsule-html.test.ts.held": "AssertionError [ERR_ASSERTION]: \"bold\" to contain \"<b\"",
+    "tools/organize-the-sidebar/parts/group/read-data/application-board-surface-contribution.test.ts.held": "fails when run alone",
+    "tools/organize-the-sidebar/parts/group/read-data/arrangement-library-actions.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/board-agenda.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/board-cluster-facet.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/board-communities.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/board-cooccurrence.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/board-crosstab.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/board-entity-index.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/board-facet-balance.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/board-facet-census.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/board-facet-pivot.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/board-health.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/board-importance.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/board-islands.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/board-measure-bucket.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/board-numbered-outline.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/board-orphans.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/board-reading-order.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/board-report.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/board-split-candidates.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/board-summary.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/board-tag-coverage.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/board-template-apply.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/board-themes.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/board-to-capsule-source.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/board-tree.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/board-view-store.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/camera-frame.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/collection-pipeline.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/collection-store.test.ts.held": "loads tools/organize-the-sidebar/read-data/collection-store.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/connect-new-note.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/delivery-placement.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/duplicate-board.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/group-board-model.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/group-board.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/highlight-html.test.ts.held": "AssertionError [ERR_ASSERTION]: \"reach the Goal today\" to be \"reach the <mark>Goal</mark> today\"",
+    "tools/organize-the-sidebar/parts/group/read-data/item-lock-predicate.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/knowledge-graph-pipeline.test.ts.held": "imports `tools/relationship-graph/read-data/read-connection-graph.ts` from tools/organize-the-sidebar/read-data/read-knowledge-graph.ts, which this tree does not hold",
+    "tools/organize-the-sidebar/parts/group/read-data/linkify-html.test.ts.held": "ReferenceError: DOMParser is not defined",
+    "tools/organize-the-sidebar/parts/group/read-data/named-record-index.test.ts.held": "loads tools/organize-the-sidebar/read-data/named-record-index.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/presence.test.ts.held": "SyntaxError: The requested module '../../../read-data/presence.ts' does not provide an export named 'initialsOf'",
+    "tools/organize-the-sidebar/parts/group/read-data/read-knowledge-graph.test.ts.held": "imports `tools/relationship-graph/read-data/read-connection-graph.ts` from tools/organize-the-sidebar/read-data/read-knowledge-graph.ts, which this tree does not hold",
+    "tools/organize-the-sidebar/parts/group/read-data/reduced-table.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/report-export.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/saved-arrangement.test.ts.held": "loads tools/organize-the-sidebar/read-data/collection-store.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/saved-report-store.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/saved-smart-set.test.ts.held": "loads tools/organize-the-sidebar/read-data/saved-smart-set.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/select-matching.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/read-data/selection-summary.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/show/InsightsMenu.grouping.test.ts.held": "loads a .tsx module, which node cannot run without a compiler this repository does not carry",
+    "tools/organize-the-sidebar/parts/group/show/SavedArrangementGallery.test.ts.held": "loads a .tsx module, which node cannot run without a compiler this repository does not carry",
+    "tools/organize-the-sidebar/parts/group/show/addressed-placeable-surface-placement.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/show/ask-ai-affordance.test.ts.held": "imports `lucide-react` from tools/organize-the-sidebar/show/board-action-affordances.ts, which this tree does not hold",
+    "tools/organize-the-sidebar/parts/group/show/board-action-affordances.test.ts.held": "imports `@/packages` from tools/organize-the-sidebar/parts/group/show/board-action-affordances.test.ts, which this tree does not hold",
+    "tools/organize-the-sidebar/parts/group/show/board-commit-history.test.ts.held": "imports `vite` from tools/organize-the-sidebar/parts/group/show/board-commit-history.test.ts, which this tree does not hold",
+    "tools/organize-the-sidebar/parts/group/show/board-insight-lenses.test.ts.held": "loads a .tsx module, which node cannot run without a compiler this repository does not carry",
+    "tools/organize-the-sidebar/parts/group/show/board-inspection.test.ts.held": "loads tools/organize-the-sidebar/show/board-inspection.ts, which imports `../../ui/show/inspection-ref` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/show/board-item-facets.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/show/board-layer-rows.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/show/board-load-deadline.test.ts.held": "loads a .tsx module, which node cannot run without a compiler this repository does not carry",
+    "tools/organize-the-sidebar/parts/group/show/board-output-destinations.test.ts.held": "imports `src/workspace/process-result` from tools/organize-the-sidebar/do-work/request-board-output.ts, which this tree does not hold",
+    "tools/organize-the-sidebar/parts/group/show/board-shortcuts.test.ts.held": "TypeError [ERR_IMPORT_ATTRIBUTE_MISSING]: Module \"file://dev/agent-junk/2026-11-13/restore/work/lane2/tw/tools/organize-the-sidebar/show/board-commands.json\" needs an import attribu",
+    "tools/organize-the-sidebar/parts/group/show/board-stamps.readStampCatalog.test.ts.held": "loads a .tsx module, which node cannot run without a compiler this repository does not carry",
+    "tools/organize-the-sidebar/parts/group/show/board-svg-transforms.test.ts.held": "loads tools/ui/index.ts, which imports `../../ui/show/cn` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/show/board-templates.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/show/connector-facets.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/show/connector-model.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/show/crop-rect.test.ts.held": "loads tools/ui/index.ts, which imports `../../ui/show/cn` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/show/default-item-size.integration.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/show/document-imports.test.ts.held": "SyntaxError: Identifier 'finiteCoord' has already been declared",
+    "tools/organize-the-sidebar/parts/group/show/import-router.test.ts.held": "SyntaxError: Identifier 'finiteCoord' has already been declared",
+    "tools/organize-the-sidebar/parts/group/show/item-add-strategies.test.ts.held": "TypeError: expect.arrayContaining is not a function",
+    "tools/organize-the-sidebar/parts/group/show/markdown-to-drafts.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/show/mount-live-feed-board.helpers.test.ts.held": "loads a .tsx module, which node cannot run without a compiler this repository does not carry",
+    "tools/organize-the-sidebar/parts/group/show/node-accessibility.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/show/note-color-variants.test.ts.held": "loads a .tsx module, which node cannot run without a compiler this repository does not carry",
+    "tools/organize-the-sidebar/parts/group/show/placeable-surface-shelf.test.ts.held": "loads tools/organize-the-sidebar/show/placeable-surface-shelf.ts, which imports `../../ui/show/placeable-surface-intent/placeable-surface-record` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/show/report-controls.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/show/rotated-transform.test.ts.held": "imports `@/packages` from tools/organize-the-sidebar/parts/group/show/rotated-transform.test.ts, which this tree does not hold",
+    "tools/organize-the-sidebar/parts/group/show/selection-actions.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/show/selection-capabilities.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node",
+    "tools/organize-the-sidebar/parts/group/show/shape-variants.test.ts.held": "loads a .tsx module, which node cannot run without a compiler this repository does not carry",
+    "tools/organize-the-sidebar/parts/group/show/timeline-axis.test.ts.held": "loads tools/organize-the-sidebar/read-data/group-board-model.ts, which imports `../../ui/show/group/group-graph` without a file extension; that is the apps tree's layout and bundler resolution, and no file of this tree answers it under node"
+  }
+}

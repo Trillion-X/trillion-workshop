@@ -1,0 +1,49 @@
+// @vitest-environment jsdom
+// Proof for search-match highlighting: highlightHtml wraps case-insensitive matches in <mark>, preserves
+// original casing + surrounding formatting, never crosses tags, never double-wraps, and is a no-op for an
+// empty query / no match.
+import { describe, expect, it } from 'vitest';
+import { highlightHtml } from './highlight-html';
+
+describe('highlight-html — highlightHtml', () => {
+  it('wraps a plain-text match in <mark>, preserving original casing', () => {
+    expect(highlightHtml('reach the Goal today', 'goal')).toBe('reach the <mark>Goal</mark> today');
+  });
+
+  it('is case-insensitive and wraps every occurrence', () => {
+    expect(highlightHtml('Goal goal GOAL', 'goal')).toBe('<mark>Goal</mark> <mark>goal</mark> <mark>GOAL</mark>');
+  });
+
+  it('highlights inside formatting without breaking the tag', () => {
+    expect(highlightHtml('<strong>Goal</strong>: win', 'goal')).toBe('<strong><mark>Goal</mark></strong>: win');
+    // A colour span survives with the hit marked inside it.
+    expect(highlightHtml('<span style="color: red">my goal</span>', 'goal')).toBe(
+      '<span style="color: red">my <mark>goal</mark></span>',
+    );
+  });
+
+  it('never matches across a tag boundary (a run split by markup is two runs)', () => {
+    // "go" + "al" are separate text nodes → "goal" spans the boundary → no match, html unchanged.
+    expect(highlightHtml('<strong>go</strong>al', 'goal')).toBe('<strong>go</strong>al');
+  });
+
+  it('does not descend into an existing <mark> (no double-wrap) or into code/pre', () => {
+    expect(highlightHtml('<mark>goal</mark>', 'goal')).toBe('<mark>goal</mark>');
+    expect(highlightHtml('<code>goal</code> goal', 'goal')).toBe('<code>goal</code> <mark>goal</mark>');
+  });
+
+  it('is a no-op for an empty/whitespace query or when there is no match', () => {
+    expect(highlightHtml('anything here', '')).toBe('anything here');
+    expect(highlightHtml('anything here', '   ')).toBe('anything here');
+    expect(highlightHtml('nothing to see', 'goal')).toBe('nothing to see');
+  });
+
+  it('handles a query that appears at the very start and end', () => {
+    expect(highlightHtml('goal in the goal', 'goal')).toBe('<mark>goal</mark> in the <mark>goal</mark>');
+  });
+
+  it('leaves tag names and attribute values untouched (only text is marked)', () => {
+    // The query "a" must not corrupt the <a> tag or the href — only the visible text "a link" gets marked.
+    expect(highlightHtml('<a href="/a">a link</a>', 'a')).toBe('<a href="/a"><mark>a</mark> link</a>');
+  });
+});

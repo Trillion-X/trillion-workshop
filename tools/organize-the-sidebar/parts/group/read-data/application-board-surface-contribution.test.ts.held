@@ -1,0 +1,103 @@
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { describe, expect, it } from 'vitest';
+
+import { buildGroupBoardSurfaceContribution } from './application-board-surface-contribution';
+
+const here = dirname(fileURLToPath(import.meta.url));
+
+const contribution = {
+  operation: 'upsert',
+  composition_id: 'sample-app',
+  contribution_id: 'sample-board',
+  owner_ref: 'package::group::application-contribution::board-surface',
+  state_epoch: 1,
+  config: {
+    surface_id: 'sample.board',
+    order_key: '0001:sample-board',
+    order: 1,
+    label: 'Sample board',
+    placement_labels: ['sample-workspace'],
+    surface_input: { partition_label: 'sample', board_id: 'sample.board', title: 'Sample board' },
+  },
+};
+
+describe('group board surface application contribution', () => {
+  it('materializes a group-owned surface over the registered group-board entry', () => {
+    const result = buildGroupBoardSurfaceContribution(contribution);
+    expect(result.write_set.upserts).toEqual([expect.objectContaining({
+      address: 'package::group::placeable-surface::sample-app::sample.board',
+      payload: expect.objectContaining({
+        material_target: 'component:group-board',
+        package_entry: { package_name: 'group', entry_name: 'group-board' },
+        application_composition_ref: {
+          composition_id: 'sample-app', contribution_id: 'sample-board', state_epoch: 1,
+        },
+      }),
+    })]);
+  });
+
+  it('emits a payload-omitting retraction and is product blind', () => {
+    const result = buildGroupBoardSurfaceContribution({ ...contribution, operation: 'retract' });
+    expect(result.write_set.retractions).toEqual([{
+      type: 'record',
+      address: 'package::group::placeable-surface::sample-app::sample.board',
+      path: ['current-item', 'published-record'],
+      remove: true,
+    }]);
+    expect(result.write_set.retractions[0]).not.toHaveProperty('payload');
+  });
+
+  it('rejects a contribution addressed to another owner', () => {
+    expect(() => buildGroupBoardSurfaceContribution({ ...contribution, owner_ref: 'package::other::contribution' }))
+      .toThrow('owner_ref');
+  });
+
+  it('prevents cross-application surface address collisions', () => {
+    const other = buildGroupBoardSurfaceContribution({ ...contribution, composition_id: 'other-app' });
+    expect(other.write_set.upserts[0]?.address).toBe(
+      'package::group::placeable-surface::other-app::sample.board',
+    );
+    expect(other.write_set.upserts[0]?.address).not.toBe(
+      buildGroupBoardSurfaceContribution(contribution).write_set.upserts[0]?.address,
+    );
+  });
+
+  it('requires lifecycle identity', () => {
+    const { state_epoch: _removed, ...withoutEpoch } = contribution;
+    expect(() => buildGroupBoardSurfaceContribution(withoutEpoch)).toThrow('state_epoch');
+  });
+
+  it('is registered and built by the group owner package', () => {
+    const manifest = JSON.parse(readFileSync(resolve(here, '../things-to-store-and-run.json'), 'utf8')) as {
+      things: Array<{ address?: string; name?: string }>;
+    };
+    expect(manifest.things.some((thing) => (
+      thing.address === 'package::group::entry::build-application-board-surface-contribution'
+    ))).toBe(true);
+    expect(manifest.things.some((thing) => (
+      thing.name === 'entry-bytes-build-application-board-surface-contribution'
+    ))).toBe(true);
+    expect(existsSync(resolve(here, '../built-stored-bytes/entry-bytes-build-application-board-surface-contribution')))
+      .toBe(true);
+  });
+
+  it('declares the addressed-marks owner only for entries that render board overlays', () => {
+    const scopePackages = JSON.parse(readFileSync(resolve(here, '../entry-read-scope-packages.json'), 'utf8')) as {
+      entries: Array<{ entry_name?: string; read_scope_package_data_packages?: string[] }>;
+    };
+    expect(scopePackages.entries).toEqual([
+      { entry_name: 'group-board', read_scope_package_data_packages: ['addressed-marks'] },
+      { entry_name: 'live-feed-board', read_scope_package_data_packages: ['addressed-marks'] },
+    ]);
+  });
+
+  it('keeps the data-driven live-feed selector inside its generated provider scope', () => {
+    const manifest = JSON.parse(readFileSync(resolve(here, '../things-to-store-and-run.json'), 'utf8')) as {
+      things: Array<{ payload?: { entry_name?: string; dynamic_read_selector_policy?: string } }>;
+    };
+    const entry = manifest.things.find((thing) => thing.payload?.entry_name === 'live-feed-board');
+    expect(entry?.payload?.dynamic_read_selector_policy).toBe('declared-provider-input-membership');
+  });
+});

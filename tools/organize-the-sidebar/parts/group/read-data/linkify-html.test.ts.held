@@ -1,0 +1,60 @@
+// @vitest-environment jsdom
+// packages/group/read-data/linkify-html.test.ts
+//
+// Proof of the display linkifier over a real DOM (jsdom). Verifies bare URLs/emails become anchors with the
+// safe target/rel, that an EXISTING <a> is never re-linkified, that code/pre are skipped, that non-navigable
+// #tag/@mention stay plain text, and that entity-free html is returned untouched (zero churn).
+
+import { describe, it, expect } from 'vitest';
+import { linkifyHtml } from './linkify-html';
+
+const parse = (html: string) => new DOMParser().parseFromString(html, 'text/html').body;
+
+describe('linkifyHtml', () => {
+  it('wraps a bare URL in a safe anchor (target=_blank, rel=noopener noreferrer)', () => {
+    const body = parse(linkifyHtml('<p>see https://a.com/x today</p>'));
+    const a = body.querySelector('a')!;
+    expect(a.getAttribute('href')).toBe('https://a.com/x');
+    expect(a.getAttribute('target')).toBe('_blank');
+    expect(a.getAttribute('rel')).toBe('noopener noreferrer');
+    expect(a.textContent).toBe('https://a.com/x');
+    expect(body.textContent).toBe('see https://a.com/x today'); // text content preserved verbatim
+  });
+
+  it('an email becomes a mailto: anchor', () => {
+    expect(parse(linkifyHtml('<p>ping me@example.com</p>')).querySelector('a')!.getAttribute('href')).toBe('mailto:me@example.com');
+  });
+
+  it('does NOT re-linkify text inside an EXISTING anchor', () => {
+    const out = linkifyHtml('<p><a href="https://x.com">https://a.com</a> and https://b.com</p>');
+    const body = parse(out);
+    const anchors = Array.from(body.querySelectorAll('a'));
+    // the original anchor is untouched (still points at x.com, its inner url text NOT re-wrapped); only the
+    // loose https://b.com becomes a new anchor → exactly 2 anchors total.
+    expect(anchors).toHaveLength(2);
+    expect(anchors[0].getAttribute('href')).toBe('https://x.com');
+    expect(anchors[1].getAttribute('href')).toBe('https://b.com');
+  });
+
+  it('skips code/pre subtrees (a URL in code stays literal text)', () => {
+    const body = parse(linkifyHtml('<p><code>https://a.com</code> then https://b.com</p>'));
+    expect(body.querySelectorAll('a')).toHaveLength(1);
+    expect(body.querySelector('a')!.getAttribute('href')).toBe('https://b.com');
+  });
+
+  it('leaves non-navigable #tag / @mention as plain text (no anchor)', () => {
+    const out = linkifyHtml('<p>#tennis with @coach</p>');
+    expect(parse(out).querySelectorAll('a')).toHaveLength(0);
+    expect(parse(out).textContent).toBe('#tennis with @coach');
+  });
+
+  it('returns entity-free html untouched (zero churn)', () => {
+    expect(linkifyHtml('<p>just plain words</p>')).toBe('<p>just plain words</p>');
+    expect(linkifyHtml('')).toBe('');
+  });
+
+  it('linkifies multiple URLs across sibling elements', () => {
+    const body = parse(linkifyHtml('<p>a https://a.com</p><p>b https://b.com</p>'));
+    expect(Array.from(body.querySelectorAll('a')).map((a) => a.getAttribute('href'))).toEqual(['https://a.com', 'https://b.com']);
+  });
+});

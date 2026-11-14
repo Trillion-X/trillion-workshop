@@ -1,0 +1,73 @@
+// @vitest-environment node
+import { readFileSync } from 'node:fs';
+import { transformWithEsbuild } from 'vite';
+import { expect, it, vi } from 'vitest';
+
+// Execute the mounted panel's actual commit callback so this pins its integration,
+// rather than testing a second implementation of save/history behavior.
+const source = readFileSync('packages/group/show/GroupBoardPanel.tsx', 'utf8');
+const callback = source.match(/const commit = useCallback\(\s*([\s\S]*?),\s*\[applyGraph, history\],\s*\);/)?.[1];
+if (!callback) throw new Error('Mounted board commit callback missing');
+const { code } = await transformWithEsbuild(`const commit = ${callback};`, 'commit.ts', { loader: 'ts', target: 'es2022' });
+
+it.each([null, 'Save failed'])('records an undo step only after persistence succeeds: %s', async error => {
+  const applyGraph = vi.fn().mockResolvedValue(error);
+  const history = { record: vi.fn() };
+  const before = {}, after = {};
+  const commit = new Function('applyGraph', 'history', 'graphRef', `${code}; return commit;`)(applyGraph, history, { current: before });
+  expect(await commit(after)).toBe(error);
+  expect(applyGraph).toHaveBeenCalledWith(after, before);
+  expect(history.record).toHaveBeenCalledTimes(error === null ? 1 : 0);
+});
+
+it('does not record a system write even when persistence succeeds', async () => {
+  const history = { record: vi.fn() };
+  const commit = new Function('applyGraph', 'history', 'graphRef', `${code}; return commit;`)(vi.fn().mockResolvedValue(null), history, { current: {} });
+  await commit({}, undefined, { undoable: false });
+  expect(history.record).not.toHaveBeenCalled();
+});
+
+it.each(['newBoard', 'duplicateCurrentBoard', 'createBoardFromTemplate'])('%s navigates only after confirmed persistence', async name => {
+  const body = source.match(new RegExp(`const ${name} = useCallback\\(\\s*([\\s\\S]*?),\\s*\\[[^\\]]+\\],?\\s*\\);`))?.[1];
+  if (!body) throw new Error(`Mounted ${name} callback missing`);
+  const built = await transformWithEsbuild(`const action = ${body};`, 'board-action.ts', { loader: 'ts', target: 'es2022' });
+  for (const outcome of [null, 'Save failed']) {
+    let finish!: (value: string | null) => void;
+    const commit = vi.fn(() => new Promise<string | null>(resolve => { finish = resolve; }));
+    const switchBoard = vi.fn(), setTemplatesOpen = vi.fn(), showNotice = vi.fn();
+    const dependencies = {
+      askText: vi.fn().mockResolvedValue('Ideas'), newId: () => 'new-board', commit,
+      addBoard: () => ({}), duplicateBoard: () => ({}), applyTemplate: () => ({}),
+      graphRef: { current: {} }, indexRef: {}, currentBoardIdRef: { current: 'original' },
+      readActiveBoards: () => [{ boardId: 'original', title: 'Original' }],
+      switchBoard, setTemplatesOpen, showNotice,
+    };
+    const action = new Function(...Object.keys(dependencies), `${built.code}; return action;`)(...Object.values(dependencies));
+    const pending = action({ name: 'Ideas' });
+    await Promise.resolve();
+    expect(commit).toHaveBeenCalledOnce();
+    expect(switchBoard).not.toHaveBeenCalled();
+    expect(showNotice).not.toHaveBeenCalled();
+    finish(outcome);
+    await pending;
+    expect(switchBoard).toHaveBeenCalledTimes(outcome === null ? 1 : 0);
+    if (name === 'createBoardFromTemplate') {
+      expect(setTemplatesOpen).toHaveBeenCalledTimes(outcome === null ? 1 : 0);
+      expect(showNotice).toHaveBeenCalledTimes(outcome === null ? 1 : 0);
+    }
+  }
+});
+
+it('drops board-local pinned selection and inspector when navigating to another board', async () => {
+  const body = source.match(/const landOnBoard = useCallback\(([\s\S]*?),\s*\[\]\);/)?.[1];
+  if (!body) throw new Error('Mounted board navigation callback missing');
+  const result = await transformWithEsbuild(`const navigate = ${body};`, 'navigate.ts', { loader: 'ts', target: 'es2022' });
+  const names = ['setSelectedIds', 'setPinnedToolIds', 'setSelectionInspectorOpen', 'setNavStack', 'setImmersiveId', 'setCurrentBoardId'];
+  const callbacks = names.map(() => vi.fn());
+  const navigate = new Function(...names, `${result.code}; return navigate;`)(...callbacks);
+  navigate('other-board');
+  expect(callbacks[0]).toHaveBeenCalledWith(new Set());
+  expect(callbacks[1]).toHaveBeenCalledWith(null);
+  expect(callbacks[2]).toHaveBeenCalledWith(false);
+  expect(callbacks[5]).toHaveBeenCalledWith('other-board');
+});

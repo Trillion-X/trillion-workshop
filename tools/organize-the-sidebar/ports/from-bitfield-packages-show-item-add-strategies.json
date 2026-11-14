@@ -1,0 +1,71 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-ORGANIZE-THE-SIDEBAR-SHOW-ITEM-ADD-STRATEGIES-FROM-BITFIELD-PACKAGES",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "census-and-restore lane 2, 2026-11-13: no rewrites from scratch; originals move wholesale",
+    "message_multihash": "1f:31cfaef8fe1b095bcdda0c309aeb261d0b928f36c81425a5d444f4f86483ec45",
+    "quote": "standing order: NO rewrites from scratch. Originals move wholesale (byte for byte, with moved-from receipts)"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "bitfield-packages",
+      "commit": "cab46e6b80098f672e86ab004c1f7630af8eb771",
+      "path": "packages/group/show/item-add-strategies.ts",
+      "multihash": "1f:6dccaef03d385cfee8b5da612cecb1f9248d9a81f5a0a8fc782650116858a2ae",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-17T06:43:29Z",
+        "deleted_with": "the change that lands this move: the package file leaves bitfield-packages in the same change"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/organize-the-sidebar/show/item-add-strategies.ts"
+    }
+  ],
+  "preserve": [
+    "the file is the original package file, moved with its import paths changed to this tree and nothing else",
+    "what the file did in the package: its exports, its rules and its edge cases are not rewritten here"
+  ],
+  "allowed_deltas": [
+    "import paths and the file header name the file's new place",
+    "one person's course title is replaced by a made-up heading (baseline.redactions)"
+  ],
+  "banned_substitutions": [
+    "a second implementation of the same job beside this file",
+    "a rewrite from scratch of what the package file does"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:6dccaef03d385cfee8b5da612cecb1f9248d9a81f5a0a8fc782650116858a2ae",
+    "target_multihash_at_baseline": "1f:61ae67af447d1d37cf91c990c4a3a9c894b0bf698abc22d559cdd148a9ba316e",
+    "redactions": [
+      {
+        "from": "Alex",
+        "to": "Rosa"
+      }
+    ],
+    "recorded_at": "2026-11-14T06:44:29Z",
+    "rows": [
+      {
+        "path": "tools/organize-the-sidebar/show/item-add-strategies.ts",
+        "source_multihash": "1f:6dccaef03d385cfee8b5da612cecb1f9248d9a81f5a0a8fc782650116858a2ae",
+        "target_multihash_at_baseline": "1f:61ae67af447d1d37cf91c990c4a3a9c894b0bf698abc22d559cdd148a9ba316e"
+      }
+    ],
+    "commit": "a604210a86170aabb81cb6c62f9c76d0df9134f0"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export const ADD_STRATEGIES: Readonly<Record<string, AddStrategy>> =",
+      "export function addStrategyFor(key: string): AddStrategy"
+    ],
+    "test_refs": [],
+    "render_refs": [],
+    "originality_ref": null
+  }
+}

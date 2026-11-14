@@ -1,0 +1,37 @@
+import { describe, expect, it, vi } from 'vitest';
+import { reviewShareReferences } from './review-share-references';
+import type { ShareCapsule } from '@/packages/group/read-data/share-capsule';
+
+const card = (memberId: string, text: string) => ({ memberId, text, kind: 'note', x: 0, y: 0, w: 100, h: 100 });
+const capsule = (items: ReturnType<typeof card>[]): ShareCapsule => ({
+  v: 1, id: 'test', name: 'Selected cards', boards: [{ boardId: 'a', title: 'Board A', items }],
+});
+
+describe('reviewShareReferences', () => {
+  it('allows resolved links without a dialog', async () => {
+    const ask = vi.fn();
+    expect(await reviewShareReferences(capsule([card('a', 'Source\n[[Target]]'), card('b', 'Target')]), ask)).toBe(true);
+    expect(ask).not.toHaveBeenCalled();
+  });
+
+  it('previews missing links once and cancels without changing the shared snapshot', async () => {
+    const value = capsule([card('a', 'Source\n[[Private target]] [[private target]]')]);
+    const before = JSON.stringify(value);
+    const ask = vi.fn(async () => null);
+    expect(await reviewShareReferences(value, ask)).toBe(false);
+    expect(ask).toHaveBeenCalledWith(
+      'These linked cards are not included. Review before copying the share link.',
+      'Board A / Source → [[Private target]]', 'Copy link anyway',
+    );
+    expect(JSON.stringify(value)).toBe(before);
+  });
+
+  it('keeps resolution local to each board and permits explicit continuation', async () => {
+    const value = capsule([card('a', 'Source\n[[Target]]')]);
+    const withOtherBoard = { ...value, boards: [...value.boards, { boardId: 'b', title: 'Board B', items: [card('b', 'Target')] }] };
+    const ask = vi.fn(async (_prompt: string, _text: string, _button: string) => '');
+    expect(await reviewShareReferences(withOtherBoard, ask)).toBe(true);
+    expect(ask).toHaveBeenCalledTimes(1);
+    expect(ask.mock.calls[0]?.[1]).toBe('Board A / Source → [[Target]]');
+  });
+});

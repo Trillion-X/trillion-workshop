@@ -1,0 +1,1062 @@
+{
+  "about": "The rows the group package of bitfield-packages stored for its board: the 18 background presets, 5 setting explanations, 3 affordance channels, 2 ask/improve action affordances, the inspection field set and the arrangement lens catalog, taken verbatim from its things-to-store-and-run.json at the commit below. They are rows for the person own lists; the code that reads them (read-data/board-backgrounds.ts, show/board-action-affordances.ts, show/board-inspection.ts) is moved beside this file, and no installed row held these yet.",
+  "source": {
+    "repository": "bitfield-packages",
+    "commit": "0b6adc0f62eb4cef793bfe4868a27e952d928474",
+    "path": "packages/group/things-to-store-and-run.json"
+  },
+  "rows": [
+    {
+      "type": "record",
+      "address": "package::group::affordance-channel::add-shelf",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "affordance-channel",
+        "channel": "group.add-shelf",
+        "label": "Board shelf",
+        "order": 30
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group::affordance-channel::palette",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "affordance-channel",
+        "channel": "group.palette",
+        "label": "Command palette",
+        "order": 31
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group::affordance-channel::context-menu",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "affordance-channel",
+        "channel": "group.context-menu",
+        "label": "Right-click menu",
+        "order": 32
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group::published-record::inspection-fields::board-item",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "inspection-field-descriptor-set",
+        "id": "inspection-fields:group:board-item",
+        "family": "group.board-item",
+        "fields": [
+          {
+            "id": "text",
+            "label": "Text",
+            "path": [
+              "text"
+            ],
+            "write_op": "set-text"
+          },
+          {
+            "id": "fill",
+            "label": "Fill color",
+            "path": [
+              "fill"
+            ],
+            "write_op": "set-fill"
+          },
+          {
+            "id": "shape",
+            "label": "Shape",
+            "path": [
+              "extra",
+              "shape"
+            ],
+            "write_op": "set-presentation",
+            "write_config": {
+              "key": "shape"
+            }
+          }
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::group::published-record::arrangement-lens-catalog",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "arrangement-lens-catalog",
+        "id": "arrangement-lens-catalog:group",
+        "lenses": [
+          {
+            "facet": "tag",
+            "label": "Grouped by tag"
+          },
+          {
+            "facet": "kind",
+            "label": "Grouped by kind"
+          },
+          {
+            "facet": "color",
+            "label": "Grouped by color"
+          }
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::group::action-affordance::ask-ai",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "action-affordance",
+        "version": 1,
+        "id": "action-affordance:group:ask-ai",
+        "is_active": true,
+        "label": "Ask AI",
+        "icon": "Sparkles",
+        "section": "AI",
+        "priority": -100,
+        "effect": "reconcile",
+        "triggers": [
+          {
+            "id": "board-shelf",
+            "channel": "group.add-shelf",
+            "event": "invoke",
+            "ask": {
+              "title": "Ask AI",
+              "submit_label": "Run",
+              "fields": [
+                {
+                  "id": "instruction",
+                  "control": "text",
+                  "label": "What should the AI do with this board?",
+                  "placeholder": "e.g. reorganize these into themes and fill in the empty notes with good example goals"
+                }
+              ]
+            },
+            "input_template": {
+              "request_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "run",
+                  "path": "id"
+                }
+              },
+              "target_group_ref": {
+                "$kind": "binding",
+                "select": {
+                  "from": "surface",
+                  "path": "target_ref"
+                }
+              },
+              "instruction_text": {
+                "$kind": "template",
+                "parts": [
+                  "You are reorganizing a vision board. The user's request: ",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "answers",
+                      "path": "instruction"
+                    }
+                  },
+                  "\n\nHere is the current board (one note per line):\n",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "typed",
+                      "path": "text"
+                    }
+                  },
+                  "\n\nReturn the COMPLETE desired board as a JSON array of notes \u2014 each element an object like {\"text\": \"the note text\"}. Reorganize and improve it: rewrite weak or empty/placeholder notes into strong concrete goals, keep the good ones, and add a few excellent example goals if the board is sparse. Return ONLY the JSON array, nothing else."
+                ]
+              },
+              "output_kind": "note"
+            },
+            "presentation": {
+              "working_label": "Thinking\u2026",
+              "total_hint": 0,
+              "item_kind": "pending",
+              "timeout_ms": 320000
+            }
+          },
+          {
+            "id": "doc-slash",
+            "channel": "composition.slash-menu",
+            "event": "invoke",
+            "ask": {
+              "title": "Ask AI",
+              "submit_label": "Run",
+              "fields": [
+                {
+                  "id": "instruction",
+                  "control": "text",
+                  "label": "What should the AI do with this board?",
+                  "placeholder": "e.g. reorganize these into themes and fill in the empty notes with good example goals"
+                }
+              ]
+            },
+            "input_template": {
+              "request_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "run",
+                  "path": "id"
+                }
+              },
+              "instruction_text": {
+                "$kind": "template",
+                "parts": [
+                  "You are reorganizing a vision board. The user's request: ",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "answers",
+                      "path": "instruction"
+                    }
+                  },
+                  "\n\nHere is the current board (one note per line):\n",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "typed",
+                      "path": "text"
+                    }
+                  },
+                  "\n\nReturn the COMPLETE desired board as a JSON array of notes \u2014 each element an object like {\"text\": \"the note text\"}. Reorganize and improve it: rewrite weak or empty/placeholder notes into strong concrete goals, keep the good ones, and add a few excellent example goals if the board is sparse. Return ONLY the JSON array, nothing else."
+                ]
+              },
+              "output_kind": "note"
+            }
+          },
+          {
+            "id": "board-palette",
+            "channel": "group.palette",
+            "event": "invoke",
+            "ask": {
+              "title": "Ask AI",
+              "submit_label": "Run",
+              "fields": [
+                {
+                  "id": "instruction",
+                  "control": "text",
+                  "label": "What should the AI do with this board?",
+                  "placeholder": "e.g. reorganize these into themes and fill in the empty notes with good example goals"
+                }
+              ]
+            },
+            "input_template": {
+              "request_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "run",
+                  "path": "id"
+                }
+              },
+              "target_group_ref": {
+                "$kind": "binding",
+                "select": {
+                  "from": "surface",
+                  "path": "target_ref"
+                }
+              },
+              "instruction_text": {
+                "$kind": "template",
+                "parts": [
+                  "You are reorganizing a vision board. The user's request: ",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "answers",
+                      "path": "instruction"
+                    }
+                  },
+                  "\n\nHere is the current board (one note per line):\n",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "typed",
+                      "path": "text"
+                    }
+                  },
+                  "\n\nReturn the COMPLETE desired board as a JSON array of notes \u2014 each element an object like {\"text\": \"the note text\"}. Reorganize and improve it: rewrite weak or empty/placeholder notes into strong concrete goals, keep the good ones, and add a few excellent example goals if the board is sparse. Return ONLY the JSON array, nothing else."
+                ]
+              },
+              "output_kind": "note"
+            }
+          },
+          {
+            "id": "board-menu",
+            "channel": "group.context-menu",
+            "event": "invoke",
+            "ask": {
+              "title": "Ask AI",
+              "submit_label": "Run",
+              "fields": [
+                {
+                  "id": "instruction",
+                  "control": "text",
+                  "label": "What should the AI do with this board?",
+                  "placeholder": "e.g. reorganize these into themes and fill in the empty notes with good example goals"
+                }
+              ]
+            },
+            "input_template": {
+              "request_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "run",
+                  "path": "id"
+                }
+              },
+              "target_group_ref": {
+                "$kind": "binding",
+                "select": {
+                  "from": "surface",
+                  "path": "target_ref"
+                }
+              },
+              "instruction_text": {
+                "$kind": "template",
+                "parts": [
+                  "You are reorganizing a vision board. The user's request: ",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "answers",
+                      "path": "instruction"
+                    }
+                  },
+                  "\n\nHere is the current board (one note per line):\n",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "typed",
+                      "path": "text"
+                    }
+                  },
+                  "\n\nReturn the COMPLETE desired board as a JSON array of notes \u2014 each element an object like {\"text\": \"the note text\"}. Reorganize and improve it: rewrite weak or empty/placeholder notes into strong concrete goals, keep the good ones, and add a few excellent example goals if the board is sparse. Return ONLY the JSON array, nothing else."
+                ]
+              },
+              "output_kind": "note"
+            },
+            "presentation": {
+              "working_label": "Thinking\u2026",
+              "total_hint": 0,
+              "item_kind": "pending",
+              "timeout_ms": 320000
+            }
+          }
+        ],
+        "dispatch": {
+          "target": "slot::workflow",
+          "payload_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:run-ai-records-production",
+            "include_output": false,
+            "input": {
+              "$kind": "binding",
+              "select": {
+                "from": "trigger",
+                "path": "input"
+              }
+            }
+          },
+          "status": {
+            "result_address_template": "package::ai-records-producer::result::{id}",
+            "error_address_template": "package::ai-records-producer::error::{id}",
+            "address_mode": "label-hash",
+            "result_partition_label": "runtime-partition"
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::group::action-affordance::improve-in-place",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "action-affordance",
+        "version": 1,
+        "id": "action-affordance:group:improve-in-place",
+        "is_active": true,
+        "label": "Improve in place",
+        "icon": "Wand",
+        "section": "AI",
+        "priority": -99,
+        "effect": "reconcile",
+        "triggers": [
+          {
+            "id": "board-shelf",
+            "channel": "group.add-shelf",
+            "event": "invoke",
+            "ask": {
+              "title": "Improve in place",
+              "submit_label": "Run",
+              "fields": [
+                {
+                  "id": "instruction",
+                  "control": "text",
+                  "label": "How should the AI improve these notes?",
+                  "placeholder": "e.g. make each goal specific and measurable, fill in the empty ones"
+                }
+              ]
+            },
+            "input_template": {
+              "request_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "run",
+                  "path": "id"
+                }
+              },
+              "target_group_ref": {
+                "$kind": "binding",
+                "select": {
+                  "from": "surface",
+                  "path": "target_ref"
+                }
+              },
+              "instruction_text": {
+                "$kind": "template",
+                "parts": [
+                  "You are improving a vision board IN PLACE \u2014 keep every note where it is, just make it better. The user's request: ",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "answers",
+                      "path": "instruction"
+                    }
+                  },
+                  "\n\nHere is the current board (one note per line, prefixed with its id in [brackets]):\n",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "typed",
+                      "path": "items_text"
+                    }
+                  },
+                  "\n\nReturn the COMPLETE desired board as a JSON array of notes. For every note you KEEP or EDIT, include its existing id as \"memberId\" (copy the value inside the [brackets]) plus the improved \"text\" \u2014 this keeps the card in its current position. For a genuinely NEW note, omit \"memberId\" and give only \"text\". Rewrite weak, vague, or empty/placeholder notes into strong concrete goals; keep the good ones; you may add a few excellent example goals if the board is sparse. Return ONLY the JSON array, nothing else."
+                ]
+              },
+              "output_kind": "note"
+            },
+            "presentation": {
+              "working_label": "Thinking\u2026",
+              "total_hint": 0,
+              "item_kind": "pending",
+              "timeout_ms": 320000
+            }
+          },
+          {
+            "id": "doc-slash",
+            "channel": "composition.slash-menu",
+            "event": "invoke",
+            "ask": {
+              "title": "Improve in place",
+              "submit_label": "Run",
+              "fields": [
+                {
+                  "id": "instruction",
+                  "control": "text",
+                  "label": "How should the AI improve these notes?",
+                  "placeholder": "e.g. make each goal specific and measurable, fill in the empty ones"
+                }
+              ]
+            },
+            "input_template": {
+              "request_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "run",
+                  "path": "id"
+                }
+              },
+              "instruction_text": {
+                "$kind": "template",
+                "parts": [
+                  "You are improving a vision board IN PLACE \u2014 keep every note where it is, just make it better. The user's request: ",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "answers",
+                      "path": "instruction"
+                    }
+                  },
+                  "\n\nHere is the current board (one note per line, prefixed with its id in [brackets]):\n",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "typed",
+                      "path": "items_text"
+                    }
+                  },
+                  "\n\nReturn the COMPLETE desired board as a JSON array of notes. For every note you KEEP or EDIT, include its existing id as \"memberId\" (copy the value inside the [brackets]) plus the improved \"text\" \u2014 this keeps the card in its current position. For a genuinely NEW note, omit \"memberId\" and give only \"text\". Rewrite weak, vague, or empty/placeholder notes into strong concrete goals; keep the good ones; you may add a few excellent example goals if the board is sparse. Return ONLY the JSON array, nothing else."
+                ]
+              },
+              "output_kind": "note"
+            }
+          },
+          {
+            "id": "board-palette",
+            "channel": "group.palette",
+            "event": "invoke",
+            "ask": {
+              "title": "Improve in place",
+              "submit_label": "Run",
+              "fields": [
+                {
+                  "id": "instruction",
+                  "control": "text",
+                  "label": "How should the AI improve these notes?",
+                  "placeholder": "e.g. make each goal specific and measurable, fill in the empty ones"
+                }
+              ]
+            },
+            "input_template": {
+              "request_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "run",
+                  "path": "id"
+                }
+              },
+              "target_group_ref": {
+                "$kind": "binding",
+                "select": {
+                  "from": "surface",
+                  "path": "target_ref"
+                }
+              },
+              "instruction_text": {
+                "$kind": "template",
+                "parts": [
+                  "You are improving a vision board IN PLACE \u2014 keep every note where it is, just make it better. The user's request: ",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "answers",
+                      "path": "instruction"
+                    }
+                  },
+                  "\n\nHere is the current board (one note per line, prefixed with its id in [brackets]):\n",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "typed",
+                      "path": "items_text"
+                    }
+                  },
+                  "\n\nReturn the COMPLETE desired board as a JSON array of notes. For every note you KEEP or EDIT, include its existing id as \"memberId\" (copy the value inside the [brackets]) plus the improved \"text\" \u2014 this keeps the card in its current position. For a genuinely NEW note, omit \"memberId\" and give only \"text\". Rewrite weak, vague, or empty/placeholder notes into strong concrete goals; keep the good ones; you may add a few excellent example goals if the board is sparse. Return ONLY the JSON array, nothing else."
+                ]
+              },
+              "output_kind": "note"
+            }
+          },
+          {
+            "id": "board-menu",
+            "channel": "group.context-menu",
+            "event": "invoke",
+            "ask": {
+              "title": "Improve in place",
+              "submit_label": "Run",
+              "fields": [
+                {
+                  "id": "instruction",
+                  "control": "text",
+                  "label": "How should the AI improve these notes?",
+                  "placeholder": "e.g. make each goal specific and measurable, fill in the empty ones"
+                }
+              ]
+            },
+            "input_template": {
+              "request_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "run",
+                  "path": "id"
+                }
+              },
+              "target_group_ref": {
+                "$kind": "binding",
+                "select": {
+                  "from": "surface",
+                  "path": "target_ref"
+                }
+              },
+              "instruction_text": {
+                "$kind": "template",
+                "parts": [
+                  "You are improving a vision board IN PLACE \u2014 keep every note where it is, just make it better. The user's request: ",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "answers",
+                      "path": "instruction"
+                    }
+                  },
+                  "\n\nHere is the current board (one note per line, prefixed with its id in [brackets]):\n",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "typed",
+                      "path": "items_text"
+                    }
+                  },
+                  "\n\nReturn the COMPLETE desired board as a JSON array of notes. For every note you KEEP or EDIT, include its existing id as \"memberId\" (copy the value inside the [brackets]) plus the improved \"text\" \u2014 this keeps the card in its current position. For a genuinely NEW note, omit \"memberId\" and give only \"text\". Rewrite weak, vague, or empty/placeholder notes into strong concrete goals; keep the good ones; you may add a few excellent example goals if the board is sparse. Return ONLY the JSON array, nothing else."
+                ]
+              },
+              "output_kind": "note"
+            },
+            "presentation": {
+              "working_label": "Thinking\u2026",
+              "total_hint": 0,
+              "item_kind": "pending",
+              "timeout_ms": 320000
+            }
+          }
+        ],
+        "dispatch": {
+          "target": "slot::workflow",
+          "payload_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:run-ai-records-production",
+            "include_output": false,
+            "input": {
+              "$kind": "binding",
+              "select": {
+                "from": "trigger",
+                "path": "input"
+              }
+            }
+          },
+          "status": {
+            "result_address_template": "package::ai-records-producer::result::{id}",
+            "error_address_template": "package::ai-records-producer::error::{id}",
+            "address_mode": "label-hash",
+            "result_partition_label": "runtime-partition"
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::group::board-background-preset::solid-white",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "board-background-preset",
+        "name": "solid-white",
+        "label": "White",
+        "background_style": {
+          "backgroundColor": "#ffffff"
+        },
+        "order": 1
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group::board-background-preset::solid-light-gray",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "board-background-preset",
+        "name": "solid-light-gray",
+        "label": "Light Gray",
+        "background_style": {
+          "backgroundColor": "#f5f5f5"
+        },
+        "order": 2
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group::board-background-preset::solid-dark-gray",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "board-background-preset",
+        "name": "solid-dark-gray",
+        "label": "Dark Gray",
+        "background_style": {
+          "backgroundColor": "#2d2d2d"
+        },
+        "order": 3
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group::board-background-preset::solid-navy",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "board-background-preset",
+        "name": "solid-navy",
+        "label": "Navy",
+        "background_style": {
+          "backgroundColor": "#1a2332"
+        },
+        "order": 4
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group::board-background-preset::solid-deep-blue",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "board-background-preset",
+        "name": "solid-deep-blue",
+        "label": "Deep Blue",
+        "background_style": {
+          "backgroundColor": "#0f3a7d"
+        },
+        "order": 5
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group::board-background-preset::solid-teal",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "board-background-preset",
+        "name": "solid-teal",
+        "label": "Teal",
+        "background_style": {
+          "backgroundColor": "#0d7a66"
+        },
+        "order": 6
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group::board-background-preset::solid-green",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "board-background-preset",
+        "name": "solid-green",
+        "label": "Forest Green",
+        "background_style": {
+          "backgroundColor": "#1b4332"
+        },
+        "order": 7
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group::board-background-preset::solid-sage",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "board-background-preset",
+        "name": "solid-sage",
+        "label": "Sage",
+        "background_style": {
+          "backgroundColor": "#9caf88"
+        },
+        "order": 8
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group::board-background-preset::solid-rust",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "board-background-preset",
+        "name": "solid-rust",
+        "label": "Rust",
+        "background_style": {
+          "backgroundColor": "#7a4419"
+        },
+        "order": 9
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group::board-background-preset::solid-clay",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "board-background-preset",
+        "name": "solid-clay",
+        "label": "Clay",
+        "background_style": {
+          "backgroundColor": "#d4a574"
+        },
+        "order": 10
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group::board-background-preset::gradient-blue-purple",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "board-background-preset",
+        "name": "gradient-blue-purple",
+        "label": "Blue to Purple",
+        "background_style": {
+          "backgroundImage": "linear-gradient(135deg, #0f3a7d 0%, #5a2d82 100%)"
+        },
+        "order": 11
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group::board-background-preset::gradient-teal-green",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "board-background-preset",
+        "name": "gradient-teal-green",
+        "label": "Teal to Green",
+        "background_style": {
+          "backgroundImage": "linear-gradient(135deg, #0d7a66 0%, #1b4332 100%)"
+        },
+        "order": 12
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group::board-background-preset::gradient-warm-neutral",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "board-background-preset",
+        "name": "gradient-warm-neutral",
+        "label": "Warm Neutral",
+        "background_style": {
+          "backgroundImage": "linear-gradient(135deg, #f5deb3 0%, #d2b48c 100%)"
+        },
+        "order": 13
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group::board-background-preset::gradient-sunset",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "board-background-preset",
+        "name": "gradient-sunset",
+        "label": "Sunset",
+        "background_style": {
+          "backgroundImage": "linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%)"
+        },
+        "order": 14
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group::board-background-preset::gradient-cosmic",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "board-background-preset",
+        "name": "gradient-cosmic",
+        "label": "Cosmic",
+        "background_style": {
+          "backgroundImage": "linear-gradient(135deg, #1a0033 0%, #3d0066 50%, #2d0066 100%)"
+        },
+        "order": 15
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group::board-background-preset::custom-color",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "board-background-preset",
+        "name": "custom-color",
+        "label": "Custom Color",
+        "background_style": {
+          "backgroundColor": "#ffffff"
+        },
+        "is_user_customizable": true,
+        "customization_type": "color-picker",
+        "order": 100
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group::board-background-preset::custom-gradient",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "board-background-preset",
+        "name": "custom-gradient",
+        "label": "Custom Gradient",
+        "background_style": {
+          "backgroundImage": "linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)"
+        },
+        "is_user_customizable": true,
+        "customization_type": "gradient-editor",
+        "order": 101
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group::board-background-preset::custom-image",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "board-background-preset",
+        "name": "custom-image",
+        "label": "Custom Image",
+        "background_style": {
+          "backgroundSize": "cover",
+          "backgroundPosition": "center"
+        },
+        "is_user_customizable": true,
+        "customization_type": "image-upload",
+        "order": 102
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group::setting-info-content::density-spacing",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "setting-info-content",
+        "setting_key": "density-spacing",
+        "title": "Note Density",
+        "description": "Controls how tightly notes are spaced on the board. Tight spacing fits more notes at once; loose spacing gives each note breathing room. Choose based on how many items you typically place and whether you prefer overview or detail.",
+        "visual_demo_url": "package::group::setting-demo::density-comparison",
+        "order": 1
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group::setting-info-content::note-size",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "setting-info-content",
+        "setting_key": "note-size",
+        "title": "Default Note Size",
+        "description": "Sets the initial size for newly placed notes. Larger notes show more content and are easier to read from a distance; smaller notes fit more on screen. You can always resize individual notes after placing them.",
+        "visual_demo_url": "package::group::setting-demo::size-comparison",
+        "order": 2
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group::setting-info-content::snap-to-grid",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "setting-info-content",
+        "setting_key": "snap-to-grid",
+        "title": "Snap to Grid",
+        "description": "When enabled, notes align to an invisible grid as you move them, creating a neat organized layout. Disable for free-form placement that's closer to freehand sketching.",
+        "visual_demo_url": "package::group::setting-demo::snap-demo",
+        "order": 3
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group::setting-info-content::auto-arrange",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "setting-info-content",
+        "setting_key": "auto-arrange",
+        "title": "Auto-Arrange",
+        "description": "Automatically positions overlapping notes to avoid collision. Useful when adding many notes quickly; disable if you prefer manual control over layout.",
+        "visual_demo_url": "package::group::setting-demo::arrange-demo",
+        "order": 4
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::group::setting-info-content::show-shadows",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "setting-info-content",
+        "setting_key": "show-shadows",
+        "title": "Show Shadows",
+        "description": "Adds depth perception by rendering shadows beneath notes. Improves visual hierarchy on busy boards; disable for a flatter, more minimal aesthetic.",
+        "visual_demo_url": "package::group::setting-demo::shadow-demo",
+        "order": 5
+      }
+    }
+  ]
+}

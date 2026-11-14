@@ -1,0 +1,67 @@
+// packages/group/read-data/read-knowledge-graph.test.ts
+//
+// Proves the CLIENT-SIDE projection the mount performs: the person's own relation
+// and activity records -> merged connection graph -> (via the view builder)
+// renderable frames. The mount reads raw records, NOT a pre-cooked projection.
+
+import { describe, expect, it } from 'vitest';
+import { projectKnowledgeGraph } from './read-knowledge-graph';
+import { buildKnowledgeGraphView } from './knowledge-graph-view';
+
+const RECORDS = [
+  { id: 'relation:1', type: 'relation', value: { subject: 'record:person:ada', role: 'mentor', object: 'record:person:ben', alive: true } },
+  { id: 'relation:2', type: 'relation', value: { subject: 'record:person:ben', role: 'member', object: 'organisation:theta', alive: true } },
+  { id: 'relation:3', type: 'relation', value: { subject: 'record:person:ada', role: 'member', object: 'organisation:theta', alive: false } },
+  {
+    id: 'activity:1',
+    type: 'activity',
+    value: {
+      kind: 'meeting',
+      at: '2026-10-01T10:00:00Z',
+      participants: [{ record: 'record:person:ada', role: 'organiser' }, { record: 'record:person:ben', role: 'attendee' }, { record: 'record:person:cara', role: 'attendee' }],
+      summary: 'kickoff',
+    },
+  },
+  { id: 'note:1', type: 'note', value: { text: 'neither a relation nor an activity' } },
+];
+
+describe('projectKnowledgeGraph (client-side composition over the generic record graph)', () => {
+  it('draws a live relation as one edge between its two ends and skips an ended one', () => {
+    const projection = projectKnowledgeGraph(RECORDS.slice(0, 3));
+    expect(projection.connections.map((c) => c.id).sort()).toEqual(['relation:1', 'relation:2']);
+    expect(projection.nodes.map((n) => n.id).sort()).toEqual(['organisation:theta', 'record:person:ada', 'record:person:ben']);
+  });
+
+  it('draws an activity as one hub edge across everyone who took part', () => {
+    const projection = projectKnowledgeGraph([RECORDS[3]]);
+    expect(projection.connections).toHaveLength(1);
+    expect((projection.connections[0].endpoints as unknown[]).length).toBe(3);
+    expect(buildKnowledgeGraphView(projection).diagnostics.hubCount).toBe(1);
+  });
+
+  it('merges relations and activities over the same records, deduping shared nodes', () => {
+    const projection = projectKnowledgeGraph(RECORDS);
+    expect(projection.connections).toHaveLength(3);
+    expect(projection.nodes.map((n) => n.id).sort()).toEqual(['organisation:theta', 'record:person:ada', 'record:person:ben', 'record:person:cara']);
+    const view = buildKnowledgeGraphView(projection);
+    expect(view.frames).toHaveLength(5); // four records and the meeting's hub
+    expect(view.diagnostics.edgeCount).toBe(5); // two relations and the hub's three spokes
+  });
+
+  it('reads a row whose value arrives as payload, and a relation with no id gets a stable one', () => {
+    const projection = projectKnowledgeGraph([{ payload: { subject: 'a', role: 'knows', object: 'b' } }]);
+    expect(projection.connections.map((c) => c.id)).toEqual(['a|knows|b']);
+  });
+
+  it('a role no code has heard of appears the moment its relation records exist', () => {
+    const projection = projectKnowledgeGraph([{ id: 'r', value: { subject: 'player:1', role: 'assisted', object: 'player:2' } }]);
+    expect(projection.connections).toHaveLength(1);
+    expect(projection.nodes).toHaveLength(2);
+  });
+
+  it('empty or malformed input -> empty projection (no fake nodes)', () => {
+    expect(projectKnowledgeGraph([]).connections).toEqual([]);
+    expect(projectKnowledgeGraph(undefined).nodes).toEqual([]);
+    expect(projectKnowledgeGraph([null, 'x', { value: { subject: 'only-one-end' } }]).connections).toEqual([]);
+  });
+});

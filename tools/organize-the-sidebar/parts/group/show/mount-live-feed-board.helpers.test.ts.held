@@ -1,0 +1,63 @@
+import { describe, it, expect } from 'vitest';
+import { readLiveFeedProjection, fillFrame, readBoardConfig } from './mount-live-feed-board';
+
+describe('readLiveFeedProjection', () => {
+  const valid = {
+    cardSurface: { packageName: 'ai-agent-profile', entryName: 'agent-card' },
+    idField: 'id',
+    surfaceInputKey: 'agentId',
+    groupKeyField: 'department',
+  };
+
+  it('accepts a well-formed projection config', () => {
+    expect(readLiveFeedProjection(valid)).toBe(valid);
+  });
+
+  it('rejects (null) a config missing cardSurface / id / surfaceInputKey', () => {
+    expect(readLiveFeedProjection({ ...valid, cardSurface: undefined })).toBeNull();
+    expect(readLiveFeedProjection({ ...valid, cardSurface: { packageName: 'x' } })).toBeNull();
+    expect(readLiveFeedProjection({ ...valid, idField: 5 })).toBeNull();
+    expect(readLiveFeedProjection({ ...valid, surfaceInputKey: undefined })).toBeNull();
+  });
+
+  it('rejects null/array/non-object (fail-soft, never throws)', () => {
+    expect(readLiveFeedProjection(null)).toBeNull();
+    expect(readLiveFeedProjection(undefined)).toBeNull();
+    expect(readLiveFeedProjection([valid])).toBeNull();
+    expect(readLiveFeedProjection('x')).toBeNull();
+  });
+});
+
+describe('readBoardConfig', () => {
+  it('merges surfaceInput OVER top-level props (the host props path wins)', () => {
+    const merged = readBoardConfig({ board_id: 'top', floating_frame: { mode: 'fill' }, surfaceInput: { board_id: 'si', feed_input: 'published-records' } });
+    expect(merged.board_id).toBe('si');
+    expect(merged.feed_input).toBe('published-records');
+    // top-level keys not in surfaceInput are preserved
+    expect(merged.floating_frame).toEqual({ mode: 'fill' });
+  });
+
+  it('falls back to top-level props when surfaceInput is absent (full-tab path)', () => {
+    const merged = readBoardConfig({ board_id: 'top', title: 'T' });
+    expect(merged.board_id).toBe('top');
+    expect(merged.title).toBe('T');
+  });
+
+  it('ignores a non-object surfaceInput', () => {
+    expect(readBoardConfig({ board_id: 'x', surfaceInput: 'nope' }).board_id).toBe('x');
+    expect(readBoardConfig({ board_id: 'x', surfaceInput: [1] }).board_id).toBe('x');
+  });
+});
+
+describe('fillFrame', () => {
+  it('upgrades an unplaced frame to fill (definite height for the canvas)', () => {
+    expect(fillFrame(undefined)).toEqual({ mode: 'fill' });
+    expect(fillFrame({})).toEqual({ mode: 'fill' });
+  });
+
+  it('respects an explicit fixed/coordinate placement (popout)', () => {
+    expect(fillFrame({ mode: 'fixed' })).toEqual({ mode: 'fixed' });
+    expect(fillFrame({ top_px: 10 })).toEqual({ top_px: 10 });
+    expect(fillFrame({ left_px: 20 })).toEqual({ left_px: 20 });
+  });
+});

@@ -1,0 +1,92 @@
+// packages/group/show/board-load-deadline.test.ts
+//
+// =============================================================================
+// PURPOSE (task #47)
+// =============================================================================
+//
+// Proves the board-load deadline helper that fixes the "stuck forever on
+// 'Loading your board…'" bug: `store.load()` in GroupBoardPanel's load effect
+// had no timeout of its own, so a hang under engine-thread contention left
+// `isLoading` permanently true with no escape (no error, no retry).
+//
+// `loadDeadline(timeoutMs)` mirrors the already-shipped
+// `packages/ui/show/source-bytes-screen-mount/SourceBytesScreenMount.tsx`
+// `mountDeadline` pattern: it returns a promise that rejects after `timeoutMs`,
+// so `Promise.race([store.load(), loadDeadline(BOARD_LOAD_TIMEOUT_MS)])` turns
+// an indefinite hang into a bounded, retryable failure.
+//
+// GroupBoardPanel.tsx has no renderable test harness (7000+ lines, no existing
+// mount test, and no fixture that fakes its `store` dependency) — mounting the
+// full panel here would be a brittle, disproportionate addition for this fix.
+// This test instead proves the extracted helper's actual contract: it does
+// NOT resolve before the deadline, and it DOES reject exactly at the deadline
+// with a diagnostic (never user-facing) message. The load effect's use of the
+// helper — `setError('Your board is taking a while to load...')` in the catch,
+// `retryLoad` bumping `retryNonce` to re-run the effect, and
+// `BoardStatusOverlay({ isLoading, empty, error, onRetry })` rendering the
+// human copy + "Try again" button instead of a permanent loading line — is a
+// direct, visually-inspectable code change in GroupBoardPanel.tsx and
+// BoardStatusOverlay.tsx; the panel-level render assertion is deferred per the
+// task's guidance rather than forced into a brittle jsdom mount.
+//
+// =============================================================================
+// The extensive documentation in this codebase is a critical design feature.
+// You are forbidden from simplifying or removing it.
+// =============================================================================
+
+import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
+import { BOARD_LOAD_TIMEOUT_MS, loadDeadline } from '@/packages/group/show/GroupBoardPanel';
+
+describe('loadDeadline (task #47 — board-load timeout)', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('does not settle before the timeout elapses', async () => {
+    const settled = vi.fn();
+    loadDeadline(1000).catch(() => settled());
+
+    await vi.advanceTimersByTimeAsync(999);
+    expect(settled).not.toHaveBeenCalled();
+  });
+
+  it('rejects with a diagnostic-only error exactly at the deadline', async () => {
+    const promise = loadDeadline(1000);
+    // Attach a rejection handler synchronously so advancing fake timers never
+    // races an unhandled-rejection report before the assertion below awaits it.
+    const outcome = promise.catch((e: unknown) => e);
+
+    await vi.advanceTimersByTimeAsync(1000);
+    const error = await outcome;
+
+    expect(error).toBeInstanceOf(Error);
+    expect((error as Error).message).toBe('board-load-timeout');
+  });
+
+  it('a Promise.race against a fast winner resolves with the winner, never the deadline', async () => {
+    const fastLoad = Promise.resolve({ boardId: 'b1' });
+    const raced = await Promise.race([fastLoad, loadDeadline(BOARD_LOAD_TIMEOUT_MS)]);
+    expect(raced).toEqual({ boardId: 'b1' });
+  });
+
+  it('a Promise.race against a hang rejects once BOARD_LOAD_TIMEOUT_MS elapses (the actual bug fixed)', async () => {
+    const neverResolves = new Promise(() => {
+      /* simulates a hung store.load() under engine-thread contention */
+    });
+    const raced = Promise.race([neverResolves, loadDeadline(BOARD_LOAD_TIMEOUT_MS)]);
+    const outcome = raced.then(
+      () => ({ ok: true }),
+      (e: unknown) => ({ ok: false, error: e }),
+    );
+
+    await vi.advanceTimersByTimeAsync(BOARD_LOAD_TIMEOUT_MS);
+    const result = await outcome;
+
+    expect(result.ok).toBe(false);
+    expect((result as { ok: false; error: unknown }).error).toBeInstanceOf(Error);
+  });
+});
