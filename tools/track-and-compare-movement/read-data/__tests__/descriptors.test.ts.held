@@ -1,0 +1,115 @@
+// packages/motion-analysis/read-data/__tests__/descriptors.test.ts
+//
+// Task 2A — Perception descriptor DATA proof (watch-a-video plan §15.4 / §12.2).
+//
+// The perception MODEL is DATA: two `process-descriptor-config` records live in the
+// motion-analysis boundary file and are passed as
+//   options.motion_command.process_descriptor
+// to the already-shipping action:submit-motion-analysis-request. This test proves,
+// with ZERO live engine, that each descriptor:
+//   (1) parses out of the boundary JSON at its identity_text address;
+//   (2) carries a `model` provenance string (fail-closed provenance — §11);
+//   (3) carries the complete portable containment/capture contract required by
+//       the canonical compute.process ABI;
+//   (4) points argv at a REAL perception runner script that EXISTS on disk (the
+//       runner path is not invented — §15.4).
+//
+// Run: ../../node_modules/.bin/vitest run read-data/__tests__/descriptors.test.ts
+
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { describe, expect, test } from "vitest";
+
+// The motion-analysis boundary file (SSOT for this package's DATA records).
+const BOUNDARY = resolve(__dirname, "../../things-to-store-and-run.json");
+// The package repo root (bitfield-packages) — argv script paths are repo-relative
+// (e.g. "packages/motion-analysis/do-work/process-scripts/perception/run_perception.py").
+const REPO_ROOT = resolve(__dirname, "../../../..");
+
+type Thing = {
+  type?: string;
+  address?: string;
+  payload?: Record<string, unknown>;
+};
+
+type ProcessDescriptor = {
+  argv?: unknown[];
+  cwd?: string | null;
+  env?: Record<string, unknown>;
+  inputs?: unknown[];
+  input_trees?: unknown[];
+  outputs?: unknown[];
+  timeout_ms?: unknown;
+  termination_grace_ms?: unknown;
+  expected_termination?: unknown;
+  containment?: Record<string, unknown>;
+  capture_fds?: unknown[];
+  collected_files?: unknown[];
+};
+
+const boundary = JSON.parse(readFileSync(BOUNDARY, "utf8")) as { things: Thing[] };
+
+function descriptorRecord(address: string): Thing {
+  const rec = boundary.things.find((t) => t.type === "record" && t.address === address);
+  expect(rec, `descriptor record ${address} present in boundary`).toBeDefined();
+  return rec as Thing;
+}
+
+// The FIRST argv token that is a plain string ending in .py is the runner script the
+// descriptor executes (argv[0] is the interpreter, e.g. "python3"). Bindings ($kind)
+// are skipped — they are late-bound values, not a script path.
+function argvScriptPath(descriptor: ProcessDescriptor): string {
+  const argv = Array.isArray(descriptor.argv) ? descriptor.argv : [];
+  const script = argv.find(
+    (a): a is string => typeof a === "string" && a.endsWith(".py"),
+  );
+  expect(script, "descriptor argv names a .py runner script").toBeTruthy();
+  return script as string;
+}
+
+const CASES: Array<{ address: string; expectExt: string }> = [
+  { address: "package::motion-analysis::process-descriptor-config::pose-rtmw", expectExt: "perception/run_perception.py" },
+  { address: "package::motion-analysis::process-descriptor-config::ball-court", expectExt: "match/emit_match_facts.py" },
+];
+
+describe("motion-analysis perception process-descriptor DATA (Task 2A)", () => {
+  for (const { address, expectExt } of CASES) {
+    describe(address, () => {
+      const rec = descriptorRecord(address);
+      const payload = (rec.payload ?? {}) as Record<string, unknown>;
+      const descriptor = (payload.process_descriptor ?? {}) as ProcessDescriptor;
+
+      test("parses as a process-descriptor-config with a model provenance string", () => {
+        expect(payload.kind).toBe("process-descriptor-config");
+        expect(typeof payload.id).toBe("string");
+        expect(typeof payload.model).toBe("string");
+        expect((payload.model as string).length).toBeGreaterThan(0);
+      });
+
+      test("carries the canonical portable compute.process contract", () => {
+        expect(typeof descriptor.timeout_ms).toBe("number");
+        expect(descriptor.timeout_ms as number).toBeGreaterThan(0);
+        expect(descriptor.termination_grace_ms).toBe(1000);
+        expect(descriptor.expected_termination).toBeNull();
+        expect(descriptor.containment).toEqual({
+          kind: "descendant_effect_contained",
+          pipe_eof_timeout_ms: 1000,
+          publications: [],
+        });
+        expect(descriptor.capture_fds).toEqual([1, 2]);
+        expect(Array.isArray(descriptor.inputs)).toBe(true);
+        expect(Array.isArray(descriptor.input_trees)).toBe(true);
+        expect(Array.isArray(descriptor.outputs)).toBe(true);
+        expect(Array.isArray(descriptor.collected_files)).toBe(true);
+        expect(JSON.stringify(descriptor)).not.toMatch(/sandbox_profile|capture_stdout|capture_stderr/);
+      });
+
+      test("argv points at a perception runner script that EXISTS on disk", () => {
+        const script = argvScriptPath(descriptor);
+        expect(script.endsWith(expectExt), `argv script ${script} ends with ${expectExt}`).toBe(true);
+        const abs = resolve(REPO_ROOT, script);
+        expect(existsSync(abs), `runner script exists at ${abs}`).toBe(true);
+      });
+    });
+  }
+});

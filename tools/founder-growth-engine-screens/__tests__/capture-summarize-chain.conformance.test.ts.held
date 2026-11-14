@@ -1,0 +1,195 @@
+// packages/founder-growth-engine-screens/__tests__/capture-summarize-chain.conformance.test.ts
+//
+// Cross-package DATA CONFORMANCE: proves the auto-capture -> summarize chain is wired
+// correctly end-to-end at the DATA level, WITHOUT a live engine. Catches the class of
+// bug that otherwise only surfaces as a silent runtime no-op (an address/field mismatch
+// between the D1 bridge's output and the summarize trigger's match condition).
+//
+// The chain: observed-content ledger write
+//   -> founder-growth-engine trigger:project-observations-to-captured-items
+//   -> action:project-observations-to-captured-items (loop)
+//   -> action:write-one-captured-item-from-observation  (writes a captured-item)
+//   -> founder-growth-engine-screens Saved/Your-stuff feed reads it
+//   -> summarize-saved-items trigger (captured-item w/ empty summary) summarizes it.
+
+import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+
+const PKGS = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+const load = (pkg: string) => JSON.parse(readFileSync(path.join(PKGS, pkg, 'things-to-store-and-run.json'), 'utf8')).things as any[];
+
+const CAPTURED_PREFIX = 'package::founder-growth-engine-screens::captured-item::';
+
+function actionById(things: any[], id: string) {
+  return things.find((r) => r?.payload?.kind === 'action' && r.payload.id === id)?.payload;
+}
+function triggerProp(things: any[], slug: string, prop: string) {
+  const r = things.find((t) => t.address === `attribute_fact|trigger:${slug}|prop:trigger:${prop}|type:trigger`);
+  return r ? JSON.parse(r.payload.value_json) : undefined;
+}
+
+describe('D1 bridge -> captured-item -> summarize chain (cross-package DATA conformance)', () => {
+  const fge = load('founder-growth-engine');
+  const summarize = load('summarize-saved-items');
+
+  it('D1 write action emits a captured-item with empty summary at the captured-item address', () => {
+    const a = actionById(fge, 'action:write-one-captured-item-from-observation');
+    expect(a).toBeTruthy();
+    const item = a.steps[0].config.items[0];
+    expect(item.payload.kind).toBe('captured-item');
+    expect(item.payload.summary).toBe('');
+    expect(item.address.transform[0].args.values[0]).toBe(CAPTURED_PREFIX);
+    // carries the observation text for rich summarization
+    expect(item.payload.text).toBeTruthy();
+  });
+
+  it('D1 trigger dispatches the project action, which loops into the write action (refs resolve)', () => {
+    const tmpl = triggerProp(fge, 'project-observations-to-captured-items', 'payload_template');
+    expect(tmpl.operation).toBe('execute_definition');
+    // The admitted observed-content ledger writes {accepted:[...]}. Selecting
+    // `observations` leaves this trigger active but projects no saved items.
+    expect(tmpl.input.observations.select).toEqual({ from: 'change', path: 'accepted' });
+    const projectId = tmpl.definition_id;
+    const project = actionById(fge, projectId);
+    expect(project).toBeTruthy();
+    const loop = project.steps.find((s: any) => s.kind === 'loop');
+    expect(loop).toBeTruthy();
+    // the loop dispatches an action that actually exists
+    expect(actionById(fge, loop.config.definition_id)).toBeTruthy();
+  });
+
+  it('the summarize trigger match EXACTLY covers what the D1 bridge writes (chain connects)', () => {
+    const match = triggerProp(summarize, 'summarize-saved-items-on-captured-item', 'match_condition');
+    const conds = match.conditions.map((c: any) => ({
+      from: c.$bind.select.from,
+      path: c.$bind.select.path,
+      op: c.$bind.transform[0].op,
+      arg: c.$bind.transform[0].args,
+    }));
+    const find = (from: string, path: string) => conds.find((c: any) => c.from === from && c.path === path);
+
+    // ENGINE GROUND-TRUTH (trigger-engine envelope_value + match tests): the changed
+    // record's address is `envelope.address_text`; `change.X` is a top-level content
+    // field. So the address-prefix gate MUST bind envelope.address_text (NOT change:"").
+    expect(find('envelope', 'address_text').op).toBe('op:core.starts_with');
+    expect(find('envelope', 'address_text').arg.prefix).toBe(CAPTURED_PREFIX);
+    // kind + empty-summary gates bind change.<field> (content) === what the D1 write emits
+    expect(find('change', 'kind').arg.value).toBe('captured-item');
+    expect(find('change', 'summary').arg.value).toBe('');
+  });
+
+  it('no connector binding reads the address from change (must use envelope.address_text) — regression guard', () => {
+    // Locks the engine convention fix across the founder connectors: a binding that reads
+    // {from:change, path:""} or {from:change, path:"address"} or {from:change,
+    // path:"payload.*"} is wrong (change is the record content, not the address) and would
+    // silently never fire / never resolve. Parse + walk (incl. embedded value_json).
+    const bad: string[] = [];
+    const walk = (o: any) => {
+      if (Array.isArray(o)) return o.forEach(walk);
+      if (o && typeof o === 'object') {
+        const sel = o.select;
+        if (sel && sel.from === 'change') {
+          const p = sel.path;
+          if (p === '' || p === 'address' || (typeof p === 'string' && p.startsWith('payload'))) bad.push(String(p));
+        }
+        for (const [k, v] of Object.entries(o)) {
+          if (k === 'value_json' && typeof v === 'string') { try { walk(JSON.parse(v)); } catch { /* not json */ } }
+          else walk(v);
+        }
+      }
+    };
+    [...summarize, ...fge].forEach((r) => walk(r));
+    expect(bad).toEqual([]);
+  });
+
+  it('summarize re-summarization is not retriggered: it writes statusKey "summarized" (loop-safe)', () => {
+    const writeBack = actionById(summarize, 'action:summarize-saved-items.write-summary-to-captured-item');
+    expect(writeBack).toBeTruthy();
+    const item = writeBack.steps.find((s: any) => s.kind === 'write').config.items[0];
+    expect(item.payload.statusKey).toBe('summarized');
+    // and it fills summary from the AI result (non-empty), so the empty-summary trigger won't refire
+    expect(item.payload.summary.$kind).toBe('binding');
+  });
+
+  it('EVERY founder workflow write to a captured-item uses address_mode "identity_text" — regression guard', () => {
+    // RESOLVED 2026-06-27 (engine fix): the workflow write step now honors an explicit
+    // address_mode (workflow-core PendingWrite.address_mode -> runtime_fact_address_with_mode).
+    // Before the fix, a workflow wrote `package::…::captured-item::<id>` (a `::` address) at
+    // LABEL_HASH and it never appeared in the feed (the feed + manual-paste path use
+    // identity_text). Runtime-proven live: with this guard's identity_text set, dispatching the
+    // D1 project action lands the captured-item at identity_text AND it renders in the feed.
+    // This guard locks the D1 auto-capture + summarize write-back to identity_text so they stay
+    // feed-visible (a regression to the heuristic default would silently hide auto-captures).
+    const offenders: string[] = [];
+    const isCapturedItemWrite = (item: any): boolean => {
+      const a = item?.address;
+      if (typeof a === 'string') return a.includes('captured-item');
+      const blob = JSON.stringify(a ?? {});
+      return blob.includes('captured-item') || blob.includes('captured_item_address');
+    };
+    for (const things of [fge, summarize]) {
+      for (const r of things) {
+        const p = r?.payload;
+        if (p?.kind !== 'action' || !Array.isArray(p.steps)) continue;
+        for (const s of p.steps) {
+          if (s?.kind !== 'write') continue;
+          for (const item of s.config?.items ?? []) {
+            if (isCapturedItemWrite(item) && item.address_mode !== 'identity_text') {
+              offenders.push(`${p.id}: address_mode=${item.address_mode ?? '<ABSENT>'}`);
+            }
+          }
+        }
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+});
+
+// ─── Gap C: write-summary reads the captured-item ADDRESS-MODE-AGNOSTICALLY ──────
+// A direct workflow `read` of a `::` captured-item address resolves label_hash, but
+// captured-items are stored identity_text (feed-locked) → the direct read 404s, so the
+// summary write-back silently failed for REAL captured-items. The fix reads via the
+// published-record PROJECTION (find-current-items by id, mode-agnostic) and reconstructs
+// the write address from the bare id. Proven live 2026-06-27 on a real identity_text item.
+describe('Gap C — write-summary read is address-mode-agnostic (find-by-id, not direct read)', () => {
+  const summarize = load('summarize-saved-items');
+  const writeBack = actionById(summarize, 'action:summarize-saved-items.write-summary-to-captured-item');
+  const steps = writeBack.steps as any[];
+  const readStep = steps.find((s) => s.id === 'read_captured_item');
+  const writeStep = steps.find((s) => s.id === 'write_summary');
+
+  it('read_captured_item is a find-current-items ASK, NOT a direct `read` of a `::` address', () => {
+    expect(readStep.kind).toBe('ask');
+    expect(readStep.config.name).toBe('slot::find-current-items');
+    expect(readStep.config.input.in).toBe('published-record');
+    const all = readStep.config.input.where.all;
+    expect(all.find((c: any) => c.field === 'kind').in).toEqual(['captured-item']);
+    const idClause = all.find((c: any) => c.field === 'id');
+    expect(idClause.eq.$kind).toBe('binding');
+    expect(idClause.eq.select.path).toBe('captured_item_id');
+  });
+
+  it('input requires captured_item_id (the bare id), not captured_item_address', () => {
+    expect(writeBack.input_schema.required).toContain('captured_item_id');
+    expect(writeBack.input_schema.required).not.toContain('captured_item_address');
+  });
+
+  it('write address is RECONSTRUCTED from the id (prefix + captured_item_id) at identity_text', () => {
+    const item = writeStep.config.items[0];
+    expect(item.address_mode).toBe('identity_text');
+    const concat = item.address.transform.find((t: any) => t.op === 'op:core.concat');
+    expect(concat.args.values[0]).toBe(CAPTURED_PREFIX);
+    expect(item.payload.title.select.path).toBe('output.items.0.title');
+    expect(item.payload.summary.select.key).toBe('read_result');
+  });
+
+  it('the dispatch triggers carry the bare id (summarize.target_group_ref=change.id; write-summary input=captured_item_id)', () => {
+    const summarizeTpl = triggerProp(summarize, 'summarize-saved-items-on-captured-item', 'payload_template');
+    expect(summarizeTpl.input.target_group_ref.select.path).toBe('id');
+    const writeTpl = triggerProp(summarize, 'write-saved-item-summary-on-ai-result', 'payload_template');
+    expect(writeTpl.input).toHaveProperty('captured_item_id');
+    expect(writeTpl.input).not.toHaveProperty('captured_item_address');
+  });
+});

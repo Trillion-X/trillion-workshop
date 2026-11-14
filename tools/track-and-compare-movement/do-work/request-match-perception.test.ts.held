@@ -1,0 +1,73 @@
+// packages/motion-analysis/do-work/request-match-perception.test.ts
+//
+// MP8 wiring proof: the capture→stats dispatch wrapper builds the composite
+// `action:run-match-perception-and-stats` input correctly — the perception half
+// is the SAME tracker-DATA-derived process descriptor as perception-only, PLUS
+// the `stat_id` / `stat_label` the composite's write_stat step binds. Proves the
+// module names NO machine path (every location rides the tracker DATA) and that
+// the stat identity flows through unchanged. Pure input-building — no dispatch.
+
+import { test } from "vitest";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+import { buildMatchPerceptionInput } from "./request-match-perception";
+import type { TrackerDescriptor } from "./submit-motion-analysis";
+
+const source = { artifact_ref: { cas_address: "cas:deadbeef" }, media_type: "video/mp4", source_index: 0 } as never;
+
+const courtBallTracker: TrackerDescriptor = {
+  trackerId: "court-ball-point-v1",
+  orchestratorPath: "/abs/motion-analysis/do-work/process-scripts/match/match_perception_orchestrate.sh",
+  maxFrames: 0,
+  timeoutMs: 560_000,
+  // The dev-Mac Society config — supplied as DATA by the deployment, NOT this module.
+  env: { MATCH_VENDOR_ROOT: "/abs/court-ball-models", MATCH_PYTHON: "/abs/anaconda3/bin/python3" },
+};
+
+test("composite input = the tracker-derived perception descriptor PLUS stat identity", () => {
+  const input = buildMatchPerceptionInput({
+    sources: [source],
+    tracker: courtBallTracker,
+    requestId: "mp-session-1",
+    statId: "mp-session-1",
+    statLabel: "This match",
+  });
+
+  // perception half — identical descriptor that perception-only builds from the tracker DATA
+  const mc = (input.options as Record<string, { process_descriptor: { argv: string[]; env: Record<string, string> } }>).motion_command;
+  assert.equal(mc.process_descriptor.argv[0], "bash");
+  assert.equal(mc.process_descriptor.argv[1], courtBallTracker.orchestratorPath);
+  assert.equal(mc.process_descriptor.env.MOTION_MAX_FRAMES, "0");
+  // tracker.env DATA (the only place machine paths live) merges in — module hardcodes none
+  assert.equal(mc.process_descriptor.env.MATCH_VENDOR_ROOT, "/abs/court-ball-models");
+  assert.equal(mc.process_descriptor.env.MATCH_PYTHON, "/abs/anaconda3/bin/python3");
+
+  // the composite's write_stat step binds these two — they must flow through verbatim
+  assert.equal(input.stat_id, "mp-session-1");
+  assert.equal(input.stat_label, "This match");
+
+  // request_id flows through so the surface can correlate the resulting match-stat record
+  assert.equal(input.request_id, "mp-session-1");
+});
+
+test("the module source names NO machine path / orchestrator / model (Physics vs Society / L089)", () => {
+  const here = dirname(fileURLToPath(import.meta.url));
+  const src = readFileSync(join(here, "request-match-perception.ts"), "utf8");
+  for (const banned of ["/opt/homebrew", "/Users/", "anaconda", "MATCH_VENDOR_ROOT", "court_detection", ".pth.tar", "orchestrate.sh"]) {
+    assert.equal(src.includes(banned), false, `module must not hardcode Society token: ${banned}`);
+  }
+});
+
+test("stat identity defaults are caller-chosen DATA, not invented by the module", () => {
+  // a different match → different stat id, same module, zero code change (L090)
+  const input = buildMatchPerceptionInput({
+    sources: [source],
+    tracker: courtBallTracker,
+    statId: "player-a-vs-player-b-2026",
+    statLabel: "Final set",
+  });
+  assert.equal(input.stat_id, "player-a-vs-player-b-2026");
+  assert.equal(input.stat_label, "Final set");
+});

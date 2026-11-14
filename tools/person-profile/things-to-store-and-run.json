@@ -1,0 +1,280 @@
+{
+  "package": "person-profile",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::person-profile::primitive-contract",
+      "path": [
+        "package-primitive",
+        "contract"
+      ],
+      "payload": {
+        "kind": "bitfield-package-primitive-contract",
+        "version": 2,
+        "package": "person-profile",
+        "capability": "described-record-surface",
+        "owns": [
+          "described-record-surface-configuration",
+          "described-record-reader-materialization",
+          "described-record-action-descriptor"
+        ],
+        "reuses": [
+          "eeaf-facts",
+          "workflow-slot",
+          "owner-action",
+          "process-session",
+          "ui",
+          "screen-look"
+        ],
+        "decoupling_contract": {
+          "new_slot": false,
+          "domain_vocabulary_is_data": true,
+          "reader_keyed_materialization": true,
+          "folder_is_proposal_source_not_live_truth": true
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::person-profile::described-record-surface::profile",
+      "path": [
+        "package-primitive",
+        "described-record-surface"
+      ],
+      "payload": {
+        "kind": "described-record-surface",
+        "surfaceId": "person-profile.panel",
+        "identity": {
+          "titlePath": [
+            "display",
+            "title"
+          ],
+          "subtitlePath": [
+            "display",
+            "subtitle"
+          ],
+          "markPath": [
+            "display",
+            "mark"
+          ],
+          "badgesPath": [
+            "display",
+            "badges"
+          ],
+          "fallbackTitle": "Profile"
+        },
+        "fields": [
+          {
+            "id": "display-title",
+            "label": "Name",
+            "sourceId": "record",
+            "valuePath": [
+              "display",
+              "title"
+            ],
+            "editable": true,
+            "saveActionId": "record-field-change"
+          },
+          {
+            "id": "display-subtitle",
+            "label": "Headline",
+            "sourceId": "record",
+            "valuePath": [
+              "display",
+              "subtitle"
+            ],
+            "editable": true,
+            "saveActionId": "record-field-change"
+          },
+          {
+            "id": "long-description",
+            "label": "About",
+            "sourceId": "record",
+            "valuePath": [
+              "display",
+              "description"
+            ],
+            "editable": true,
+            "multiline": true,
+            "saveActionId": "record-field-change"
+          }
+        ],
+        "relationships": [
+          {
+            "id": "recent-contributions",
+            "label": "Recent activity",
+            "sourceId": "related",
+            "itemPath": [
+              "items"
+            ],
+            "emptyLabel": "No recent activity yet",
+            "fields": [
+              {
+                "key": "primaryText",
+                "path": [
+                  "primaryText"
+                ]
+              },
+              {
+                "key": "metaText",
+                "path": [
+                  "metaText"
+                ]
+              }
+            ]
+          }
+        ],
+        "actions": [
+          {
+            "id": "record-field-change",
+            "label": "Save changes",
+            "target": "owner-action:described-record-change",
+            "method": "request",
+            "intent": "primary"
+          },
+          {
+            "id": "writing-help",
+            "label": "Improve bio",
+            "target": "owner-action:described-record-change",
+            "method": "request",
+            "intent": "quiet"
+          }
+        ],
+        "diagnostics": {
+          "exposeRefs": false
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::person-profile::input::described-record-surface",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "described-record-surface",
+        "is_default": true,
+        "value_address_label": "person-profile.described-record-surface",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "package": "person-profile"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::person-profile::entry::person-profile",
+      "path": [
+        "packages",
+        "person-profile",
+        "entries",
+        "person-profile"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "person-profile",
+        "source_path": "show/mount-person-profile.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-person-profile"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::person-profile::entry::described-record-action",
+      "path": [
+        "packages",
+        "person-profile",
+        "entries",
+        "described-record-action"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "described-record-action",
+        "source_path": "do-work/described-record-action.ts",
+        "export_name": "buildDescribedRecordActionRequest",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-described-record-action"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::person-profile::target::described-record-action",
+      "path": [
+        "packages",
+        "person-profile",
+        "targets",
+        "described-record-action"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "described-record-action",
+        "source_path": "do-work/described-record-action.ts",
+        "export_name": "buildDescribedRecordActionRequest"
+      },
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::person-profile::published-records",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "cell_table",
+        "columns": [
+          {
+            "column": 0,
+            "source": {
+              "path": [
+                "record",
+                "address"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "non_empty_text"
+            }
+          },
+          {
+            "column": 1,
+            "source": {
+              "path": [
+                "record",
+                "payload_json_text"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "json_text"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-person-profile",
+      "source_path": "built-stored-bytes/entry-bytes-person-profile",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-person-profile.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-described-record-action",
+      "source_path": "built-stored-bytes/entry-bytes-described-record-action",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-described-record-action.source-closure.json"
+    }
+  ]
+}

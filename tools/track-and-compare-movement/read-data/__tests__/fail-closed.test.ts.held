@@ -1,0 +1,178 @@
+// packages/motion-analysis/read-data/__tests__/fail-closed.test.ts
+//
+// Task 1C — Confidence / provenance fail-closed proof (watch-a-video plan §15.3).
+//
+// Drives the REAL record-maker
+//   packages/motion-analysis/do-work/process-scripts/make-motion-analysis-records-from-command-output.py
+// via child_process (NOT a mock), feeding it crafted command-output.json inputs and asserting the
+// package's contract behavior:
+//   (1) a below-threshold perception (the perception layer emits a motion-analysis.error record,
+//       fail-closed) → the record-maker passes the error through, emitting ZERO track/phase/measure.
+//   (2) an empty command output (no records/tracks) → the record-maker emits a motion-analysis.error
+//       (`no_records_emitted`), never a fabricated track.
+//   (3) a good command output with tracks → every track carries model + evidence + source_fingerprint
+//       (provenance stamped) and NO error record is emitted.
+
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
+import { describe, expect, test } from "vitest";
+
+const SCRIPT = resolve(
+  __dirname,
+  "../../do-work/process-scripts/make-motion-analysis-records-from-command-output.py",
+);
+
+// A request with an explicit source so the record-maker can stamp source_fingerprint provenance.
+const REQUEST = {
+  request_id: "fail-closed-test",
+  sources: [
+    {
+      source_index: 0,
+      source_fingerprint: "sha256:student-clip-fingerprint",
+      artifact_ref: { multihash: "mh-student-clip" },
+    },
+  ],
+  requested_at: "2026-07-03T00:00:00Z",
+};
+
+type MakerRecord = {
+  address: string;
+  path: string[];
+  payload: Record<string, unknown>;
+};
+
+type MakerOutput = {
+  kind: string;
+  request_id: string;
+  records: MakerRecord[];
+  summary?: Record<string, unknown>;
+};
+
+// Run the REAL python record-maker over a crafted command output; return its parsed output document.
+function runRecordMaker(commandOutput: unknown): MakerOutput {
+  const dir = mkdtempSync(join(tmpdir(), "motion-fail-closed-"));
+  const requestJson = join(dir, "request.json");
+  const commandOutputJson = join(dir, "command-output.json");
+  const outputJson = join(dir, "output.json");
+  writeFileSync(requestJson, JSON.stringify(REQUEST));
+  writeFileSync(commandOutputJson, JSON.stringify(commandOutput));
+  execFileSync(
+    "python3",
+    [
+      SCRIPT,
+      "--request-json",
+      requestJson,
+      "--command-output-json",
+      commandOutputJson,
+      "--output-json",
+      outputJson,
+    ],
+    { stdio: ["ignore", "ignore", "ignore"] },
+  );
+  return JSON.parse(readFileSync(outputJson, "utf8")) as MakerOutput;
+}
+
+const kindsOf = (out: MakerOutput) => out.records.map((r) => String(r.payload.kind));
+
+describe("motion-analysis fail-closed + provenance contract", () => {
+  test("below-threshold perception (fail-closed error record) yields the error and ZERO track/phase", () => {
+    // The perception runner, on low confidence, emits its own motion-analysis.error record rather
+    // than a track. The record-maker must pass it through and produce no fabricated tracks.
+    const out = runRecordMaker({
+      records: [
+        {
+          address: "package::motion-analysis::error::fail-closed-test",
+          path: ["motion-analysis", "content-media-evidence"],
+          payload: {
+            kind: "motion-analysis.error",
+            role: "errors",
+            code: "low_confidence",
+            message: "perception confidence 0.31 below threshold 0.7",
+          },
+        },
+      ],
+    });
+
+    const kinds = kindsOf(out);
+    expect(kinds).toContain("motion-analysis.error");
+    expect(kinds).not.toContain("motion-analysis.track");
+    expect(kinds).not.toContain("motion-analysis.phase");
+    expect(kinds).not.toContain("measure.fact");
+    // Exactly the one error record — nothing fabricated.
+    expect(out.records).toHaveLength(1);
+    const err = out.records[0].payload;
+    expect(err.code).toBe("low_confidence");
+  });
+
+  test("empty command output (nothing above threshold) yields a no_records_emitted error, zero tracks", () => {
+    const out = runRecordMaker({
+      request_id: "fail-closed-test",
+      note: "perception produced nothing above threshold",
+    });
+
+    const kinds = kindsOf(out);
+    expect(kinds).toEqual(["motion-analysis.error"]);
+    expect(kinds).not.toContain("motion-analysis.track");
+    const err = out.records[0].payload;
+    expect(err.code).toBe("no_records_emitted");
+  });
+
+  test("good command output stamps model + evidence + source_fingerprint on every track", () => {
+    const out = runRecordMaker({
+      tracks: [
+        {
+          track_id: "t-student",
+          subject_ref: { subject_role: "student" },
+          model: { name: "rtmw-pose", version: "1.0", confidence: 0.92 },
+          evidence: { frames: 60, mean_confidence: 0.92 },
+          time_range: { start: 0.0, end: 1.1 },
+          contact_keypoints: { shoulder: [1, 2], elbow: [3, 4], wrist: [5, 6] },
+        },
+        {
+          track_id: "t-reference",
+          subject_ref: { subject_role: "reference" },
+          model: { name: "rtmw-pose", version: "1.0", confidence: 0.95 },
+          evidence: { frames: 60, mean_confidence: 0.95 },
+          time_range: { start: 0.0, end: 1.1 },
+        },
+      ],
+      phases: [
+        {
+          phase_id: "p-contact-student",
+          track_ref: "t-student",
+          label: "contact",
+          label_ref: { id: "contact" },
+          time_range: { start: 0.4, end: 0.5 },
+          evidence: { confidence: 0.9 },
+        },
+      ],
+    });
+
+    // No error record on a good run.
+    expect(kindsOf(out)).not.toContain("motion-analysis.error");
+
+    const tracks = out.records.filter((r) => r.payload.kind === "motion-analysis.track");
+    expect(tracks.length).toBe(2);
+    for (const track of tracks) {
+      const p = track.payload as {
+        model?: unknown;
+        evidence?: unknown;
+        source_fingerprint?: unknown;
+      };
+      // model provenance is a non-empty object.
+      expect(p.model && typeof p.model === "object").toBe(true);
+      expect(Object.keys(p.model as Record<string, unknown>).length).toBeGreaterThan(0);
+      // evidence is present (provenance of what was observed).
+      expect(p.evidence && typeof p.evidence === "object").toBe(true);
+      // source_fingerprint traces back to the request source.
+      expect(p.source_fingerprint).toBe("sha256:student-clip-fingerprint");
+    }
+
+    // Phases also carry the source fingerprint provenance.
+    const phases = out.records.filter((r) => r.payload.kind === "motion-analysis.phase");
+    expect(phases.length).toBe(1);
+    expect(phases[0].payload.source_fingerprint).toBe("sha256:student-clip-fingerprint");
+  });
+});

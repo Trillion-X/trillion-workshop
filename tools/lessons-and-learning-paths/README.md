@@ -53,6 +53,20 @@ Each tool script reads the run's input as JSON on standard input and prints its 
 
 **Depended on by:** `tool-rows.json` (the tool rows), `test/lessons-and-learning-paths.test.mjs`.
 
+## The learning-mastery-protocol screen
+
+The descriptor panel the table above says "stays a screen" is here, byte for byte from the package at its last commit (`from-bitfield-packages-learning-mastery-protocol/moved-from.json` is its receipt). The selected descriptor supplies the phases, fields, lifecycle transitions, action targets and payloads, labels, defaults and the owner surfaces to embed; the panel accepts a progression change only through an accepted evaluator receipt and never calls an evaluator, a media provider, a scheduler or a content retriever itself.
+
+| File | Purpose |
+|------|---------|
+| `show/LearningMasteryProtocolPanel.tsx`, `show/mount-learning-mastery-protocol.tsx`, `reference-grounded-screen-contract.md` | The panel, its mount and its reference contract. |
+| `read-data/read-learning-mastery.ts`, `read-data/learning-mastery-types.ts` | Reads the descriptor and its types. |
+| `do-work/run-protocol-action.ts` | Runs one protocol action the descriptor names (calls the retired package runtime). |
+| `read-data/learning-mastery-protocol-boundary.json` | The package's boundary file (its capability, record contracts and input descriptors) kept as data. |
+| `__tests__/protocol-descriptor-required.test.ts` | Three cases, run by `npm test`. `__tests__/protocol-fixture.ts` is its fixture; `LearningMasteryProtocolPanel.test.tsx` is not in `npm test`'s glob; `run-protocol-action.test.ts.held` is held (the retired runtime). |
+
+The data layer and `@/packages/ui` are not in this tree, so the panel does not load here and no tool row opens it yet.
+
 ## The learning page
 
 `do-work/show-the-courses-a-learner-is-on.mjs` is `tool:show-the-courses-a-learner-is-on`, the learning page's own read: each course as its lessons in order, with how many are done, the lesson the learner is on now (active), the rest (locked) and each lesson's words. Ported from old trillion `src/community-activity.mjs` `coursesFor` (the path statuses from `src/community-logic/project-progress-to-path.ts`). A lesson's interactive module is marked `interactive` but not carried, since the old module was shared only inside one relay. Tested in `test/show-the-courses-a-learner-is-on.test.mjs`.

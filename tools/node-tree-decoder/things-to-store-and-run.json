@@ -1,0 +1,113 @@
+{
+  "package": "node-tree-decoder",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::node-tree-decoder::checks",
+      "path": ["packages", "node-tree-decoder", "checks"],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "do-work/process-scripts/__tests__/test_decode_node_tree.py",
+          "do-work/process-scripts/__tests__/test_encode_node_tree.py"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::node-tree-decoder::capability::decode-node-tree",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-package-capability",
+        "id": "capability:decode-node-tree",
+        "package": "node-tree-decoder",
+        "label": "Node Collection Tree Reader and Writer",
+        "description": "Decoder capability for the NODE-COLLECTION TREE store shape: a collection of nodes each carrying an identity, a parent reference, a child list and a title, where a node's kind is discoverable and kinds carry opaque role labels. Emits a CONTAINMENT PROJECTION ({node_id, parent_id, ordinal, role, title, external_identity, attributes}) isomorphic to the group ontology, NOT thread specs: a tree is not a conversation, and the conversation contract silently discards nesting, sibling order, empty groups and opaque role labels. Every structural key, kind grammar and role label arrives on the descriptor as DATA, so a second tree-shaped source is a descriptor row and never a second decoder (L090 / enum dissolution). Node identity is always the source's own identity, never positional, because regrouping is the point and positional identity would churn every record. Leaf addresses are preserved VERBATIM; deriving a routing key is routing's job. Edge authority is declared, because a tree carrying both a parent reference and a child list holds one edge set twice. Membership conservation is asserted by a reconciliation pass, and tolerable structural anomalies are carried as node attributes rather than rejections, because the downstream materializer discards an entire batch on any rejection. It also WRITES BACK, because a tree that can be read but not changed is a report rather than a capability, and both directions are driven by the SAME tree_shape row so a second description of one shape cannot drift from the first. Writing refuses on any object the shape cannot identify: a tree may store some nodes flat and others wrapped, and a node the shape reads as absent in both directions would be silently dropped from its parent's child list when that list is rebuilt. Installing a rebuilt tree writes the previous bytes first, replaces atomically through the same directory, and then SETTLES before claiming success, because an owning application that still holds the file rewrites it from memory within seconds and an immediate readback would report a change that no longer exists.",
+        "owned_record_kinds": [],
+        "reuses": [
+          "process"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::node-tree-decoder::public-source::do-work",
+      "path": [
+        "packages",
+        "node-tree-decoder",
+        "public-sources",
+        "do-work"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work"
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "decode-node-tree-script",
+      "source_path": "do-work/process-scripts/decode_node_tree.py"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "encode-node-tree-script",
+      "source_path": "do-work/process-scripts/encode_node_tree.py"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "apply-tree-to-file-script",
+      "source_path": "do-work/process-scripts/apply_tree_to_file.py"
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|source:browser-sidebar-tree|prop:observed_content:source_descriptor|type:observed_content",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:observed_content:source_descriptor"
+      ],
+      "payload": {
+        "property_id": "prop:observed_content:source_descriptor",
+        "subject_id": "source:browser-sidebar-tree",
+        "table": "attribute_fact",
+        "type_id": "type:observed_content",
+        "value_json": "[{\"source_ref\": \"source:browser-sidebar-tree\", \"observer_capability_ref\": \"capability:observe-file-glob\", \"decoder_capability_ref\": \"capability:decode-node-tree\", \"decoder_process_module\": {\"script_address\": \"package::node-tree-decoder::stored-bytes::decode-node-tree-script\"}, \"location\": {\"kind\": \"file-glob\", \"data\": {\"base\": [\"{home}\", \"Library\", \"Application Support\", \"Arc\"], \"glob\": \"StorableSidebar.json\"}}, \"display_mark_ref\": \"mark:browser-sidebar-tree\", \"tree_shape\": {\"collection_path\": [\"sidebar\", \"containers\", {\"first_element_having_key\": \"items\"}, \"items\"], \"identity_key\": \"id\", \"parent_key\": \"parentID\", \"children_key\": \"childrenIds\", \"title_key\": \"title\", \"timestamp_key\": \"createdAt\", \"edge_authority\": \"children\", \"kind_locator\": {\"style\": \"map_single_key\", \"field\": \"data\"}, \"known_kinds\": [\"tab\", \"list\", \"itemContainer\", \"splitView\", \"easel\"], \"role_map\": {\"tab\": \"leaf\", \"list\": \"group\", \"splitView\": \"paired\", \"itemContainer\": \"container\", \"easel\": \"easel\"}, \"never_reparent_roles\": [\"paired\"], \"external_identity_path\": [\"data\", \"tab\", \"savedURL\"]}}]"
+      }
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|source:browser-bookmarks-tree|prop:observed_content:source_descriptor|type:observed_content",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:observed_content:source_descriptor"
+      ],
+      "payload": {
+        "property_id": "prop:observed_content:source_descriptor",
+        "subject_id": "source:browser-bookmarks-tree",
+        "table": "attribute_fact",
+        "type_id": "type:observed_content",
+        "value_json": "[{\"source_ref\": \"source:browser-bookmarks-tree\", \"observer_capability_ref\": \"capability:observe-file-glob\", \"decoder_capability_ref\": \"capability:decode-node-tree\", \"decoder_process_module\": {\"script_address\": \"package::node-tree-decoder::stored-bytes::decode-node-tree-script\"}, \"location\": {\"kind\": \"file-glob\", \"data\": {\"base\": [\"{home}\", \"Library\", \"Application Support\", \"Arc\", \"User Data\", \"Default\"], \"glob\": \"Bookmarks\"}}, \"display_mark_ref\": \"mark:browser-bookmarks-tree\", \"tree_shape\": {\"collection_path\": [\"roots\"], \"collection_layout\": \"nested\", \"identity_key\": \"id\", \"children_key\": \"children\", \"title_key\": \"name\", \"timestamp_key\": \"date_added\", \"kind_locator\": {\"style\": \"scalar_field\", \"field\": \"type\"}, \"known_kinds\": [\"url\", \"folder\"], \"role_map\": {\"url\": \"leaf\", \"folder\": \"group\"}, \"external_identity_path\": [\"url\"]}}]"
+      }
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|source:browser-sidebar-tree|prop:observed_content:grouping_intent|type:observed_content",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:observed_content:grouping_intent"
+      ],
+      "payload": {
+        "property_id": "prop:observed_content:grouping_intent",
+        "subject_id": "source:browser-sidebar-tree",
+        "table": "attribute_fact",
+        "type_id": "type:observed_content",
+        "value_json": "[{\"intent_ref\": \"intent:browser-sidebar-tree:top-level-nesting\", \"scope\": {\"root_node_id\": \"1159410A-B055-4AD7-87D6-8E98A2E59F55\", \"applies_to_role\": \"group\", \"depth\": 1}, \"materialize_missing_parents\": {\"kind\": \"list\"}, \"nest\": [{\"parent_title\": \"books\", \"child_titles\": [\"systems book\", \"sovereign founder book\", \"society flow book\", \"new society book\", \"convo flow book\", \"authentic book\", \"two ways work\", \"eth\\u00f6s house\"]}, {\"parent_title\": \"ui\", \"child_titles\": [\"ui inspo\", \"ui libraries\", \"ui template\", \"simple UI landing pages\", \"icon libraries\", \"mobbin-esque sites\", \"prod ui agencies + people\", \"view when need design inspo\", \"Design.md marketplaces\"]}, {\"parent_title\": \"ai\", \"child_titles\": [\"ai agent products\", \"ai chats\", \"ai media tools\", \"ai index wasms\", \"AI must read\", \"AI native software\", \"AI Future Software\", \"AI Enhancing Tools/Skills\", \"Specific AI Open Models\", \"autono steward ai startups\"]}, {\"parent_title\": \"dev + tools\", \"child_titles\": [\"dev tools\", \"dev + localhost\", \"github repos\", \"mac apps\", \"browsers + os\", \"domains + dns\", \"docs\", \"workflow\"]}, {\"parent_title\": \"business\", \"child_titles\": [\"founders + vc\", \"my products\", \"stocks + finance\", \"steal idea\", \"mini CCE\", \"simulation app\", \"Document Journey\"]}, {\"parent_title\": \"life\", \"child_titles\": [\"personal + life\", \"read + longform\", \"x posts\", \"youtube saved\", \"searches\"]}]}]"
+      }
+    }
+  ]
+}

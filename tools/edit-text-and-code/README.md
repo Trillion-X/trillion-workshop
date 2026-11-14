@@ -1,6 +1,6 @@
 # tools/edit-text-and-code/
 
-Changes one exact piece of text in a text or code file, so a person's AI can edit a line in a large file without sending the whole file, or several pieces across files in one all-or-nothing step. Ported from the `replace-exact-text` command of the old `file-editor` package; the editor screen that package also held (a code editor with find-and-replace, drawn in the browser) is a screen and lives with the screens, not here.
+Changes one exact piece of text in a text or code file, so a person's AI can edit a line in a large file without sending the whole file, or several pieces across files in one all-or-nothing step. Ported from the `replace-exact-text` command of the old `file-editor` package; the editor screen that package also held (a code editor with find-and-replace, drawn in the browser) is here too, as moved files (see "The editor screen, moved from the package").
 
 ## Files
 
@@ -20,6 +20,23 @@ Changes one exact piece of text in a text or code file, so a person's AI can edi
 | `fileInsideFolder` | `(folder, file) -> { target, inside }` | The file's path under the granted folder, with every part a plain directory or the regular file. |
 | `replaceInFiles` | `(folder, edits) -> { files: [{ file, bytes_before, bytes_after, replaced }], replaced }` | Several edits, in order, all or nothing. |
 | `replaceInFile` | `(folder, { file, find, replace }) -> { file, bytes_before, bytes_after, replaced }` | The whole edit: read, replace, write beside the file, then rename over it. |
+
+## The editor screen, moved from the package
+
+The CodeMirror editor screen and its helpers are here, byte for byte from the package at its last commit (`from-bitfield-packages/moved-from.json` is the receipt). Only `do-work/replace-exact-text.mjs` was not copied: this folder holds the ported, stricter form.
+
+| File | Purpose |
+|------|---------|
+| `show/FileEditor.tsx` | The editor: CodeMirror with the language picked from the file, its theme, and `@codemirror/search` find-in-file (`search({ top: true })`, the search keymap, the "Find in file" header control). |
+| `show/FileEditorSearchPanel.tsx`, `show/create-file-editor-search-panel.ts` | The find panel, styled through the editor theme so CodeMirror keeps the query, regex and match state. |
+| `show/AskAiToEditSelectedFileText.tsx` | Ask an AI to change the selected text. |
+| `show/mount-file-editor.tsx` | Mounts the screen as the File Editor surface. |
+| `do-work/write-file-editor-text-file.ts`, `do-work/ask-file-editor-language.ts` | Write the edited text back to the file; ask which language a file is. |
+| `do-work/write-selected-text-for-next-agent-request.ts`, `do-work/use-write-selected-text-for-next-agent-request.ts` | Hand the selected text to the next AI request. |
+| `read-data/read-file-editor-text-file.ts`, `read-data/read-selected-file-path.ts` | Read the file's text and the selected path. |
+| `things-to-store-and-run.json`, `show/README.md` | The package's boundary file (the surface, the selected-file input, the entry) kept as data, and the package's note for `show/`. |
+
+The screen's data layer (`@bitfield/runtime-kit` and its React hooks, and `@bitfield/runtime-kit/protocol` in the process helpers) and `@/packages/ui` (the shared parts live in the apps repository) are not in this tree; the imports stay as written, so the screen does not load here and no tool row opens it yet. The package has no tests for these files.
 
 ## Dependencies
 

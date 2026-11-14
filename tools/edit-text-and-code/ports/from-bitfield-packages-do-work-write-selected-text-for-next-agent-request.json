@@ -1,0 +1,63 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-EDIT-TEXT-AND-CODE-DO-WORK-WRITE-SELECTED-TEXT-FOR-NEXT-AGENT-REQUEST-FROM-BITFIELD-PACKAGES",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "census-and-restore lane 7, 2026-11-13: no rewrites from scratch; originals move wholesale",
+    "message_multihash": "1f:31cfaef8fe1b095bcdda0c309aeb261d0b928f36c81425a5d444f4f86483ec45",
+    "quote": "standing order: NO rewrites from scratch. Originals move wholesale (byte for byte, with moved-from receipts)"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "bitfield-packages",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "path": "packages/file-editor/do-work/write-selected-text-for-next-agent-request.ts",
+      "multihash": "1f:dfd57512d1b80112c9f18f94c8c41409bc74cf8f6d22bb890d33e59aa9b4378a",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-17T06:01:29Z",
+        "deleted_with": "the change that lands this move: the package file leaves bitfield-packages in the same change"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/edit-text-and-code/do-work/write-selected-text-for-next-agent-request.ts"
+    }
+  ],
+  "preserve": [
+    "the file is the original package file, moved with its import paths changed to this tree and nothing else",
+    "what the file did in the package: its exports, its rules and its edge cases are not rewritten here"
+  ],
+  "allowed_deltas": [
+    "import paths and the file header name the file's new place"
+  ],
+  "banned_substitutions": [
+    "a second implementation of the same job beside this file",
+    "a rewrite from scratch of what the package file does"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:dfd57512d1b80112c9f18f94c8c41409bc74cf8f6d22bb890d33e59aa9b4378a",
+    "target_multihash_at_baseline": "1f:dfd57512d1b80112c9f18f94c8c41409bc74cf8f6d22bb890d33e59aa9b4378a",
+    "recorded_at": "2026-11-14T06:02:29Z",
+    "rows": [
+      {
+        "path": "tools/edit-text-and-code/do-work/write-selected-text-for-next-agent-request.ts",
+        "source_multihash": "1f:dfd57512d1b80112c9f18f94c8c41409bc74cf8f6d22bb890d33e59aa9b4378a",
+        "target_multihash_at_baseline": "1f:dfd57512d1b80112c9f18f94c8c41409bc74cf8f6d22bb890d33e59aa9b4378a"
+      }
+    ],
+    "commit": "fd260496ffb12d9474372e488e3e4256bea82113"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export async function writeFileEditorSelectedTextForNextAgentRequest("
+    ],
+    "test_refs": [],
+    "render_refs": [],
+    "originality_ref": null
+  }
+}

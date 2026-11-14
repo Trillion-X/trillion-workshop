@@ -1,0 +1,48 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages packages/founder-growth-engine-screens (at its last commit on the branch checked out; files the package holds only as uncommitted edits are not carried). Each names its source path and commit, the identity of its source bytes and of its bytes here. The first commit that holds them is the byte copy; later commits change import paths.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/founder-growth-engine-screens/__tests__/capture-summarize-chain.conformance.test.ts",
+      "commit": "b33f8aa3967b8b64d5db16d400c01e0fb23d8969",
+      "to": "tools/founder-growth-engine-screens/__tests__/capture-summarize-chain.conformance.test.ts.held",
+      "source_identity": "1f:96d09306580f8d2e6c9bbee6eb865db6174c76e09bb6ee9a5f287ec8d9b6fa23",
+      "identity": "1f:96d09306580f8d2e6c9bbee6eb865db6174c76e09bb6ee9a5f287ec8d9b6fa23"
+    },
+    {
+      "from": "packages/founder-growth-engine-screens/__tests__/workspace-surface.contract.test.ts",
+      "commit": "fe39d35349110cdaaf45b9a308e0e044f0a73bd6",
+      "to": "tools/founder-growth-engine-screens/__tests__/workspace-surface.contract.test.ts.held",
+      "source_identity": "1f:bffd8735e0756486d54ffb4415921134124bbb87d89bc894e823c6ae5037da7a",
+      "identity": "1f:bffd8735e0756486d54ffb4415921134124bbb87d89bc894e823c6ae5037da7a"
+    },
+    {
+      "from": "packages/founder-growth-engine-screens/read-data/visual-database-projection.ts",
+      "commit": "fe39d35349110cdaaf45b9a308e0e044f0a73bd6",
+      "to": "tools/founder-growth-engine-screens/read-data/visual-database-projection.ts",
+      "source_identity": "1f:996052c2cc76a7f3d509844890d9de15a2d079c8b08dbcf65340d535ddf6fe07",
+      "identity": "1f:996052c2cc76a7f3d509844890d9de15a2d079c8b08dbcf65340d535ddf6fe07"
+    },
+    {
+      "from": "packages/founder-growth-engine-screens/show/mount-visual-database-surface.tsx",
+      "commit": "fe39d35349110cdaaf45b9a308e0e044f0a73bd6",
+      "to": "tools/founder-growth-engine-screens/show/mount-visual-database-surface.tsx",
+      "source_identity": "1f:0bc619b3055fad96dcc68ed34f3c38f34173df988a1525145ef6d4b9edacb0a8",
+      "identity_at_move": "1f:0bc619b3055fad96dcc68ed34f3c38f34173df988a1525145ef6d4b9edacb0a8",
+      "byte_copy_commit": "fd260496ffb12d9474372e488e3e4256bea82113"
+    },
+    {
+      "from": "packages/founder-growth-engine-screens/things-to-store-and-run.json",
+      "commit": "eef3503d43bcf7c4d075afdb3be61c51c8cc41c3",
+      "to": "tools/founder-growth-engine-screens/things-to-store-and-run.json",
+      "source_identity": "1f:035f1358541e126afd7ee1fbecf60f8f55026097debdff21269b60e9d17e62c1",
+      "identity": "1f:035f1358541e126afd7ee1fbecf60f8f55026097debdff21269b60e9d17e62c1"
+    }
+  ],
+  "held": {
+    "tools/founder-growth-engine-screens/__tests__/capture-summarize-chain.conformance.test.ts.held": "reads the boundary file of the `founder-growth-engine` package, which is not this package and is not in this tree",
+    "tools/founder-growth-engine-screens/__tests__/workspace-surface.contract.test.ts.held": "imports read-data/visual-database-projection.ts, which imports `@/packages/visual-database/...` (another package, not in this tree)"
+  }
+}

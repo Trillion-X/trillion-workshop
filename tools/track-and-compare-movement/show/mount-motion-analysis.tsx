@@ -1,0 +1,24 @@
+import React from 'react';
+import { ErrorBoundary } from '../../ui/show/error-boundary';
+import { FloatingMaterialFrame } from '../../ui/show/floating-material-frame';
+import { mountReactSurface } from '../../ui/show/react-surface-mount';
+import { MotionAnalysisPanel } from './MotionAnalysisPanel.tsx';
+
+type MountArgs = {
+  el: HTMLElement;
+  props?: Record<string, unknown>;
+};
+
+function MotionAnalysisMaterial({ props }: { props: Record<string, unknown> }) {
+  return (
+    <FloatingMaterialFrame frame={props.floating_frame}>
+      <ErrorBoundary zoneName="Compare movement">
+        <MotionAnalysisPanel />
+      </ErrorBoundary>
+    </FloatingMaterialFrame>
+  );
+}
+
+export default function mount({ el, props = {} }: MountArgs) {
+  return mountReactSurface(el, <MotionAnalysisMaterial props={props} />);
+}

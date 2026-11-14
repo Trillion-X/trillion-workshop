@@ -1,0 +1,64 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-NOTICE-WHEN-SOMETHING-SHOWS-UP-DO-WORK-EMIT-ARRIVAL-FACT-FROM-BITFIELD-PACKAGES",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "census-and-restore lane 7, 2026-11-13: no rewrites from scratch; originals move wholesale",
+    "message_multihash": "1f:31cfaef8fe1b095bcdda0c309aeb261d0b928f36c81425a5d444f4f86483ec45",
+    "quote": "standing order: NO rewrites from scratch. Originals move wholesale (byte for byte, with moved-from receipts)"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "bitfield-packages",
+      "commit": "0a451cf7757b4f4ed71706540d7ddaa5c8ec32b0",
+      "path": "packages/notice-when-something-shows-up/do-work/emit-arrival-fact.mjs",
+      "multihash": "1f:5044bd27be39814388353ede8aa8284c93021f832ad8f8009fe6ac742b402353",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-17T06:01:29Z",
+        "deleted_with": "the change that lands this move: the package file leaves bitfield-packages in the same change"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/notice-when-something-shows-up/do-work/emit-arrival-fact.mjs"
+    }
+  ],
+  "preserve": [
+    "the file is the original package file, moved with its import paths changed to this tree and nothing else",
+    "what the file did in the package: its exports, its rules and its edge cases are not rewritten here"
+  ],
+  "allowed_deltas": [
+    "import paths and the file header name the file's new place"
+  ],
+  "banned_substitutions": [
+    "a second implementation of the same job beside this file",
+    "a rewrite from scratch of what the package file does"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:5044bd27be39814388353ede8aa8284c93021f832ad8f8009fe6ac742b402353",
+    "target_multihash_at_baseline": "1f:5044bd27be39814388353ede8aa8284c93021f832ad8f8009fe6ac742b402353",
+    "recorded_at": "2026-11-14T06:02:29Z",
+    "rows": [
+      {
+        "path": "tools/notice-when-something-shows-up/do-work/emit-arrival-fact.mjs",
+        "source_multihash": "1f:5044bd27be39814388353ede8aa8284c93021f832ad8f8009fe6ac742b402353",
+        "target_multihash_at_baseline": "1f:5044bd27be39814388353ede8aa8284c93021f832ad8f8009fe6ac742b402353"
+      }
+    ],
+    "commit": "fd260496ffb12d9474372e488e3e4256bea82113"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export const ARRIVAL_FIELDS = Object.freeze([",
+      "export const CONDITIONS = Object.freeze("
+    ],
+    "test_refs": [],
+    "render_refs": [],
+    "originality_ref": null
+  }
+}

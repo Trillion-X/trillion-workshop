@@ -1,0 +1,104 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages packages/learning-mastery-protocol (at its last commit on the branch checked out; files the package holds only as uncommitted edits are not carried). Each names its source path and commit, the identity of its source bytes and of its bytes here. The first commit that holds them is the byte copy; later commits change import paths.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/learning-mastery-protocol/__tests__/LearningMasteryProtocolPanel.test.tsx",
+      "commit": "39635907744f1bd9f8eba12da7d4398b1eb2226f",
+      "to": "tools/lessons-and-learning-paths/__tests__/LearningMasteryProtocolPanel.test.tsx",
+      "source_identity": "1f:7746f3286cb19beb3ee3c8ddb4ce54df85a07d0a3bb9bc2bc7f2ffc6b46341f9",
+      "identity_at_move": "1f:7746f3286cb19beb3ee3c8ddb4ce54df85a07d0a3bb9bc2bc7f2ffc6b46341f9",
+      "byte_copy_commit": "fd260496ffb12d9474372e488e3e4256bea82113"
+    },
+    {
+      "from": "packages/learning-mastery-protocol/__tests__/protocol-descriptor-required.test.ts",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/lessons-and-learning-paths/__tests__/protocol-descriptor-required.test.ts",
+      "source_identity": "1f:40a96811212bdb276a05e3c3a65f06fb4664bd42543b8cbf6308135719de0ca6",
+      "identity_at_move": "1f:40a96811212bdb276a05e3c3a65f06fb4664bd42543b8cbf6308135719de0ca6",
+      "byte_copy_commit": "fd260496ffb12d9474372e488e3e4256bea82113"
+    },
+    {
+      "from": "packages/learning-mastery-protocol/__tests__/protocol-fixture.ts",
+      "commit": "39635907744f1bd9f8eba12da7d4398b1eb2226f",
+      "to": "tools/lessons-and-learning-paths/__tests__/protocol-fixture.ts",
+      "source_identity": "1f:f07dbf005b0d9be7fac6feefad8a18abc34baac99541a4c9a8c7f7a1c6d1b02a",
+      "identity": "1f:f07dbf005b0d9be7fac6feefad8a18abc34baac99541a4c9a8c7f7a1c6d1b02a"
+    },
+    {
+      "from": "packages/learning-mastery-protocol/__tests__/run-protocol-action.test.ts",
+      "commit": "4455a0d3066c2127220bd94233cbb9608e640b59",
+      "to": "tools/lessons-and-learning-paths/__tests__/run-protocol-action.test.ts.held",
+      "source_identity": "1f:006a281a41a798dd1fc3127f096b3b8040bd811049045b0324eedb06d3f1d227",
+      "identity": "1f:006a281a41a798dd1fc3127f096b3b8040bd811049045b0324eedb06d3f1d227"
+    },
+    {
+      "from": "packages/learning-mastery-protocol/do-work/run-protocol-action.ts",
+      "commit": "4455a0d3066c2127220bd94233cbb9608e640b59",
+      "to": "tools/lessons-and-learning-paths/do-work/run-protocol-action.ts",
+      "source_identity": "1f:38d5e19dfa87cd571c7d18179bbe6dc737d4b1332dc73e3031667d21a1de3208",
+      "identity_at_move": "1f:38d5e19dfa87cd571c7d18179bbe6dc737d4b1332dc73e3031667d21a1de3208",
+      "byte_copy_commit": "fd260496ffb12d9474372e488e3e4256bea82113"
+    },
+    {
+      "from": "packages/learning-mastery-protocol/read-data/learning-mastery-types.ts",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/lessons-and-learning-paths/read-data/learning-mastery-types.ts",
+      "source_identity": "1f:f7929bfb8dbf03c74e7b33a79b389bbcfae6e98ecfb1d8efec95e3ad6a93e5f4",
+      "identity": "1f:f7929bfb8dbf03c74e7b33a79b389bbcfae6e98ecfb1d8efec95e3ad6a93e5f4"
+    },
+    {
+      "from": "packages/learning-mastery-protocol/read-data/read-learning-mastery.ts",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/lessons-and-learning-paths/read-data/read-learning-mastery.ts",
+      "source_identity": "1f:a3b798c4ba53379fbd590f692dd82fb4594c2abd15c21e9e52397aef4c5b32e0",
+      "identity_at_move": "1f:a3b798c4ba53379fbd590f692dd82fb4594c2abd15c21e9e52397aef4c5b32e0",
+      "byte_copy_commit": "fd260496ffb12d9474372e488e3e4256bea82113"
+    },
+    {
+      "from": "packages/learning-mastery-protocol/reference-grounded-screen-contract.md",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/lessons-and-learning-paths/reference-grounded-screen-contract.md",
+      "source_identity": "1f:b6408f14b77758115af213e2ddd43cfbb6687ed0da658d467b3569341631fa23",
+      "identity": "1f:e5f864aa745bf21f979e77f66aa00f7156a4cec2eddc7681d7fbd86f8c598edd",
+      "calls": [
+        "private-notes-path"
+      ]
+    },
+    {
+      "from": "packages/learning-mastery-protocol/show/LearningMasteryProtocolPanel.tsx",
+      "commit": "7229c0c1d5311ff11cc55bb6ccf31843fe305b83",
+      "to": "tools/lessons-and-learning-paths/show/LearningMasteryProtocolPanel.tsx",
+      "source_identity": "1f:e98e8b44dee6674833980b5202008851787982e5ab252c501abc3ece17ef8215",
+      "identity_at_move": "1f:e98e8b44dee6674833980b5202008851787982e5ab252c501abc3ece17ef8215",
+      "byte_copy_commit": "fd260496ffb12d9474372e488e3e4256bea82113"
+    },
+    {
+      "from": "packages/learning-mastery-protocol/show/mount-learning-mastery-protocol.tsx",
+      "commit": "40e4d68ef4dd345948acc30f4c29fb807d1a44ca",
+      "to": "tools/lessons-and-learning-paths/show/mount-learning-mastery-protocol.tsx",
+      "source_identity": "1f:4b320ecbe148d0264cf41323273f8c37fb5805bd47d57cbad3ffcefb40b2418b",
+      "identity_at_move": "1f:4b320ecbe148d0264cf41323273f8c37fb5805bd47d57cbad3ffcefb40b2418b",
+      "byte_copy_commit": "fd260496ffb12d9474372e488e3e4256bea82113"
+    },
+    {
+      "from": "packages/learning-mastery-protocol/things-to-store-and-run.json",
+      "commit": "4ca9e35e27ab98b7f0280c8e8b025a7e78a222e0",
+      "to": "tools/lessons-and-learning-paths/read-data/learning-mastery-protocol-boundary.json",
+      "source_identity": "1f:c8a0d84fb94456eacdffd8e12487a3b9dc523c293c7d3e0e9a6f506b345ac27f",
+      "identity": "1f:c8a0d84fb94456eacdffd8e12487a3b9dc523c293c7d3e0e9a6f506b345ac27f"
+    }
+  ],
+  "held": {
+    "tools/lessons-and-learning-paths/__tests__/run-protocol-action.test.ts.held": "imports run-protocol-action.ts, which calls `sendRequestToBitfieldTarget` from the retired package runtime"
+  }
+}

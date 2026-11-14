@@ -1,0 +1,28 @@
+/** @vitest-environment jsdom */
+import {beforeEach,describe,expect,it,vi} from 'vitest';
+
+const {send}=vi.hoisted(()=>({send:vi.fn()}));
+vi.mock('@bitfield/runtime-kit',()=>({sendRequestToBitfieldTarget:send}));
+import {readCachedMemberProfile,readMemberProfile,saveMemberProfile} from './save-member-profile';
+
+beforeEach(()=>{send.mockReset();const values=new Map<string,string>();vi.stubGlobal('localStorage',{getItem:(key:string)=>values.get(key)??null,setItem:(key:string,value:string)=>{values.set(key,value);}});});
+describe('member profile owner',()=>{
+  it('caches a profile only after the owner confirms its write',async()=>{
+    send.mockResolvedValueOnce({payload:new TextEncoder().encode(JSON.stringify({found:true,payload:{kind:'person-profile.member-profile/v1',actor_ref:'account:real-id',role:'Creator',display_name:'Old',about:''}}))});
+    send.mockResolvedValueOnce({payload:new TextEncoder().encode(JSON.stringify({write_count:1}))});
+    send.mockResolvedValueOnce({payload:new TextEncoder().encode(JSON.stringify({found:true,payload:{kind:'person-profile.member-profile/v1',actor_ref:'account:real-id',display_name:'Rosa',about:'Makes videos'}}))});
+    await saveMemberProfile('account:real-id',{display_name:'Rosa',about:'Makes videos'});
+    expect(send).toHaveBeenCalledWith(expect.objectContaining({target:'engine.operation.label-addressed'}));
+    expect(send.mock.calls[1][0].payload.writes[0].payload.role).toBe('Creator');
+    expect(readCachedMemberProfile('account:real-id')).toEqual({display_name:'Rosa',about:'Makes videos'});
+  });
+  it('reads an owner record without inventing missing fields',async()=>{
+    send.mockResolvedValue({payload:new TextEncoder().encode(JSON.stringify({found:false}))});
+    expect(await readMemberProfile('local:none')).toBeNull();
+  });
+  it('does not turn a failed write into a saved profile',async()=>{
+    send.mockRejectedValue(Error('owner unavailable'));
+    await expect(saveMemberProfile('local:one',{display_name:'Rosa',about:''})).rejects.toThrow('owner unavailable');
+    expect(readCachedMemberProfile('local:one')).toBeNull();
+  });
+});

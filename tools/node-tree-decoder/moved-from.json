@@ -1,0 +1,50 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages packages/node-tree-decoder (at its last commit on the branch checked out; files the package holds only as uncommitted edits are not carried). Each names its source path and commit, the identity of its source bytes and of its bytes here. The first commit that holds them is the byte copy; later commits change import paths.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/node-tree-decoder/do-work/process-scripts/__tests__/test_decode_node_tree.py",
+      "commit": "7a663c49502767951eb6ebe286a7e1bd1e2a8595",
+      "to": "tools/node-tree-decoder/do-work/process-scripts/__tests__/test_decode_node_tree.py",
+      "source_identity": "1f:ac18e9d459ab095c28dbe7d391fddda5505e1dc6ac767cd6f63fe8640cedff16",
+      "identity": "1f:ac18e9d459ab095c28dbe7d391fddda5505e1dc6ac767cd6f63fe8640cedff16"
+    },
+    {
+      "from": "packages/node-tree-decoder/do-work/process-scripts/__tests__/test_encode_node_tree.py",
+      "commit": "7a663c49502767951eb6ebe286a7e1bd1e2a8595",
+      "to": "tools/node-tree-decoder/do-work/process-scripts/__tests__/test_encode_node_tree.py",
+      "source_identity": "1f:179718d9d9b5ae91e2875b3cdb887531116c06e87d63b7dc08c09f23d03f7eed",
+      "identity": "1f:179718d9d9b5ae91e2875b3cdb887531116c06e87d63b7dc08c09f23d03f7eed"
+    },
+    {
+      "from": "packages/node-tree-decoder/do-work/process-scripts/apply_tree_to_file.py",
+      "commit": "7a663c49502767951eb6ebe286a7e1bd1e2a8595",
+      "to": "tools/node-tree-decoder/do-work/process-scripts/apply_tree_to_file.py",
+      "source_identity": "1f:4fdd551e6db4cd2f11740d7fb80b0f1a6564c7f6699f88730be62770cc2657b9",
+      "identity": "1f:4fdd551e6db4cd2f11740d7fb80b0f1a6564c7f6699f88730be62770cc2657b9"
+    },
+    {
+      "from": "packages/node-tree-decoder/do-work/process-scripts/decode_node_tree.py",
+      "commit": "7a663c49502767951eb6ebe286a7e1bd1e2a8595",
+      "to": "tools/node-tree-decoder/do-work/process-scripts/decode_node_tree.py",
+      "source_identity": "1f:c6d084ca9682890c29a72e4b121076007794548796291c438518e141248dca1a",
+      "identity": "1f:c6d084ca9682890c29a72e4b121076007794548796291c438518e141248dca1a"
+    },
+    {
+      "from": "packages/node-tree-decoder/do-work/process-scripts/encode_node_tree.py",
+      "commit": "7a663c49502767951eb6ebe286a7e1bd1e2a8595",
+      "to": "tools/node-tree-decoder/do-work/process-scripts/encode_node_tree.py",
+      "source_identity": "1f:28169fa8a3149d3b56e6370cdea796b1859d7c800e8aa324cb94f0657020d3e8",
+      "identity": "1f:28169fa8a3149d3b56e6370cdea796b1859d7c800e8aa324cb94f0657020d3e8"
+    },
+    {
+      "from": "packages/node-tree-decoder/things-to-store-and-run.json",
+      "commit": "e1a38346fb75c85e226ade737325d63d3970a7b7",
+      "to": "tools/node-tree-decoder/things-to-store-and-run.json",
+      "source_identity": "1f:2995219447b2bf45cfb7c07ec3de5f00b662e0a8a404692f18af7e35bd4e58ee",
+      "identity": "1f:2995219447b2bf45cfb7c07ec3de5f00b662e0a8a404692f18af7e35bd4e58ee"
+    }
+  ]
+}

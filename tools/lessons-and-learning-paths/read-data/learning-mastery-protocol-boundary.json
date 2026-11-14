@@ -1,0 +1,375 @@
+{
+  "package": "learning-mastery-protocol",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::learning-mastery-protocol::capability",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-capability",
+        "id": "learning-mastery-protocol",
+        "label": "Learning Protocol",
+        "description": "Render and execute arbitrary descriptor-defined learning protocols through owner actions.",
+        "owns": [
+          "protocol descriptor contract",
+          "descriptor-driven protocol surface"
+        ],
+        "reuses": [
+          "workflow",
+          "progression-evaluator",
+          "ui",
+          "screen-look"
+        ],
+        "does_not_own": [
+          "evaluation decisions",
+          "media playback",
+          "content retrieval",
+          "scheduling",
+          "provider integrations"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::learning-mastery-protocol::public-source::read-data",
+      "path": [
+        "packages",
+        "learning-mastery-protocol",
+        "public-sources",
+        "read-data"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "read-data"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::learning-mastery-protocol::public-source::do-work",
+      "path": [
+        "packages",
+        "learning-mastery-protocol",
+        "public-sources",
+        "do-work"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::learning-mastery-protocol::placeable-surface::learning-mastery-protocol",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "placeable-surface",
+        "id": "learning-mastery-protocol.panel",
+        "surface_id": "learning-mastery-protocol.panel",
+        "label": "Learning Protocol",
+        "icon": "GraduationCap",
+        "material_target": "learning-mastery-protocol",
+        "order": 716,
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000716:learning-mastery-protocol.panel",
+        "package_entry": {
+          "package_name": "learning-mastery-protocol",
+          "entry_name": "learning-mastery-protocol"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::learning-mastery-protocol::entry::learning-mastery-protocol",
+      "path": [
+        "packages",
+        "learning-mastery-protocol",
+        "entries",
+        "learning-mastery-protocol"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "learning-mastery-protocol",
+        "source_path": "show/mount-learning-mastery-protocol.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-learning-mastery-protocol"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::learning-mastery-protocol::input::protocol-descriptor-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "protocol-descriptor-by-address-label",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::learning-mastery-protocol::input::protocol-state-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "protocol-state-by-address-label",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::learning-mastery-protocol::input::accepted-decision-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "accepted-decision-by-address-label",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::learning-mastery-protocol::record-contract::protocol-descriptor::v1",
+      "path": [
+        "packages",
+        "learning-mastery-protocol",
+        "record-contracts",
+        "protocol-descriptor",
+        "v1"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "learning-mastery-protocol-descriptor",
+        "schema": "learning-mastery-protocol-descriptor/v1",
+        "required_fields": [
+          "id",
+          "defaults",
+          "lifecycle",
+          "phases",
+          "transitions",
+          "actions",
+          "presentation"
+        ],
+        "open_taxonomies": [
+          "phase ids",
+          "field keys",
+          "action keys",
+          "transition ids",
+          "presentation keys",
+          "default keys"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::learning-mastery-protocol::record-contract::protocol-state::v1",
+      "path": [
+        "packages",
+        "learning-mastery-protocol",
+        "record-contracts",
+        "protocol-state",
+        "v1"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "learning-mastery-protocol-state",
+        "required_fields": [
+          "protocol_ref",
+          "state_ref",
+          "revision",
+          "phase",
+          "values"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::learning-mastery-protocol::record-contract::accepted-progression-decision::v1",
+      "path": [
+        "packages",
+        "learning-mastery-protocol",
+        "record-contracts",
+        "accepted-progression-decision",
+        "v1"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "accepted-progression-decision-receipt",
+        "required_fields": [
+          "decision_key",
+          "confidence",
+          "provenance",
+          "adjustments",
+          "accepted_at"
+        ],
+        "authority": "accepted progression evaluator owner receipt only"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::learning-mastery-protocol::workflow-action::write-state",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:learning-mastery-protocol.write-state",
+        "kind": "action",
+        "name": "learning-mastery-protocol-write-state",
+        "description": "Write a learning mastery protocol state record: sets phase, values, and the successor revision. Reused by both advancing to a new phase and saving answers in place.",
+        "input_schema": {
+          "state_address": "string",
+          "protocol_ref": "string",
+          "state_ref": "string",
+          "expected_state_revision": "number",
+          "phase": "string",
+          "values": "object",
+          "next_revision": "number"
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "state_address"
+                    }
+                  },
+                  "address_mode": "label_hash",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "learning-mastery-protocol-state",
+                    "schema": "learning-mastery-protocol-state/v1",
+                    "protocol_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "protocol_ref"
+                      }
+                    },
+                    "state_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "state_ref"
+                      }
+                    },
+                    "phase": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "phase"
+                      }
+                    },
+                    "revision": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "next_revision"
+                      }
+                    },
+                    "values": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "values"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-learning-mastery-protocol",
+      "source_path": "built-stored-bytes/entry-bytes-learning-mastery-protocol",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-learning-mastery-protocol.source-closure.json"
+    }
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages packages/owner-action-event-log (at its last commit on the branch checked out; files the package holds only as uncommitted edits are not carried). Each names its source path and commit, the identity of its source bytes and of its bytes here. The first commit that holds them is the byte copy; later commits change import paths.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/owner-action-event-log/__tests__/README.md",
+      "commit": "c70f1000aa785b98e6ee1058f027ccfc38ee3b8c",
+      "to": "tools/owner-action-event-log/__tests__/README.md",
+      "source_identity": "1f:b4f21553677e2c82413b47fb103c1dc3428a3d455993681b8462782f0a150d44",
+      "identity": "1f:b4f21553677e2c82413b47fb103c1dc3428a3d455993681b8462782f0a150d44"
+    },
+    {
+      "from": "packages/owner-action-event-log/__tests__/owner-action-event-log-jscore.test.ts",
+      "commit": "c70f1000aa785b98e6ee1058f027ccfc38ee3b8c",
+      "to": "tools/owner-action-event-log/__tests__/owner-action-event-log-jscore.test.ts",
+      "source_identity": "1f:32d54d0950a2be245f287135249e0d503a447713d2469d6e04de6c48a164ce3a",
+      "identity_at_move": "1f:32d54d0950a2be245f287135249e0d503a447713d2469d6e04de6c48a164ce3a",
+      "byte_copy_commit": "fd260496ffb12d9474372e488e3e4256bea82113"
+    },
+    {
+      "from": "packages/owner-action-event-log/__tests__/owner-action-event-request.test.ts",
+      "commit": "c70f1000aa785b98e6ee1058f027ccfc38ee3b8c",
+      "to": "tools/owner-action-event-log/__tests__/owner-action-event-request.test.ts",
+      "source_identity": "1f:2a60545867cca34c4f0d207800f6bd94f57bd183b6d1552dd3b5ba3b80143b40",
+      "identity_at_move": "1f:2a60545867cca34c4f0d207800f6bd94f57bd183b6d1552dd3b5ba3b80143b40",
+      "byte_copy_commit": "fd260496ffb12d9474372e488e3e4256bea82113"
+    },
+    {
+      "from": "packages/owner-action-event-log/__tests__/project-process-proof.test.ts",
+      "commit": "c70f1000aa785b98e6ee1058f027ccfc38ee3b8c",
+      "to": "tools/owner-action-event-log/__tests__/project-process-proof.test.ts",
+      "source_identity": "1f:9a93f0d5ca4e86c82acc683c43ce63d32de0e03c2d042b6f68999ab4500df67d",
+      "identity_at_move": "1f:9a93f0d5ca4e86c82acc683c43ce63d32de0e03c2d042b6f68999ab4500df67d",
+      "byte_copy_commit": "fd260496ffb12d9474372e488e3e4256bea82113"
+    },
+    {
+      "from": "packages/owner-action-event-log/__tests__/project-universal-action-events.test.ts",
+      "commit": "c70f1000aa785b98e6ee1058f027ccfc38ee3b8c",
+      "to": "tools/owner-action-event-log/__tests__/project-universal-action-events.test.ts",
+      "source_identity": "1f:4a32f83d60c194e9a7faba9d77cdd5cd798c3a20181b15a0bf35d804b7ddb2f2",
+      "identity_at_move": "1f:4a32f83d60c194e9a7faba9d77cdd5cd798c3a20181b15a0bf35d804b7ddb2f2",
+      "byte_copy_commit": "fd260496ffb12d9474372e488e3e4256bea82113"
+    },
+    {
+      "from": "packages/owner-action-event-log/__tests__/universal-action-event-contract.test.ts",
+      "commit": "c70f1000aa785b98e6ee1058f027ccfc38ee3b8c",
+      "to": "tools/owner-action-event-log/__tests__/universal-action-event-contract.test.ts",
+      "source_identity": "1f:6a6584673976a5f92614ed1fd005f0c695583fad8271b56c71d1f660aaf3bc9c",
+      "identity_at_move": "1f:6a6584673976a5f92614ed1fd005f0c695583fad8271b56c71d1f660aaf3bc9c",
+      "byte_copy_commit": "fd260496ffb12d9474372e488e3e4256bea82113"
+    },
+    {
+      "from": "packages/owner-action-event-log/do-work/README.md",
+      "commit": "c70f1000aa785b98e6ee1058f027ccfc38ee3b8c",
+      "to": "tools/owner-action-event-log/do-work/README.md",
+      "source_identity": "1f:1935e1eb5478b1a7a6e307c069974d724b1ce871ec3d36ce240d21990dfb29fc",
+      "identity": "1f:1935e1eb5478b1a7a6e307c069974d724b1ce871ec3d36ce240d21990dfb29fc"
+    },
+    {
+      "from": "packages/owner-action-event-log/do-work/build-owner-action-event-request.ts",
+      "commit": "c70f1000aa785b98e6ee1058f027ccfc38ee3b8c",
+      "to": "tools/owner-action-event-log/do-work/build-owner-action-event-request.ts",
+      "source_identity": "1f:79aac638cd95603ceb0cd5aa82cb30e3e6b156a1503083b65060465a7637e6f9",
+      "identity_at_move": "1f:79aac638cd95603ceb0cd5aa82cb30e3e6b156a1503083b65060465a7637e6f9",
+      "byte_copy_commit": "fd260496ffb12d9474372e488e3e4256bea82113"
+    },
+    {
+      "from": "packages/owner-action-event-log/do-work/owner-action-disabled-reason.ts",
+      "commit": "c70f1000aa785b98e6ee1058f027ccfc38ee3b8c",
+      "to": "tools/owner-action-event-log/do-work/owner-action-disabled-reason.ts",
+      "source_identity": "1f:4253b0f1b21882defcf6148960e5093879c3f15815b5c256fac5bd4d567ae495",
+      "identity_at_move": "1f:4253b0f1b21882defcf6148960e5093879c3f15815b5c256fac5bd4d567ae495",
+      "byte_copy_commit": "fd260496ffb12d9474372e488e3e4256bea82113"
+    },
+    {
+      "from": "packages/owner-action-event-log/index.ts",
+      "commit": "c70f1000aa785b98e6ee1058f027ccfc38ee3b8c",
+      "to": "tools/owner-action-event-log/index.ts",
+      "source_identity": "1f:19e74088f43aaaad57747d5e5c4da16329b7a398f75ee940cb6bc282fcaddb0a",
+      "identity_at_move": "1f:19e74088f43aaaad57747d5e5c4da16329b7a398f75ee940cb6bc282fcaddb0a",
+      "byte_copy_commit": "fd260496ffb12d9474372e488e3e4256bea82113"
+    },
+    {
+      "from": "packages/owner-action-event-log/ios-jscore/README.md",
+      "commit": "c70f1000aa785b98e6ee1058f027ccfc38ee3b8c",
+      "to": "tools/owner-action-event-log/ios-jscore/README.md",
+      "source_identity": "1f:54909c572967ba1e6a941993ba5837cbcf2a1cf008ea52b5327e4b548dec7607",
+      "identity": "1f:54909c572967ba1e6a941993ba5837cbcf2a1cf008ea52b5327e4b548dec7607"
+    },
+    {
+      "from": "packages/owner-action-event-log/ios-jscore/owner-action-event-log-jscore.ts",
+      "commit": "c70f1000aa785b98e6ee1058f027ccfc38ee3b8c",
+      "to": "tools/owner-action-event-log/ios-jscore/owner-action-event-log-jscore.ts",
+      "source_identity": "1f:50cfafd13225e2e8b0123a3d59180428b7f874be38259094b5521249a8637254",
+      "identity_at_move": "1f:50cfafd13225e2e8b0123a3d59180428b7f874be38259094b5521249a8637254",
+      "byte_copy_commit": "fd260496ffb12d9474372e488e3e4256bea82113"
+    },
+    {
+      "from": "packages/owner-action-event-log/read-data/README.md",
+      "commit": "c70f1000aa785b98e6ee1058f027ccfc38ee3b8c",
+      "to": "tools/owner-action-event-log/read-data/README.md",
+      "source_identity": "1f:ccf5a0e6fd61d150507e4ca31970a1f056b1acd64430b57ebc27de8d5704666b",
+      "identity": "1f:ccf5a0e6fd61d150507e4ca31970a1f056b1acd64430b57ebc27de8d5704666b"
+    },
+    {
+      "from": "packages/owner-action-event-log/read-data/decode-universal-action-event-inputs.ts",
+      "commit": "c70f1000aa785b98e6ee1058f027ccfc38ee3b8c",
+      "to": "tools/owner-action-event-log/read-data/decode-universal-action-event-inputs.ts",
+      "source_identity": "1f:3473293e6ca5a366925f135f8cacddc29443021bc2e40aae06d08b80fa1d9ebe",
+      "identity_at_move": "1f:3473293e6ca5a366925f135f8cacddc29443021bc2e40aae06d08b80fa1d9ebe",
+      "byte_copy_commit": "fd260496ffb12d9474372e488e3e4256bea82113"
+    },
+    {
+      "from": "packages/owner-action-event-log/read-data/project-process-proof.ts",
+      "commit": "c70f1000aa785b98e6ee1058f027ccfc38ee3b8c",
+      "to": "tools/owner-action-event-log/read-data/project-process-proof.ts",
+      "source_identity": "1f:74f3e79199eb8fa86e8db7c057fbe7ff28fa8302996adf641fa4ed67db82bb27",
+      "identity_at_move": "1f:74f3e79199eb8fa86e8db7c057fbe7ff28fa8302996adf641fa4ed67db82bb27",
+      "byte_copy_commit": "fd260496ffb12d9474372e488e3e4256bea82113"
+    },
+    {
+      "from": "packages/owner-action-event-log/read-data/project-universal-action-events.ts",
+      "commit": "c70f1000aa785b98e6ee1058f027ccfc38ee3b8c",
+      "to": "tools/owner-action-event-log/read-data/project-universal-action-events.ts",
+      "source_identity": "1f:66652be51a742e3f38063d4fb6e5fd0b3be0c658576d8efbfb0336c40c2de20c",
+      "identity_at_move": "1f:66652be51a742e3f38063d4fb6e5fd0b3be0c658576d8efbfb0336c40c2de20c",
+      "byte_copy_commit": "fd260496ffb12d9474372e488e3e4256bea82113"
+    },
+    {
+      "from": "packages/owner-action-event-log/read-data/universal-action-event-contract.ts",
+      "commit": "c70f1000aa785b98e6ee1058f027ccfc38ee3b8c",
+      "to": "tools/owner-action-event-log/read-data/universal-action-event-contract.ts",
+      "source_identity": "1f:c84f49ef6e8906719e0817bfcc974c4c37f3fa7804429422d6c5ef2f8d051248",
+      "identity": "1f:c84f49ef6e8906719e0817bfcc974c4c37f3fa7804429422d6c5ef2f8d051248"
+    },
+    {
+      "from": "packages/owner-action-event-log/read-data/universal-action-event-fixtures.ts",
+      "commit": "c70f1000aa785b98e6ee1058f027ccfc38ee3b8c",
+      "to": "tools/owner-action-event-log/read-data/universal-action-event-fixtures.ts",
+      "source_identity": "1f:6989548b0c67e585036004647f4692bc3b09fd4d328252dc63afadb6bd27ae97",
+      "identity_at_move": "1f:6989548b0c67e585036004647f4692bc3b09fd4d328252dc63afadb6bd27ae97",
+      "byte_copy_commit": "fd260496ffb12d9474372e488e3e4256bea82113"
+    },
+    {
+      "from": "packages/owner-action-event-log/things-to-store-and-run.json",
+      "commit": "4ca9e35e27ab98b7f0280c8e8b025a7e78a222e0",
+      "to": "tools/owner-action-event-log/things-to-store-and-run.json",
+      "source_identity": "1f:a78480025f55c70d453203f45300c1c1d326f989a0a6ff3fb7e325c96dfd5a29",
+      "identity": "1f:a78480025f55c70d453203f45300c1c1d326f989a0a6ff3fb7e325c96dfd5a29"
+    }
+  ]
+}

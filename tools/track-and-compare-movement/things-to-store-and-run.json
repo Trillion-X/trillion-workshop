@@ -1,0 +1,4142 @@
+{
+  "package": "motion-analysis",
+  "things": [
+    {
+      "type": "stored_bytes",
+      "name": "make-motion-analysis-records-from-command-output-script",
+      "source_path": "do-work/process-scripts/make-motion-analysis-records-from-command-output.py"
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::placeable-surface::motion-analysis",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "Activity",
+        "id": "motion-analysis.panel",
+        "kind": "placeable-surface",
+        "label": "Compare movement",
+        "material_target": "motion-analysis",
+        "factflow_ref": "package::motion-analysis::factflow::motion-analysis-surface",
+        "order": 647,
+        "surface_id": "motion-analysis.panel",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000647:motion-analysis.panel",
+        "package_entry": {
+          "package_name": "motion-analysis",
+          "entry_name": "motion-analysis"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::factflow::motion-analysis-surface",
+      "address_mode": "identity_text",
+      "path": [
+        "package-primitive",
+        "factflow"
+      ],
+      "payload": {
+        "kind": "bitfield-eeaf-factflow",
+        "journal": {
+          "address_label": "motion-analysis.surface.journal"
+        },
+        "fact_sources": [
+          {
+            "address": "package::motion-analysis::input::content-media-evidence"
+          },
+          {
+            "address": "package::motion-analysis::evidence-pipeline::config"
+          },
+          {
+            "address": "package::motion-analysis::workflow-action::submit-motion-analysis-request"
+          },
+          {
+            "address": "package::motion-analysis::workflow-action::write-command-run-record"
+          },
+          {
+            "address": "package::motion-analysis::stored-bytes::make-motion-analysis-records-from-command-output-script"
+          },
+          {
+            "address": "package::motion-analysis::blocker::feed-heavy-proof"
+          }
+        ],
+        "genesis": [
+          {
+            "address": "package::motion-analysis::placeable-surface::motion-analysis"
+          }
+        ],
+        "blockers": [
+          {
+            "address": "package::motion-analysis::blocker::feed-heavy-proof"
+          }
+        ],
+        "evidence": [
+          {
+            "address": "package::motion-analysis::entry::motion-analysis"
+          },
+          {
+            "address": "package::motion-analysis::capability::motion-analysis"
+          },
+          {
+            "address": "package::motion-analysis::contract::request"
+          },
+          {
+            "address": "package::motion-analysis::contract::command-run-request"
+          },
+          {
+            "address": "package::motion-analysis::contract::track"
+          },
+          {
+            "address": "package::motion-analysis::contract::phase"
+          },
+          {
+            "address": "package::motion-analysis::contract::alignment"
+          },
+          {
+            "address": "package::motion-analysis::contract::comparison"
+          },
+          {
+            "address": "package::motion-analysis::contract::error"
+          },
+          {
+            "address": "package::motion-analysis::stored-bytes::make-motion-analysis-records-from-command-output-script"
+          }
+        ],
+        "interpreter_facts": {
+          "facts": [
+            {
+              "address_label": "motion-analysis.facts.content-media-evidence"
+            }
+          ],
+          "intents": [
+            {
+              "address_label": "motion-analysis.intent.submit-motion-request"
+            }
+          ],
+          "effects": [
+            {
+              "address_label": "motion-analysis.effect.run-motion-command"
+            },
+            {
+              "address_label": "motion-analysis.effect.write-records-from-command-run"
+            }
+          ],
+          "validation": [
+            {
+              "address_label": "motion-analysis.validation.source-set-fingerprints"
+            },
+            {
+              "address_label": "motion-analysis.validation.phase-labels-are-data"
+            },
+            {
+              "address_label": "motion-analysis.validation.records-from-command-run"
+            }
+          ],
+          "permissions": [
+            {
+              "address_label": "motion-analysis.permission.invoke-workflow-intent"
+            }
+          ],
+          "projections": [
+            {
+              "address_label": "motion-analysis-content-media-evidence"
+            }
+          ],
+          "materializations": [
+            {
+              "address_label": "motion-analysis.materialization.placeable-surface"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::entry::motion-analysis",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "motion-analysis",
+        "entries",
+        "motion-analysis"
+      ],
+      "payload": {
+        "entry_name": "motion-analysis",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-motion-analysis.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-motion-analysis"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::capability::motion-analysis",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-package-capability",
+        "id": "capability:motion-analysis",
+        "package": "motion-analysis",
+        "label": "Compare movement",
+        "description": "Derives keypoint tracks, phase ranges, source-to-source alignments, and movement comparisons from source artifacts through open motion process profiles.",
+        "owned_record_kinds": [
+          "motion-analysis.request",
+          "motion-analysis.command-run-request",
+          "motion-analysis.track",
+          "motion-analysis.phase",
+          "motion-analysis.alignment",
+          "motion-analysis.comparison",
+          "motion-analysis.error"
+        ],
+        "reuses": [
+          "workflow",
+          "process-session",
+          "stored_bytes",
+          "content-media-evidence",
+          "record_from_matching_records"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::input::content-media-evidence",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "contentMediaEvidence",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "role",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "payload",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "source_package",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 3,
+                "key": "blocker",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ],
+            "op": "rows"
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "motion-analysis-content-media-evidence"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::evidence-pipeline::config",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "content-media.evidence-pipeline.config",
+        "package": "motion-analysis",
+        "roles": {
+          "requests": [
+            "motion-analysis.request"
+          ],
+          "tracks": [
+            "motion-analysis.track"
+          ],
+          "phases": [
+            "motion-analysis.phase"
+          ],
+          "alignments": [
+            "motion-analysis.alignment"
+          ],
+          "comparisons": [
+            "motion-analysis.comparison"
+          ],
+          "errors": [
+            "motion-analysis.error"
+          ]
+        },
+        "artifact_roles": {
+          "source": [
+            "stored-video",
+            "stored-image",
+            "stored-audio",
+            "url"
+          ],
+          "outputs": [
+            "motion-track",
+            "motion-transform",
+            "motion-comparison",
+            "motion-raw-output"
+          ]
+        },
+        "execution_capabilities": [
+          "workflow",
+          "process-session",
+          "stored_bytes"
+        ],
+        "projection_lanes": [
+          "requests",
+          "tracks",
+          "phases",
+          "alignments",
+          "comparisons"
+        ],
+        "maintained_projection_label": "motion-analysis-content-media-evidence",
+        "workflow_actions": [
+          {
+            "role": "submit",
+            "action_id": "action:submit-motion-analysis-request",
+            "execution_locus": "workflow",
+            "side_effect_boundary": "process-execution-and-record-publication"
+          },
+          {
+            "role": "write-command-run-record",
+            "action_id": "action:write-motion-analysis-record-from-command-run",
+            "execution_locus": "workflow",
+            "side_effect_boundary": "accepted-record-write"
+          }
+        ],
+        "artifact_ref_contract": {
+          "required_fields": [
+            "multihash"
+          ],
+          "optional_fields": [
+            "cas_address",
+            "byte_length",
+            "media_type"
+          ]
+        },
+        "domain_contract": "Tennis stroke names, basketball shot names, dance phases, walking gait phases, and future movement vocabularies are phase labels/taxonomy refs in records or process profiles, not package code.",
+        "proof_gates": [
+          "CPD-10F"
+        ]
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "motion-analysis-content-media-evidence",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "motion-analysis",
+          "content-media-evidence"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "cell_table",
+        "columns": [
+          {
+            "column": 0,
+            "source": {
+              "path": [
+                "record",
+                "payload_json_text"
+              ],
+              "parse": {
+                "format": "json",
+                "after_parse_path": [
+                  "role"
+                ]
+              }
+            },
+            "value": {
+              "value_to_bytes": "non_empty_text"
+            }
+          },
+          {
+            "column": 1,
+            "source": {
+              "path": [
+                "record",
+                "payload_json_text"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "json_text"
+            }
+          },
+          {
+            "column": 2,
+            "source": {
+              "path": [
+                "record",
+                "source_package"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "non_empty_text"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::contract::request",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "motion-analysis.request",
+        "required_fields": [
+          "request_id",
+          "sources",
+          "lanes",
+          "requested_at"
+        ],
+        "sources_contract": {
+          "shape": "array of source refs with artifact_ref",
+          "artifact_ref_contract": {
+            "required_fields": [
+              "multihash"
+            ],
+            "optional_fields": [
+              "cas_address",
+              "byte_length",
+              "media_type"
+            ]
+          }
+        },
+        "lanes_contract": {
+          "shape": "role-keyed object",
+          "key_authority": "content-media.evidence-pipeline.config.projection_lanes"
+        },
+        "options_contract": {
+          "motion_command": "optional object with process_descriptor and process_profile for the motion command to run through compute.process",
+          "process_profile": "open data for provider, model, keypoint schema, phase taxonomy refs, comparison metrics, credential handle refs, runtime, lanes, and output policy; sport/domain/model choices are not code branches"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::contract::command-run-request",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "motion-analysis.command-run-request",
+        "required_fields": [
+          "request_id",
+          "runner",
+          "process_descriptor",
+          "process_profile",
+          "output_contract",
+          "created_at"
+        ],
+        "runner_contract": "compute.process or compute.process_session as configured by workflow data",
+        "process_profile_contract": "profile data carries model, keypoint schema, phase taxonomy, runtime, and opaque credential handle choices"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::contract::track",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "motion-analysis.track",
+        "required_fields": [
+          "track_id",
+          "request_id",
+          "source_ref",
+          "source_fingerprint",
+          "command_run_id",
+          "subject_ref",
+          "keypoint_schema",
+          "time_range",
+          "sample_rate",
+          "track_artifact_ref",
+          "model",
+          "evidence",
+          "created_at"
+        ],
+        "track_contract": "Keypoint/pose payloads live in track_artifact_ref, not inline UI records."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::contract::phase",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "motion-analysis.phase",
+        "required_fields": [
+          "phase_id",
+          "request_id",
+          "source_ref",
+          "source_fingerprint",
+          "command_run_id",
+          "track_ref",
+          "label",
+          "label_ref",
+          "time_range",
+          "phase_taxonomy_ref",
+          "evidence",
+          "created_at"
+        ],
+        "phase_contract": "Phase labels such as tennis stroke, basketball shot, dance, walking, or any future movement domain labels are data."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::contract::alignment",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "motion-analysis.alignment",
+        "required_fields": [
+          "alignment_id",
+          "request_id",
+          "command_run_id",
+          "source_span_refs",
+          "method",
+          "score",
+          "transform_artifact_ref",
+          "evidence",
+          "created_at"
+        ],
+        "alignment_contract": "Alignments link two or more source spans through refs and transform artifacts; renderers consume this record but do not own truth."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::contract::comparison",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "motion-analysis.comparison",
+        "required_fields": [
+          "comparison_id",
+          "request_id",
+          "command_run_id",
+          "alignment_refs",
+          "summary",
+          "metrics",
+          "evidence_refs",
+          "output_artifact_refs",
+          "created_at"
+        ],
+        "comparison_contract": "Movement comparison summaries cite tracks, phases, and alignments; no renderer-local JSON is the comparison authority."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::contract::error",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "motion-analysis.error",
+        "required_fields": [
+          "request_id",
+          "sources",
+          "command_run_id",
+          "code",
+          "message",
+          "observed_at"
+        ],
+        "details_contract": "optional machine-readable command/process details; never stores fabricated motion comparisons"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::workflow-action::write-command-run-record",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:write-motion-analysis-record-from-command-run",
+        "kind": "action",
+        "is_active": true,
+        "name": "write-motion-analysis-record-from-command-run",
+        "description": "Write one canonical motion-analysis record emitted by the command run.",
+        "input_schema": {
+          "required": [
+            "record"
+          ],
+          "properties": {
+            "record": {
+              "type": "object"
+            }
+          }
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record.address"
+                    }
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record.payload"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::workflow-action::submit-motion-analysis-request",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:submit-motion-analysis-request",
+        "kind": "action",
+        "is_active": true,
+        "name": "submit-motion-analysis-request",
+        "description": "Write the canonical request, ask compute.process to run the configured motion command descriptor directly, make package records from its declared JSON output, and write track/phase/alignment/comparison/error records.",
+        "input_schema": {
+          "required": [
+            "request_id",
+            "sources",
+            "lanes",
+            "requested_at"
+          ],
+          "properties": {
+            "request_id": {
+              "type": "string"
+            },
+            "sources": {
+              "type": "array"
+            },
+            "lanes": {
+              "type": "object"
+            },
+            "options": {
+              "type": "object"
+            },
+            "requested_at": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "kind": "read",
+            "config": {
+              "from": "package::motion-analysis::stored-bytes::make-motion-analysis-records-from-command-output-script"
+            }
+          },
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "request_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::motion-analysis::request::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "request_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "motion-analysis.request",
+                    "request_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "request_id"
+                      }
+                    },
+                    "sources": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "sources"
+                      }
+                    },
+                    "lanes": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "lanes"
+                      }
+                    },
+                    "options": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "options"
+                      }
+                    },
+                    "requested_at": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "requested_at"
+                      }
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "request_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::motion-analysis::command-run-request::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "request_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "motion-analysis.command-run-request",
+                    "request_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "request_id"
+                      }
+                    },
+                    "runner": "compute.process",
+                    "process_descriptor": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "options.motion_command.process_descriptor"
+                      }
+                    },
+                    "process_profile": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "options.motion_command.process_profile"
+                      }
+                    },
+                    "output_contract": {
+                      "first_declared_output": "application/json command output consumed by the package record-making script"
+                    },
+                    "created_at": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "requested_at"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "options.motion_command.process_descriptor"
+                }
+              }
+            }
+          },
+          {
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "python3",
+                  "packages/motion-analysis/do-work/process-scripts/make-motion-analysis-records-from-command-output.py",
+                  "--request-json",
+                  "request.json",
+                  "--command-output-json",
+                  "command-output.json",
+                  "--output-json",
+                  "records.json"
+                ],
+                "cwd": ".",
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "packages/motion-analysis/do-work/process-scripts/make-motion-analysis-records-from-command-output.py",
+                    "content_type": "text/x-python",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "step_0",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "request.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "command-output.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "step_2",
+                          "path": "output.outputs.0.bytes.base64"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "outputs": [
+                  {
+                    "mount_path": "records.json",
+                    "content_type": "application/json"
+                  }
+                ],
+                "timeout_ms": 300000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "kind": "loop",
+            "config": {
+              "source": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "step_3",
+                  "path": "output.outputs.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  },
+                  {
+                    "op": "op:core.lookup",
+                    "args": {
+                      "key": "records"
+                    }
+                  }
+                ]
+              },
+              "item_var": "record",
+              "max_iterations": 1024,
+              "parallel": false,
+              "definition_id": "action:write-motion-analysis-record-from-command-run",
+              "inputs": {
+                "record": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "loop",
+                    "path": "record"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::workflow-action::ingest-reference",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:motion-analysis.ingest-reference",
+        "kind": "action",
+        "name": "motion-analysis-ingest-reference",
+        "description": "Run a caller-supplied reference media ref through the motion perception process, translate its self-describing descriptor into reference records, and write each produced record.",
+        "input_contract": {
+          "required": [
+            "request_id",
+            "reference_clip_id",
+            "created_at",
+            "clip_ref"
+          ],
+          "optional": [
+            "salience_config",
+            "checkpoint",
+            "max_frames"
+          ],
+          "notes": "The caller supplies the reference media ref. This action stages request.json, runs perception/orchestrate.sh, runs ingest/make-reference-records-from-descriptor.py, and writes each produced record."
+        },
+        "input_schema": {
+          "required": [
+            "request_id",
+            "reference_clip_id",
+            "created_at",
+            "clip_ref"
+          ],
+          "properties": {
+            "request_id": {
+              "type": "string"
+            },
+            "reference_clip_id": {
+              "type": "string"
+            },
+            "created_at": {
+              "type": "string"
+            },
+            "clip_ref": {
+              "type": "object"
+            },
+            "salience_config": {
+              "type": "object"
+            },
+            "checkpoint": {
+              "type": "object"
+            },
+            "max_frames": {
+              "type": "number"
+            }
+          }
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "reference_clip_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::motion-analysis::reference-ingest-request::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "reference_clip_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "motion-analysis.reference-ingest-request",
+                    "requestId": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "request_id"
+                      }
+                    },
+                    "referenceClipId": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "reference_clip_id"
+                      }
+                    },
+                    "createdAt": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "created_at"
+                      }
+                    },
+                    "clipRef": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "clip_ref"
+                      }
+                    },
+                    "salienceConfig": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "salience_config"
+                      }
+                    },
+                    "checkpoint": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "checkpoint"
+                      }
+                    },
+                    "maxFrames": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "max_frames"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "kind": "read",
+            "config": {
+              "from": "package::motion-analysis::stored-bytes::perception-scripts-tar"
+            }
+          },
+          {
+            "kind": "read",
+            "config": {
+              "from": "package::motion-analysis::stored-bytes::ingest-records-script"
+            }
+          },
+          {
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "bash",
+                  "-c",
+                  "set -e; tar -xf perception.tar; : \"${MATCH_VENDOR_ROOT:?MATCH_VENDOR_ROOT must be set on the host to the provisioned perception vendor root (onnx models + static ffmpeg + sp/ wheels)}\"; export MATCH_FFMPEG=\"$MATCH_VENDOR_ROOT/ffmpeg\"; export PYTHONPATH=\"$MATCH_VENDOR_ROOT/sp:perception\"; for m in yolo11n-pose.onnx jointbdoe_coco_l.onnx clip_vitb32_visual.onnx; do ln -sf \"$MATCH_VENDOR_ROOT/$m\" \"perception/$m\"; done; exec bash perception/orchestrate.sh clip.mp4 . \"$1\" \"$2\" perception/yolo11n-pose.onnx",
+                  "--",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "reference_clip_id"
+                    }
+                  },
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "request_id"
+                    }
+                  }
+                ],
+                "cwd": ".",
+                "env": {
+                  "MATCH_PERCEPTION_BACKEND": "onnx"
+                },
+                "inputs": [
+                  {
+                    "mount_path": "perception.tar",
+                    "content_type": "application/x-tar",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "step_1",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "clip.mp4",
+                    "content_type": "video/mp4",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "clip_ref"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.lookup",
+                            "args": {
+                              "key": "hash"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "outputs": [
+                  {
+                    "mount_path": "command-output.json",
+                    "content_type": "application/json"
+                  },
+                  {
+                    "mount_path": "command-output.kp.json",
+                    "content_type": "application/json",
+                    "storage": "addressed_chunks"
+                  }
+                ],
+                "timeout_ms": 300000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "python3",
+                  "make-reference-records-from-descriptor.py",
+                  "--request-json",
+                  "request.json",
+                  "--descriptor-json",
+                  "command-output.json",
+                  "--output-json",
+                  "records.json",
+                  "--clip-cas",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "clip_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "hash"
+                        }
+                      }
+                    ]
+                  },
+                  "--kp-cas",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "step_3",
+                      "path": "output.outputs.1.integrity_hash"
+                    }
+                  }
+                ],
+                "cwd": ".",
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "make-reference-records-from-descriptor.py",
+                    "content_type": "text/x-python",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "step_2",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "request.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "command-output.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "step_3",
+                          "path": "output.outputs.0.bytes.base64"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "outputs": [
+                  {
+                    "mount_path": "records.json",
+                    "content_type": "application/json"
+                  }
+                ],
+                "timeout_ms": 300000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "kind": "loop",
+            "config": {
+              "source": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "step_4",
+                  "path": "output.outputs.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  },
+                  {
+                    "op": "op:core.lookup",
+                    "args": {
+                      "key": "records"
+                    }
+                  }
+                ]
+              },
+              "item_var": "record",
+              "max_iterations": 1024,
+              "parallel": false,
+              "definition_id": "action:write-motion-analysis-record-from-command-run",
+              "inputs": {
+                "record": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "loop",
+                    "path": "record"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::workflow-action::describe-subject",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "description": "Run a caller-supplied SUBJECT clip ref through the SAME motion perception process as ingest-reference, TORCH-FREE on the bare host (backend=onnx). The perception SCRIPTS arrive as a small mounted stored_bytes tar (perception.tar); the MODELS (3 onnx checkpoints + static ffmpeg + the numpy/onnxruntime/Pillow wheels under sp/) are NOT package bytes — they live in a host-provisioned filesystem vendor root selected by env DATA ($MATCH_VENDOR_ROOT, L089/L123: model weights are an immutable shared substrate, never per-app log/CAS bytes), mirroring ingest-reference's JOINTBDOE_VENDOR pattern. The only per-request blob is the clip. Emits the motion-clip-descriptor.v1 (command-output.json) and the keypoints (command-output.kp.json) BOTH as addressed_chunks; their integrity_hashes are the subject_descriptor_ref / subject_pose_ref that motion-comparison.run-comparison consumes. Subject leg of the live pipeline (upload->pose->describe->match->render): RETURNS the two CAS refs in its step output, writes no reference records. Fail-closed: run_perception REQUIRES rc==0 + the declared output, and MATCH_VENDOR_ROOT must be set (:? guard) — a missing vendor root / person / model / heading surfaces a hard error, never a partial descriptor. | Emits a comparison-ready record (subject refs + pass-through reference context) so a describe->match trigger can dispatch run-comparison with zero human input.",
+        "edges": [],
+        "extra": {},
+        "extra_properties": {},
+        "id": "action:motion-analysis.describe-subject",
+        "input_contract": {
+          "notes": "clip_ref = an engine-minted CAS blob_ref to the uploaded subject video ({hash:...}). request_id = the job/correlation id (label only). The onnx pose checkpoint is the mounted perception/yolo11n-pose.onnx (not user data). Result: step output.outputs.0.integrity_hash = subject_descriptor_ref, output.outputs.1.integrity_hash = subject_pose_ref.",
+          "optional": [],
+          "required": [
+            "clip_ref",
+            "request_id"
+          ]
+        },
+        "input_schema": {
+          "properties": {
+            "clip_ref": {
+              "type": "object"
+            },
+            "request_id": {
+              "type": "string"
+            },
+            "comparison_id": {
+              "type": "string"
+            },
+            "source_clip_id": {
+              "type": "string"
+            },
+            "reference_clip_id": {
+              "type": "string"
+            },
+            "reference_index_ref": {
+              "type": "object",
+              "properties": {
+                "hash": {
+                  "type": "string"
+                }
+              }
+            },
+            "created_at": {
+              "type": "string"
+            },
+            "minimum_confidence": {
+              "type": "number"
+            },
+            "comparison_spec": {
+              "type": "object"
+            },
+            "salience_config": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "clip_ref",
+            "request_id"
+          ]
+        },
+        "is_active": true,
+        "kind": "action",
+        "name": "motion-analysis-describe-subject",
+        "steps": [
+          {
+            "config": {
+              "from": "package::motion-analysis::stored-bytes::perception-scripts-tar"
+            },
+            "kind": "read"
+          },
+          {
+            "config": {
+              "input": {
+                "argv": [
+                  "bash",
+                  "-c",
+                  "set -e; tar -xf perception.tar; : \"${MATCH_VENDOR_ROOT:?MATCH_VENDOR_ROOT must be set on the host to the provisioned perception vendor root (onnx models + static ffmpeg + sp/ wheels)}\"; export MATCH_FFMPEG=\"$MATCH_VENDOR_ROOT/ffmpeg\"; export PYTHONPATH=\"$MATCH_VENDOR_ROOT/sp:perception\"; for m in yolo11n-pose.onnx jointbdoe_coco_l.onnx clip_vitb32_visual.onnx; do ln -sf \"$MATCH_VENDOR_ROOT/$m\" \"perception/$m\"; done; exec bash perception/orchestrate.sh clip.mp4 . subject \"$REQUEST_ID\" perception/yolo11n-pose.onnx"
+                ],
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "cwd": ".",
+                "env": {
+                  "MATCH_PERCEPTION_BACKEND": "onnx",
+                  "REQUEST_ID": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "request_id"
+                    }
+                  }
+                },
+                "inputs": [
+                  {
+                    "content_type": "application/x-tar",
+                    "mount_path": "perception.tar",
+                    "source": {
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "step_0",
+                          "path": "output.content_hash"
+                        }
+                      },
+                      "kind": "blob_ref"
+                    }
+                  },
+                  {
+                    "content_type": "video/mp4",
+                    "mount_path": "clip.mp4",
+                    "source": {
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "clip_ref"
+                        },
+                        "transform": [
+                          {
+                            "args": {
+                              "key": "hash"
+                            },
+                            "op": "op:core.lookup"
+                          }
+                        ]
+                      },
+                      "kind": "blob_ref"
+                    }
+                  }
+                ],
+                "outputs": [
+                  {
+                    "content_type": "application/json",
+                    "mount_path": "command-output.json",
+                    "storage": "addressed_chunks"
+                  },
+                  {
+                    "content_type": "application/json",
+                    "mount_path": "command-output.kp.json",
+                    "storage": "addressed_chunks"
+                  }
+                ],
+                "timeout_ms": 600000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "collected_files": []
+              },
+              "name": "compute.process"
+            },
+            "kind": "ask"
+          },
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "request_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::motion-analysis::comparison-ready::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "request_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "address_mode": "identity_text",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "motion-comparison-ready",
+                    "requestId": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "request_id"
+                      }
+                    },
+                    "comparisonId": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "comparison_id"
+                      }
+                    },
+                    "sourceClipId": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "source_clip_id"
+                      }
+                    },
+                    "referenceClipId": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "reference_clip_id"
+                      }
+                    },
+                    "referenceIndexRef": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "reference_index_ref"
+                      }
+                    },
+                    "createdAt": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "created_at"
+                      }
+                    },
+                    "minimumConfidence": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "minimum_confidence"
+                      }
+                    },
+                    "comparisonSpec": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "comparison_spec"
+                      }
+                    },
+                    "salienceConfig": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "salience_config"
+                      }
+                    },
+                    "subjectClipRef": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "clip_ref"
+                      }
+                    },
+                    "subjectDescriptorRef": {
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "step_1",
+                          "path": "output.outputs.0.integrity_hash"
+                        }
+                      }
+                    },
+                    "subjectPoseRef": {
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "step_1",
+                          "path": "output.outputs.1.integrity_hash"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "trigger_source": "",
+        "trigger_type": "manual",
+        "version": 1
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::public-source::read-data",
+      "path": [
+        "packages",
+        "motion-analysis",
+        "public-sources",
+        "read-data"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "read-data"
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "perception-scripts-tar",
+      "build": {
+        "sequence": {
+          "inputs": [],
+          "input_trees": [],
+          "steps": [
+            {
+              "name": "archive",
+              "process": {
+                "argv": [
+                  "tar",
+                  "--exclude=*/__pycache__",
+                  "--exclude=*.pyc",
+                  "--exclude=*.pt",
+                  "--exclude=*.pth",
+                  "--exclude=*.pth.tar",
+                  "--exclude=*.onnx",
+                  "-cf",
+                  ".bitfield-build-output",
+                  "perception"
+                ],
+                "cwd": "do-work/process-scripts",
+                "timeout_ms": 300000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": ".bitfield-build-output"
+                  }
+                ],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              },
+              "workspace_bindings": {
+                "environment": [],
+                "arguments": []
+              },
+              "predecessor_outputs": []
+            }
+          ]
+        },
+        "output": {
+          "step": "archive",
+          "mount_path": ".bitfield-build-output"
+        }
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "ingest-records-script",
+      "source_path": "do-work/process-scripts/ingest/make-reference-records-from-descriptor.py"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "index-scripts-tar",
+      "build": {
+        "sequence": {
+          "inputs": [],
+          "input_trees": [],
+          "steps": [
+            {
+              "name": "archive",
+              "process": {
+                "argv": [
+                  "tar",
+                  "--exclude=*/__pycache__",
+                  "--exclude=*.pyc",
+                  "-cf",
+                  ".bitfield-build-output",
+                  "ingest"
+                ],
+                "cwd": "do-work/process-scripts",
+                "timeout_ms": 300000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": ".bitfield-build-output"
+                  }
+                ],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              },
+              "workspace_bindings": {
+                "environment": [],
+                "arguments": []
+              },
+              "predecessor_outputs": []
+            }
+          ]
+        },
+        "output": {
+          "step": "archive",
+          "mount_path": ".bitfield-build-output"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::workflow-action::materialize-index",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:motion-analysis.materialize-index",
+        "kind": "action",
+        "name": "motion-analysis-materialize-index",
+        "description": "Build a matcher-readable reference index (index.tar in engine CAS) from a motion-reference-clip record set, for ANY number of references. Mount records.json + the N records' keypoint blobs DIRECTLY (each kp_cas is a record-pinned, cross-workflow-readable CAS blob), copy them into staged/0.kp.json..(N-1).kp.json in records order, place each record's kp at the materializer's key path, materialize the index dir (fail-closed kp verify), and tar it. The output index.tar integrity_hash is the reference_index_ref motion-comparison.run-comparison mounts. PER-RECORD DIRECT MOUNT (not a pre-built kp_bundle tar): a workflow's addressed_chunks OUTPUT only becomes cross-workflow-readable after a CAS snapshot, so a transient intermediate kp_bundle blob is NOT reliably readable by the next dispatch; but each kp_cas blob is referenced by a committed reference-clip record and is therefore immediately readable. N = the count of static kp mounts below = reference-set DATA (re-author the mounts list to change the default reference set; the engine has no dynamic-N-mount primitive). A single reference is just a 1-mount case (extra kp_refs absent → fail-closed).",
+        "input_contract": {
+          "required": [
+            "records_ref",
+            "kp_refs"
+          ],
+          "optional": [],
+          "notes": "records_ref = a CAS blob_ref to the motion-reference-clip records ({records:[...]} or a records array). kp_refs = an ORDERED array of CAS blob_refs ([{hash},...]) to the N records' keypoint blobs (each = a reference-clip record's kp_cas = the addressed_chunks integrity_hash from ingest-reference perception), in the SAME order as the records array. Mounted directly at <i>.kp.json. All are engine-minted, record-pinned CAS addresses."
+        },
+        "input_schema": {
+          "required": [
+            "records_ref",
+            "kp_refs"
+          ],
+          "properties": {
+            "records_ref": {
+              "type": "object"
+            },
+            "kp_refs": {
+              "type": "array"
+            }
+          }
+        },
+        "steps": [
+          {
+            "kind": "read",
+            "config": {
+              "from": "package::motion-analysis::stored-bytes::index-scripts-tar"
+            }
+          },
+          {
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "bash",
+                  "-c",
+                  "set -e; tar -xf scripts.tar; : \"${MATCH_VENDOR_ROOT:?MATCH_VENDOR_ROOT must be set on the host to the provisioned vendor root (sp/ wheels: numpy/scipy/scikit-learn)}\"; export PYTHONPATH=\"$MATCH_VENDOR_ROOT/sp\"; mkdir -p staged index; cp [0-9]*.kp.json staged/; python3 ingest/place-engine-staged-kp.py --records-json records.json --staged-dir staged --out-dir index; python3 ingest/build-index-artifact.py --records-json records.json --engine-staged --index-dir index --out-tar index.tar"
+                ],
+                "cwd": ".",
+                "inputs": [
+                  {
+                    "mount_path": "scripts.tar",
+                    "content_type": "application/x-tar",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "step_0",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "records.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "records_ref.hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "0.kp.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "kp_refs.0.hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "1.kp.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "kp_refs.1.hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "2.kp.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "kp_refs.2.hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "3.kp.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "kp_refs.3.hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "outputs": [
+                  {
+                    "mount_path": "index.tar",
+                    "content_type": "application/x-tar",
+                    "storage": "addressed_chunks"
+                  }
+                ],
+                "timeout_ms": 300000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": "package::motion-analysis::reference-index-commit-marker",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "motion-reference-index-commit-marker",
+                    "index_ref_hash": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "step_1",
+                        "path": "output.outputs.0.integrity_hash"
+                      }
+                    },
+                    "index_byte_len": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "step_1",
+                        "path": "output.outputs.0.byte_len"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::workflow-action::publish-reference-index",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:motion-analysis.publish-reference-index",
+        "kind": "action",
+        "name": "motion-analysis-publish-reference-index",
+        "description": "Publish a DISCOVERABLE motion-reference-index record for an already-built index.tar so a live consumer can FIND the index's CAS hash instead of being handed it. Runs ingest/make-reference-index-record.py over the mounted reference-clip records + the dispatch input and writes the produced motion-reference-index record by its own address. A consumer reads that record, takes index_ref_hash, and dispatches motion-comparison.run-comparison. The whole dispatch input is mounted as request.json and read via --input-json, so an ABSENT optional (index_id/comparison_spec_ref/index_byte_len) never becomes a null-bound argv slot (FE_CODEC_ERROR).",
+        "input_contract": {
+          "required": [
+            "index_ref_hash",
+            "records_ref",
+            "created_at"
+          ],
+          "optional": [
+            "index_id",
+            "comparison_spec_ref",
+            "index_byte_len"
+          ],
+          "notes": "index_ref_hash = the index.tar CAS multihash (run-comparison's reference_index_ref.hash). records_ref = a CAS blob_ref ({hash}) to the motion-reference-clip records ({records:[...]} or [...]) the index was built from. The whole dispatch input is mounted as request.json and read via --input-json; the scalar fields are NOT bound into separate argv slots."
+        },
+        "input_schema": {
+          "required": [
+            "index_ref_hash",
+            "records_ref",
+            "created_at"
+          ],
+          "properties": {
+            "index_ref_hash": {
+              "type": "string"
+            },
+            "records_ref": {
+              "type": "object"
+            },
+            "created_at": {
+              "type": "string"
+            },
+            "index_id": {
+              "type": "string"
+            },
+            "comparison_spec_ref": {
+              "type": "string"
+            },
+            "index_byte_len": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "kind": "read",
+            "config": {
+              "from": "package::motion-analysis::stored-bytes::index-scripts-tar"
+            }
+          },
+          {
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "bash",
+                  "-c",
+                  "set -e; tar -xf scripts.tar; python3 ingest/make-reference-index-record.py --input-json request.json --reference-records-json records.json --output-json out.json"
+                ],
+                "cwd": ".",
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "scripts.tar",
+                    "content_type": "application/x-tar",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "step_0",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "records.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "records_ref.hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "request.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "outputs": [
+                  {
+                    "mount_path": "out.json",
+                    "content_type": "application/json"
+                  }
+                ],
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "kind": "loop",
+            "config": {
+              "source": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "step_1",
+                  "path": "output.outputs.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  },
+                  {
+                    "op": "op:core.lookup",
+                    "args": {
+                      "key": "records"
+                    }
+                  }
+                ]
+              },
+              "item_var": "record",
+              "max_iterations": 16,
+              "parallel": false,
+              "definition_id": "action:write-motion-analysis-record-from-command-run",
+              "inputs": {
+                "record": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "loop",
+                    "path": "record"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::entry::track-my-match",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "motion-analysis",
+        "entries",
+        "track-my-match"
+      ],
+      "payload": {
+        "entry_name": "track-my-match",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-capture-and-analyze.tsx",
+        "dynamic_read_selector_policy": "declared-provider-input-membership",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-track-my-match"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::input::package-entry-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "package-entry-by-address-label",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "bytes"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::input::tracker-descriptor",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "tracker-descriptor",
+        "value_address_label": "package::motion-analysis::tracker-descriptor::court-ball-point-v1",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "is_default": true,
+        "label": "Match capture"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::input::match-stats-view",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "match-stats-view",
+        "value_address_label": "package::motion-analysis::match-stats-view::tennis",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::input::record-by-address",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "record-by-address",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "address"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::trigger-rule::describe-on-comparison-request",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "id": "trigger:motion-analysis:describe-on-comparison-request",
+        "topic": "data_state",
+        "trigger_type": "delta",
+        "is_active": true,
+        "_activation": "is_active IS the front-door switch — a comparison-request write auto-starts the whole pipeline (describe-subject -> comparison-ready -> [match] -> result -> [render] -> render), zero code. Fail-closed: fires only when the subject clipRef is a real CAS hash.",
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "args": {
+                    "value": "comparison-request"
+                  },
+                  "op": "op:core.equals"
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "is_retraction"
+              },
+              "transform": [
+                {
+                  "args": {
+                    "value": false
+                  },
+                  "op": "op:core.equals"
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "clipRef.hash"
+              },
+              "transform": [
+                {
+                  "op": "op:core.starts_with",
+                  "args": {
+                    "prefix": "1f:"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "output_template": {
+            "definition_id": "action:motion-analysis.describe-and-compare",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "clip_ref": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "clipRef"
+                }
+              },
+              "request_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "requestId"
+                }
+              },
+              "comparison_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "comparisonId"
+                }
+              },
+              "source_clip_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "sourceClipId"
+                }
+              },
+              "reference_clip_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "referenceClipId"
+                }
+              },
+              "reference_index_ref": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "referenceIndexRef"
+                }
+              },
+              "created_at": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "createdAt"
+                }
+              },
+              "minimum_confidence": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "minimumConfidence"
+                }
+              },
+              "comparison_spec": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "comparisonSpec"
+                }
+              },
+              "salience_config": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "salienceConfig"
+                }
+              }
+            },
+            "operation": "execute_definition"
+          },
+          "target": "slot::workflow"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::process-descriptor-config::pose-rtmw",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "process-descriptor-config",
+        "id": "process-descriptor:motion-analysis.pose-rtmw",
+        "model": "run_perception (YOLO11x-pose / JointBDOE body-orientation, COCO-17) — motion-clip-descriptor.v1",
+        "process_descriptor": {
+          "argv": [
+            "python3",
+            "packages/motion-analysis/do-work/process-scripts/perception/run_perception.py",
+            "--clip",
+            "clip.mp4",
+            "--out",
+            "command-output.json",
+            "--max-frames",
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "max_frames"
+              }
+            }
+          ],
+          "cwd": ".",
+          "env": {},
+          "inputs": [
+            {
+              "mount_path": "clip.mp4",
+              "content_type": "video/mp4",
+              "source": {
+                "kind": "blob_ref",
+                "hash": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "clip_ref.content_hash"
+                  }
+                }
+              }
+            }
+          ],
+          "outputs": [
+            {
+              "mount_path": "command-output.json",
+              "content_type": "application/json"
+            }
+          ],
+          "timeout_ms": 300000,
+          "termination_grace_ms": 1000,
+          "expected_termination": null,
+          "containment": {
+            "kind": "descendant_effect_contained",
+            "pipe_eof_timeout_ms": 1000,
+            "publications": []
+          },
+          "capture_fds": [
+            1,
+            2
+          ],
+          "collected_files": []
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::process-descriptor-config::ball-court",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "process-descriptor-config",
+        "id": "process-descriptor:motion-analysis.ball-court",
+        "model": "emit_match_facts (CV08 — court_detection + WASB-SBDT ball + bounce/line-call/rally/speed, MATCH_VENDOR_ROOT onnx)",
+        "process_descriptor": {
+          "argv": [
+            "python3",
+            "packages/motion-analysis/do-work/process-scripts/match/emit_match_facts.py",
+            "clip.mp4",
+            "command-output.json",
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "request_id"
+              }
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "max_frames"
+              }
+            }
+          ],
+          "cwd": ".",
+          "env": {
+            "MATCH_PERCEPTION_BACKEND": "onnx",
+            "MATCH_FORWARD": "onnx"
+          },
+          "inputs": [
+            {
+              "mount_path": "clip.mp4",
+              "content_type": "video/mp4",
+              "source": {
+                "kind": "blob_ref",
+                "hash": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "clip_ref.content_hash"
+                  }
+                }
+              }
+            }
+          ],
+          "outputs": [
+            {
+              "mount_path": "command-output.json",
+              "content_type": "application/json"
+            }
+          ],
+          "timeout_ms": 300000,
+          "termination_grace_ms": 1000,
+          "expected_termination": null,
+          "containment": {
+            "kind": "leaf"
+          },
+          "capture_fds": [
+            1,
+            2
+          ],
+          "collected_files": []
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::action::describe-and-compare",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "action",
+        "id": "action:motion-analysis.describe-and-compare",
+        "name": "motion-analysis-describe-and-compare",
+        "description": "Composite front-door def (ORC-83): describe (real perception) then run-comparison INLINED — direct chaining, zero trigger crossing, zero slot::workflow self-dispatch (the two engine defects from inv-012/ORC-82 cannot touch it). comparison-ready remains written as the durable projection mid-chain.",
+        "trigger_source": "",
+        "is_active": true,
+        "edges": [],
+        "input_schema": {
+          "properties": {
+            "clip_ref": {
+              "type": "object"
+            },
+            "request_id": {
+              "type": "string"
+            },
+            "comparison_id": {
+              "type": "string"
+            },
+            "source_clip_id": {
+              "type": "string"
+            },
+            "reference_clip_id": {
+              "type": "string"
+            },
+            "reference_index_ref": {
+              "type": "object",
+              "properties": {
+                "hash": {
+                  "type": "string"
+                }
+              }
+            },
+            "created_at": {
+              "type": "string"
+            },
+            "minimum_confidence": {
+              "type": "number"
+            },
+            "comparison_spec": {
+              "type": "object"
+            },
+            "salience_config": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "clip_ref",
+            "request_id"
+          ]
+        },
+        "steps": [
+          {
+            "config": {
+              "from": "package::motion-analysis::stored-bytes::perception-scripts-tar"
+            },
+            "kind": "read"
+          },
+          {
+            "config": {
+              "input": {
+                "argv": [
+                  "bash",
+                  "-c",
+                  "set -e; tar -xf perception.tar; : \"${MATCH_VENDOR_ROOT:?MATCH_VENDOR_ROOT must be set on the host to the provisioned perception vendor root (onnx models + static ffmpeg + sp/ wheels)}\"; export MATCH_FFMPEG=\"$MATCH_VENDOR_ROOT/ffmpeg\"; export PYTHONPATH=\"$MATCH_VENDOR_ROOT/sp:perception\"; for m in yolo11n-pose.onnx jointbdoe_coco_l.onnx clip_vitb32_visual.onnx; do ln -sf \"$MATCH_VENDOR_ROOT/$m\" \"perception/$m\"; done; exec bash perception/orchestrate.sh clip.mp4 . subject \"$REQUEST_ID\" perception/yolo11n-pose.onnx"
+                ],
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "cwd": ".",
+                "env": {
+                  "MATCH_PERCEPTION_BACKEND": "onnx",
+                  "REQUEST_ID": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "request_id"
+                    }
+                  }
+                },
+                "inputs": [
+                  {
+                    "content_type": "application/x-tar",
+                    "mount_path": "perception.tar",
+                    "source": {
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "step_0",
+                          "path": "output.content_hash"
+                        }
+                      },
+                      "kind": "blob_ref"
+                    }
+                  },
+                  {
+                    "content_type": "video/mp4",
+                    "mount_path": "clip.mp4",
+                    "source": {
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "clip_ref"
+                        },
+                        "transform": [
+                          {
+                            "args": {
+                              "key": "hash"
+                            },
+                            "op": "op:core.lookup"
+                          }
+                        ]
+                      },
+                      "kind": "blob_ref"
+                    }
+                  }
+                ],
+                "outputs": [
+                  {
+                    "content_type": "application/json",
+                    "mount_path": "command-output.json",
+                    "storage": "addressed_chunks"
+                  },
+                  {
+                    "content_type": "application/json",
+                    "mount_path": "command-output.kp.json",
+                    "storage": "addressed_chunks"
+                  }
+                ],
+                "timeout_ms": 600000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "collected_files": []
+              },
+              "name": "compute.process"
+            },
+            "kind": "ask"
+          },
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "request_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::motion-analysis::comparison-ready::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "request_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "address_mode": "identity_text",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "motion-comparison-ready",
+                    "requestId": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "request_id"
+                      }
+                    },
+                    "comparisonId": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "comparison_id"
+                      }
+                    },
+                    "sourceClipId": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "source_clip_id"
+                      }
+                    },
+                    "referenceClipId": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "reference_clip_id"
+                      }
+                    },
+                    "referenceIndexRef": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "reference_index_ref"
+                      }
+                    },
+                    "createdAt": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "created_at"
+                      }
+                    },
+                    "minimumConfidence": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "minimum_confidence"
+                      }
+                    },
+                    "comparisonSpec": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "comparison_spec"
+                      }
+                    },
+                    "salienceConfig": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "salience_config"
+                      }
+                    },
+                    "subjectClipRef": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "clip_ref"
+                      }
+                    },
+                    "subjectDescriptorRef": {
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "step_1",
+                          "path": "output.outputs.0.integrity_hash"
+                        }
+                      }
+                    },
+                    "subjectPoseRef": {
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "step_1",
+                          "path": "output.outputs.1.integrity_hash"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "comparison_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::motion-comparison::request::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "comparison_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "motion-comparison-request",
+                    "requestId": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "request_id"
+                      }
+                    },
+                    "comparisonId": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "comparison_id"
+                      }
+                    },
+                    "sourceClipId": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "source_clip_id"
+                      }
+                    },
+                    "referenceClipId": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "reference_clip_id"
+                      }
+                    },
+                    "createdAt": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "created_at"
+                      }
+                    },
+                    "subjectDescriptorRef": {
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "step_1",
+                          "path": "output.outputs.0.integrity_hash"
+                        }
+                      }
+                    },
+                    "subjectPoseRef": {
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "step_1",
+                          "path": "output.outputs.1.integrity_hash"
+                        }
+                      }
+                    },
+                    "subjectClipRef": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "clip_ref"
+                      }
+                    },
+                    "referenceIndexRef": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "reference_index_ref"
+                      }
+                    },
+                    "minimumConfidence": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "minimum_confidence"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "kind": "read",
+            "config": {
+              "from": "package::motion-comparison::stored-bytes::match-scripts-tar"
+            }
+          },
+          {
+            "kind": "read",
+            "config": {
+              "from": "package::motion-comparison::stored-bytes::make-records-script"
+            }
+          },
+          {
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "bash",
+                  "-c",
+                  "set -e; tar -xf match.tar; : \"${MATCH_VENDOR_ROOT:?MATCH_VENDOR_ROOT must be set on the host to the provisioned vendor root containing sp/ wheels (numpy/onnxruntime/PIL) — same root the describe-subject perception step asserts}\"; export PYTHONPATH=\"$MATCH_VENDOR_ROOT/sp:match\"; exec bash match/orchestrate.sh \"$@\"",
+                  "--",
+                  "--subject-desc",
+                  "subject.desc.json",
+                  "--subject-kp",
+                  "subject.kp.json",
+                  "--index",
+                  "index.tar",
+                  "--out",
+                  ".",
+                  "--salience-config",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "salience_config"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      },
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  },
+                  "--comparison-spec",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "comparison_spec"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      },
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "cwd": ".",
+                "env": {
+                  "PYTHONPATH": "match"
+                },
+                "inputs": [
+                  {
+                    "mount_path": "match.tar",
+                    "content_type": "application/x-tar",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "step_4",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "index.tar",
+                    "content_type": "application/x-tar",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "reference_index_ref.hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "subject.desc.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "step_1",
+                          "path": "output.outputs.0.integrity_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "subject.kp.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "step_1",
+                          "path": "output.outputs.1.integrity_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "outputs": [
+                  {
+                    "mount_path": "command-output.json",
+                    "content_type": "application/json"
+                  }
+                ],
+                "timeout_ms": 300000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "python3",
+                  "make-motion-comparison-records-from-match-output.py",
+                  "--request-json",
+                  "request.json",
+                  "--command-output-json",
+                  "command-output.json",
+                  "--output-json",
+                  "records.json"
+                ],
+                "cwd": ".",
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "make-motion-comparison-records-from-match-output.py",
+                    "content_type": "text/x-python",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "step_5",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "request.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "command-output.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "step_6",
+                          "path": "output.outputs.0.bytes.base64"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "outputs": [
+                  {
+                    "mount_path": "records.json",
+                    "content_type": "application/json"
+                  }
+                ],
+                "timeout_ms": 300000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "kind": "loop",
+            "config": {
+              "source": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "step_7",
+                  "path": "output.outputs.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  },
+                  {
+                    "op": "op:core.lookup",
+                    "args": {
+                      "key": "records"
+                    }
+                  }
+                ]
+              },
+              "item_var": "record",
+              "max_iterations": 1024,
+              "parallel": false,
+              "definition_id": "action:motion-comparison.publish-result",
+              "inputs": {
+                "comparison_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "comparison_id"
+                  }
+                },
+                "result_record": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "loop",
+                    "path": "record"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::process-descriptor-config::reel-vision-ball-track",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "process-descriptor-config",
+        "id": "process-descriptor:motion-analysis.reel.vision.ball.track",
+        "model": "TrackNetV4 (arXiv:2409.14543, motion-attention fusion over TrackNetV2/V3 U-Net) — fail-closed; falls back to live ball-court WASB-SBDT descriptor",
+        "process_descriptor": {
+          "argv": [
+            "python3",
+            "packages/motion-analysis/do-work/process-scripts/reel/track_ball.py",
+            "--clip",
+            "clip.mp4",
+            "--out",
+            "command-output.json"
+          ],
+          "cwd": ".",
+          "env": {},
+          "inputs": [
+            {
+              "mount_path": "clip.mp4",
+              "content_type": "video/mp4",
+              "source": {
+                "kind": "blob_ref",
+                "hash": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "clip_ref.content_hash"
+                  }
+                }
+              }
+            }
+          ],
+          "outputs": [
+            {
+              "mount_path": "command-output.json",
+              "content_type": "application/json"
+            }
+          ],
+          "timeout_ms": 300000,
+          "termination_grace_ms": 1000,
+          "expected_termination": null,
+          "containment": {
+            "kind": "leaf"
+          },
+          "capture_fds": [
+            1,
+            2
+          ],
+          "collected_files": []
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::process-descriptor-config::reel-pose-2d",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "process-descriptor-config",
+        "id": "process-descriptor:motion-analysis.reel.pose.2d",
+        "model": "DATA-selected per render tier (pose_model_strategy): mobile->MediaPipe/BlazePose, gold->HRNet-W48, fast-batch->RTMPose-x/YOLO26-pose. Default reuses live run_perception (YOLO11x-pose, COCO-17).",
+        "pose_model_strategy": {
+          "mobile": {
+            "model": "MediaPipe/BlazePose",
+            "why": "~30fps on Pixel-class CPU, no server round-trip"
+          },
+          "gold": {
+            "model": "HRNet-W48",
+            "why": "75.5-77.0 AP, no keypoint jitter for permanent side-by-side"
+          },
+          "fast_batch": {
+            "model": "RTMPose-x | YOLO26-pose",
+            "why": "real-time GPU throughput at reel volume"
+          },
+          "default": {
+            "model": "YOLO11x-pose (installed)",
+            "argv_ref": "perception/run_perception.py"
+          }
+        },
+        "process_descriptor": {
+          "argv": [
+            "python3",
+            "packages/motion-analysis/do-work/process-scripts/perception/run_perception.py",
+            "--clip",
+            "clip.mp4",
+            "--out",
+            "command-output.json",
+            "--kp",
+            "command-output.kp.json",
+            "--max-frames",
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "max_frames"
+              }
+            }
+          ],
+          "cwd": ".",
+          "env": {},
+          "inputs": [
+            {
+              "mount_path": "clip.mp4",
+              "content_type": "video/mp4",
+              "source": {
+                "kind": "blob_ref",
+                "hash": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "clip_ref.content_hash"
+                  }
+                }
+              }
+            }
+          ],
+          "outputs": [
+            {
+              "mount_path": "command-output.json",
+              "content_type": "application/json"
+            },
+            {
+              "mount_path": "command-output.kp.json",
+              "content_type": "application/json"
+            }
+          ],
+          "timeout_ms": 300000,
+          "termination_grace_ms": 1000,
+          "expected_termination": null,
+          "containment": {
+            "kind": "descendant_effect_contained",
+            "pipe_eof_timeout_ms": 1000,
+            "publications": []
+          },
+          "capture_fds": [
+            1,
+            2
+          ],
+          "collected_files": []
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::process-descriptor-config::reel-align-dtw",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "process-descriptor-config",
+        "id": "process-descriptor:motion-analysis.reel.align.dtw",
+        "model": "soft-DTW (tslearn/dtaidistance-equivalent, zero-dep numpy impl) over hip-centered torso-scaled COCO-17 features",
+        "process_descriptor": {
+          "argv": [
+            "python3",
+            "packages/motion-analysis/do-work/process-scripts/reel/align_dtw.py",
+            "--student",
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "student_kp_path"
+              }
+            },
+            "--reference",
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "reference_pose_track_path"
+              }
+            },
+            "--out",
+            "command-output.json",
+            "--gamma",
+            "0.1"
+          ],
+          "cwd": ".",
+          "env": {},
+          "inputs": [
+            {
+              "mount_path": "student.kp.json",
+              "content_type": "application/json",
+              "source": {
+                "kind": "blob_ref",
+                "hash": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "student_kp_ref.content_hash"
+                  }
+                }
+              }
+            },
+            {
+              "mount_path": "reference.kp.json",
+              "content_type": "application/json",
+              "source": {
+                "kind": "blob_ref",
+                "hash": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "reference_pose_track_ref.content_hash"
+                  }
+                }
+              }
+            }
+          ],
+          "outputs": [
+            {
+              "mount_path": "command-output.json",
+              "content_type": "application/json"
+            }
+          ],
+          "timeout_ms": 300000,
+          "termination_grace_ms": 1000,
+          "expected_termination": null,
+          "containment": {
+            "kind": "leaf"
+          },
+          "capture_fds": [
+            1,
+            2
+          ],
+          "collected_files": []
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::process-descriptor-config::reel-render-skeleton-overlay",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "process-descriptor-config",
+        "id": "process-descriptor:motion-analysis.reel.render.skeleton_overlay",
+        "model": "deterministic renderer (opencv skeleton draw + ffmpeg libx264 compositing) — not a learned model",
+        "process_descriptor": {
+          "argv": [
+            "python3",
+            "packages/motion-analysis/do-work/process-scripts/reel/render_side_by_side.py",
+            "--student-clip",
+            "student.mp4",
+            "--reference-clip",
+            "reference.mp4",
+            "--student-kp",
+            "student.kp.json",
+            "--reference-kp",
+            "reference.kp.json",
+            "--alignment",
+            "alignment.json",
+            "--out",
+            "command-output.mp4"
+          ],
+          "cwd": ".",
+          "env": {},
+          "inputs": [
+            {
+              "mount_path": "student.mp4",
+              "content_type": "video/mp4",
+              "source": {
+                "kind": "blob_ref",
+                "hash": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "student_clip_ref.content_hash"
+                  }
+                }
+              }
+            },
+            {
+              "mount_path": "reference.mp4",
+              "content_type": "video/mp4",
+              "source": {
+                "kind": "blob_ref",
+                "hash": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "reference_clip_ref.content_hash"
+                  }
+                }
+              }
+            },
+            {
+              "mount_path": "student.kp.json",
+              "content_type": "application/json",
+              "source": {
+                "kind": "blob_ref",
+                "hash": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "student_kp_ref.content_hash"
+                  }
+                }
+              }
+            },
+            {
+              "mount_path": "reference.kp.json",
+              "content_type": "application/json",
+              "source": {
+                "kind": "blob_ref",
+                "hash": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "reference_pose_track_ref.content_hash"
+                  }
+                }
+              }
+            },
+            {
+              "mount_path": "alignment.json",
+              "content_type": "application/json",
+              "source": {
+                "kind": "blob_ref",
+                "hash": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "alignment_ref.content_hash"
+                  }
+                }
+              }
+            }
+          ],
+          "outputs": [
+            {
+              "mount_path": "command-output.mp4",
+              "content_type": "video/mp4"
+            }
+          ],
+          "timeout_ms": 300000,
+          "termination_grace_ms": 1000,
+          "expected_termination": null,
+          "containment": {
+            "kind": "descendant_effect_contained",
+            "pipe_eof_timeout_ms": 1000,
+            "publications": []
+          },
+          "capture_fds": [
+            1,
+            2
+          ],
+          "collected_files": []
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::process-descriptor-config::reel-asr-transcribe-align",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "process-descriptor-config",
+        "id": "process-descriptor:motion-analysis.reel.asr.transcribe_align",
+        "model": "NVIDIA Parakeet-TDT-0.6B-v3 (transcript) -> WhisperX wav2vec2 forced-aligner (word timing). Default backend faster-whisper (installed). Output transcript_word_timed.v1 is DUAL-USE: caption source AND Facet-1 AEO/RAG citation corpus (one write, two readers).",
+        "process_descriptor": {
+          "argv": [
+            "python3",
+            "packages/motion-analysis/do-work/process-scripts/reel/asr_transcribe.py",
+            "--clip",
+            "clip.mp4",
+            "--out",
+            "command-output.json",
+            "--srt",
+            "captions.srt",
+            "--backend",
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "asr_backend"
+              }
+            },
+            "--model-size",
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "asr_model_size"
+              }
+            }
+          ],
+          "cwd": ".",
+          "env": {},
+          "inputs": [
+            {
+              "mount_path": "clip.mp4",
+              "content_type": "video/mp4",
+              "source": {
+                "kind": "blob_ref",
+                "hash": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "clip_ref.content_hash"
+                  }
+                }
+              }
+            }
+          ],
+          "outputs": [
+            {
+              "mount_path": "command-output.json",
+              "content_type": "application/json"
+            },
+            {
+              "mount_path": "captions.srt",
+              "content_type": "application/x-subrip"
+            }
+          ],
+          "timeout_ms": 300000,
+          "termination_grace_ms": 1000,
+          "expected_termination": null,
+          "containment": {
+            "kind": "leaf"
+          },
+          "capture_fds": [
+            1,
+            2
+          ],
+          "collected_files": []
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::process-descriptor-config::reel-clip-score-saliency",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "process-descriptor-config",
+        "id": "process-descriptor:motion-analysis.reel.clip.score_saliency",
+        "model": "TF-SELECTOR (training-free LLM segment-saliency) via formula-engine reduction over ball_track contact events + pose joint-velocity peaks + audio RMS + transcript. NO new perception model (R5 (c)/delta#5).",
+        "reduces_facts": [
+          "ball_track.v1",
+          "pose.keypoints.v1",
+          "audio_rms",
+          "transcript_word_timed.v1"
+        ],
+        "process_descriptor": {
+          "argv": [
+            "python3",
+            "packages/motion-analysis/do-work/process-scripts/reel/score_saliency.py",
+            "--ball",
+            "ball.json",
+            "--pose",
+            "pose.json",
+            "--transcript",
+            "transcript.json",
+            "--out",
+            "command-output.json"
+          ],
+          "cwd": ".",
+          "env": {},
+          "inputs": [
+            {
+              "mount_path": "ball.json",
+              "content_type": "application/json",
+              "source": {
+                "kind": "blob_ref",
+                "hash": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "ball_ref.content_hash"
+                  }
+                }
+              }
+            },
+            {
+              "mount_path": "pose.json",
+              "content_type": "application/json",
+              "source": {
+                "kind": "blob_ref",
+                "hash": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "pose_ref.content_hash"
+                  }
+                }
+              }
+            },
+            {
+              "mount_path": "transcript.json",
+              "content_type": "application/json",
+              "source": {
+                "kind": "blob_ref",
+                "hash": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "transcript_ref.content_hash"
+                  }
+                }
+              }
+            }
+          ],
+          "outputs": [
+            {
+              "mount_path": "command-output.json",
+              "content_type": "application/json"
+            }
+          ],
+          "timeout_ms": 120000,
+          "termination_grace_ms": 1000,
+          "expected_termination": null,
+          "containment": {
+            "kind": "leaf"
+          },
+          "capture_fds": [
+            1,
+            2
+          ],
+          "collected_files": []
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::process-descriptor-config::reel-voice-synthesize",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "process-descriptor-config",
+        "id": "process-descriptor:motion-analysis.reel.voice.synthesize",
+        "model": "Resemble Chatterbox (MIT, self-hosted, 350M, $0/render) — fail-closed if uninstalled.",
+        "voice_synthesis_backend": {
+          "default": "chatterbox",
+          "substitute_when": "target_language != source_clone_language -> MiniMax Speech (Fluent-LoRA multilingual)",
+          "scoped_out": "Cartesia Sonic-3.5 (reserved for future live-conversational agent, NOT batch reel VO)"
+        },
+        "process_descriptor": {
+          "argv": [
+            "python3",
+            "packages/motion-analysis/do-work/process-scripts/reel/voice_synthesize.py",
+            "--text-file",
+            "script.txt",
+            "--out",
+            "command-output.wav",
+            "--voice-ref",
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "coach_voice_ref_path"
+              }
+            },
+            "--exaggeration",
+            "0.5"
+          ],
+          "cwd": ".",
+          "env": {},
+          "inputs": [
+            {
+              "mount_path": "script.txt",
+              "content_type": "text/plain",
+              "source": {
+                "kind": "blob_ref",
+                "hash": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "script_ref.content_hash"
+                  }
+                }
+              }
+            }
+          ],
+          "outputs": [
+            {
+              "mount_path": "command-output.wav",
+              "content_type": "audio/wav"
+            }
+          ],
+          "timeout_ms": 300000,
+          "termination_grace_ms": 1000,
+          "expected_termination": null,
+          "containment": {
+            "kind": "leaf"
+          },
+          "capture_fds": [
+            1,
+            2
+          ],
+          "collected_files": []
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::motion-analysis::process-descriptor-config::reel-render-vertical-crop-publish",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "process-descriptor-config",
+        "id": "process-descriptor:motion-analysis.reel.render.vertical_crop_publish",
+        "model": "deterministic ffmpeg 9:16 reframe (scale+pad 1080x1920) + subtitle burn-in + VO mux. Auto-reframe (YOLOv11-seg+ByteTrack subject-lock) is the DATA-swappable smart-crop upgrade. -> dispatch to Blotato (T4) for multi-platform publish.",
+        "process_descriptor": {
+          "argv": [
+            "python3",
+            "packages/motion-analysis/do-work/process-scripts/reel/render_vertical_crop.py",
+            "--in",
+            "sxs.mp4",
+            "--out",
+            "command-output.mp4",
+            "--srt",
+            "captions.srt",
+            "--voiceover",
+            "voiceover.wav"
+          ],
+          "cwd": ".",
+          "env": {},
+          "inputs": [
+            {
+              "mount_path": "sxs.mp4",
+              "content_type": "video/mp4",
+              "source": {
+                "kind": "blob_ref",
+                "hash": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "sxs_ref.content_hash"
+                  }
+                }
+              }
+            },
+            {
+              "mount_path": "captions.srt",
+              "content_type": "application/x-subrip",
+              "source": {
+                "kind": "blob_ref",
+                "hash": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "captions_ref.content_hash"
+                  }
+                }
+              }
+            },
+            {
+              "mount_path": "voiceover.wav",
+              "content_type": "audio/wav",
+              "source": {
+                "kind": "blob_ref",
+                "hash": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "voiceover_ref.content_hash"
+                  }
+                }
+              }
+            }
+          ],
+          "outputs": [
+            {
+              "mount_path": "command-output.mp4",
+              "content_type": "video/mp4"
+            }
+          ],
+          "timeout_ms": 300000,
+          "termination_grace_ms": 1000,
+          "expected_termination": null,
+          "containment": {
+            "kind": "descendant_effect_contained",
+            "pipe_eof_timeout_ms": 1000,
+            "publications": []
+          },
+          "capture_fds": [
+            1,
+            2
+          ],
+          "collected_files": []
+        }
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-motion-analysis",
+      "source_path": "built-stored-bytes/entry-bytes-motion-analysis",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-motion-analysis.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-track-my-match",
+      "source_path": "built-stored-bytes/entry-bytes-track-my-match",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-track-my-match.source-closure.json"
+    }
+  ]
+}

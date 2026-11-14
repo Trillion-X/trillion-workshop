@@ -1,0 +1,1673 @@
+{
+  "package": "founder-growth-engine-screens",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine-screens::placeable-surface::workspace",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "placeable-surface",
+        "id": "founder-growth-engine.workspace",
+        "surface_id": "founder-growth-engine.workspace",
+        "label": "Founder Growth Engine",
+        "icon": "TrendingUp",
+        "material_target": "workspace-shell",
+        "order": 310,
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000310:founder-growth-engine.workspace",
+        "package_entry": {
+          "package_name": "screen-arrangement",
+          "entry_name": "workspace-shell"
+        },
+        "surface_input": {
+          "header": {
+            "label": "Founder Growth Engine",
+            "icon": "TrendingUp"
+          },
+          "placement_label": "founder-growth-engine-workspace",
+          "layout_state_input": "layout-state-by-address-label",
+          "persistence_address": "founder-growth-engine-workspace-layout-state",
+          "chrome": {
+            "header.actions": false,
+            "header.new-tab": false
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine-screens::placeable-surface::next-moves",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "placeable-surface",
+        "id": "founder-growth-engine.next-moves",
+        "surface_id": "founder-growth-engine.next-moves",
+        "label": "What to do next",
+        "icon": "ListChecks",
+        "material_target": "component:visual-database",
+        "order": 10,
+        "placement_labels": [
+          "founder-growth-engine-workspace"
+        ],
+        "placement_order_key": "000000010:founder-growth-engine.next-moves",
+        "package_entry": {
+          "package_name": "founder-growth-engine-screens",
+          "entry_name": "visual-database-surface"
+        },
+        "surface_input": {
+          "surfaceKind": "visual-database",
+          "feedInputName": "founder-growth-next-moves-feed",
+          "initialViewId": "founder-growth-engine.next-moves",
+          "fields": {
+            "kind": "visual-database.fields",
+            "version": 3,
+            "descriptors": [
+              {
+                "id": "id",
+                "label": "Record",
+                "role": "id",
+                "paths": [
+                  [
+                    "payload",
+                    "id"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "kind",
+                "label": "Kind",
+                "role": "kind",
+                "paths": [
+                  [
+                    "payload",
+                    "kind"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "title",
+                "label": "Title",
+                "role": "title",
+                "paths": [
+                  [
+                    "payload",
+                    "fields",
+                    "title"
+                  ],
+                  [
+                    "payload",
+                    "label"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "detail",
+                "label": "Details",
+                "role": "body",
+                "paths": [
+                  [
+                    "payload",
+                    "fields",
+                    "reason"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "rank",
+                "label": "Order",
+                "role": "sort",
+                "shape": "number",
+                "paths": [
+                  [
+                    "payload",
+                    "fields",
+                    "rank"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "status",
+                "label": "Status",
+                "role": "status",
+                "shape": "choice",
+                "paths": [
+                  [
+                    "payload",
+                    "fields",
+                    "status"
+                  ],
+                  [
+                    "payload",
+                    "status"
+                  ]
+                ],
+                "editable": false,
+                "domain": {
+                  "values": [
+                    {
+                      "order": 0,
+                      "id": "needs-you",
+                      "label": "Needs you",
+                      "tone": "warning",
+                      "attention": true
+                    },
+                    {
+                      "order": 1,
+                      "id": "ready",
+                      "label": "Ready",
+                      "tone": "success"
+                    },
+                    {
+                      "order": 2,
+                      "id": "working",
+                      "label": "In progress",
+                      "tone": "info"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "attention",
+                "label": "Attention",
+                "role": "badge",
+                "shape": "choice",
+                "paths": [
+                  [
+                    "payload",
+                    "derived",
+                    "attention"
+                  ]
+                ],
+                "write_path": [
+                  "payload",
+                  "derived",
+                  "attention"
+                ],
+                "editable": false,
+                "domain": {
+                  "values": [
+                    {
+                      "id": "attention",
+                      "label": "Needs attention",
+                      "tone": "warning",
+                      "order": 0
+                    },
+                    {
+                      "id": "normal",
+                      "label": "On track",
+                      "tone": "neutral",
+                      "order": 1
+                    }
+                  ]
+                },
+                "default_expression": {
+                  "derive": {
+                    "target": "slot::formula-engine",
+                    "evaluator_ref": "evaluator::founder-growth-attention",
+                    "request": {
+                      "classify_by_rules": {
+                        "facts": [
+                          {
+                            "key": "status",
+                            "path": [
+                              "status"
+                            ],
+                            "as": "value"
+                          }
+                        ],
+                        "rules": [
+                          {
+                            "key": "attention",
+                            "label": "Needs attention",
+                            "tone": "warning",
+                            "severity": "attention",
+                            "requires": [
+                              {
+                                "fact": "status",
+                                "op": "eq",
+                                "value": "needs-you"
+                              }
+                            ]
+                          },
+                          {
+                            "key": "normal-ready",
+                            "label": "On track",
+                            "tone": "neutral",
+                            "severity": "normal",
+                            "requires": [
+                              {
+                                "fact": "status",
+                                "op": "eq",
+                                "value": "ready"
+                              }
+                            ]
+                          },
+                          {
+                            "key": "normal-working",
+                            "label": "On track",
+                            "tone": "neutral",
+                            "severity": "normal",
+                            "requires": [
+                              {
+                                "fact": "status",
+                                "op": "eq",
+                                "value": "working"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "result_path": [
+                      "result",
+                      "severity"
+                    ],
+                    "context_from_fields": [
+                      "status"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "views": {
+            "kind": "visual-database.views",
+            "version": 3,
+            "palette": [],
+            "views": [
+              {
+                "id": "founder-growth-engine.next-moves",
+                "label": "Recommended next moves",
+                "kind": "table",
+                "order": 0,
+                "filters": [],
+                "columns": {
+                  "order": [
+                    "rank",
+                    "title",
+                    "status",
+                    "detail",
+                    "attention",
+                    "kind",
+                    "id"
+                  ],
+                  "hidden": [
+                    "attention",
+                    "kind",
+                    "id"
+                  ],
+                  "widths": {
+                    "title": 360,
+                    "detail": 520,
+                    "status": 160,
+                    "rank": 90
+                  }
+                },
+                "projectionRules": []
+              }
+            ]
+          },
+          "evaluatorDescriptors": {
+            "version": 2,
+            "descriptors": [
+              {
+                "ref": "evaluator::founder-growth-attention",
+                "revision": "1",
+                "label": "Founder growth attention",
+                "target": "slot::formula-engine",
+                "context_path": [
+                  "classify_by_rules",
+                  "record"
+                ]
+              }
+            ]
+          },
+          "openRows": {
+            "intentPath": [
+              "payload",
+              "fields",
+              "surface_intent"
+            ],
+            "allowList": [
+              {
+                "packageEntry": {
+                  "packageName": "screen-arrangement",
+                  "entryName": "workspace-shell"
+                }
+              },
+              {
+                "packageEntry": {
+                  "packageName": "publish-composer",
+                  "entryName": "publish-composer"
+                }
+              },
+              {
+                "packageEntry": {
+                  "packageName": "service-connections-settings",
+                  "entryName": "service-connections-settings"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine-screens::placeable-surface::operator-actions",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "placeable-surface",
+        "id": "founder-growth-engine.operator-actions",
+        "surface_id": "founder-growth-engine.operator-actions",
+        "label": "What your operator is doing",
+        "icon": "ListChecks",
+        "material_target": "component:visual-database",
+        "order": 20,
+        "placement_labels": [
+          "founder-growth-engine-workspace"
+        ],
+        "placement_order_key": "000000020:founder-growth-engine.operator-actions",
+        "package_entry": {
+          "package_name": "founder-growth-engine-screens",
+          "entry_name": "visual-database-surface"
+        },
+        "surface_input": {
+          "surfaceKind": "visual-database",
+          "feedInputName": "founder-growth-operator-activity-feed",
+          "initialViewId": "founder-growth-engine.operator-actions",
+          "fields": {
+            "kind": "visual-database.fields",
+            "version": 3,
+            "descriptors": [
+              {
+                "id": "id",
+                "label": "Record",
+                "role": "id",
+                "paths": [
+                  [
+                    "payload",
+                    "id"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "kind",
+                "label": "Kind",
+                "role": "kind",
+                "paths": [
+                  [
+                    "payload",
+                    "kind"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "title",
+                "label": "Title",
+                "role": "title",
+                "paths": [
+                  [
+                    "payload",
+                    "fields",
+                    "capability"
+                  ],
+                  [
+                    "payload",
+                    "label"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "detail",
+                "label": "Details",
+                "role": "body",
+                "paths": [
+                  [
+                    "payload",
+                    "fields",
+                    "artifact"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "status",
+                "label": "Status",
+                "role": "status",
+                "shape": "choice",
+                "paths": [
+                  [
+                    "payload",
+                    "fields",
+                    "dispatch_status"
+                  ],
+                  [
+                    "payload",
+                    "fields",
+                    "status"
+                  ],
+                  [
+                    "payload",
+                    "status"
+                  ]
+                ],
+                "editable": false,
+                "domain": {
+                  "values": [
+                    {
+                      "order": 0,
+                      "id": "pending",
+                      "label": "Working on it",
+                      "tone": "info"
+                    },
+                    {
+                      "order": 1,
+                      "id": "drafted",
+                      "label": "Drafted",
+                      "tone": "info"
+                    },
+                    {
+                      "order": 2,
+                      "id": "draft-dispatched",
+                      "label": "Drafted — ready for you",
+                      "tone": "info"
+                    },
+                    {
+                      "order": 3,
+                      "id": "draft-only-final",
+                      "label": "Needs your approval",
+                      "tone": "warning",
+                      "attention": true
+                    },
+                    {
+                      "order": 4,
+                      "id": "live-sent",
+                      "label": "Sent",
+                      "tone": "success"
+                    },
+                    {
+                      "order": 5,
+                      "id": "dispatch-retry",
+                      "label": "Retrying",
+                      "tone": "warning"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "attention",
+                "label": "Attention",
+                "role": "badge",
+                "shape": "choice",
+                "paths": [
+                  [
+                    "payload",
+                    "derived",
+                    "attention"
+                  ]
+                ],
+                "write_path": [
+                  "payload",
+                  "derived",
+                  "attention"
+                ],
+                "editable": false,
+                "domain": {
+                  "values": [
+                    {
+                      "id": "attention",
+                      "label": "Needs attention",
+                      "tone": "warning",
+                      "order": 0
+                    },
+                    {
+                      "id": "normal",
+                      "label": "On track",
+                      "tone": "neutral",
+                      "order": 1
+                    }
+                  ]
+                },
+                "default_expression": {
+                  "derive": {
+                    "target": "slot::formula-engine",
+                    "evaluator_ref": "evaluator::founder-growth-attention",
+                    "request": {
+                      "classify_by_rules": {
+                        "facts": [
+                          {
+                            "key": "status",
+                            "path": [
+                              "status"
+                            ],
+                            "as": "value"
+                          }
+                        ],
+                        "rules": [
+                          {
+                            "key": "attention",
+                            "label": "Needs attention",
+                            "tone": "warning",
+                            "severity": "attention",
+                            "requires": [
+                              {
+                                "fact": "status",
+                                "op": "eq",
+                                "value": "draft-only-final"
+                              }
+                            ]
+                          },
+                          {
+                            "key": "normal-pending",
+                            "label": "On track",
+                            "tone": "neutral",
+                            "severity": "normal",
+                            "requires": [
+                              {
+                                "fact": "status",
+                                "op": "eq",
+                                "value": "pending"
+                              }
+                            ]
+                          },
+                          {
+                            "key": "normal-drafted",
+                            "label": "On track",
+                            "tone": "neutral",
+                            "severity": "normal",
+                            "requires": [
+                              {
+                                "fact": "status",
+                                "op": "eq",
+                                "value": "drafted"
+                              }
+                            ]
+                          },
+                          {
+                            "key": "normal-draft-dispatched",
+                            "label": "On track",
+                            "tone": "neutral",
+                            "severity": "normal",
+                            "requires": [
+                              {
+                                "fact": "status",
+                                "op": "eq",
+                                "value": "draft-dispatched"
+                              }
+                            ]
+                          },
+                          {
+                            "key": "normal-live-sent",
+                            "label": "On track",
+                            "tone": "neutral",
+                            "severity": "normal",
+                            "requires": [
+                              {
+                                "fact": "status",
+                                "op": "eq",
+                                "value": "live-sent"
+                              }
+                            ]
+                          },
+                          {
+                            "key": "normal-dispatch-retry",
+                            "label": "On track",
+                            "tone": "neutral",
+                            "severity": "normal",
+                            "requires": [
+                              {
+                                "fact": "status",
+                                "op": "eq",
+                                "value": "dispatch-retry"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "result_path": [
+                      "result",
+                      "severity"
+                    ],
+                    "context_from_fields": [
+                      "status"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "views": {
+            "kind": "visual-database.views",
+            "version": 3,
+            "palette": [],
+            "views": [
+              {
+                "id": "founder-growth-engine.operator-actions",
+                "label": "What your operator is doing",
+                "kind": "board",
+                "order": 0,
+                "filters": [],
+                "projectionRules": [
+                  {
+                    "id": "group-by-status",
+                    "operation": "view-group",
+                    "sourceFieldId": "status",
+                    "order": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "evaluatorDescriptors": {
+            "version": 2,
+            "descriptors": [
+              {
+                "ref": "evaluator::founder-growth-attention",
+                "revision": "1",
+                "label": "Founder growth attention",
+                "target": "slot::formula-engine",
+                "context_path": [
+                  "classify_by_rules",
+                  "record"
+                ]
+              }
+            ]
+          },
+          "openRows": {
+            "intentPath": [
+              "payload",
+              "fields",
+              "surface_intent"
+            ],
+            "allowList": [
+              {
+                "packageEntry": {
+                  "packageName": "screen-arrangement",
+                  "entryName": "workspace-shell"
+                }
+              },
+              {
+                "packageEntry": {
+                  "packageName": "publish-composer",
+                  "entryName": "publish-composer"
+                }
+              },
+              {
+                "packageEntry": {
+                  "packageName": "service-connections-settings",
+                  "entryName": "service-connections-settings"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine-screens::placeable-surface::content-results",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "placeable-surface",
+        "id": "founder-growth-engine.content-results",
+        "surface_id": "founder-growth-engine.content-results",
+        "label": "See content results",
+        "icon": "BarChart3",
+        "material_target": "component:visual-database",
+        "order": 30,
+        "placement_labels": [
+          "founder-growth-engine-workspace"
+        ],
+        "placement_order_key": "000000030:founder-growth-engine.content-results",
+        "package_entry": {
+          "package_name": "founder-growth-engine-screens",
+          "entry_name": "visual-database-surface"
+        },
+        "surface_input": {
+          "surfaceKind": "visual-database",
+          "feedInputName": "founder-growth-content-results-feed",
+          "initialViewId": "founder-growth-engine.content-results",
+          "fields": {
+            "kind": "visual-database.fields",
+            "version": 3,
+            "descriptors": [
+              {
+                "id": "id",
+                "label": "Record",
+                "role": "id",
+                "paths": [
+                  [
+                    "payload",
+                    "id"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "kind",
+                "label": "Kind",
+                "role": "kind",
+                "paths": [
+                  [
+                    "payload",
+                    "kind"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "title",
+                "label": "Title",
+                "role": "title",
+                "paths": [
+                  [
+                    "payload",
+                    "fields",
+                    "title"
+                  ],
+                  [
+                    "payload",
+                    "label"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "detail",
+                "label": "Details",
+                "role": "body",
+                "paths": [
+                  [
+                    "payload",
+                    "fields",
+                    "detail"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "status",
+                "label": "Status",
+                "role": "status",
+                "shape": "choice",
+                "paths": [
+                  [
+                    "payload",
+                    "fields",
+                    "status"
+                  ],
+                  [
+                    "payload",
+                    "status"
+                  ]
+                ],
+                "editable": false,
+                "domain": {
+                  "values": [
+                    {
+                      "order": 0,
+                      "id": "waiting-for-setup",
+                      "label": "Waiting for setup",
+                      "tone": "warning",
+                      "attention": true
+                    },
+                    {
+                      "order": 1,
+                      "id": "monitoring",
+                      "label": "Monitoring",
+                      "tone": "info"
+                    },
+                    {
+                      "order": 2,
+                      "id": "accelerating",
+                      "label": "Accelerating",
+                      "tone": "success"
+                    },
+                    {
+                      "order": 3,
+                      "id": "published",
+                      "label": "Published",
+                      "tone": "success"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "attention",
+                "label": "Attention",
+                "role": "badge",
+                "shape": "choice",
+                "paths": [
+                  [
+                    "payload",
+                    "derived",
+                    "attention"
+                  ]
+                ],
+                "write_path": [
+                  "payload",
+                  "derived",
+                  "attention"
+                ],
+                "editable": false,
+                "domain": {
+                  "values": [
+                    {
+                      "id": "attention",
+                      "label": "Needs attention",
+                      "tone": "warning",
+                      "order": 0
+                    },
+                    {
+                      "id": "normal",
+                      "label": "On track",
+                      "tone": "neutral",
+                      "order": 1
+                    }
+                  ]
+                },
+                "default_expression": {
+                  "derive": {
+                    "target": "slot::formula-engine",
+                    "evaluator_ref": "evaluator::founder-growth-attention",
+                    "request": {
+                      "classify_by_rules": {
+                        "facts": [
+                          {
+                            "key": "status",
+                            "path": [
+                              "status"
+                            ],
+                            "as": "value"
+                          }
+                        ],
+                        "rules": [
+                          {
+                            "key": "attention",
+                            "label": "Needs attention",
+                            "tone": "warning",
+                            "severity": "attention",
+                            "requires": [
+                              {
+                                "fact": "status",
+                                "op": "eq",
+                                "value": "waiting-for-setup"
+                              }
+                            ]
+                          },
+                          {
+                            "key": "normal-monitoring",
+                            "label": "On track",
+                            "tone": "neutral",
+                            "severity": "normal",
+                            "requires": [
+                              {
+                                "fact": "status",
+                                "op": "eq",
+                                "value": "monitoring"
+                              }
+                            ]
+                          },
+                          {
+                            "key": "normal-accelerating",
+                            "label": "On track",
+                            "tone": "neutral",
+                            "severity": "normal",
+                            "requires": [
+                              {
+                                "fact": "status",
+                                "op": "eq",
+                                "value": "accelerating"
+                              }
+                            ]
+                          },
+                          {
+                            "key": "normal-published",
+                            "label": "On track",
+                            "tone": "neutral",
+                            "severity": "normal",
+                            "requires": [
+                              {
+                                "fact": "status",
+                                "op": "eq",
+                                "value": "published"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "result_path": [
+                      "result",
+                      "severity"
+                    ],
+                    "context_from_fields": [
+                      "status"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "views": {
+            "kind": "visual-database.views",
+            "version": 3,
+            "palette": [],
+            "views": [
+              {
+                "id": "founder-growth-engine.content-results",
+                "label": "Content results",
+                "kind": "board",
+                "order": 0,
+                "filters": [],
+                "projectionRules": [
+                  {
+                    "id": "group-by-status",
+                    "operation": "view-group",
+                    "sourceFieldId": "status",
+                    "order": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "evaluatorDescriptors": {
+            "version": 2,
+            "descriptors": [
+              {
+                "ref": "evaluator::founder-growth-attention",
+                "revision": "1",
+                "label": "Founder growth attention",
+                "target": "slot::formula-engine",
+                "context_path": [
+                  "classify_by_rules",
+                  "record"
+                ]
+              }
+            ]
+          },
+          "openRows": {
+            "intentPath": [
+              "payload",
+              "fields",
+              "surface_intent"
+            ],
+            "allowList": [
+              {
+                "packageEntry": {
+                  "packageName": "screen-arrangement",
+                  "entryName": "workspace-shell"
+                }
+              },
+              {
+                "packageEntry": {
+                  "packageName": "publish-composer",
+                  "entryName": "publish-composer"
+                }
+              },
+              {
+                "packageEntry": {
+                  "packageName": "service-connections-settings",
+                  "entryName": "service-connections-settings"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine-screens::placeable-surface::write-post",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "placeable-surface",
+        "id": "founder-growth-engine.write-post",
+        "surface_id": "founder-growth-engine.write-post",
+        "label": "Write a post",
+        "icon": "Feather",
+        "material_target": "publish-composer",
+        "order": 40,
+        "placement_labels": [
+          "founder-growth-engine-workspace"
+        ],
+        "placement_order_key": "000000040:founder-growth-engine.write-post",
+        "package_entry": {
+          "package_name": "publish-composer",
+          "entry_name": "publish-composer"
+        },
+        "surface_input": {
+          "destinations_source_address": "package::content-distribution::surface-feed::destination-options"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine-screens::placeable-surface::distribution",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "placeable-surface",
+        "id": "founder-growth-engine.distribution",
+        "surface_id": "founder-growth-engine.distribution",
+        "label": "Distribution",
+        "icon": "Share2",
+        "material_target": "component:visual-database",
+        "order": 50,
+        "placement_labels": [
+          "founder-growth-engine-workspace"
+        ],
+        "placement_order_key": "000000050:founder-growth-engine.distribution",
+        "package_entry": {
+          "package_name": "founder-growth-engine-screens",
+          "entry_name": "visual-database-surface"
+        },
+        "surface_input": {
+          "surfaceKind": "visual-database",
+          "feedInputName": "founder-growth-distribution-feed",
+          "initialViewId": "founder-growth-engine.distribution",
+          "fields": {
+            "kind": "visual-database.fields",
+            "version": 3,
+            "descriptors": [
+              {
+                "id": "id",
+                "label": "Record",
+                "role": "id",
+                "paths": [
+                  [
+                    "payload",
+                    "id"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "kind",
+                "label": "Kind",
+                "role": "kind",
+                "paths": [
+                  [
+                    "payload",
+                    "kind"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "title",
+                "label": "Title",
+                "role": "title",
+                "paths": [
+                  [
+                    "payload",
+                    "fields",
+                    "title"
+                  ],
+                  [
+                    "payload",
+                    "label"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "detail",
+                "label": "Details",
+                "role": "body",
+                "paths": [
+                  [
+                    "payload",
+                    "fields",
+                    "detail"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "status",
+                "label": "Status",
+                "role": "status",
+                "shape": "choice",
+                "paths": [
+                  [
+                    "payload",
+                    "fields",
+                    "status"
+                  ],
+                  [
+                    "payload",
+                    "status"
+                  ]
+                ],
+                "editable": false,
+                "domain": {
+                  "values": [
+                    {
+                      "order": 0,
+                      "id": "waiting-for-setup",
+                      "label": "Waiting for setup",
+                      "tone": "warning"
+                    },
+                    {
+                      "order": 1,
+                      "id": "queued",
+                      "label": "Queued",
+                      "tone": "info"
+                    },
+                    {
+                      "order": 2,
+                      "id": "published",
+                      "label": "Published",
+                      "tone": "success"
+                    },
+                    {
+                      "order": 3,
+                      "id": "failed",
+                      "label": "Needs attention",
+                      "tone": "error",
+                      "attention": true
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "attention",
+                "label": "Attention",
+                "role": "badge",
+                "shape": "choice",
+                "paths": [
+                  [
+                    "payload",
+                    "derived",
+                    "attention"
+                  ]
+                ],
+                "write_path": [
+                  "payload",
+                  "derived",
+                  "attention"
+                ],
+                "editable": false,
+                "domain": {
+                  "values": [
+                    {
+                      "id": "attention",
+                      "label": "Needs attention",
+                      "tone": "warning",
+                      "order": 0
+                    },
+                    {
+                      "id": "normal",
+                      "label": "On track",
+                      "tone": "neutral",
+                      "order": 1
+                    }
+                  ]
+                },
+                "default_expression": {
+                  "derive": {
+                    "target": "slot::formula-engine",
+                    "evaluator_ref": "evaluator::founder-growth-attention",
+                    "request": {
+                      "classify_by_rules": {
+                        "facts": [
+                          {
+                            "key": "status",
+                            "path": [
+                              "status"
+                            ],
+                            "as": "value"
+                          }
+                        ],
+                        "rules": [
+                          {
+                            "key": "attention",
+                            "label": "Needs attention",
+                            "tone": "warning",
+                            "severity": "attention",
+                            "requires": [
+                              {
+                                "fact": "status",
+                                "op": "eq",
+                                "value": "failed"
+                              }
+                            ]
+                          },
+                          {
+                            "key": "normal-waiting-for-setup",
+                            "label": "On track",
+                            "tone": "neutral",
+                            "severity": "normal",
+                            "requires": [
+                              {
+                                "fact": "status",
+                                "op": "eq",
+                                "value": "waiting-for-setup"
+                              }
+                            ]
+                          },
+                          {
+                            "key": "normal-queued",
+                            "label": "On track",
+                            "tone": "neutral",
+                            "severity": "normal",
+                            "requires": [
+                              {
+                                "fact": "status",
+                                "op": "eq",
+                                "value": "queued"
+                              }
+                            ]
+                          },
+                          {
+                            "key": "normal-published",
+                            "label": "On track",
+                            "tone": "neutral",
+                            "severity": "normal",
+                            "requires": [
+                              {
+                                "fact": "status",
+                                "op": "eq",
+                                "value": "published"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "result_path": [
+                      "result",
+                      "severity"
+                    ],
+                    "context_from_fields": [
+                      "status"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "views": {
+            "kind": "visual-database.views",
+            "version": 3,
+            "palette": [],
+            "views": [
+              {
+                "id": "founder-growth-engine.distribution",
+                "label": "Distribution by status",
+                "kind": "board",
+                "order": 0,
+                "filters": [],
+                "projectionRules": [
+                  {
+                    "id": "group-by-status",
+                    "operation": "view-group",
+                    "sourceFieldId": "status",
+                    "order": 0
+                  }
+                ]
+              },
+              {
+                "id": "founder-growth-engine.distribution-attention",
+                "label": "Needs attention",
+                "kind": "table",
+                "order": 10,
+                "filters": [
+                  {
+                    "field": "attention",
+                    "equals": [
+                      "attention"
+                    ],
+                    "exclude": []
+                  }
+                ],
+                "columns": {
+                  "order": [
+                    "title",
+                    "status",
+                    "detail",
+                    "attention",
+                    "kind",
+                    "id"
+                  ],
+                  "hidden": [
+                    "attention",
+                    "kind",
+                    "id"
+                  ]
+                },
+                "projectionRules": []
+              }
+            ]
+          },
+          "evaluatorDescriptors": {
+            "version": 2,
+            "descriptors": [
+              {
+                "ref": "evaluator::founder-growth-attention",
+                "revision": "1",
+                "label": "Founder growth attention",
+                "target": "slot::formula-engine",
+                "context_path": [
+                  "classify_by_rules",
+                  "record"
+                ]
+              }
+            ]
+          },
+          "openRows": {
+            "intentPath": [
+              "payload",
+              "fields",
+              "surface_intent"
+            ],
+            "allowList": [
+              {
+                "packageEntry": {
+                  "packageName": "screen-arrangement",
+                  "entryName": "workspace-shell"
+                }
+              },
+              {
+                "packageEntry": {
+                  "packageName": "publish-composer",
+                  "entryName": "publish-composer"
+                }
+              },
+              {
+                "packageEntry": {
+                  "packageName": "service-connections-settings",
+                  "entryName": "service-connections-settings"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine-screens::placeable-surface::connections",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "placeable-surface",
+        "id": "founder-growth-engine.connections",
+        "surface_id": "founder-growth-engine.connections",
+        "label": "Connected services",
+        "icon": "KeyRound",
+        "material_target": "component:service-connections-settings",
+        "order": 60,
+        "placement_labels": [
+          "founder-growth-engine-workspace"
+        ],
+        "placement_order_key": "000000060:founder-growth-engine.connections",
+        "package_entry": {
+          "package_name": "service-connections",
+          "entry_name": "service-connections-settings"
+        },
+        "surface_input": {
+          "focusVendor": "Instagram"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine-screens::placeable-surface::side-workspace",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "retired-placeable-surface",
+        "retired_surface_id": "founder-growth-engine.workspace.panel",
+        "retired_at": "2026-07-24",
+        "reason": "Saved links is unrelated to Founder Growth Engine and is no longer an active Bitfield Studio surface."
+      },
+      "remove": false,
+      "note": "RETIRED 2026-07-24: retained as a non-placeable marker because record_from_matching_records projections do not reliably evict retracted source rows."
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine-screens::entry::side-workspace",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "founder-growth-engine-screens",
+        "entries",
+        "side-workspace"
+      ],
+      "remove": true,
+      "note": "RETIRED 2026-07-24 (L030+L101): replaced by the data-authored screen-arrangement/workspace-shell surface."
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine-screens::placeable-surface::saved-feed",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": true
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine-screens::placeable-surface::connect-sources",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": true
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine-screens::placeable-surface::schedule",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": true
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine-screens::placeable-surface::brief",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": true
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine-screens::placeable-surface::eve",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": true
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine-screens::placeable-surface::saved-board",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": true
+    },
+    {
+      "type": "stored_bytes",
+      "name": "mount-visual-database-surface",
+      "source_path": "show/mount-visual-database-surface.tsx"
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine-screens::entry::visual-database-surface",
+      "path": [
+        "packages",
+        "founder-growth-engine-screens",
+        "entries",
+        "visual-database-surface"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "visual-database-surface",
+        "source_path": "show/mount-visual-database-surface.tsx",
+        "dynamic_read_selector_policy": "declared-provider-input-membership",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-visual-database-surface"
+        }
+      },
+      "remove": false,
+      "build_source_path": "show/mount-visual-database-surface.tsx"
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine-screens::input::founder-growth-next-moves-feed",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "founder-growth-next-moves-feed",
+        "value_address_label": "package::founder-growth-engine::surface-feed::next-moves",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine-screens::input::founder-growth-operator-activity-feed",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "founder-growth-operator-activity-feed",
+        "value_address_label": "package::founder-growth-engine::surface-feed::operator-activity",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine-screens::input::founder-growth-content-results-feed",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "founder-growth-content-results-feed",
+        "value_address_label": "package::founder-growth-engine::surface-feed::content-results",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine-screens::input::founder-growth-distribution-feed",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "founder-growth-distribution-feed",
+        "value_address_label": "package::founder-growth-engine::surface-feed::distribution-attempts",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-visual-database-surface",
+      "source_path": "built-stored-bytes/entry-bytes-visual-database-surface",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-visual-database-surface.source-closure.json"
+    }
+  ]
+}

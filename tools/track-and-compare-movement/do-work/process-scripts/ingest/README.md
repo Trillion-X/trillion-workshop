@@ -1,0 +1,43 @@
+# motion-analysis ingest process scripts
+
+Purpose: Convert a reference clip's `motion-clip-descriptor.v1` into `motion-reference-clip` package records so the match index can be rebuilt from package-owned records.
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `make-reference-records-from-descriptor.py` | CLI and library mapper from a perception descriptor plus request metadata to `motion-reference-clip` records under the `motion-analysis/content-media-evidence` published path. |
+| `test_make_reference_records.py` | Self-contained regression tests for record shape, fail-closed validation, and the `--request-json` / `--descriptor-json` / `--output-json` CLI. |
+| `materialize-index-from-reference-records.py` | The INVERSE: materializes a matcher-readable index dir (`<key>.desc.json` + `_work/<key>.kp.json`) FROM `motion-reference-clip` records, with keypoint bytes from an injected `kp_resolver` (offline file-dir / live engine-CAS). Records are SSOT; the index is a derived projection (the frozen matcher core is untouched). |
+| `test_materialize_index.py` | Contract test (no torch) proving the bridge round-trips descriptors verbatim, writes paired desc+kp files, fails closed, and that the REAL frozen matcher loader `viewpoint_index.get_index` parses the materialized index. |
+| `build-index-artifact.py` | Turnkey bootstrap CLI: reference-clip records (+ kp resolver) → materialize → ONE **deterministic** `.tar` index artifact, printing `entries`/`sha256`/`bytes`. The sha256 is the blob hash the match step mounts via `blob_ref` (`reference_index_ref.hash`). The artifact is mounted as one blob (proven primitive) and untarred by `motion-comparison/match/orchestrate.sh`. |
+| `test_build_index_artifact.py` | Tests the builder (3/3): builds a 2-clip tar with paired desc+kp, deterministic sha256 across runs, and a real `index_jib`-subset (1 clip, cheap) that the frozen `viewpoint_index.get_index` loads from the untarred artifact. |
+| `test_index_artifact_roundtrip.py` | Proves the multi-clip index as ONE CAS `.tar` artifact (the live shape): materialize 2 records → tar → untar → `get_index` loads both, 0 path-leaked keys. Shows the dynamic-input-list capability is not needed. |
+| `proof_realdata_index.py` | Durable real-data proof: the full ingest→records→materialize chain on the real `index_jib` reference set reproduces the matcher's view (69 refs == original), content-addressed, no `/Volumes/` leak. SKIPs honestly if the env-specific corpus is absent. |
+| `place-engine-staged-kp.py` | LIVE adapter (L098) for the `materialize-index` workflow action: copies each engine-mounted flat kp blob `staged/<i>.kp.json` to the materializer's `_work/<_safe_key(clip_cas)>.kp.json` path (reusing the materializer's SSOT key fn), so `--engine-staged` finds it. Needed because a workflow-def's `blob_ref` `mount_path` is STATIC and cannot be templated from the record's `clip_cas`. Fails closed on a missing staged blob. |
+| `test_place_engine_staged_kp.py` | Tests the placer (3/3): places at the materializer key path then `--engine-staged` succeeds; missing staged blob fails closed; multi-record ordering pairs `staged[i] -> records[i]`. |
+| `test_kp_bundle_materialize.py` | Tests the ANY-N kp-bundle path of the live `materialize-index` action (3/3): exercises the real ask-step chain (one `kp_bundle` tar → `tar -xf` into `staged/` → placer → builder → `index.tar`) for N=2 (both refs placed + described), proves a 1-member bundle == the N=1 case, and that bundle member `<i>` pairs to `records[i]` through the untar. Proves ONE static mount serves any N (no per-record mount, no engine primitive). |
+| `make-reference-index-record.py` | INDEX-DISCOVERY producer (L098): given a published index artifact's CAS hash (`index_ref_hash` = the single blob_ref-mountable address run-comparison mounts as `reference_index_ref.hash`) + the `motion-reference-clip` records the index was built from, emits one self-describing `motion-reference-index` record (`index_ref_hash` + `reference_clip_ids` + count, optional `comparison_spec_ref`/`index_byte_len`) at path `["motion-analysis","reference-index"]`. Closes the discovery gap: run-comparison takes `reference_index_ref` as a raw `{hash}`, so without this record a live consumer has no way to FIND the index hash — it reads this record instead. Fail-closed; CLI + library. Supports `--input-json` (the whole dispatch input as one object: `index_ref_hash`/`created_at`/optional `index_id`/`comparison_spec_ref`/`index_byte_len`), which the `publish-reference-index` workflow action mounts as `request.json` so an ABSENT optional never becomes a null-bound argv slot (`FE_CODEC_ERROR`); explicit flags still win (offline/tests). |
+| `test_make_reference_index_record.py` | Tests the discovery-record producer (5/5): record shape/schema/address/path, clip-id extraction in order (reference_clip_id → clip_cas fallback), fail-closed on missing hash/created_at/no-clip-identity/malformed records, optional fields present+typed only when supplied (L117), and the build_output summary. |
+
+## Key Types/Functions
+
+| Symbol | Signature / Shape | Role |
+|--------|-------------------|------|
+| `PUBLISHED_PATH` | `["motion-analysis", "content-media-evidence"]` | Concrete package record path used by generated records. |
+| `require_descriptor(descriptor)` | `Any -> dict[str, Any]` | Fails closed unless the input is a `motion-clip-descriptor.v1` dictionary with a windows list. |
+| `reference_records_from_descriptor(request, descriptor)` | `dict[str, Any], dict[str, Any] -> list[dict[str, Any]]` | Builds one `motion-reference-clip` record, carrying clip/pose CAS addresses and descriptor windows verbatim. |
+| `build_output(request, descriptor)` | `dict[str, Any], dict[str, Any] -> dict[str, Any]` | Wraps generated records in the command-output object consumed by the ingest workflow step. |
+| `main()` | CLI: `--request-json REQUEST --descriptor-json DESCRIPTOR --output-json OUT` | Reads JSON files, maps the descriptor, and writes the output JSON. |
+| `descriptor_from_record(payload)` | `dict[str, Any] -> dict[str, Any]` | Reconstructs the matcher's descriptor shape (`schema/source/fps/frames/windows`) from a `motion-reference-clip` record; fails closed on wrong kind. |
+| `materialize_index(records, *, kp_resolver, out_dir)` | `Iterable, KpResolver, str -> dict` | Writes `<key>.desc.json` + `_work/<key>.kp.json` per record (key = clip_cas); kp bytes via the injected resolver; fail-closed on missing/unresolved/duplicate. |
+| `KpResolver` | `Callable[[str], bytes \| str \| None]` | The CAS seam (L089): `kp_cas -> keypoint bytes`. Offline = `_dir_kp_resolver(dir)`; live = the engine CAS. |
+| `place(records_json, staged_dir, out_dir)` | `str, str, str -> dict` | (placer) Pairs each `staged/<i>.kp.json` with `records[i]` and copies it to `_work/<_safe_key(clip_cas)>.kp.json`; fail-closed on a missing staged blob. The engine-flat-mount → materializer-key-path adapter for the live `materialize-index` action. |
+
+## Dependencies
+
+Depends on: the perception descriptor emitted by `../perception/run_perception.py` (`motion-clip-descriptor.v1`). The materialize bridge depends only on the `motion-reference-clip` record shape + an injected `kp_resolver` (it does NOT import the matcher).
+
+Depended on by: the motion-analysis ingest-reference workflow action (record-maker); the `materialize-index` workflow action (`action:motion-analysis.materialize-index`, which mounts ONE `kp_bundle` tar of the N records' kp blobs — any N via one static mount — untars it into `staged/`, runs `place-engine-staged-kp.py` then `materialize-index-from-reference-records.py --engine-staged`, and tars the result to `index.tar` in engine CAS); the `publish-reference-index` workflow action (`action:motion-analysis.publish-reference-index`, which extracts `index-scripts-tar`, runs `make-reference-index-record.py --input-json request.json --reference-records-json records.json`, and loop-writes the produced `motion-reference-index` discovery record so a live consumer can FIND the index hash); the records→index materialization step (bridge) whose output is consumed by `show-up-video-tennis/tools/match/viewpoint_index.get_index` + `select_partner` (the frozen certified matcher).
+
+Note: a workflow action that reads a script from `stored-bytes::index-scripts-tar` only sees the script versions present at the LAST motion-analysis package admission. `make-reference-index-record.py` (and its `--input-json`) ship live only after the next admission re-tars `ingest/`; until then the live `publish-reference-index` action fails at the compute step (script absent in the stale tar). The action's contract + offline behavior are independent of that admission.

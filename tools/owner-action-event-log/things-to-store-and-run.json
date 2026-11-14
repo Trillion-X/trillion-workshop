@@ -1,0 +1,147 @@
+{
+  "package": "owner-action-event-log",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::owner-action-event-log::capability::universal-action-event-records",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "bitfield-package-capability",
+        "id": "capability:owner-action-event-log",
+        "package": "owner-action-event-log",
+        "label": "Review owner action events",
+        "description": "Projects owner-scoped action, event, and proof records through descriptor data while reusing workflow, process-session, EEAF-shaped records, and derived aggregate feeds.",
+        "owned_record_kinds": [
+          "owner-action-event-log.descriptor",
+          "owner-action-event-log.projection"
+        ],
+        "reuses": [
+          "eeaf",
+          "workflow",
+          "process-session",
+          "compute.process",
+          "compute.process_session",
+          "record_from_matching_records",
+          "engine.operation.write-batch"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::owner-action-event-log::input::action-events",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "actionEvents",
+        "is_default": true,
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "payload",
+                "value": { "source_bytes": { "bytes_to_value": "json" } }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::owner-action-event-log::aggregate::action-events",
+      "address_mode": "identity_text",
+      "path": ["package-primitive", "record-from-matching-records"],
+      "payload": {
+        "kind": "record_from_matching_records",
+        "output_address": "package::owner-action-event-log::published-records",
+        "record_match": {
+          "path_prefix": ["current-item", "published-record"],
+          "address_prefix": "package::owner-action-event-log::"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::owner-action-event-log::descriptors::universal-action-events",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "owner-action-event-log.descriptor-set",
+        "fields": [],
+        "domain_options": [],
+        "relationships": [],
+        "proofs": [],
+        "process_proofs": [],
+        "actions": [],
+        "views": [],
+        "rules": [],
+        "disabled_reasons": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::owner-action-event-log::workflow-action::record-owner-action-event",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record", "workflow-definition"],
+      "payload": {
+        "id": "action:owner-action-event-log.record-owner-action-event",
+        "kind": "action",
+        "is_active": true,
+        "name": "owner-action-event-log.record-owner-action-event",
+        "description": "Writes one authority-admitted owner action event as structured data; trigger DATA selects downstream consumers.",
+        "input_schema": {
+          "type": "object",
+          "required": ["event", "canonical_hash"],
+          "properties": {
+            "event": {"type": "object"},
+            "canonical_hash": {"type": "string"}
+          },
+          "additionalProperties": false
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {"from": "input", "path": "event.payload.event_id"},
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "owner-action-event|",
+                            {"$kind": "binding", "select": {"from": "input", "path": "event.payload.event_id"}}
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": ["current-item", "owner_action_event"],
+                  "payload": {
+                    "kind": "owner-action-event-log.accepted-event",
+                    "table": "owner_action_event",
+                    "event_id": {"$kind": "binding", "select": {"from": "input", "path": "event.payload.event_id"}},
+                    "event": {"$kind": "binding", "select": {"from": "input", "path": "event"}},
+                    "canonical_hash": {"$kind": "binding", "select": {"from": "input", "path": "canonical_hash"}}
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "version": 2,
+        "extra": {},
+        "extra_properties": {}
+      }
+    }
+  ]
+}

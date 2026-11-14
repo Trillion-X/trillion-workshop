@@ -1,0 +1,64 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-NODE-TREE-DECODER-DO-WORK-PROCESS-SCRIPTS-DECODE-NODE-TREE-FROM-BITFIELD-PACKAGES",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "census-and-restore lane 7, 2026-11-13: no rewrites from scratch; originals move wholesale",
+    "message_multihash": "1f:31cfaef8fe1b095bcdda0c309aeb261d0b928f36c81425a5d444f4f86483ec45",
+    "quote": "standing order: NO rewrites from scratch. Originals move wholesale (byte for byte, with moved-from receipts)"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "bitfield-packages",
+      "commit": "7a663c49502767951eb6ebe286a7e1bd1e2a8595",
+      "path": "packages/node-tree-decoder/do-work/process-scripts/decode_node_tree.py",
+      "multihash": "1f:c6d084ca9682890c29a72e4b121076007794548796291c438518e141248dca1a",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-17T06:01:29Z",
+        "deleted_with": "the change that lands this move: the package file leaves bitfield-packages in the same change"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/node-tree-decoder/do-work/process-scripts/decode_node_tree.py"
+    }
+  ],
+  "preserve": [
+    "the file is the original package file, moved with its import paths changed to this tree and nothing else",
+    "what the file did in the package: its exports, its rules and its edge cases are not rewritten here"
+  ],
+  "allowed_deltas": [
+    "import paths and the file header name the file's new place"
+  ],
+  "banned_substitutions": [
+    "a second implementation of the same job beside this file",
+    "a rewrite from scratch of what the package file does"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:c6d084ca9682890c29a72e4b121076007794548796291c438518e141248dca1a",
+    "target_multihash_at_baseline": "1f:c6d084ca9682890c29a72e4b121076007794548796291c438518e141248dca1a",
+    "recorded_at": "2026-11-14T06:02:29Z",
+    "rows": [
+      {
+        "path": "tools/node-tree-decoder/do-work/process-scripts/decode_node_tree.py",
+        "source_multihash": "1f:c6d084ca9682890c29a72e4b121076007794548796291c438518e141248dca1a",
+        "target_multihash_at_baseline": "1f:c6d084ca9682890c29a72e4b121076007794548796291c438518e141248dca1a"
+      }
+    ],
+    "commit": "fd260496ffb12d9474372e488e3e4256bea82113"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "def _as_object(value):",
+      "def _as_text(container, key):"
+    ],
+    "test_refs": [],
+    "render_refs": [],
+    "originality_ref": null
+  }
+}

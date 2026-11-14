@@ -1,0 +1,20 @@
+import { describe, expect, it, vi } from 'vitest';
+import { runProtocolAction } from '../do-work/run-protocol-action';
+import { descriptor } from './protocol-fixture';
+
+describe('runProtocolAction', () => {
+  it('dispatches the descriptor target and payload without a workflow constant', async () => {
+    const sender = vi.fn(async () => ({ ok: true }));
+    await runProtocolAction(descriptor as never, 'begin', { state_ref: 'state:1' }, sender as never);
+    // Authored routing (`mode`) stays at payload top level; the live context
+    // is delivered under `input`.
+    expect(sender).toHaveBeenCalledWith({
+      target: 'protocol-owner.transition',
+      payload: { mode: 'novel', input: { state_ref: 'state:1' } },
+    });
+  });
+
+  it('fails closed when an action key is absent', async () => {
+    await expect(runProtocolAction(descriptor as never, 'missing', {}, vi.fn() as never)).rejects.toThrow(/unavailable/);
+  });
+});

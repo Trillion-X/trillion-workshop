@@ -33,9 +33,33 @@ Whole-frame motion against a reference video is a different job: `check-a-videos
 - A pose joint that is missing or not a finite number is stored as the absent point `[0, 0, 0]`; the aligner refuses a track holding a non-number.
 - The alignment cost grows with the product of the two frame counts.
 
-## Left behind
+## Moved from the old `motion-analysis` package
 
-The two packages (motion-analysis, motion-comparison) also held a tennis-and-ball perception pipeline (court geometry, ball tracking, rally and point events), learned view, phase and motion encoders trained on one person's clips, a partner-selection and certification step tuned on that data, the code that wrote the results as the old engine's records (and the comparison result record, factor confidence and sync-window types), a second dynamic-warping resampler anchored on a contact moment, and the overlay renderers. They are not here: they carry one sport's vocabulary and one person's trained weights, so they would not be a mechanism, and the records and rendering belong to the engine and the screens.
+The part of `motion-analysis` the four scripts above left out is here, byte for byte from the package at its last commit (`from-bitfield-packages/moved-from.json` is the receipt; a real player's name and one first name in comments, a fixture and an assertion are swapped for made-up words by the receipt's `calls`). It keeps the package's own paths under this folder.
+
+| Folder | What it holds |
+|--------|---------------|
+| `do-work/process-scripts/perception/` | Clip to `motion-clip-descriptor.v1` in two stages (`pose_estimate.py` then `describe_clip.py`, run by `run_perception.py` / `orchestrate.sh`), with the ONNX forms of the pose, orientation and body-heading readers, `swing_state.py`, `model_location.py`, `finite_json.py`, `perception_backend.py` and the pose contract `pose_schema.py`. |
+| `do-work/process-scripts/match/` | The court, ball, bounce, line-call, rally, point-outcome and shot-speed tracker family (`court_geometry.py`, `wasb_infer.py`, `bounce_detect_v2.py`, `rally_events.py`, `point_outcome.py`, `shot_speed.py`, `emit_match_facts.py`, `render_overlay.py`, the Pyodide and browser drivers and probes), with its tests. One sport's vocabulary, kept as it was. |
+| `do-work/process-scripts/reel/` | The side-by-side reel stages: `track_ball.py`, `detect_beats.py`, `align_dtw.py`, `render_side_by_side.py`, `render_vertical_crop.py`, `asr_transcribe.py`, `voice_synthesize.py`, `detect_subject_track.py` (the follower `media-composition`'s semantic reframe needs), with `test_reel_pipeline.py`. |
+| `do-work/process-scripts/ingest/` | A reference clip's descriptor to `motion-reference-clip` records and back to a matcher index, with the index builders and their tests. |
+| `do-work/process-scripts/bio/`, `prosody/`, `affect/` | The three passive-perception producers (heart-rate variability, voice arousal, face action units): raw self-describing facts, fail closed. |
+| `do-work/process-scripts/make-motion-analysis-records-from-command-output.py` | The generic record-maker the scripts' output goes through. |
+| `do-work/submit-motion-analysis.ts`, `do-work/request-match-perception.ts` | The request builders (tests held). |
+| `read-data/read-motion-analysis.ts`, `read-data/read-capture-context.ts` | The readers the screens use. |
+| `show/` | The motion analysis panel and the capture-and-analyze surface, with their mounts. Their data layer is the retired package runtime and the shared UI parts are not in this tree (see Held). |
+| `things-to-store-and-run.json` | The package's own boundary file (its record contracts, process descriptors and actions). Kept as data; not wired to a tool row. |
+
+### Two copies of four jobs
+
+The four scripts at the top of this folder were written fresh from the package's. They were not deleted, because each does something the package script does not: `align_dtw.py` adds the length-normalised `distance`; the others print one `{"result"}` or `{"error"}` last line and refuse in words, which the tool rows rely on, where the package's scripts exit or raise. The package's own `perception/pose_estimate.py` (the original of `estimate_pose.py`), `perception/pose_schema.py` (240 lines, against `read-data/pose_schema.py`'s 52) and `reel/align_dtw.py` are here beside them. The package's `track_selected_object.py` exists only as an uncommitted file in the package, so it was not carried. Whether to retire the four rewrites for the originals is a decision this move does not take.
+
+### Held
+
+- Ten files are held as `.held` (reasons in the receipt key `held`): two request-builder tests (they import `@/packages/content-media-evidence/...`, not in this tree), two read-data tests (`__dirname`), `perception/test_bundle_parity.py` (it compares against a file of the old app) and the others named there.
+- Not carried: the trained models and wheels (`onnx/`, `*.pt`, `clip_axes.npz`; the package never tracked the models), the stored built bytes, the old engine's entry scope, and the package's `proof/`.
+- Run here: the ingest tests (30), `match/test_log_filter.py`, `test_point_outcome.py`, `test_seam_mapping.py`, `test_shot_speed.py`, `test_descriptor_mapping.py`, the five `match/test_*.mjs` and `read-data/read-capture-context.test.ts` pass. The tests that need numpy, onnxruntime or the vendored model tree (`MATCH_VENDOR_ROOT`) were not run: none is installed here.
+- `semantic-reframe` in `tools/media-composition` can run once `reel/detect_subject_track.py` has its models.
 
 ## Dependencies
 

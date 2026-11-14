@@ -1,6 +1,6 @@
 # tools/person-profile/
 
-Lays out one person's (or any record's) profile from a description of what to show: title and subtitle, fields with values, related lists, and the actions whose rules hold. Ported from bitfield-packages `person-profile`: its interpreter, reader-keyed materialization and action-request builder unchanged, and its member-profile save moved onto the records door. Its screens (`show/`, `show-ios-jscore/`), the browser cache that followed a save, and the old engine's boundary json were not brought in. The Workshop tools that run it in the tool container are rows in `tool-rows.json`.
+Lays out one person's (or any record's) profile from a description of what to show: title and subtitle, fields with values, related lists, and the actions whose rules hold. Ported from bitfield-packages `person-profile`: its interpreter, reader-keyed materialization and action-request builder unchanged, and its member-profile save moved onto the records door. Its screens (`show/`, `show-ios-jscore/`) and the browser cache that followed a save came in later (see "Moved from the package, later"). The Workshop tools that run it in the tool container are rows in `tool-rows.json`.
 
 ## Files
 
@@ -25,6 +25,20 @@ Lays out one person's (or any record's) profile from a description of what to sh
 | `DescribedRecordSurfaceDescriptor` | `{kind, surfaceId, identity?, fields?, relationships?, actions?}` | What the profile shows. |
 | `projectDescribedRecordSurface` | `({descriptor, sources, readerId?}) -> DescribedRecordSurface` | The laid-out profile: identity, visible fields with values, related lists with items, visible actions. |
 | `readPath` | `(source, path) -> unknown` | One value by its path of member names. |
+
+## Moved from the package, later
+
+The screens, the iOS model and the rest the first port left out are here, byte for byte from the package at its last commit (`from-bitfield-packages/moved-from.json` is the receipt; a test's made-up member name replaces a real first name through the receipt's `calls`).
+
+| File | Purpose |
+|------|---------|
+| `show/PersonProfileSurface.tsx`, `show/person-profile-screen-model.ts`, `show/mount-person-profile.tsx` | The profile screen: it draws the laid-out profile, its fields, related lists and actions, and mounts as the profile surface. |
+| `show-ios-jscore/person-profile-jscore-model.js` | The same screen model for JavaScriptCore on the phone. |
+| `do-work/save-member-profile.ts`, `do-work/save-profile-field.ts` | The package's member-profile save with the browser cache that followed a save, and the one-field save. `do-work/save-member-profile.mjs` is the records-door form of the same save and is the one the tool rows run; the `.ts` form calls the retired package runtime. |
+| `tests/load-ts-module.mjs`, `tests/backend-proof.test.mjs.held`, `do-work/save-member-profile.test.ts.held`, `show/PersonProfileSurface.test.tsx`, `show-ios-jscore/person-profile-jscore.test.mjs` | The package's remaining tests and helper. |
+| `things-to-store-and-run.json` | The package's own boundary file (the profile descriptor and its input descriptor), kept as data and not wired to a tool row. |
+
+The two held tests are named in the receipt's `held` key. The screen's data layer (`sendRequestToBitfieldTarget`, `useBitfieldData`) and the shared UI parts it imports are not in this tree, so no tool row opens the screen yet.
 
 ## Dependencies
 

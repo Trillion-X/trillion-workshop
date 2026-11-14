@@ -1,0 +1,56 @@
+// packages/motion-analysis/do-work/submit-motion-analysis.test.ts
+//
+// SWV01 wiring proof: with a TrackerDescriptor (DATA), the motion_command
+// descriptor runs the REAL perception orchestrator; without one it falls back to
+// the legacy metadata descriptor (L101 — kept until a real tracker is deployed).
+
+import { test } from "vitest";
+import assert from "node:assert/strict";
+import { buildMotionAnalysisInput, type TrackerDescriptor } from "./submit-motion-analysis";
+
+const source = { artifact_ref: { cas_address: "cas:deadbeef" }, media_type: "video/mp4", source_index: 0 } as never;
+
+function descriptorOf(input: ReturnType<typeof buildMotionAnalysisInput>) {
+  const mc = (input.options as Record<string, { process_descriptor: Record<string, unknown>; process_profile: Record<string, unknown> }>)
+    .motion_command;
+  return mc;
+}
+
+test("with a tracker, motion_command runs the REAL perception orchestrator, not ffprobe", () => {
+  const tracker: TrackerDescriptor = {
+    trackerId: "swing-pose-single",
+    orchestratorPath: "/abs/show-up-video-tennis/tools/motion/run_single_track.sh",
+    checkpointPath: "/abs/yolo11n-pose.pt",
+    maxFrames: 40,
+    env: { JOINTBDOE_VENDOR: "/abs/vendor/JointBDOE", PYTHONPATH: "/abs/bundle" },
+  };
+  const mc = descriptorOf(buildMotionAnalysisInput({ sources: [source], tracker }));
+  const pd = mc.process_descriptor as { argv: string[]; env: Record<string, string>; outputs: Array<{ mount_path: string }> };
+
+  assert.equal(pd.argv[0], "bash");
+  assert.equal(pd.argv[1], tracker.orchestratorPath);
+  assert.equal(pd.argv.includes(tracker.checkpointPath!), true);
+  assert.equal(pd.env.SKIP_NORMALIZE, "1");
+  assert.equal(pd.env.MOTION_MAX_FRAMES, "40");
+  // tracker.env DATA merges into the descriptor env (L089 — deployment supplies model/path locations)
+  assert.equal(pd.env.JOINTBDOE_VENDOR, "/abs/vendor/JointBDOE");
+  assert.equal(pd.env.PYTHONPATH, "/abs/bundle");
+  assert.equal(pd.outputs[0].mount_path, "command-output.json");
+  // NOT the metadata stub
+  assert.equal(JSON.stringify(pd.argv).includes("inspect-motion"), false);
+  assert.equal(mc.process_profile.provider, "swing-pose-single");
+});
+
+test("without a tracker, falls back to the legacy metadata descriptor (L101 temporary)", () => {
+  const mc = descriptorOf(buildMotionAnalysisInput({ sources: [source] }));
+  const pd = mc.process_descriptor as { argv: string[] };
+  assert.equal(JSON.stringify(pd.argv).includes("inspect-motion"), true);
+  assert.equal(mc.process_profile.provider, "local-motion-metadata");
+});
+
+test("the generic package names no tool/machine path — the orchestrator path comes only from tracker DATA", () => {
+  // With no tracker, the descriptor must not reference a vision orchestrator path.
+  const mc = descriptorOf(buildMotionAnalysisInput({ sources: [source] }));
+  assert.equal(JSON.stringify(mc.process_descriptor).includes("run_single_track"), false);
+  assert.equal(JSON.stringify(mc.process_descriptor).includes("show-up-video-tennis"), false);
+});

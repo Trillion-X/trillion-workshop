@@ -1,0 +1,85 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages packages/notice-when-something-shows-up (at its last commit on the branch checked out; files the package holds only as uncommitted edits are not carried). Each names its source path and commit, the identity of its source bytes and of its bytes here. The first commit that holds them is the byte copy; later commits change import paths.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/notice-when-something-shows-up/do-work/README.md",
+      "commit": "715b8b9961717fab812e0b333eefa8544bd2b474",
+      "to": "tools/notice-when-something-shows-up/do-work/README.md",
+      "source_identity": "1f:cd10989cf1b89d2af2454dc875acec3a782616956dbf84a33b7e26d4dbb91adf",
+      "identity": "1f:cd10989cf1b89d2af2454dc875acec3a782616956dbf84a33b7e26d4dbb91adf"
+    },
+    {
+      "from": "packages/notice-when-something-shows-up/do-work/emit-arrival-fact.mjs",
+      "commit": "0a451cf7757b4f4ed71706540d7ddaa5c8ec32b0",
+      "to": "tools/notice-when-something-shows-up/do-work/emit-arrival-fact.mjs",
+      "source_identity": "1f:5044bd27be39814388353ede8aa8284c93021f832ad8f8009fe6ac742b402353",
+      "identity": "1f:5044bd27be39814388353ede8aa8284c93021f832ad8f8009fe6ac742b402353"
+    },
+    {
+      "from": "packages/notice-when-something-shows-up/do-work/mechanisms/README.md",
+      "commit": "913c984e97859bc95743b7b6e67fa775273882d8",
+      "to": "tools/notice-when-something-shows-up/do-work/mechanisms/README.md",
+      "source_identity": "1f:6f2e07a51e1089d5703a386ad68216dadc08f1f622e34ce12baa775d4f798027",
+      "identity": "1f:6f2e07a51e1089d5703a386ad68216dadc08f1f622e34ce12baa775d4f798027"
+    },
+    {
+      "from": "packages/notice-when-something-shows-up/do-work/mechanisms/elapsed-time.mjs",
+      "commit": "a4a47c971bb69b6b32505fd6c85cb1e30800a338",
+      "to": "tools/notice-when-something-shows-up/do-work/mechanisms/elapsed-time.mjs",
+      "source_identity": "1f:8a978a87a879162968a704290db0210c48f42b6b305596c60dfc8a6117e39c4f",
+      "identity": "1f:8a978a87a879162968a704290db0210c48f42b6b305596c60dfc8a6117e39c4f"
+    },
+    {
+      "from": "packages/notice-when-something-shows-up/do-work/mechanisms/files-someone-finished-putting-here.mjs",
+      "commit": "913c984e97859bc95743b7b6e67fa775273882d8",
+      "to": "tools/notice-when-something-shows-up/do-work/mechanisms/files-someone-finished-putting-here.mjs",
+      "source_identity": "1f:352feae98f925b0df37ce77339bb934a239a19cfa5cf13fe33538b32ffaf0e90",
+      "identity": "1f:352feae98f925b0df37ce77339bb934a239a19cfa5cf13fe33538b32ffaf0e90"
+    },
+    {
+      "from": "packages/notice-when-something-shows-up/do-work/mechanisms/filesystem-volume-attachment.mjs",
+      "commit": "a4a47c971bb69b6b32505fd6c85cb1e30800a338",
+      "to": "tools/notice-when-something-shows-up/do-work/mechanisms/filesystem-volume-attachment.mjs",
+      "source_identity": "1f:5cc3b5afe5fe904fd69326eaebf881affbbdc881a122c5f8904043ab465879ff",
+      "identity": "1f:5cc3b5afe5fe904fd69326eaebf881affbbdc881a122c5f8904043ab465879ff"
+    },
+    {
+      "from": "packages/notice-when-something-shows-up/do-work/mechanisms/inbound-http-delivery.mjs",
+      "commit": "a4a47c971bb69b6b32505fd6c85cb1e30800a338",
+      "to": "tools/notice-when-something-shows-up/do-work/mechanisms/inbound-http-delivery.mjs",
+      "source_identity": "1f:51a778080c9b0aaf0aece5e0ebe9b83607e067f7dc359bbfaf786c6561886cda",
+      "identity": "1f:51a778080c9b0aaf0aece5e0ebe9b83607e067f7dc359bbfaf786c6561886cda"
+    },
+    {
+      "from": "packages/notice-when-something-shows-up/tests/README.md",
+      "commit": "715b8b9961717fab812e0b333eefa8544bd2b474",
+      "to": "tools/notice-when-something-shows-up/tests/README.md",
+      "source_identity": "1f:3a165e9dc091766509bed82d474c838ea69d8391bfa4774f938b03072b7f8940",
+      "identity": "1f:3a165e9dc091766509bed82d474c838ea69d8391bfa4774f938b03072b7f8940"
+    },
+    {
+      "from": "packages/notice-when-something-shows-up/tests/emit-arrival-fact.test.mjs",
+      "commit": "0a451cf7757b4f4ed71706540d7ddaa5c8ec32b0",
+      "to": "tools/notice-when-something-shows-up/tests/emit-arrival-fact.test.mjs",
+      "source_identity": "1f:f6ab18581d3ad684b263c7fa6353e5234f239818471d41adc00f9d4b309952e1",
+      "identity": "1f:f6ab18581d3ad684b263c7fa6353e5234f239818471d41adc00f9d4b309952e1"
+    },
+    {
+      "from": "packages/notice-when-something-shows-up/tests/files-someone-finished-putting-here.test.mjs",
+      "commit": "913c984e97859bc95743b7b6e67fa775273882d8",
+      "to": "tools/notice-when-something-shows-up/tests/files-someone-finished-putting-here.test.mjs",
+      "source_identity": "1f:992cc2db4948cd57a353c69c472040d0398e4e3c7dac8164808bc68eb81f3f84",
+      "identity": "1f:992cc2db4948cd57a353c69c472040d0398e4e3c7dac8164808bc68eb81f3f84"
+    },
+    {
+      "from": "packages/notice-when-something-shows-up/things-to-store-and-run.json",
+      "commit": "913c984e97859bc95743b7b6e67fa775273882d8",
+      "to": "tools/notice-when-something-shows-up/things-to-store-and-run.json",
+      "source_identity": "1f:e047f06779543f75ef69815d756a1a0d6a00cb020e52a2bd461f8b6837eedf4a",
+      "identity": "1f:e047f06779543f75ef69815d756a1a0d6a00cb020e52a2bd461f8b6837eedf4a"
+    }
+  ]
+}
