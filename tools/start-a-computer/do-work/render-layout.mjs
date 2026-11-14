@@ -30,6 +30,7 @@ const fill = (template, values, where) => template.replace(/\{([a-z_]+)\}/g, (_,
 /** The Caddy site file: one site block per name, each with the layout's port. `siteBlock` is the wrapper the set-up tool
  * uses, with {SITE} and {PORT} still to fill. The layout's own routes (caddy.routes) go first inside each block. */
 export const renderCaddy = (siteBlock, caddy) => {
+  if (caddy.site_file) return renderSiteFile(caddy);
   const { site_hosts, port, releases } = caddy;
   if (!Array.isArray(site_hosts) || !site_hosts.length) throw new Error('caddy.site_hosts needs at least one name');
   if (siteBlock.includes('{releases}') && !releases) throw new Error('caddy.releases needs the folder the /engine-releases/ route serves');
@@ -39,6 +40,24 @@ export const renderCaddy = (siteBlock, caddy) => {
     return `${routes ? block.replace('\n', `\n${routes}\n`) : block}\n`;
   }).join('');
   return caddy.front_door ? renderFrontDoor(caddy.front_door, sites) : sites;
+};
+
+/** A computer whose caddy row names `site_file` gets that whole file (read-data/caddy-sites/<site_file>.caddy): each
+ * {{field}} in it is the row's own value (a list is joined with spaces), and {{routes}} is the row's routes (caddy.routes),
+ * each filled as in a site block. Caddy's own {placeholders} are left as they are. */
+const SITE_FILE = name => {
+  const file = new URL(`../read-data/caddy-sites/${name}.caddy`, import.meta.url);
+  if (!/^[a-z0-9-]+$/.test(name) || !existsSync(file)) throw new Error(`caddy.site_file names an unknown site file ${name}`);
+  return readFileSync(file, 'utf8');
+};
+const renderSiteFile = caddy => {
+  const where = `caddy site file ${caddy.site_file}`;
+  const routes = (caddy.routes ?? []).map(name => fill(ROUTE(name), caddy, `caddy route ${name}`)).join('\n');
+  return SITE_FILE(caddy.site_file).replace(/\{\{([a-z_]+)\}\}/g, (_, key) => {
+    if (key === 'routes') return routes;
+    if (caddy[key] === undefined) throw new Error(`${where} needs ${key}`);
+    return Array.isArray(caddy[key]) ? caddy[key].join(' ') : String(caddy[key]);
+  });
 };
 
 /** A front door's whole site file: the shared storage and the on-demand ask (global options), the loopback site the ask

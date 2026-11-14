@@ -60,7 +60,7 @@ test('differences name a missing file and a changed file, and match when equal',
 // A computer whose layout row names the better-auth unit and route serves sign-in: the unit runs official Better Auth from
 // the Workshop tool folder with its settings from the row, the secret by vault key only, and Caddy sends the auth paths to it.
 const withSignIn = {
-  caddy: { ...layout.caddy, routes: ['better-auth'], auth_port: 7201 },
+  caddy: { ...layout.caddy, routes: ['better-auth', 'better-auth-discovery'], auth_port: 7201 },
   units: [...layout.units, {
     unit: 'example-sign-in.service', template: 'serve-better-auth', description: 'Example sign-in', user: 'example-sign-in',
     workshop: '/var/lib/example-sign-in/trillion-workshop', repository: 'https://github.com/Trillion-X/trillion-workshop.git',

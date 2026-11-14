@@ -142,7 +142,11 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
     if (path === CADDYFILE) {
       await run(machine, `install -m 0644 -o root -g root /dev/stdin ${q(`${path}.new`)}`, text);
       // A front door's site file names its shared storage through the environment file only the door's Caddy reads.
-      const validate = door ? `set -a && . ${q(door.storage_env)} && set +a && ${q(doorCaddy.binary)}` : 'caddy';
+      // The Caddy that validates is the one the computer runs: the pinned front door's, or the caddy row's `binary`, with
+      // the storage environment its site file reads (`storage_env`) when the row names one.
+      const storageEnv = door?.storage_env ?? layout.caddy?.storage_env;
+      const binary = door ? q(doorCaddy.binary) : layout.caddy?.binary ? q(layout.caddy.binary) : 'caddy';
+      const validate = storageEnv ? `set -a && . ${q(storageEnv)} && set +a && ${binary}` : binary;
       await run(machine, `${validate} validate --config ${q(`${path}.new`)} --adapter caddyfile >/dev/null && mv ${q(`${path}.new`)} ${q(path)}`);
     } else if (owner(path)) {
       await run(machine, `install -m 0600 -o ${q(owner(path))} -g ${q(owner(path))} /dev/stdin ${q(path)}`, text);
@@ -378,7 +382,7 @@ export async function capTheJournal(machine, run = onMachine, root = '') {
 async function serve(machine, request, price, { run, product, held, ...deps }) {
   const engine = request.engine;
   if (!request.host_layout) throw refused('A start needs host_layout: the computer\'s layout row (units, caddy, unmanaged).');
-  await applyHostLayout(machine, request.host_layout, run, undefined, held);
+  await applyHostLayout(machine, await hostLayoutOf(request, deps.readRow), run, undefined, held);
   await capTheJournal(machine, run);
   const release = await installRelease(machine, engine, run);
   const config = await computerConfig(machine, request, price, run, product);
@@ -407,7 +411,8 @@ export async function rentAMachine(request, { machineToken, nameToken, fetchImpl
   return { machine, price, arch, lease: { provider: lease.provider, name: lease.name, serverId: lease.serverId, address: lease.address, state: lease.state }, host_name: request.name.host_name };
 }
 
-export async function startAComputer(request, { machineToken, nameToken, held = {}, fetchImpl = fetch, wait = pause, tries = 48, run = onMachine } = {}) {
+export async function startAComputer(given, { machineToken, nameToken, held = {}, fetchImpl = fetch, wait = pause, tries = 48, run = onMachine, readRow } = {}) {
+  const request = given.host_layout === undefined ? given : { ...given, host_layout: await hostLayoutOf(given, readRow) };
   const product = productSettingsOf(readProductData(request));
   if (request.copies !== undefined) copiesPolicy(request.copies);
   feedOf(request);
@@ -602,6 +607,38 @@ export async function removeAPlace(leaseFile, { machineToken, nameToken, fetchIm
 }
 
 /** A request read from its file, each of its paths resolved against the file's own folder. */
+/** The computer's layout: `request.host_layout` is the row itself, or the id of the person's own row that holds it
+ * (`record:host-layout:<computer>`, read at @own-records), so the row in the person's lists is what a computer runs. */
+export async function hostLayoutOf(request, readRow = readOwnRecord) {
+  const given = request.host_layout;
+  if (typeof given !== 'string') return given;
+  if (!/^record:host-layout:[a-z0-9-]+$/.test(given)) throw refused('host_layout is the layout row or a record:host-layout:<computer> id.');
+  const row = await readRow(given);
+  if (!row || !Array.isArray(row.units) || !row.caddy) throw refused(`${given} holds no layout (units and caddy).`);
+  return row;
+}
+
+/** One of the person's own rows, read through their door (the key `trillion login` keeps). */
+async function readOwnRecord(id) {
+  const { credentialFor, doorFor, trillionClient } = await import('../../use-trillion-from-a-shell/do-work/trillion.mjs');
+  const credential = await credentialFor();
+  const answer = await trillionClient({ door: doorFor({ credential }), credential }).op('@own-records', 'records:read', { id });
+  return answer?.value;
+}
+
+/** Apply a computer's layout row to the computer the request names (`machine.address`, `ssh`), already running: the same
+ * apply a start does, with the values its units name by vault name (`held`). */
+export async function applyALayout(request, { held = {}, run = onMachine, readRow } = {}) {
+  const layout = await hostLayoutOf(request, readRow);
+  return applyHostLayout({ ssh: request.ssh, address: request.machine.address }, layout, run, undefined, held);
+}
+
+/** What the computer the request names runs that its layout row does not render: [] when it matches. */
+export async function layoutDifferences(request, { run = onMachine, readRow } = {}) {
+  const layout = await hostLayoutOf(request, readRow);
+  return { differences: await hostLayoutDifferences({ ssh: request.ssh, address: request.machine.address }, layout, run) };
+}
+
 export function readRequest(file) {
   const request = JSON.parse(readFileSync(absolute(file, 'REQUEST_FILE'), 'utf8')), here = dirname(file);
   const resolveIn = (holder, key) => { if (holder && typeof holder[key] === 'string') holder[key] = resolvePath(here, holder[key]); };
@@ -631,15 +668,25 @@ async function pipe(fd) {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [operation, first, second, third] = process.argv.slice(2);
-  const usage = 'usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | install LEASE_FILE REQUEST_FILE | update LEASE_FILE REQUEST_FILE | rollback LEASE_FILE REQUEST_FILE BACKUP | remove LEASE_FILE (machine credential on fd 3, name credential on fd 4, the values a layout names by vault name on fd 5)';
+  const usage = 'usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | layout REQUEST_FILE | differences REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | install LEASE_FILE REQUEST_FILE | update LEASE_FILE REQUEST_FILE | rollback LEASE_FILE REQUEST_FILE BACKUP | remove LEASE_FILE (machine credential on fd 3, name credential on fd 4, the values a layout names by vault name on fd 5)';
   const overMachine = ['install', 'update', 'rollback', 'unit'];
   const json = path => readRequest(resolvePath(path));
   try {
+    if (operation === 'layout' || operation === 'differences') {
+      if (!first || second) throw Object.assign(new Error(usage), { exit: 2 });
+      const request = json(first), layout = await hostLayoutOf(request);
+      const fixed = { ...request, host_layout: layout };
+      const held = operation === 'layout' && layout.units.some(unit => unit.secret_vault_key) ? heldValues(await pipe(5)) : {};
+      const answer = operation === 'layout' ? await applyALayout(fixed, { held }) : await layoutDifferences(fixed);
+      process.stdout.write(`${JSON.stringify(answer)}\n`);
+      process.exit(0);
+    }
     if (!first || !['price', 'rent', 'start', 'status', 'unit', 'install', 'update', 'rollback', 'remove'].includes(operation) || overMachine.includes(operation) !== Boolean(second) || (operation === 'rollback') !== Boolean(third)) throw Object.assign(new Error(usage), { exit: 2 });
     const asked = ['price', 'rent', 'start'].includes(operation), lease = asked ? null : readLease(resolvePath(first));
     const needsName = ['rent', 'start'].includes(operation) ? Boolean(json(first).name?.provider) : operation === 'remove' && Boolean(lease.recordId);
     const needsMachine = !overMachine.includes(operation) && Boolean(machineProvider(asked ? json(first).machine.provider : lease.provider).base);
-    const needsHeld = operation === 'start' && (json(first).host_layout?.units ?? []).some(unit => unit.secret_vault_key);
+    const startLayout = operation === 'start' ? await hostLayoutOf(json(first)) : null;
+    const needsHeld = (startLayout?.units ?? []).some(unit => unit.secret_vault_key);
     const tokens = { machineToken: needsMachine ? await pipe(3) : '', nameToken: needsName ? await pipe(4) : '', held: needsHeld ? heldValues(await pipe(5)) : {} };
     const answer = operation === 'price' ? await priceOfAPlace(json(first), tokens)
       : operation === 'rent' ? await rentAMachine(json(first), tokens).then(({ lease, host_name, arch, price }) => ({ lease, host_name, arch, price }))

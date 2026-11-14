@@ -1,0 +1,163 @@
+# Front door of a serving computer ({{door_host}} and every attached name). Replaces the relay's nginx route for route.
+# Certificates live in the shared storage every serving computer reaches, so any of them can answer any name.
+{
+	admin localhost:2019
+	storage redis {
+		address {$CADDY_STORAGE_ADDRESS}
+		password {$CADDY_STORAGE_PASSWORD}
+		encryption_key {$CADDY_STORAGE_KEY}
+		key_prefix {{storage_key_prefix}}
+		tls_enabled true
+		tls_server_certs_path {{storage_server_cert}}
+	}
+	on_demand_tls {
+		ask http://127.0.0.1:{{ask_port}}{{ask_path}}
+	}
+	servers {
+		trusted_proxies static {{trusted_proxies}}
+		client_ip_headers X-Forwarded-For
+	}
+}
+
+(forwarder) {
+	reverse_proxy {{door_upstream}} {
+		header_up Host {args[0]}
+		header_up CF-Connecting-IP {client_ip}
+		flush_interval -1
+		transport http {
+			tls_server_name {{door_host}}
+			read_timeout 3600s
+			write_timeout 3600s
+		}
+	}
+}
+
+(old_site) {
+	reverse_proxy https://{{old_site}} {
+		header_up Host {{old_site}}
+		header_up -Cookie
+		transport http {
+			tls_server_name {{old_site}}
+		}
+	}
+}
+
+# The on-demand ask: the forwarder's own answer (200 only for a host exactly one live account names).
+http://127.0.0.1:{{ask_port}} {
+	bind 127.0.0.1
+	@ask path {{ask_path}}
+	handle @ask {
+		import forwarder {{door_host}}
+	}
+	respond 404
+}
+
+{{door_host}} {
+	request_body {
+		max_size {{request_max}}
+	}
+	@account_cookie header_regexp Cookie (?:^|;)[[:blank:]]*__Host-account-address(?:[[:blank:]]*=|[[:blank:]]*(?:;|$))
+	@no_cookie not header Cookie *
+
+{{routes}}
+	handle /healthz {
+		respond "tls-ready
+" 200
+	}
+	handle / {
+		handle @account_cookie {
+			import forwarder {{door_host}}
+		}
+		handle @no_cookie {
+			import forwarder {{door_host}}
+		}
+		handle {
+			reverse_proxy {{engine_listen}} {
+				header_up Host {{door_host}}
+				header_up CF-Connecting-IP {client_ip}
+				flush_interval -1
+			}
+		}
+	}
+	@download_index path /download /download/
+	handle @download_index {
+		redir {{download_default}} 302
+	}
+	handle_path /download/* {
+		@dot path /.*
+		respond @dot 404
+		@not_read not method GET HEAD
+		respond @not_read 403
+		header Cache-Control "public, max-age=300"
+		header Content-Type application/octet-stream
+		root * {{downloads_root}}
+		file_server
+	}
+	@forwarder path {{forwarder_paths}}
+	handle @forwarder {
+		import forwarder {{door_host}}
+	}
+	@old_site_paths path {{old_site_paths}}
+	handle @old_site_paths {
+		@not_read not method GET HEAD
+		respond @not_read 403
+		import old_site
+	}
+	@old_icons path_regexp ^/(icon(-48|-192|-512|-maskable-512)?\.png)$
+	handle @old_icons {
+		@not_read not method GET HEAD
+		respond @not_read 403
+		import old_site
+	}
+	@assets path_regexp ^/(brand/current/mark\.svg|favicon\.svg|favicon\.ico|apple-touch-icon\.png|icon-192\.png|icon-512\.png|icon-maskable-512\.png|trillion\.webmanifest|workspace/fonts\.css|workspace/fonts/[A-Za-z-]+\.woff2)$
+	handle @assets {
+		import forwarder {{door_host}}
+	}
+	handle /marketplace {
+		@not_read not method GET HEAD
+		respond @not_read 403
+		handle @account_cookie {
+			import forwarder {{door_host}}
+		}
+		handle {
+			redir https://{{old_site}}/marketplace 302
+		}
+	}
+	handle {
+		reverse_proxy {{engine_listen}} {
+			header_up Host {{door_host}}
+			header_up CF-Connecting-IP {client_ip}
+			flush_interval -1
+		}
+	}
+	handle_errors 502 503 504 {
+		header Retry-After 5
+		header Cache-Control no-store
+		header Content-Type "text/html; charset=utf-8"
+		respond "<!doctype html><meta charset=utf-8><title>Trillion</title><p>One moment, Trillion is reconnecting. Refresh in a few seconds.</p>" 503
+	}
+}
+
+# Every other name: a certificate only when the forwarder's ask says one live account names it.
+https:// {
+	tls {
+		on_demand
+	}
+	request_body {
+		max_size {{request_max}}
+	}
+	reverse_proxy {{door_upstream}} {
+		header_up Host {host}
+		header_up CF-Connecting-IP {client_ip}
+		flush_interval -1
+		transport http {
+			tls_server_name {{door_host}}
+			read_timeout 3600s
+			write_timeout 3600s
+		}
+	}
+}
+
+http:// {
+	redir https://{host}{uri} 308
+}
