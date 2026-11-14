@@ -1,0 +1,7 @@
+[Unit]
+Description=Put back any file that differs from this computer's layout row
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh {keep_script}

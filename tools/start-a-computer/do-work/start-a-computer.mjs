@@ -19,7 +19,7 @@
 // an optional signed release feed. Updates retain a backup and can roll back.
 //
 // usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | install LEASE_FILE REQUEST_FILE | update LEASE_FILE REQUEST_FILE | rollback LEASE_FILE REQUEST_FILE BACKUP | remove LEASE_FILE
-import { differences, renderLayout } from './render-layout.mjs';
+import { CADDYFILE, caddyValidator, differences, placementOf, renderLayout, unitOf } from './render-layout.mjs';
 import { readFileSync, createReadStream } from 'node:fs';
 import { isAbsolute, dirname, basename, resolve as resolvePath, posix } from 'node:path';
 import { spawn } from 'node:child_process';
@@ -83,7 +83,8 @@ export async function hostLayoutState(machine, layout, run = onMachine, product)
   const live = {};
   for (const { path } of rendered) live[path] = await readIfPresent(machine, run, path);
   const found = [];
-  for (const unit of units) {
+  // Caddy's own drop-ins are the row's too: a front door declares front-door.conf, any other layout none.
+  for (const unit of [...units, { unit: 'caddy.service', drop_ins: layout.caddy?.front_door ? ['front-door'] : [] }]) {
     const dir = `/etc/systemd/system/${unit.unit}.d`;
     const names = (await run(machine, `if [ -d ${q(dir)} ]; then ls -1 ${q(dir)}; fi`)).split('\n').filter(Boolean);
     found.push(...names.filter(name => !(unit.drop_ins ?? []).includes(name.replace(/\.conf$/, ''))).map(name => ({ path: `${dir}/${name}`, reason: 'not in the layout' })));
@@ -134,36 +135,36 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
   for (const unit of missing) {
     await run(machine, `install -d -m 0700 ${q(dirname(unit.secret_file))} && umask 077 && systemd-creds encrypt --name=${q(unit.secret_name)} - ${q(unit.secret_file)}`, held[unit.secret_vault_key]);
   }
-  // A product settings file is the unit's own: its user owns it and it is private (0600), as serve writes it.
-  const owner = path => layout.units.find(unit => unit.product_settings === path)?.user;
+  // A product settings file is the unit's own: its user owns it and it is private (0600), as serve writes it; the list a
+  // kept layout's timer reads is root's and private (render-layout placementOf).
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   for (const { path, text } of writes) {
     if (live[path] !== undefined) await run(machine, `cp -p ${q(path)} ${q(`${path}.bak-${stamp}`)}`);
     if (path === CADDYFILE) {
       await run(machine, `install -m 0644 -o root -g root /dev/stdin ${q(`${path}.new`)}`, text);
       // A front door's site file names its shared storage through the environment file only the door's Caddy reads.
-      const validate = door ? `set -a && . ${q(door.storage_env)} && set +a && ${q(doorCaddy.binary)}` : 'caddy';
-      await run(machine, `${validate} validate --config ${q(`${path}.new`)} --adapter caddyfile >/dev/null && mv ${q(`${path}.new`)} ${q(path)}`);
-    } else if (owner(path)) {
-      await run(machine, `install -m 0600 -o ${q(owner(path))} -g ${q(owner(path))} /dev/stdin ${q(path)}`, text);
+      await run(machine, `${caddyValidator(layout)} validate --config ${q(`${path}.new`)} --adapter caddyfile >/dev/null && mv ${q(`${path}.new`)} ${q(path)}`);
     } else {
-      await run(machine, `install -d -m 0755 ${q(dirname(path))} && install -m 0644 -o root -g root /dev/stdin ${q(path)}`, text);
+      const { mode, owner } = placementOf(layout, path);
+      await run(machine, `${owner === 'root' ? `install -d -m 0755 ${q(dirname(path))} && ` : ''}install -m ${mode} -o ${q(owner)} -g ${q(owner)} /dev/stdin ${q(path)}`, text);
     }
   }
-  const unitOf = path => layout.units.find(unit => unit.product_settings === path)?.unit ?? path.match(/\/([^/]+\.service)(?:\.d\/[^/]+)?$/)?.[1];
-  const units = [...new Set([...writes.map(({ path }) => unitOf(path)), ...missing.map(unit => unit.unit)].filter(Boolean))];
-  const running = new Set([...writes.filter(({ path }) => live[path] !== undefined).map(({ path }) => unitOf(path)),
+  // The keep timer's service runs its script when the timer fires; it is never restarted as a server is.
+  const units = [...new Set([...writes.map(({ path }) => unitOf(layout, path)), ...missing.map(unit => unit.unit)].filter(unit => unit && unit !== 'keep-the-layout.service'))];
+  const running = new Set([...writes.filter(({ path }) => live[path] !== undefined).map(({ path }) => unitOf(layout, path)),
     ...missing.filter(unit => live[`/etc/systemd/system/${unit.unit}`] !== undefined).map(unit => unit.unit)]);
   if (units.length) await run(machine, 'systemctl daemon-reload');
   // Caddy is restarted, never only enabled, when its front-door drop-in changes: the drop-in swaps the program itself.
+  // A timer is started as well as enabled: nothing else starts it, while a server's first start is its own tool's.
   for (const unit of units) {
-    await run(machine, running.has(unit) || unit === 'caddy.service' ? `systemctl restart ${q(unit)}` : `systemctl enable ${q(unit)} >/dev/null 2>&1`);
+    await run(machine, running.has(unit) || unit === 'caddy.service' ? `systemctl restart ${q(unit)}`
+      : unit.endsWith('.timer') ? `systemctl enable --now ${q(unit)} >/dev/null 2>&1` : `systemctl enable ${q(unit)} >/dev/null 2>&1`);
   }
   if (writes.some(({ path }) => path === CADDYFILE) && !units.includes('caddy.service')) await run(machine, 'systemctl reload caddy');
   // The boot check: each restarted unit must answer the health row its layout names (else the tool default), on the machine
   // itself, so a unit that starts and crashes, or a route that is not served, fails the apply instead of passing it.
   const booted = [];
-  for (const unit of units) {
+  for (const unit of units.filter(unit => !unit.endsWith('.timer'))) {
     const health = healthOf({ health: layout.health }, {});
     const listen = layout.health_listen ?? layout.caddy?.listen ?? `127.0.0.1:${layout.caddy?.port}`;
     const status = await healthStatus(machine, { listen }, layout.caddy?.site_hosts?.[0] ?? '', { ...health, where: 'machine' }, { fetchImpl: undefined, wait: pause, tries: 12, run });
@@ -172,8 +173,6 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
   }
   return { written: writes.map(({ path }) => path), restarted: units, booted, ...(missing.length ? { sealed: missing.map(unit => unit.secret_name) } : {}) };
 }
-
-const CADDYFILE = '/etc/caddy/Caddyfile';
 
 /** The pinned front-door Caddy for this machine's architecture: { binary, url, sha256 } (settings.json caddy_front_door). */
 async function frontDoorCaddy(machine, run) {

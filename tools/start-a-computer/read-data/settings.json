@@ -8,6 +8,13 @@
   "layout": { "releases": "/opt/place/releases" },
   "copies": { "most_admitted_computers": 1024 },
   "caddy_routes": ["engine-releases"],
+  "keep_layout": {
+    "_what": "Where a computer whose layout row names keep_layout keeps itself to that row: the script keep-the-layout.timer runs, the list of every file the row renders (with each file's bytes, mode, owner and unit), the difference rows the script writes before it puts a file back, and the folder an undeclared drop-in is moved to. The interval is the row's own keep_layout.every.",
+    "script": "/usr/local/lib/start-a-computer/keep-the-layout.sh",
+    "manifest": "/etc/start-a-computer/layout-files.json",
+    "rows": "/var/lib/start-a-computer/differences.jsonl",
+    "held": "/var/lib/start-a-computer/held"
+  },
   "caddy_front_door": {
     "binary": "/opt/caddy/2.11.9-redis/caddy",
     "files": {

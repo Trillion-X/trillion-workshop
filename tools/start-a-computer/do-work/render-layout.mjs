@@ -8,7 +8,11 @@
 // row has `front_door` is a public front door (read-data/caddy-front-door): its certificates live in the shared storage
 // every front door reaches, a name no site block names gets one on demand only when the door's ask path says yes, and
 // each such name and each of `door_hosts` is carried to `door_upstream`; Caddy itself is settings.json caddy_front_door.
+// A layout whose row names `keep_layout` (`every`: a systemd interval such as 2min) keeps the computer to the row: it also
+// declares keep-the-layout.timer, its service and script, and the list of every file the row renders with the bytes, mode,
+// owner and unit of each (settings.json keep_layout), which the script compares with the computer and puts back.
 import { existsSync, readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 
 const TEMPLATE = name => readFileSync(new URL(`../read-data/unit-templates/${name}`, import.meta.url), 'utf8');
 const UNITS = { 'serve-place': TEMPLATE('serve-place.service'), 'serve-computer': TEMPLATE('serve-computer.service'), 'serve-set-up': TEMPLATE('serve-set-up.service'), 'serve-better-auth': TEMPLATE('serve-better-auth.service') };
@@ -20,7 +24,11 @@ const ROUTE = name => {
 const DROP_INS = { nofile: TEMPLATE('nofile.conf'), 'product-settings': TEMPLATE('product-settings.conf') };
 const SYSTEMD = '/etc/systemd/system';
 const FRONT_DOOR = name => readFileSync(new URL(`../read-data/caddy-front-door/${name}.caddy`, import.meta.url), 'utf8').trimEnd();
-const FRONT_DOOR_CADDY = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8')).caddy_front_door;
+const SETTINGS = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8'));
+const FRONT_DOOR_CADDY = SETTINGS.caddy_front_door;
+export const KEEP = SETTINGS.keep_layout;
+const KEEP_SCRIPT = readFileSync(new URL('./keep-the-layout.sh', import.meta.url), 'utf8');
+export const CADDYFILE = '/etc/caddy/Caddyfile';
 
 const fill = (template, values, where) => template.replace(/\{([a-z_]+)\}/g, (_, key) => {
   if (values[key] === undefined) throw new Error(`${where} needs ${key}`);
@@ -56,7 +64,7 @@ const renderFrontDoor = (door, sites) => {
 /** Every file a layout declares: { path, text }. A unit's drop-ins are the names it lists in `drop_ins`. With the product
  * settings' text (the verified product data), each unit that names a `product_settings` file declares that file too. */
 export function renderLayout(layout, siteBlock, productSettings) {
-  const files = [{ path: '/etc/caddy/Caddyfile', text: renderCaddy(siteBlock, layout.caddy) }];
+  const files = [{ path: CADDYFILE, text: renderCaddy(siteBlock, layout.caddy) }];
   const door = layout.caddy?.front_door;
   if (door) files.push({ path: `${SYSTEMD}/caddy.service.d/front-door.conf`, text: fill(TEMPLATE('caddy-front-door.conf'), { ...door, binary: FRONT_DOOR_CADDY.binary }, 'caddy.front_door') });
   for (const unit of layout.units ?? []) {
@@ -75,7 +83,54 @@ export function renderLayout(layout, siteBlock, productSettings) {
       files.push({ path: `${SYSTEMD}/${unit.unit}.d/${name}.conf`, text: fill(dropIn, unit, `${where} drop-in ${name}`) });
     }
   }
-  return files;
+  return layout.keep_layout ? [...files, ...keepFiles(layout, files)] : files;
+}
+
+/** How a declared file is placed: a unit's product settings file is its user's and private, the list of kept files is
+ * root's and private, every other file is root's and readable. */
+export function placementOf(layout, path) {
+  if (path === KEEP.manifest) return { mode: '0600', owner: 'root' };
+  const owner = (layout.units ?? []).find(unit => unit.product_settings === path)?.user;
+  return owner ? { mode: '0600', owner } : { mode: '0644', owner: 'root' };
+}
+
+/** The unit a declared file belongs to (its unit file, a drop-in, or a settings file a unit reads), else undefined. */
+export function unitOf(layout, path) {
+  const reads = (layout.units ?? []).find(unit => unit.product_settings === path || unit.settings_file === path)?.unit;
+  return reads ?? path.match(/^\/etc\/systemd\/system\/([^/]+\.(?:service|timer))(?:\.d\/[^/]+)?$/)?.[1];
+}
+
+/** The command a Caddy site file is validated with before it replaces the live one: a front door's own pinned Caddy, read
+ * with its shared storage's environment, else the packaged caddy. */
+export const caddyValidator = layout => {
+  const door = layout.caddy?.front_door;
+  return door ? `set -a && . '${door.storage_env}' && set +a && '${FRONT_DOOR_CADDY.binary}'` : 'caddy';
+};
+
+/** The files a kept layout adds: the timer at the row's interval, its service, the script, and last the list of every file
+ * the row renders (these included) that the script compares with the computer. */
+function keepFiles(layout, files) {
+  const { every } = layout.keep_layout;
+  if (!/^[1-9][0-9]*(s|min|h)$/.test(String(every ?? ''))) throw new Error('keep_layout.every needs an interval such as 30s, 2min or 1h');
+  const kept = [
+    ...files,
+    { path: `${SYSTEMD}/keep-the-layout.service`, text: fill(TEMPLATE('keep-the-layout.service'), { keep_script: KEEP.script }, 'keep_layout') },
+    { path: `${SYSTEMD}/keep-the-layout.timer`, text: fill(TEMPLATE('keep-the-layout.timer'), { every }, 'keep_layout') },
+    { path: KEEP.script, text: KEEP_SCRIPT },
+  ];
+  const door = layout.caddy?.front_door;
+  const units = [
+    ...(layout.units ?? []).map(unit => ({ unit: unit.unit, drop_ins: unit.drop_ins ?? [] })),
+    { unit: 'caddy.service', drop_ins: door ? ['front-door'] : [] },
+  ];
+  const list = {
+    rows: KEEP.rows, held: KEEP.held, units,
+    files: kept.map(({ path, text }) => ({
+      path, sha256: createHash('sha256').update(text).digest('hex'), text_base64: Buffer.from(text).toString('base64'),
+      ...placementOf(layout, path), unit: unitOf(layout, path) ?? null, ...(path === CADDYFILE ? { validate: caddyValidator(layout) } : {}),
+    })),
+  };
+  return [...kept.slice(files.length), { path: KEEP.manifest, text: `${JSON.stringify(list, null, 1)}\n` }];
 }
 
 /** The files whose live text is not what the layout renders: { path, reason }. Empty means the layout matches. */

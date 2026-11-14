@@ -1,0 +1,10 @@
+[Unit]
+Description=Compare this computer with its layout row every {every}
+
+[Timer]
+OnBootSec={every}
+OnUnitActiveSec={every}
+Unit=keep-the-layout.service
+
+[Install]
+WantedBy=timers.target
