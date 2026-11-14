@@ -881,7 +881,8 @@
       "capability": "add up revenue, refunds, net revenue and recurring revenue from any provider's payment events",
       "owner": ["tools/revenue-ledger/"],
       "entry": "tools/revenue-ledger/tool-rows.json",
-      "evidence": "README.md:3 adds up revenue, refunds, net revenue and active recurring revenue from any provider's payment events"
+      "evidence": "README.md:3 adds up revenue, refunds, net revenue and active recurring revenue from any provider's payment events; the original bitfield-packages package revenue-ledger (d926b7adb8ca24159ee64f47e7d9cae254f5b641) is carried under from-bitfield-packages/ with its finance screen, e2e test and package records, held (.held) until adapted, receipt in moved-from.json",
+      "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/revenue-ledger/"]}
     },
     {
       "capability": "see the programs running on a person's computer and how much memory each one uses",

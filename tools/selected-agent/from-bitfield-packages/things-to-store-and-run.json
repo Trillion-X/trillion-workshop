@@ -1,0 +1,917 @@
+{
+  "package": "selected-agent",
+  "things": [
+    {
+      "type": "record_from_matching_records",
+      "address": "package::selected-agent::provider-routing-facts",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "attribute_fact"
+        ],
+        [
+          "prop:provider_routing:policy"
+        ],
+        [
+          "prop:provider:vendor"
+        ],
+        [
+          "prop:provider:availability"
+        ],
+        [
+          "prop:provider:authority"
+        ],
+        [
+          "prop:provider:capability_refs"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::selected-agent::checks",
+      "path": ["package-checks"],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "do-work/set-selected-agent.test.ts",
+          "do-work/read-ai-readiness-target.test.ts",
+          "read-data/read-selected-agent.test.ts",
+          "read-data/read-runnable-ai-providers.test.ts",
+          "show/AgentSelectionSurface.test.tsx"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::selected-agent::target::ai-readiness",
+      "path": ["packages", "selected-agent", "targets", "ai-readiness"],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "target": "selected-agent.ai-readiness",
+        "entry_name": "read-ai-readiness-target",
+        "export_name": "readAiReadinessTarget",
+        "source_path": "do-work/read-ai-readiness-target.ts"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::selected-agent::target::chosen-ai-provider",
+      "path": ["packages", "selected-agent", "targets", "chosen-ai-provider"],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "target": "selected-agent.chosen-ai-provider",
+        "entry_name": "read-ai-readiness-target",
+        "export_name": "readChosenAiProviderTarget",
+        "source_path": "do-work/read-ai-readiness-target.ts"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::selected-agent::entry::read-ai-readiness-target",
+      "path": ["packages", "selected-agent", "entries", "read-ai-readiness-target"],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "read-ai-readiness-target",
+        "export_name": "readAiReadinessTarget",
+        "source_path": "do-work/read-ai-readiness-target.ts",
+        "entry_bytes": { "stored_bytes": "entry-bytes-read-ai-readiness-target" }
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-read-ai-readiness-target",
+      "source_path": "built-stored-bytes/entry-bytes-read-ai-readiness-target",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-read-ai-readiness-target.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::selected-agent::public-source::set-selected-agent",
+      "path": [
+        "packages",
+        "selected-agent",
+        "public-sources",
+        "set-selected-agent"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work/set-selected-agent"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::selected-agent::input::selected-agent",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "selected-agent",
+        "is_default": true,
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "selectedAgentId",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              }
+            ],
+            "op": "rows"
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "selected-agent"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::selected-agent::input::chosen-ai-provider",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "chosen-ai-provider",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "package::selected-agent::chosen-ai-provider"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::selected-agent::input::cli-registry",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "cli-registry",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "subject_id",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "property_id",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "value",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ],
+            "op": "rows"
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "cli-registry"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::selected-agent::input::agent-profile-participants",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "agent-profile-participants",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "package::ai-agent-profile::agent-profiles-feed"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::selected-agent::input::addressed-exchange-participants",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "addressed-exchange-participants",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "subject_id",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "property_id",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "value",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ],
+            "op": "rows"
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "addressed-exchange-participants"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::selected-agent::input::chat-model-descriptors",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "chat-model-descriptors",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "package::chat::model-descriptors-feed"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::selected-agent::input::provider-routing-facts",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "provider-routing-facts",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "package::selected-agent::provider-routing-facts"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|action:publish-selected-agent|prop:action:description|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:action:description"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFjdGlvbjpkZXNjcmlwdGlvbiIsCiAgInN1YmplY3RfaWQiOiAiYWN0aW9uOnB1Ymxpc2gtc2VsZWN0ZWQtYWdlbnQiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTphY3Rpb24iLAogICJ2YWx1ZV9qc29uIjogIlwiUmVhZCBzZWxlY3RlZC1hZ2VudCBvd25lciBmYWN0cyBhbmQgcHVibGlzaCB0aGUgYWRkcmVzc2VkIHNlbGVjdGVkLWFnZW50IHNpbmsgcGF5bG9hZC5cIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|action:publish-selected-agent|prop:action:is_active|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:action:is_active"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFjdGlvbjppc19hY3RpdmUiLAogICJzdWJqZWN0X2lkIjogImFjdGlvbjpwdWJsaXNoLXNlbGVjdGVkLWFnZW50IiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6YWN0aW9uIiwKICAidmFsdWVfanNvbiI6ICJ0cnVlIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|action:publish-selected-agent|prop:action:slug|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:action:slug"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFjdGlvbjpzbHVnIiwKICAic3ViamVjdF9pZCI6ICJhY3Rpb246cHVibGlzaC1zZWxlY3RlZC1hZ2VudCIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOmFjdGlvbiIsCiAgInZhbHVlX2pzb24iOiAiXCJwdWJsaXNoLXNlbGVjdGVkLWFnZW50XCIiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|action:publish-selected-agent|prop:action:workflow_steps|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:action:workflow_steps"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFjdGlvbjp3b3JrZmxvd19zdGVwcyIsCiAgInN1YmplY3RfaWQiOiAiYWN0aW9uOnB1Ymxpc2gtc2VsZWN0ZWQtYWdlbnQiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTphY3Rpb24iLAogICJ2YWx1ZV9qc29uIjogIltcbiAge1xuICAgIFwia2luZFwiOiBcImFza1wiLFxuICAgIFwiY29uZmlnXCI6IHtcbiAgICAgIFwibmFtZVwiOiBcInNsb3Q6OmZpbmQtY3VycmVudC1pdGVtc1wiLFxuICAgICAgXCJpbnB1dFwiOiB7XG4gICAgICAgIFwib3BlcmF0aW9uXCI6IFwiZmluZC1jdXJyZW50LWl0ZW1zXCIsXG4gICAgICAgIFwiaW5cIjogXCJhdHRyaWJ1dGVfZmFjdFwiLFxuICAgICAgICBcInNlbGVjdFwiOiBbXG4gICAgICAgICAgXCJzdWJqZWN0X2lkXCIsXG4gICAgICAgICAgXCJwcm9wZXJ0eV9pZFwiLFxuICAgICAgICAgIFwidmFsdWVfanNvblwiXG4gICAgICAgIF0sXG4gICAgICAgIFwid2hlcmVcIjoge1xuICAgICAgICAgIFwiYWxsXCI6IFtcbiAgICAgICAgICAgIHtcbiAgICAgICAgICAgICAgXCJmaWVsZFwiOiBcInN1YmplY3RfaWRcIixcbiAgICAgICAgICAgICAgXCJlcVwiOiBcInNlbGVjdGVkLWFnZW50OmN1cnJlbnRcIlxuICAgICAgICAgICAgfSxcbiAgICAgICAgICAgIHtcbiAgICAgICAgICAgICAgXCJmaWVsZFwiOiBcInByb3BlcnR5X2lkXCIsXG4gICAgICAgICAgICAgIFwiZXFcIjogXCJwcm9wOnNlbGVjdGVkX2FnZW50OmlkXCJcbiAgICAgICAgICAgIH1cbiAgICAgICAgICBdXG4gICAgICAgIH1cbiAgICAgIH1cbiAgICB9XG4gIH0sXG4gIHtcbiAgICBcImtpbmRcIjogXCJ3cml0ZVwiLFxuICAgIFwiY29uZmlnXCI6IHtcbiAgICAgIFwiaXRlbXNcIjogW1xuICAgICAgICB7XG4gICAgICAgICAgXCJhZGRyZXNzXCI6IFwic2VsZWN0ZWQtYWdlbnRcIixcbiAgICAgICAgICBcInBhdGhcIjogW10sXG4gICAgICAgICAgXCJwYXlsb2FkX2J5dGVzXCI6IHtcbiAgICAgICAgICAgIFwicm93c1wiOiB7XG4gICAgICAgICAgICAgIFwiJGtpbmRcIjogXCJiaW5kaW5nXCIsXG4gICAgICAgICAgICAgIFwic2VsZWN0XCI6IHtcbiAgICAgICAgICAgICAgICBcImZyb21cIjogXCJzdGVwc1wiLFxuICAgICAgICAgICAgICAgIFwia2V5XCI6IFwic3RlcF8wXCIsXG4gICAgICAgICAgICAgICAgXCJwYXRoXCI6IFwib3V0cHV0Lml0ZW1zXCJcbiAgICAgICAgICAgICAgfVxuICAgICAgICAgICAgfSxcbiAgICAgICAgICAgIFwiY29sdW1uc1wiOiBbXG4gICAgICAgICAgICAgIHtcbiAgICAgICAgICAgICAgICBcImNvbHVtblwiOiAwLFxuICAgICAgICAgICAgICAgIFwibWF0Y2hcIjogW1xuICAgICAgICAgICAgICAgICAge1xuICAgICAgICAgICAgICAgICAgICBcInBhdGhcIjogW1xuICAgICAgICAgICAgICAgICAgICAgIFwicHJvcGVydHlfaWRcIlxuICAgICAgICAgICAgICAgICAgICBdLFxuICAgICAgICAgICAgICAgICAgICBcImVxdWFsc1wiOiBcInByb3A6c2VsZWN0ZWRfYWdlbnQ6aWRcIlxuICAgICAgICAgICAgICAgICAgfVxuICAgICAgICAgICAgICAgIF0sXG4gICAgICAgICAgICAgICAgXCJzb3VyY2VcIjoge1xuICAgICAgICAgICAgICAgICAgXCJwYXRoXCI6IFtcbiAgICAgICAgICAgICAgICAgICAgXCJ2YWx1ZV9qc29uXCJcbiAgICAgICAgICAgICAgICAgIF0sXG4gICAgICAgICAgICAgICAgICBcInBhcnNlXCI6IHtcbiAgICAgICAgICAgICAgICAgICAgXCJmb3JtYXRcIjogXCJqc29uXCJcbiAgICAgICAgICAgICAgICAgIH1cbiAgICAgICAgICAgICAgICB9LFxuICAgICAgICAgICAgICAgIFwidmFsdWVcIjoge1xuICAgICAgICAgICAgICAgICAgXCJ2YWx1ZV90b19ieXRlc1wiOiBcIm5vbl9lbXB0eV90ZXh0XCJcbiAgICAgICAgICAgICAgICB9XG4gICAgICAgICAgICAgIH1cbiAgICAgICAgICAgIF0sXG4gICAgICAgICAgICBcInZhbHVlX3RvX2J5dGVzXCI6IFwiY2VsbF90YWJsZVwiXG4gICAgICAgICAgfVxuICAgICAgICB9XG4gICAgICBdXG4gICAgfVxuICB9XG5dIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|action:update-selected-agent|prop:action:description|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:action:description"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFjdGlvbjpkZXNjcmlwdGlvbiIsCiAgInN1YmplY3RfaWQiOiAiYWN0aW9uOnVwZGF0ZS1zZWxlY3RlZC1hZ2VudCIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOmFjdGlvbiIsCiAgInZhbHVlX2pzb24iOiAiXCJXcml0ZSBwcm9wOnNlbGVjdGVkX2FnZW50OmlkIG9uIHRoZSBzZWxlY3RlZC1hZ2VudCBvd25lci5cIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|action:update-selected-agent|prop:action:is_active|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:action:is_active"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFjdGlvbjppc19hY3RpdmUiLAogICJzdWJqZWN0X2lkIjogImFjdGlvbjp1cGRhdGUtc2VsZWN0ZWQtYWdlbnQiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTphY3Rpb24iLAogICJ2YWx1ZV9qc29uIjogInRydWUiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|action:update-selected-agent|prop:action:slug|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:action:slug"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFjdGlvbjpzbHVnIiwKICAic3ViamVjdF9pZCI6ICJhY3Rpb246dXBkYXRlLXNlbGVjdGVkLWFnZW50IiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6YWN0aW9uIiwKICAidmFsdWVfanNvbiI6ICJcInVwZGF0ZS1zZWxlY3RlZC1hZ2VudFwiIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|action:update-selected-agent|prop:action:workflow_steps|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:action:workflow_steps"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFjdGlvbjp3b3JrZmxvd19zdGVwcyIsCiAgInN1YmplY3RfaWQiOiAiYWN0aW9uOnVwZGF0ZS1zZWxlY3RlZC1hZ2VudCIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOmFjdGlvbiIsCiAgInZhbHVlX2pzb24iOiAiW1xuICB7XG4gICAgXCJraW5kXCI6IFwid3JpdGVcIixcbiAgICBcImNvbmZpZ1wiOiB7XG4gICAgICBcIml0ZW1zXCI6IFtcbiAgICAgICAge1xuICAgICAgICAgIFwiYWRkcmVzc1wiOiB7XG4gICAgICAgICAgICBcIiRraW5kXCI6IFwiYmluZGluZ1wiLFxuICAgICAgICAgICAgXCJzZWxlY3RcIjoge1xuICAgICAgICAgICAgICBcImZyb21cIjogXCJjb250ZXh0XCIsXG4gICAgICAgICAgICAgIFwicGF0aFwiOiBcInBhcnRpdGlvbl9rZXlcIlxuICAgICAgICAgICAgfSxcbiAgICAgICAgICAgIFwidHJhbnNmb3JtXCI6IFtcbiAgICAgICAgICAgICAge1xuICAgICAgICAgICAgICAgIFwib3BcIjogXCJvcDpjb3JlLmNvbmNhdFwiLFxuICAgICAgICAgICAgICAgIFwiYXJnc1wiOiB7XG4gICAgICAgICAgICAgICAgICBcInZhbHVlc1wiOiBbXG4gICAgICAgICAgICAgICAgICAgIFwiYXR0cmlidXRlX2ZhY3R8XCIsXG4gICAgICAgICAgICAgICAgICAgIFwifHNlbGVjdGVkLWFnZW50OmN1cnJlbnR8cHJvcDpzZWxlY3RlZF9hZ2VudDppZHx0eXBlOnN0cmluZ1wiXG4gICAgICAgICAgICAgICAgICBdXG4gICAgICAgICAgICAgICAgfVxuICAgICAgICAgICAgICB9XG4gICAgICAgICAgICBdXG4gICAgICAgICAgfSxcbiAgICAgICAgICBcInBhdGhcIjogW10sXG4gICAgICAgICAgXCJwYXlsb2FkXCI6IHtcbiAgICAgICAgICAgIFwic3ViamVjdF9pZFwiOiBcInNlbGVjdGVkLWFnZW50OmN1cnJlbnRcIixcbiAgICAgICAgICAgIFwicHJvcGVydHlfaWRcIjogXCJwcm9wOnNlbGVjdGVkX2FnZW50OmlkXCIsXG4gICAgICAgICAgICBcInR5cGVfaWRcIjogXCJ0eXBlOnN0cmluZ1wiLFxuICAgICAgICAgICAgXCJ2YWx1ZV9qc29uXCI6IHtcbiAgICAgICAgICAgICAgXCIka2luZFwiOiBcImJpbmRpbmdcIixcbiAgICAgICAgICAgICAgXCJzZWxlY3RcIjoge1xuICAgICAgICAgICAgICAgIFwiZnJvbVwiOiBcImlucHV0XCIsXG4gICAgICAgICAgICAgICAgXCJwYXRoXCI6IFwidmFsdWVcIlxuICAgICAgICAgICAgICB9LFxuICAgICAgICAgICAgICBcInRyYW5zZm9ybVwiOiBbXG4gICAgICAgICAgICAgICAge1xuICAgICAgICAgICAgICAgICAgXCJvcFwiOiBcIm9wOmNvcmUuc3RyaW5naWZ5XCIsXG4gICAgICAgICAgICAgICAgICBcImFyZ3NcIjoge1xuICAgICAgICAgICAgICAgICAgICBcImZvcm1hdFwiOiBcImpzb25cIlxuICAgICAgICAgICAgICAgICAgfVxuICAgICAgICAgICAgICAgIH1cbiAgICAgICAgICAgICAgXVxuICAgICAgICAgICAgfVxuICAgICAgICAgIH1cbiAgICAgICAgfVxuICAgICAgXVxuICAgIH1cbiAgfVxuXSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|selected-agent:current|prop:selected_agent:id|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:selected_agent:id"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnNlbGVjdGVkX2FnZW50OmlkIiwKICAic3ViamVjdF9pZCI6ICJzZWxlY3RlZC1hZ2VudDpjdXJyZW50IiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6c3RyaW5nIiwKICAidmFsdWVfanNvbiI6ICJudWxsIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:publish-selected-agent-on-change|prop:trigger:action_id|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:action_id"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6YWN0aW9uX2lkIiwKICAic3ViamVjdF9pZCI6ICJ0cmlnZ2VyOnB1Ymxpc2gtc2VsZWN0ZWQtYWdlbnQtb24tY2hhbmdlIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6dHJpZ2dlciIsCiAgInZhbHVlX2pzb24iOiAiXCJhY3Rpb246cHVibGlzaC1zZWxlY3RlZC1hZ2VudFwiIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:publish-selected-agent-on-change|prop:trigger:is_active|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:is_active"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6aXNfYWN0aXZlIiwKICAic3ViamVjdF9pZCI6ICJ0cmlnZ2VyOnB1Ymxpc2gtc2VsZWN0ZWQtYWdlbnQtb24tY2hhbmdlIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6dHJpZ2dlciIsCiAgInZhbHVlX2pzb24iOiAidHJ1ZSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:publish-selected-agent-on-change|prop:trigger:match_condition|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:match_condition"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6bWF0Y2hfY29uZGl0aW9uIiwKICAic3ViamVjdF9pZCI6ICJ0cmlnZ2VyOnB1Ymxpc2gtc2VsZWN0ZWQtYWdlbnQtb24tY2hhbmdlIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6dHJpZ2dlciIsCiAgInZhbHVlX2pzb24iOiAie1xuICBcImNvbmRpdGlvbnNcIjogW1xuICAgIHtcbiAgICAgIFwiJGJpbmRcIjoge1xuICAgICAgICBcInNlbGVjdFwiOiB7XG4gICAgICAgICAgXCJmcm9tXCI6IFwiY2hhbmdlXCIsXG4gICAgICAgICAgXCJwYXRoXCI6IFwic3ViamVjdF9pZFwiXG4gICAgICAgIH0sXG4gICAgICAgIFwidHJhbnNmb3JtXCI6IFtcbiAgICAgICAgICB7XG4gICAgICAgICAgICBcIm9wXCI6IFwib3A6Y29yZS5lcXVhbHNcIixcbiAgICAgICAgICAgIFwiYXJnc1wiOiB7XG4gICAgICAgICAgICAgIFwidmFsdWVcIjogXCJzZWxlY3RlZC1hZ2VudDpjdXJyZW50XCJcbiAgICAgICAgICAgIH1cbiAgICAgICAgICB9XG4gICAgICAgIF1cbiAgICAgIH1cbiAgICB9LFxuICAgIHtcbiAgICAgIFwiJGJpbmRcIjoge1xuICAgICAgICBcInNlbGVjdFwiOiB7XG4gICAgICAgICAgXCJmcm9tXCI6IFwiY2hhbmdlXCIsXG4gICAgICAgICAgXCJwYXRoXCI6IFwicHJvcGVydHlfaWRcIlxuICAgICAgICB9LFxuICAgICAgICBcInRyYW5zZm9ybVwiOiBbXG4gICAgICAgICAge1xuICAgICAgICAgICAgXCJvcFwiOiBcIm9wOmNvcmUuZXF1YWxzXCIsXG4gICAgICAgICAgICBcImFyZ3NcIjoge1xuICAgICAgICAgICAgICBcInZhbHVlXCI6IFwicHJvcDpzZWxlY3RlZF9hZ2VudDppZFwiXG4gICAgICAgICAgICB9XG4gICAgICAgICAgfVxuICAgICAgICBdXG4gICAgICB9XG4gICAgfVxuICBdXG59Igp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:publish-selected-agent-on-change|prop:trigger:payload_template|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:payload_template"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6cGF5bG9hZF90ZW1wbGF0ZSIsCiAgInN1YmplY3RfaWQiOiAidHJpZ2dlcjpwdWJsaXNoLXNlbGVjdGVkLWFnZW50LW9uLWNoYW5nZSIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOnRyaWdnZXIiLAogICJ2YWx1ZV9qc29uIjogIntcbiAgXCJvcGVyYXRpb25cIjogXCJleGVjdXRlX2RlZmluaXRpb25cIixcbiAgXCJkZWZpbml0aW9uX2lkXCI6IFwiYWN0aW9uOnB1Ymxpc2gtc2VsZWN0ZWQtYWdlbnRcIixcbiAgXCJpbmNsdWRlX3N0ZXBzXCI6IGZhbHNlLFxuICBcImluY2x1ZGVfb3V0cHV0XCI6IGZhbHNlLFxuICBcImlucHV0XCI6IHtcbiAgICBcImNoYW5nZVwiOiB7XG4gICAgICBcIiRraW5kXCI6IFwiYmluZGluZ1wiLFxuICAgICAgXCJzZWxlY3RcIjoge1xuICAgICAgICBcImZyb21cIjogXCJjaGFuZ2VcIixcbiAgICAgICAgXCJwYXRoXCI6IFwiXCJcbiAgICAgIH1cbiAgICB9LFxuICAgIFwiZW52ZWxvcGVcIjoge1xuICAgICAgXCIka2luZFwiOiBcImJpbmRpbmdcIixcbiAgICAgIFwic2VsZWN0XCI6IHtcbiAgICAgICAgXCJmcm9tXCI6IFwiZW52ZWxvcGVcIixcbiAgICAgICAgXCJwYXRoXCI6IFwiXCJcbiAgICAgIH1cbiAgICB9XG4gIH1cbn0iCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:publish-selected-agent-on-change|prop:trigger:slug|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:slug"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6c2x1ZyIsCiAgInN1YmplY3RfaWQiOiAidHJpZ2dlcjpwdWJsaXNoLXNlbGVjdGVkLWFnZW50LW9uLWNoYW5nZSIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOnRyaWdnZXIiLAogICJ2YWx1ZV9qc29uIjogIlwicHVibGlzaC1zZWxlY3RlZC1hZ2VudC1vbi1jaGFuZ2VcIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:publish-selected-agent-on-workspace-loaded|prop:trigger:action_id|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:action_id"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6YWN0aW9uX2lkIiwKICAic3ViamVjdF9pZCI6ICJ0cmlnZ2VyOnB1Ymxpc2gtc2VsZWN0ZWQtYWdlbnQtb24td29ya3NwYWNlLWxvYWRlZCIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOnRyaWdnZXIiLAogICJ2YWx1ZV9qc29uIjogIlwiYWN0aW9uOnB1Ymxpc2gtc2VsZWN0ZWQtYWdlbnRcIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:publish-selected-agent-on-workspace-loaded|prop:trigger:is_active|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:is_active"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6aXNfYWN0aXZlIiwKICAic3ViamVjdF9pZCI6ICJ0cmlnZ2VyOnB1Ymxpc2gtc2VsZWN0ZWQtYWdlbnQtb24td29ya3NwYWNlLWxvYWRlZCIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOnRyaWdnZXIiLAogICJ2YWx1ZV9qc29uIjogInRydWUiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:publish-selected-agent-on-workspace-loaded|prop:trigger:match_condition|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:match_condition"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6bWF0Y2hfY29uZGl0aW9uIiwKICAic3ViamVjdF9pZCI6ICJ0cmlnZ2VyOnB1Ymxpc2gtc2VsZWN0ZWQtYWdlbnQtb24td29ya3NwYWNlLWxvYWRlZCIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOnRyaWdnZXIiLAogICJ2YWx1ZV9qc29uIjogIntcbiAgXCJjb25kaXRpb25zXCI6IFtcbiAgICB7XG4gICAgICBcIiRiaW5kXCI6IHtcbiAgICAgICAgXCJzZWxlY3RcIjoge1xuICAgICAgICAgIFwiZnJvbVwiOiBcImV2ZW50XCIsXG4gICAgICAgICAgXCJwYXRoXCI6IFwia2luZFwiXG4gICAgICAgIH0sXG4gICAgICAgIFwidHJhbnNmb3JtXCI6IFtcbiAgICAgICAgICB7XG4gICAgICAgICAgICBcIm9wXCI6IFwib3A6Y29yZS5lcXVhbHNcIixcbiAgICAgICAgICAgIFwiYXJnc1wiOiB7XG4gICAgICAgICAgICAgIFwidmFsdWVcIjogXCJ3b3Jrc3BhY2VfbG9hZGVkXCJcbiAgICAgICAgICAgIH1cbiAgICAgICAgICB9XG4gICAgICAgIF1cbiAgICAgIH1cbiAgICB9XG4gIF1cbn0iCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:publish-selected-agent-on-workspace-loaded|prop:trigger:payload_template|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:payload_template"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6cGF5bG9hZF90ZW1wbGF0ZSIsCiAgInN1YmplY3RfaWQiOiAidHJpZ2dlcjpwdWJsaXNoLXNlbGVjdGVkLWFnZW50LW9uLXdvcmtzcGFjZS1sb2FkZWQiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTp0cmlnZ2VyIiwKICAidmFsdWVfanNvbiI6ICJ7XG4gIFwib3BlcmF0aW9uXCI6IFwiZXhlY3V0ZV9kZWZpbml0aW9uXCIsXG4gIFwiZGVmaW5pdGlvbl9pZFwiOiBcImFjdGlvbjpwdWJsaXNoLXNlbGVjdGVkLWFnZW50XCIsXG4gIFwiaW5jbHVkZV9zdGVwc1wiOiBmYWxzZSxcbiAgXCJpbmNsdWRlX291dHB1dFwiOiBmYWxzZSxcbiAgXCJpbnB1dFwiOiB7XG4gICAgXCJjaGFuZ2VcIjoge1xuICAgICAgXCIka2luZFwiOiBcImJpbmRpbmdcIixcbiAgICAgIFwic2VsZWN0XCI6IHtcbiAgICAgICAgXCJmcm9tXCI6IFwiY2hhbmdlXCIsXG4gICAgICAgIFwicGF0aFwiOiBcIlwiXG4gICAgICB9XG4gICAgfSxcbiAgICBcImVudmVsb3BlXCI6IHtcbiAgICAgIFwiJGtpbmRcIjogXCJiaW5kaW5nXCIsXG4gICAgICBcInNlbGVjdFwiOiB7XG4gICAgICAgIFwiZnJvbVwiOiBcImVudmVsb3BlXCIsXG4gICAgICAgIFwicGF0aFwiOiBcIlwiXG4gICAgICB9XG4gICAgfVxuICB9XG59Igp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:publish-selected-agent-on-workspace-loaded|prop:trigger:slug|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:slug"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6c2x1ZyIsCiAgInN1YmplY3RfaWQiOiAidHJpZ2dlcjpwdWJsaXNoLXNlbGVjdGVkLWFnZW50LW9uLXdvcmtzcGFjZS1sb2FkZWQiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTp0cmlnZ2VyIiwKICAidmFsdWVfanNvbiI6ICJcInB1Ymxpc2gtc2VsZWN0ZWQtYWdlbnQtb24td29ya3NwYWNlLWxvYWRlZFwiIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|action:publish-selected-agent|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "type:action"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJlbnRpdHlfaWQiOiAiYWN0aW9uOnB1Ymxpc2gtc2VsZWN0ZWQtYWdlbnQiLAogICJ0YWJsZSI6ICJlbnRpdHlfdHlwZXMiLAogICJ0eXBlX2lkIjogInR5cGU6YWN0aW9uIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|action:update-selected-agent|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "type:action"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJlbnRpdHlfaWQiOiAiYWN0aW9uOnVwZGF0ZS1zZWxlY3RlZC1hZ2VudCIsCiAgInRhYmxlIjogImVudGl0eV90eXBlcyIsCiAgInR5cGVfaWQiOiAidHlwZTphY3Rpb24iCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|selected-agent:current|type:selected_agent",
+      "address_mode": "identity_text",
+      "path": [
+        "type:selected_agent"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJlbnRpdHlfaWQiOiAic2VsZWN0ZWQtYWdlbnQ6Y3VycmVudCIsCiAgInRhYmxlIjogImVudGl0eV90eXBlcyIsCiAgInR5cGVfaWQiOiAidHlwZTpzZWxlY3RlZF9hZ2VudCIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|trigger:publish-selected-agent-on-change|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "type:trigger"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJlbnRpdHlfaWQiOiAidHJpZ2dlcjpwdWJsaXNoLXNlbGVjdGVkLWFnZW50LW9uLWNoYW5nZSIsCiAgInRhYmxlIjogImVudGl0eV90eXBlcyIsCiAgInR5cGVfaWQiOiAidHlwZTp0cmlnZ2VyIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|trigger:publish-selected-agent-on-workspace-loaded|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "type:trigger"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJlbnRpdHlfaWQiOiAidHJpZ2dlcjpwdWJsaXNoLXNlbGVjdGVkLWFnZW50LW9uLXdvcmtzcGFjZS1sb2FkZWQiLAogICJ0YWJsZSI6ICJlbnRpdHlfdHlwZXMiLAogICJ0eXBlX2lkIjogInR5cGU6dHJpZ2dlciIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|action:publish-selected-agent",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJpZCI6ICJhY3Rpb246cHVibGlzaC1zZWxlY3RlZC1hZ2VudCIsCiAgInRhYmxlIjogImVudGl0eSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|action:update-selected-agent",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJpZCI6ICJhY3Rpb246dXBkYXRlLXNlbGVjdGVkLWFnZW50IiwKICAidGFibGUiOiAiZW50aXR5Igp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|prop:selected_agent:id",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJpZCI6ICJwcm9wOnNlbGVjdGVkX2FnZW50OmlkIiwKICAidGFibGUiOiAiZW50aXR5Igp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|selected-agent:current",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJpZCI6ICJzZWxlY3RlZC1hZ2VudDpjdXJyZW50IiwKICAidGFibGUiOiAiZW50aXR5Igp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|trigger:publish-selected-agent-on-change",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJpZCI6ICJ0cmlnZ2VyOnB1Ymxpc2gtc2VsZWN0ZWQtYWdlbnQtb24tY2hhbmdlIiwKICAidGFibGUiOiAiZW50aXR5Igp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|trigger:publish-selected-agent-on-workspace-loaded",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJpZCI6ICJ0cmlnZ2VyOnB1Ymxpc2gtc2VsZWN0ZWQtYWdlbnQtb24td29ya3NwYWNlLWxvYWRlZCIsCiAgInRhYmxlIjogImVudGl0eSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|type:selected_agent",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJpZCI6ICJ0eXBlOnNlbGVjdGVkX2FnZW50IiwKICAidGFibGUiOiAiZW50aXR5Igp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:selected_agent|prop:selected_agent:id",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnNlbGVjdGVkX2FnZW50OmlkIiwKICAidGFibGUiOiAidHlwZV9wcm9wZXJ0aWVzIiwKICAidHlwZV9pZCI6ICJ0eXBlOnNlbGVjdGVkX2FnZW50Igp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::selected-agent::workflow-action::update-selected-agent",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:update-selected-agent",
+        "partition_key": "runtime-partition",
+        "kind": "action",
+        "name": "update-selected-agent",
+        "description": "Write prop:selected_agent:id on the selected-agent owner.",
+        "input_schema": {},
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "context",
+                      "path": "partition_key"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|",
+                            "|selected-agent:current|prop:selected_agent:id|type:string"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [],
+                  "payload": {
+                    "subject_id": "selected-agent:current",
+                    "property_id": "prop:selected_agent:id",
+                    "type_id": "type:string",
+                    "value_json": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "value"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.stringify",
+                          "args": {
+                            "format": "json"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::selected-agent::workflow-action::update-chosen-ai-provider",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:update-chosen-ai-provider",
+        "kind": "action",
+        "name": "update-chosen-ai-provider",
+        "description": "Remember the AI provider chosen during onboarding without claiming that it is authorized or runnable.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "provider_ref": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "provider_ref"
+          ]
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": "package::selected-agent::chosen-ai-provider",
+                  "address_mode": "identity_text",
+                  "path": [
+                    "selected-agent",
+                    "chosen-ai-provider"
+                  ],
+                  "payload": {
+                    "provider_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "provider_ref"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::selected-agent::placeable-surface::selection-surface",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "Bot",
+        "id": "selected-agent.selection-surface",
+        "kind": "placeable-surface",
+        "label": "Your AI",
+        "material_target": "component:unified-agent-picker",
+        "order": 645,
+        "audience": "member",
+        "surface_id": "selected-agent.selection-surface",
+        "surface_input": {
+          "selected_agent_input_ref": "package::selected-agent::input::selected-agent",
+          "selection_action_ref": "action:update-selected-agent",
+          "option_sources": [
+            "ai-agent-profile"
+          ]
+        },
+        "placement_labels": [
+          "main-workspace",
+          "onboarding"
+        ],
+        "placement_order_key": "000000645:selected-agent.selection-surface",
+        "package_entry": {
+          "package_name": "selected-agent",
+          "entry_name": "selection-surface"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::selected-agent::entry::selection-surface",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "selected-agent",
+        "entries",
+        "selection-surface"
+      ],
+      "payload": {
+        "entry_name": "selection-surface",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-selection-surface.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-selection-surface"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-selection-surface",
+      "source_path": "built-stored-bytes/entry-bytes-selection-surface",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-selection-surface.source-closure.json"
+    }
+  ]
+}

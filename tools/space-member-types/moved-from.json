@@ -1,5 +1,5 @@
 {
-  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ. Files under from-bitfield-packages/ were moved byte for byte from bitfield-packages at d926b7adb8ca24159ee64f47e7d9cae254f5b641 (their from paths start with packages/).",
   "source": "Trillion-X/trillion",
   "package": "trillion-workshop",
   "calls": [],
@@ -25,6 +25,30 @@
       "to": "tools/space-member-types/test/space-member-types-read-through.test.mjs",
       "source_identity": "1f:49998479b88fe87f1d4724d0724d82f5e82b63bec7b17422c279166bb6040037",
       "identity": "1f:a02ba8cc008ba6c87134365cb846aed2c5e34ec507fc90b0efe94e578420dfee"
+    },
+    {
+      "from": "packages/workspace-members/read-data/read-workspace-members.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/space-member-types/from-bitfield-packages/read-data/read-workspace-members.ts",
+      "source_identity": "1f:759db265ee3df97223c502e91c05d2b9ec8a62b36516f9c3e37ee82270ee3992",
+      "identity": "1f:759db265ee3df97223c502e91c05d2b9ec8a62b36516f9c3e37ee82270ee3992"
+    },
+    {
+      "from": "packages/workspace-members/show/WorkspaceMembersPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/space-member-types/from-bitfield-packages/show/WorkspaceMembersPanel.tsx.held",
+      "source_identity": "1f:731584e2080e9bab56767a6abe5b7b9d35db2f9dc0cb96e88df2fe67df21ce07",
+      "identity": "1f:731584e2080e9bab56767a6abe5b7b9d35db2f9dc0cb96e88df2fe67df21ce07"
+    },
+    {
+      "from": "packages/workspace-members/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/space-member-types/from-bitfield-packages/things-to-store-and-run.json",
+      "source_identity": "1f:cbc2d4404a2d160af8c7952d4ad7d8e725de8fc5242ade3372abb6d4a62ea26f",
+      "identity": "1f:cbc2d4404a2d160af8c7952d4ad7d8e725de8fc5242ade3372abb6d4a62ea26f"
     }
+  ],
+  "sources": [
+    "bitfield-packages:packages/workspace-members/"
   ]
 }

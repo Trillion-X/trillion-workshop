@@ -42,6 +42,97 @@
       "to": "tools/selected-agent/packages/selected-agent/show/mount-selection-surface.tsx",
       "source_identity": "1f:3af8141eb62fe4857ba0ac8ab8b47421060b39e82854eede4a6616dd4fd56cf3",
       "identity": "1f:3af8141eb62fe4857ba0ac8ab8b47421060b39e82854eede4a6616dd4fd56cf3"
+    },
+    {
+      "from": "packages/selected-agent/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/selected-agent/from-bitfield-packages/README.original.md",
+      "source_identity": "1f:e9534681cff2ab9c3e78cf970dcbcab3bf4b0b17ee8995a342e076cad79603cb",
+      "identity": "1f:e9534681cff2ab9c3e78cf970dcbcab3bf4b0b17ee8995a342e076cad79603cb"
+    },
+    {
+      "from": "packages/selected-agent/do-work/read-ai-readiness-target.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/selected-agent/from-bitfield-packages/do-work/read-ai-readiness-target.test.ts.held",
+      "source_identity": "1f:e97de12d8a48ea45c3a2a6b3b0c195e08351340f10ef2fc7f19a0734aa58d395",
+      "identity": "1f:e97de12d8a48ea45c3a2a6b3b0c195e08351340f10ef2fc7f19a0734aa58d395"
+    },
+    {
+      "from": "packages/selected-agent/do-work/read-ai-readiness-target.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/selected-agent/from-bitfield-packages/do-work/read-ai-readiness-target.ts.held",
+      "source_identity": "1f:c529965add0862f1bd8e444427b07325f57c2497dde175d23e797e263a6d9d68",
+      "identity": "1f:c529965add0862f1bd8e444427b07325f57c2497dde175d23e797e263a6d9d68"
+    },
+    {
+      "from": "packages/selected-agent/do-work/set-selected-agent.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/selected-agent/from-bitfield-packages/do-work/set-selected-agent.test.ts.held",
+      "source_identity": "1f:6a3a7175c0fbfcfdb3b56bdf2f19ae2db3e718504280bf84abd94fa6027b5f50",
+      "identity": "1f:6a3a7175c0fbfcfdb3b56bdf2f19ae2db3e718504280bf84abd94fa6027b5f50"
+    },
+    {
+      "from": "packages/selected-agent/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/selected-agent/from-bitfield-packages/entry-to-package-data-map.json",
+      "source_identity": "1f:93496954423e9618d3117d115138542847a5468088069d659e7cd2baaae79156",
+      "identity": "1f:93496954423e9618d3117d115138542847a5468088069d659e7cd2baaae79156"
+    },
+    {
+      "from": "packages/selected-agent/read-data/read-runnable-ai-providers.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/selected-agent/from-bitfield-packages/read-data/read-runnable-ai-providers.test.ts.held",
+      "source_identity": "1f:3607e6c7d452333bf4c7bbade7f35911d8e346676305215d48634c242c9658a8",
+      "identity": "1f:3607e6c7d452333bf4c7bbade7f35911d8e346676305215d48634c242c9658a8"
+    },
+    {
+      "from": "packages/selected-agent/read-data/read-runnable-ai-providers.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/selected-agent/from-bitfield-packages/read-data/read-runnable-ai-providers.ts",
+      "source_identity": "1f:9cbe39b0bb62a8506ffaf4305ca032878537427aee104a68d504ddb03b892c10",
+      "identity": "1f:9cbe39b0bb62a8506ffaf4305ca032878537427aee104a68d504ddb03b892c10"
+    },
+    {
+      "from": "packages/selected-agent/read-data/read-selected-agent.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/selected-agent/from-bitfield-packages/read-data/read-selected-agent.test.ts.held",
+      "source_identity": "1f:361b5453364acf3ab53d9ab8a85852c736b03f76d5c7ea73a96debc5b7a71dce",
+      "identity": "1f:361b5453364acf3ab53d9ab8a85852c736b03f76d5c7ea73a96debc5b7a71dce"
+    },
+    {
+      "from": "packages/selected-agent/read-data/read-selected-agent.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/selected-agent/from-bitfield-packages/read-data/read-selected-agent.ts",
+      "source_identity": "1f:66284dd0d40312d34b704a1452cbaa2be6fdaeed44ca3b1da9f58461c181291e",
+      "identity": "1f:66284dd0d40312d34b704a1452cbaa2be6fdaeed44ca3b1da9f58461c181291e"
+    },
+    {
+      "from": "packages/selected-agent/show/AgentSelectionSurface.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/selected-agent/from-bitfield-packages/show/AgentSelectionSurface.test.tsx.held",
+      "source_identity": "1f:67bc626be9d18b1f2aac0287dce742db534159c9dd5ee67440f878bc1596fc6d",
+      "identity": "1f:67bc626be9d18b1f2aac0287dce742db534159c9dd5ee67440f878bc1596fc6d"
+    },
+    {
+      "from": "packages/selected-agent/show/AgentSelectionSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/selected-agent/from-bitfield-packages/show/AgentSelectionSurface.tsx.held",
+      "source_identity": "1f:a340a360a326e463bd4df3e03ecbf3e9000bb3167108e7dd533eccdc06de2561",
+      "identity": "1f:a340a360a326e463bd4df3e03ecbf3e9000bb3167108e7dd533eccdc06de2561"
+    },
+    {
+      "from": "packages/selected-agent/show/mount-selection-surface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/selected-agent/from-bitfield-packages/show/mount-selection-surface.tsx.held",
+      "source_identity": "1f:3af8141eb62fe4857ba0ac8ab8b47421060b39e82854eede4a6616dd4fd56cf3",
+      "identity": "1f:3af8141eb62fe4857ba0ac8ab8b47421060b39e82854eede4a6616dd4fd56cf3"
+    },
+    {
+      "from": "packages/selected-agent/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/selected-agent/from-bitfield-packages/things-to-store-and-run.json",
+      "source_identity": "1f:d240d9fb35464b9f136462919c5a1bc7b64cdaeeeec2c9ceeb9fbd7ee16825f3",
+      "identity": "1f:d240d9fb35464b9f136462919c5a1bc7b64cdaeeeec2c9ceeb9fbd7ee16825f3"
     }
   ]
 }

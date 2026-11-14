@@ -5233,6 +5233,76 @@
       "to": "tools/organize-the-sidebar/test/community-logic/board-weighted-signals.test.ts",
       "source_identity": "1f:9972a26f6b1cb220c72a14c41a8df4c7647dbfb44befa8f9f69d8406541c4775",
       "identity": "1f:10b63d98bc11b32c4c90b8ad8ae079e157b6c1e15f6f1b15381c103b61515500"
+    },
+    {
+      "from": "packages/vision-board/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/organize-the-sidebar/from-bitfield-packages/README.original.md",
+      "source_identity": "1f:dd15421773366f8832683cf1b3548379330c23e8e155150b78131d90a3e08283",
+      "identity": "1f:dd15421773366f8832683cf1b3548379330c23e8e155150b78131d90a3e08283"
+    },
+    {
+      "from": "packages/vision-board/changelog/2026-07-16-calmer-board-controls.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/organize-the-sidebar/from-bitfield-packages/changelog/2026-07-16-calmer-board-controls.md",
+      "source_identity": "1f:2ef73fed3c7f9b5b83881c529ab24c6f3fa7a6d19b26bc134b89f8a94defa538",
+      "identity": "1f:2ef73fed3c7f9b5b83881c529ab24c6f3fa7a6d19b26bc134b89f8a94defa538"
+    },
+    {
+      "from": "packages/vision-board/do-work/vision-board-bytes-namespace.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/organize-the-sidebar/from-bitfield-packages/do-work/vision-board-bytes-namespace.ts.held",
+      "source_identity": "1f:3c185a7a0a2bfff71a476ba77f571465935708dc42d6ee4e0377e50cb5e6af16",
+      "identity": "1f:3c185a7a0a2bfff71a476ba77f571465935708dc42d6ee4e0377e50cb5e6af16"
+    },
+    {
+      "from": "packages/vision-board/entry-read-scope-packages.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/organize-the-sidebar/from-bitfield-packages/entry-read-scope-packages.json",
+      "source_identity": "1f:339479cd3d4cab403f5cdd875afbbb8951cf59de0a9e4292a6f9bdb4796e1080",
+      "identity": "1f:339479cd3d4cab403f5cdd875afbbb8951cf59de0a9e4292a6f9bdb4796e1080"
+    },
+    {
+      "from": "packages/vision-board/show/action-affordance-feed-shape.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/organize-the-sidebar/from-bitfield-packages/show/action-affordance-feed-shape.test.ts.held",
+      "source_identity": "1f:a13a0b6762bf712e0b187fe4f3add643fea5f9055ad4810ad3eed7a9f8e876e8",
+      "identity": "1f:a13a0b6762bf712e0b187fe4f3add643fea5f9055ad4810ad3eed7a9f8e876e8"
+    },
+    {
+      "from": "packages/vision-board/show/action-affordance-records.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/organize-the-sidebar/from-bitfield-packages/show/action-affordance-records.test.ts.held",
+      "source_identity": "1f:79a54c969009bdf2bbca040e702d375c6c3482020760260eabe5d40ad1d9babf",
+      "identity": "1f:79a54c969009bdf2bbca040e702d375c6c3482020760260eabe5d40ad1d9babf"
+    },
+    {
+      "from": "packages/vision-board/show/activity-input-contract.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/organize-the-sidebar/from-bitfield-packages/show/activity-input-contract.test.ts.held",
+      "source_identity": "1f:a21593083b728ed48836be398fe7f29c3f160dfc88797e6cbaf6fd2791a72575",
+      "identity": "1f:a21593083b728ed48836be398fe7f29c3f160dfc88797e6cbaf6fd2791a72575"
+    },
+    {
+      "from": "packages/vision-board/show/mount-vision-board.accessibility.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/organize-the-sidebar/from-bitfield-packages/show/mount-vision-board.accessibility.test.tsx.held",
+      "source_identity": "1f:35f7bc5615f5b0a96f5af4138d5a503b22b7a1434ea4acf368468c4e145f1074",
+      "identity": "1f:35f7bc5615f5b0a96f5af4138d5a503b22b7a1434ea4acf368468c4e145f1074"
+    },
+    {
+      "from": "packages/vision-board/show/mount-vision-board.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/organize-the-sidebar/from-bitfield-packages/show/mount-vision-board.tsx.held",
+      "source_identity": "1f:e6005fff394ee11c2fcb4e8b7127f5f14cda8fde8e99daa90467abd0978d2f4c",
+      "identity": "1f:e6005fff394ee11c2fcb4e8b7127f5f14cda8fde8e99daa90467abd0978d2f4c"
+    },
+    {
+      "from": "packages/vision-board/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/organize-the-sidebar/from-bitfield-packages/things-to-store-and-run.json",
+      "source_identity": "1f:07f71b971d166cbe2671cf989769fa4ecbffd8dff645063507eeb2f572d9e8da",
+      "identity": "1f:07f71b971d166cbe2671cf989769fa4ecbffd8dff645063507eeb2f572d9e8da"
     }
   ]
 }

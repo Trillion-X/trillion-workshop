@@ -8,6 +8,18 @@
       "find": "[/]Users[/]br[i]anakhtar[/]",
       "replace": "",
       "means": "A path in the maker's home folder, written from the home folder instead."
+    },
+    {
+      "id": "computer-path-revenue-ledger",
+      "find": "[/]Users[/]brianakhtar/dev/bitfield-packages/packages/revenue-ledger/",
+      "replace": "packages/revenue-ledger/",
+      "means": "A path on the author's computer, swapped for the package's own relative path: a public tree names no one's computer."
+    },
+    {
+      "id": "revenue-config-tenant-name",
+      "find": "ethos\\.revenue-projection-config\\.default",
+      "replace": "checkout.revenue-projection-config.default",
+      "means": "The default revenue config's id named one product's checkout; a public tree keeps the generic name the tool's own test already uses."
     }
   ],
   "files": [
@@ -69,6 +81,82 @@
       "to": "tools/revenue-ledger/packages/revenue-ledger/show/revenue-finance-surface.tsx",
       "source_identity": "1f:808e303996cf6d54209f43afeeffeb62a338f618b98dcbf9b1f31c0f0a1b757e",
       "identity": "1f:808e303996cf6d54209f43afeeffeb62a338f618b98dcbf9b1f31c0f0a1b757e"
+    },
+    {
+      "from": "packages/revenue-ledger/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/revenue-ledger/from-bitfield-packages/README.original.md",
+      "source_identity": "1f:dcbca57d68b3d50b80113951e98fb19f59fb00bfeb622b1852983f75574fff19",
+      "identity": "1f:dcbca57d68b3d50b80113951e98fb19f59fb00bfeb622b1852983f75574fff19"
+    },
+    {
+      "from": "packages/revenue-ledger/ethos-config/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/revenue-ledger/from-bitfield-packages/ethos-config/README.md",
+      "source_identity": "1f:466a2807e344985b646d955440d35c4a235075abd81a2f44688c6d3e3b9877b4",
+      "identity": "1f:466a2807e344985b646d955440d35c4a235075abd81a2f44688c6d3e3b9877b4"
+    },
+    {
+      "from": "packages/revenue-ledger/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/revenue-ledger/from-bitfield-packages/read-data/README.md",
+      "source_identity": "1f:9710f04c8943a01cf5289cc72e6387142ed3807f7585c0c643f91f4edcdb1eb6",
+      "identity": "1f:9710f04c8943a01cf5289cc72e6387142ed3807f7585c0c643f91f4edcdb1eb6"
+    },
+    {
+      "from": "packages/revenue-ledger/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/revenue-ledger/from-bitfield-packages/show/README.md",
+      "source_identity": "1f:c23a305eb1fc313327e65a166a3bdf66d5fa76964705effe6b72db5e05f2c237",
+      "identity": "1f:c23a305eb1fc313327e65a166a3bdf66d5fa76964705effe6b72db5e05f2c237"
+    },
+    {
+      "from": "packages/revenue-ledger/show/mount-revenue-finance.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/revenue-ledger/from-bitfield-packages/show/mount-revenue-finance.tsx.held",
+      "source_identity": "1f:ce952d5112e7c5d62b4c1b66bbc6545e76d2b77d739becba18210e6bd11debe3",
+      "identity": "1f:ce952d5112e7c5d62b4c1b66bbc6545e76d2b77d739becba18210e6bd11debe3"
+    },
+    {
+      "from": "packages/revenue-ledger/show/reference-grounded-screen-contract.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/revenue-ledger/from-bitfield-packages/show/reference-grounded-screen-contract.md",
+      "source_identity": "1f:576cbb951da8467e3fa912be99183f7df5909b215e17ecf9e95a0536a5b8f7f4",
+      "identity": "1f:cfec2e42fc00e09419f2552dee86f18a857c009a206a1a38c2ae8319a0fb0350",
+      "calls": [
+        "computer-path-revenue-ledger"
+      ]
+    },
+    {
+      "from": "packages/revenue-ledger/show/revenue-finance-display.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/revenue-ledger/from-bitfield-packages/show/revenue-finance-display.ts.held",
+      "source_identity": "1f:5540bf25361ba8030a78031bb42bbc0fac9715641048d3af7c32120f72ac25f6",
+      "identity": "1f:5540bf25361ba8030a78031bb42bbc0fac9715641048d3af7c32120f72ac25f6"
+    },
+    {
+      "from": "packages/revenue-ledger/show/revenue-finance-surface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/revenue-ledger/from-bitfield-packages/show/revenue-finance-surface.tsx.held",
+      "source_identity": "1f:808e303996cf6d54209f43afeeffeb62a338f618b98dcbf9b1f31c0f0a1b757e",
+      "identity": "1f:808e303996cf6d54209f43afeeffeb62a338f618b98dcbf9b1f31c0f0a1b757e"
+    },
+    {
+      "from": "packages/revenue-ledger/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/revenue-ledger/from-bitfield-packages/things-to-store-and-run.json",
+      "source_identity": "1f:04aa0b7a5bcdb52de8dd9775720f5aa0a89f1f6c25b95cd431277e681ff0c6b0",
+      "identity": "1f:02fd97043aecc0d39e6e4dc9ab0cf56c1cdc76cc98cf9d3c697a0d3956dafbeb",
+      "calls": [
+        "revenue-config-tenant-name"
+      ]
+    },
+    {
+      "from": "packages/revenue-ledger/vitest.config.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/revenue-ledger/from-bitfield-packages/vitest.config.mjs.held",
+      "source_identity": "1f:9912e0155bd81c7b7701b6b14dee6ebcb35fbaf55ee1c84b237a7a6b076fe26d",
+      "identity": "1f:9912e0155bd81c7b7701b6b14dee6ebcb35fbaf55ee1c84b237a7a6b076fe26d"
     }
   ]
 }

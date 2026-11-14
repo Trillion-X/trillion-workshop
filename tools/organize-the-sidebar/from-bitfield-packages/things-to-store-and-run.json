@@ -1,0 +1,652 @@
+{
+  "package": "vision-board",
+  "things": [
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-vision-board",
+      "source_path": "built-stored-bytes/entry-bytes-vision-board",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-vision-board.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::vision-board::entry::vision-board",
+      "path": [
+        "packages",
+        "vision-board",
+        "entries",
+        "vision-board"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "vision-board",
+        "export_name": "default",
+        "source_path": "show/mount-vision-board.tsx",
+        "bitfield_inputs": [
+          {
+            "label": "scoped-recent-activity",
+            "kind": "record_from_matching_records",
+            "description": "Recent activity facts for the optional live actor indicator"
+          }
+        ],
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-vision-board"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::vision-board::placeable-surface::vision-board",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "placeable-surface",
+        "id": "group.vision-board.panel",
+        "surface_id": "group.vision-board.panel",
+        "icon": "Target",
+        "label": "Vision Board",
+        "description": "Collect everything you are building toward and group it into sections.",
+        "material_target": "component:vision-board",
+        "order": 130,
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000130:group.vision-board.panel",
+        "package_entry": {
+          "package_name": "vision-board",
+          "entry_name": "vision-board"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::vision-board::action-affordance-feed",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "action-affordance"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::vision-board::input::published-records",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "published-records",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "package::vision-board::action-affordance-feed",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::vision-board::input::action-affordance-feed",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "action-affordance-feed",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "package::vision-board::action-affordance-feed",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::vision-board::input::package-entry-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "package-entry-by-address-label",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "bytes"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::vision-board::input::selector-source-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "selector-source-by-address-label",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::vision-board::action-affordance::breakdown",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "action-affordance",
+        "version": 1,
+        "id": "action-affordance:vision-board:breakdown",
+        "is_active": true,
+        "label": "Break down",
+        "icon": "ListChecks",
+        "section": "Create",
+        "priority": 20,
+        "triggers": [
+          {
+            "id": "board-shelf",
+            "channel": "group.add-shelf",
+            "event": "invoke",
+            "ask": {
+              "prompt": "What goal do you want to break into steps?"
+            },
+            "input_template": {
+              "request_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "run",
+                  "path": "id"
+                }
+              },
+              "target_group_ref": {
+                "$kind": "binding",
+                "select": {
+                  "from": "surface",
+                  "path": "target_ref"
+                }
+              },
+              "instruction_text": {
+                "$kind": "binding",
+                "select": {
+                  "from": "typed",
+                  "path": "text"
+                }
+              },
+              "output_kind": "note",
+              "wrap_instruction_ref": "instr:breakdown"
+            },
+            "presentation": {
+              "working_label": "Breaking this down…",
+              "total_hint": 6,
+              "item_kind": "pending"
+            }
+          },
+          {
+            "id": "doc-slash",
+            "channel": "composition.slash-menu",
+            "event": "invoke",
+            "ask": {
+              "prompt": "What goal do you want to break into steps?"
+            },
+            "input_template": {
+              "request_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "run",
+                  "path": "id"
+                }
+              },
+              "instruction_text": {
+                "$kind": "binding",
+                "select": {
+                  "from": "typed",
+                  "path": "text"
+                }
+              },
+              "output_kind": "note",
+              "wrap_instruction_ref": "instr:breakdown"
+            }
+          },
+          {
+            "id": "board-palette",
+            "channel": "group.palette",
+            "event": "invoke",
+            "ask": {
+              "prompt": "What goal do you want to break into steps?"
+            },
+            "input_template": {
+              "request_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "run",
+                  "path": "id"
+                }
+              },
+              "target_group_ref": {
+                "$kind": "binding",
+                "select": {
+                  "from": "surface",
+                  "path": "target_ref"
+                }
+              },
+              "instruction_text": {
+                "$kind": "binding",
+                "select": {
+                  "from": "typed",
+                  "path": "text"
+                }
+              },
+              "output_kind": "note",
+              "wrap_instruction_ref": "instr:breakdown"
+            },
+            "presentation": {
+              "working_label": "Breaking this down…",
+              "total_hint": 6,
+              "item_kind": "pending"
+            }
+          },
+          {
+            "id": "board-menu",
+            "channel": "group.context-menu",
+            "event": "invoke",
+            "ask": {
+              "prompt": "What goal do you want to break into steps?"
+            },
+            "input_template": {
+              "request_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "run",
+                  "path": "id"
+                }
+              },
+              "target_group_ref": {
+                "$kind": "binding",
+                "select": {
+                  "from": "surface",
+                  "path": "target_ref"
+                }
+              },
+              "instruction_text": {
+                "$kind": "binding",
+                "select": {
+                  "from": "typed",
+                  "path": "text"
+                }
+              },
+              "output_kind": "note",
+              "wrap_instruction_ref": "instr:breakdown"
+            },
+            "presentation": {
+              "working_label": "Breaking this down…",
+              "total_hint": 6,
+              "item_kind": "pending"
+            }
+          }
+        ],
+        "dispatch": {
+          "target": "slot::workflow",
+          "payload_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:run-ai-records-production",
+            "include_output": false,
+            "input": {
+              "$kind": "binding",
+              "select": {
+                "from": "trigger",
+                "path": "input"
+              }
+            }
+          },
+          "status": {
+            "result_address_template": "package::ai-records-producer::result::{id}",
+            "error_address_template": "package::ai-records-producer::error::{id}",
+            "address_mode": "label-hash",
+            "result_partition_label": "runtime-partition"
+          }
+        },
+        "output_contract": {
+          "kind": "action-output.v1",
+          "artifacts_path": "items"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::vision-board::action-affordance::vision",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "action-affordance",
+        "version": 1,
+        "id": "action-affordance:vision-board:vision",
+        "is_active": true,
+        "label": "Vision",
+        "icon": "Sparkles",
+        "section": "Create",
+        "priority": 10,
+        "triggers": [
+          {
+            "id": "board-shelf",
+            "channel": "group.add-shelf",
+            "event": "invoke",
+            "ask": {
+              "prompt": "Describe the life you are building toward…"
+            },
+            "input_template": {
+              "request_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "run",
+                  "path": "id"
+                }
+              },
+              "target_group_ref": {
+                "$kind": "binding",
+                "select": {
+                  "from": "surface",
+                  "path": "target_ref"
+                }
+              },
+              "instruction_text": {
+                "$kind": "binding",
+                "select": {
+                  "from": "typed",
+                  "path": "text"
+                }
+              },
+              "output_kind": "note",
+              "wrap_instruction_ref": "instr:vision-board"
+            },
+            "presentation": {
+              "working_label": "Envisioning…",
+              "total_hint": 8,
+              "item_kind": "pending"
+            }
+          },
+          {
+            "id": "doc-slash",
+            "channel": "composition.slash-menu",
+            "event": "invoke",
+            "ask": {
+              "prompt": "Describe the life you are building toward…"
+            },
+            "input_template": {
+              "request_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "run",
+                  "path": "id"
+                }
+              },
+              "instruction_text": {
+                "$kind": "binding",
+                "select": {
+                  "from": "typed",
+                  "path": "text"
+                }
+              },
+              "output_kind": "note",
+              "wrap_instruction_ref": "instr:vision-board"
+            }
+          },
+          {
+            "id": "board-palette",
+            "channel": "group.palette",
+            "event": "invoke",
+            "ask": {
+              "prompt": "Describe the life you are building toward…"
+            },
+            "input_template": {
+              "request_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "run",
+                  "path": "id"
+                }
+              },
+              "target_group_ref": {
+                "$kind": "binding",
+                "select": {
+                  "from": "surface",
+                  "path": "target_ref"
+                }
+              },
+              "instruction_text": {
+                "$kind": "binding",
+                "select": {
+                  "from": "typed",
+                  "path": "text"
+                }
+              },
+              "output_kind": "note",
+              "wrap_instruction_ref": "instr:vision-board"
+            },
+            "presentation": {
+              "working_label": "Envisioning…",
+              "total_hint": 8,
+              "item_kind": "pending"
+            }
+          },
+          {
+            "id": "board-menu",
+            "channel": "group.context-menu",
+            "event": "invoke",
+            "ask": {
+              "prompt": "Describe the life you are building toward…"
+            },
+            "input_template": {
+              "request_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "run",
+                  "path": "id"
+                }
+              },
+              "target_group_ref": {
+                "$kind": "binding",
+                "select": {
+                  "from": "surface",
+                  "path": "target_ref"
+                }
+              },
+              "instruction_text": {
+                "$kind": "binding",
+                "select": {
+                  "from": "typed",
+                  "path": "text"
+                }
+              },
+              "output_kind": "note",
+              "wrap_instruction_ref": "instr:vision-board"
+            },
+            "presentation": {
+              "working_label": "Envisioning…",
+              "total_hint": 8,
+              "item_kind": "pending"
+            }
+          }
+        ],
+        "dispatch": {
+          "target": "slot::workflow",
+          "payload_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:run-ai-records-production",
+            "include_output": false,
+            "input": {
+              "$kind": "binding",
+              "select": {
+                "from": "trigger",
+                "path": "input"
+              }
+            }
+          },
+          "status": {
+            "result_address_template": "package::ai-records-producer::result::{id}",
+            "error_address_template": "package::ai-records-producer::error::{id}",
+            "address_mode": "label-hash",
+            "result_partition_label": "runtime-partition"
+          }
+        },
+        "output_contract": {
+          "kind": "action-output.v1",
+          "artifacts_path": "items"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::vision-board::instruction::make-action",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-records-producer.instruction",
+        "id": "instr:make-action",
+        "label": "Make an action instruction",
+        "description": "Wrap instruction for AI-AUTHORED custom actions: the producer emits kind:action-affordance records verbatim (structured-object pass-through), so the AI can create new actions the same way a user does — as DATA.",
+        "wrap_prefix": "Design ONE custom action for this request. Return ONLY a JSON object (no prose, no markdown) with EXACTLY these fields: {\"kind\":\"action-affordance\",\"version\":1,\"id\":\"action-affordance:ai:<kebab-slug>\",\"is_active\":true,\"label\":\"<short human label>\",\"triggers\":[{\"id\":\"board-shelf\",\"channel\":\"group.add-shelf\",\"ask\":{\"prompt\":\"<what to ask the user>\"},\"input_template\":{\"request_id\":{\"$kind\":\"binding\",\"select\":{\"from\":\"run\",\"path\":\"id\"}},\"target_group_ref\":{\"$kind\":\"binding\",\"select\":{\"from\":\"surface\",\"path\":\"target_ref\"}},\"instruction_text\":{\"$kind\":\"binding\",\"select\":{\"from\":\"typed\",\"path\":\"text\"}},\"output_kind\":\"note\"}},{\"id\":\"doc-slash\",\"channel\":\"composition.slash-menu\",\"ask\":{\"prompt\":\"<what to ask the user>\"},\"input_template\":{\"request_id\":{\"$kind\":\"binding\",\"select\":{\"from\":\"run\",\"path\":\"id\"}},\"instruction_text\":{\"$kind\":\"binding\",\"select\":{\"from\":\"typed\",\"path\":\"text\"}},\"output_kind\":\"note\"}}],\"dispatch\":{\"target\":\"slot::workflow\",\"payload_template\":{\"operation\":\"execute_definition\",\"definition_id\":\"action:run-ai-records-production\",\"include_output\":false,\"input\":{\"$kind\":\"binding\",\"select\":{\"from\":\"trigger\",\"path\":\"input\"}}},\"status\":{\"result_address_template\":\"package::ai-records-producer::result::{id}\",\"error_address_template\":\"package::ai-records-producer::error::{id}\",\"address_mode\":\"label-hash\",\"result_partition_label\":\"runtime-partition\"}},\"output_contract\":{\"kind\":\"action-output.v1\",\"artifacts_path\":\"items\"}}. The action the user wants: "
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::vision-board::surface-reachability::vision-board",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "surface.reachability",
+        "surface_id": "group.vision-board.panel",
+        "entry": {
+          "from": "surface-picker",
+          "query": "vision"
+        },
+        "vocabulary": [
+          "vision",
+          "board",
+          "goal",
+          "inspiration",
+          "aspirational"
+        ],
+        "must_see": [
+          "section-list",
+          "item-gallery"
+        ],
+        "must_act": [
+          "add-item",
+          "organize-section"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::vision-board::input::group-owned-feed",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "group-owned-feed",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "package::group::group-owned-feed",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    }
+  ]
+}

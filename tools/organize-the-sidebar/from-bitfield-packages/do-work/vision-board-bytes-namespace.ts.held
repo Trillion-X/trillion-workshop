@@ -1,0 +1,15 @@
+// packages/vision-board/do-work/vision-board-bytes-namespace.ts
+//
+// The Vision Board's CAS namespace for uploaded item media (image/video/audio).
+// Moved here from the generic `group` package: the board's own Society address
+// convention belongs in the PRODUCT, not in the generic blind board primitive.
+// The GroupBoardPanel receives `storeBytes` as an injected function from the mount
+// (or via the `bytesNamespace` prop path); it never hard-codes this value itself.
+
+import type { CasNamespace } from '@/packages/cas-store/do-work/store-bytes-to-cas';
+
+export const VISION_BOARD_BYTES_NAMESPACE: CasNamespace = {
+  partitionLabel: 'bitfield-studio',
+  addressPrefix: 'package::group::item-bytes',
+  pathLabels: ['group', 'item-bytes'],
+};

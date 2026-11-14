@@ -1,0 +1,75 @@
+import {
+  sendRequestToBitfieldTarget,
+  type BitfieldRuntimeContext,
+} from '@bitfield/runtime-kit';
+import { readRunnableAiProviderRefs } from '../read-data/read-runnable-ai-providers';
+
+type Sender = typeof sendRequestToBitfieldTarget;
+
+const ENGINE_TARGET = 'engine.operation.label-addressed';
+const ROUTING_FACTS_ADDRESS = 'package::selected-agent::provider-routing-facts';
+const CHOSEN_PROVIDER_ADDRESS = 'package::selected-agent::chosen-ai-provider';
+
+function decodeReply(value: unknown): Record<string, unknown> {
+  const envelope = value && typeof value === 'object' && !Array.isArray(value)
+    ? value as { payload?: unknown }
+    : {};
+  const bytes = envelope.payload;
+  if (!ArrayBuffer.isView(bytes)) return envelope as Record<string, unknown>;
+  const view = new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const decoded = JSON.parse(new TextDecoder().decode(view));
+  if (!decoded || typeof decoded !== 'object' || Array.isArray(decoded)) {
+    throw new Error('AI readiness could not be read.');
+  }
+  return decoded as Record<string, unknown>;
+}
+
+/**
+ * Read the selected-agent owner's open routing facts and report readiness only
+ * when the same provider-neutral resolver used by the selection surface finds
+ * at least one runnable AI. The walkthrough consumes this target as opaque
+ * owner readback; it never learns a provider name or transport.
+ */
+export async function readAiReadinessTarget(
+  _input: unknown,
+  _context?: BitfieldRuntimeContext,
+  sender: Sender = sendRequestToBitfieldTarget,
+): Promise<{ ready: true } | null> {
+  const read = decodeReply(await sender({
+    target: ENGINE_TARGET,
+    payload: {
+      operation_label: 'engine.operation.read-current',
+      address_label: ROUTING_FACTS_ADDRESS,
+      address_mode: 'identity_text',
+    },
+  }));
+  if (read.found !== true) return null;
+  return readRunnableAiProviderRefs(read.payload).size > 0 ? { ready: true } : null;
+}
+
+/**
+ * Read the provider the person chose before account and provider authorization.
+ * Choosing is intentionally a separate state from runnable AI readiness: this
+ * target can succeed while `readAiReadinessTarget` still correctly returns null.
+ */
+export async function readChosenAiProviderTarget(
+  _input: unknown,
+  _context?: BitfieldRuntimeContext,
+  sender: Sender = sendRequestToBitfieldTarget,
+): Promise<{ provider_ref: string } | null> {
+  const read = decodeReply(await sender({
+    target: ENGINE_TARGET,
+    payload: {
+      operation_label: 'engine.operation.read-current',
+      address_label: CHOSEN_PROVIDER_ADDRESS,
+      address_mode: 'identity_text',
+    },
+  }));
+  if (read.found !== true) return null;
+  const payload = read.payload;
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return null;
+  const providerRef = (payload as Record<string, unknown>).provider_ref;
+  return typeof providerRef === 'string' && providerRef.trim()
+    ? { provider_ref: providerRef.trim() }
+    : null;
+}
