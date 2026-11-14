@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:my-notices's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"List what Trillion told this person, newest first: each notice with every way it went (sent, waiting its turn, turned off or unavailable) and the surface the person saw it on\", with {\"limit\":1}. It runs tool:my-notices and answers {\"notices\":[],\"said\":\"0 notices, newest first; 0 seen.\"}",
   "lists": [],

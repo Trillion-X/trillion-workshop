@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:make-tracked-link's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Make a tracked link with UTM fields for a post, ad, email or bio, so visits and sales can be traced to it\", with {\"destination\":\"https://shop.example/offer\",\"project\":\"spring-launch\",\"source\":\"instagram\",\"campaign\":\"reel-12\"}. It runs tool:make-tracked-link and answers {\"link\":\"https://shop.example/offer?bf_project=spring-launch&utm_source=instagram&utm_campaign=reel-12\",\"fields\":{\"bf_project\":\"spring-launch\",\"utm_source\":\"instagram\",\"utm_campaign\":\"reel-12\"}}",
   "lists": [],

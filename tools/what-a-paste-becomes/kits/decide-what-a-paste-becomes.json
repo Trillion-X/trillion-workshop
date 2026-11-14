@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:decide-what-a-paste-becomes's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Decide what a paste into a message or note becomes: a normal insert for short text, a named text file for a long paste, or attached images when the clipboard's markup has no words of its own, with the words the person reads beside the attachment\", with {\"clipboard\":{\"text\":\"yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy .... It runs tool:decide-what-a-paste-becomes and answers {\"action\":\"attach_text\",\"name\":\"Pasted text 2026-10-19-09-05-07.txt\",\"text\":\"yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy ...",
   "lists": [],

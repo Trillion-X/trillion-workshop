@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:trillion-media-work-control's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Pause, resume or stop one long file job on this person's computer drives (a copy or a move), optionally resuming it at a chosen time\", with {\"id\":\"copy-sample-1\",\"action\":\"pause\",\"check\":true}. It runs tool:trillion-media-work-control and answers {\"id\":\"copy-sample-1\",\"action\":\"pause\",\"ready\":false}",
   "lists": [],

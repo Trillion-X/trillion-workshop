@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:answer-the-tell-notices-route's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Answer the Trillion page route GET /work/api/tell/notices: the notices the open page shows, or what one channel's devices read, as old Trillion did\", with {\"path\":\"/tell/notices\",\"method\":\"GET\",\"query\":{},\"body\":{},\"browser\":{}}. It runs tool:answer-the-tell-notices-route and answers {\"status\":200,\"body\":{\"notices\":[]}}",
   "lists": [],

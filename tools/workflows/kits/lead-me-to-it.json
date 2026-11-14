@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "workflow:lead-me-to-it's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Run workflow:lead-me-to-it.\" It pick the one thing that moves the person's pursuits most right now, do every part of it an AI can, then take the person to it: open that exact thing on their screen and walk them through only the part that needs them, pointing at its own control.",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:tag-a-stripe-subscription's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Add notes (metadata) to a buyer Stripe subscription without changing the ones already there\", with {\"subscription_id\":\"sub_sample0001\",\"metadata\":{\"follow_up\":\"sent\"}}. It runs tool:tag-a-stripe-subscription and answers {\"subscription_id\":\"sub_sample0001\",\"metadata\":{\"offer_id\":\"offer:bread-box\",\"follow_up\":\"sent\"},\"updated\":true}",
   "lists": [],

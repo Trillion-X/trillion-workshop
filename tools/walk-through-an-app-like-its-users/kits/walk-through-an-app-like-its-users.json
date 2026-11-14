@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:walk-through-an-app-like-its-users's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Check that people can still do what they come to my app for after a change: walk each journey in a real browser, keep pictures, a log and a video, and tell my coding agent exactly what to fix, then check the fix\", with {\"app_url\":\"data:text/html,<title>Ready</title><h1>Ready</h1><button>Go</button>\",\"journeys\":[{\"id\":\"see-ready\",\"goal\":\"See the page is ready\",\"steps\":[{\"id\":\"press-go\",\"intent\":\"Press Go\",\"do\":{\"action\":\"click\",\"target\":{\"role\":\"button\",\"name\":\"Go\"}},\"expect\":[{\"kind\":\"text_visible\",\"text\":\"Ready\"}]}]}]}. It runs tool:walk-through-an-app-like-its-users; its answer contains \"passed\".",
   "lists": [],

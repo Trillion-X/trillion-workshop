@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:open-the-billing-page-for-one-purchase-and-show-the-card's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Open the billing page of one purchase, where the buyer can change or cancel it, and show the card that pays it\", with {\"subscription_id\":\"sub_sample0001\",\"return_url\":\"https://app.example.com/billing\"}. It runs tool:open-the-billing-page-for-one-purchase-and-show-the-card and answers {\"subscription_id\":\"sub_sample0001\",\"redirect\":\"https://billing.stripe.com/p/session/test_sample0001\",\"card\":{\"brand\":\"visa\",\"last4\":\"4242\",\"exp_month\":12,\"exp_year\":2030}}",
   "lists": [],

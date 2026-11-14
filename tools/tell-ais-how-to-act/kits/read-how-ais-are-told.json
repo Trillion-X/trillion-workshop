@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-how-ais-are-told's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"See the standing instructions every AI is given when it first connects, or read one of them whole\", with {}. It runs tool:read-how-ais-are-told and answers {\"rows\":[{\"id\":\"decide-first\",\"order\":10,\"on\":true,\"reaches\":[\"initialize\"],\"bytes\":223},{\"id\":\"look-first\",\"order\":20,\"on\":true,\"reaches\":[\"initialize\"],\"bytes\":150},{\"id\":\"opening\",\"order\":30,\"on\":true,\"reaches\":[\"initialize\"],\"bytes\":135},{\"id\":\"current-resource-tool-entrypoint\",\"order\":35,\"on\":true,\"reaches\":[\"initialize\"],\"bytes\":692},{\"id\":\"ai-job-on-connect\",\"order\":40,\"on\":true ...",
   "lists": [],

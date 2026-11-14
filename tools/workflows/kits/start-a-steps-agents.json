@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:start-a-steps-agents's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"When a step of a recipe run says it has several agents, start that many jobs for it in my own records, each with its own lane, so each lane is done by its own AI\", with {\"run\":\"ai-job:workflow:sample-dig:k1\",\"step\":\"dig\"}. It runs tool:start-a-steps-agents and answers {\"jobs\":[\"ai-job:workflow:sample-dig:k1:dig:dig-1\",\"ai-job:workflow:sample-dig:k1:dig:dig-2\"],\"status\":\"written\"}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:start-a-stripe-checkout-that-pays-someone-else's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Make a Stripe hosted checkout whose money goes to a person I pay, with my fee kept back\", with {\"offer_id\":\"offer:sample-cake\",\"price_option_id\":\"price:cake\",\"payee_account\":\"acct_sample0002\",\"fee\":{\"percent\":10},\"payer_ref\":\"buyer-sample-1\",\"success_url\":\"https://shop.example.test/ok?session={CHECKOUT_SESSION_ID}\",\"cancel_url\":\"https://shop.example.test/no\",\"idempotency_key\":\"sample-payee-checkout-1\"}. It runs tool:start-a-stripe-checkout-that-pays-someone-else and answers {\"providerSessionId\":\"cs_test_sample0002\",\"redirectUrl\":\"https://checkout.stripe.com/c/pay/cs_test_sample0002\",\"platform_fee_cents\":\"250\"}",
   "lists": [],

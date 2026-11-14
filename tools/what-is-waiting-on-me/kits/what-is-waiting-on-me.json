@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:what-is-waiting-on-me's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Show everything waiting on this person that only they can do, gathered from every place it is kept: what their AIs asked them for, drafts to approve, work that is stuck, a sign-in, a decision\", with {\"sources\":[{\"id\":\"sample\",\"label\":\"Sample\",\"title\":\"{name}\"}],\"found\":{\"sample\":[{\"id\":\"r1\",\"value\":{\"name\":\"A made-up thing\"}}]}}. It runs tool:what-is-waiting-on-me and answers {\"cards\":[{\"source\":\"sample\",\"label\":\"Sample\",\"id\":\"r1\",\"title\":\"A made-up thing\"}],\"sources\":[{\"id\":\"sample\",\"label\":\"Sample\",\"waiting\":1,\"skipped\":0,\"unread\":false}],\"count\":1,\"said\":\"1 thing is waiting on you.\"}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:price-resource-usage's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Price measured resource costs from my versioned resource, plan and client rules or purchased snapshots, and keep one total with expandable detail without charging rollups twice\", with {\"at\":\"2026-10-31T00:00:00Z\",\"resource_id\":\"resource:bytes\",\"rules\":[{\"id\":\"rule:sample\",\"scope\":{},\"effective_at\":\"2026-01-01T00:00:00Z\",\"markup_bps\":\"3000\"}]}. It runs tool:price-resource-usage and answers {\"terms\":{\"resource_id\":\"resource:bytes\",\"markup_bps\":\"3000\",\"rule_ref\":\"rule:sample\",\"effective_at\":\"2026-01-01T00:00:00Z\",\"pinned\":false}}",
   "lists": [],

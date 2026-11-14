@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:add-to-my-workout-log's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Add new evidence to my workout log, or confirm, discard, correct, split or merge an entry already in it\", with {\"log\":{},\"operation\":\"add\",\"descriptor_id\":\"drill-log\",\"observed_at\":\"2026-01-01T09:00:00Z\",\"id\":\"entry:1\",\"subject\":{\"kind\":\"drill\",\"label\":\"Cascade\"},\"dimensions\":{\"throws\":{\"value\":40,\"unit\":\"throws\"}}}. It runs tool:add-to-my-workout-log and answers {\"log\":{\"evidenceAtoms\":[{\"id\":\"entry:1\",\"schema\":\"evidence-atom\",\"observedAt\":\"2026-01-01T09:00:00Z\",\"recordedAt\":\"2026-01-01T09:00:00Z\",\"source\":{\"kind\":\"manual\"},\"subject\":{\"kind\":\"drill\",\"label\":\"Cascade\"},\"dimensions\":{\"throws\":{\"value\":40,\"unit\":\"throws\"}},\"links\":[],\"confidence\":{\"state\":\"confirmed\"},\"rawArtifactRefs\":[],\"evidenceRefs\":[]}],\"rawArtifacts\":[]},\"atom\":{\"id\":\"entry:1\" ...",
   "lists": [],

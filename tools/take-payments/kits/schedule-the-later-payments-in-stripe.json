@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:schedule-the-later-payments-in-stripe's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"After a buyer has paid at the door, set up the payments that come later (a week on, a month on, then every month) in Stripe\", with {\"payment_schedule\":{\"charges\":[{\"amount_cents\":\"800\",\"days_after_signup\":0},{\"amount_cents\":\"3200\",\"days_after_signup\":7}],\"repeat\":{\"amount_cents\":\"4000\",\"interval\":\"month\",\"first_days_after_signup\":37}},\"customer_ref\":\"cus_sample0001\",\"currency\":\"usd\",\"product_name\":\"Sample course\",\"signed_up_at_unix_seconds\":1793750400,\"idempotency_key\":\"sample-schedule-1\"}. It runs tool:schedule-the-later-payments-in-stripe and answers {\"schedule_id\":\"sub_sched_sample0001\",\"status\":\"not_started\",\"starts_at\":1794355200}",
   "lists": [],

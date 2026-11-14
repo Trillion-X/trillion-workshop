@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "workflow:tell-the-person-what-waits's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Run workflow:tell-the-person-what-waits.\" It at the start of a chat and after finishing work, show the person in the chat everything that only they can do (sign in somewhere, approve, pay or top up, press a button on another site, answer), each with where to do it; and keep anything this AI could not do itself in their Waiting on you list, so no AI leaves the person not knowing what it needs from them.",
   "lists": [],

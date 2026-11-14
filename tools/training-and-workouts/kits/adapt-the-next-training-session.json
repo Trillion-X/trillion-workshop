@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:adapt-the-next-training-session's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Adapt the next training session from the adjustments my progress rules gave for the session I just did\", with {\"prescription\":{\"id\":\"s1\",\"weekBlockId\":\"w1\",\"title\":\"Cascade blocks\",\"activity\":\"technical\",\"dose\":{\"sets\":4,\"reps\":\"6-8\",\"throws\":60},\"intensity\":{\"heightCm\":100}},\"adjustments\":[{\"doseScale\":1.1,\"intensityScale\":1.1,\"note\":\"Add load.\"}]}. It runs tool:adapt-the-next-training-session and answers {\"from\":{\"id\":\"s1\",\"weekBlockId\":\"w1\",\"title\":\"Cascade blocks\",\"activity\":\"technical\",\"dose\":{\"sets\":4,\"reps\":\"6-8\",\"throws\":60},\"intensity\":{\"heightCm\":100}},\"next\":{\"id\":\"s1\",\"weekBlockId\":\"w1\",\"title\":\"Cascade blocks\",\"activity\":\"technical\",\"dose\":{\"sets\":4,\"reps\":\"6-8\",\"throws\":66},\"intensity\":{\"heightCm\":110,\"note\":\"Add load.\"}},\"applied\":1}",
   "lists": [],

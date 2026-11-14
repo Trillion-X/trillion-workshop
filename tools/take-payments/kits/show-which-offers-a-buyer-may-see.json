@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:show-which-offers-a-buyer-may-see's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Work out which of my offers to show a buyer given what they already hold, with my upsell and already-owns rules\", with {\"offers\":[{\"kind\":\"commercial-offer\",\"id\":\"offer:bread-box\",\"label\":\"Bread box\",\"price_options\":[{\"id\":\"price:box:monthly\",\"label\":\"Monthly\",\"amount_cents\":1200,\"currency\":\"usd\",\"payment_timing\":\"subscription\",\"interval\":\"month\"}]}],\"rules\":[],\"held_access_refs\":[]}. It runs tool:show-which-offers-a-buyer-may-see and answers {\"offers\":[{\"access_refs\":[],\"benefits\":[],\"content_refs\":[],\"curriculum\":[],\"id\":\"offer:bread-box\",\"label\":\"Bread box\",\"price_options\":[{\"amount_cents\":1200,\"currency\":\"usd\",\"id\":\"price:box:monthly\",\"interval\":\"month\",\"label\":\"Monthly\",\"payment_timing\":\"subscription\"}],\"sort_order\":0,\"summary\":\"\"}],\"decisions\":[]}",
   "lists": [],

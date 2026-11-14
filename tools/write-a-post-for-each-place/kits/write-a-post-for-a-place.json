@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:write-a-post-for-a-place's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Write one message for a pull request thread, a merge request note, a chat or a post from the same blocks, using only what that place can show\", with {\"surface\":\"bitbucket_comment\",\"marker\":\"sample-marker:1\",\"blocks\":[{\"type\":\"heading\",\"text\":\"What changed\"},{\"type\":\"checklist\",\"items\":[{\"text\":\"Tests\",\"done\":true}]}]}. It runs tool:write-a-post-for-a-place and answers {\"body\":\"sample-marker:1\\n\\n## What changed\\n\\n• done: Tests\",\"degraded\":[\"checkboxes\"],\"unproven_used\":[\"max_chars\"],\"truncated\":false,\"capability\":{\"id\":\"bitbucket_comment\",\"html\":false,\"collapsibles\":false,\"checkboxes\":false,\"dialect\":\"markdown\",\"max_chars\":32768,\"theme\":{\"strategy\":\"single\"},\"unproven\":[\"html\",\"collapsibles\",\"checkboxes\",\"max_chars\",\"theme\"]}}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:record-checklist-gate-changes's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Record a checklist answer or run a declared checker or gate, with the required folder change grant\", with {\"schema\":\"schema.json\",\"command\":\"checklist --write\"}. It runs tool:record-checklist-gate-changes and answers {\"result\":{\"written\":\"/granted-tYCVr2/checklist.json\",\"checks\":2,\"must\":1},\"exit_code\":0}",
   "lists": [],

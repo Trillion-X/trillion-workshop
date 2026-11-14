@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:gate-a-piece-against-a-checklist's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Before I am shown anything I made, list the required checks that apply to it and identify which answers are open, stale or failed, without changing my files\", with {\"schema\":\"schema.json\",\"command\":\"checklist --problems\"}. It runs tool:gate-a-piece-against-a-checklist and answers {\"result\":{\"all_passed\":true,\"problems\":[]},\"exit_code\":0}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:submit-a-recipe-step's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Hand in my answer to a step of my recipe run, and have it kept only when the step's checks pass, judged on what my own records say ran\", with {\"run\":\"ai-job:workflow:sample-dig:k1\",\"step\":\"dig\",\"answer\":{\"lanes\":[{\"id\":\"dig-1\",\"job\":\"ai-job:workflow:sample-dig:k1:dig:dig-1\"},{\"id\":\"dig-2\",\"job\":\"ai-job:workflow:sample-dig:k1:dig:dig-2\"}]}}. It runs tool:submit-a-recipe-step and answers {\"status\":\"kept\",\"answer_id\":\"ai-job:workflow:sample-dig:k1#answer:dig\",\"checks\":[{\"kind\":\"lane-jobs\",\"says\":\"Every lane comes from its own job that ran\",\"passed\":true}],\"unchecked\":[]}",
   "lists": [],

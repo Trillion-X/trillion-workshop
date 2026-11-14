@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:write-a-source-copy's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Write the files of a repository, the dates of its commits and a stamp naming the commit into my own files under /source-copies/<root>/, so a check of what a finding cites can read them on any computer\", with {\"root\":\"sample-repo\",\"ref\":\"origin/main\",\"head\":\"0123456789abcdef0123456789abcdef01234567\",\"files\":[{\"path\":\"src/a.txt\",\"text\":\"first line\\nsecond line\\n\"}],\"dates\":{\"0123456789abcdef0123456789abcdef01234567\":\"2026-11-10T10:00:00Z\"},\"complete\":true}. It runs tool:write-a-source-copy and answers {\"root\":\"sample-repo\",\"head\":\"0123456789abcdef0123456789abcdef01234567\",\"written\":1,\"bytes\":238}",
   "lists": [],

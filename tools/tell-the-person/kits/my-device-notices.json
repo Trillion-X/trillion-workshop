@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:my-device-notices's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Read the newest notices kept for one registered device, oldest first after its cursor\", with {\"device_id\":\"device-sample-1\"}. It runs tool:my-device-notices and answers {\"device_id\":\"device-sample-1\",\"channel\":\"device-pull\",\"cursor\":1,\"notices\":[{\"id\":\"told:1\",\"seq\":1,\"kind\":\"report\",\"title\":\"Sample notice\",\"body\":\"A made-up notice for the sample run.\",\"open\":null,\"at\":\"2026-11-03T12:00:00Z\",\"read\":false,\"actions\":[{\"id\":\"open\",\"label\":\"the sample page\",\"open\":\"/sample-page\"}],\"level\":\"active\"}],\"said\":\"1 notice is ready for this device, oldest first.\"}",
   "lists": [],

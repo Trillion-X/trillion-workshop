@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:rehearse-a-billing-page-in-stripe-test-mode's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Make a test subscription in Stripe test mode and open its billing page, to see the billing page comes back before a real buyer needs it\", with {\"product_name\":\"Sample membership\",\"amount_cents\":1000,\"return_url\":\"https://app.example.com/billing\"}. It runs tool:rehearse-a-billing-page-in-stripe-test-mode and answers {\"subscription_id\":\"sub_sample0004\",\"redirect\":\"https://billing.stripe.com/p/session/test_sample0004\",\"card\":null,\"customer_id\":\"cus_sample0004\",\"schedule_id\":\"sub_sched_sample0004\",\"portal_configuration\":\"bpc_sample0004\"}",
   "lists": [],

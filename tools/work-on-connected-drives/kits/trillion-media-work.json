@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:trillion-media-work's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"List the long file jobs running on this person's computer drives (copies and moves): how far each has got, and whether it can be paused, resumed or stopped now\", with {}. It runs tool:trillion-media-work and answers {\"work\":[]}",
   "lists": [],

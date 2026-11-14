@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:start-or-resume-the-first-setup's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Say what starting or resuming a new person's first setup does next: the ordered owner calls, each with the read-back to make after it\", with {\"account_id\":\"acct-sample\",\"available_tools\":[\"tool:give-every-account-ready-made-workflows-and-defaults\",\"tool:start-a-recipe-run\"],\"runtime\":{\"workflow\":{\"exists\":false,\"state\":\"not_started\"}}}. It runs tool:start-or-resume-the-first-setup; its answer contains \"trillion.setup-start/v1\".",
   "lists": [],

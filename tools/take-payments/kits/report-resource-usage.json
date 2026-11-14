@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:report-resource-usage's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Report exact reconciled usage once to its purchased subscription, retaining fractional carry and unknown-outcome recovery\", with {\"agreement_ref\":\"usage-billing-agreement:sample\",\"payer_id\":\"payer:sample-a\",\"settlement_id\":\"pool-sample-2026-10\",\"settlement_version\":1}. It runs tool:report-resource-usage and answers {\"report_id\":\"resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713\",\"state\":\"provider_accepted\",\"settlement_ref\":\"resource-usage-settlement:pool-sample-2026-10:v1\",\"payer_id\":\"payer:sample-a\",\"currency\":\"usd\",\"exact_delta\":{\"n\":\"13\",\"d\":\"10\"},\"cash_amount\":{\"n\":\"13\",\"d\":\"10\"},\"carry_after\":{\"n\":\"0\",\"d\":\"1\"},\"planned_carry\":{\"n\":\"0\",\"d\":\"1\"} ...",
   "lists": [],

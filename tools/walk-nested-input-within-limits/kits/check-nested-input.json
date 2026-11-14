@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:check-nested-input's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Check an untrusted nested value (an imported document, pasted rich text, list row values from an AI) before it is rendered or stored: refuse it in plain words when it is nested deeper than 100 levels, holds more than 100,000 values, or refers back to itself\", with {\"value\":[1,2,3,4],\"limits\":{\"max_nodes\":3}}. It runs tool:check-nested-input and answers {\"ok\":false,\"reason\":\"too_many_nodes\",\"limit\":3,\"said\":\"That holds more than 3 values, so it was not accepted.\"}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:list-workspace-tours's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Show me every tour in my workspace and which ones I have finished\", with {}. It runs tool:list-workspace-tours and answers {\"tours\":[{\"tour_id\":\"sample-tour\",\"title\":\"Sample tour\",\"summary\":\"\",\"steps\":1,\"finished\":false,\"start_event\":{\"event_kind\":\"app-opened\",\"walkthrough_id\":\"sample-tour\"},\"changed_at\":null,\"own\":true}],\"said\":\"1 tour, 0 finished.\"}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:hand-a-request-to-its-owner's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Ask an owner to run an action with what a form, a check or a person supplied, once\", with {\"action\":{\"owner\":\"owner-1\",\"action_ref\":\"action-1\"},\"context\":{\"operation_id\":\"operation-1\"}}. It runs tool:hand-a-request-to-its-owner and answers {\"handed\":[\"owner-action-request:operation-1:0\"],\"already\":[],\"said\":\"Asked owner-1: 1 request kept.\"}",
   "lists": [],

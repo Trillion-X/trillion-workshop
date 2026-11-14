@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:walk-a-new-person-through-first-setup's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Walk a new person through first setup: the apps to install on their devices, the AIs to connect, and the one saved run that resumes where they stopped\", with {\"origin\":\"https://app.example.test\",\"view\":\"state\",\"runtime\":{\"workflow\":{\"exists\":false,\"state\":\"not_started\"}}}. It runs tool:walk-a-new-person-through-first-setup; its answer contains \"trillion.setup-plan/v1\".",
   "lists": [],

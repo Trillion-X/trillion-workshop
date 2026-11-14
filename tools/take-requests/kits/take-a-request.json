@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:take-a-request's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep one request that arrived, as decided, and ask the owner who should act on it\", with {\"request\":{\"request_id\":\"request-1\",\"source_ref\":\"source-1\",\"atom_ref\":\"atom-1\",\"text\":\"Two loaves for Friday.\",\"origin_ref\":\"origin-1\"},\"decision\":{\"disposition\":\"recorded\",\"reason\":\"A customer asked.\"}}. It runs tool:take-a-request and answers {\"status\":\"refused\",\"request_id\":\"request-1\",\"problems\":[{\"code\":\"no_accepted_origins\",\"said\":\"No accepted origins are on file. Save a intake-origins record with id intake-origins:accepted and the origins that count as someone asking.\"}],\"owner_request\":null,\"said\":\"No accepted origins are on file. Save a intake-origins record with id intake-origins:accepted and the origins that count as someone ...",
   "lists": [],

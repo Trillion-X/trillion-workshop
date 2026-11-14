@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:brief-a-triage's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Decide what to do with one incoming item, such as a message, note or finding, by weighing it against what the person cares most about\", with {\"item\":{\"ref\":\"note:1\",\"text\":\"The flour bin is nearly empty\"},\"priorities\":[{\"text\":\"Never run out of flour\"}],\"dispositions\":[{\"ref\":\"keep-note\",\"label\":\"Keep the note\",\"blocked_default\":false},{\"ref\":\"hold\",\"label\":\"Hold for the baker\",\"fallback\":true}],\"min_confidence\":0.6}. It runs tool:brief-a-triage and answers {\"item\":{\"ref\":\"note:1\",\"text\":\"The flour bin is nearly empty\"},\"priorities\":[{\"text\":\"Never run out of flour\"}],\"dispositions\":[{\"ref\":\"keep-note\",\"label\":\"Keep the note\"},{\"ref\":\"hold\",\"label\":\"Hold for the baker\"}],\"min_confidence\":0.6,\"rules\":[\"Judge the item against the priorities and pick the disposition that serves them best; weigh your confidence by how strongly the item matches a ...",
   "lists": [],

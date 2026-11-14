@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:work-out-unit-economics's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Work out a business's unit economics (ARPU, gross margin, CAC, LTV, LTV to CAC, payback) from one period's revenue, costs, ad spend and customer counts\", with {\"net_revenue_cents\":1000000,\"gross_revenue_cents\":1100000,\"cost_of_delivery_cents\":220000,\"acquisition_spend_cents\":300000,\"active_customers\":100,\"new_customers\":20,\"churn_rate\":0.05}. It runs tool:work-out-unit-economics and answers {\"arpu_cents\":10000,\"gross_margin\":0.8,\"cac_cents\":15000,\"ltv_cents\":160000,\"ltv_to_cac\":10.666666666666666,\"payback_periods\":1.875,\"lifetime_periods\":20,\"input\":{\"net_revenue_cents\":1000000,\"gross_revenue_cents\":1100000,\"cost_of_delivery_cents\":220000,\"acquisition_spend_cents\":300000,\"active_customers\":100,\"new_customers\":20,\"churn_rate\":0.05}}",
   "lists": [],

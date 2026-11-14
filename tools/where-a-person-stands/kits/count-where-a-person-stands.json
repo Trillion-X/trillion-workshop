@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:count-where-a-person-stands's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Count the stands a person has taken, by kind of thing and by stand, with how many changed their mind and how many took a stand back\", with {\"stands\":[{\"kind\":\"title\",\"stance\":\"agree\",\"earlier\":[{\"stance\":\"disagree\"}]},{\"kind\":\"title\",\"stance\":\"disagree\"},{\"kind\":\"voice\",\"stance\":null}]}. It runs tool:count-where-a-person-stands and answers {\"read\":3,\"by_kind\":{\"title\":{\"agree\":1,\"disagree\":1}},\"with_history\":1,\"taken_back\":1}",
   "lists": [],

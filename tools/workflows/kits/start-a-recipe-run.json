@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:start-a-recipe-run's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"When a recipe of mine is started, by a wake I switched on or by a call, put its steps and its input in my own records as one job waiting for my AI, once per firing\", with {\"row\":\"workflow:bring-in-a-framework\"}. It runs tool:start-a-recipe-run and answers {\"job\":\"ai-job:workflow:bring-in-a-framework:sample\",\"status\":\"written\"}",
   "lists": [],

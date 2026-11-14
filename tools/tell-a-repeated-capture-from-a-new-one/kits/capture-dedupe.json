@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:capture-dedupe's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Say whether a captured text (screen words, a transcript) is the same as, or nearly the same as, one already seen, before it is kept or uploaded, and forget what was seen in a span when that span is erased\", with {\"action\":\"seen\",\"text\":\"Quarterly plan for Example Co: review the notes from Ada Example before Friday.\",\"at\":\"2026-11-03T10:00:00Z\"}. It runs tool:capture-dedupe and answers {\"duplicate\":false,\"entries\":[{\"exact\":\"5e8b712f2f2403c8ca5cee9043373e34\",\"near\":\"d17f03c37b77414b\",\"at\":1793700000000}]}",
   "lists": [],

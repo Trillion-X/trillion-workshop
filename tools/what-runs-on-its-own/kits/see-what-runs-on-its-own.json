@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:see-what-runs-on-its-own's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Show everything my account runs on its own (schedules, record changes, incoming events): what each waits for, whether it is on, its last and next run, which ones should have run and did not, and a switch to turn each off or on\", with {\"now_ms\":1800000000000,\"wakes\":[{\"tool\":\"tool:sample\",\"id\":\"every-hour\",\"on\":{\"time\":{\"every_ms\":3600000}},\"budget\":{\"steps\":1}}],\"book\":null}. It runs tool:see-what-runs-on-its-own and answers {\"causes\":[{\"tool\":\"tool:sample\",\"id\":\"every-hour\",\"waits_for\":\"every hour\",\"state\":\"unplaced\",\"label\":\"Not picked up yet\",\"red\":true,\"why\":\"the engine has not picked it up; if this stays, the engine is not running its causes\",\"also\":[],\"last_run_ms\":null,\"last_outcome\":null,\"next_run_ms\":null,\"switch\":{\"tool\":\"tool:sample\",\"id\":\"every-hour\",\"on\":true,\"turn\":\"off\",\"label\":\"Turn off\"}}],\"red\":1 ...",
   "lists": [],

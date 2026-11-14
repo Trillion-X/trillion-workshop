@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:dismiss-waiting-tours's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Dismiss the tours waiting for me without showing them\", with {\"now\":\"2026-01-01T00:00:00.000Z\"}. It runs tool:dismiss-waiting-tours and answers {\"dismissed\":[\"sample-tour\"],\"keep\":[{\"label\":\"guided-overlay::walkthrough-progress\",\"value\":{\"kind\":\"walkthrough-progress\",\"consumed_once_keys\":[\"sample-tour-seen\"],\"consumed_at\":{\"sample-tour-seen\":\"2026-01-01T00:00:00.000Z\"},\"cursors\":{\"sample-tour\":{\"run_id\":\"dismissed-mjuohs00-b\",\"definition_revision\":1,\"current_step_id\":\"one\",\"history\":[],\"status\":\"complete\",\"cursor_revision\":1}} ...",
   "lists": [],

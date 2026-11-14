@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:my-requests's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"List the requests taken, newest first, with their receipts and the ones still waiting on an owner\", with {\"limit\":1}. It runs tool:my-requests and answers {\"requests\":[],\"said\":\"0 requests, newest first; 0 waiting on an owner.\"}",
   "lists": [],

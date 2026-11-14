@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:type-dictated-text's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Put dictated text where the person's cursor is as one clipboard transaction (save, write, paste, restore, verify), never pasting over a clipboard it cannot put back, and note the dictation in their bounded history\", with {\"text\":\"Hello from Ada Example.\",\"context\":{\"app\":\"Notes\"}}. It runs tool:type-dictated-text and answers {\"entry_id\":\"9c6df61dfb4c27d0\",\"kind\":\"inserted-verified\",\"saved\":true,\"wrote\":true,\"pasted\":true,\"restored\":true,\"verified\":true,\"error\":null}",
   "lists": [],

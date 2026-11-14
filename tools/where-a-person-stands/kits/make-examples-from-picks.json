@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:make-examples-from-picks's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Make labelled examples for calibrating a small model from which options of a piece a person picked or rejected, and the lines they named\", with {\"films\":[{\"name\":\"piece-1\",\"gate\":{\"picked_verdicts\":[\"picked\"],\"pick_labels\":{\"spec_globs\":[\"cuts/{option}.json\"]}},\"decisions\":[{\"option_id\":\"o1\",\"verdict\":\"picked\"}],\"files\":[\"cuts/o1.json\"],\"units\":{\"cuts/o1.json\":[{\"text\":\"A kept line.\",\"kind\":\"onscreen\"}]}}]}. It runs tool:make-examples-from-picks and answers {\"items\":[{\"text\":\"A kept line.\",\"good\":true,\"bad_for\":[],\"split\":\"real\",\"source\":\"pick-implied\",\"kind\":\"onscreen\",\"film\":\"piece-1\",\"option\":\"o1\",\"verdict\":\"picked\",\"their_words\":null,\"spec\":\"cuts/o1.json\",\"context\":null}],\"left_out\":{\"excluded\":0,\"ruled_directly\":0,\"both_labels\":0,\"no_spec\":[],\"several_specs\":[]},\"units_needed\":[]}",
   "lists": [

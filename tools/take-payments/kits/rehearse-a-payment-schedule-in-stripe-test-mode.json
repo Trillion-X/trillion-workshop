@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:rehearse-a-payment-schedule-in-stripe-test-mode's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Build a payment schedule in Stripe test mode and see what Stripe says it will charge and when, before a real buyer meets it\", with {\"payment_schedule\":{\"charges\":[{\"amount_cents\":\"800\",\"days_after_signup\":0},{\"amount_cents\":\"3200\",\"days_after_signup\":7}],\"repeat\":{\"amount_cents\":\"4000\",\"interval\":\"month\",\"first_days_after_signup\":37}},\"product_name\":\"Sample course\"}. It runs tool:rehearse-a-payment-schedule-in-stripe-test-mode and answers {\"schedule_id\":\"sub_sched_sample0002\",\"status\":\"active\",\"what_stripe_says\":[{\"phase\":0,\"amount_cents\":3200,\"days_after_start\":0},{\"phase\":1,\"amount_cents\":4000,\"days_after_start\":30}]}",
   "lists": [],

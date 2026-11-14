@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:act-on-my-notice's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Perform one action explicitly offered by one of this person’s kept notices\", with {\"id\":\"told:1\",\"action\":\"open\"}. It runs tool:act-on-my-notice and answers {\"done\":true,\"said\":\"Opening the sample page.\",\"open\":\"/sample-page\"}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:list-waiting-tours's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Show me the tours waiting to start by themselves, and which my show rules are holding\", with {\"now\":\"2026-01-01T00:00:00.000Z\"}. It runs tool:list-waiting-tours and answers {\"waiting\":[{\"tour_id\":\"sample-tour\",\"title\":\"Sample tour\",\"summary\":\"\",\"facts\":{\"id\":\"sample-tour\",\"title\":\"Sample tour\",\"started_by\":\"itself\",\"reason\":\"first-use\",\"urgency\":\"normal\",\"hours_since_one_like_it\":null},\"urgency\":\"normal\",\"held\":false,\"held_by\":[],\"until\":null,\"once_key\":\"sample-tour-seen\",\"entry_step\":\"one\",\"revision\":1}],\"said\":\"1 tour waiting, 0 held by your show rules.\"}",
   "lists": [],

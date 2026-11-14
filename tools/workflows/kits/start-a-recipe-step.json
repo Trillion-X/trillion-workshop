@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:start-a-recipe-step's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Begin a step of my recipe run: get the step with what to do, and when it says it has several agents have each agent's own job started in my own records, in the same call\", with {\"run\":\"ai-job:workflow:sample-dig:k1\",\"step\":\"dig\"}. It runs tool:start-a-recipe-step and answers {\"step\":{\"id\":\"dig\",\"title\":\"Dig\",\"do\":\"Dig in your lane.\",\"submit\":{\"type\":\"object\",\"required\":[\"lanes\"]},\"agents\":2,\"checks\":[{\"kind\":\"lane-jobs\",\"says\":\"Every lane comes from its own job that ran\",\"path\":[\"this\",\"lanes\"],\"lane\":\"id\",\"job\":\"job\"}]},\"lane_jobs\":[{\"lane\":\"dig-1\",\"job\":\"ai-job:workflow:sample-dig:k1:dig:dig-1\",\"as\":\"ai:workflow-sample-dig-k1-dig-1\",\"take\":\"trillion take ...",
   "lists": [],

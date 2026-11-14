@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:upload-a-file-to-a-signed-slot's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Upload one file from a folder the person granted to a signed storage slot a page hands over, only to a destination the tool's own list allows, so the page never sees the file\", with {\"file\":\"notes.txt\",\"content_type\":\"text/plain\",\"slot\":{\"url\":\"https://uploads.sample-storage.example/sample-bucket/notes.txt\",\"fields\":{\"key\":\"notes.txt\",\"policy\":\"made-up-policy\"}}}. It runs tool:upload-a-file-to-a-signed-slot and answers {\"sent\":true,\"size\":32,\"said\":\"Uploaded 32 bytes.\"}",
   "lists": [],

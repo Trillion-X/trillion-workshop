@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:trillion-media-eject's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Eject one drive connected to this person's computer safely, so it can be unplugged\", with {\"mount\":\"/Volumes/Example Drive\"}. It runs tool:trillion-media-eject and answers {\"ok\":false,\"state\":\"blocked\",\"message\":\"This drive cannot be ejected safely.\",\"mount\":\"/Volumes/Example Drive\",\"stopped\":[],\"remaining\":[]}",
   "lists": [],

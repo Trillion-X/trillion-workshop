@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:set-up-stripe-payment-links's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Make Stripe hold one lasting payment link for every priced option of my offers, with the buyer plan page and my discount codes\", with {\"owner\":\"sample-shop\",\"after_payment_url\":\"https://shop.example.test/\"}. It runs tool:set-up-stripe-payment-links and answers {\"links\":[{\"offer_id\":\"offer:bread-box\",\"price_option_id\":\"price:box:monthly\",\"url\":\"https://buy.stripe.com/test_sample0001\"},{\"offer_id\":\"offer:sample-cake\",\"price_option_id\":\"price:cake\",\"url\":\"https://buy.stripe.com/test_sample0001\"}],\"retired\":[],\"portal_url\":\"https://billing.stripe.com/p/login/test_sample0001\",\"portal_configuration\":\"bpc_sample0001\",\"codes\":[],\"retired_codes\":[]}",
   "lists": [],

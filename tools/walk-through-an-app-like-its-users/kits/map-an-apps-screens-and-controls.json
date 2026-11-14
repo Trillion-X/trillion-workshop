@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:map-an-apps-screens-and-controls's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Find the screens of my app and what a person can do on each, so journeys can be written to check it\", with {\"app_url\":\"data:text/html,<title>Ready</title><h1>Ready</h1><button>Go</button>\"}. It runs tool:map-an-apps-screens-and-controls; its answer contains \"Ready\".",
   "lists": [],

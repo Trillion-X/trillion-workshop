@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:mark-my-notices-read's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Record which notices this person has read and the first surface they saw them on\", with {\"ids\":[\"told:1\"],\"on\":{\"channel\":\"in-app\"}}. It runs tool:mark-my-notices-read and answers {\"ids\":[\"told:1\"],\"read\":true,\"changed\":true,\"on\":{\"channel\":\"in-app\",\"at\":\"2026-11-14T00:50:55.094Z\"},\"said\":\"1 notice marked read.\"}",
   "lists": [],
