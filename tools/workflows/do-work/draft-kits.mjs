@@ -4,7 +4,7 @@
 // (test-helpers/kit-drafter/observe.mjs), draft each kit from the item's own row and those real answers
 // (read-data/draft-a-kit.mjs), write the whole ones beside their items and take their ids off the list. An item whose draft
 // is refused stays on the list, and its refusal is its gap: printed as JSON for the workflow-gaps rows (--gaps FILE writes it).
-// --redraft also re-drafts a kit already written as a draft (draft: true) when the new draft is whole, so an older draft
+// --redraft also re-drafts a kit the drafter wrote (drafted_from) or still marked draft (draft: true) when the new draft is whole, so an older draft
 // whose example only described its answer now shows the answer the tool really gave. A kit a person wrote is never touched.
 //
 //   node tools/workflows/do-work/draft-kits.mjs [--write] [--redraft] [--batch N] [--gaps FILE]
@@ -27,7 +27,7 @@ const owed = JSON.parse(readFileSync(OWED_FILE, 'utf8'));
 const all = items();
 const byId = new Map(all.map(item => [item.id, item]));
 const known = new Set([...all.map(item => item.id), ...HOST_TOOLS]);
-const isDraft = item => item.problems !== null && JSON.parse(readFileSync(item.file, 'utf8')).draft === true;
+const isDraft = item => { if (item.problems === null) return false; const kit = JSON.parse(readFileSync(item.file, 'utf8')); return kit.draft === true || typeof kit.drafted_from === 'string'; };
 // The lists other kits here already define, by list id, for any item that names one of them.
 const keptLists = new Map();
 for (const entry of all.filter(item => item.problems !== null)) for (const list of JSON.parse(readFileSync(entry.file, 'utf8')).lists ?? []) if (!keptLists.has(list.list)) keptLists.set(list.list, list);

@@ -234,7 +234,7 @@
       "workflow": "workflow:make-short-videos-from-footage",
       "step": "cut-and-caption",
       "given": "A recording identity, from 312 to 342 seconds, and the timed words of that part.",
-      "hands_back": "An edit with the clip's cut points and subtitle captions; its identity goes to reframe-vertical next."
+      "hands_back": "An edit cut from 312 to 342 seconds with one subtitle caption per timed word group; its identity (1f:<64 hex>) goes to reframe-vertical next."
     },
     {
       "title": "The finished short is handed to the posting stage",

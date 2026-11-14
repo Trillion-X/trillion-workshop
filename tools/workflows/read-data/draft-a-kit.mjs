@@ -4,7 +4,8 @@
 // sample runs and its steps, and what those sample runs really answered when run (`observed`, from
 // test-helpers/kit-drafter/observe.mjs). Nothing is invented: a worked example shows a real run (an answer observed, or the
 // value the item's own sample says its answer contains), and a part the item's own data cannot give leaves the draft refused
-// by kitProblems, and the refusal's words are the gap. A draft is marked `draft: true` until a person or lane has read it.
+// by kitProblems, and the refusal's words are the gap. A whole draft already shows a real run, so it is not marked `draft: true`;
+// `drafted_from` says it was drafted and from what.
 //
 //   draftKit({ recipe | tool, known?, keptLists?, observed? }) -> { kit, problems }
 //     known:    the ids a set may name (every item here and the host's tools)
@@ -116,7 +117,6 @@ export function draftKit({ recipe = null, tool = null, known = null, keptLists =
   const item = recipe ?? tool;
   const part = recipe ? recipeDraft(recipe, observed) : toolDraft(tool, observed);
   const kit = {
-    draft: true,
     drafted_from: `${item.id}'s own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it`,
     start_here: part.start_here,
     lists: itemNames({ recipe, tool }).lists.filter(id => keptLists.has(id)).map(id => keptLists.get(id)),

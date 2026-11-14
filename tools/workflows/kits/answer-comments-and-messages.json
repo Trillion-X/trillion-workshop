@@ -383,7 +383,7 @@
       "workflow": "workflow:answer-comments-and-messages",
       "step": "read-facts",
       "given": "record:business-setup:facts holds business_name Corner Studio and channels [instagram].",
-      "hands_back": "A job ai-job:workflow:answer-comments-and-messages:<request key> written for the AI; its first step reads the facts row and keeps business_name Corner Studio."
+      "hands_back": "A job ai-job:workflow:answer-comments-and-messages:<request key> is written for the AI; its first step reads record:business-setup:facts and keeps {\"business_name\":\"Corner Studio\",\"channels\":[\"instagram\"]}."
     },
     {
       "title": "A price question gets the price reply",
@@ -434,7 +434,7 @@
       "workflow": "workflow:answer-comments-and-messages",
       "step": "check-the-replies",
       "given": "The word checks no-hype and no-promise are On.",
-      "hands_back": "failing is empty, so the reply goes to step hand-the-replies-to-the-person unchanged."
+      "hands_back": "It answers {\"failing\":[]}, so the reply goes to step hand-the-replies-to-the-person unchanged."
     }
   ],
   "pour": {

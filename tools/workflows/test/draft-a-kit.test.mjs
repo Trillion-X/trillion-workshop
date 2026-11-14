@@ -22,7 +22,8 @@ const recipe = {
 test('a tool with a sample run is drafted whole, its example is the sample and its answer is the sample\'s', () => {
   const { kit, problems } = draftKit({ tool });
   assert.deepEqual(problems, []);
-  assert.equal(kit.draft, true);
+  assert.equal(kit.draft, undefined, 'a whole draft shows a real run, so it is not marked draft');
+  assert.match(kit.drafted_from, /own row/);
   assert.deepEqual(kit.tools, ['tool:fixture-sum']);
   assert.deepEqual(kit.worked_examples[0].mcp.input.input, { tool: 'tool:fixture-sum', input: { a: 1, b: 2 } });
   assert.match(kit.worked_examples[0].hands_back, /contains "3"/);

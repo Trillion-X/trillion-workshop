@@ -68,3 +68,20 @@ test('a tool\'s kit names the tool itself, and a kit with no lists says why', ()
     'kit.workflows and kit.tools are both empty: name what the item runs.',
   ]);
 });
+
+// The filler a drafter shipped on main for tool:run-official-better-auth (6746b1e04): its answer restated the tool's job.
+test('an answer that restates the item\'s job, or holds no value from a run, is refused', () => {
+  const job = 'Start official Better Auth: email and password, passkeys, two factor, email codes, organizations and JWTs that anything can verify';
+  const restated = whole();
+  restated.worked_examples[0].hands_back = `The result the item's own job names: ${job}`;
+  assert.deepEqual(kitProblems(restated, { recipe: { ...recipe, job } }), [
+    `kit.worked_examples[0].hands_back holds no value from a run (a number, a quoted string, a JSON value or a file name): say what came back, not what kind of thing comes back.`,
+    `kit.worked_examples[0].hands_back restates the item's job ("${job}") instead of what a run gave back.`,
+  ]);
+  const described = whole();
+  described.worked_examples[0].hands_back = 'Step pick-a-template answers with template, reply.';
+  assert.equal(kitProblems(described, { recipe }).length, 1);
+  const real = whole();
+  real.worked_examples[0].hands_back = 'It answered {"picked":"price","reply":"Hi Sam, it is 49 a month."}.';
+  assert.deepEqual(kitProblems(real, { recipe }), []);
+});

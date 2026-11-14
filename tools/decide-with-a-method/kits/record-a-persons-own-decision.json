@@ -60,12 +60,14 @@
               "option_id": "open",
               "next_action": "Put the Sunday hours on the door sign",
               "success_measure": "The first four Sundays each take in more than they cost",
-              "person": { "said": "go" }
+              "person": {
+                "said": "go"
+              }
             }
           }
         }
       },
-      "hands_back": "Refused: only the person decides without the method; the AI walks the method with tool:next-decision-question and tool:make-the-decision."
+      "hands_back": "Refused (person_verdict_no_person, read from tools/decide-with-a-method/read-data/decide-with-a-method.json): \"Only the person decides without the method: name the message they sent (person.message_id, a message row where they are the speaker), or have them record it on their own signed-in page. An AI saying the person decided is not the person's verdict; to decide yourself, answer the method's questions (tool:next-decision-question) and then call tool:make-the-decision\""
     }
   ]
 }

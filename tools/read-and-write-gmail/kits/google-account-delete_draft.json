@@ -36,7 +36,7 @@
         }
       },
       "given": "read from tools/read-and-write-gmail/tool-rows.json (its invoke url, method and body_template) and checked against tools/read-and-write-gmail/test/rows.test.mjs. A saved draft with id r-7301442210, as list_drafts gives it. The call it makes: DELETE the Gmail me-mailbox base (gmail.googleapis.com, v1)/drafts/r-7301442210.",
-      "hands_back": "Gmail answers with an empty body (the output has no fields), and the draft no longer appears in list_drafts. Deleting is permanent."
+      "hands_back": "Gmail answers HTTP 204 with an empty body, so the tool's output is {}; draft r-7301442210 no longer appears in list_drafts. Deleting is permanent."
     }
   ]
 }

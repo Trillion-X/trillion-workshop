@@ -17,7 +17,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { root, rows, rowsOf, folders, tools as TOOLS } from './tool-rows.mjs';
-import { KIT_TEMPLATE, kitProblems } from '../tools/workflows/read-data/kit-problems.mjs';
+import { KIT_TEMPLATE, answerDraftProblems, kitProblems } from '../tools/workflows/read-data/kit-problems.mjs';
 
 export const OWED_FILE = resolve(root, 'test/items-without-a-kit.json');
 const RECIPES = resolve(root, 'tools/workflows/recipes/workflows.json');
@@ -120,6 +120,12 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     console.error(`Every Workshop item must come with its kit: its lists with example rows, its workflows and tools, step-by-step instructions and worked examples, so a person starts at once. ${problems.length} problem${problems.length === 1 ? '' : 's'}:\n${problems.map(line => `- ${line}`).join('\n')}`);
     process.exit(1);
   }
+  const drafts = items().filter(item => item.problems !== null).map(item => {
+    const kit = JSON.parse(readFileSync(item.file, 'utf8'));
+    return kit.draft === true ? { id: item.id, owes: answerDraftProblems(kit, item.kind === 'tool' ? { tool: item.item } : { recipe: item.item }) } : null;
+  }).filter(Boolean);
+  const owing = drafts.filter(draft => draft.owes.length);
+  console.log(`${drafts.length} kits are still drafts (draft: true); ${owing.length} of them show no real run yet${owing.length ? `: ${owing.map(draft => draft.id).join(', ')}` : ''}.`);
   const owedNow = JSON.parse(readFileSync(OWED_FILE, 'utf8'));
   console.log(`Every item has its kit or is on the list of items from before kits. ${(owedNow.workflows?.length ?? 0) + (owedNow.tools?.length ?? 0)} items on that list still owe a kit.`);
 }

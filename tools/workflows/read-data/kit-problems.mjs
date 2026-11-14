@@ -74,7 +74,21 @@ function listProblems(list, at, rules) {
   return problems;
 }
 
-function exampleProblems(example, at, { steps, workflows, own }) {
+// Words folded for comparing an answer with the item's own job sentence.
+const folded = text => String(text ?? '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+
+// An answer part (hands_back) shows a run: it holds at least one real value (a number, a quoted string, a JSON value, true or
+// false, a file name: rules.answer_holds_a_value) and does not restate the item's job sentence in its place.
+function answerProblems(example, where, { job, rules }) {
+  if (!nonempty(example.hands_back)) return [];
+  const problems = [];
+  if (rules.answer_holds_a_value && !new RegExp(rules.answer_holds_a_value).test(example.hands_back)) problems.push(`${where}.hands_back holds no value from a run (a number, a quoted string, a JSON value or a file name): say what came back, not what kind of thing comes back.`);
+  const first = folded(String(job ?? '').split(/(?<=[.!?])\s/)[0]);
+  if (first.split(' ').length >= (rules.answer_restates_job_least_words ?? Infinity) && folded(example.hands_back).includes(first)) problems.push(`${where}.hands_back restates the item's job ("${String(job).split(/(?<=[.!?])\s/)[0]}") instead of what a run gave back.`);
+  return problems;
+}
+
+function exampleProblems(example, at, { steps, workflows, own, job, rules }) {
   const where = `kit.worked_examples[${at}]`;
   if (!object(example)) return [`${where} must be an object.`];
   const problems = [];
@@ -86,6 +100,7 @@ function exampleProblems(example, at, { steps, workflows, own }) {
     if (example.workflow === own && !steps.includes(example.step)) problems.push(`${where}.step must be one of this workflow's steps: ${steps.join(', ')}.`);
     if (example.workflow !== own && !nonempty(example.step)) problems.push(`${where}.step must name the step of ${example.workflow} it shows.`);
   } else if (example.workflow !== undefined && !(nonempty(example.workflow) && nonempty(example.step))) problems.push(`${where} names a workflow, so it must name the step too.`);
+  problems.push(...answerProblems(example, where, { job, rules }));
   return problems;
 }
 
@@ -133,10 +148,20 @@ export function kitProblems(kit, { recipe = null, tool = null, template = KIT_TE
 
   const examples = Array.isArray(kit.worked_examples) ? kit.worked_examples : [];
   if (examples.length < rules.least_worked_examples) problems.push(`kit.worked_examples must give at least ${rules.least_worked_examples} specific run (which MCP, which workflow, which step).`);
-  examples.forEach((example, at) => problems.push(...exampleProblems(example, at, { steps, workflows: Array.isArray(kit.workflows) ? kit.workflows : [], own })));
+  // A kit still marked draft (draft: true) is not yet held to showing a real run: answerDraftProblems names what it owes.
+  const answerRules = kit.draft === true ? {} : rules;
+  examples.forEach((example, at) => problems.push(...exampleProblems(example, at, { steps, workflows: Array.isArray(kit.workflows) ? kit.workflows : [], own, job: (recipe ?? tool)?.job, rules: answerRules })));
 
   if (lists.length || kit.pour !== undefined) problems.push(...pourProblems(kit.pour, lists, rules));
   return problems;
+}
+
+/** What a draft kit (draft: true) still owes before it can drop its draft mark: each worked example's answer must show a
+ *  real run (answerProblems). Empty for a kit that is not a draft, or a draft whose answers already show one. */
+export function answerDraftProblems(kit, { recipe = null, tool = null, template = KIT_TEMPLATE } = {}) {
+  if (!object(kit) || kit.draft !== true) return [];
+  const job = (recipe ?? tool)?.job;
+  return (Array.isArray(kit.worked_examples) ? kit.worked_examples : []).flatMap((example, at) => (object(example) ? answerProblems(example, `kit.worked_examples[${at}]`, { job, rules: template.rules }) : []));
 }
 
 /** The input of the marketplace's publish_replacement_set for one kit: its workflows and tools as the components of one

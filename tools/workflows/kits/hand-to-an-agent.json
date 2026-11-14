@@ -36,7 +36,7 @@
       "workflow": "workflow:hand-to-an-agent",
       "step": "handle",
       "given": "The job in plain words and what arrived (the voice note's id and words).",
-      "hands_back": "Step handle answers with what the AI that took the job did: here, the outline with its hook and three points."
+      "hands_back": "Step handle answers with what the AI that took the job did, e.g. {\"outline\":{\"hook\":\"Nobody reads the how-to.\",\"points\":[\"hand people the filled-in sheet\",\"show one real row\",\"say what is missing\"]}}."
     }
   ]
 }

@@ -19,7 +19,9 @@
     "list_id": "^list:[a-z0-9][a-z0-9-]*$",
     "row_type": "^record:[a-z0-9][a-z0-9-]*$",
     "field_kinds": ["text", "long-text", "number", "date", "choice", "tags", "link", "checkbox", "url"],
-    "no_lists_because_least_words": 5
+    "no_lists_because_least_words": 5,
+    "answer_holds_a_value": "\\d|\"[^\"]+\"|[{[]|\\b(?:true|false|null)\\b|[\\w-]+\\.[a-z0-9]{2,4}\\b",
+    "answer_restates_job_least_words": 4
   },
   "example": {
     "start_here": "Say to your AI: \"Run workflow:answer-comments-and-messages for my Instagram messages from today.\" It reads your reply templates, fills a reply for each new message and hands you the checked replies to send.",
