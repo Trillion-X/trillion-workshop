@@ -14,6 +14,25 @@ export function evaluationReceiptRef(evaluationId) {
   return `evaluation::${encodeURIComponent(nonEmpty(evaluationId, 'evaluationId'))}`;
 }
 
+/** The reference the retired Bitfield package gave one evaluation receipt; states written then still hold it. */
+const LEGACY_RECEIPT_REF_PREFIX = 'package::learning-progress::';
+
+/** True when a state's references name this evaluation's receipt, in the reference form written now or the retired one. */
+export function namesEvaluationReceipt(refs, evaluationId) {
+  const ref = evaluationReceiptRef(evaluationId);
+  return [...refs].some((held) => held === ref || held === `${LEGACY_RECEIPT_REF_PREFIX}${ref}`);
+}
+
+/**
+ * The refs of the writes whose record did not come back as written. `writes` is what plan-an-evaluation-write
+ * returned; `readBack` maps each ref to the record read from the records door after the write (absent or null when
+ * nothing was found). An empty list means both the receipt and the state are stored as planned; the caller treats
+ * anything else as a failed write.
+ */
+export function writesNotReadBack(writes, readBack) {
+  return writes.filter((write) => !structurallyEqual(readBack?.[write.ref] ?? null, write.record)).map((write) => write.ref);
+}
+
 /** The reference of the one state a learner has on one track. */
 export function progressStateRef(learnerId, trackId) {
   return `progress-state::${encodeURIComponent(nonEmpty(learnerId, 'learnerId'))}::${encodeURIComponent(nonEmpty(trackId, 'trackId'))}`;
@@ -48,11 +67,11 @@ export function learningProgressViews({ tracks = [], steps = [], states = [], ev
         ?? ordered[0];
       const completedCount = ordered.filter((step) => completed.has(step.stepId)).length;
       const percent = ordered.length > 0 ? Math.round((completedCount / ordered.length) * 100) : 0;
-      const receiptRefs = new Set(state?.evaluationReceiptRefs ?? []);
+      const receiptRefs = state?.evaluationReceiptRefs ?? [];
       const latestEvaluation = evaluationReceipts
         .filter((receipt) => receipt.trackId === track.trackId
           && (!learnerId || receipt.learnerId === learnerId)
-          && receiptRefs.has(evaluationReceiptRef(receipt.evaluationId)))
+          && namesEvaluationReceipt(receiptRefs, receipt.evaluationId))
         .sort((a, b) => b.evaluatedAt.localeCompare(a.evaluatedAt))[0];
       const recentEvidence = evidence
         .filter((item) => item.trackId === track.trackId && (!learnerId || item.learnerId === learnerId))
@@ -166,7 +185,7 @@ export function acceptEvaluation({ receipt, expectedStateRevision = 0, storedRec
   const stateRef = progressStateRef(checked.learnerId, checked.trackId);
   if (storedReceipt) {
     if (!structurallyEqual(storedReceipt, checked)) throw new Error(`evaluation receipt conflict: ${checked.evaluationId}`);
-    if (!currentState || !currentState.evaluationReceiptRefs.includes(receiptRef)) {
+    if (!currentState || !namesEvaluationReceipt(currentState.evaluationReceiptRefs, checked.evaluationId)) {
       throw new Error('idempotent receipt exists without its derived progress state');
     }
     return { idempotent: true, receipt_ref: receiptRef, state_ref: stateRef, revision: currentState.revision, decision_key: checked.decisionKey, writes: [] };

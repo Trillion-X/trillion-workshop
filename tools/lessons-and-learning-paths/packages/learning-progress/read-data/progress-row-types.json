@@ -1,0 +1,11 @@
+{
+  "about": "The lists of rows the learner progress screen reads: one list per kind of row the tool's engine takes (do-work/learning-progress.mjs). `owner` marks the lists whose rows count as a state or a receipt: a progress state and an evaluation receipt are accepted only from their own list, never from a row of another kind.",
+  "lists": [
+    { "kind": "progress-track", "type": "record:progress-track", "owner": false },
+    { "kind": "progress-step", "type": "record:progress-step", "owner": false },
+    { "kind": "progress-state", "type": "record:progress-state", "owner": true },
+    { "kind": "progress-evidence", "type": "record:progress-evidence", "owner": false },
+    { "kind": "progress-evaluation-receipt", "type": "record:progress-evaluation-receipt", "owner": true },
+    { "kind": "progress-presentation", "type": "record:progress-presentation", "owner": false }
+  ]
+}

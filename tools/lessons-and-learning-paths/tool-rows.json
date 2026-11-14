@@ -429,8 +429,19 @@
      "placement:small-container"
     ],
     "maker": "maker:lessons-and-learning-paths",
+    "screen": {
+     "group": "learn",
+     "kind": "module",
+     "module": {
+      "package": "lessons-and-learning-paths",
+      "entry": "web/learning-progress-screen-mount.tsx"
+     },
+     "icon": "Target",
+     "label": "Learning progress",
+     "about": "See each track you follow: the step to do next, how far along you are and your latest evidence."
+    },
     "provenance": {
-     "source": "bitfield-packages packages/learning-progress and packages/learning-path"
+     "source": "bitfield-packages packages/learning-progress and packages/learning-path (the progress screen, moved)"
     },
     "verify": [
      {

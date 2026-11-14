@@ -45,6 +45,27 @@
       "to": "tools/lessons-and-learning-paths/packages/learning-mastery-protocol/show/mount-learning-mastery-protocol.tsx",
       "source_identity": "1f:4b320ecbe148d0264cf41323273f8c37fb5805bd47d57cbad3ffcefb40b2418b",
       "identity": "1f:4b320ecbe148d0264cf41323273f8c37fb5805bd47d57cbad3ffcefb40b2418b"
+    },
+    {
+      "from": "packages/learning-progress/read-data/learning-progress-types.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/lessons-and-learning-paths/packages/learning-progress/read-data/learning-progress-types.ts",
+      "source_identity": "1f:39a6ad886726db2c8001aa80932e4f1ec5c1d67ff1a6b5fac271cb53284fc5ce",
+      "identity": "1f:39a6ad886726db2c8001aa80932e4f1ec5c1d67ff1a6b5fac271cb53284fc5ce"
+    },
+    {
+      "from": "packages/learning-progress/read-data/read-learning-progress.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/lessons-and-learning-paths/packages/learning-progress/read-data/read-learning-progress.ts",
+      "source_identity": "1f:c15ab921816677318a832dbb6f25b543d9fb0d02d0e475f545fa78934c817fc4",
+      "identity": "1f:c15ab921816677318a832dbb6f25b543d9fb0d02d0e475f545fa78934c817fc4"
+    },
+    {
+      "from": "packages/learning-progress/show/LearningProgressSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/lessons-and-learning-paths/packages/learning-progress/show/LearningProgressSurface.tsx",
+      "source_identity": "1f:552f8a64508e931b04fed031302b20a6ba8ba4b6fa837e57ae5fa63ec02c7ef5",
+      "identity": "1f:552f8a64508e931b04fed031302b20a6ba8ba4b6fa837e57ae5fa63ec02c7ef5"
     }
   ]
 }
