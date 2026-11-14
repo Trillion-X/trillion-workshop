@@ -1,0 +1,14 @@
+{
+  "imported_by": [
+    "Trillion-X/trillion-apps"
+  ],
+  "public": [
+    "do-work/board-source-picture.ts",
+    "do-work/board-source.ts",
+    "do-work/group-membership-actions.ts",
+    "read-data/kept-library.ts",
+    "show/board-screen.json",
+    "show/camera-frame.ts",
+    "show/use-surface-presence.ts"
+  ]
+}
