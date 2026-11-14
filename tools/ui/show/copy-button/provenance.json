@@ -1,0 +1,29 @@
+{
+  "source": "https://21st.dev/@ddoemonn/components/copy-button",
+  "registry_component_id": 23529,
+  "author": "Özer (@ddoemonn), interior.dev",
+  "license": "MIT",
+  "license_file": "LICENSE.md",
+  "retained_source": "upstream/copy-button.tsx",
+  "retained_blake3": "6145bb8ac986d343292e8d230d6e0c8447c0518bae014f8882b31342d23507bd",
+  "components": [
+    "CopyButton",
+    "useCopyToClipboard"
+  ],
+  "adaptation": "CopyButton.tsx",
+  "consumers": [
+    "../coss/guide.tsx",
+    "../error-boundary/ErrorBoundary.tsx",
+    "../../../../extension/src/popup.tsx",
+    "../../../../src/workspace/sharing-sheet.tsx",
+    "trillion-workshop/tools/build-and-send-a-sales-contract/web/src/workspace/sales-contract-builder-surface.tsx"
+  ],
+  "changes": [
+    "Write through the shared copyTextToClipboard (fail-closed, the WKWebView-safe path) instead of the component's own fallback.",
+    "Draw on the shared Coss button and Tooltip instead of its own styled motion.button, so the look follows the workspace tokens.",
+    "Split the state into useCopy, the mark (CopyMark) and the cross-fading words (CopyWords) so a control that does more than copy (an app tab that copies its setup message when picked) shows the same state.",
+    "A newer press wins over an earlier answer; nothing is set after unmount; a pending write disables the button.",
+    "A refused write is said in an alert; framer-motion's useReducedMotion shows each state at once."
+  ],
+  "appearance": "../../../screen-look/show/copy-button.css"
+}

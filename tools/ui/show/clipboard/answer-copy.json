@@ -1,0 +1,35 @@
+{
+  "_what": "How an answer about a recording or file is copied so it keeps its sources (answer-copy.mjs, copy-answer.ts). A time citation in the answer, `[1:02]`, `[1:02:03]` or a list `[0:12, 1:05]`, becomes a link that opens the source at that second: the source's own address plus `link.param` set to the seconds. A frame reference `![alt](frame:1:02)` becomes a link with the alt words to that second. Lines that are the answer's own bookkeeping are removed (`drop_lines`, whole-line patterns). Markdown is flattened for the plain half: headings to their words, bullets to `bullet`, bold and links to their words (links keep their address in brackets). The copy is written as HTML and plain text together. Adding a citation form is one row in `citations`. `source` says where a message's own source comes from when the caller was not handed one: each row in order reads a field of an attached file (`in` files) or the answer's own text for a pattern whose first group is the file's identity, and `base` is that source's address with {id} filled.",
+  "link": {
+    "param": "at"
+  },
+  "bullet": "•",
+  "citations": [
+    {
+      "id": "time-list",
+      "pattern": "\\[(\\d{1,2}(?::\\d{2}){1,2}(?:\\s*,\\s*\\d{1,2}(?::\\d{2}){1,2})*)c?\\]"
+    }
+  ],
+  "frames": {
+    "pattern": "!\\[([^\\]]*)\\]\\(frame:(\\d{1,2}(?::\\d{2}){1,2})\\)"
+  },
+  "drop_lines": [
+    "^\\s*p\\d+\\s*$",
+    "^\\s*Source:.*$"
+  ],
+  "safe_link": "^(?:https://|/)",
+  "source": {
+    "base": "/file/{id}",
+    "from": [
+      {
+        "in": "files",
+        "field": "key",
+        "pattern": "^((?:1f|12):[0-9a-f]{64})$"
+      },
+      {
+        "in": "text",
+        "pattern": "/file/((?:1f|12)(?::|%3A)[0-9a-f]{64})"
+      }
+    ]
+  }
+}

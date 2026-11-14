@@ -1,0 +1,8 @@
+{
+  "_what": "How the copy guard (parts/ui/show/clipboard/copy-guard.ts) treats a copy made from the page. Chromium's own copy writes the colours the text is painted in, so words painted in a dark look's light ink paste near-invisible into a light document. When the selected text is painted in the look's own ink (light ink on a dark look, dark ink on a light one) and the look's scheme differs from paste_target_scheme, the guard writes the words as plain text plus structure-only HTML (paragraphs and line breaks, no colours). paste_target_scheme: the page colour of the documents people paste into. probe_most_text_nodes: how many text nodes of the selection are read for their ink. own_ink_share: the share of probed nodes that must be painted in the look's own ink. light_ink_above / dark_ink_below: perceived luma (0 black to 1 white) beyond which ink counts as light / dark.",
+  "paste_target_scheme": "light",
+  "probe_most_text_nodes": 50,
+  "own_ink_share": 0.5,
+  "light_ink_above": 0.6,
+  "dark_ink_below": 0.4
+}

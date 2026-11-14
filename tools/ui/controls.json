@@ -1,0 +1,9 @@
+{
+  "_what": "The controls the shared ui parts draw that a show rule can hide (subject `control`, show/show-rules show-of.ts controlShown). Every hover or preview card is `cards.hover.<surface>`: its caller names its surface's path, and `cards` says which control each of the ui part's own card kinds is (a card whose caller names none is `default`).",
+  "controls": [
+    { "id": "cards.hover.lists", "label": "Preview cards in lists (visual-database lists, galleries, boards, card layouts)", "drawn_at": "show/record-views/record-views.tsx (row preview, group summary), show/card-layouts/CardLayouts.tsx" },
+    { "id": "cards.hover.automations", "label": "Preview cards on automations", "drawn_at": "show/automation-preview/AutomationPreview.tsx" },
+    { "id": "cards.hover.panels", "label": "Preview cards in every other panel", "drawn_at": "show/hover-preview/HoverPreview.tsx, show/surface-preview/SurfacePreviewCard.tsx when the caller names no surface (dashboard tiles, next-step pictures, clips, project tree)" }
+  ],
+  "cards": { "default": "cards.hover.panels", "list": "cards.hover.lists", "automation": "cards.hover.automations" }
+}

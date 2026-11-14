@@ -1,0 +1,91 @@
+{
+  "source": "https://github.com/cosscom/coss",
+  "commit": "e937becd2d5ffb5c621eed6f8b1f223cbb6051e7",
+  "license": "MIT",
+  "license_scope": "apps/ui per LICENSING.md; apps/ui/package.json declares MIT",
+  "file_hash_scope": "upstream source before local import-path adaptation",
+  "local_adaptations": [
+    "Replace @/registry/default/lib/utils and sibling UI imports with relative imports; no component behavior changes."
+  ],
+  "blake3_files": [
+    {
+      "file": "ui/badge.tsx",
+      "upstream_multihash": "1f:5bf748389f8fdb6f9a8ae7f51daf99b28b83ec6944d5b8e7224c507f87eff5b1",
+      "adapted_multihash": "1f:cc4d6fac1f0881f599acd7d05377d5214bce970e719122efaf7eaa090dc0f117",
+      "adaptation": "Replace the registry utility alias with the existing relative Coss utility import; component behavior is unchanged."
+    },
+    {
+      "file": "ui/popover.tsx",
+      "upstream_multihash": "1f:c689bcc3f2f087847972c1b125e92f801fcff1cda4abd780198290cf2f0c852b",
+      "adapted_multihash": "1f:a3d81ec5a3f6828879ee730341b8f62b2feb56fed7d15d5c1e592f6acfc8e551",
+      "adaptation": "Replace the registry utility alias with the existing relative Coss utility import; component behavior is unchanged."
+    },
+    {
+      "file": "ui/slider.tsx",
+      "upstream_multihash": "1f:d12924a5abd5f400e4228e7475ca12e67355f4e8b1239a812965b0f901d51457",
+      "adapted_multihash": "1f:35adbb81d833fe659b6c21c10a844d04ff95e6d63a4c8e85bdcd1c007db448b2",
+      "adaptation": "Replace the registry utility alias with the existing relative Coss utility import, and pass an optional getThumbAriaLabel through to each thumb so every thumb input is named; slider behavior is otherwise unchanged."
+    },
+    {
+      "file": "ui/breadcrumb.tsx",
+      "upstream": "21st.dev component 11596 (coss.com Breadcrumb)",
+      "adapted_multihash": "1f:49eb195311f056b945095838f4b95e2b80c2639df091f14ba388dc65ff3df613",
+      "adaptation": "BreadcrumbLink is a button (an in-app place opens without a page load); the demo-only BreadcrumbEllipsis is left out; the utility import is relative."
+    }
+  ],
+  "files": [
+    {
+      "file": "ui/table.tsx",
+      "sha256": "b21f811291d6a1706874cb37dd568b922fb5d8b053e6636b7b0e9e9c6320c98d"
+    },
+    {
+      "file": "ui/textarea.tsx",
+      "sha256": "d153ed8f568a6ffb7b5438ea83385e3d327db9af45ef9fdd0822575d15c4e745"
+    },
+    {
+      "file": "ui/select.tsx",
+      "sha256": "aa8821bbb4bd6b8b52a6cbaaf8d995f48b1001ad93d4bfa4e5b91b5e6d5f66a0"
+    },
+    {
+      "file": "ui/menu.tsx",
+      "sha256": "aeb2ebda24c8c90453fd7087bae8f14510f98e4eee75da5c084dfecaa56f2625"
+    },
+    {
+      "file": "ui/avatar.tsx",
+      "sha256": "a742f2d7c3aa1a867799e66fa7f3b37615e455906fa0117b66c49cfedca0a4f1"
+    },
+    {
+      "file": "ui/card.tsx",
+      "sha256": "b59dbc0bd5d61694fcf1948fb8134795b0f5a1bf0a28d8d6bc817297c73a006e"
+    },
+    {
+      "file": "ui/dialog.tsx",
+      "sha256": "14ad87a5f81d7753e9a954aa0624df49168eccc2c8d3074a41ea0a8bed3970d5"
+    },
+    {
+      "file": "ui/button.tsx",
+      "sha256": "1e65556bde3071f90f61825cf573aec74bdd8695824470bea3dae4d68a6b8fc8"
+    },
+    {
+      "file": "ui/input.tsx",
+      "sha256": "3d488d491eb4e63642adc8b9354b0b0cc5b8ec4e284bbc26da7e2516f24980a4"
+    },
+    {
+      "file": "ui/checkbox.tsx",
+      "sha256": "a1b8b4180a39a47c47bd2b50e432d0911da6efe3b963b065b3b5cb8893760047"
+    },
+    {
+      "file": "ui/scroll-area.tsx",
+      "sha256": "6274eace4599cba26e731b0f02cd2307d2207947162ccc575e45984e87aa269f"
+    },
+    {
+      "file": "ui/toast.tsx",
+      "sha256": "6c83bd6ab5a90388aa06380924381058746bf2bd5ebb7b2187496a59e7c517d6"
+    }
+  ],
+  "adaptations": [
+    "Source files byte-identical; import aliases resolved at build boundary",
+    "Imperative dialog and FormData-compatible choices adapter",
+    "Appearance compiled with Tailwind 4; no upstream demo data"
+  ]
+}

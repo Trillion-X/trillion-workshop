@@ -1,0 +1,12 @@
+{
+  "_what": "When and how a tip names the shortcut for a command someone ran the slow way (shortcut-coaching.ts). `slower_paths` are the ways of running a command that a shortcut beats (the palette, a menu, a button); a command run by its keys is never coached. A tip is shown at most `max_per_command` times for one command, at least `min_gap_seconds` after the last tip, and at most `max_per_day` times a day; the person can turn tips off. `words.tip` fills {title} and {keys}.",
+  "slower_paths": ["palette", "menu", "button"],
+  "max_per_command": 3,
+  "min_gap_seconds": 300,
+  "max_per_day": 6,
+  "words": {
+    "tip": "Tip: {title} is {keys}.",
+    "off": "Shortcut tips are off.",
+    "on": "Shortcut tips are on."
+  }
+}

@@ -1,0 +1,7 @@
+# Sequence callback runtime
+
+`sequence-stage.js` is the shared, source-owned callback runtime for `sequencePage` clients that render with `ST.onSeek` and register readiness with `ST.waitFor`. It provides `ST.ready()`, `ST.seek(seconds)` and the current `ST.t`. A seek waits for declared readiness, calls each registered callback in order and waits for work the callbacks registered. A failed readiness gate remains failed; overlapping seeks are refused. Removing an onSeek callback uses its returned function.
+
+The browser's existing virtual clock owns timers. This file supplies no renderer, preview player, navigation, media clock, random-number replacement, style or animation library adapter. Consumers needing other Showtime APIs must explicitly adopt the required capability in its correct owner; this is not a compatible substitute for all of stage.js.
+
+The registration and readiness behavior is adapted from the MIT Showtime stage runtime, copyright 2026 Favio Vazquez. The notice is retained in `sequence-stage-LICENSE`. The migration input was `skills/showtime/runtime/stage.js` in the read-only Showtime source tree; no old launcher or source tree is loaded by this runtime. Its local source-consumer test is `test/page-source-frames.test.mjs`, which builds a page through the existing sequencePage/paintFigure/figureSvg owners, captures raw frames through record-a-web-page and encodes them through media-composition.

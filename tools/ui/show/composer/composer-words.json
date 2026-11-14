@@ -1,0 +1,31 @@
+{
+  "_what": "Every word the shared composer (Composer.tsx) shows unless its caller passes its own. {name} is a file's name, {count} a number, and {reason} the browser's own words. draw.screen is the screen Draw opens (with draw.title and draw.input, as the sidebar opens a screen), in the place draw.opens_as names (a row of parts/ui/show/placeable-surface-intent/open-choices.json); with no screen, Draw is not offered.",
+  "label": "Message your AIs",
+  "placeholder": "Write, @mention, paste, drop a file, record or draw",
+  "send": "Send",
+  "busy": "Sending your message",
+  "attach": "Attach files",
+  "more": "More ways to add",
+  "tray": "Going with your message",
+  "remove": "Remove {name}",
+  "drop_here": "Drop to add to your message",
+  "link": "Link",
+  "stop": "Stop and add",
+  "discard": "Throw away",
+  "draw": {
+    "screen": "trillion.board",
+    "title": "Board",
+    "input": {
+      "tool": "draw"
+    },
+    "opens_as": "open-as-window",
+    "open": "Draw",
+    "icon": "PenLine"
+  },
+  "mention": "Mention someone, an AI or a workflow",
+  "mention_all": "All",
+  "context": "Attached to your message",
+  "add_to_it": "Add to it",
+  "snippets": "Snippets",
+  "snippet_save": "Save what I wrote as a snippet"
+}

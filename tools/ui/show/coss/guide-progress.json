@@ -1,0 +1,4 @@
+{
+  "what_this_is": "How a guide screen draws how far along the person is: one dot per step up to dots_at_most, then one short bar.",
+  "dots_at_most": 8
+}
