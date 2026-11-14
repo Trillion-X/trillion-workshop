@@ -148,3 +148,25 @@ test('a write refused for rights that never started is sent again once: the busy
     assert.deepEqual(keys, ['k4', 'k4']);
   } finally { server.close(); }
 });
+
+test('a connection the door closes before the answer is whole is sent again with the same request key', async () => {
+  const keys = [];
+  const server = createServer((request, response) => {
+    let body = '';
+    request.on('data', chunk => { body += chunk; });
+    request.on('end', () => {
+      const call = JSON.parse(body);
+      keys.push(call.params.arguments.request_key);
+      if (keys.length === 1) { request.socket.destroy(); return; }
+      response.setHeader('content-type', 'application/json');
+      response.end(JSON.stringify({ jsonrpc: '2.0', id: call.id, result: { structuredContent: { id: 'record:loaf:rye', value: { name: 'Rye' } } } }));
+    });
+  });
+  await new Promise(done => server.listen(0, '127.0.0.1', done));
+  try {
+    const door = await openDoor(CONFIG(server.address().port), { keyOf: async () => 'made-up-key-for-the-bakery' });
+    assert.deepEqual(await door.read('record:loaf', 'record:loaf:rye'), { name: 'Rye' });
+    assert.equal(keys.length, 2);
+    assert.equal(keys[0], keys[1]);
+  } finally { server.close(); }
+});

@@ -112,9 +112,20 @@ export async function openDoor(config, { keyOf = credentialKey } = {}) {
       const again = attempt < BUSY_RETRIES;
       const body = JSON.stringify({ jsonrpc: '2.0', id: step, method: 'tools/call',
         params: { name: 'run_resource_operation', arguments: { address, method, request_key, input } } });
-      const response = await fetch(transport.url, { method: 'POST', body, headers: {
-        Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream', 'MCP-Protocol-Version': PROTOCOL } });
-      const text = await response.text();
+      let response, text;
+      try {
+        response = await fetch(transport.url, { method: 'POST', body, headers: {
+          Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream', 'MCP-Protocol-Version': PROTOCOL } });
+        text = await response.text();
+      } catch (error) {
+        // The connection closed before the answer was whole ("terminated", "fetch failed": seen Nov 13 ending a Library refresh
+        // after 9 minutes of paging). Whether the door did the call is unknown; the same request key makes sending it again
+        // safe, as with any unknown outcome.
+        if (!again) throw error;
+        episode.codes.push('connection_closed');
+        await wait(FIRST_WAIT_MS * 2 ** attempt);
+        continue;
+      }
       if (text.includes(key)) throw say('key_in_answer', `The door's answer to ${method} held the key; nothing of it is kept.`);
       if (response.status === 503 && again) { episode.codes.push('http_503'); await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
       let reply;
