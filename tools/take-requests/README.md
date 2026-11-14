@@ -45,6 +45,10 @@ decision gives no `acceptance_criteria`, the owner is told success is "The reque
 An owner request already kept is never rewritten: what the owner has done to it stays. Records have no compare-and-swap,
 so two simultaneous takes of one request both write the same deterministic records.
 
+## Carried originals
+
+`moved-from.json` names the files moved byte for byte from bitfield-packages `packages/request-intake` (commit d926b7adb8): `do-work/` (`request-intake-actions.ts`, `publish-form.ts`, `record-submission.ts`, `structured-selection-preferences.ts`, `plan-source-message-reopen.mjs`, `process-scripts/decide-source-message.py`), `read-data/request-intake-projection.ts`, `index.ts`, `show/`, `show-ios-jscore/`, `things-to-store-and-run.json` and the tests that run here (`test/*.test.mjs` for the projection, receipts, reopen planner, iOS mount and the workflow reads, and `test/test_decide_source_message.py`). The four tests that read the old package-set layout and the five vitest tests are not carried yet: they need calls rows. The four `tool:` rows above still run `read-data/requests.mjs`; the originals are not wired into a row yet.
+
 ## Field names
 
 The old decision took a candidate and a decision with other names; the ones here are plain words the caller gives.

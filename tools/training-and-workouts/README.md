@@ -38,6 +38,10 @@ A person's AI composes the next-session loop: `read-my-progression-inputs` gives
 - The tool holds no clock: `observed_at` is required to add. A lens that finds nothing says so; the progress series is null without a numeric dimension, never a made-up one.
 - Adding the same atom id twice keeps one; every other key of the log record is kept as given.
 
+## Carried originals, wiring held
+
+`moved-from.json` names five files moved byte for byte from bitfield-packages `packages/training-plan` (commit d926b7adb8): `read-data/training-plan.ts`, `read-data/derive-next-session.ts` (decode stored rules, evaluate, apply: one call returning `{ next, decision }`), `read-data/select-adaptive-next-session.ts` (raw feed to the prescription it came from and its adapted next session), `read-data/apply-progression.ts` and `do-work/process-scripts/next-session-cli.ts`. They import `@/packages/...` as written and are not run by any row yet; the rows still run the `.mjs` translation. The plan panel, its mount and the four original test files wait on calls rows (the shared UI package, the runtime kit, the vitest shim).
+
 ## What was not carried
 
 - `show/*` (the plan panel, the log panel, their mounts): screens, left to the screens owner.

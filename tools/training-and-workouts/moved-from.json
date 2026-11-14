@@ -38,6 +38,41 @@
       "to": "tools/training-and-workouts/packages/workout-log/show/WorkoutLogPanel.tsx",
       "source_identity": "1f:867e340c1f9786a4d61d755bef268902b8f6d2f1ccc47b32da9406c9f931f6cb",
       "identity": "1f:867e340c1f9786a4d61d755bef268902b8f6d2f1ccc47b32da9406c9f931f6cb"
+    },
+    {
+      "from": "packages/training-plan/read-data/training-plan.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/training-and-workouts/read-data/training-plan.ts",
+      "source_identity": "1f:3c0c1dadc9fd52aa9d7258046bacade02a2cc23f4a3dc660683517b6cca47ec6",
+      "identity": "1f:3c0c1dadc9fd52aa9d7258046bacade02a2cc23f4a3dc660683517b6cca47ec6"
+    },
+    {
+      "from": "packages/training-plan/read-data/derive-next-session.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/training-and-workouts/read-data/derive-next-session.ts",
+      "source_identity": "1f:f8d704af758c7e9588b162a27f7054171177a6021086cf047964d70c5401c631",
+      "identity": "1f:f8d704af758c7e9588b162a27f7054171177a6021086cf047964d70c5401c631"
+    },
+    {
+      "from": "packages/training-plan/read-data/select-adaptive-next-session.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/training-and-workouts/read-data/select-adaptive-next-session.ts",
+      "source_identity": "1f:4fff86badd9d42af6daaaa1f424e9a3fe0985e2f8039d2da3b38bad2729d9f57",
+      "identity": "1f:4fff86badd9d42af6daaaa1f424e9a3fe0985e2f8039d2da3b38bad2729d9f57"
+    },
+    {
+      "from": "packages/training-plan/read-data/apply-progression.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/training-and-workouts/read-data/apply-progression.ts",
+      "source_identity": "1f:17cff0f7657a6863ceb63c56c37eb057fddaa06e2451d04c45bb85f7380e7a84",
+      "identity": "1f:17cff0f7657a6863ceb63c56c37eb057fddaa06e2451d04c45bb85f7380e7a84"
+    },
+    {
+      "from": "packages/training-plan/do-work/process-scripts/next-session-cli.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/training-and-workouts/do-work/process-scripts/next-session-cli.ts",
+      "source_identity": "1f:c5c1c72f87e723d1368e7902a0aefe0017134be66abaa1751a5ab2088a6c5550",
+      "identity": "1f:c5c1c72f87e723d1368e7902a0aefe0017134be66abaa1751a5ab2088a6c5550"
     }
   ]
 }

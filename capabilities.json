@@ -1290,7 +1290,7 @@
       "capability": "plan the next training session and log workouts",
       "owner": ["tools/training-and-workouts/"],
       "entry": "tools/training-and-workouts/tool-rows.json",
-      "evidence": "training-plan: next session and progression; workout-log: workout log state",
+      "evidence": "training-plan: next session and progression; workout-log: workout log state; the original TypeScript of training-plan (read-data/training-plan.ts, derive-next-session.ts, select-adaptive-next-session.ts, apply-progression.ts, do-work/process-scripts/next-session-cli.ts) is carried byte for byte beside the .mjs translation, receipt in moved-from.json; its panel, mount and tests wait on calls rows",
       "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/training-plan/", "bitfield-packages/packages/workout-log/"]}
     },
     {
@@ -1575,7 +1575,7 @@
       "capability": "take requests through forms and route each to its owner with a receipt",
       "owner": ["tools/take-requests/"],
       "entry": "tools/take-requests/tool-rows.json",
-      "evidence": "request-intake README.md:1 configurable intake records: forms, questions, submissions and owner requests",
+      "evidence": "request-intake README.md:1 configurable intake records: forms, questions, submissions and owner requests; the original request-intake source is carried byte for byte under tools/take-requests (receipt in moved-from.json): the document-to-form publisher, submission trigger rule, structured selection, source-message decision (TS and Python) and reopen planner, projection, iOS mount and screens",
       "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/request-intake/"]}
     },
     {

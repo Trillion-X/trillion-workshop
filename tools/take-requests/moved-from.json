@@ -171,6 +171,174 @@
       "to": "tools/take-requests/packages/request-intake/show/RequestShareSettings.tsx",
       "source_identity": "1f:34962dcc76d22dbfb16d7ea863d3b3c2219a47ceede93b54d2c2cb483570a8d6",
       "identity": "1f:34962dcc76d22dbfb16d7ea863d3b3c2219a47ceede93b54d2c2cb483570a8d6"
+    },
+    {
+      "from": "packages/request-intake/__tests__/read-source-message-workflow.test.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/test/read-source-message-workflow.test.mjs",
+      "source_identity": "1f:533731bc67df89a5d72759179ca9802e36771932efecfdbd1a714f71cfadea98",
+      "identity": "1f:533731bc67df89a5d72759179ca9802e36771932efecfdbd1a714f71cfadea98"
+    },
+    {
+      "from": "packages/request-intake/__tests__/request-intake-jscore.test.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/test/request-intake-jscore.test.mjs",
+      "source_identity": "1f:950c4061ae79c2eeec6ce67dd2c49aff01a5d27881e50821c3bc6fdb5b136d24",
+      "identity": "1f:950c4061ae79c2eeec6ce67dd2c49aff01a5d27881e50821c3bc6fdb5b136d24"
+    },
+    {
+      "from": "packages/request-intake/__tests__/request-intake-projection.test.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/test/request-intake-projection.test.mjs",
+      "source_identity": "1f:d8fa670762b328879f27540b89d060d952f43bd56191196e89bfda6b36376ccc",
+      "identity": "1f:d8fa670762b328879f27540b89d060d952f43bd56191196e89bfda6b36376ccc"
+    },
+    {
+      "from": "packages/request-intake/__tests__/request-intake-receipts.test.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/test/request-intake-receipts.test.mjs",
+      "source_identity": "1f:d3179bb4f2038d7a082600ab7acf085c59f40d363a6f1cece343edf0d9f7118b",
+      "identity": "1f:d3179bb4f2038d7a082600ab7acf085c59f40d363a6f1cece343edf0d9f7118b"
+    },
+    {
+      "from": "packages/request-intake/__tests__/source-message-reopen.test.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/test/source-message-reopen.test.mjs",
+      "source_identity": "1f:b6c622b10898c75c63758b6c53637ac011338180bceb4e7752a1e336232314e7",
+      "identity": "1f:b6c622b10898c75c63758b6c53637ac011338180bceb4e7752a1e336232314e7"
+    },
+    {
+      "from": "packages/request-intake/__tests__/source-message-workflow.test.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/test/source-message-workflow.test.mjs",
+      "source_identity": "1f:7ac3c735cc9f6113dedd904aaad264fbe886e5e3bd785a83a357c8a558f4d8cf",
+      "identity": "1f:7ac3c735cc9f6113dedd904aaad264fbe886e5e3bd785a83a357c8a558f4d8cf"
+    },
+    {
+      "from": "packages/request-intake/__tests__/test_decide_source_message.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/test/test_decide_source_message.py",
+      "source_identity": "1f:47d790950fece9faaa0fe9815d22aa052496ed4ec82476d8dff9a0e473a59805",
+      "identity": "1f:47d790950fece9faaa0fe9815d22aa052496ed4ec82476d8dff9a0e473a59805"
+    },
+    {
+      "from": "packages/request-intake/do-work/plan-source-message-reopen.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/do-work/plan-source-message-reopen.mjs",
+      "source_identity": "1f:1ee988b057355c3c474787c7fb5c0c013f85efccb4ec3bdae9da0b26a4ee90b4",
+      "identity": "1f:1ee988b057355c3c474787c7fb5c0c013f85efccb4ec3bdae9da0b26a4ee90b4"
+    },
+    {
+      "from": "packages/request-intake/do-work/process-scripts/decide-source-message.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/do-work/process-scripts/decide-source-message.py",
+      "source_identity": "1f:43b1b8ce84cf88a155fd6ba7b4cace49de8927d9be88ffe3718070f702da5113",
+      "identity": "1f:43b1b8ce84cf88a155fd6ba7b4cace49de8927d9be88ffe3718070f702da5113"
+    },
+    {
+      "from": "packages/request-intake/do-work/publish-form.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/do-work/publish-form.ts",
+      "source_identity": "1f:41e41b020107edef1d31bce5a9c57ce9e948561a677965a99089fb06986d0555",
+      "identity": "1f:41e41b020107edef1d31bce5a9c57ce9e948561a677965a99089fb06986d0555"
+    },
+    {
+      "from": "packages/request-intake/do-work/record-submission.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/do-work/record-submission.ts",
+      "source_identity": "1f:bdfa5e3149c38eba8396f089c5b5beed421802276c373fa33f9c91c428477957",
+      "identity": "1f:bdfa5e3149c38eba8396f089c5b5beed421802276c373fa33f9c91c428477957"
+    },
+    {
+      "from": "packages/request-intake/do-work/request-intake-actions.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/do-work/request-intake-actions.ts",
+      "source_identity": "1f:8ddaaa6798d37d83757277e076402744abe786a67adae09d70dd2e0288e651c1",
+      "identity": "1f:8ddaaa6798d37d83757277e076402744abe786a67adae09d70dd2e0288e651c1"
+    },
+    {
+      "from": "packages/request-intake/do-work/structured-selection-preferences.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/do-work/structured-selection-preferences.ts",
+      "source_identity": "1f:4bd2d3823ebf8b72a5d3d4697b11a76439ec6cac07704ba191c38af920942f99",
+      "identity": "1f:4bd2d3823ebf8b72a5d3d4697b11a76439ec6cac07704ba191c38af920942f99"
+    },
+    {
+      "from": "packages/request-intake/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/index.ts",
+      "source_identity": "1f:55101580d1a45c351353cc5986dd517ee84e568872458447f287a87ea713a5c5",
+      "identity": "1f:55101580d1a45c351353cc5986dd517ee84e568872458447f287a87ea713a5c5"
+    },
+    {
+      "from": "packages/request-intake/read-data/request-intake-projection.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/read-data/request-intake-projection.ts",
+      "source_identity": "1f:2382dc4ea0f14ac4740b6a1ac446019bc7ec43157f89618c13f54366de72a12c",
+      "identity": "1f:2382dc4ea0f14ac4740b6a1ac446019bc7ec43157f89618c13f54366de72a12c"
+    },
+    {
+      "from": "packages/request-intake/show-ios-jscore/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/show-ios-jscore/README.md",
+      "source_identity": "1f:baa02b01510fac015b3c92e66a40ad4c2265cda2ba0ad4c910f5b9e0983cc292",
+      "identity": "1f:baa02b01510fac015b3c92e66a40ad4c2265cda2ba0ad4c910f5b9e0983cc292"
+    },
+    {
+      "from": "packages/request-intake/show-ios-jscore/mount-request-intake-jscore.js",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/show-ios-jscore/mount-request-intake-jscore.js",
+      "source_identity": "1f:f15f8b669ec173055f2d22b49e764c6b758c2ba9e8a07ee6614e9b416bd28e52",
+      "identity": "1f:f15f8b669ec173055f2d22b49e764c6b758c2ba9e8a07ee6614e9b416bd28e52"
+    },
+    {
+      "from": "packages/request-intake/show/RequestActionBar.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/show/RequestActionBar.tsx",
+      "source_identity": "1f:56a62af98093529e9b89a179efdbd46cb16cd029ab8cbdeaa4034417dca53707",
+      "identity": "1f:56a62af98093529e9b89a179efdbd46cb16cd029ab8cbdeaa4034417dca53707"
+    },
+    {
+      "from": "packages/request-intake/show/RequestPreviewAndPublish.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/show/RequestPreviewAndPublish.tsx",
+      "source_identity": "1f:f57733bf5158aded0f1763693ea9e252662fcb0ac46c807c58529016eecdc231",
+      "identity": "1f:f57733bf5158aded0f1763693ea9e252662fcb0ac46c807c58529016eecdc231"
+    },
+    {
+      "from": "packages/request-intake/show/RequestQuestionList.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/show/RequestQuestionList.tsx",
+      "source_identity": "1f:3bc9599cd5523d4de5e6a0e97b6fb990a1cafdae518e8ed80f955140c5d5f811",
+      "identity": "1f:3bc9599cd5523d4de5e6a0e97b6fb990a1cafdae518e8ed80f955140c5d5f811"
+    },
+    {
+      "from": "packages/request-intake/show/RequestShareSettings.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/show/RequestShareSettings.tsx",
+      "source_identity": "1f:34962dcc76d22dbfb16d7ea863d3b3c2219a47ceede93b54d2c2cb483570a8d6",
+      "identity": "1f:34962dcc76d22dbfb16d7ea863d3b3c2219a47ceede93b54d2c2cb483570a8d6"
+    },
+    {
+      "from": "packages/request-intake/show/request-intake-fixtures.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/show/request-intake-fixtures.ts",
+      "source_identity": "1f:0e45bc1a304d211f64f8e0808b6d975f7e1eb67eb328f2b5d2c764c4cd92f498",
+      "identity": "1f:0e45bc1a304d211f64f8e0808b6d975f7e1eb67eb328f2b5d2c764c4cd92f498"
+    },
+    {
+      "from": "packages/request-intake/show/request-intake-screen-model.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/show/request-intake-screen-model.ts",
+      "source_identity": "1f:3e8d84622ad3954e29e4929b07ff0e48058f00af26db7d44aa77984dd23e39c3",
+      "identity": "1f:3e8d84622ad3954e29e4929b07ff0e48058f00af26db7d44aa77984dd23e39c3"
+    },
+    {
+      "from": "packages/request-intake/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/things-to-store-and-run.json",
+      "source_identity": "1f:690dbee4cc8e4274a0c3ea5a50dc705b2c5f0a00a00f45d20cb5fd0786cb93ea",
+      "identity": "1f:690dbee4cc8e4274a0c3ea5a50dc705b2c5f0a00a00f45d20cb5fd0786cb93ea"
     }
   ]
 }
