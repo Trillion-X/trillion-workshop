@@ -14,7 +14,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
 import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
-import { conversationImportProgress, countConversationsPerApp, importConversationsFrom, listConversationSourcesHere, resumeConversationImports } from '../read-data/chat-import.mjs';
+import { conversationImportProgress, countConversationsPerApp, importConversationsFrom, keepWhatISaidToAnAi, listConversationSourcesHere, resumeConversationImports } from '../read-data/chat-import.mjs';
 
 const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 const importRow = rows.find(row => row.id === 'tool:import-my-conversations-from-a-source');
@@ -294,4 +294,24 @@ test('a file named directly is read, and a path that leaves the granted folder i
   assert.deepEqual([named.done, named.conversations_kept, named.messages_added], [true, 2, 4]);
   await assert.rejects(importConversationsFrom(request(home, { source: 'claude-ai-export', files: ['../outside.json'] }), context), /not a file inside the folder you granted/);
   await assert.rejects(importConversationsFrom(request(home, { source: 'some-app' }), context), /source is one of/);
+});
+
+// An AI that keeps its chats on its own service (no store on this computer) sends a turn, as old Trillion's record_messages
+// took it: the person's words and its reply are kept as messages with their own times, a resend adds nothing, and the
+// next turn of the same conversation adds only itself.
+test('an AI with no store here keeps a turn through the tool, and the same turn sent again adds nothing', async t => {
+  const keepRow = rows.find(row => row.id === 'tool:keep-what-i-said-to-an-ai');
+  const fake = await startFakeDoor({ rights: keepRow.invoke.records.rights });
+  t.after(() => fake.close());
+  const door = openRecordsDoor({ descriptor: fake.descriptor, wait: async () => {} });
+  const context = { door, wait: async () => {}, now: () => NOW };
+  const turn = { app: 'Muse', conversation_id: 'bakery-1', messages: [
+    { id: 'm1', speaker: 'person', text: 'How long does rye proof?', at: '2026-11-04T11:00:00Z' },
+    { id: 'm2', speaker: 'ai', text: 'About two hours.', at: '2026-11-04T11:00:05Z' }] };
+  assert.deepEqual(await keepWhatISaidToAnAi({ input: turn }, context), { conversation_id: 'Muse:bakery-1', messages: 2, added: 2, already_kept: 0 });
+  assert.deepEqual(await keepWhatISaidToAnAi({ input: turn }, context), { conversation_id: 'Muse:bakery-1', messages: 2, added: 0, already_kept: 2 });
+  await keepWhatISaidToAnAi({ input: { ...turn, messages: [{ id: 'm3', speaker: 'person', text: 'And spelt?', at: '2026-11-04T11:01:00Z' }] } }, context);
+  const kept = ofType(fake, 'message').map(record => [record.value.speaker, record.value.text, record.value.at, record.value.app]).sort((a, b) => a[2].localeCompare(b[2]));
+  assert.deepEqual(kept, [['person', 'How long does rye proof?', '2026-11-04T11:00:00.000Z', 'Muse'], ['ai', 'About two hours.', '2026-11-04T11:00:05.000Z', 'Muse'], ['person', 'And spelt?', '2026-11-04T11:01:00.000Z', 'Muse']]);
+  await assert.rejects(keepWhatISaidToAnAi({ input: { conversation_id: 'x', messages: [] } }, context), /app is required/);
 });

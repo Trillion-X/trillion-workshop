@@ -2343,6 +2343,374 @@
           }
         ]
       }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:conversations",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "id": "tool:keep-what-i-said-to-an-ai",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false
+        },
+        "label": "Keep what I said to an AI and what it answered",
+        "job": "Keep the messages of a turn with an AI that keeps its chats on its own service (Muse, Grok Bot), my words and its replies, as my messages",
+        "description": "Takes one conversation's messages from an AI that keeps its chats on its own service and has no store on this computer (Muse, Grok Bot: set-up-my-account harnesses.json turns.roads mcp-record), as old Trillion's record_messages did: app (the AI as it calls itself), conversation_id (its own name for the conversation), title?, and messages [{id, speaker: person | ai, text word for word, at?, model?}]. Each is kept as the person's message record through the same message owner every other place uses, with its original time, so sending a turn again adds nothing; the conversation's row of the AI conversations list is kept. Answers conversation_id, messages, added and already_kept.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "app",
+            "conversation_id",
+            "messages"
+          ],
+          "properties": {
+            "app": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The AI app the messages were said in, as it calls itself (Muse, Grok)"
+            },
+            "conversation_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The AI's own name for this conversation, the same for every turn of it"
+            },
+            "title": {
+              "type": "string"
+            },
+            "messages": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 100,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "speaker",
+                  "text"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The message's own id in the AI's conversation, unique in it"
+                  },
+                  "speaker": {
+                    "enum": [
+                      "person",
+                      "ai"
+                    ]
+                  },
+                  "text": {
+                    "type": "string",
+                    "description": "The words exactly as said"
+                  },
+                  "at": {
+                    "type": "string",
+                    "description": "When it was said, like 2026-11-13T17:13:00Z"
+                  },
+                  "model": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "conversation_id",
+            "messages",
+            "added",
+            "already_kept"
+          ],
+          "properties": {
+            "conversation_id": {
+              "type": "string"
+            },
+            "messages": {
+              "type": "integer"
+            },
+            "added": {
+              "type": "integer"
+            },
+            "already_kept": {
+              "type": "integer"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "workdir": "/opt/conversations",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/conversations/read-data/chat-import.mjs",
+            "keepWhatISaidToAnAi"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "conversations",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/conversations"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "src/messages.mjs",
+                  "src/responses.mjs",
+                  "src/reactions.json",
+                  "src/harnesses.mjs",
+                  "src/claimed-time.mjs",
+                  "src/claimed-time.json",
+                  "src/hybrid-clock.mjs",
+                  "src/voice-sessions.mjs",
+                  "src/waiting-on-you.json",
+                  "harness/record-every-message.mjs",
+                  "harness/record-every-message.json",
+                  "harness/hook-run-receipt.mjs",
+                  "harness/setup.json",
+                  "harness/source-return-pending.mjs",
+                  "harness/account-key.mjs",
+                  "harness/account-key.json"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "decide-with-a-method",
+                "paths": [
+                  "read-data/decision-records.mjs",
+                  "read-data/decide-with-a-method.json"
+                ],
+                "at": "/opt/decide-with-a-method"
+              },
+              {
+                "package": "set-up-my-account",
+                "paths": [
+                  "read-data/harnesses.json"
+                ],
+                "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "take-pictures-out-of-a-zip-archive",
+                "paths": [
+                  "src/archive-entries.mjs",
+                  "src/archive-entries.json"
+                ],
+                "at": "/opt/take-pictures-out-of-a-zip-archive"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "module": "fflate",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "esm",
+                  "lib"
+                ],
+                "at": "/opt/node_modules/fflate"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "message",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "message-source-key",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "message-resend-key",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "message-content-key",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "setting",
+                "id": "setting:hybrid-clock-state",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "list",
+                "id": "list:ai-conversations",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "record:ai-conversation",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ],
+            "most_writes": 100
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Old Trillion's record_messages (tools/keep-and-wake-ai-sessions-on-this-computer src/server-instructions.json, src/messages.mjs record()), over the moved importConversation of src/chat-import.mjs"
+        },
+        "record_model": {
+          "_what": "The record kinds this tool's import keeps beside the messages: one row per AI conversation (the list ai-conversations, read-data/ai-conversations-list.json) and one cursor row per source and per file of it.",
+          "kinds": [
+            {
+              "type": "record:ai-conversation",
+              "guard_properties": {
+                "title": "text",
+                "app": "text",
+                "conversation_id": "text",
+                "started": "text",
+                "last": "text",
+                "messages": "number",
+                "models": "list",
+                "labels": "list",
+                "people": "list",
+                "pursuits": "list",
+                "follow_ups": "text",
+                "original_file": "text"
+              }
+            },
+            {
+              "type": "conversation-import-cursor",
+              "guard_properties": {
+                "source": "text",
+                "app": "text",
+                "file": "text",
+                "bytes": "number",
+                "changed_ms": "number",
+                "done": "boolean",
+                "next": "any",
+                "conversations_kept": "number",
+                "messages_added": "number",
+                "messages_already_kept": "number",
+                "attachments_not_kept": "number",
+                "attachments_kept": "number",
+                "attachments_too_large": "number",
+                "attachments_refused": "objects",
+                "conversations_refused": "objects",
+                "files_found": "number",
+                "files_done": "number",
+                "state": "text",
+                "stopped": "text",
+                "updated_at": "text"
+              }
+            }
+          ]
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "app": "Muse",
+              "conversation_id": "bakery-1",
+              "messages": [
+                {
+                  "id": "m1",
+                  "speaker": "person",
+                  "text": "How long does rye proof?",
+                  "at": "2026-11-13T17:00:00Z"
+                },
+                {
+                  "id": "m2",
+                  "speaker": "ai",
+                  "text": "About two hours.",
+                  "at": "2026-11-13T17:00:05Z"
+                }
+              ]
+            },
+            "output_selector": "$",
+            "contains": "added"
+          }
+        ]
+      }
     }
   ]
 }

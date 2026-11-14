@@ -939,3 +939,20 @@ export async function countConversationsPerApp(request, context = {}) {
   }
   return { conversations: total, apps: [...apps.values()].sort((a, b) => b.conversations - a.conversations || a.app.localeCompare(b.app)) };
 }
+
+/**
+ * tool:keep-what-i-said-to-an-ai: an AI that keeps its chats on its own service (Muse, Grok Bot; set-up-my-account
+ * harnesses.json turns.roads "mcp-record") sends the person's words and its replies of a turn here, as old Trillion's
+ * record_messages took them. Each message is kept through the same message owner as every other place (importConversation
+ * as a conversation read from its page: id, speaker, text, at), so the same turn sent again adds nothing and its row of the
+ * AI conversations list is kept. The AI's own name for the conversation becomes `<app>:<conversation_id>`.
+ */
+export async function keepWhatISaidToAnAi(request, context = {}) {
+  const { input } = requestOf(request);
+  if (typeof input.app !== 'string' || !input.app.trim()) throw new Error('app is required: the AI app the messages were said in, as it calls itself (Muse, Grok).');
+  const door = patientDoor(context.door, { wait: context.wait, rules: rulesOf(context) });
+  const staged = stagedRecords(door);
+  const answer = await importConversation({ conversation: { conversation_id: input.conversation_id, title: input.title ?? null, messages: input.messages ?? [] }, app: input.app.trim(), reach: { private: true }, most_text: settings.most_text },
+    { eeaf: staged.eeaf, commit: step => staged.commit(step), lists: listsOverDoor(door), now: context.now ?? (() => new Date()) });
+  return { conversation_id: answer.conversation_id, messages: answer.messages, added: answer.added, already_kept: answer.already_there };
+}
