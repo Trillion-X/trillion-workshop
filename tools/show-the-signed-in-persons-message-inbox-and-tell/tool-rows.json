@@ -1,0 +1,170 @@
+{
+  "kind": "tool-rows",
+  "record_set": "show-the-signed-in-persons-message-inbox-and-tell-tool-rows",
+  "what_this_is": "The Workshop row for tools/show-the-signed-in-persons-message-inbox-and-tell: the web chat's message routes, keeping each message the person sends as a message row in their own records.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:answer-the-message-page-routes",
+        "label": "Answer the web chat message routes",
+        "status": "active",
+        "job": "Answer the web chat's message routes (GET /work/api/messages, /messages/threads and /messages/thread, POST /work/api/messages/send and /messages/send-all) and keep each message the person sends as a message row in my own records",
+        "description": "The web chat's message routes, run by the engine for the page's account (workshop-routes): the request's { path, method, query, body } in, { status, body } out. GET /messages and /messages/threads answer the person's conversations newest first ({conversations, next_before}); GET /messages/thread answers one conversation's messages (app and conversation_id). POST /messages/send keeps the person's words to one AI (app, conversation_id, text, client_id?) and POST /messages/send-all keeps them once in the shared Trillion conversation, each as one `message` row in the person's own records, written through the records door only, conditional on what was read. The same client_id sent again is the message already kept. A run reaches no AI's event inbox, so the answer says the message is kept and the AI reads it on its next connection; it never says delivered.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "path",
+            "method"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "The route after /work/api (/messages, /messages/threads, /messages/thread, /messages/send, /messages/send-all)"
+            },
+            "method": {
+              "type": "string",
+              "enum": [
+                "GET",
+                "POST"
+              ]
+            },
+            "query": {
+              "type": "object"
+            },
+            "body": {},
+            "browser": {
+              "type": "object"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "status",
+            "body"
+          ],
+          "properties": {
+            "status": {
+              "type": "integer"
+            },
+            "body": {}
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data/identity.mjs"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "show-the-signed-in-persons-message-inbox-and-tell",
+                "paths": [
+                  "src/message-route.mjs"
+                ],
+                "at": "/opt/show-the-signed-in-persons-message-inbox-and-tell"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work/run-an-export.mjs",
+                  "read-data/byte-pages.mjs",
+                  "read-data/records-door.mjs",
+                  "read-data/settled-write.mjs",
+                  "read-data/write-batches.mjs"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/show-the-signed-in-persons-message-inbox-and-tell",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/show-the-signed-in-persons-message-inbox-and-tell/src/message-route.mjs",
+            "answerTheMessageRoute"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "message",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "message-source-key",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:trillion",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion old-trillion-before-worker-retire src/work-messages.mjs (GET /messages/threads, /messages/thread, POST /messages/send), src/send-to-all-ais.mjs (POST /messages/send-all) and src/own-resource-compatibility.mjs:94,98,148 (GET /messages), over the message row src/messages.mjs keeps; the row is the one trillion-rust src/account/hooks.json keeps for an AI's turns"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "path": "/messages/send",
+              "method": "POST",
+              "query": {},
+              "body": {
+                "app": "Claude",
+                "conversation_id": "sample-chat-1",
+                "text": "Plan the sample ferns",
+                "client_id": "fern-1"
+              },
+              "browser": {}
+            },
+            "records": [],
+            "output_selector": "$.status",
+            "contains": "200"
+          }
+        ]
+      }
+    }
+  ]
+}

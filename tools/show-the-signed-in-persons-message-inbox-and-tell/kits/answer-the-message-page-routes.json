@@ -1,0 +1,46 @@
+{
+  "draft": true,
+  "drafted_from": "tool:answer-the-message-page-routes's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:answer-the-message-page-routes with path, method.\" Answer the web chat's message routes (GET /work/api/messages, /messages/threads and /messages/thread, POST /work/api/messages/send and /messages/send-all) and keep each message the person sends as a message row in my own records",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:answer-the-message-page-routes"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:answer-the-message-page-routes\", and give it path, method.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:answer-the-message-page-routes and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.status contains \"200\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Answer the web chat message routes on a sample input",
+      "ask": "Run tool:answer-the-message-page-routes.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:answer-the-message-page-routes",
+            "input": {
+              "path": "/messages/send",
+              "method": "POST",
+              "query": {},
+              "body": {
+                "app": "Claude",
+                "conversation_id": "sample-chat-1",
+                "text": "Plan the sample ferns",
+                "client_id": "fern-1"
+              },
+              "browser": {}
+            }
+          }
+        }
+      },
+      "hands_back": "status 200 with { message_id, recorded: 1, delivery } (a real run kept one message row through the records door)."
+    }
+  ]
+}
