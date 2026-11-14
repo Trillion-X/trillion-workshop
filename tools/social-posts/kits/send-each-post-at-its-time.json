@@ -1,0 +1,39 @@
+{
+  "drafted_from": "tools/social-posts/tool-rows.json (tool:send-each-post-at-its-time), read-data/send-a-post.mjs (sendEachPostAtItsTime), read-data/posts.json (at_its_time), test/send-a-post.test.mjs; the example was run on the test fixture",
+  "start_here": "Say to your AI: \"Switch on the wake that sends each post at its time, so a post I set to go at 2026-01-02 midnight UTC is sent then to every account it names.\" It runs when your posts change; it sends nothing itself and sets one timed send for each destination.",
+  "lists": [],
+  "no_lists_because": "It names no list: it reads the post and connection records the wake was granted and answers the timed sends to set, writing no record itself.",
+  "workflows": [],
+  "tools": [
+    "tool:send-each-post-at-its-time",
+    "tool:set-a-post-to-go-at-its-time",
+    "tool:send-a-post-to-linkedin",
+    "tool:send-a-post-to-instagram"
+  ],
+  "instructions": [
+    "1. Draft a post and approve it (tool:draft-a-post, tool:approve-a-post), and connect each account it goes to.",
+    "2. Say \"Set that post to go at its time\": the AI runs tool:set-a-post-to-go-at-its-time, which arms the post (armed_at) for its scheduled_for time.",
+    "3. Switch on the wake of tool:send-each-post-at-its-time once (its wake name is at-its-time). From then on each time your posts change it runs with the changed record ids and sets one timed run of the place's send row (tool:send-a-post-to-<place>) per destination still to be sent, at scheduled_for. Nothing is polled.",
+    "4. Read what it answers: set (each post, account, send tool and time), left_out (each send not set and why: the account is no longer connected, or more than 32 sends in one firing) and said. A post taken back, changed or set again sends nothing at the old time, because each timed send checks the post still carries the armed_at it was set with."
+  ],
+  "worked_examples": [
+    {
+      "title": "One armed post for one X account sets one timed send",
+      "ask": "Send my approved post at its time to my second X account.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:send-each-post-at-its-time",
+            "input": {}
+          }
+        }
+      },
+      "given": "From tools/social-posts/test/send-a-post.test.mjs (the first send-each-post-at-its-time test, run here on its fixture): the wake fires with the change of post:p1, a scheduled post with caption \"A short post\", destinations [service_connection:x:second], approved, armed_at 2026-01-01T00:00:05.000Z and scheduled_for 2026-01-02T00:00:00Z; that X connection is on file. The run is woken by the engine with the changed record ids, so the input is empty.",
+      "hands_back": "{\"set\":[{\"post_id\":\"post:p1\",\"account_id\":\"service_connection:x:second\",\"tool\":\"tool:send-a-post-to-x\",\"at\":\"2026-01-02T00:00:00Z\"}],\"left_out\":[],\"said\":\"1 sends are set to go at their time.\"}; the engine is also handed one timed run of tool:send-a-post-to-x at 2026-01-02T00:00:00Z with input {post_id: \"post:p1\", account_id: \"service_connection:x:second\", armed_at: \"2026-01-01T00:00:05.000Z\"}. The wake writes nothing; a draft, a post already posted to that account or a removed post answers no send and said \"No changed post is set to go at its time, so nothing was set.\""
+    }
+  ]
+}

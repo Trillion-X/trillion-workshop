@@ -12,7 +12,6 @@
   "tool:fill-a-scripts-blanks-with-small-local-models",
   "tool:read-words-that-may-show",
   "tool:read-business",
-  "tool:send-each-post-at-its-time",
   "tool:prepare-ad-conversions"
  ]
 }

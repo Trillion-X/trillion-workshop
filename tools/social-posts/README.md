@@ -6,6 +6,15 @@ their time. The places are rows (`read-data/post-places.json`); the person's acc
 records, each naming its connection id, the handle the engine reads that account's held values by. No value a place
 signs a request with is ever in a record, a row or this code.
 
+Approval is owned by `tool:approve-a-post` in this package's rows. It requires the complete reviewed snapshot and the
+row's read and write rights for the post record. `approved_by` is attribution supplied by the caller; it does not claim
+that a person saw or pressed a page. The old native adapter and its historical page-only test are held under
+`held-source/`: they wrapped the retired EEAF/HTTP lifecycle, whose imports are absent here, and their page-only
+approval rule was rejected. The historical test path remains runnable and imports the current common-owner regression.
+The existing keeper receipt in `tools/keep-and-wake-ai-sessions-on-this-computer/moved-from.json` records the exact
+Trillion source and held bytes at the original bulk-move commit. The live Trillion owner has since changed; this held
+adapter is historical evidence, not a second implementation of the current owner.
+
 ## Tools
 
 | Tool | What it does | Records |
@@ -54,6 +63,8 @@ signs a request with is ever in a record, a row or this code.
 | `read-data/snippets.mjs`, `read-data/snippets.json` | `makeSnippets`: save, list, use and remove a snippet over an `eeaf`, its record type, blank pattern, sizes and words as data. Moved byte for byte from trillion `src/snippets.mjs` and `src/snippets.json`. |
 | `read-data/thread-summaries.mjs`, `read-data/thread-summaries.json` | `makeThreadSummaries`: save, read and remove one conversation's summary over an `eeaf`, given the thread's `latest` and `newer`. Moved byte for byte from trillion `src/thread-summaries.mjs` and `src/thread-summaries.json`. |
 | `read-data/drafts-over-door.mjs` | The snippet and thread-summary rows: `heldEeafOver` (the `eeaf` both moved files call, `read`, `ids`, `write`, over records held in memory) and `passesOverDoor` (runs the moved code in passes, fetching through the records door each record or kind a pass missed, then sends the last pass's writes as one door write, each record that was read `expected` as read); `saveASnippet`, `findSnippets`, `useASnippet`, `removeASnippet`, `keepAThreadSummary`, `readAThreadSummary`, `removeAThreadSummary`. |
+| `test/native-post-approval.mjs` | The common-owner approval regression: a named post is accepted with the exact reviewed snapshot and row grant; a changed snapshot is refused; a read-only grant leaves the post a draft. |
+| `held-source/` | Byte-preserved evidence for the unsupported native adapter and historical page-only test. The keeper's existing `moved-from.json` records their source and held identities. |
 | `tool-rows.json` | The rows. |
 | `test/send-a-post.test.mjs` | The sender against the fake records door and a stand-in place: sent once, the held value only in the place's own request and in no record, nothing before its time, not-known kept until resend, a file refused before anything leaves, the host guard, each send row's mounts in the order the sender reads them, a place that signs two requests in one run sending the held key on both (each descriptor read once), and a post going at its time: one timed send per destination at its time, none for a post not set, removed or already sent, nothing sent by a timed send the post was taken back, changed or set again since, and the wake's rights equal to its sends'. |
 | `test/posts.test.mjs` | The posting rows against the fake records door: destinations, draft, check, approve as reviewed, set for its time with nothing sent, take back, the refusals; and each connection check asks with the value its place signs with, on one of that place's hosts. |

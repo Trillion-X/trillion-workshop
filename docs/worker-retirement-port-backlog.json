@@ -10674,7 +10674,7 @@
   {
    "path": "src/typed-on-signed-in-screen.mjs",
    "class": "app-screen",
-   "destination": "held: typed-on-signed-in-screen: src/native-look-authorization.mjs imports src/account-policy-name.mjs (retired), which reaches the retired src/resource-host.mjs and src/payment.mjs (env.APP_KV); trillion-workshop tools/social-posts/native-post-owner.mjs imports it at ./typed-on-signed-in-screen.mjs",
+   "destination": "held: typed-on-signed-in-screen: src/native-look-authorization.mjs imports src/account-policy-name.mjs (retired), which reaches the retired src/resource-host.mjs and src/payment.mjs (env.APP_KV); trillion-workshop tools/social-posts/held-source/native-post-owner.mjs.held imports it at ./typed-on-signed-in-screen.mjs",
    "why": "screen or page the app shows"
   },
   {
