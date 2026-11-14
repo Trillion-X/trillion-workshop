@@ -1,11 +1,12 @@
 {
   "_what": "Holds on publishing: a row { held_from, reason, until, owner } refuses to publish any engine commit at or after held_from on the branch's first-parent line (publish and accept, publish-an-engine-release.mjs heldBy), and names the reason. It is read at each publish. A hold is lifted only by removing its row: there is no flag, argument or environment value that lifts it. The Mac app release obeys the same rows for the engine it carries (trillion-apps scripts/check-engine-hold.mjs).",
-  "holds": [
+  "holds": [],
+  "lifted": [
     {
       "held_from": "2e08465a727aeaa602ee8712366807b047db1c1a",
       "reason": "Better Auth cutover not proven; nm_ removed",
-      "until": "the Better Auth cutover is proven; remove this row to lift",
-      "owner": "better-auth-now"
+      "lifted_on": "2026-11-14 2:30 PM CST, at the person's order to go live",
+      "why": "an account made before the sign-in tool reaches its sign-in user by its first key (Workshop 9f6acaad3), a person makes that key at /sign-in/key (5c5ae59b9), both live on app.gettrillion.ai"
     }
   ]
 }
