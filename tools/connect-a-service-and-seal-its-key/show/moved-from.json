@@ -1,0 +1,63 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages: each names its source path and commit, the identity of its source bytes and of its bytes here. Nothing was changed.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "a-work-address-made-up",
+      "find": "work@gmail\\.com",
+      "replace": "work@example.com",
+      "means": "An example account address shaped like a real one; made up on example.com."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/service-connections/show/ConnectedAccountsSection.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/show/ConnectedAccountsSection.tsx",
+      "source_identity": "1f:8b77a48c192e224f88a0689790213a2a1807efda2b75ccb36d7380778864d7e5",
+      "identity": "1f:784761e19caab9eae91b9478fdbb5236d610e553227783632816154f20e872ec",
+      "calls": [
+        "a-work-address-made-up"
+      ]
+    },
+    {
+      "from": "packages/service-connections/show/ServiceConnectionCard.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/show/ServiceConnectionCard.tsx",
+      "source_identity": "1f:ad861fc9bb4dc7e73c4fcc0a13468d84913fa9edef3335f46e7529a9230780fc",
+      "identity": "1f:cb9f3d2d5e99a355020a96fcd6b17c88d520a16110e5120cb2fd3e8015a8b0af",
+      "calls": [
+        "a-work-address-made-up"
+      ]
+    },
+    {
+      "from": "packages/service-connections/show/ServiceConnectionDialog.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/show/ServiceConnectionDialog.tsx",
+      "source_identity": "1f:04a33132e46f7043be495691dca2850b1305016be0cda4fff48eb86a233b3d09",
+      "identity": "1f:04a33132e46f7043be495691dca2850b1305016be0cda4fff48eb86a233b3d09"
+    },
+    {
+      "from": "packages/service-connections/show/ServiceConnectionsSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/show/ServiceConnectionsSurface.tsx",
+      "source_identity": "1f:4944d8ce1b372197aedfdf6176f496a646af8a0948f4a5faa71c1ba290d6cb7f",
+      "identity": "1f:4944d8ce1b372197aedfdf6176f496a646af8a0948f4a5faa71c1ba290d6cb7f"
+    },
+    {
+      "from": "packages/service-connections/show/mount-service-connection-dialog.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/show/mount-service-connection-dialog.tsx",
+      "source_identity": "1f:b4e01210ed4c7ccc708d64a8e1bb45d40bd4d119cc2366f04820a51e56058c19",
+      "identity": "1f:b4e01210ed4c7ccc708d64a8e1bb45d40bd4d119cc2366f04820a51e56058c19"
+    },
+    {
+      "from": "packages/service-connections/show/mount-service-connections-settings.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/show/mount-service-connections-settings.tsx",
+      "source_identity": "1f:b4c853ee06d081de79d1d75212bdab615b7eed51f2797c120ae44f7e4330e2df",
+      "identity": "1f:b4c853ee06d081de79d1d75212bdab615b7eed51f2797c120ae44f7e4330e2df"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages: each names its source path and commit, the identity of its source bytes and of its bytes here. Nothing was changed.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/service-connections/read-data/__tests__/live-feed-decode.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/read-data/__tests__/live-feed-decode.test.ts",
+      "source_identity": "1f:8a9ab1667cfe0df84ccf90f4ce9b130459c112f10bf58e4e7b74295ecb2f43a1",
+      "identity": "1f:8a9ab1667cfe0df84ccf90f4ce9b130459c112f10bf58e4e7b74295ecb2f43a1"
+    },
+    {
+      "from": "packages/service-connections/read-data/__tests__/read-acquire-challenge-events.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/read-data/__tests__/read-acquire-challenge-events.test.ts",
+      "source_identity": "1f:40eb085f499c3ad92ff068047cb6279c7d3e247d8554c2e885ea5bc745e9a7ab",
+      "identity": "1f:40eb085f499c3ad92ff068047cb6279c7d3e247d8554c2e885ea5bc745e9a7ab"
+    },
+    {
+      "from": "packages/service-connections/read-data/__tests__/read-service-connection-options-feed-shape.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/read-data/__tests__/read-service-connection-options-feed-shape.test.ts",
+      "source_identity": "1f:575ebdd7ee5b2ece31d1e4387c190008eca02cdbbbbb17ad75daad2dcf945f82",
+      "identity": "1f:575ebdd7ee5b2ece31d1e4387c190008eca02cdbbbbb17ad75daad2dcf945f82"
+    },
+    {
+      "from": "packages/service-connections/read-data/__tests__/read-service-connection-options.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/read-data/__tests__/read-service-connection-options.test.ts",
+      "source_identity": "1f:55d95d003ca876c3bdfb05450d784a0c6d628dedf16d3c773e3c934d60c473b0",
+      "identity": "1f:55d95d003ca876c3bdfb05450d784a0c6d628dedf16d3c773e3c934d60c473b0"
+    },
+    {
+      "from": "packages/service-connections/read-data/__tests__/read-service-connection-readiness-view.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/read-data/__tests__/read-service-connection-readiness-view.test.ts",
+      "source_identity": "1f:8252fb678b91cd29e1d211de42d5bde7f676e18bfe8e0e2d08cfa4550fb73bdc",
+      "identity": "1f:8252fb678b91cd29e1d211de42d5bde7f676e18bfe8e0e2d08cfa4550fb73bdc"
+    },
+    {
+      "from": "packages/service-connections/read-data/__tests__/read-source-offers.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/read-data/__tests__/read-source-offers.test.ts",
+      "source_identity": "1f:b859fc9c7fac7650a01fa60822979833b5e44728674b3394fc22135b424615dd",
+      "identity": "1f:b859fc9c7fac7650a01fa60822979833b5e44728674b3394fc22135b424615dd"
+    },
+    {
+      "from": "packages/service-connections/read-data/__tests__/source-offer-category-coverage.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/read-data/__tests__/source-offer-category-coverage.test.ts",
+      "source_identity": "1f:7220fb6a4d22cf337552e7c3560c99cbdd14be412ac6d669944d7aa05a9693b1",
+      "identity": "1f:7220fb6a4d22cf337552e7c3560c99cbdd14be412ac6d669944d7aa05a9693b1"
+    }
+  ]
+}

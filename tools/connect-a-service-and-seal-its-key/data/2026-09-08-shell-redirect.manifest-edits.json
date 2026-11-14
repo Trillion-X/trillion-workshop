@@ -1,0 +1,74 @@
+[
+  {
+    "kind": "append_payload_list",
+    "address": "package::service-connections::checks",
+    "path": "checks",
+    "value": "do-work/shell-redirect-acquisition.test.ts"
+  },
+  {
+    "kind": "set_payload_path",
+    "address": "package::service-connections::published-record::google-account",
+    "path": "acquire.redirect",
+    "value": { "transport": "shell" }
+  },
+  {
+    "kind": "set_payload_path",
+    "address": "package::service-connections::published-record::google-account",
+    "path": "acquire.client_document_path",
+    "value": "installed"
+  },
+  {
+    "kind": "upsert",
+    "allow_insert": true,
+    "address": "package::service-connections::workflow-action::exchange-authorization-code",
+    "record_from_file": "exchange-authorization-code-for-credential.workflow.json"
+  },
+  {
+    "kind": "upsert",
+    "allow_insert": true,
+    "address": "package::service-connections::workflow-action::read-oauth-client-id",
+    "record_from_file": "read-oauth-client-id.workflow.json"
+  },
+  {
+    "kind": "upsert",
+    "allow_insert": true,
+    "address": "package::service-connections::owner-record-work::action::exchange-authorization-code",
+    "record": {
+      "type": "record",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "address": "package::service-connections::owner-record-work::action::exchange-authorization-code",
+      "payload": {
+        "kind": "owner-record-work-action-descriptor",
+        "id": "service-connections.owner-record-work.action.exchange-authorization-code",
+        "operation": "exchange-authorization-code",
+        "target": "slot::workflow",
+        "definition_id": "action:exchange-authorization-code-for-credential",
+        "include_steps": false,
+        "include_output": true,
+        "accepted_statuses": ["ok", "success", "completed"]
+      }
+    }
+  },
+  {
+    "kind": "upsert",
+    "allow_insert": true,
+    "address": "package::service-connections::owner-record-work::action::read-oauth-client-id",
+    "record": {
+      "type": "record",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "address": "package::service-connections::owner-record-work::action::read-oauth-client-id",
+      "payload": {
+        "kind": "owner-record-work-action-descriptor",
+        "id": "service-connections.owner-record-work.action.read-oauth-client-id",
+        "operation": "read-oauth-client-id",
+        "target": "slot::workflow",
+        "definition_id": "action:read-oauth-client-id",
+        "include_steps": false,
+        "include_output": true,
+        "accepted_statuses": ["ok", "success", "completed"]
+      }
+    }
+  }
+]

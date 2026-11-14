@@ -17,6 +17,13 @@
       "to": "tools/transcript-reader/show/mount-transcript-history.tsx",
       "source_identity": "1f:752105f84184adfb10386852be9c05ba2a1a2e68d78d3b555bacadf66f5e4194",
       "identity": "1f:752105f84184adfb10386852be9c05ba2a1a2e68d78d3b555bacadf66f5e4194"
+    },
+    {
+      "from": "packages/transcript-reader/show/mount-transcript-reader.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/transcript-reader/show/mount-transcript-reader.tsx",
+      "source_identity": "1f:dcc3936b60499e7c6929f182c59b5c8c2213a291cbea8b63efd0c8a591c58b0e",
+      "identity": "1f:dcc3936b60499e7c6929f182c59b5c8c2213a291cbea8b63efd0c8a591c58b0e"
     }
   ]
 }

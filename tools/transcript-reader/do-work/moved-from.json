@@ -24,6 +24,13 @@
       "to": "tools/transcript-reader/do-work/accept-transcript-records.ts",
       "source_identity": "1f:00fa3fc075f05efbc3dc4f905bc1407963ecd5f32c176115aea880e49664c4f7",
       "identity": "1f:00fa3fc075f05efbc3dc4f905bc1407963ecd5f32c176115aea880e49664c4f7"
+    },
+    {
+      "from": "packages/transcript-reader/do-work/request-transcript-segment.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/transcript-reader/do-work/request-transcript-segment.ts",
+      "source_identity": "1f:060581fc2bdaef01e4c55c6e1b5e20951b2221d20f7957e1137085866134d418",
+      "identity": "1f:060581fc2bdaef01e4c55c6e1b5e20951b2221d20f7957e1137085866134d418"
     }
   ]
 }

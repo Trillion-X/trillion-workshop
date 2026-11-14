@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages: each names its source path and commit, the identity of its source bytes and of its bytes here. Nothing was changed.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/service-connections/show-ios-jscore/mount-service-connections-jscore.js",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/show-ios-jscore/mount-service-connections-jscore.js",
+      "source_identity": "1f:3afa91e8c620b273b081ec4cfccbdac23e53787f42398b46b27acc08f962f054",
+      "identity": "1f:3afa91e8c620b273b081ec4cfccbdac23e53787f42398b46b27acc08f962f054"
+    },
+    {
+      "from": "packages/service-connections/show-ios-jscore/mount-service-connections-jscore.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/show-ios-jscore/mount-service-connections-jscore.test.ts",
+      "source_identity": "1f:7601389430a25d98061a5ae4c103b9c7db63621760933561a1631ade88687fab",
+      "identity": "1f:7601389430a25d98061a5ae4c103b9c7db63621760933561a1631ade88687fab"
+    }
+  ]
+}

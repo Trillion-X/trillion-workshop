@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages: each names its source path and commit, the identity of its source bytes and of its bytes here. Nothing was changed.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/service-connections/data/2026-09-08-shell-redirect.manifest-edits.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/data/2026-09-08-shell-redirect.manifest-edits.json",
+      "source_identity": "1f:d4db8fe71a838fbf38c49c3c289300ed2ef4a0cf8beafc7b443954d474c838e6",
+      "identity": "1f:d4db8fe71a838fbf38c49c3c289300ed2ef4a0cf8beafc7b443954d474c838e6"
+    },
+    {
+      "from": "packages/service-connections/data/exchange-authorization-code-for-credential.workflow.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/data/exchange-authorization-code-for-credential.workflow.json",
+      "source_identity": "1f:c27f5ed643d65f2b4154c9380e54eaf68f45b7e2bb748e6285f1c14cfcd68940",
+      "identity": "1f:c27f5ed643d65f2b4154c9380e54eaf68f45b7e2bb748e6285f1c14cfcd68940"
+    },
+    {
+      "from": "packages/service-connections/data/read-oauth-client-id.workflow.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/data/read-oauth-client-id.workflow.json",
+      "source_identity": "1f:0b2627bc93e3c6dcb1e86fc742b8d95c8d94115d6541ec017f14d97740c31d18",
+      "identity": "1f:0b2627bc93e3c6dcb1e86fc742b8d95c8d94115d6541ec017f14d97740c31d18"
+    }
+  ]
+}

@@ -281,6 +281,14 @@
       "to": "tools/connect-a-service-and-seal-its-key/work-contract.json",
       "source_identity": "1f:98c6e8f33dd3009f0695bb6cdc0a0abb664953a608202e13b9b3ed6d719f61fb",
       "identity": "1f:98c6e8f33dd3009f0695bb6cdc0a0abb664953a608202e13b9b3ed6d719f61fb"
+    },
+    {
+      "from": "packages/service-connections/asking-something-else-needs-no-code-of-its-own.test.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/asking-something-else-needs-no-code-of-its-own.test.py",
+      "source_identity": "1f:93073d70b2793cfd2a375f2e5903d76b0819230fe2f5b2943d82eb6b673c81aa",
+      "identity": "1f:93073d70b2793cfd2a375f2e5903d76b0819230fe2f5b2943d82eb6b673c81aa",
+      "source": "bitfield-packages"
     }
   ],
   "not_matched": []

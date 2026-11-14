@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages: each names its source path and commit, the identity of its source bytes and of its bytes here. Nothing was changed.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/spaced-repetition/show/SpacedRepetitionSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/show/SpacedRepetitionSurface.tsx",
+      "source_identity": "1f:ffd537f4bcd3e6813b015466c8ed1a6e941244ba0003b398a30abab65fc739c5",
+      "identity": "1f:ffd537f4bcd3e6813b015466c8ed1a6e941244ba0003b398a30abab65fc739c5"
+    },
+    {
+      "from": "packages/spaced-repetition/show/mount-spaced-repetition.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/show/mount-spaced-repetition.tsx",
+      "source_identity": "1f:b60ec10aef9fe52259752c46a8682be3bade22f7d6a16522ed65c55626397dbd",
+      "identity": "1f:b60ec10aef9fe52259752c46a8682be3bade22f7d6a16522ed65c55626397dbd"
+    },
+    {
+      "from": "packages/spaced-repetition/show/spaced-repetition-scoped-feed.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/show/spaced-repetition-scoped-feed.test.ts",
+      "source_identity": "1f:49fcfa9f1d3bcadc1e9b4ebef1c1fe4d5574ad3be4e99c955afd6a7d7275ba6d",
+      "identity": "1f:49fcfa9f1d3bcadc1e9b4ebef1c1fe4d5574ad3be4e99c955afd6a7d7275ba6d"
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "type": "record",
+  "address": "package::service-connections::workflow-action::read-oauth-client-id",
+  "address_mode": "identity_text",
+  "path": ["current-item", "published-record", "workflow-definition"],
+  "payload": {
+    "id": "action:read-oauth-client-id",
+    "kind": "action",
+    "is_active": true,
+    "name": "read-oauth-client-id",
+    "description": "Return only the public client id of the OAuth client the descriptor names in the vault, so a browser can build an authorize URL without ever holding the client secret.",
+    "input_schema": { "required": ["acquire"] },
+    "steps": [
+      {
+        "id": "read_client_handle",
+        "kind": "ask",
+        "config": {
+          "name": "slot::credentials-vault",
+          "input": {
+            "operation": "read",
+            "key": {
+              "$kind": "binding",
+              "select": { "from": "input", "path": "acquire.client_ref" },
+              "transform": [{ "op": "op:core.replace", "args": { "find": "credentials-vault::", "replace": "" } }]
+            },
+            "handle_ttl_seconds": 60
+          }
+        }
+      },
+      {
+        "id": "resolve_client",
+        "kind": "ask",
+        "config": {
+          "name": "slot::credentials-vault",
+          "input": {
+            "operation": "resolve_handle",
+            "handle": {
+              "$kind": "binding",
+              "select": { "from": "steps", "key": "read_client_handle", "path": "output.handle" }
+            }
+          }
+        }
+      },
+      {
+        "id": "client_not_configured",
+        "kind": "fail",
+        "config": {
+          "error": "This connector is not configured on this computer."
+        }
+      },
+      {
+        "id": "client_no_longer_available",
+        "kind": "fail",
+        "config": {
+          "error": "This connector's saved sign-in setup is no longer available. Reconnect the service to continue."
+        }
+      },
+      {
+        "id": "done",
+        "kind": "return",
+        "config": {
+          "value": {
+            "client_id": {
+              "$kind": "binding",
+              "select": { "from": "steps", "key": "resolve_client", "path": "output.value" },
+              "transform": [
+                { "op": "op:core.json_parse" },
+                { "op": "op:core.get_path", "args": { "path": { "$kind": "binding", "select": { "from": "input", "path": "acquire.client_document_path" } } } },
+                { "op": "op:core.lookup", "args": { "key": "client_id" } }
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "from": "read_client_handle",
+        "to": "resolve_client",
+        "kind": "on_result",
+        "config": {
+          "$kind": "binding",
+          "select": { "from": "input", "path": "output.handle" },
+          "transform": [{ "op": "op:core.is_not_null" }]
+        }
+      },
+      {
+        "from": "read_client_handle",
+        "to": "client_not_configured",
+        "kind": "on_result",
+        "config": {
+          "$kind": "binding",
+          "select": { "from": "input", "path": "output.handle" },
+          "transform": [{ "op": "op:core.is_null" }]
+        }
+      },
+      {
+        "from": "resolve_client",
+        "to": "done",
+        "kind": "on_result",
+        "config": {
+          "$kind": "binding",
+          "select": { "from": "input", "path": "output.success" },
+          "transform": [{ "op": "op:core.equals", "args": { "value": true } }]
+        }
+      },
+      {
+        "from": "resolve_client",
+        "to": "client_no_longer_available",
+        "kind": "on_result",
+        "config": {
+          "$kind": "binding",
+          "select": { "from": "input", "path": "output.success" },
+          "transform": [{ "op": "op:core.equals", "args": { "value": false } }]
+        }
+      }
+    ]
+  },
+  "payload_text": null,
+  "payload_base64": null,
+  "remove": false
+}

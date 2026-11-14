@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages: each names its source path and commit, the identity of its source bytes and of its bytes here. Nothing was changed.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/spaced-repetition/read-data/project-due-from-responses.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/read-data/project-due-from-responses.ts",
+      "source_identity": "1f:cecc38853725a45d324df4398a514cabfd6ba915cd60e1ff4eb50e87f75937b0",
+      "identity": "1f:cecc38853725a45d324df4398a514cabfd6ba915cd60e1ff4eb50e87f75937b0"
+    },
+    {
+      "from": "packages/spaced-repetition/read-data/read-spaced-repetition.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/read-data/read-spaced-repetition.ts",
+      "source_identity": "1f:553aa8a8086a8c8a66513730c56831be35fedeedd14d229c65541339920941eb",
+      "identity": "1f:553aa8a8086a8c8a66513730c56831be35fedeedd14d229c65541339920941eb"
+    },
+    {
+      "from": "packages/spaced-repetition/read-data/schedule-next-review.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/read-data/schedule-next-review.ts",
+      "source_identity": "1f:13dd249b9d061fefac4abb927c4d443224454652cc16e50517a3db6122574266",
+      "identity": "1f:13dd249b9d061fefac4abb927c4d443224454652cc16e50517a3db6122574266"
+    },
+    {
+      "from": "packages/spaced-repetition/read-data/spaced-repetition-types.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/read-data/spaced-repetition-types.ts",
+      "source_identity": "1f:d3e3bb71f0dd2b7335f53a0992f367e24bd7f29277f6d6dd35f61f04afe7c9ef",
+      "identity": "1f:d3e3bb71f0dd2b7335f53a0992f367e24bd7f29277f6d6dd35f61f04afe7c9ef"
+    }
+  ]
+}

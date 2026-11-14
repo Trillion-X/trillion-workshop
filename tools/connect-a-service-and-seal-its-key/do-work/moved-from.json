@@ -1,0 +1,162 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages: each names its source path and commit, the identity of its source bytes and of its bytes here. Nothing was changed.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/service-connections/do-work/acquire-credential-workflow.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/acquire-credential-workflow.test.ts",
+      "source_identity": "1f:c5b48553013ed94549a565d4e8aa42fb7581f67c1aa7e034abfe8ab66932ecb5",
+      "identity": "1f:c5b48553013ed94549a565d4e8aa42fb7581f67c1aa7e034abfe8ab66932ecb5"
+    },
+    {
+      "from": "packages/service-connections/do-work/begin-acquisition.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/begin-acquisition.ts",
+      "source_identity": "1f:88ca566be566e2a834ec15d5f9ddaf4ff3d7c0d89e4b581a90c31b2ab1b27f2c",
+      "identity": "1f:88ca566be566e2a834ec15d5f9ddaf4ff3d7c0d89e4b581a90c31b2ab1b27f2c"
+    },
+    {
+      "from": "packages/service-connections/do-work/begin-session-acquisition.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/begin-session-acquisition.test.ts",
+      "source_identity": "1f:c3692c0c29a62cdc99659da002bb11b01d1b7e22e8d6ac5dace55775d6bcea9e",
+      "identity": "1f:c3692c0c29a62cdc99659da002bb11b01d1b7e22e8d6ac5dace55775d6bcea9e"
+    },
+    {
+      "from": "packages/service-connections/do-work/begin-session-acquisition.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/begin-session-acquisition.ts",
+      "source_identity": "1f:021667bf5dae5153d4529a9ad5c985567b5cb48a6f850bbd048b5c8cfd79ab05",
+      "identity": "1f:021667bf5dae5153d4529a9ad5c985567b5cb48a6f850bbd048b5c8cfd79ab05"
+    },
+    {
+      "from": "packages/service-connections/do-work/connect-service.seams.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/connect-service.seams.test.ts",
+      "source_identity": "1f:8788e2331405ca52ecc5b3aed2329c198fdd9c06556e3f2e8a169f214d6befc5",
+      "identity": "1f:8788e2331405ca52ecc5b3aed2329c198fdd9c06556e3f2e8a169f214d6befc5"
+    },
+    {
+      "from": "packages/service-connections/do-work/connect-service.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/connect-service.test.ts",
+      "source_identity": "1f:8e78af96235fe27a85fb1b1f9a2df3977c5b09f8b7671aed927e7a7c11da8fd9",
+      "identity": "1f:8e78af96235fe27a85fb1b1f9a2df3977c5b09f8b7671aed927e7a7c11da8fd9"
+    },
+    {
+      "from": "packages/service-connections/do-work/disconnect-service.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/disconnect-service.test.ts",
+      "source_identity": "1f:acdae61b2524fd07ab8d43a75bb2bb71de1f7648fc4be877027f106c54b2d44e",
+      "identity": "1f:acdae61b2524fd07ab8d43a75bb2bb71de1f7648fc4be877027f106c54b2d44e"
+    },
+    {
+      "from": "packages/service-connections/do-work/external-effect-attempt.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/external-effect-attempt.test.ts",
+      "source_identity": "1f:33dcf00b64031c7dbbabb473858d16870ffe978d035b148f0e0573085c33be28",
+      "identity": "1f:33dcf00b64031c7dbbabb473858d16870ffe978d035b148f0e0573085c33be28"
+    },
+    {
+      "from": "packages/service-connections/do-work/follow-one-written-note-now.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/follow-one-written-note-now.py",
+      "source_identity": "1f:ea29e0aa7b20a36f475aff1d386d850478c92c9ee459b6a9ea988be73e25352a",
+      "identity": "1f:ea29e0aa7b20a36f475aff1d386d850478c92c9ee459b6a9ea988be73e25352a"
+    },
+    {
+      "from": "packages/service-connections/do-work/mint-credential-handle.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/mint-credential-handle.test.ts",
+      "source_identity": "1f:9960155f0124f5050e482b3f45f7269ef663881d61ed53220ca5938805b3846b",
+      "identity": "1f:9960155f0124f5050e482b3f45f7269ef663881d61ed53220ca5938805b3846b"
+    },
+    {
+      "from": "packages/service-connections/do-work/mint-credential-handle.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/mint-credential-handle.ts",
+      "source_identity": "1f:b9fe20745203e4035f5456c96e624d935efe291bcfd5e18178afb6c248bf71c8",
+      "identity": "1f:b9fe20745203e4035f5456c96e624d935efe291bcfd5e18178afb6c248bf71c8"
+    },
+    {
+      "from": "packages/service-connections/do-work/prepare-read-service-operation.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/prepare-read-service-operation.py",
+      "source_identity": "1f:bbbdefc368aadf3fe8e992c3b19b7404ecbee971ce0ba85cbf2a5348b5e83cbc",
+      "identity": "1f:bbbdefc368aadf3fe8e992c3b19b7404ecbee971ce0ba85cbf2a5348b5e83cbc"
+    },
+    {
+      "from": "packages/service-connections/do-work/rename-service-connection.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/rename-service-connection.test.ts",
+      "source_identity": "1f:8e0958bea491da111bcb84167d8b7c31657d973d9a9cc175136565502d76ca08",
+      "identity": "1f:8e0958bea491da111bcb84167d8b7c31657d973d9a9cc175136565502d76ca08"
+    },
+    {
+      "from": "packages/service-connections/do-work/reveal-service-connection-credential.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/reveal-service-connection-credential.test.ts",
+      "source_identity": "1f:8428d5a90e6bf0ec653e00a580000cc66421383a07a85f6323d51c8e24daf829",
+      "identity": "1f:8428d5a90e6bf0ec653e00a580000cc66421383a07a85f6323d51c8e24daf829"
+    },
+    {
+      "from": "packages/service-connections/do-work/reveal-service-connection-credential.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/reveal-service-connection-credential.ts",
+      "source_identity": "1f:51fcbe88244dcfd70ee162cb96276672b022e8741d22120918a0226084a5e4cf",
+      "identity": "1f:51fcbe88244dcfd70ee162cb96276672b022e8741d22120918a0226084a5e4cf"
+    },
+    {
+      "from": "packages/service-connections/do-work/seal-session-acquisition.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/seal-session-acquisition.test.ts",
+      "source_identity": "1f:b48f09e57eeee72a03a7f6e9c6c98c10bc945eddaae47065dd6129827611f281",
+      "identity": "1f:b48f09e57eeee72a03a7f6e9c6c98c10bc945eddaae47065dd6129827611f281"
+    },
+    {
+      "from": "packages/service-connections/do-work/seal-session-acquisition.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/seal-session-acquisition.ts",
+      "source_identity": "1f:37d0750b019ffa056cb2bd5c365d8f19ed6bd893f13cc063641889d9b811af12",
+      "identity": "1f:37d0750b019ffa056cb2bd5c365d8f19ed6bd893f13cc063641889d9b811af12"
+    },
+    {
+      "from": "packages/service-connections/do-work/shell-redirect-acquisition.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/shell-redirect-acquisition.test.ts",
+      "source_identity": "1f:046fa64393d958d9d182c452c920a54245897546f200ccc5ab2e3d67619eda3f",
+      "identity": "1f:046fa64393d958d9d182c452c920a54245897546f200ccc5ab2e3d67619eda3f"
+    },
+    {
+      "from": "packages/service-connections/do-work/shell-redirect-acquisition.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/shell-redirect-acquisition.ts",
+      "source_identity": "1f:ec1a2bd32be72d7f26f4705fdb233b0fe2054f17edd4ba847352e9000804a268",
+      "identity": "1f:ec1a2bd32be72d7f26f4705fdb233b0fe2054f17edd4ba847352e9000804a268"
+    },
+    {
+      "from": "packages/service-connections/do-work/test_external_effect_offline_refusal.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/test_external_effect_offline_refusal.py",
+      "source_identity": "1f:085528269fe71d43e20704eba46fb2e43f5fb4e42f644f55458cf2cafc447d49",
+      "identity": "1f:085528269fe71d43e20704eba46fb2e43f5fb4e42f644f55458cf2cafc447d49"
+    },
+    {
+      "from": "packages/service-connections/do-work/test_go_over_everything_it_is_holding.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/test_go_over_everything_it_is_holding.py",
+      "source_identity": "1f:94a19b1fb23de82a6f6364e39df8eb5afb61bd626be5d1cb133e3d0b320c3bc1",
+      "identity": "1f:94a19b1fb23de82a6f6364e39df8eb5afb61bd626be5d1cb133e3d0b320c3bc1"
+    },
+    {
+      "from": "packages/service-connections/do-work/test_prepare_read_service_operation.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/do-work/test_prepare_read_service_operation.py",
+      "source_identity": "1f:cff45caaef0d4df40c4bd8b4c73e353d20b32189724e396b71e28d180eba3b49",
+      "identity": "1f:cff45caaef0d4df40c4bd8b4c73e353d20b32189724e396b71e28d180eba3b49"
+    }
+  ]
+}

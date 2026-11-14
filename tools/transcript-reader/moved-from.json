@@ -81,6 +81,14 @@
       "to": "tools/transcript-reader/things-to-store-and-run.json",
       "source_identity": "1f:91fb77cf61d36d7472308f17c6655042708431ffcfd6d6f50dff2e4e09602f3d",
       "identity": "1f:91fb77cf61d36d7472308f17c6655042708431ffcfd6d6f50dff2e4e09602f3d"
+    },
+    {
+      "from": "packages/transcript-reader/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/transcript-reader/index.ts",
+      "source_identity": "1f:f60e8202f371bda7e44c38a8e919d74b2c5f92a62adf6b1e58096789a1f508be",
+      "identity": "1f:f60e8202f371bda7e44c38a8e919d74b2c5f92a62adf6b1e58096789a1f508be",
+      "source": "bitfield-packages"
     }
   ]
 }
