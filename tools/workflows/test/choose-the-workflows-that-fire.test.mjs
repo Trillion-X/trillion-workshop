@@ -2,13 +2,17 @@
 // recipe the Workshop installs, and the formulas engine chooses by the conditions each carries on its own row.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { chooseTheWorkflowsThatFire } from '../read-data/choose-the-workflows-that-fire.mjs';
 import { conditionProblems } from '../read-data/fires-when.mjs';
 import { recipeProblems } from '../read-data/recipe-problems.mjs';
 import { startARecipeRun } from '../read-data/start-a-recipe-run.mjs';
 
-const installed = JSON.parse(readFileSync(new URL('../recipes/workflows.json', import.meta.url), 'utf8')).records.map(({ payload }) => payload);
+// Every recipe file the Workshop installs, as the chooser reads them (the first file holding an id wins).
+const RECIPES = new URL('../recipes/', import.meta.url);
+const installed = [...new Map(readdirSync(RECIPES).filter(name => name.endsWith('.json')).sort()
+  .flatMap(name => JSON.parse(readFileSync(new URL(name, RECIPES), 'utf8')).records.map(({ payload }) => payload))
+  .reverse().map(recipe => [recipe.id, recipe])).values()];
 
 // A records door over rows kept in memory: { id, type, value }.
 function doorOver(rows) {
@@ -42,7 +46,7 @@ test('a workflow added to the person\'s list is chosen at once, with no list of 
   const before = await chooseTheWorkflowsThatFire({ parts }, { door: doorOver([]) });
   assert.ok(!before.chosen.some(item => item.workflow === 'workflow:research-to-plan'));
   const after = await chooseTheWorkflowsThatFire({ parts }, { door });
-  assert.deepEqual(after.chosen.filter(item => item.workflow === 'workflow:research-to-plan'), [
+  assert.deepEqual(after.chosen.filter(item => item.workflow === 'workflow:research-to-plan').map(({ workflow, label, part, condition, made_by, from }) => ({ workflow, label, part, condition, made_by, from })), [
     { workflow: 'workflow:research-to-plan', label: 'Research to plan', part: 0, condition: 'a research finding arrives', made_by: 'the person', from: 'own' },
   ]);
   assert.ok(after.unmatched_parts.includes(1), 'a part no condition keeps is named');
@@ -87,6 +91,24 @@ test('every installed condition is one the engine evaluates; one it cannot, or t
   assert.match(conditionProblems({})[0], /must be a list of conditions/);
   const base = installed.find(recipe => recipe.id === 'workflow:first-win');
   assert.deepEqual(recipeProblems({ ...base, fires_when: [keepsAll] }), ['fires_when[0].condition reads no field, so it would keep every part.'], 'the validator refuses it too');
+});
+
+test('matches are ranked by how rare the tags they met are, times the condition\'s measured weight', async () => {
+  const both = (slug, values, extra) => ownRow(slug, { title: slug, fires_when: JSON.stringify([condition(slug, values, extra)]) });
+  // common-tag is held by four workflows, rare-tag by three; c meets the part on both, d and e on rare-tag alone.
+  const door = doorOver([both('a', ['common-tag']), both('b', ['common-tag']), both('f', ['common-tag']), both('c', ['common-tag', 'rare-tag']), both('d', ['rare-tag'], { weight: 0.5 }), both('e', ['rare-tag'])]);
+  const answer = await chooseTheWorkflowsThatFire({ parts: [{ words: 'x', kinds: ['common-tag', 'rare-tag'] }] }, { door });
+  const mine = answer.chosen.filter(item => ['a', 'b', 'c', 'd', 'e', 'f'].includes(item.workflow.replace('workflow:', '')));
+  const score = id => mine.find(item => item.workflow === `workflow:${id}`).score;
+  assert.ok(score('c') > score('e') && score('e') > score('a'), 'two tags met beat one, and the rarer tag beats the commoner');
+  assert.ok(Math.abs(score('d') - score('e') / 2) < 1e-5, 'half the measured weight, half the score');
+  assert.equal(score('a'), score('b'));
+  const three = await chooseTheWorkflowsThatFire({ parts: [{ words: 'x', kinds: ['common-tag', 'rare-tag'] }, { words: 'y', kinds: ['common-tag'] }, { words: 'z', kinds: [] }] }, { door });
+  const broad = three.broad.map(entry => entry.workflow);
+  assert.ok(broad.includes('workflow:a') && !broad.includes('workflow:e'), 'a condition keeping 2 of 3 parts is broad, one keeping 1 of 3 is not');
+  assert.equal(mine.find(item => item.workflow === 'workflow:c').matched.length, 2);
+  const ranks = answer.chosen.filter(item => item.part === 0).map(item => item.rank);
+  assert.deepEqual(ranks, ranks.map((_, at) => at + 1), 'ranks run 1, 2, 3 within a part, best first');
 });
 
 test('parts are required', async () => {

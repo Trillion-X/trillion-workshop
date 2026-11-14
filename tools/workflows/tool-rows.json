@@ -260,7 +260,7 @@
         "label": "Choose which of my workflows fire for these parts of a seed",
         "status": "active",
         "job": "Say which of all my workflows, and the Workshop's I have installed, fire for each part of something that arrived, from the conditions each workflow carries on its own row",
-        "description": "Every workflow is a candidate branch of the one tree. Takes parts: the parts of one seed, each an object of its typed fields (for example kinds, subjects, people, niches, own_words; the fields are whatever the conditions read). Reads every workflow row the person has (their list of workflows under each type arrivals/recipe-row-types.json lists) and every recipe this Workshop installs; when both hold an id the person's row wins, and when it holds no conditions the installed recipe's are used. Each workflow's conditions are its fires_when (branches/fires-when.json): a list of { label, condition: { fields, tree }, made_by, state }, the same fields and tree tool:filter-rows-by-rules takes, evaluated by the same formulas engine over the parts. Answers chosen (one row per workflow, part and condition that kept it), unfinished (conditions with a rule the engine cannot evaluate or no rule at all, which choose nothing), unconditioned (workflows with no condition On, by id and label, to be judged by their words), unmatched_parts and the counts. Nothing is written; no workflow, branch or tag is named in the tool.",
+        "description": "Every workflow is a candidate branch of the one tree. Takes parts: the parts of one seed, each an object of its typed fields (for example kinds, subjects, people, niches, own_words; the fields are whatever the conditions read). Reads every workflow row the person has (their list of workflows under each type arrivals/recipe-row-types.json lists) and every recipe this Workshop installs; when both hold an id the person's row wins, and when it holds no conditions the installed recipe's are used. Each workflow's conditions are its fires_when (branches/fires-when.json): a list of { label, condition: { fields, tree }, made_by, state }, the same fields and tree tool:filter-rows-by-rules takes, evaluated by the same formulas engine over the parts. Answers chosen (one row per workflow, part and condition that kept it, ranked within each part by specificity: score is the sum over the tags or rules the part met of log(workflows with a condition / workflows holding that tag), times the condition's measured weight, rank 1 best), broad (conditions that kept more than half of the parts, to be rewritten), unfinished (conditions with a rule the engine cannot evaluate or no rule at all, which choose nothing), unconditioned (workflows with no condition On, by id and label, to be judged by their words), unmatched_parts and the counts. Nothing is written; no workflow, branch or tag is named in the tool.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -288,7 +288,8 @@
             "chosen",
             "unfinished",
             "unconditioned",
-            "unmatched_parts"
+            "unmatched_parts",
+            "broad"
           ],
           "properties": {
             "workflows": {
@@ -333,6 +334,21 @@
                   },
                   "from": {
                     "type": "string"
+                  },
+                  "matched": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "weight": {
+                    "type": "number"
+                  },
+                  "score": {
+                    "type": "number"
+                  },
+                  "rank": {
+                    "type": "integer"
                   }
                 }
               }
@@ -367,6 +383,12 @@
               "type": "array",
               "items": {
                 "type": "integer"
+              }
+            },
+            "broad": {
+              "type": "array",
+              "items": {
+                "type": "object"
               }
             }
           }

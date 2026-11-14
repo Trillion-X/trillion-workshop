@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:52afe269d9350cc46ec23d9e830e58ec034f254fd33033f5fbd7c74858874446"
+  "blake3": "1f:ed25360b91781b817183fae029479f173ded41a9fe0081913254963fbc0afc47"
  },
  "fields": [
   {
@@ -2221,6 +2221,21 @@
    }
   },
   {
+   "id": "tool:check-someone-is-in-a-space",
+   "values": {
+    "title": "Check someone is in a space",
+    "job": "Say whether a person is a member of a shared space right now, and why not when they are not",
+    "description": "The one answer to whether a person is a member now. It reads the space's join rows, the person's member row and what they hold now (paid-access), and answers member true or false with a state: member, lapsed (their access ended; they are members again the moment it holds), left, removed or none, plus the reason in words and their type and how they came in. A person who holds the access again after a refund is a member again with nothing written in between.",
+    "status": "active",
+    "maker": "maker:space-members",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "space-members"
+   }
+  },
+  {
    "id": "tool:check-takes-are-complete-with-a-small-local-model",
    "values": {
     "title": "Check whether my spoken takes are complete with a small model (runs on your computer)",
@@ -2485,11 +2500,26 @@
    }
   },
   {
+   "id": "tool:choose-the-name-i-show-in-a-space",
+   "values": {
+    "title": "Choose the name I show in a space",
+    "job": "Let a member choose the name other members read for them in one shared space",
+    "description": "Sets the name on the person's own member row, at most 80 characters. Only a current member may. Members read this name and nothing else about them; their contact is never shown.",
+    "status": "active",
+    "maker": "maker:space-members",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "space-members"
+   }
+  },
+  {
    "id": "tool:choose-the-workflows-that-fire",
    "values": {
     "title": "Choose which of my workflows fire for these parts of a seed",
     "job": "Say which of all my workflows, and the Workshop's I have installed, fire for each part of something that arrived, from the conditions each workflow carries on its own row",
-    "description": "Every workflow is a candidate branch of the one tree. Takes parts: the parts of one seed, each an object of its typed fields (for example kinds, subjects, people, niches, own_words; the fields are whatever the conditions read). Reads every workflow row the person has (their list of workflows under each type arrivals/recipe-row-types.json lists) and every recipe this Workshop installs; when both hold an id the person's row wins, and when it holds no conditions the installed recipe's are used. Each workflow's conditions are its fires_when (branches/fires-when.json): a list of { label, condition: { fields, tree }, made_by, state }, the same fields and tree tool:filter-rows-by-rules takes, evaluated by the same formulas engine over the parts. Answers chosen (one row per workflow, part and condition that kept it), unfinished (conditions with a rule the engine cannot evaluate or no rule at all, which choose nothing), unconditioned (workflows with no condition On, by id and label, to be judged by their words), unmatched_parts and the counts. Nothing is written; no workflow, branch or tag is named in the tool.",
+    "description": "Every workflow is a candidate branch of the one tree. Takes parts: the parts of one seed, each an object of its typed fields (for example kinds, subjects, people, niches, own_words; the fields are whatever the conditions read). Reads every workflow row the person has (their list of workflows under each type arrivals/recipe-row-types.json lists) and every recipe this Workshop installs; when both hold an id the person's row wins, and when it holds no conditions the installed recipe's are used. Each workflow's conditions are its fires_when (branches/fires-when.json): a list of { label, condition: { fields, tree }, made_by, state }, the same fields and tree tool:filter-rows-by-rules takes, evaluated by the same formulas engine over the parts. Answers chosen (one row per workflow, part and condition that kept it, ranked within each part by specificity: score is the sum over the tags or rules the part met of log(workflows with a condition / workflows holding that tag), times the condition's measured weight, rank 1 best), broad (conditions that kept more than half of the parts, to be rewritten), unfinished (conditions with a rule the engine cannot evaluate or no rule at all, which choose nothing), unconditioned (workflows with no condition On, by id and label, to be judged by their words), unmatched_parts and the counts. Nothing is written; no workflow, branch or tag is named in the tool.",
     "status": "active",
     "maker": "maker:workflows",
     "licence_class": "licence:maker-own",
@@ -5358,6 +5388,21 @@
    }
   },
   {
+   "id": "tool:join-a-space",
+   "values": {
+    "title": "Join a space",
+    "job": "Let a person join a shared space by the way its join rows allow: free, or by holding the access a row names",
+    "description": "Reads the space's record:space row and the person's record:space-member row. A person already in is answered with their type and how they came in, and nothing is written. Otherwise the space's config.join rows decide, as data: a row {free:true} lets anyone in, a row {access:\"<ref>\"} lets in a person who holds that access now (worked out by the paid-access reader over your payment events, offers and grants), and a space with no join rows is joined only by invitation (a person gets in by accepting one). A person who left may join again; a person a host put out stays out. The new member gets the type the space's label starts joiners with (or config.joins_as) and may give the name they will show with name. Answers whether they joined, their type and which row let them in; a refusal says how the space is joined, in the space's own words (config.words) or the standard ones.",
+    "status": "active",
+    "maker": "maker:space-members",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "space-members"
+   }
+  },
+  {
    "id": "tool:join-a-waitlist",
    "values": {
     "title": "Join a waitlist",
@@ -5786,6 +5831,21 @@
    }
   },
   {
+   "id": "tool:keep-who-appeared",
+   "values": {
+    "title": "Keep who appeared in a recording",
+    "job": "Link each person whose voice was heard or face seen in a recording to that recording, the seconds and the place, as rows in the person's list of where people appeared",
+    "description": "Takes what tool:who-is-in-this answered (heard) and what tool:find-faces answered (seen) about one recording and keeps one row per stretch in the person's Where people appeared list: who, heard or seen, recording, start and end seconds, the words said, the place it was recorded, and the person's own row when given. A person is named only when the answer named them, and only while their voice-print or face-print still exists with consent words: a print taken out refuses the keep. An unsure stretch keeps the people it could be and an unknown voice keeps its number, so enrolling that voice later names what was kept; a face nobody enrolled is not kept. Keeping the same answer again changes nothing; a changed answer marks the rows it replaces superseded and deletes none. No row holds a print's numbers: the voice-print and face-print record kinds are stays_on_this_device: true and are only read here, to check consent.",
+    "status": "active",
+    "maker": "maker:know-who-is-in-this",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "know-who-is-in-this"
+   }
+  },
+  {
    "id": "tool:label-video-frames-with-small-local-models",
    "values": {
     "title": "Label frames of my videos with a small model on my computer (runs on your computer)",
@@ -5864,6 +5924,21 @@
    }
   },
   {
+   "id": "tool:leave-a-space",
+   "values": {
+    "title": "Leave a space",
+    "job": "Let a member leave a shared space; what they put there stays",
+    "description": "Marks the person's record:space-member row left and stamps when. Leaving a space the person is not in changes nothing. The person who runs the space cannot leave it: hand it over first. They may join again later by the space's join rows.",
+    "status": "active",
+    "maker": "maker:space-members",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "space-members"
+   }
+  },
+  {
    "id": "tool:let_go_of_site_address",
    "values": {
     "title": "Let go of a site address",
@@ -5938,6 +6013,21 @@
      "placement:your-computer"
     ],
     "folder": "connected-drives"
+   }
+  },
+  {
+   "id": "tool:list-a-spaces-members",
+   "values": {
+    "title": "List a space's members",
+    "job": "List who is in a shared space, by the name each chose to show, with their type; only members may ask",
+    "description": "Lists the space's record:space-member rows: each person's id, the name they chose to show (never a contact), their member type and its label, and whether they count now (the same reader as tool:check-someone-is-in-a-space, over one read of what people hold). Only a current member may ask; anyone else is refused in the space's words. include_ended true also lists people who left, were put out or lapsed.",
+    "status": "active",
+    "maker": "maker:space-members",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "space-members"
    }
   },
   {
@@ -14228,6 +14318,21 @@
      "placement:small-container"
     ],
     "folder": "what-is-waiting-on-me"
+   }
+  },
+  {
+   "id": "tool:where-someone-appeared",
+   "values": {
+    "title": "Where someone appeared",
+    "job": "List every recording and time where a person was heard or seen, or every person kept for a recording, from the person's list of where people appeared",
+    "description": "Reads the person's Where people appeared list: give a person id, a recording, or words (a name, a place, a spoken word) and it answers each row in recording order, with the people and the recordings those rows name and how many rows each has. Rows a later keep replaced are left out unless include_superseded is true. A read only: it changes nothing and reads no voice or face numbers.",
+    "status": "active",
+    "maker": "maker:know-who-is-in-this",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "know-who-is-in-this"
    }
   },
   {

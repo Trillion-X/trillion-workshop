@@ -22,6 +22,7 @@ export function conditionProblems(conditions, where = FIRES_WHEN.field) {
     if (!object(item) || typeof item.label !== 'string' || !item.label.trim()) { problems.push(`${name} must have a label saying the condition in words.`); return; }
     if (!object(item.condition) || !Array.isArray(item.condition.fields) || !object(item.condition.tree)) { problems.push(`${name}.condition must be { fields, tree } as tool:filter-rows-by-rules takes them.`); return; }
     if (typeof item.made_by !== 'string' || !item.made_by) problems.push(`${name}.made_by must say who wrote the condition.`);
+    if (item.weight !== undefined && !(typeof item.weight === 'number' && item.weight >= 0 && item.weight <= 1)) problems.push(`${name}.weight must be the measured share of its runs that ended done, from 0 to 1.`);
     let answer;
     try { answer = filterRecords({ records: [], fields: item.condition.fields, tree: item.condition.tree }); } catch (error) { problems.push(`${name}.condition is refused: ${error.message}`); return; }
     if (answer.incomplete.length) problems.push(`${name}.condition has unfinished rules: ${JSON.stringify(answer.incomplete)}.`);

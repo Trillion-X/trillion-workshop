@@ -54,34 +54,94 @@ async function ownWorkflows(door) {
   return byId;
 }
 
+// The rules a condition holds, each as the key its rarity is counted under: a rule with a list of values gives one key
+// per value (a tag), any other rule one key for itself; a field is named by its path, so two conditions that read the
+// same place share keys.
+function ruleLeaves(condition) {
+  const pathOf = new Map(condition.fields.map(field => [field.id, JSON.stringify(field.path ?? [field.id])]));
+  const leaves = [];
+  const walk = node => {
+    if (node?.kind === 'group') { if (!node.negate) node.rules.forEach(walk); return; }
+    if (node?.kind !== 'rule') return;
+    const at = pathOf.get(node.field);
+    const values = Array.isArray(node.params?.values) ? node.params.values : null;
+    leaves.push({ rule: node, keys: values ? values.map(value => `${at}|${node.operator}|${JSON.stringify(value)}`) : [`${at}|${node.operator}|${JSON.stringify(node.params ?? null)}`], values });
+  };
+  walk(condition.tree);
+  return leaves;
+}
+
+const valueAt = (record, path) => path.reduce((value, key) => (value == null ? undefined : value[key]), record);
+
+// The keys of one condition that this part meets: a value rule by the values the part holds, any other rule when the
+// formulas engine says it holds for the part alone.
+function metKeys(condition, part, operators) {
+  const met = [];
+  for (const { rule, keys, values } of ruleLeaves(condition)) {
+    if (!filterRecords({ records: [part], fields: condition.fields, tree: rule, ...(operators ? { operators } : {}) }).matches.length) continue;
+    if (!values) { met.push(...keys); continue; }
+    const field = condition.fields.find(item => item.id === rule.field);
+    const held = [valueAt(part, field.path ?? [field.id])].flat();
+    values.forEach((value, at) => { if (held.includes(value)) met.push(keys[at]); });
+  }
+  return met;
+}
+
 export async function chooseTheWorkflowsThatFire(input = {}, { door }) {
   const { parts, operators } = input;
   if (!Array.isArray(parts) || !parts.length || !parts.every(object)) throw new Error('parts must be a list of the seed\'s parts, each an object of its typed fields.');
   const catalog = catalogRecipes();
   const own = await ownWorkflows(door);
   const ids = [...new Set([...own.keys(), ...catalog.keys()])].sort();
-  const chosen = [], unfinished = [], unconditioned = [];
+  const matches = [], unfinished = [], unconditioned = [];
+  // How many workflows hold each rule key, over every live condition: the rarer a key, the more a match on it says.
+  const holders = new Map();
+  let conditioned = 0;
   for (const workflow of ids) {
     const mine = own.get(workflow), shipped = catalog.get(workflow);
     const label = mine?.label ?? shipped?.label;
     const [conditions, from] = mine?.conditions !== undefined ? [mine.conditions, 'own'] : [shipped?.conditions, mine ? 'catalog-condition' : 'catalog'];
     const live = (Array.isArray(conditions) ? conditions : []).filter(item => !FIRES_WHEN.off_states.includes(item?.state));
     if (!live.length) { unconditioned.push({ workflow, label }); continue; }
+    const keys = new Set();
     for (const item of live) {
       const wrong = conditionProblems([item], `${workflow} ${FIRES_WHEN.field}`);
       if (wrong.length) { unfinished.push({ workflow, condition: item?.label ?? null, incomplete: wrong }); continue; }
+      ruleLeaves(item.condition).forEach(leaf => leaf.keys.forEach(key => keys.add(key)));
       const answer = filterRecords({ records: parts, fields: item.condition.fields, tree: item.condition.tree, ...(operators ? { operators } : {}) });
-      for (const part of answer.matches) chosen.push({ workflow, label, part, condition: item.label, made_by: item.made_by, from });
+      for (const part of answer.matches) matches.push({ workflow, label, part, item, from });
     }
+    if (keys.size) conditioned += 1;
+    keys.forEach(key => holders.set(key, (holders.get(key) ?? 0) + 1));
   }
-  const routed = new Set(chosen.map(item => item.part));
+  // Specificity: the sum over the rule keys a part met of log(conditioned workflows / workflows holding that key), times the
+  // condition's weight (its measured share of runs that ended done, written by learn-and-prune; 1 before any run).
+  const chosen = matches.map(({ workflow, label, part, item, from }) => {
+    const matched = metKeys(item.condition, parts[part], operators);
+    const weight = typeof item.weight === 'number' ? item.weight : 1;
+    const score = weight * matched.reduce((sum, key) => sum + Math.log(conditioned / (holders.get(key) ?? conditioned)), 0);
+    return { workflow, label, part, condition: item.label, made_by: item.made_by, from, matched, weight, score: Number(score.toFixed(6)) };
+  }).sort((a, b) => a.part - b.part || b.score - a.score || (a.workflow < b.workflow ? -1 : 1));
+  // A condition that keeps more than half of the parts it is shown says nothing about which work a part is: it is named in
+  // broad so learn-and-prune rewrites it around the one situation its workflow is for.
+  const kept = new Map();
+  for (const { workflow, item, part } of matches) {
+    const key = `${workflow}\u0000${item.label}`;
+    if (!kept.has(key)) kept.set(key, { workflow, condition: item.label, parts: new Set() });
+    kept.get(key).parts.add(part);
+  }
+  const broad = parts.length < 2 ? [] : [...kept.values()].filter(entry => entry.parts.size * 2 > parts.length)
+    .map(entry => ({ workflow: entry.workflow, condition: entry.condition, kept_parts: entry.parts.size, of: parts.length }));
+  const rankOf = new Map();
+  for (const item of chosen) { item.rank = (rankOf.get(item.part) ?? 0) + 1; rankOf.set(item.part, item.rank); }
   return {
     workflows: ids.length,
     own: own.size,
     catalog_only: ids.filter(id => !own.has(id)).length,
     chosen,
     unfinished,
+    broad,
     unconditioned,
-    unmatched_parts: parts.map((_, at) => at).filter(at => !routed.has(at)),
+    unmatched_parts: parts.map((_, at) => at).filter(at => !rankOf.has(at)),
   };
 }

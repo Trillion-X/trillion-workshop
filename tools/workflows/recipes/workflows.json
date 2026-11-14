@@ -879,6 +879,43 @@
         "source": {
           "from": "a method a person repeated across their work"
         },
+        "fires_when": [
+          {
+            "label": "someone has an author's book, notes or conversation to turn into a framework",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "framework-request",
+                        "shared-material"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "sources",
@@ -1101,6 +1138,43 @@
         "source": {
           "from": "the product's own behaviour"
         },
+        "fires_when": [
+          {
+            "label": "someone has processes, skills, checklists or tools on a computer or agent to bring in",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "process-to-document",
+                        "skill-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "inventory",
@@ -1652,6 +1726,42 @@
           "name": "Comparison pages answer engines cite: structured tables, vendors scored on verifiable proof, sponsored placement kept apart",
           "note": "Adopted: one comparison per category and buyer; a structured, proof-linked table and FAQ in the served HTML with ItemList and FAQPage data, so an answer engine can quote and cite it; vendors scored by a vendor proof row of rules for tool:classify-a-record (a metric with no public proof is null and never counts); sponsored placement as a labelled block with its disclosure and rel=\"sponsored\" links; the hand-off to workflow:keep-pages-cited-by-answer-engines and a dated proof recheck. Not adopted: letting a sponsor change a score, a rank or the quotable answer; scores from a vendor's unlabelled own claims; ranking by commission; and any metric no one else can check."
         },
+        "fires_when": [
+          {
+            "label": "someone wants a best-X-for-Y comparison that answer engines cite",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "seo-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "scope",
@@ -2368,6 +2478,43 @@
           "from": "business-on-trillion meta-workflow, generic and public",
           "note": "Middle of funnel. Live tools: check-copy, copy-a-site, publish_site, name_site, attach_domain, critique-a-public-page. DNS is set by the person at their DNS host."
         },
+        "fires_when": [
+          {
+            "label": "someone wants a landing page written, published and given a domain",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "landing-page-request",
+                        "business-setup"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read-facts",
@@ -2776,6 +2923,42 @@
           "from": "the product's own behaviour",
           "note": "Orders go through the person's own accounts, after one tap with the price."
         },
+        "fires_when": [
+          {
+            "label": "a plan needs supplies or gear bought and delivered or ready for pickup",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "purchase-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "find",
@@ -2867,6 +3050,43 @@
         "source": {
           "from": "a method a person repeated across their work"
         },
+        "fires_when": [
+          {
+            "label": "someone has a decision to make and wants it weighed against their life areas",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "decision-to-make",
+                        "life-map-question"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read",
@@ -3057,6 +3277,42 @@
           "from": "a method a person repeated across their work",
           "note": "Several different answers become one checked meta-analysis. Nothing here names a subject, field or person."
         },
+        "fires_when": [
+          {
+            "label": "several answers to the same question exist and must become one",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "research-question"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "collect",
@@ -3327,6 +3583,42 @@
         "source": {
           "from": "a person whose AIs on a computer, in web chats, on a phone and in services each kept separate memories, and whose files on one computer could not be written by the AIs anywhere else"
         },
+        "fires_when": [
+          {
+            "label": "someone wants all their AIs to share one memory list",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "credential-setup"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "the-list",
@@ -3746,6 +4038,43 @@
           "from": "a method a person repeated across their work",
           "note": "Familiar concepts are conclusions to investigate, not premises to inherit; show the derivation; force no framework the evidence does not justify. Nothing here names a subject, field or person."
         },
+        "fires_when": [
+          {
+            "label": "a subject is not yet understood and must be observed before its dimensions or goals are set",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "research-question",
+                        "first-principles-question"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "observe",
@@ -3979,6 +4308,76 @@
           "from": "the product's own behaviour",
           "note": "Any sentence that has the person doing something becomes a row first, so it reaches every device, explains itself and gets louder until it is done, instead of sitting in one chat. Every plan passes through this before a person sees it. It also holds the earlier workflow \"Do it for me\", which had the same first three steps. Names tools that no tool in the Workshop offers yet: tool:take-me-there, tool:what-can-trillion-do, tool:what-is-waiting-on-me, tool:who-does-each-step."
         },
+        "fires_when": [
+          {
+            "label": "a step only the person can do: a device in their hand, a payment, a signature, a decision between their own rules",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "only-the-person-can-do"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "rewritten",
+            "state": "On",
+            "evidence": "Rewritten on 2026-11-13 (lane every-workflow-is-a-branch): the earlier condition kept 13 or 14 of 14 parts of four ordinary seeds no one aimed, so it said nothing about which work a part is; the condition now requires the one situation this workflow is for."
+          },
+          {
+            "label": "a sentence or plan has the person doing something",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "person-task"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "Off",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words. Retired 2026-11-13: it kept most parts of four ordinary seeds no one aimed (rewritten in place by lane every-workflow-is-a-branch)."
+          }
+        ],
         "steps": [
           {
             "id": "steps",
@@ -4561,6 +4960,44 @@
             "input": {
               "start_at": "map-niche"
             }
+          }
+        ],
+        "fires_when": [
+          {
+            "label": "someone wants to know which short-video formats sell an app in its category",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "video-request",
+                        "app-idea",
+                        "research-question"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
           }
         ],
         "steps": [
@@ -5535,6 +5972,43 @@
           "from": "a method a person repeated across their work",
           "note": "Names tools that no tool in the Workshop offers yet: tool:find-action-moments, tool:find-scene-changes, tool:pick-cover-frame, tool:who-is-in-this."
         },
+        "fires_when": [
+          {
+            "label": "someone has a recording and wants its useful moments found",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "long-recording",
+                        "content-idea"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "inspect",
@@ -5738,6 +6212,42 @@
         "source": {
           "from": "a method a person repeated across their work"
         },
+        "fires_when": [
+          {
+            "label": "someone's own way of dividing their life is needed before a default map is used",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "life-map-question"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "look",
@@ -5925,6 +6435,41 @@
         },
         "fires_when": [
           {
+            "label": "a seed names a niche, or a gap in a market worth exploring",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "niche",
+                        "market-gap"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "rewritten",
+            "state": "On",
+            "evidence": "Rewritten on 2026-11-13 (lane every-workflow-is-a-branch): the earlier condition kept 13 or 14 of 14 parts of four ordinary seeds no one aimed, so it said nothing about which work a part is; the condition now requires the one situation this workflow is for."
+          },
+          {
             "label": "a seed names a field or niche",
             "condition": {
               "fields": [
@@ -5967,8 +6512,8 @@
               }
             },
             "made_by": "fires_when",
-            "state": "On",
-            "evidence": "Moved onto this workflow's own row from list tree-branches row record:tree-branches:find-unexplored-ground and list tree-branch-conditions row record:tree-branch-conditions:find-unexplored-ground--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch)."
+            "state": "Off",
+            "evidence": "Moved onto this workflow's own row from list tree-branches row record:tree-branches:find-unexplored-ground and list tree-branch-conditions row record:tree-branch-conditions:find-unexplored-ground--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch). Retired 2026-11-13: it kept most parts of four ordinary seeds no one aimed (rewritten in place by lane every-workflow-is-a-branch)."
           }
         ],
         "steps": [
@@ -6211,6 +6756,43 @@
           "from": "a method a person repeated across their work",
           "note": "Runs on any person's own map."
         },
+        "fires_when": [
+          {
+            "label": "someone asks which areas of life their pursuits ignore",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "life-map-question",
+                        "framework-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read",
@@ -6455,6 +7037,42 @@
           "from": "a method a person repeated across their work",
           "note": "Nothing here names a person, product or field: an athlete, a sales team, an AI agent and a delivery route run the same steps."
         },
+        "fires_when": [
+          {
+            "label": "a person, team, AI or system keeps failing to get a result",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "process-complaint"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "stages",
@@ -8123,6 +8741,43 @@
             }
           }
         ],
+        "fires_when": [
+          {
+            "label": "people commented, replied or signed up from the person's posts",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "new-comments",
+                        "lead-generation"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read-engagement",
@@ -8624,6 +9279,43 @@
           "name": "Answer engines read the HTML a page is served with; measure the result in the engines' own answers",
           "note": "Not adopted: writing pages for engines instead of readers, or asking an engine the same question many times to push a page up. The check rows are the person's to change; the tool takes its own rows as input. tools/workflows/recipes/keep-pages-cited-by-answer-engines.json is the companion that keeps the facts on cited pages fresh."
         },
+        "fires_when": [
+          {
+            "label": "someone wants their site found in search and answer engines",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "seo-request",
+                        "landing-page-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "list-pages",
@@ -9426,6 +10118,43 @@
           "name": "Nicholas Dulait, X post of 2026-10-29: warm up a Reddit account for 3 days before the first post",
           "note": "His claims, not checked here: 10 of his 12 Reddit posts went over 50K views, and the best one reached 168K. His method has 5 steps: (1) create the account with an email that is a few months old, (2) hide profile activity (Settings > Profile > Content and activity > Hide all), (3) reach at least 10 karma, (4) pick 5 subreddits that Google ranks for your best keywords, not by size, (5) for 3 days leave 1 useful comment in each of the 5 subreddits on a post from the last few hours that is gaining traction (15 comments, no self-promotion), then read every rule in the sidebar before each post. Steps 3, 4 and 5 and the rules reading are the steps of this workflow. NOT ADOPTED, with the reason: (1) using a months-old email so the account is not flagged as spam is evading spam detection, so this workflow does not use an email's age to get past a spam filter; (2) hiding profile activity so other Redditors cannot see the account is marketing conceals commercial intent, so this workflow leaves the profile as it is. The honest version is in the post steps: disclose the person's affiliation with the product wherever a subreddit's rules or Reddit's content policy require it."
         },
+        "fires_when": [
+          {
+            "label": "someone wants to grow on Reddit for a product without selling at first",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "social-growth",
+                        "keyword-offer-post"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "account",
@@ -10963,6 +11692,42 @@
             }
           }
         ],
+        "fires_when": [
+          {
+            "label": "a seed such as a thought, note, email or finding arrives and needs a tree of tasks and workflows",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "seed"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "plant-the-seed",
@@ -11002,7 +11767,7 @@
           {
             "id": "choose-branches",
             "title": "Choose the workflows that fire",
-            "do": "First take the seed apart: one seed is often a mix (ideas, material for content, journal, instructions to the AI, a question, a claim) and is never judged as one thing. Split its words into the parts it really holds, each part keeping its own words word for word and its position in the seed. Give each part its typed fields: kinds (tags), subjects (tags), people (tags), niches (tags, with input.niches where they fit) and own_words (true when the words are the person's own); a part may carry other fields too, whatever the conditions read. Then the engine chooses, not you: call tool:choose-the-workflows-that-fire with parts = the typed parts. It reads every workflow the person has and every one the Workshop installs (their own row wins) and evaluates each workflow's own conditions (its fires_when, the {fields, tree} of tool:filter-rows-by-rules) over the parts. Every row of its chosen fires that workflow for that part. Its unfinished conditions choose nothing and are named in the answer. The tags the conditions name are the words to tag kinds with first: when its answer keeps a part nowhere, look whether a kind the conditions use fits the part's words, retag and call it again. Only for a part still unmatched, read the unconditioned workflows (by id and label; tools:list or records:read for a job you need) and the labels of the conditions that exist, and judge which workflow does what the part asks, never workflow:grow-the-one-tree itself. When one does, choose it and write your judgment back onto that workflow's own row: a condition {label: why it fits in one line, condition: the smallest {fields, tree} over this part's fields that keeps it, made_by: \"ai-judgment\", state: \"On\", evidence: the part's words and this run} added to the row's fires_when list (records:write at @own-records of the person's own row record:workflow-recipe:<slug>; when the workflow is only installed from the Workshop, a row with only {recipe, fires_when}, which adds the condition and leaves the installed steps in use). Run the condition through tool:filter-rows-by-rules on the part before writing it, so it keeps the part. Each chosen workflow runs with input.agents_per_step under its id when given, else 1; the agents number of each of its steps holds inside it. Write one child task per chosen workflow and part under the root, naming the part, the workflow and the condition that chose it. A part no workflow meets is kept as a row in list findings with its words, never dropped.",
+            "do": "First take the seed apart: one seed is often a mix (ideas, material for content, journal, instructions to the AI, a question, a claim) and is never judged as one thing. Split its words into the parts it really holds, each part keeping its own words word for word and its position in the seed. Give each part its typed fields: kinds (tags), subjects (tags), people (tags), niches (tags, with input.niches where they fit) and own_words (true when the words are the person's own); a part may carry other fields too, whatever the conditions read. Then the engine chooses, not you: call tool:choose-the-workflows-that-fire with parts = the typed parts. It reads every workflow the person has and every one the Workshop installs (their own row wins) and evaluates each workflow's own conditions (its fires_when, the {fields, tree} of tool:filter-rows-by-rules) over the parts. Its chosen comes ranked within each part by specificity (score: the rarer across all workflows the tags a part met, the higher, times each condition's measured weight; rank 1 is best). For each part start the top-ranked workflows, as many as the run's agents number for fan-out (input.agents_per_step under fan-out, else that step's agents, else 1); the others stay on the part's child task as ranked alternatives. Its broad names each condition that kept more than half of the parts: rewrite it onto its workflow's own row around the one situation that workflow is for. Its unfinished conditions choose nothing and are named in the answer. The tags the conditions name are the words to tag kinds with first: when its answer keeps a part nowhere, look whether a kind the conditions use fits the part's words, retag and call it again. Only for a part still unmatched, read the unconditioned workflows (by id and label; tools:list or records:read for a job you need) and the labels of the conditions that exist, and judge which workflow does what the part asks, never workflow:grow-the-one-tree itself. When one does, choose it and write your judgment back onto that workflow's own row: a condition {label: why it fits in one line, condition: the smallest {fields, tree} over this part's fields that keeps it, made_by: \"ai-judgment\", state: \"On\", evidence: the part's words and this run} added to the row's fires_when list (records:write at @own-records of the person's own row record:workflow-recipe:<slug>; when the workflow is only installed from the Workshop, a row with only {recipe, fires_when}, which adds the condition and leaves the installed steps in use). Run the condition through tool:filter-rows-by-rules on the part before writing it, so it keeps the part. Each chosen workflow runs with input.agents_per_step under its id when given, else 1; the agents number of each of its steps holds inside it. Write one child task per chosen workflow and part under the root, naming the part, the workflow and the condition that chose it. A part no workflow meets is kept as a row in list findings with its words, never dropped.",
             "submit": {
               "type": "object",
               "required": [
@@ -11140,7 +11905,7 @@
           {
             "id": "fan-out",
             "title": "Run every chosen branch",
-            "do": "For each chosen workflow call tool:start-a-recipe-run with row: that workflow and an input made from the seed, the owner, the visibility and input.agents_per_step (passed on as it is, so its numbers reach the branch's own steps). Start as many runs as its chosen agents number says: each run is one agent and writes its own rows. A larger number is the same step with more runs (this is also how a simulation runs); there is no separate engine. Keep each run id on its child task. A branch whose source tool is refused takes its fallback in the same run, never a wait: for YouTube captions and comments that is the treg route written in workflow:answer-commenters-with-videos step keep-posts-and-comments. A branch that is blocked with no fallback written (a refusal, a missing tool, a step waiting on a person past its due time) heals instead of stopping: find another path to the same output among the workflows and tools that exist; when an existing workflow is that path, add a condition choosing it for this kind of part to its own row's fires_when, and when none is, write the path as a new workflow row (record:workflow-recipe:<slug> with its record:workflow-step rows and a fires_when condition {label: when it is taken, condition, made_by: \"healing\", state: \"On\", evidence: the block it went round, with the run}); then run it in this pass. Name the healed workflow in the answer.",
+            "do": "For each workflow choose-branches started for a part (its top-ranked ones) call tool:start-a-recipe-run with row: that workflow and an input made from the seed, the owner, the visibility and input.agents_per_step (passed on as it is, so its numbers reach the branch's own steps). Start as many runs as its chosen agents number says: each run is one agent and writes its own rows. A larger number is the same step with more runs (this is also how a simulation runs); there is no separate engine. Keep each run id on its child task. A branch whose source tool is refused takes its fallback in the same run, never a wait: for YouTube captions and comments that is the treg route written in workflow:answer-commenters-with-videos step keep-posts-and-comments. A branch that is blocked with no fallback written (a refusal, a missing tool, a step waiting on a person past its due time) heals instead of stopping: find another path to the same output among the workflows and tools that exist; when an existing workflow is that path, add a condition choosing it for this kind of part to its own row's fires_when, and when none is, write the path as a new workflow row (record:workflow-recipe:<slug> with its record:workflow-step rows and a fires_when condition {label: when it is taken, condition, made_by: \"healing\", state: \"On\", evidence: the block it went round, with the run}); then run it in this pass. Name the healed workflow in the answer.",
             "submit": {
               "type": "object",
               "required": [
@@ -11537,7 +12302,7 @@
           {
             "id": "learn-and-prune",
             "title": "Feed learnings back and prune",
-            "do": "Run workflow:read-the-week-and-make-more-of-what-won. Write what it learned as rows, over every workflow, not a chosen few: a new condition on a workflow's own row (its fires_when) when a kind of part should reach it and did not, the agents numbers of its steps when its measured results say it is worth more or less width, and the voice. Prune and weigh only by measured outcome rows: a condition whose runs failed three times (their child tasks blocked, or their outputs measured worse in list cost-measurements and the post numbers) is retired: keep it on the row, set its state Off and write the reasons with the run ids. Every day also retrain the writing on real results: read the person's edits to what was written for him with tool:keep-a-voice-edit and tool:find-repeated-voice-edits, save the repeated ones with tool:save-voice, and read the day's numbers with tool:see-how-each-post-did, so the next outline or script starts from what worked.",
+            "do": "Run workflow:read-the-week-and-make-more-of-what-won. Write what it learned as rows, over every workflow, not a chosen few: a new condition on a workflow's own row (its fires_when) when a kind of part should reach it and did not, the agents numbers of its steps when its measured results say it is worth more or less width, and the voice. Write each condition's weight onto its workflow's row (fires_when) as the measured share of its runs whose child tasks ended Done, so a branch whose runs fail or are pruned ranks lower; rewrite every condition the chooser named broad. Prune and weigh only by measured outcome rows: a condition whose runs failed three times (their child tasks blocked, or their outputs measured worse in list cost-measurements and the post numbers) is retired: keep it on the row, set its state Off and write the reasons with the run ids. Every day also retrain the writing on real results: read the person's edits to what was written for him with tool:keep-a-voice-edit and tool:find-repeated-voice-edits, save the repeated ones with tool:save-voice, and read the day's numbers with tool:see-how-each-post-did, so the next outline or script starts from what worked.",
             "submit": {
               "type": "object",
               "properties": {
@@ -11754,7 +12519,77 @@
             }
           ],
           "edges": []
-        }
+        },
+        "fires_when": [
+          {
+            "label": "an item asks for work that another AI should take",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "for-another-ai"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "rewritten",
+            "state": "On",
+            "evidence": "Rewritten on 2026-11-13 (lane every-workflow-is-a-branch): the earlier condition kept 13 or 14 of 14 parts of four ordinary seeds no one aimed, so it said nothing about which work a part is; the condition now requires the one situation this workflow is for."
+          },
+          {
+            "label": "an item arrives that another AI should take, such as a note, memo, email, message or comment",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "person-task"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "Off",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words. Retired 2026-11-13: it kept most parts of four ordinary seeds no one aimed (rewritten in place by lane every-workflow-is-a-branch)."
+          }
+        ]
       }
     },
     {
@@ -11788,6 +12623,42 @@
           "from": "the product's own behaviour",
           "note": "Hiring goes through real accounts in the person's name; the AI never pretends to be a person and shows the cost first. Names tools that no tool in the Workshop offers yet: tool:hold-to-it, tool:send-an-email."
         },
+        "fires_when": [
+          {
+            "label": "a step needs someone physically present, such as an errand or task",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "purchase-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "task",
@@ -11890,6 +12761,43 @@
           "from": "the product's own behaviour",
           "note": "A group agrees to an idea (a daily meeting, say) and nothing happens: agreeing and then not doing it is the failure this workflow ends. Runs through tool:hold-to-it; the person's own AI reads the words and no model is paid for by the host. Names tools that no tool in the Workshop offers yet: tool:hold-to-it."
         },
+        "fires_when": [
+          {
+            "label": "agreements were made in a meeting, message or transcript and need to be tracked",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "promise",
+                        "meeting-notes"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "find",
@@ -14467,6 +15375,42 @@
         "source": {
           "from": "the product's own behaviour"
         },
+        "fires_when": [
+          {
+            "label": "someone asks to look up the people, customers or things they work with",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "research-question"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read",
@@ -14593,6 +15537,43 @@
           "from": "the product's own behaviour",
           "note": "The person is led by the hand: never only told what to do. The last step runs tool:take-me-there. Names tools that no tool in the Workshop offers yet: tool:take-me-there, tool:what-is-waiting-on-me."
         },
+        "fires_when": [
+          {
+            "label": "the person asks what to do next or what needs them most",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "what-next-question",
+                        "pursuit-start"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "pick",
@@ -14780,6 +15761,43 @@
           "from": "the product's own behaviour",
           "note": "Use this account's sources for identity and facts. A machine username or folder name is never identity evidence."
         },
+        "fires_when": [
+          {
+            "label": "a new fact about the person arrives, or their profile needs building or refreshing",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "notes",
+                        "framework-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read",
@@ -15107,6 +16125,42 @@
           "from": "business-on-trillion meta-workflow, generic and public",
           "note": "After the sale. Live tools: write-legal-documents, publish_site. There is no live support-inbox tool. Legal text is not legal advice and is marked as not reviewed by a lawyer."
         },
+        "fires_when": [
+          {
+            "label": "a site needs terms, privacy and refund pages and a support address",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "business-setup"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read-facts",
@@ -15374,6 +16428,76 @@
           "from": "the product's own behaviour",
           "note": "A lock-in protocol run before, during and after a session, from the person's main pursuit and calendar, with focus on, distracting apps closed and spaced practice after. Runs through tool:hold-a-device-quiet, tool:focus, tool:practice and tool:hold-to-it; the person's own AI does the reading. Names tools that no tool in the Workshop offers yet: tool:focus, tool:hold-a-device-quiet, tool:hold-to-it, tool:practice, tool:release-a-device."
         },
+        "fires_when": [
+          {
+            "label": "someone asks for a focused work session on the one thing that moves the needle",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "focus-session-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "rewritten",
+            "state": "On",
+            "evidence": "Rewritten on 2026-11-13 (lane every-workflow-is-a-branch): the earlier condition kept 13 or 14 of 14 parts of four ordinary seeds no one aimed, so it said nothing about which work a part is; the condition now requires the one situation this workflow is for."
+          },
+          {
+            "label": "someone wants a focused work session on the needle mover",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "person-task"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "Off",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words. Retired 2026-11-13: it kept most parts of four ordinary seeds no one aimed (rewritten in place by lane every-workflow-is-a-branch)."
+          }
+        ],
         "steps": [
           {
             "id": "before",
@@ -15582,6 +16706,42 @@
             }
           }
         },
+        "fires_when": [
+          {
+            "label": "someone needs a brand book with a pitch deck and sales decks",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "brand-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "brand",
@@ -16143,6 +17303,42 @@
             "input": {
               "start_at": "plan-the-lesson"
             }
+          }
+        ],
+        "fires_when": [
+          {
+            "label": "someone wants an explainer video on a topic for one described learner",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "video-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
           }
         ],
         "steps": [
@@ -16724,6 +17920,43 @@
           "from": "a method a person repeated across their work",
           "note": "Nothing here names a person, product or field: a bakery owner asking for a loyalty card, a coach asking for a drill sheet and a founder asking for an email footer run the same steps."
         },
+        "fires_when": [
+          {
+            "label": "someone asks for a feature, tool, page, footer, email look or design",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "feature-request",
+                        "design-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "raw-material",
@@ -17848,6 +19081,43 @@
           "from": "the common stages of producing one piece of content (audience, idea, format, packaging, script, filming, sound, edit, review, publishing, readback), in the order that puts the audience and the idea before any editing",
           "note": "The order and the rules are generic: research before the idea, the person's own recorded words before new lines, a source for every line, opening variants tested against each other, one decision per speech passage (use as recorded, remaster, or re-voice the same words), checks before the person is shown anything, readback at 1, 7 and 28 days with a written lesson. Purpose comes first because work judged only by demand numbers drifts away from what the person set out to do; so the person's purpose record is the first input, its tests are answered by every plan step, and demand ranks only what passed. Everything specific to a person (audience frameworks and bucket names, rubrics, pass marks, word lists, edit rules, title structures, formats, channels, tool settings) is an input read from their records at run time, never part of this recipe. A person's own checklist runs through the workflows checklist gate."
         },
+        "fires_when": [
+          {
+            "label": "someone wants one video, talk, carousel, post or article made from audience to publish",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "content-idea",
+                        "video-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read-records",
@@ -20926,6 +22196,43 @@
           "from": "business-on-trillion meta-workflow, generic and public",
           "note": "Top of funnel. Live tools: list-my-recordings-and-media, find-silence, suggest-media-cuts, cut-and-caption, reframe-video, render-an-edit, pick-cover-frame, check-against-a-persons-rules-and-verdicts. add-captions is live and can be used instead of the caption style in cut-and-caption. B-roll choices come from the person's list; the list is the person's own."
         },
+        "fires_when": [
+          {
+            "label": "someone has recorded footage and wants short vertical captioned videos",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "video-request",
+                        "long-recording"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read-facts",
@@ -21776,6 +23083,42 @@
           "from": "business-on-trillion meta-workflow, generic and public",
           "note": "Bottom of funnel. Live tools: list-ended-stripe-subscriptions, cancel-a-stripe-subscription, tag-a-stripe-subscription, count-a-paid-installment-in-stripe, show-which-offers-a-buyer-may-see, see-who-holds-paid-access. No live tool shows a billing page for one purchase."
         },
+        "fires_when": [
+          {
+            "label": "a member asks to cancel, see offers or billing, or ended subscriptions need handling",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "billing-question"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read-facts",
@@ -22079,6 +23422,42 @@
           "from": "business-on-trillion meta-workflow, generic and public",
           "note": "Middle of funnel, with the analytics baseline added by this meta-workflow (not in the original list). Live tools: draft-a-funnel, measure-funnel-stages, break-down-visits-and-sales. Tracked links are made with make-tracked-link (live)."
         },
+        "fires_when": [
+          {
+            "label": "someone wants funnel counts by stage and source with a baseline",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "analytics-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read-facts",
@@ -22373,6 +23752,43 @@
         "source": {
           "from": "a decision method"
         },
+        "fires_when": [
+          {
+            "label": "someone wants a product that people reach, use and pay for",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "product-idea",
+                        "business-idea"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "research-plan-build",
@@ -22615,6 +24031,43 @@
         "source": {
           "from": "a decision method"
         },
+        "fires_when": [
+          {
+            "label": "someone asks for a capability built as the real working product, not a demo",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "feature-request",
+                        "product-idea"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "outcome",
@@ -22966,6 +24419,43 @@
         "source": {
           "from": "a decision method"
         },
+        "fires_when": [
+          {
+            "label": "someone asks to change or fix code",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "code-change",
+                        "bug-report"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "name-question-delete",
@@ -23112,6 +24602,43 @@
         "source": {
           "from": "a decision method"
         },
+        "fires_when": [
+          {
+            "label": "a decision, design or test rests on assumed limits that should be checked against reality",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "decision-to-make",
+                        "claim"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "alignment",
@@ -23409,6 +24936,43 @@
         "source": {
           "from": "a decision method"
         },
+        "fires_when": [
+          {
+            "label": "someone asks to design a new feature or capability",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "feature-request",
+                        "design-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "name-question-delete",
@@ -23603,6 +25167,43 @@
         "source": {
           "from": "a decision method"
         },
+        "fires_when": [
+          {
+            "label": "someone asks for the work done fully and correctly in one pass",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "objective-request",
+                        "rule-to-enforce"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "delete",
@@ -23813,6 +25414,43 @@
         "source": {
           "from": "a decision method"
         },
+        "fires_when": [
+          {
+            "label": "a design needs its hard constraints found so only one right answer is left",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "design-request",
+                        "architecture-question"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "outcome",
@@ -24340,6 +25978,44 @@
           "from": "a decision method",
           "note": "Names a tool that no tool in the Workshop offers yet: tool:who-does-each-step."
         },
+        "fires_when": [
+          {
+            "label": "a decision, plan or claim needs the hardest scrutiny",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "decision-to-make",
+                        "claim",
+                        "plan-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "alignment",
@@ -24990,6 +26666,43 @@
         "source": {
           "from": "a decision method"
         },
+        "fires_when": [
+          {
+            "label": "someone asks to build or change something and its assumptions should be questioned first",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "feature-request",
+                        "code-change"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "outcome",
@@ -25480,6 +27193,42 @@
         "source": {
           "from": "a decision method"
         },
+        "fires_when": [
+          {
+            "label": "parts, fields, screens or messages have unclear names",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "design-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "naming",
@@ -25592,6 +27341,43 @@
         "source": {
           "from": "a decision method"
         },
+        "fires_when": [
+          {
+            "label": "someone asks for a change where a short plan may or may not help before doing it",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "plan-request",
+                        "feature-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "outcome",
@@ -26094,6 +27880,44 @@
         "source": {
           "from": "a decision method"
         },
+        "fires_when": [
+          {
+            "label": "someone asks to research a capability, plan it and build it end to end",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "capability-gap",
+                        "plan-request",
+                        "feature-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "baseline",
@@ -26342,6 +28166,42 @@
         "source": {
           "from": "a decision method"
         },
+        "fires_when": [
+          {
+            "label": "someone wants a story, post, article, talk or script that changes the reader",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "content-idea"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "story-change",
@@ -26660,6 +28520,43 @@
         "source": {
           "from": "a decision method"
         },
+        "fires_when": [
+          {
+            "label": "someone proposes a design or feature to test against every case it will meet",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "design-request",
+                        "decision-to-make"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "outcome",
@@ -27353,6 +29250,43 @@
           "from": "business-on-trillion meta-workflow, generic and public",
           "note": "After the sale. Live tools: sign-someone-up-for-an-email-course-with-resend, send-due-email-lessons-with-resend, add-a-customer, record-a-customer-step, see-where-each-customer-is, send-an-email-with-resend. send-follow-up-emails-after-sign-up is not a live tool."
         },
+        "fires_when": [
+          {
+            "label": "a new buyer needs the five-day onboarding course",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "customer-arrived",
+                        "course-idea"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read-facts",
@@ -27769,6 +29703,43 @@
             "input": {
               "start_at": "read-launches"
             }
+          }
+        ],
+        "fires_when": [
+          {
+            "label": "a competitor or market launch appears on a watched launch place",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "competitor-news",
+                        "launch-announcement"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
           }
         ],
         "steps": [
@@ -29877,6 +31848,42 @@
         "source": {
           "from": "a person's request"
         },
+        "fires_when": [
+          {
+            "label": "a screen, app or feature is moving to a new home and nothing may be lost",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "design-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "inventory",
@@ -30409,6 +32416,43 @@
             }
           }
         ],
+        "fires_when": [
+          {
+            "label": "the week ended and a public build-in-public update is due",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "week-ended",
+                        "social-post-idea"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read-week",
@@ -30772,6 +32816,43 @@
           "from": "business-on-trillion meta-workflow, generic and public",
           "note": "Top of funnel. Live tools: draft-a-post, approve-a-post, set-a-post-to-go-at-its-time, see-how-each-post-did, check-against-a-persons-rules-and-verdicts, check-copy. send-each-post-at-its-time is wake-driven; the wake step reads whether it is on. The per-channel send tools (send-a-post-to-instagram, -youtube, -facebook, -tiktok, -threads, -x, -linkedin) are live and the scheduled path uses them."
         },
+        "fires_when": [
+          {
+            "label": "a business wants a week of scheduled posts for its social channels",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "social-post-idea",
+                        "content-idea"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read-facts",
@@ -31210,6 +33291,42 @@
           "from": "the product's own behaviour",
           "note": "Prints are ordered through a real account in the person's name, with the price shown before the first order. Names tools that no tool in the Workshop offers yet: tool:find-nearest-places, tool:route-buttons, tool:who-does-each-step."
         },
+        "fires_when": [
+          {
+            "label": "someone needs a file printed at a shop and picked up or delivered",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "purchase-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "choose",
@@ -31302,6 +33419,42 @@
           "from": "business-on-trillion meta-workflow, generic and public",
           "note": "After the sale. Added by this meta-workflow (not in the original list): launch checklist proof on the real URL. Live tools: read-public-web-page, check-a-page-for-search-and-answer-engines, check-given-pages-at-every-width, measure-a-checklist."
         },
+        "fires_when": [
+          {
+            "label": "a page has launched and its live address must be checked for search, answer engines and device widths",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "qa-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read-facts",
@@ -31580,6 +33733,42 @@
           "from": "business-on-trillion meta-workflow, generic and public",
           "note": "Top of funnel. Live tools: draft-a-post, approve-a-post, set-a-post-to-go-at-its-time, send-a-post-to-substack, send-a-post-to-beehiiv, send-a-post-to-ghost, check-copy, see-how-each-post-did. Cadence is set by facts.posts_per_day."
         },
+        "fires_when": [
+          {
+            "label": "someone wants a week of dated articles and a newsletter published on a cadence",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "content-idea"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read-facts",
@@ -32000,6 +34189,43 @@
               "start_at": "open-the-pursuit",
               "request": "Monthly check: run the money-in-order workflow again for the open money pursuit."
             }
+          }
+        ],
+        "fires_when": [
+          {
+            "label": "someone raises a vague money matter such as a past-due bill, debt, refund or unused subscription",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "household-money",
+                        "invoice"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
           }
         ],
         "steps": [
@@ -33343,6 +35569,43 @@
         "source": {
           "from": "a person's request"
         },
+        "fires_when": [
+          {
+            "label": "a file, folder, setting, feature or tool seems to live in the wrong place",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "misplaced-part",
+                        "architecture-question"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "job",
@@ -33490,6 +35753,43 @@
           "from": "a method a person repeated across their work",
           "note": "Do not impose assumed limits on the possibility space before investigating it; recursively improve the method, not only apply it. Nothing here names a subject, field or person."
         },
+        "fires_when": [
+          {
+            "label": "someone states a broad belief, strategy or claim to be checked",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "claim",
+                        "decision-to-make"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "state",
@@ -33752,6 +36052,43 @@
           "restoration": "Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.",
           "current_route": "Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work."
         },
+        "fires_when": [
+          {
+            "label": "someone asks for research, creation, distribution and customer follow-through composed into one verified outcome",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "objective-request",
+                        "business-idea"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "customer",
@@ -34844,6 +37181,43 @@
             }
           ]
         },
+        "fires_when": [
+          {
+            "label": "someone wants to reach companies whose job post stayed open for weeks",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "sales-outreach",
+                        "lead-generation"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "find",
@@ -36136,6 +38510,43 @@
             }
           ]
         },
+        "fires_when": [
+          {
+            "label": "someone wants to reach local businesses of one kind in a zip code",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "sales-outreach",
+                        "lead-generation"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "identity",
@@ -38884,6 +41295,43 @@
           "from": "business-on-trillion meta-workflow, generic and public",
           "note": "After the sale. Added by this meta-workflow (not in the original list): payment-failure dunning and churn win-back. Live tools: stripe-events-read_money_since, list-ended-stripe-subscriptions, send-an-email-with-resend. The retry schedule lives in the Stripe account; no live Trillion tool sets it."
         },
+        "fires_when": [
+          {
+            "label": "payments failed or buyers churned and need recovery emails",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "billing-question",
+                        "customer-retention"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read-facts",
@@ -39205,6 +41653,42 @@
           "from": "a person's request",
           "note": "Study follows a recall-then-one-insight loop; every claim carries an exact quote because checkable sources are what make a claim trustworthy."
         },
+        "fires_when": [
+          {
+            "label": "someone wants to be kept current on a goal or subject through researched briefings",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "research-question"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "research",
@@ -39539,6 +42023,41 @@
         },
         "fires_when": [
           {
+            "label": "a seed makes a claim, or asks a question that needs looking into",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "claim",
+                        "research-question"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "rewritten",
+            "state": "On",
+            "evidence": "Rewritten on 2026-11-13 (lane every-workflow-is-a-branch): the earlier condition kept 13 or 14 of 14 parts of four ordinary seeds no one aimed, so it said nothing about which work a part is; the condition now requires the one situation this workflow is for."
+          },
+          {
             "label": "a seed makes a claim or names a subject",
             "condition": {
               "fields": [
@@ -39581,8 +42100,8 @@
               }
             },
             "made_by": "fires_when",
-            "state": "On",
-            "evidence": "Moved onto this workflow's own row from list tree-branches row record:tree-branches:research-what-everyone-says and list tree-branch-conditions row record:tree-branch-conditions:research-what-everyone-says--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch)."
+            "state": "Off",
+            "evidence": "Moved onto this workflow's own row from list tree-branches row record:tree-branches:research-what-everyone-says and list tree-branch-conditions row record:tree-branch-conditions:research-what-everyone-says--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch). Retired 2026-11-13: it kept most parts of four ordinary seeds no one aimed (rewritten in place by lane every-workflow-is-a-branch)."
           }
         ],
         "steps": [
@@ -39918,6 +42437,42 @@
           "from": "business-on-trillion meta-workflow, generic and public",
           "note": "After the sale. Newly built stage (not in the original list; brief said it is clearly missing). Live tools: see-where-each-customer-is, make-a-referral-code, work-out-referral-codes, withdraw-a-referral-code, send-an-email-with-resend, start-a-recipe-run. referral-codes-and-rewards and testimonials are not live tools; reward and testimonial stores are named as gaps."
         },
+        "fires_when": [
+          {
+            "label": "buyers have gone quiet or someone wants referral codes and rewards",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "customer-retention"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read-facts",
@@ -40380,6 +42935,43 @@
           "read_on": "2026-11-12",
           "note": "Adopted: the steps and their order, full and content modes, the SEEN and INFERRED labels with 'not seen' for anything unseen, public evidence only, the price read before an endpoint's first call, free routes first, a $3 default budget, one alternative endpoint when one fails, every count computed by code and dated, and a short finding with the next check and its cost after each step, then continue, skip or stop. Not adopted: calling treg through its command line (the calls go through the Workshop rows in tools/treg, paid by the person's treg connection); reading YouTube channel videos through a paid endpoint (tool:keep-channels-latest-videos-and-captions reads them on the person's computer for free and keeps the captions, which tool:cite-principles-from-captions then reads); writing playbook.md, playbook.html and CSV files in a folder (each step's submitted output is the record of the run). Endpoint ids and prices are as the catalog listed them on 2026-10-30; the run reads them again before spending. Adopted on 2026-11-12 from reverse-engineer-marketing v1.1.4: the history step (stack, pricing, headline and sitemap history from archives), brand searches as a second demand signal and the two-month inflection rule, Perplexity, Gemini and AI Overviews beside ChatGPT with cited pages, the longest-running ad, the paid promotion step, giveaways and launch weeks, the hidden-signals step (DNS, certificate logs, reviews, growth counters), the team-voices step with REPORTED claims, the go-inside step with each action approved and the funnel-hack mode, the landscape mode, clusters and lift from its moves command, the gap step with weak spots, plays with effort, metric, cost, what runs each and the one to start this week, the plays to skip, the watch mode with its launch radar, the quick mode, and its 31 industry packs. Its free collectors (scripts/teardown.mjs) and its reference files are not copied: they run and are read from the repository, offered as tool:github:coreyhaines31-marketingskills. Not adopted: routing plays to its own skill names (each play names the Workshop workflow or tool found by its job), writing teardowns/<target>/ files (each step's submitted output is the record of the run, and watch mode reads the previous run's job), its $5 default budget (this recipe keeps 3), and splitting posts into thirds (this recipe keeps quarters)."
         },
+        "fires_when": [
+          {
+            "label": "someone names a company, product, app or creator and asks how it grew",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "competitor-news",
+                        "research-question"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "setup",
@@ -44749,6 +47341,42 @@
           "from": "business-on-trillion meta-workflow, generic and public",
           "note": "Bottom of funnel. Live tools: read-my-community-matches, advance-a-community-matchmaker, answer-in-a-community. run-a-community is not a live tool (its folder has port records only), so the stage records gaps for creating a community."
         },
+        "fires_when": [
+          {
+            "label": "someone wants a community created, matched and answered",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "business-setup"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read-facts",
@@ -44965,6 +47593,43 @@
           "from": "business-on-trillion meta-workflow, generic and public",
           "note": "Bottom of funnel. Live tools: sign-someone-up-for-an-email-course-with-resend, send-due-email-lessons-with-resend, work-out-where-a-learner-stands, stop-an-email-course, check-copy. The course is a list of lesson rows; no separate course tool is named."
         },
+        "fires_when": [
+          {
+            "label": "someone wants a lesson-by-lesson email course run",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "course-idea",
+                        "product-idea"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read-facts",
@@ -45398,6 +48063,43 @@
             }
           ]
         },
+        "fires_when": [
+          {
+            "label": "someone wants a LinkedIn posting system from their posts, transcripts and buyer questions",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "social-post-idea",
+                        "content-idea"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "voice-sources",
@@ -47648,6 +50350,43 @@
         "source": {
           "from": "a person's request"
         },
+        "fires_when": [
+          {
+            "label": "someone wants a feature to work the same on phone, browser and computer",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "feature-request",
+                        "design-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "abilities",
@@ -47818,6 +50557,42 @@
           "from": "a method a person repeated across their work",
           "note": "Nothing here names a person, product or place: a lawyer checking precedent, a researcher checking prior work and an AI checking a codebase run the same steps."
         },
+        "fires_when": [
+          {
+            "label": "someone asks what exists, was decided or was found",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "research-question"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read",
@@ -48160,6 +50935,43 @@
           "from": "a method a person repeated across their work",
           "note": "Nothing here names a subject, field or person: a bakery, a clinic, a coaching method and a book run the same steps. Every tool it names is in the Workshop."
         },
+        "fires_when": [
+          {
+            "label": "someone wants to sell something a pursuit already produces such as footage, notes, a method or a tool",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "product-idea",
+                        "pursuit-start"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "find",
@@ -48390,6 +51202,43 @@
           "from": "business-on-trillion meta-workflow, generic and public",
           "note": "Synthetic example data only. Stage recipes: recipes/business-on-trillion-*.json. Reused live workflows: workflow:get-found-in-search-and-answer-engines, workflow:test-prices-and-change-a-page-for-each-visitor, workflow:give-paid-buyers-access, make-a-brand-book-and-decks, follow-up-with-people-who-engaged. Tools named in the stages that the live catalog lacks: resolve-a-brand (source-only); no live tool for: YouTube connection check, DM reply sending, support inbox, community creation, referral reward store, testimonials, send-follow-up-emails-after-sign-up, billing page for one purchase, dunning retry schedule (set in Stripe). The first instance is the person's own list, not this repository."
         },
+        "fires_when": [
+          {
+            "label": "someone wants to run a whole business, from funnel to after-sale, on Trillion",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "business-setup",
+                        "business-idea"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "write-the-business-facts",
@@ -49692,6 +52541,43 @@
           "name": "A repository is checked when its own files say what it does and the checks read them, not when someone remembers the rules",
           "note": "Not adopted: a template folder copied into every repository (its rows would describe the template, not the repository), and writing capability rows for folders whose README does not say their job."
         },
+        "fires_when": [
+          {
+            "label": "a new or existing repository should have its rules checked at every edit, commit and push",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "repository-setup",
+                        "rule-to-enforce"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read-the-repository",
@@ -49872,6 +52758,43 @@
           "from": "business-on-trillion meta-workflow, generic and public",
           "note": "Middle of funnel. Live tools: send-an-email-with-resend, start-a-recipe-run. resolve-a-brand is source-only (not in the live catalog). make-a-brand-book-and-decks is an existing live workflow, run by reference."
         },
+        "fires_when": [
+          {
+            "label": "a business needs its brand resolved and branded email tested from a verified domain",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "business-setup",
+                        "brand-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read-facts",
@@ -50120,6 +53043,43 @@
           "from": "business-on-trillion meta-workflow, generic and public",
           "note": "Stage 1 of the business meta-workflow. Live tools: list-every-connection, set-up-someone-i-pay-in-stripe, check-the-instagram-connection, check-the-facebook-page-connection, add-an-email-sending-domain, check-an-email-sending-domain, make-a-sending-key-with-resend. No live tool checks a YouTube connection (gap written at run time). DNS changes are done by the person at their DNS host; no tool does that."
         },
+        "fires_when": [
+          {
+            "label": "a business needs its Stripe, social, email and domain accounts checked and connected",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "business-setup",
+                        "credential-setup"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read-facts",
@@ -50885,6 +53845,43 @@
           "from": "a method a person repeated across their work",
           "note": "Nothing here names a person, product or framework: a coach planning a season from their own drills, a founder designing from their own principles and a writer outlining from their own notes run the same steps."
         },
+        "fires_when": [
+          {
+            "label": "someone asks to plan, design or get advice for something such as a week, season, launch, trip, screen or logo",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "plan-request",
+                        "design-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "search",
@@ -51139,6 +54136,42 @@
           "from": "business-on-trillion meta-workflow, generic and public",
           "note": "Bottom of funnel. Live tools: set-up-stripe-payment-links, find-a-completed-stripe-checkout, stripe-events-read_money_since, start-a-stripe-checkout-that-pays-someone-else. Live route for a buyer is the payment link; start-a-stripe-checkout is live for in-app checkout. take-payments is not a live tool and is not named."
         },
+        "fires_when": [
+          {
+            "label": "someone wants to start taking payments through Stripe for their offers",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "business-setup"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read-facts",
@@ -51558,6 +54591,42 @@
           "from": "a method a person repeated across their work",
           "note": "Nothing here names a subject, field or person: a coach's hunch, a customer complaint, a lab result and a philosophy all run the same steps. The list and its columns are data the workflow makes on first run; another list can be named in the input."
         },
+        "fires_when": [
+          {
+            "label": "someone states a claim, noticed fact or AI conclusion that should be questioned and tested",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "claim"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "capture",
@@ -52031,6 +55100,43 @@
           "name": "tools/run-experiments (choose what a visitor sees, read results, credit outcomes) and tools/traffic-attribution (tracked links, visits and sales by source)",
           "note": "Built from the tools' own rows. NOT ADOPTED, with the reason: (1) showing two visitors different prices for the same thing at the same moment without saying the price is being tested, where a place's consumer rules forbid it, so the person names the places the test runs in and the page states the price each visitor will be charged before they pay; (2) reading facts about a visitor that the person has no right to, so a rule reads only facts the person's own tracking and enrichment tools recorded, under the trust names the person lists; (3) changing a live price or a live page without the person's yes, so every change is a draft until the person approves it."
         },
+        "fires_when": [
+          {
+            "label": "someone wants price tests or A/B tests on a page, or a page that changes per visitor",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "pricing-question",
+                        "landing-page-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "write-the-versions",
@@ -52299,6 +55405,43 @@
           "from": "a method a person repeated across their work",
           "note": "The chain is data: the person's own framework file, so someone else's chain (the scientific method, OODA, a coach's model) runs the same steps. workflow:bring-in-a-framework turns a written chain into such a file."
         },
+        "fires_when": [
+          {
+            "label": "someone asks to trace a feature, decision, claim or plan back to first principles",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "first-principles-question",
+                        "decision-to-make"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read",
@@ -52568,6 +55711,43 @@
           "source_owner": "execution-mode-records.json",
           "restoration": "Original stage behavior retained; legacy requirement field labels were migrated consistently with their schema checks and app-specific examples generalized. Full original definitions, aliases, source references and private quotations remain in private recovery evidence. Existing runs retain their original identities and definitions."
         },
+        "fires_when": [
+          {
+            "label": "someone gives an authorized objective that needs the full execution standard with checked evidence",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "objective-request",
+                        "plan-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "scope",
@@ -55808,6 +58988,43 @@
         "source": {
           "from": "the product's own behaviour"
         },
+        "fires_when": [
+          {
+            "label": "someone corrects how the AI worked and the fix must reach every workflow",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "correction",
+                        "process-complaint"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "name",
@@ -56109,6 +59326,43 @@
           "from": "a person's request",
           "note": "Nothing here names a person, pursuit, platform or product. Names tools that no tool in the Workshop offers yet: tool:check-copy."
         },
+        "fires_when": [
+          {
+            "label": "someone has notes, a recording or a principle and wants a finished post, thread, newsletter, article, script or talk",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "content-idea",
+                        "notes"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "own-work",
@@ -56418,6 +59672,43 @@
             "input": {
               "start_at": "find-new"
             }
+          }
+        ],
+        "fires_when": [
+          {
+            "label": "a long unused recording exists and should be cut into many pieces",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "long-recording",
+                        "content-idea"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
           }
         ],
         "steps": [
@@ -56947,6 +60238,44 @@
           "from": "an agent skill",
           "note": "Its phases 0 to 6 are these steps, with phase 2's seventh lane as the per-system step."
         },
+        "fires_when": [
+          {
+            "label": "someone asks to research a weak or missing capability and plan it",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "capability-gap",
+                        "plan-request",
+                        "research-question"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "scope",
@@ -59276,6 +62605,53 @@
         },
         "fires_when": [
           {
+            "label": "the person's own words hold an idea for content, or a way of working worth writing down",
+            "condition": {
+              "fields": [
+                {
+                  "id": "own_words",
+                  "kind": "boolean",
+                  "path": [
+                    "own_words"
+                  ]
+                },
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "own_words",
+                    "operator": "is_true"
+                  },
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "content-idea",
+                        "process-to-document"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "rewritten",
+            "state": "On",
+            "evidence": "Rewritten on 2026-11-13 (lane every-workflow-is-a-branch): \"the seed is the person's own words\" kept 7 of 10 parts of three ordinary seeds no one aimed; the condition now also requires an idea for content or a way of working."
+          },
+          {
             "label": "the seed is the person's own words",
             "condition": {
               "fields": [
@@ -59301,8 +62677,8 @@
               }
             },
             "made_by": "fires_when",
-            "state": "On",
-            "evidence": "Moved onto this workflow's own row from list tree-branches row record:tree-branches:turn-what-you-said-into-content and list tree-branch-conditions row record:tree-branch-conditions:turn-what-you-said-into-content--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch)."
+            "state": "Off",
+            "evidence": "Moved onto this workflow's own row from list tree-branches row record:tree-branches:turn-what-you-said-into-content and list tree-branch-conditions row record:tree-branch-conditions:turn-what-you-said-into-content--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch). Retired 2026-11-13: it kept most parts of four ordinary seeds no one aimed (rewritten in place by lane every-workflow-is-a-branch)."
           }
         ],
         "steps": [
@@ -59809,6 +63185,43 @@
             "input": {
               "start_at": "weekly"
             }
+          }
+        ],
+        "fires_when": [
+          {
+            "label": "someone has a consumer app idea built on a daily problem and wants to validate and launch it as a subscription",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "app-idea",
+                        "business-idea"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
           }
         ],
         "steps": [
@@ -60433,6 +63846,43 @@
           "from": "a method a person repeated across their work",
           "note": "A person who keeps a different map runs the same steps on theirs."
         },
+        "fires_when": [
+          {
+            "label": "someone asks where a goal or pursuit fits in the areas of their life",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "life-map-question",
+                        "pursuit-start"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read",
@@ -60642,6 +64092,42 @@
         "source": {
           "from": "a method a person repeated across their work"
         },
+        "fires_when": [
+          {
+            "label": "someone asks to work through an author's framework or book method for themselves",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "framework-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "read",
@@ -61054,6 +64540,43 @@
           "from": "a method a person repeated across their work",
           "note": "did you taint my prompts with your subjective opinion. Nothing here names a subject, field or person."
         },
+        "fires_when": [
+          {
+            "label": "someone wants a research prompt written for an AI or person that does not lead toward an expected answer",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "research-question",
+                        "prompt-request"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "goal",
@@ -61241,6 +64764,42 @@
           "from": "the product's own behaviour",
           "note": "Names tools that no tool in the Workshop offers yet: tool:check-copy."
         },
+        "fires_when": [
+          {
+            "label": "someone asks for copy a reader will see, such as a tour, notice, error, button, landing section, email or post",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "content-idea"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "derived",
+            "state": "On",
+            "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          }
+        ],
         "steps": [
           {
             "id": "facts",
