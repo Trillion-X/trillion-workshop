@@ -1,0 +1,794 @@
+{
+  "package": "connector-room",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::connector-room::placeable-surface::connector-room",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "Link",
+        "id": "connector-room.panel",
+        "kind": "placeable-surface",
+        "label": "Connections",
+        "material_target": "connector-room",
+        "factflow_ref": "package::connector-room::factflow::surface",
+        "order": 60,
+        "surface_id": "connector-room.panel",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000060:connector-room.panel",
+        "package_entry": {
+          "package_name": "connector-room",
+          "entry_name": "connector-room"
+        },
+        "surface_input": {
+          "connections_surface": "workspace",
+          "frame_fit": "fill"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connector-room::placeable-surface::connected-workflows",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "DoorOpen",
+        "id": "connector-room.workflows",
+        "kind": "placeable-surface",
+        "label": "Connected workflows",
+        "material_target": "connector-room",
+        "order": 420,
+        "surface_id": "connector-room.workflows",
+        "surface_input": {
+          "connections_surface": "connected-workflows"
+        },
+        "placement_labels": [
+          "connections-workspace"
+        ],
+        "placement_order_key": "000000420:connector-room.workflows",
+        "package_entry": {
+          "package_name": "connector-room",
+          "entry_name": "connector-room"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connector-room::factflow::surface",
+      "address_mode": "identity_text",
+      "path": [
+        "package-primitive",
+        "factflow"
+      ],
+      "payload": {
+        "kind": "bitfield-eeaf-factflow",
+        "journal": {
+          "address_label": "connector-room.surface.journal"
+        },
+        "fact_sources": [
+          {
+            "address": "package::connector-room::primitive-contract"
+          },
+          {
+            "address": "package::connector-room::capability-operation-graph"
+          }
+        ],
+        "genesis": [
+          {
+            "address": "package::connector-room::placeable-surface::connector-room"
+          }
+        ],
+        "blockers": [
+          {
+            "address_label": "connector-room.blocker.account-portal"
+          },
+          {
+            "address_label": "connector-room.blocker.cpd-10f"
+          }
+        ],
+        "evidence": [
+          {
+            "address": "package::connector-room::entry::connector-room"
+          },
+          {
+            "address": "package::connector-room::primitive-contract"
+          },
+          {
+            "address": "package::connector-room::capability-operation-graph"
+          }
+        ],
+        "interpreter_facts": {
+          "facts": [
+            {
+              "address_label": "connector-room.facts.connector-context"
+            }
+          ],
+          "intents": [
+            {
+              "address_label": "connector-room.intent.attach-service-reference"
+            }
+          ],
+          "effects": [
+            {
+              "address_label": "connector-room.effect.project-package-health"
+            }
+          ],
+          "validation": [
+            {
+              "address_label": "connector-room.validation.service-reference"
+            }
+          ],
+          "permissions": [
+            {
+              "address_label": "connector-room.permission.connector-room-policy"
+            }
+          ],
+          "projections": [
+            {
+              "address_label": "connector-room.projection.surface"
+            }
+          ],
+          "materializations": [
+            {
+              "address_label": "connector-room.materialization.placeable-surface"
+            }
+          ]
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connector-room::entry::connector-room",
+      "path": [
+        "packages",
+        "connector-room",
+        "entries",
+        "connector-room"
+      ],
+      "payload": {
+        "entry_name": "connector-room",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-connector-room.tsx",
+        "dynamic_read_selector_policy": "declared-provider-input-membership",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-connector-room"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connector-room::primitive-contract",
+      "path": [
+        "package-primitive",
+        "contract"
+      ],
+      "payload": {
+        "kind": "bitfield-package-primitive-contract",
+        "version": 1,
+        "package": "connector-room",
+        "capability": "shared-connector-context",
+        "owns": [
+          "connector_room",
+          "connector_room_member",
+          "connector_room_service",
+          "connector_room_policy",
+          "connector_room_surface"
+        ],
+        "reuses": [
+          "connectable-services",
+          "process-connectors",
+          "desktop-bridge-pairing",
+          "credentials-vault",
+          "activity-feed",
+          "screen-arrangement",
+          "ui"
+        ],
+        "blockers": [
+          "CPD-10F",
+          "Account Portal"
+        ],
+        "new_slot": false
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connector-room::capability-operation-graph",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "capability-operation-graph"
+      ],
+      "payload": {
+        "kind": "bitfield-capability-operation-graph",
+        "version": 1,
+        "package": "connector-room",
+        "capability": "shared-connector-context",
+        "autonomy_boundary": "shows package composition and blockers; it does not execute connectors",
+        "operations": [
+          {
+            "id": "operation:connector-room.attach-service-reference",
+            "owner": "connector-room",
+            "executes_via": [
+              "workflow",
+              "connectable-services"
+            ],
+            "inputs": [
+              "room_ref",
+              "service_ref",
+              "member_ref",
+              "policy_ref"
+            ],
+            "produces": [
+              "connector_room_member",
+              "connector_room_service",
+              "connector_room_policy"
+            ],
+            "blockers": [
+              "Account Portal"
+            ]
+          },
+          {
+            "id": "operation:connector-room.project-package-health",
+            "owner": "connector-room",
+            "executes_via": [
+              "record_from_matching_records",
+              "activity-feed",
+              "event-group"
+            ],
+            "inputs": [
+              "room_ref",
+              "package_ref",
+              "activity_ref"
+            ],
+            "produces": [
+              "connector_room_surface",
+              "connector_room_blocker_ref"
+            ],
+            "blockers": [
+              "CPD-10F"
+            ]
+          }
+        ],
+        "evidence_outputs": [
+          "connector_room_blocker_ref",
+          "connector_room_surface"
+        ],
+        "execution_boundaries": {
+          "connectable-services": "owns service discovery",
+          "process-connectors": "owns process connector declarations",
+          "permission-lease": "owns executable permission",
+          "activity-feed": "owns recent events"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connector-room::input::placeable-surface-list-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "placeable-surface-list-by-address-label",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connector-room::input::placeable-surface-list",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "placeable-surface-list",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "placeable-surface-list::main-workspace"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connector-room::input::placeable-surfaces",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "placeable-surfaces",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "placeable-surfaces"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connector-room::input::connectionsWorkspaceLayoutState",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "connectionsWorkspaceLayoutState",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "connections-workspace-layout-state"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connector-room::input::layout-presets",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "layout-presets",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "op": "rows",
+            "fields": [
+              {
+                "column": 0,
+                "key": "id",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "name",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "layout",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 3,
+                "key": "created_at",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              }
+            ]
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "layout-presets"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connector-room::input::package-entry-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "package-entry-by-address-label",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "bytes"
+            }
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "connections-workspace-layout-state",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "containers": {
+          "connections-workspace-connected": {
+            "id": "connections-workspace-connected",
+            "groupId": "connections-workspace-connected-group"
+          },
+          "connections-workspace-available": {
+            "id": "connections-workspace-available",
+            "groupId": "connections-workspace-available-group"
+          },
+          "connections-workspace-recent": {
+            "id": "connections-workspace-recent",
+            "groupId": "connections-workspace-recent-group"
+          },
+          "connections-workspace-workflows": {
+            "id": "connections-workspace-workflows",
+            "groupId": "connections-workspace-workflows-group"
+          },
+          "connections-workspace-groups": {
+            "id": "connections-workspace-groups",
+            "groupId": "connections-workspace-groups-group"
+          }
+        },
+        "tabGroups": {
+          "connections-workspace-connected-group": {
+            "tabIds": [
+              "connections-workspace-connected-tab"
+            ],
+            "activeTabId": "connections-workspace-connected-tab"
+          },
+          "connections-workspace-available-group": {
+            "tabIds": [
+              "connections-workspace-available-tab"
+            ],
+            "activeTabId": "connections-workspace-available-tab"
+          },
+          "connections-workspace-recent-group": {
+            "tabIds": [
+              "connections-workspace-recent-tab"
+            ],
+            "activeTabId": "connections-workspace-recent-tab"
+          },
+          "connections-workspace-workflows-group": {
+            "tabIds": [
+              "connections-workspace-workflows-tab"
+            ],
+            "activeTabId": "connections-workspace-workflows-tab"
+          },
+          "connections-workspace-groups-group": {
+            "tabIds": [
+              "connections-workspace-groups-tab"
+            ],
+            "activeTabId": "connections-workspace-groups-tab"
+          }
+        },
+        "tabs": {
+          "connections-workspace-connected-tab": {
+            "id": "connections-workspace-connected-tab",
+            "title": "Outside accounts and keys",
+            "target": null,
+            "packageEntry": {
+              "packageName": "service-connections",
+              "entryName": "service-connections"
+            },
+            "materialTarget": "component:service-connections",
+            "icon": "KeyRound",
+            "closable": true,
+            "metadata": {
+              "placeable_surface_id": "service-connections.settings",
+              "placeable_surface_material_target": "component:service-connections"
+            }
+          },
+          "connections-workspace-available-tab": {
+            "id": "connections-workspace-available-tab",
+            "title": "Available services",
+            "target": null,
+            "packageEntry": {
+              "packageName": "connectable-services",
+              "entryName": "connectable-services"
+            },
+            "materialTarget": "component:connectable-services",
+            "icon": "Link",
+            "closable": true,
+            "metadata": {
+              "placeable_surface_id": "connectable-services",
+              "placeable_surface_material_target": "component:connectable-services"
+            }
+          },
+          "connections-workspace-recent-tab": {
+            "id": "connections-workspace-recent-tab",
+            "title": "Recent activity",
+            "target": null,
+            "packageEntry": {
+              "packageName": "activity-feed",
+              "entryName": "activity-feed"
+            },
+            "materialTarget": "activity-feed",
+            "icon": "Activity",
+            "closable": true,
+            "metadata": {
+              "placeable_surface_id": "activity-feed.panel",
+              "placeable_surface_material_target": "activity-feed"
+            }
+          },
+          "connections-workspace-workflows-tab": {
+            "id": "connections-workspace-workflows-tab",
+            "title": "Connected workflows",
+            "target": null,
+            "packageEntry": {
+              "packageName": "connector-room",
+              "entryName": "connector-room"
+            },
+            "materialTarget": "connector-room",
+            "icon": "DoorOpen",
+            "closable": true,
+            "metadata": {
+              "placeable_surface_id": "connector-room.workflows",
+              "placeable_surface_material_target": "connector-room",
+              "surfaceInput": {
+                "connections_surface": "connected-workflows"
+              }
+            }
+          },
+          "connections-workspace-groups-tab": {
+            "id": "connections-workspace-groups-tab",
+            "title": "Activity groups",
+            "target": null,
+            "packageEntry": {
+              "packageName": "event-group",
+              "entryName": "event-group"
+            },
+            "materialTarget": "event-group",
+            "icon": "Layers3",
+            "closable": true,
+            "metadata": {
+              "placeable_surface_id": "event-group.panel",
+              "placeable_surface_material_target": "event-group"
+            }
+          }
+        },
+        "layouts": [
+          {
+            "type": "tiled",
+            "root": {
+              "kind": "split",
+              "dir": "row",
+              "children": [
+                {
+                  "kind": "leaf",
+                  "containerId": "connections-workspace-connected"
+                },
+                {
+                  "kind": "split",
+                  "dir": "column",
+                  "children": [
+                    {
+                      "kind": "leaf",
+                      "containerId": "connections-workspace-available"
+                    },
+                    {
+                      "kind": "leaf",
+                      "containerId": "connections-workspace-recent"
+                    }
+                  ],
+                  "sizes": [
+                    0.56,
+                    0.44
+                  ]
+                },
+                {
+                  "kind": "split",
+                  "dir": "column",
+                  "children": [
+                    {
+                      "kind": "leaf",
+                      "containerId": "connections-workspace-workflows"
+                    },
+                    {
+                      "kind": "leaf",
+                      "containerId": "connections-workspace-groups"
+                    }
+                  ],
+                  "sizes": [
+                    0.52,
+                    0.48
+                  ]
+                }
+              ],
+              "sizes": [
+                0.42,
+                0.34,
+                0.24
+              ]
+            }
+          },
+          {
+            "type": "floating",
+            "containers": [
+              {
+                "containerId": "connections-workspace-connected",
+                "x": 40,
+                "y": 64,
+                "w": 620,
+                "h": 700,
+                "z": 1
+              },
+              {
+                "containerId": "connections-workspace-available",
+                "x": 680,
+                "y": 64,
+                "w": 500,
+                "h": 380,
+                "z": 2
+              },
+              {
+                "containerId": "connections-workspace-recent",
+                "x": 680,
+                "y": 464,
+                "w": 500,
+                "h": 300,
+                "z": 3
+              },
+              {
+                "containerId": "connections-workspace-workflows",
+                "x": 1200,
+                "y": 64,
+                "w": 380,
+                "h": 350,
+                "z": 4
+              },
+              {
+                "containerId": "connections-workspace-groups",
+                "x": 1200,
+                "y": 434,
+                "w": 380,
+                "h": 330,
+                "z": 5
+              }
+            ],
+            "camera": {
+              "scale": 1,
+              "tx": 0,
+              "ty": 0,
+              "min": 0.55,
+              "max": 1.75
+            }
+          },
+          {
+            "type": "overlay",
+            "containers": []
+          }
+        ],
+        "surface": "grid",
+        "focusedContainerId": "connections-workspace-connected",
+        "maximizedContainerId": null
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-connector-room",
+      "source_path": "built-stored-bytes/entry-bytes-connector-room",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-connector-room.source-closure.json"
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::connector-room::published-scoped-feed",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "placeable-surface"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::connector-room::input::published-records",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "published-records",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "package::connector-room::published-scoped-feed"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::connector-room::input::selector-source-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "selector-source-by-address-label",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

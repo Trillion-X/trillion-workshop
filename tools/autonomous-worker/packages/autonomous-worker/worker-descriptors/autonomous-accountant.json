@@ -1,0 +1,28 @@
+{
+  "kind": "autonomous-worker-descriptor",
+  "id": "autonomous-accountant",
+  "label": "Autonomous accountant, books-close worker. Deletion-test proof: a different shape and a different output kind from work-board-groomer. It names no host: the installer supplies the partition.",
+  "subjects": ["books:2026-q3"],
+  "interval_seconds": 86400,
+  "sense": {
+    "persona": { "kind": "ai-instruction-block", "id_includes": "accounting-", "required": false },
+    "program": { "kind": "ledger-entry", "subject_field": "book", "summary_fields": ["account", "amount", "memo"] }
+  },
+  "guard": {
+    "subject_field": "book",
+    "evidence_kinds": ["bank-transaction", "invoice", "receipt", "payroll-run"]
+  },
+  "decide": {
+    "bin": "codex",
+    "model": "gpt-5.5",
+    "argv_template": ["exec", "--skip-git-repo-check", "-m", "{{model}}", "--", "{{prompt}}"],
+    "prompt_via": "arg",
+    "timeout_seconds": 280,
+    "prompt_template": "You are an autonomous accountant closing the books. Policy — follow EXACTLY:\n{{persona}}\n\nBOOK: {{subject}}. CURRENT ledger (sensed live):\n{{program}}\n\nTASK: Produce the SINGLE next reconciling {{output_kind}} as ONE JSON object ONLY. Ground it in sensed evidence; if source documents are missing, FAIL CLOSED (a request-documents entry, never a guessed amount). Schema: {\"kind\":\"{{output_kind}}\",\"id\":\"<new-kebab-id>\",\"created_by\":\"autonomous-accountant\",\"created_at\":\"<iso>\",\"book\":\"{{subject}}\",\"account\":\"...\",\"amount\":0,\"memo\":\"...\",\"evidence_required\":[\"...\"],\"confidence_policy\":{\"minimum_confidence\":0.9,\"fail_closed_action\":\"request-source-documents\"}}\nOutput ONLY the JSON object."
+  },
+  "act": {
+    "output_kind": "reconciling-entry",
+    "address_prefix": "package::autonomous-accountant::reconciling-entry",
+    "created_by": "autonomous-accountant"
+  }
+}

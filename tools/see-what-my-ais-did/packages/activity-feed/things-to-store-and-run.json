@@ -1,0 +1,488 @@
+{
+  "package": "activity-feed",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::activity-feed::public-source::activity-indicator",
+      "path": ["packages", "activity-feed", "public-sources", "activity-indicator"],
+      "payload": { "kind": "bitfield-package-public-source", "source_path": "show/ActivityIndicator" },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activity-feed::placeable-surface::activity-feed",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "placeable-surface",
+        "id": "activity-feed.panel",
+        "surface_id": "activity-feed.panel",
+        "label": "Activity Feed",
+        "icon": "Activity",
+        "material_target": "activity-feed",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "order": 905
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activity-feed::placeable-surface::activity-overlay",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "placeable-surface",
+        "id": "activity-overlay.panel",
+        "surface_id": "activity-overlay.panel",
+        "label": "Activity Overlay",
+        "icon": "Zap",
+        "material_target": "activity-overlay",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "order": 906
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activity-feed::entry::activity-feed",
+      "path": [
+        "packages",
+        "activity-feed",
+        "entries",
+        "activity-feed"
+      ],
+      "payload": {
+        "entry_name": "activity-feed",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-activity-feed.tsx",
+        "bitfield_inputs": [
+          {
+            "label": "activity-feed::scoped-recent-activity",
+            "kind": "record_from_matching_records",
+            "description": "Scoped feed of activity-fact records, sorted by timestamp desc, 60s retention"
+          }
+        ],
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-activity-feed"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activity-feed::entry::activity-overlay",
+      "path": [
+        "packages",
+        "activity-feed",
+        "entries",
+        "activity-overlay"
+      ],
+      "payload": {
+        "entry_name": "activity-overlay",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-activity-overlay.tsx",
+        "bitfield_inputs": [
+          {
+            "label": "activity-feed::scoped-recent-activity",
+            "kind": "record_from_matching_records",
+            "description": "Scoped feed of activity-fact records for live actor badge overlay"
+          }
+        ],
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-activity-overlay"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activity-feed::scoped-recent-activity",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "record_from_matching_records",
+        "source_kind": "activity-fact",
+        "limit": 50,
+        "sort_by": "correlation_id",
+        "sort_direction": "desc"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::activity-feed::input::scoped-recent-activity",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "scoped-recent-activity",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "package::activity-feed::scoped-recent-activity",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activity-feed::native-screen-command-entry",
+      "path": [
+        "package-primitive",
+        "native-screen-command-entry"
+      ],
+      "payload": {
+        "kind": "bitfield-native-screen-command-entry",
+        "source_path": "show/mount-activity-feed.tsx",
+        "readme_path": "show/README.md"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activity-feed::workflow-action::emit-activity-fact",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:activity-feed.emit-activity-fact",
+        "kind": "action",
+        "is_active": true,
+        "name": "emit-activity-fact",
+        "description": "WS-A PRODUCER: write an activity-fact published-record so the Activity Feed shows real live actor activity. actor_id/package_id/record_kind/event_hash from input. NO wall-clock (the workflow+trigger DATA path is timeless by design) — the panel stamps first-seen client-side. Pure DATA over the workflow engine (L136).",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "actor_id",
+            "package_id",
+            "record_kind",
+            "event_hash"
+          ],
+          "properties": {
+            "actor_id": {
+              "type": "string"
+            },
+            "actor_type": {
+              "type": "string"
+            },
+            "package_id": {
+              "type": "string"
+            },
+            "record_kind": {
+              "type": "string"
+            },
+            "action_type": {
+              "type": "string"
+            },
+            "event_hash": {
+              "type": "string"
+            },
+            "action_label": {
+              "type": "string"
+            },
+            "object_label": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
+        "steps": [
+          {
+            "id": "emit",
+            "join": "all",
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "event_hash"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "activity-fact::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "event_hash"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "activity-fact",
+                    "actor_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "actor_id"
+                      }
+                    },
+                    "actor_type": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "actor_type"
+                      }
+                    },
+                    "package_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "package_id"
+                      }
+                    },
+                    "record_kind": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "record_kind"
+                      }
+                    },
+                    "action_type": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "action_type"
+                      }
+                    },
+                    "correlation_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "event_hash"
+                      }
+                    },
+                    "payload_size": 0,
+                    "confidence": 1,
+                    "timestamp": 0,
+                    "action_label": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "action_label"
+                      }
+                    },
+                    "object_label": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "object_label"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "version": 0,
+        "extra_properties": {},
+        "extra": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::activity-feed::trigger-rule::emit-activity-fact-on-ai-result",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:activity-feed:emit-activity-fact-on-ai-result",
+        "name": "emit-activity-fact-on-ai-result",
+        "description": "WS-A PRODUCER wiring. On an ai-records-producer.result write (an AI worker finished work), dispatch action:activity-feed.emit-activity-fact so the Activity Feed shows the AI's live activity. event_hash bound from envelope content_hash (unique per write). Pure DATA over trigger-engine -> slot::workflow (L136). Arms after the next fold/boot.",
+        "is_active": true,
+        "version": 0,
+        "trigger_type": "delta",
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "ai-records-producer.result"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "is_retraction"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:activity-feed.emit-activity-fact",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "actor_id": "ai:records-producer",
+              "actor_type": "ai-agent",
+              "package_id": "ai-records-producer",
+              "record_kind": "ai-records-producer.result",
+              "action_type": "write",
+              "event_hash": {
+                "$kind": "binding",
+                "select": {
+                  "from": "envelope",
+                  "path": "content_hash"
+                }
+              },
+              "action_label": "generated",
+              "object_label": "records"
+            }
+          }
+        },
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::activity-feed::trigger-rule::emit-activity-fact-on-article",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:activity-feed:emit-activity-fact-on-article",
+        "name": "emit-activity-fact-on-article",
+        "description": "WS-A PRODUCER wiring (2nd source) — proves the feed is GENERATIVE: a totally different source is ONE DATA row, zero handler code change (deletion/emergence test made concrete). On a content-generation.article-result write (an AI worker published an article), dispatch action:activity-feed.emit-activity-fact with its OWN actor_type/action_type (publish, not write). Only possible because emit-activity-fact was made input-bound (a3e8a6ea); a hardcoded actor_type='ai-agent'/action_type='write' handler would have mislabeled this source. Pure DATA over trigger-engine -> slot::workflow (L136). Arms after the next fold/boot.",
+        "is_active": true,
+        "version": 0,
+        "trigger_type": "delta",
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "content-generation.article-result"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "is_retraction"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:activity-feed.emit-activity-fact",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "actor_id": "ai:content-generation",
+              "actor_type": "ai-agent",
+              "package_id": "content-generation",
+              "record_kind": "content-generation.article-result",
+              "action_type": "publish",
+              "event_hash": {
+                "$kind": "binding",
+                "select": {
+                  "from": "envelope",
+                  "path": "content_hash"
+                }
+              },
+              "action_label": "published",
+              "object_label": "an article"
+            }
+          }
+        },
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-activity-feed",
+      "source_path": "built-stored-bytes/entry-bytes-activity-feed",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-activity-feed.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-activity-overlay",
+      "source_path": "built-stored-bytes/entry-bytes-activity-overlay",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-activity-overlay.source-closure.json"
+    }
+  ]
+}

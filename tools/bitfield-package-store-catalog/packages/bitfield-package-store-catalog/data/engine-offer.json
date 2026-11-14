@@ -1,0 +1,300 @@
+{
+  "schema": "bitfield.package_store.engine_offer.v1",
+  "engine_acquisition_rows": [
+    {
+      "row_kind": "engine-row",
+      "row_id": "engine:bitfield-runtime-kit",
+      "display_name": "Bitfield Studio / Runtime Kit",
+      "summary": "The open-source platform to build, run, and distribute packages.",
+      "capability_metadata": {
+        "public_capability_summary": [
+          "Package execution",
+          "Workflow automation",
+          "Data-driven UI",
+          "Native iOS support"
+        ]
+      },
+      "install": {
+        "install_subject": {
+          "subject_ref": "engine:bitfield-runtime-kit",
+          "subject_type_ref": "install-subject:engine",
+          "subject_label": "Bitfield Studio / Runtime Kit",
+          "engine_identity": "bitfield-runtime-kit"
+        },
+        "target": "action:engine-download.start"
+      },
+      "exchange": {
+        "package_file_download_pointer_object_keys": [],
+        "package_file_metadata_pointer_refs": [],
+        "package_use_decision_refs": [],
+        "access": {
+          "admission_fact_refs": [],
+          "product_access_proof_refs": [
+            "product-access-proof:engine:bitfield-runtime-kit"
+          ],
+          "required_owner_target_refs": [
+            "action:account-session.login-link"
+          ]
+        },
+        "offer": {
+          "display_ref": null,
+          "signed_deal_contract_refs": [],
+          "quote_reservation_target_refs": [],
+          "meter_unit_refs": [
+            "meter-unit:activated_device_month"
+          ],
+          "policy_refs": [
+            "policy:engine-free-trial"
+          ],
+          "purchase_options": [
+            {
+              "purchase_option_ref": "purchase-option:engine:bitfield-runtime-kit:free-trial",
+              "amount_due_today_cents": "0",
+              "cadence": "free-trial",
+              "contract_ref": null,
+              "currency_ref": "currency:usd",
+              "line_item_label": "Bitfield Studio / Runtime Kit (7-day trial)",
+              "package_file_ref": null,
+              "provider_ref": "portal-checkout",
+              "quote_reservation_ref": null,
+              "quote_signature_ref": null,
+              "recurring_amount_cents": "0",
+              "resource_ref": "resource:engine:bitfield-runtime-kit",
+              "settlement_amounts": null,
+              "settlement_policy": null,
+              "shape_ref": "deal-shape:free-trial",
+              "trial_days": 7,
+              "post_purchase_route_path": "/app"
+            }
+          ]
+        },
+        "update_policy_refs": [],
+        "provenance_refs": [
+          "resource:engine:bitfield-runtime-kit",
+          "source-material:engine/bitfield-runtime-kit",
+          "contract:engine:bitfield-runtime-kit:checkout-terms"
+        ]
+      },
+      "signed_package_file_metadata_pointers": [],
+      "package_use_decision_refs": [],
+      "access_policy_refs": [],
+      "visibility": {
+        "source": "source-visible",
+        "execution": "platform"
+      },
+      "remote_surface_descriptor_refs": [],
+      "preview_art": {
+        "kind": "engine-logo",
+        "owner_identity": "bitfield-studio",
+        "source_package": "bitfield-package-store-catalog",
+        "media_type": "image/svg+xml",
+        "byte_length": 0,
+        "material_ref": "logo:bitfield-studio"
+      },
+      "visual_detail_refs": [],
+      "publisher_trust_root_refs": [
+        "publisher-trust-root:bitfield-studio"
+      ],
+      "publisher_trust_roots": [],
+      "package_finding": {
+        "schema": "bitfield.package_store.package_finding.v1",
+        "row_id": "engine:bitfield-runtime-kit",
+        "title": "Bitfield Studio / Runtime Kit",
+        "summary": "The open-source platform to build, run, and distribute packages.",
+        "capabilities": [
+          "Package execution",
+          "Workflow automation",
+          "Data-driven UI",
+          "Native iOS support"
+        ],
+        "facets": [
+          {
+            "id": "all",
+            "label": "All",
+            "group": "all"
+          },
+          {
+            "id": "engine-row",
+            "label": "Runtimes",
+            "group": "kind"
+          },
+          {
+            "id": "source:source-visible",
+            "label": "Code visible",
+            "group": "source"
+          },
+          {
+            "id": "execution:platform",
+            "label": "Platform runtime",
+            "group": "runtime"
+          },
+          {
+            "id": "access:free-trial",
+            "label": "Free with trial",
+            "group": "access"
+          }
+        ],
+        "shelf_ids": [
+          "featured",
+          "runtimes",
+          "essential"
+        ],
+        "search": {
+          "aliases": [
+            "Bitfield Studio",
+            "Runtime Kit",
+            "Engine",
+            "Platform"
+          ],
+          "text": "bitfield studio runtime kit engine platform package execution workflow automation data-driven ui native ios support"
+        },
+        "ranking": {
+          "score": 200,
+          "signals": [
+            {
+              "id": "is-engine",
+              "label": "Core platform",
+              "group": "quality"
+            },
+            {
+              "id": "source:source-visible",
+              "label": "Code visible",
+              "group": "source"
+            },
+            {
+              "id": "execution:platform",
+              "label": "Platform runtime",
+              "group": "runtime"
+            }
+          ],
+          "result_explanations": [
+            "Core platform / Code visible / Platform runtime",
+            "Free trial available"
+          ]
+        },
+        "detail_blocks": [
+          {
+            "id": "what-it-does",
+            "title": "What it does",
+            "body": "Bitfield is an open-source platform for building and running data-driven applications. Download the free Runtime Kit to get started building packages on Mac, Linux, or iOS."
+          },
+          {
+            "id": "key-features",
+            "title": "Key features",
+            "items": [
+              "Data-driven package execution engine",
+              "Declarative workflow automation",
+              "Generic visual-database UI renderer",
+              "Native iOS support with on-device packages",
+              "Zero setup — download and run"
+            ]
+          },
+          {
+            "id": "before-install",
+            "title": "Before you download",
+            "items": [
+              "Code visible",
+              "Platform runtime",
+              "Free with 7-day trial"
+            ]
+          }
+        ],
+        "blocks": [
+          {
+            "id": "creator",
+            "role": "hero-line",
+            "render_kind": "text",
+            "label": "Creator",
+            "value": "Bitfield"
+          },
+          {
+            "id": "kind",
+            "role": "mark",
+            "render_kind": "mark",
+            "label": "Kind",
+            "value": "Runtime",
+            "tone_key": "engine-row"
+          },
+          {
+            "id": "access",
+            "role": "mark",
+            "render_kind": "mark",
+            "label": "Access",
+            "value": "Free trial",
+            "tone_key": "free-trial"
+          },
+          {
+            "id": "source",
+            "role": "mark",
+            "render_kind": "mark",
+            "label": "Source",
+            "value": "Code visible",
+            "tone_key": "source-visible"
+          },
+          {
+            "id": "runtime",
+            "role": "mark",
+            "render_kind": "mark",
+            "label": "Runtime",
+            "value": "Platform",
+            "tone_key": "platform"
+          },
+          {
+            "id": "primary-action",
+            "role": "action-label",
+            "render_kind": "text",
+            "label": "Primary action",
+            "value": "Download and start trial",
+            "tone_key": "engine.download"
+          },
+          {
+            "id": "price",
+            "role": "price-line",
+            "render_kind": "text",
+            "label": "Price",
+            "value": "Free with trial",
+            "tone_key": "free-trial"
+          }
+        ]
+      }
+    }
+  ],
+  "engine_acquisition_wiring": [
+    {
+      "description": "Portal checkout targets for engine acquisition (free trial + post-purchase redirect to /app)",
+      "action_namespace": "action:engine-download",
+      "action_targets": [
+        {
+          "target_name": "engine-download.start",
+          "portal_target_ref": "action:package-purchase.start",
+          "portal_target_name": "package-purchase.start",
+          "description": "Free engine trial — redirect to portal signup/checkout with trial_days=7 and post_purchase_route_path=/app"
+        },
+        {
+          "target_name": "engine-download.complete",
+          "portal_target_ref": "action:package-purchase.complete",
+          "portal_target_name": "package-purchase.complete",
+          "description": "Complete engine acquisition — portal redirects to /app to launch Runtime Kit"
+        }
+      ]
+    },
+    {
+      "description": "Account session / signup target for engine acquisition",
+      "action_namespace": "action:account-session",
+      "action_targets": [
+        {
+          "target_name": "account-session.login-link",
+          "portal_target_ref": "action:account-session.login-link",
+          "portal_target_name": "account-session.login-link",
+          "description": "Portal signup/login — required before trial access"
+        }
+      ]
+    }
+  ],
+  "notes": {
+    "composition": "The engine acquirable reuses the store's generic package-purchase and account-session targets. No new payment code — the portal's existing checkout handles the free trial and device licensing upstream.",
+    "trial_behavior": "First download triggers signup/7-day trial at portal. Post-purchase_route_path=/app opens the engine. No device charge yet (trial phase). After trial expires, user can add licensed devices (metered billing per device).",
+    "resource_ref": "resource:engine:bitfield-runtime-kit is the unique identifier for the engine in the catalog and checkout flow.",
+    "device_licensing": "The engine offer includes meter_unit_ref: meter-unit:activated_device_month to support per-device licensing after trial. This is wired in the money lane (tasks A3-A5)."
+  }
+}

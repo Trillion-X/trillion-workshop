@@ -1,0 +1,14 @@
+{
+  "kind": "bitfield-entry-scope-bindings",
+  "entries": [{
+    "entry_name": "resolve-current-install-inputs",
+    "scope_binding": { "target_writes": [{
+      "answer_cells": [{"name": "result"}],
+      "request": {"target": "engine.operation.label-addressed", "payload": {
+        "operation_label": "engine.operation.read-current",
+        "address_label": "package::bitfield-package-store-catalog::stored-bytes::catalog-data",
+        "address_mode": "label_hash"
+      }}
+    }] }
+  }]
+}

@@ -1,0 +1,107 @@
+{
+  "name": "startup-foreign-namespace-ownership",
+  "version": 1,
+  "scaffolds_removed_note": "This key held [\"bitfield-studio-startup\", \"vibenb-startup\"] and was read by exactly one guard, test_startup_foreign_namespace_guard.py, deleted 2026-09-05 with the six other guards whose entire subject was the scaffold ROLE. That role stopped being a package in 024c1b4e7, so the list named two paths that no longer exist and the guard reading it raised FileNotFoundError. A DATA row whose last reader is gone is not neutral: the next author reads it as a live configuration and writes a new guard against it. Removed rather than emptied, because an empty list would make any future guard pass over nothing, which is the absence-shaped-like-success failure this file's own notes keep naming.",
+  "retired_address_families_note": "Families measured ABSENT across the whole package set on 2026-09-05 and kept absent. ONE FAMILY PER ROW on purpose: the older `forbidden_address_patterns` below ORs `connector:` with `workflow:` and `step:` in a single regex, and only `connector:` is retired, so that row cannot be evaluated or widened per family without failing 7 honest packages. A pattern that encodes three facts in one string cannot be judged, only guessed at. Adding a family here is a data row; it must be measured at 0 live packages first, and the measurement belongs in the row.",
+  "retired_address_families": [
+    {
+      "family": "compiler",
+      "pattern": "^attribute_fact\\|[^|]+\\|prop:compiler:",
+      "measured_live_packages": 0,
+      "retired_because": "obsolete compiler definitions had zero consumers; build tooling is not capability DATA"
+    },
+    {
+      "family": "connector",
+      "pattern": "^(attribute_fact|entity|entity_types)\\|connector:",
+      "measured_live_packages": 0,
+      "retired_because": "connector entities had zero consumers; service reach is owned by service-connections descriptors"
+    },
+    {
+      "family": "person",
+      "pattern": "^(attribute_fact|entity|entity_types)\\|person:",
+      "measured_live_packages": 0,
+      "retired_because": "zero external consumers and no owner package"
+    },
+    {
+      "family": "skill_definition",
+      "pattern": "^(attribute_fact|entity|entity_types|participation)\\|skill_definition:",
+      "measured_live_packages": 0,
+      "retired_because": "zero external consumers and no owner package"
+    }
+  ],
+  "owned_address_families_note": "The live half of the ownership guards. Each of those files ran TWO checks: the scaffolds are clean (a subject that no longer exists, since the scaffold role stopped being a package in 024c1b4e7) and the owner is populated (still true and still worth enforcing). The address-uniqueness guard does NOT cover this: it bounds how MANY packages declare an address, never whether the right one still declares any. A family dropping to zero declarers passes uniqueness while the capability silently vanishes, so existence and exclusivity are asserted here per family. Counts are measurements taken 2026-09-05; the floor sits below the measurement so ordinary consolidation does not trip it while wholesale disappearance does.",
+  "owned_address_families": [
+    {
+      "family": "creation_type",
+      "pattern": "creation_type",
+      "owner": "eeaf",
+      "minimum_rows": 15,
+      "measured_rows": 19,
+      "measured_declaring_packages": 1,
+      "measurement_note": "First written as 25 from `grep -c`, which counts matching LINES including nested payload text and tombstones. The effective live-row count is 19, and the guard failed on its first run against my own number. Counts for this file come from the guard's own effective-state reader, never from grep."
+    },
+    {
+      "family": "agent-role-schema",
+      "pattern": "type_properties|type:agent_role",
+      "owner": "ai-agent-profile",
+      "minimum_rows": 5,
+      "measured_rows": 7,
+      "measured_declaring_packages": 1,
+      "measurement_note": "SCHEMA rows only, deliberately. The agent_role namespace as a whole is declared by 3 packages, because instances (attribute_fact|<subject>|prop:agent_role:*) are authored per subject by whoever owns the subject, which is correct and must not be guarded as single-owned. Only the type_properties schema half has one owner."
+    },
+    {
+      "family": "config-entities",
+      "pattern": "|config:",
+      "owner": "files",
+      "minimum_rows": 1,
+      "measured_rows": 1,
+      "measured_declaring_packages": 1,
+      "measurement_note": "Two sibling guards call this family RETIRED. It is not: it is live in files/, an active package, and declared nowhere else. It was only ever forbidden to the startup scaffolds, and a package owning its own vocabulary is legitimate. Recording it as owned turns a stale retirement claim into real existence coverage."
+    },
+    {
+      "family": "registry-entities",
+      "pattern": "|registry:",
+      "owner": "files",
+      "minimum_rows": 1,
+      "measured_rows": 1,
+      "measured_declaring_packages": 1,
+      "measurement_note": "Same correction as config-entities: called retired, actually live and solely owned by files/."
+    },
+    {
+      "family": "boot-stylesheet-attachment",
+      "pattern": "attachment:template:default:stylesheet",
+      "owner": "screen-look",
+      "minimum_rows": 6,
+      "measured_rows": 7,
+      "measured_declaring_packages": 1,
+      "measurement_note": "Added 2026-09-05 by a startup check that refuses a family row without provenance, and this row was the one it caught: it carried the counts but no record of how they were reached, which is the part that matters after a floor was once set from `grep -c` and failed on its own number. Re-read on the same run from the guard's own effective-state reader, which reports 7 live rows in `screen-look` and no other declarer. Floor of 6 sits one below, so consolidating a single stylesheet does not trip it while the family disappearing does."
+    }
+  ],
+  "human_label_keys_note": "Keys under which a descriptor carries text a person reads. Used to tell a CONTROL from background wiring: a dangling reference behind a label is a promise to a person, one in a wiring row is invisible plumbing. This is DATA because which word an author picks is Society, and the set is open; it was briefly a tuple in test_visible_control_dispatch_resolves.py, where the next descriptor writing `title` or `button_text` would have made the guard go quietly blind. Adding a word here is the whole change.",
+  "human_label_keys": [
+    "action_label",
+    "label",
+    "short_label",
+    "title",
+    "button_text",
+    "cta_label",
+    "menu_label"
+  ],
+  "registry_owner": "eeaf",
+  "registry_owner_minimum_addresses": 200,
+  "registry_owner_note": "Which package owns the shared platform registry is a Society decision, so it is written here as DATA rather than as a literal in a guard. The `scaffolds` key above names two packages deleted in 024c1b4e7 and is retained only until the guards that still read it are converted to predicates; it must not gain new readers.",
+  "schema_audit": "/workspace/the-owner/dev/ai-command-center/notes/projects/packages-and-package-sets/_shared/plans/2026-07-19-studio-startup-god-package-decomposition/artifacts/startup-schema-ownership.json",
+  "eeaf_audit": "/workspace/the-owner/dev/ai-command-center/notes/projects/packages-and-package-sets/_shared/plans/2026-07-19-studio-startup-god-package-decomposition/artifacts/startup-eeaf-duplicate-ownership.json",
+  "forbidden_address_patterns": [
+    "^attribute_fact\\|[^|]+\\|prop:cli_registry:",
+    "^attribute_fact\\|[^|]+\\|prop:agent_role:",
+    "^attribute_fact\\|[^|]+\\|prop:compiler:",
+    "^(attribute_fact|entity|entity_types)\\|(connector:|workflow:|step:)",
+    "^entity\\|participation:step-of:",
+    "^(attribute_fact|entity|entity_types|participation)\\|action:[^|]+.*type:action$",
+    "^(attribute_fact|entity|entity_types|participation)\\|trigger:[^|]+.*type:trigger$",
+    "^(attribute_fact|entity|entity_types|participation)\\|skill_definition:[^|]+",
+    "^package::(bitfield-studio-startup|vibenb-startup)::(workflow-action|trigger-rule|trigger-rule-visible)::"
+  ],
+  "reason": "Startup boundaries compose boot state; domain capability records are authored by their proven owner package or retired when no consumer exists."
+}

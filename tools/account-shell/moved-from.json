@@ -1,0 +1,57 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/account-shell/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-shell/packages/account-shell/index.ts",
+      "source_identity": "1f:9cdc6dec45acbd2a77f02e6ccb06fee6c03462be38429a11c686e67dd728c7ca",
+      "identity": "1f:9cdc6dec45acbd2a77f02e6ccb06fee6c03462be38429a11c686e67dd728c7ca"
+    },
+    {
+      "from": "packages/account-shell/read-data/read-portal-surfaces.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-shell/packages/account-shell/read-data/read-portal-surfaces.ts",
+      "source_identity": "1f:984fb8a1edd6fcb1d89ebf7d8ed7c536b68f5e38e8c69e277653084c211e649d",
+      "identity": "1f:984fb8a1edd6fcb1d89ebf7d8ed7c536b68f5e38e8c69e277653084c211e649d"
+    },
+    {
+      "from": "packages/account-shell/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-shell/packages/account-shell/README.md",
+      "source_identity": "1f:e3c098aef4d1eb2f3c9c98acad9b4c40d085ad0cf35092d473e4e6188d61cea4",
+      "identity": "1f:e3c098aef4d1eb2f3c9c98acad9b4c40d085ad0cf35092d473e4e6188d61cea4"
+    },
+    {
+      "from": "packages/account-shell/show/app-shell/AccountPortalShell.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-shell/packages/account-shell/show/app-shell/AccountPortalShell.tsx",
+      "source_identity": "1f:0a7138a3de7a0632a1b03a436db2c776809f90499debdacfb9d286d11d52f617",
+      "identity": "1f:0a7138a3de7a0632a1b03a436db2c776809f90499debdacfb9d286d11d52f617"
+    },
+    {
+      "from": "packages/account-shell/show/mount-account-portal-shell.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-shell/packages/account-shell/show/mount-account-portal-shell.tsx",
+      "source_identity": "1f:a9f7272ddc507e28bb4cda5c6a7c66b24cc5d3ac86dcf0078398c25f32271e18",
+      "identity": "1f:a9f7272ddc507e28bb4cda5c6a7c66b24cc5d3ac86dcf0078398c25f32271e18"
+    },
+    {
+      "from": "packages/account-shell/show/portal-surface-url.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-shell/packages/account-shell/show/portal-surface-url.ts",
+      "source_identity": "1f:ea0eff8e945dbb50bc87f6be268dedef6e0363e99fc9b4e124a96c75f1cee9ce",
+      "identity": "1f:ea0eff8e945dbb50bc87f6be268dedef6e0363e99fc9b4e124a96c75f1cee9ce"
+    },
+    {
+      "from": "packages/account-shell/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-shell/packages/account-shell/things-to-store-and-run.json",
+      "source_identity": "1f:1ca0e65ba737079f1c15c886da2b2be888b8cdc56987e85c6d7a7ef8ff48af3f",
+      "identity": "1f:1ca0e65ba737079f1c15c886da2b2be888b8cdc56987e85c6d7a7ef8ff48af3f"
+    }
+  ]
+}

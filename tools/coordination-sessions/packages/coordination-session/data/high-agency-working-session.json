@@ -1,0 +1,184 @@
+{
+  "schema": "bitfield.coordination-session/high-agency-working-session-focus-config",
+  "primitive": {
+    "primitive_id": "primitive:high-agency-working-session",
+    "stage_execution_policy": "all-stages-run; focus rows may change emphasis only",
+    "owner_pipeline": {
+      "coordination_session": {
+        "record_contract_ref": "generic-event-platform-data-contract.json#record_contracts.coordination_session",
+        "implementation_ref": "packages/coordination-session/do-work/session-lifecycle-operations.ts",
+        "owned_fields": [
+          "purpose_contract",
+          "participation_policy",
+          "workflow_definition_ref",
+          "lifecycle_state"
+        ]
+      },
+      "bottleneck_match": {
+        "record_contract_ref": "generic-event-platform-data-contract.json#record_contracts.bottleneck_match",
+        "implementation_ref": "packages/interaction-program/do-work/solve-capacity-constrained-assignment.mjs",
+        "owner_refs": [
+          "package::group::group-membership-operations",
+          "package::progression-evaluator::evaluate-progression",
+          "package::person-profile::profile-records",
+          "package::relationship-graph::relationship-records",
+          "package::suggested-match::match-proposals",
+          "package::interaction-program::capacity-constrained-assignment"
+        ]
+      },
+      "feedback_and_learning": {
+        "record_contract_ref": "generic-event-platform-data-contract.json#record_contracts.feedback_and_learning",
+        "owner_refs": [
+          "package::ask-questions-sort-answers-follow-up::answer-facts",
+          "package::package-store-reviews::rating-records",
+          "package::progression-evaluator::evaluate-progression",
+          "package::learning-mastery-protocol::adjustment-policy",
+          "package::spaced-repetition::next-action-scheduling",
+          "package::learning-progress::outcome-readback"
+        ]
+      }
+    },
+    "pipeline_stages": [
+      {
+        "stage_id": "understand",
+        "owner_ref": "coordination_session",
+        "field_refs": [
+          "participation_policy",
+          "purpose_contract"
+        ]
+      },
+      {
+        "stage_id": "desired-outcome",
+        "owner_ref": "coordination_session",
+        "field_refs": [
+          "purpose_contract"
+        ]
+      },
+      {
+        "stage_id": "biggest-bottleneck",
+        "owner_ref": "bottleneck_match",
+        "field_refs": [
+          "bottleneck_fact_refs"
+        ]
+      },
+      {
+        "stage_id": "highest-leverage-action",
+        "owner_ref": "bottleneck_match",
+        "field_refs": [
+          "ranking_policy_ref",
+          "assignment_proposal"
+        ]
+      },
+      {
+        "stage_id": "assemble-context",
+        "owner_ref": "bottleneck_match",
+        "field_refs": [
+          "helper_candidate_refs",
+          "assignment_proposal",
+          "authority_gate"
+        ]
+      },
+      {
+        "stage_id": "work",
+        "owner_ref": "coordination_session",
+        "field_refs": [
+          "workflow_definition_ref",
+          "lifecycle_state",
+          "participation_policy"
+        ]
+      },
+      {
+        "stage_id": "real-state-change",
+        "owner_ref": "bottleneck_match",
+        "field_refs": [
+          "outcome_fact_refs"
+        ]
+      },
+      {
+        "stage_id": "capture-next",
+        "owner_ref": "feedback_and_learning",
+        "field_refs": [
+          "answer_fact_refs",
+          "rating_record_ref",
+          "adjustment_policy_ref",
+          "next_session_proposal_ref",
+          "owner_outcome"
+        ]
+      }
+    ]
+  },
+  "focus_configs": [
+    {
+      "focus_id": "focus:bottleneck-smashing",
+      "primitive_ref": "primitive:high-agency-working-session",
+      "purpose_contract": {
+        "key": "focus:bottleneck-smashing",
+        "descriptor_ref": "data::coordination-session::focus:bottleneck-smashing",
+        "data": {
+          "focus_label": "Bottleneck-Smashing",
+          "primitive_ref": "primitive:high-agency-working-session"
+        }
+      },
+      "stage_emphasis": [
+        "biggest-bottleneck",
+        "highest-leverage-action",
+        "real-state-change",
+        "capture-next"
+      ]
+    },
+    {
+      "focus_id": "focus:ai-execution",
+      "primitive_ref": "primitive:high-agency-working-session",
+      "purpose_contract": {
+        "key": "focus:ai-execution",
+        "descriptor_ref": "data::coordination-session::focus:ai-execution",
+        "data": {
+          "focus_label": "AI-Execution",
+          "primitive_ref": "primitive:high-agency-working-session"
+        }
+      },
+      "stage_emphasis": [
+        "assemble-context",
+        "work",
+        "real-state-change",
+        "capture-next"
+      ]
+    }
+  ],
+  "community_group_configs": [
+    {
+      "record_kind": "community_group",
+      "group_id": "community-group:high-agency-working-session:proven-useful",
+      "identity": {
+        "label": "Proven-useful high-agency working-session community",
+        "topic_key": null
+      },
+      "focus_taxonomy": [],
+      "membership_graph": [],
+      "visibility_policy_ref": "policy::access-rule::outcome-need",
+      "event_creation_policy_ref": "policy::coordination-session::instantiate-from-outcome-need",
+      "owner_subjects": [],
+      "emergence": {
+        "output_of_ref": "primitive:high-agency-working-session",
+        "instantiated_on_demand": true,
+        "dissolvable": true,
+        "initial_state": "instantiated",
+        "dissolved_state": "dissolved",
+        "instantiate_predicate_ref": "predicate::outcome-needs-shared-coordination",
+        "dissolve_predicate_ref": "predicate::shared-coordination-need-ended"
+      },
+      "durability_marker": {
+        "marker_key": "proven-useful",
+        "decision_owner_ref": "package::progression-evaluator::evaluate-progression",
+        "decision_policy": "all-thresholds",
+        "thresholds": {
+          "completed_instantiations_gte": 3,
+          "proven_owner_outcomes_gte": 3
+        },
+        "on_pass": "retain-as-durable-configuration",
+        "on_fail": "remain-dissolvable"
+      },
+      "topic_surface_refs": []
+    }
+  ]
+}

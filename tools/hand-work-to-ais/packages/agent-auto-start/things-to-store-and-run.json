@@ -1,0 +1,75 @@
+{
+  "package": "agent-auto-start",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::agent-auto-start::published-record::setting-control::auto-start",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "control": "boolean-toggle",
+        "description": "Read-only preference evidence. Product startup is owned by app-open activation.",
+        "id": "agent-auto-start.enabled",
+        "kind": "setting-control",
+        "order": 10,
+        "readonly": true,
+        "title": "Agent Startup Preference",
+        "value": {
+          "default": true,
+          "feed_label": "agent-auto-start",
+          "keys": [
+            "enabled",
+            "value"
+          ],
+          "property_ids": [
+            "prop:agent-auto-start:enabled"
+          ],
+          "source_value": {
+            "projection": {
+              "fields": [
+                {
+                  "column": 0,
+                  "key": "subject_id",
+                  "required": true,
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "non_empty_text"
+                    }
+                  }
+                },
+                {
+                  "column": 1,
+                  "key": "property_id",
+                  "required": true,
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "non_empty_text"
+                    }
+                  }
+                },
+                {
+                  "column": 2,
+                  "key": "value",
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "json"
+                    }
+                  }
+                }
+              ],
+              "op": "rows"
+            },
+            "source_bytes": {
+              "bytes_to_value": "cell_table"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    }
+  ]
+}

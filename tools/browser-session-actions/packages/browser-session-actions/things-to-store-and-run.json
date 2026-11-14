@@ -1,0 +1,61 @@
+{
+  "package": "browser-session-actions",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::browser-session-actions::capability::act-in-logged-in-browser-sessions",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "bitfield-package-capability",
+        "id": "capability:act-in-logged-in-browser-sessions",
+        "package": "browser-session-actions",
+        "label": "Use a web page safely",
+        "description": "Use public pages in a private browsing space. Signed-in pages require a separate screen, pointer, keyboard, and focus for this task. Personal browser windows are used only when the exact session was explicitly requested.",
+        "owned_record_kinds": [],
+        "reuses": ["workflow", "stored_bytes", "process"]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::browser-session-actions::checks",
+      "path": ["packages", "browser-session-actions", "checks"],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": ["tests/browser-session-actions.test.mjs"]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::browser-session-actions::public-source::do-work",
+      "path": ["packages", "browser-session-actions", "public-sources", "do-work"],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work",
+        "contract": "browser-session-actions owns browser-intent classification, canonical execution-owner selection, personal-browser exclusion, and isolated-surface proof validation; it does not own a browser protocol or execute provider actions"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::browser-session-actions::provider-table::current",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "browser-session-routing-policy",
+        "source_path": "browser-session-providers.json",
+        "routes": ["authenticated-isolated", "public-headless"],
+        "forbidden_provider_kinds": ["local_cdp_browser"]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "run-browser-session-action",
+      "source_path": "do-work/run-browser-session-action.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "browser-session-actions-core",
+      "source_path": "do-work/browser-session-actions.mjs"
+    }
+  ]
+}

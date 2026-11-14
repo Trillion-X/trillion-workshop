@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/course-lesson/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/course-lesson/packages/course-lesson/README.md",
+      "source_identity": "1f:ed6e599a3b1cecc9ddd172e5a6061cc2b0fc49b913aed3c0eab69447e0c26936",
+      "identity": "1f:ed6e599a3b1cecc9ddd172e5a6061cc2b0fc49b913aed3c0eab69447e0c26936"
+    },
+    {
+      "from": "packages/course-lesson/show/CourseLessonSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/course-lesson/packages/course-lesson/show/CourseLessonSurface.tsx",
+      "source_identity": "1f:a57ec8e326f756eaf8198bb7fa5321cb1a62bc45f576c923ad0201663cf7bc11",
+      "identity": "1f:a57ec8e326f756eaf8198bb7fa5321cb1a62bc45f576c923ad0201663cf7bc11"
+    },
+    {
+      "from": "packages/course-lesson/show/mount-course-lesson.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/course-lesson/packages/course-lesson/show/mount-course-lesson.tsx",
+      "source_identity": "1f:8930853bac1665f34eeadcf0e313826915a6c6a72a92dbdaa794259b35cfa3e2",
+      "identity": "1f:8930853bac1665f34eeadcf0e313826915a6c6a72a92dbdaa794259b35cfa3e2"
+    },
+    {
+      "from": "packages/course-lesson/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/course-lesson/packages/course-lesson/things-to-store-and-run.json",
+      "source_identity": "1f:cc5c62f5f95843051442246d0b06065bee9eb4a5d0534d35f63543891ab2663d",
+      "identity": "1f:cc5c62f5f95843051442246d0b06065bee9eb4a5d0534d35f63543891ab2663d"
+    }
+  ]
+}

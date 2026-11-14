@@ -1,0 +1,106 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/answer-state-questions/do-work/answer-state-questions.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-a-small-model-for-a-verdict/packages/answer-state-questions/do-work/answer-state-questions.ts",
+      "source_identity": "1f:1f2446e58cbc570aed94dc2ecd53d7a71e18bdf0072062c7d5e0ea15d32e9c9f",
+      "identity": "1f:1f2446e58cbc570aed94dc2ecd53d7a71e18bdf0072062c7d5e0ea15d32e9c9f"
+    },
+    {
+      "from": "packages/answer-state-questions/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-a-small-model-for-a-verdict/packages/answer-state-questions/things-to-store-and-run.json",
+      "source_identity": "1f:2632b71a23dee05d0391d65267cfe1f6f04dd9bd359be296f0de47d170c8c61c",
+      "identity": "1f:2632b71a23dee05d0391d65267cfe1f6f04dd9bd359be296f0de47d170c8c61c"
+    },
+    {
+      "from": "packages/ask-a-small-model-for-a-verdict/do-work/find-where-the-line-should-go.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-a-small-model-for-a-verdict/packages/ask-a-small-model-for-a-verdict/do-work/find-where-the-line-should-go.mjs",
+      "source_identity": "1f:03ddde3f0a767522f24b338296dd691e7ee91e44170f0ee0947d363fabb7a728",
+      "identity": "1f:9f6f0a8c86831cd883921b9d492e8e02385985e5cbeaa4218a50e6c2a43fe260"
+    },
+    {
+      "from": "packages/ask-a-small-model-for-a-verdict/do-work/get-the-judges-ready.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-a-small-model-for-a-verdict/packages/ask-a-small-model-for-a-verdict/do-work/get-the-judges-ready.mjs",
+      "source_identity": "1f:f816ea6ddfc9f70371237cc452b085a206c43df0e73c3d024a58cc924a12b85e",
+      "identity": "1f:33f4f61bd95d74a5dce04a294aedb6e96803be5f50df282481c31af9b82eaf4e"
+    },
+    {
+      "from": "packages/ask-a-small-model-for-a-verdict/do-work/judge-a-turn-before-it-ends.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-a-small-model-for-a-verdict/packages/ask-a-small-model-for-a-verdict/do-work/judge-a-turn-before-it-ends.mjs",
+      "source_identity": "1f:a28bdcb2020c9369312a20331cf640160748b64ba1fc965697a679f2ac0b28db",
+      "identity": "1f:2a366cb97e410bb709ba67a4792bce69897609853b1c4c79d208b2501b957a43"
+    },
+    {
+      "from": "packages/ask-a-small-model-for-a-verdict/do-work/remember-what-was-already-said.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-a-small-model-for-a-verdict/packages/ask-a-small-model-for-a-verdict/do-work/remember-what-was-already-said.mjs",
+      "source_identity": "1f:00797e5ba9950ff5c3b50e209aef08e3d203c88b8556b48879a2c248c7a080c9",
+      "identity": "1f:2e80ded25059f938a5a9e52b0c36c9416d5581ce2c69a3de600c4cdf0827f6f5"
+    },
+    {
+      "from": "packages/ask-a-small-model-for-a-verdict/do-work/route-to-the-owner-that-answers.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-a-small-model-for-a-verdict/packages/ask-a-small-model-for-a-verdict/do-work/route-to-the-owner-that-answers.mjs",
+      "source_identity": "1f:3fdce6d2bb5db4d94c8b8ac6b3486e1141353b65feef98a4ef14c9b99513f802",
+      "identity": "1f:ddfa7cd3debe6d0d1302a6a073e7fc2aa2e5e82f4b4080cefc8ce8183a726550"
+    },
+    {
+      "from": "packages/ask-a-small-model-for-a-verdict/do-work/see-which-models-can-judge.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-a-small-model-for-a-verdict/packages/ask-a-small-model-for-a-verdict/do-work/see-which-models-can-judge.mjs",
+      "source_identity": "1f:0d77316a619190baef8039f9d03902201ff2930dfcc6563fe92ab702dea74c45",
+      "identity": "1f:2d1acca67a17f5709b38217a61c8c1ee462686ed51058540e7c5dbfdd6626d5a"
+    },
+    {
+      "from": "packages/ask-a-small-model-for-a-verdict/do-work/serve_a_contrastive_model.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-a-small-model-for-a-verdict/packages/ask-a-small-model-for-a-verdict/do-work/serve_a_contrastive_model.py",
+      "source_identity": "1f:1ea77715b98c6e6d0e3767e311d8cab48b05a1f174c608feca2847e48a7cb247",
+      "identity": "1f:1ea77715b98c6e6d0e3767e311d8cab48b05a1f174c608feca2847e48a7cb247"
+    },
+    {
+      "from": "packages/ask-a-small-model-for-a-verdict/do-work/serve_a_local_classifier.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-a-small-model-for-a-verdict/packages/ask-a-small-model-for-a-verdict/do-work/serve_a_local_classifier.py",
+      "source_identity": "1f:a99a76d2cdb7d673c8c988504129dc8e82e41f01f7ce74af67491df770a81f2d",
+      "identity": "1f:a99a76d2cdb7d673c8c988504129dc8e82e41f01f7ce74af67491df770a81f2d"
+    },
+    {
+      "from": "packages/ask-a-small-model-for-a-verdict/do-work/serve-a-local-classifier.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-a-small-model-for-a-verdict/packages/ask-a-small-model-for-a-verdict/do-work/serve-a-local-classifier.mjs",
+      "source_identity": "1f:938323a7d7d5928e791a6e73c898546f224019e944050020a130177da8f11e43",
+      "identity": "1f:938323a7d7d5928e791a6e73c898546f224019e944050020a130177da8f11e43"
+    },
+    {
+      "from": "packages/ask-a-small-model-for-a-verdict/do-work/tell-it-when-it-was-wrong.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-a-small-model-for-a-verdict/packages/ask-a-small-model-for-a-verdict/do-work/tell-it-when-it-was-wrong.mjs",
+      "source_identity": "1f:38d5b7be3f10570370632e59240ca4a17c1967af6933a87399a0a6e42cf75a5b",
+      "identity": "1f:38d5b7be3f10570370632e59240ca4a17c1967af6933a87399a0a6e42cf75a5b"
+    },
+    {
+      "from": "packages/ask-a-small-model-for-a-verdict/do-work/who-can-be-asked.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-a-small-model-for-a-verdict/packages/ask-a-small-model-for-a-verdict/do-work/who-can-be-asked.mjs",
+      "source_identity": "1f:cdd7402a86c09240437a9c84e91d3efede4f7c7679fce04432930c56b43302cd",
+      "identity": "1f:50c39d3684f78a7450c4bfb022d38f15f498a8d3a287489295d2df676e27f623"
+    },
+    {
+      "from": "packages/ask-a-small-model-for-a-verdict/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-a-small-model-for-a-verdict/packages/ask-a-small-model-for-a-verdict/things-to-store-and-run.json",
+      "source_identity": "1f:df07bcc464b41e984ed9d2b73b452404796d5f0124ca1fe3b1695bf9970097a7",
+      "identity": "1f:df07bcc464b41e984ed9d2b73b452404796d5f0124ca1fe3b1695bf9970097a7"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "schema": "bitfield.package_store.collection_definitions.v1",
+  "collections": [
+    {
+      "collection_id": "autonomous-business",
+      "display_name": "Autonomous Business Starter",
+      "summary": "Essential packages for building autonomous systems that run your business.",
+      "capability_metadata": {
+        "public_capability_summary": [
+          "Workflow automation",
+          "AI provider integration",
+          "Action validation"
+        ]
+      },
+      "members": [
+        { "acquirable_id": "package:workflow" },
+        { "acquirable_id": "package:ai-providers" },
+        { "acquirable_id": "package:ai-action-guard" }
+      ]
+    },
+    {
+      "collection_id": "learning-protocol",
+      "display_name": "Learning Protocol Stack",
+      "summary": "Complete toolkit for implementing guided learning and training protocols.",
+      "capability_metadata": {
+        "public_capability_summary": [
+          "Guided sessions",
+          "AI coaching",
+          "Agent configuration"
+        ]
+      },
+      "members": [
+        { "acquirable_id": "package:agents-hub" },
+        { "acquirable_id": "package:ai-agent-profile" },
+        { "acquirable_id": "package:ai-providers" }
+      ]
+    },
+    {
+      "collection_id": "community-tools",
+      "display_name": "Community Apps & Infrastructure",
+      "summary": "Tools for building and hosting community-facing applications.",
+      "capability_metadata": {
+        "public_capability_summary": [
+          "App hosting",
+          "Web browser shell",
+          "Process automation"
+        ]
+      },
+      "members": [
+        { "acquirable_id": "package:hosted-public-app" },
+        { "acquirable_id": "package:browser-shell" },
+        { "acquirable_id": "package:workflow" }
+      ]
+    }
+  ]
+}

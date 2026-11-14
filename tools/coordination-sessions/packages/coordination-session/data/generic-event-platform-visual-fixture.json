@@ -1,0 +1,33 @@
+{
+  "schema": "bitfield.coordination-session/visual-proof-fixture/v1",
+  "source_fixture": "do-work/generic-event-platform-readback.test.ts",
+  "records": [
+    { "address": "catalog-session::scarce", "payload": { "record_kind": "catalog-session", "title": "Capacity workshop", "status": "full", "mode": "mode::remote", "time": "2026-09-01T15:00:00.000Z", "place": "place::remote-room-a", "hosts": ["subject:host:primary"], "capacity": 1, "remaining": 0 } },
+    { "address": "catalog-session::flexible", "payload": { "record_kind": "catalog-session", "title": "Flexible working session", "status": "open", "mode": "mode::hybrid", "time": "2026-09-02T17:00:00.000Z", "place": "place::room-b", "hosts": ["subject:host:secondary"], "capacity": 12, "remaining": 7 } },
+    { "address": "catalog-session::successor", "payload": { "record_kind": "catalog-session", "title": "Progression follow-up", "status": "open", "mode": "mode::remote", "time": "2026-09-08T15:00:00.000Z", "place": "place::remote-room-a", "hosts": ["subject:host:primary"], "capacity": 8, "remaining": 8 } },
+    { "address": "catalog-session::planning", "payload": { "record_kind": "catalog-session", "title": "Planning exchange", "status": "open", "mode": "mode::in-person", "time": "2026-09-03T14:00:00.000Z", "place": "place::room-c", "hosts": ["subject:host:tertiary"], "capacity": 16, "remaining": 4 } },
+    { "address": "catalog-session::review", "payload": { "record_kind": "catalog-session", "title": "Peer review circle", "status": "open", "mode": "mode::hybrid", "time": "2026-09-04T16:00:00.000Z", "place": "place::room-d", "hosts": ["subject:host:secondary"], "capacity": 10, "remaining": 2 } },
+    { "address": "catalog-session::clinic", "payload": { "record_kind": "catalog-session", "title": "Open problem clinic", "status": "open", "mode": "mode::remote", "time": "2026-09-05T18:00:00.000Z", "place": "place::remote-room-b", "hosts": ["subject:host:primary"], "capacity": 20, "remaining": 13 } },
+    { "address": "session-detail::scarce", "payload": { "record_kind": "session-detail", "title": "Capacity workshop", "status": "confirmed", "mode": "mode::remote", "time": "2026-09-01T15:00:00.000Z", "local_time": "2026-09-01T10:00:00-05:00", "place": "place::remote-room-a", "hosts": ["subject:host:primary"], "capacity": 1, "remaining": 0, "waitlist_rank": 1 } },
+    { "address": "ranked-choice::scarce", "payload": { "record_kind": "ranked-choice", "title": "Capacity workshop", "mode": "mode::remote", "time": "2026-09-01T15:00:00.000Z", "place": "place::remote-room-a", "primary_rank": 1, "alternate_rank": 3 } },
+    { "address": "ranked-choice::flexible", "payload": { "record_kind": "ranked-choice", "title": "Flexible working session", "mode": "mode::hybrid", "time": "2026-09-02T17:00:00.000Z", "place": "place::room-b", "primary_rank": 2, "alternate_rank": 1 } },
+    { "address": "ranked-choice::successor", "payload": { "record_kind": "ranked-choice", "title": "Progression follow-up", "mode": "mode::remote", "time": "2026-09-08T15:00:00.000Z", "place": "place::remote-room-a", "primary_rank": 3, "alternate_rank": 2 } },
+    { "address": "seat-claim::first", "payload": { "record_kind": "seat-claim", "title": "Confirmed claim", "participant": "subject:first:canonical", "status": "confirmed", "capacity": 1, "remaining": 0, "receipt": "claim:first:scarce" } },
+    { "address": "seat-claim::second", "payload": { "record_kind": "seat-claim", "title": "Waitlist claim", "participant": "subject:second:canonical", "status": "waitlisted", "capacity": 1, "remaining": 0, "waitlist_rank": 1, "receipt": "claim:second:scarce" } },
+    { "address": "seat-claim::promotion", "payload": { "record_kind": "seat-claim", "title": "Promotion offer", "participant": "subject:second:canonical", "status": "promoted", "capacity": 1, "remaining": 0, "waitlist_rank": 1, "receipt": "promotion:second:scarce" } },
+    { "address": "submission-receipt::first", "payload": { "record_kind": "submission-receipt", "title": "Capacity workshop submission", "status": "confirmed", "receipt": "submission:first / claim:first:scarce" } },
+    { "address": "submission-receipt::second", "payload": { "record_kind": "submission-receipt", "title": "Capacity workshop submission", "status": "waitlisted", "receipt": "submission:second / claim:second:scarce", "waitlist_rank": 1, "successor": "session:successor" } },
+    { "address": "submission-receipt::draft", "payload": { "record_kind": "submission-receipt", "title": "Saved selection", "status": "draft", "receipt": "recovery:submission:second" } },
+    { "address": "outcome::participant", "payload": { "record_kind": "outcome-relation", "node_ref": "participant:subject:first", "title": "Participant", "participant": "subject:first:canonical", "completion": "completed", "feedback": "Requested", "next_learning": "session:successor", "provenance": ["participant-provenance:first"] } },
+    { "address": "outcome::bottleneck", "payload": { "record_kind": "outcome-relation", "node_ref": "bottleneck:capacity", "parent_ref": "participant:subject:first", "title": "Capacity bottleneck", "bottleneck": "ledger:scarce", "provenance": ["claim:first:scarce", "claim:second:scarce"] } },
+    { "address": "outcome::helper", "payload": { "record_kind": "outcome-relation", "node_ref": "helper:successor", "parent_ref": "bottleneck:capacity", "title": "Successor helper", "helper": "session:successor", "successor": "session:successor", "provenance": ["session:scarce", "preference-provenance:first:0"] } },
+    { "address": "outcome::learning", "payload": { "record_kind": "outcome-relation", "node_ref": "learning:adjusted", "parent_ref": "helper:successor", "title": "Learning adjusted", "completion": "accepted", "feedback": "feedback progression fit", "next_learning": "session:successor", "provenance": ["feedback:session:scarce", "assignment:session:successor"] } }
+  ],
+  "scenarios": [
+    { "id": "catalog-dense", "view_ref": "catalog", "state_ref": "open" },
+    { "id": "ranked-choice-matrix", "view_ref": "ranked-choice", "state_ref": "open" },
+    { "id": "full-seat-waitlist", "view_ref": "host-capacity-queue", "state_ref": "full-waitlist" },
+    { "id": "receipt-status", "view_ref": "receipt-status", "state_ref": "partial-draft" },
+    { "id": "successor-provenance", "view_ref": "outcome-relations", "state_ref": "stale-superseded" }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "edl_template": {
+    "base": {
+      "kind": "slides",
+      "artifact": "<slides_full_frame_artifact>"
+    },
+    "spine": {
+      "segments": [
+        {
+          "id": "all",
+          "kind": "base_span",
+          "src_in": 0,
+          "src_out": "<voice_duration_s>"
+        }
+      ]
+    },
+    "source_time_map": {
+      "mode": "span-relative"
+    },
+    "overlays": [],
+    "chapter_inserts": [],
+    "audio_graph": {
+      "replace_audio": "<mastered_audio_ref>"
+    },
+    "encode": {
+      "width": 1920,
+      "height": 1080,
+      "fps": "24000/1001",
+      "crf": 18,
+      "preset": "medium",
+      "audio_bitrate": "256k"
+    }
+  }
+}

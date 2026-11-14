@@ -1,0 +1,65 @@
+{
+  "package": "answer-state-questions",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::answer-state-questions::contract",
+      "path": ["packages", "answer-state-questions", "contract"],
+      "payload": {
+        "kind": "package-contract",
+        "package": "answer-state-questions",
+        "owns": ["typed question validation", "capability-based typed question requests", "typed answer completeness"],
+        "does_not_own": ["provider selection", "model selection", "transport", "credentials", "product-specific questions", "caller policy"]
+      },
+      "remove": false
+    },
+    { "type": "stored_bytes", "name": "answer-state-questions", "source_path": "do-work/answer-state-questions.ts" },
+    {
+      "type": "record",
+      "address": "package::answer-state-questions::target::answer",
+      "path": ["packages", "answer-state-questions", "targets", "answer"],
+      "payload": { "kind": "package-target-descriptor", "target": "answer-state-questions.answer", "entry_name": "answer-state-questions", "export_name": "answerStateQuestions", "source_path": "do-work/answer-state-questions.ts" },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::answer-state-questions::entry::answer-state-questions",
+      "path": ["packages", "answer-state-questions", "entries", "answer-state-questions"],
+      "payload": { "kind": "bitfield-package-entry", "entry_name": "answer-state-questions", "export_name": "answerStateQuestions", "source_path": "do-work/answer-state-questions.ts", "entry_bytes": { "stored_bytes": "entry-bytes-answer-state-questions" } },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-answer-state-questions",
+      "build": {
+        "sequence": {
+          "inputs": [], "input_trees": [],
+          "steps": [{
+            "name": "build",
+            "process": { "argv": ["node", "bitfield-package-entry-builder"], "cwd": ".", "timeout_ms": 120000, "termination_grace_ms": 1000, "expected_termination": { "kind": "exited", "code": 0 }, "env": {}, "inputs": [], "input_trees": [], "outputs": [{ "mount_path": ".bitfield-build-output" }], "containment": { "kind": "descendant_effect_contained", "pipe_eof_timeout_ms": 1000, "publications": [] }, "capture_fds": [1, 2], "collected_files": [] },
+            "workspace_bindings": { "environment": [], "arguments": [{ "index": 1, "parts": [{ "kind": "workspace_root" }, { "kind": "literal", "value": "/packages/make-packages-match-their-source/do-work/build-package-entry-byte.mjs" }] }] },
+            "predecessor_outputs": []
+          }]
+        },
+        "output": { "step": "build", "mount_path": ".bitfield-build-output" },
+        "request": { "entry_name": "answer-state-questions" }
+      },
+      "source_path": "built-stored-bytes/entry-bytes-answer-state-questions",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-answer-state-questions.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::answer-state-questions::tool::answer-state-questions",
+      "path": ["current-item", "published-record"],
+      "payload": { "kind": "ai-tool-descriptor", "id": "tool:answer-state-questions", "label": "Answer typed questions about state", "target_ref": "answer-state-questions.answer", "status": "active" },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::answer-state-questions::checks",
+      "path": ["packages", "answer-state-questions", "checks"],
+      "payload": { "kind": "package-checks-descriptor", "checks": ["do-work/answer-state-questions.test.ts"] },
+      "remove": false
+    }
+  ]
+}

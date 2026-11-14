@@ -1,0 +1,43 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/converge-installed-apps-to-their-current-handle/do-work/converge-installed-apps-to-their-current-handle.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/converge-installed-apps-to-their-current-handle/packages/converge-installed-apps-to-their-current-handle/do-work/converge-installed-apps-to-their-current-handle.mjs",
+      "source_identity": "1f:4a6d24adef12697469dd63124cf61f66b096890a08fd39887025a4b1f84c4189",
+      "identity": "1f:4a6d24adef12697469dd63124cf61f66b096890a08fd39887025a4b1f84c4189"
+    },
+    {
+      "from": "packages/converge-installed-apps-to-their-current-handle/do-work/run-converge-installed-apps-to-their-current-handle.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/converge-installed-apps-to-their-current-handle/packages/converge-installed-apps-to-their-current-handle/do-work/run-converge-installed-apps-to-their-current-handle.mjs",
+      "source_identity": "1f:36e482455595c927b61dd8967b176959f1790b9b76cf9c072561cf6a83b5b4b1",
+      "identity": "1f:36e482455595c927b61dd8967b176959f1790b9b76cf9c072561cf6a83b5b4b1"
+    },
+    {
+      "from": "packages/converge-installed-apps-to-their-current-handle/do-work/run-convergence-request.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/converge-installed-apps-to-their-current-handle/packages/converge-installed-apps-to-their-current-handle/do-work/run-convergence-request.mjs",
+      "source_identity": "1f:e0449e809eba132961e79223e73c25e6c63809439893a840b30df326ec9cb16c",
+      "identity": "1f:e0449e809eba132961e79223e73c25e6c63809439893a840b30df326ec9cb16c"
+    },
+    {
+      "from": "packages/converge-installed-apps-to-their-current-handle/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/converge-installed-apps-to-their-current-handle/packages/converge-installed-apps-to-their-current-handle/README.md",
+      "source_identity": "1f:5eae33ea4905a82bb0cb366708288b048ef6e061ffcc8055b3ce957d317fdb5d",
+      "identity": "1f:5eae33ea4905a82bb0cb366708288b048ef6e061ffcc8055b3ce957d317fdb5d"
+    },
+    {
+      "from": "packages/converge-installed-apps-to-their-current-handle/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/converge-installed-apps-to-their-current-handle/packages/converge-installed-apps-to-their-current-handle/things-to-store-and-run.json",
+      "source_identity": "1f:e991910b9029abef06eb35b996aa93925c0ec046be0d2be4ae915711661a366c",
+      "identity": "1f:e991910b9029abef06eb35b996aa93925c0ec046be0d2be4ae915711661a366c"
+    }
+  ]
+}

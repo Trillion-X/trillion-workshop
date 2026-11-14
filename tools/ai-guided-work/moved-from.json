@@ -1,0 +1,50 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/ai-guided-work/do-work/start-ai-guided-work.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-guided-work/packages/ai-guided-work/do-work/start-ai-guided-work.ts",
+      "source_identity": "1f:203ebdc8564fe20a6bc51209528a15d051cb5848cbd494a2616361ccaac0dbb1",
+      "identity": "1f:203ebdc8564fe20a6bc51209528a15d051cb5848cbd494a2616361ccaac0dbb1"
+    },
+    {
+      "from": "packages/ai-guided-work/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-guided-work/packages/ai-guided-work/entry-to-package-data-map.json",
+      "source_identity": "1f:dd86ca35821adf38186f63369417de4eed37c2ea70331bdd793d3ba8bca26a73",
+      "identity": "1f:dd86ca35821adf38186f63369417de4eed37c2ea70331bdd793d3ba8bca26a73"
+    },
+    {
+      "from": "packages/ai-guided-work/read-data/read-ai-guided-work.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-guided-work/packages/ai-guided-work/read-data/read-ai-guided-work.ts",
+      "source_identity": "1f:da04a859c012da85cfcaa9a38ff5a98c9052378048fe022f8d60e7fccee733b4",
+      "identity": "1f:da04a859c012da85cfcaa9a38ff5a98c9052378048fe022f8d60e7fccee733b4"
+    },
+    {
+      "from": "packages/ai-guided-work/show/AIGuidedWork.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-guided-work/packages/ai-guided-work/show/AIGuidedWork.tsx",
+      "source_identity": "1f:ea35d30180bde48806d76bba168111679f93e3286d0f2c462bc32aa26d3e1799",
+      "identity": "1f:ea35d30180bde48806d76bba168111679f93e3286d0f2c462bc32aa26d3e1799"
+    },
+    {
+      "from": "packages/ai-guided-work/show/mount-ai-guided-work.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-guided-work/packages/ai-guided-work/show/mount-ai-guided-work.tsx",
+      "source_identity": "1f:b4d9f0fd2c0eb92bdcc8cad506a680c6312a0db50cf9fbba3c357430adf0194f",
+      "identity": "1f:b4d9f0fd2c0eb92bdcc8cad506a680c6312a0db50cf9fbba3c357430adf0194f"
+    },
+    {
+      "from": "packages/ai-guided-work/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-guided-work/packages/ai-guided-work/things-to-store-and-run.json",
+      "source_identity": "1f:d95cbed91caca3caa2fd9b700363a805ccd43ff10338d7f75a88204350860851",
+      "identity": "1f:d95cbed91caca3caa2fd9b700363a805ccd43ff10338d7f75a88204350860851"
+    }
+  ]
+}

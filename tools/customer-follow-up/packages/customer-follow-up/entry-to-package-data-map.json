@@ -1,0 +1,9 @@
+{
+  "entries": [
+    {
+      "entry_name": "customer-follow-up",
+      "source_path": "show/mount-customer-follow-up.tsx",
+      "surface_id": "customer-follow-up.panel"
+    }
+  ]
+}

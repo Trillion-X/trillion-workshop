@@ -179,6 +179,27 @@
       "source_identity": "1f:a49c51d352e5d36055a42115d715e67eb3ee821eefa8cb3096b2251311340a2c",
       "identity": "1f:a49c51d352e5d36055a42115d715e67eb3ee821eefa8cb3096b2251311340a2c",
       "found_by": "byte copy"
+    },
+    {
+      "from": "packages/ai-cli-conversations/do-work/process-scripts/merge-conversation-source.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/conversations/packages/ai-cli-conversations/do-work/process-scripts/merge-conversation-source.py",
+      "source_identity": "1f:58b1b9d304e8a5498bc6c856a2fa3c93e09cd0e41b7dcbb38fc0d4ac50b244da",
+      "identity": "1f:58b1b9d304e8a5498bc6c856a2fa3c93e09cd0e41b7dcbb38fc0d4ac50b244da"
+    },
+    {
+      "from": "packages/ai-cli-conversations/do-work/process-scripts/read-ai-cli-conversations.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/conversations/packages/ai-cli-conversations/do-work/process-scripts/read-ai-cli-conversations.py",
+      "source_identity": "1f:14d356f679cdece198dedc1e3e97fd8cfa5a2b7295a45b222e061b9a60f6d5e4",
+      "identity": "1f:14d356f679cdece198dedc1e3e97fd8cfa5a2b7295a45b222e061b9a60f6d5e4"
+    },
+    {
+      "from": "packages/ai-cli-conversations/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/conversations/packages/ai-cli-conversations/things-to-store-and-run.json",
+      "source_identity": "1f:b67c8766a981690d8ad4b720b69c767adb0c29faa9473cc70f80759f05d0f7c8",
+      "identity": "1f:b67c8766a981690d8ad4b720b69c767adb0c29faa9473cc70f80759f05d0f7c8"
     }
   ]
 }

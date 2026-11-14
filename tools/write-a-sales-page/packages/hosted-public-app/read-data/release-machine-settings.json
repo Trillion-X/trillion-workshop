@@ -1,0 +1,12 @@
+{
+  "about": "What a release decides about the machine it lands on. Memory: need = memory in use after the new version is ready on a copy of the app's data + the opener's peak; memory = need x headroom_factor, rounded up to step_megabytes, never below the provider floor per CPU for the machine's CPU kind. A release sizes in both directions from this and never copies the size of the machine it replaces. environment_no_longer_read: settings the runtime has stopped reading, which a release does not carry forward.",
+  "headroom_factor": 2,
+  "step_megabytes": 256,
+  "minimum_megabytes_per_cpu": {
+    "shared": 256,
+    "performance": 2048
+  },
+  "environment_no_longer_read": [
+    "BITFIELD_LOCAL_STORAGE_BUDGET_BYTES"
+  ]
+}

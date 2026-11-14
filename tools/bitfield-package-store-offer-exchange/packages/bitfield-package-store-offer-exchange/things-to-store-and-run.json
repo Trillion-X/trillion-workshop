@@ -1,0 +1,185 @@
+{
+  "package": "bitfield-package-store-offer-exchange",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-offer-exchange::checks",
+      "path": [
+        "packages",
+        "bitfield-package-store-offer-exchange",
+        "checks"
+      ],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "tests/record-exchange-action.test.ts",
+          "tests/record-exchange-jscore.test.ts",
+          "tests/record-exchange-projection.test.ts",
+          "show-ios-jscore/mount-offer-setup-jscore.test.ts"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-offer-exchange::contract",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "bitfield-package-store-offer-exchange"
+      ],
+      "payload": {
+        "kind": "package-boundary-contract",
+        "package": "bitfield-package-store-offer-exchange",
+        "owns": [
+          "record exchange projection descriptors",
+          "record exchange projection reader",
+          "owner action intent building",
+          "owner result proof projection"
+        ],
+        "does_not_own": [
+          "account identity",
+          "service credential secrets",
+          "signed event authority",
+          "package file approval",
+          "process execution",
+          "workflow internals",
+          "EEAF internals",
+          "runtime package-set truth"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-offer-exchange::descriptor-bundle::record-exchange",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "record-exchange.descriptor-bundle",
+        "source_path": "data/record-exchange-descriptors.json"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-offer-exchange::fixture-bundle::record-exchange",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "record-exchange.fixture-bundle",
+        "source_path": "data/record-exchange-fixtures.json"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-offer-exchange::entry::build-owner-action-intent",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "bitfield-package-store-offer-exchange",
+        "entries",
+        "build-owner-action-intent"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "build-owner-action-intent",
+        "source_path": "do-work/build-owner-action-intent.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-build-owner-action-intent"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-offer-exchange::entry::invoke-record-exchange-action",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "bitfield-package-store-offer-exchange",
+        "entries",
+        "invoke-record-exchange-action"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "invoke-record-exchange-action",
+        "source_path": "do-work/invoke-record-exchange-action.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-invoke-record-exchange-action"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-offer-exchange::entry::record-owner-action-result",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "bitfield-package-store-offer-exchange",
+        "entries",
+        "record-owner-action-result"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "record-owner-action-result",
+        "source_path": "do-work/record-owner-action-result.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-record-owner-action-result"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-offer-exchange::entry::mount-offer-setup-jscore",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "bitfield-package-store-offer-exchange",
+        "entries",
+        "mount-offer-setup-jscore"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "mount-offer-setup-jscore",
+        "source_path": "show-ios-jscore/mount-offer-setup-jscore.js",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-mount-offer-setup-jscore"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-build-owner-action-intent",
+      "source_path": "built-stored-bytes/entry-bytes-build-owner-action-intent",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-build-owner-action-intent.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-invoke-record-exchange-action",
+      "source_path": "built-stored-bytes/entry-bytes-invoke-record-exchange-action",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-invoke-record-exchange-action.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-record-owner-action-result",
+      "source_path": "built-stored-bytes/entry-bytes-record-owner-action-result",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-record-owner-action-result.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-mount-offer-setup-jscore",
+      "source_path": "built-stored-bytes/entry-bytes-mount-offer-setup-jscore",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-mount-offer-setup-jscore.source-closure.json"
+    }
+  ]
+}

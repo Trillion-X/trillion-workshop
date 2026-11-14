@@ -1,0 +1,85 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/computer-interface-actions/computer-interface-providers.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/computer-interface-actions/packages/computer-interface-actions/computer-interface-providers.json",
+      "source_identity": "1f:96fa4495b7e638b13d245369834607468c0f01c3a999da6142f740f128036956",
+      "identity": "1f:96fa4495b7e638b13d245369834607468c0f01c3a999da6142f740f128036956"
+    },
+    {
+      "from": "packages/computer-interface-actions/do-work/authenticated-surface-bootstrap.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/computer-interface-actions/packages/computer-interface-actions/do-work/authenticated-surface-bootstrap.mjs",
+      "source_identity": "1f:1b97dd8a038c5d6e6f1ae4812bd30d4f0d45a8996a8b182f5f9bf9a6366019a4",
+      "identity": "1f:1b97dd8a038c5d6e6f1ae4812bd30d4f0d45a8996a8b182f5f9bf9a6366019a4"
+    },
+    {
+      "from": "packages/computer-interface-actions/do-work/computer-interface-actions.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/computer-interface-actions/packages/computer-interface-actions/do-work/computer-interface-actions.mjs",
+      "source_identity": "1f:f75e0f6b691aa72b1fa1172061a0bd964aa86dbbccd87a9752680be68425e32e",
+      "identity": "1f:f75e0f6b691aa72b1fa1172061a0bd964aa86dbbccd87a9752680be68425e32e"
+    },
+    {
+      "from": "packages/computer-interface-actions/do-work/computer-interface-providers.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/computer-interface-actions/packages/computer-interface-actions/do-work/computer-interface-providers.mjs",
+      "source_identity": "1f:19a22027090c52b3669ccfe0b02d0ff008b122e9ce8ca36b89e7bada61d60e95",
+      "identity": "1f:19a22027090c52b3669ccfe0b02d0ff008b122e9ce8ca36b89e7bada61d60e95"
+    },
+    {
+      "from": "packages/computer-interface-actions/do-work/prepare-computer-interface-session.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/computer-interface-actions/packages/computer-interface-actions/do-work/prepare-computer-interface-session.mjs",
+      "source_identity": "1f:978b6a4d92eb4de9d88ee5d308cf2a7763096f1c65ac60c4ddb0cff6fd4a12d2",
+      "identity": "1f:978b6a4d92eb4de9d88ee5d308cf2a7763096f1c65ac60c4ddb0cff6fd4a12d2"
+    },
+    {
+      "from": "packages/computer-interface-actions/do-work/query-provider-status.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/computer-interface-actions/packages/computer-interface-actions/do-work/query-provider-status.mjs",
+      "source_identity": "1f:da7e74db5d0413167e9aff10e6b3e288eff44b6435263fc69ffa74b3d1e808d6",
+      "identity": "1f:da7e74db5d0413167e9aff10e6b3e288eff44b6435263fc69ffa74b3d1e808d6"
+    },
+    {
+      "from": "packages/computer-interface-actions/do-work/run-computer-interface-action.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/computer-interface-actions/packages/computer-interface-actions/do-work/run-computer-interface-action.mjs",
+      "source_identity": "1f:c1a14201c41d9b0a1ca4ac37b4c6a9a41c5e29b4d4cbffd161a72940dd138813",
+      "identity": "1f:c1a14201c41d9b0a1ca4ac37b4c6a9a41c5e29b4d4cbffd161a72940dd138813"
+    },
+    {
+      "from": "packages/computer-interface-actions/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/computer-interface-actions/packages/computer-interface-actions/README.md",
+      "source_identity": "1f:12dd04a9bebfe0ad0f4ef3ece36699d979033adc9521ccec05c3d6d1b40faa99",
+      "identity": "1f:12dd04a9bebfe0ad0f4ef3ece36699d979033adc9521ccec05c3d6d1b40faa99"
+    },
+    {
+      "from": "packages/computer-interface-actions/requests/fetch-example.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/computer-interface-actions/packages/computer-interface-actions/requests/fetch-example.json",
+      "source_identity": "1f:f7f34e4f888c80c00e3aa5227a18e1b6610e089163e4d54d0b87565491e4a489",
+      "identity": "1f:f7f34e4f888c80c00e3aa5227a18e1b6610e089163e4d54d0b87565491e4a489"
+    },
+    {
+      "from": "packages/computer-interface-actions/requests/fetch-example.result.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/computer-interface-actions/packages/computer-interface-actions/requests/fetch-example.result.json",
+      "source_identity": "1f:fce1ce43be25d1351cc2d083e91f624abb7dff8fd2a023e2571fc1886dff2002",
+      "identity": "1f:fce1ce43be25d1351cc2d083e91f624abb7dff8fd2a023e2571fc1886dff2002"
+    },
+    {
+      "from": "packages/computer-interface-actions/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/computer-interface-actions/packages/computer-interface-actions/things-to-store-and-run.json",
+      "source_identity": "1f:9992a5af19521bce8d09f2bcd59c2e4e633db607cc1596fb0025e71b43dca8a2",
+      "identity": "1f:9992a5af19521bce8d09f2bcd59c2e4e633db607cc1596fb0025e71b43dca8a2"
+    }
+  ]
+}

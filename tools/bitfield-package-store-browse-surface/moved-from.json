@@ -1,0 +1,162 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/bitfield-package-store-browse-surface/data/action-capability-records.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/data/action-capability-records.json",
+      "source_identity": "1f:179225a98ebfb4570804e968ee54410de0e1b128bc2e0fda7af9c41ce246c086",
+      "identity": "1f:179225a98ebfb4570804e968ee54410de0e1b128bc2e0fda7af9c41ce246c086"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/data/browse-surface-config.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/data/browse-surface-config.json",
+      "source_identity": "1f:ca3992984a19f0407da2ffb216a3a76b37b5c1a1e00259f09dc721856b1f05a9",
+      "identity": "1f:ca3992984a19f0407da2ffb216a3a76b37b5c1a1e00259f09dc721856b1f05a9"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/data/install-destinations.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/data/install-destinations.json",
+      "source_identity": "1f:9fa8dc9570625be2be53d308f958332981ec8fb8137d3dd7ba0ae5da317eaa7d",
+      "identity": "1f:9fa8dc9570625be2be53d308f958332981ec8fb8137d3dd7ba0ae5da317eaa7d"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/data/README.md",
+      "source_identity": "1f:42319c824e5560e3e04ee5c684a4aeeff7bae4eb32096ff4cc88080a9b136039",
+      "identity": "1f:42319c824e5560e3e04ee5c684a4aeeff7bae4eb32096ff4cc88080a9b136039"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/do-work/prove-production-action-capabilities.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/do-work/prove-production-action-capabilities.mjs",
+      "source_identity": "1f:c0780ebfd880948c2cdb9ae2491e2d61ad0206c0e00462a0666d85cba04258c1",
+      "identity": "1f:c0780ebfd880948c2cdb9ae2491e2d61ad0206c0e00462a0666d85cba04258c1"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/entry-to-package-data-map.json",
+      "source_identity": "1f:ebadd168b607a61bd63309539e4baabf5b8e38a20df40dce1256279fc7a660c2",
+      "identity": "1f:ebadd168b607a61bd63309539e4baabf5b8e38a20df40dce1256279fc7a660c2"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/package-preview.pfat.gz",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/package-preview.pfat.gz",
+      "source_identity": "1f:c81e55cb1a99c9834903a24f36f345a0088584bbeaa5d26589a83abeccb56344",
+      "identity": "1f:c81e55cb1a99c9834903a24f36f345a0088584bbeaa5d26589a83abeccb56344"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/package-preview.pfcf.gz",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/package-preview.pfcf.gz",
+      "source_identity": "1f:8ef111507ae93168a8a740e72bf603d9c08f1998c920383e568cf765f306b439",
+      "identity": "1f:8ef111507ae93168a8a740e72bf603d9c08f1998c920383e568cf765f306b439"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/read-data/read-action-capabilities.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/read-data/read-action-capabilities.ts",
+      "source_identity": "1f:89780f47622a0f123ba53e423607fabc8d52d136642f4d93f4e811ff0677adaf",
+      "identity": "1f:89780f47622a0f123ba53e423607fabc8d52d136642f4d93f4e811ff0677adaf"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/read-data/read-catalog-view.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/read-data/read-catalog-view.ts",
+      "source_identity": "1f:28c420d180f2f68c4ab8a5ce7591b711e947d080b00fbfdd0db1cfe7f60551f5",
+      "identity": "1f:28c420d180f2f68c4ab8a5ce7591b711e947d080b00fbfdd0db1cfe7f60551f5"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/read-data/read-jscore-package-store-view.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/read-data/read-jscore-package-store-view.ts",
+      "source_identity": "1f:d3e89990d8f1148e83c9d220ed19e326a7de0110c87acbd64edb1ad8a37eac76",
+      "identity": "1f:d3e89990d8f1148e83c9d220ed19e326a7de0110c87acbd64edb1ad8a37eac76"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/read-data/README.md",
+      "source_identity": "1f:a9cc71b183949b3f3b8892c74066644a09fda2d588f331d414d16c52104a1de8",
+      "identity": "1f:a9cc71b183949b3f3b8892c74066644a09fda2d588f331d414d16c52104a1de8"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/README.md",
+      "source_identity": "1f:fd9984a21550e905ba5a336894e99a4131e57a8bcecf612f145acb3c44df84d8",
+      "identity": "1f:fd9984a21550e905ba5a336894e99a4131e57a8bcecf612f145acb3c44df84d8"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/show/AICurationPanelComponent.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/show/AICurationPanelComponent.tsx",
+      "source_identity": "1f:faa2567013ee9478b009ff401d5bffb60885512a76b6e8a153aa70a8c9f4f95f",
+      "identity": "1f:faa2567013ee9478b009ff401d5bffb60885512a76b6e8a153aa70a8c9f4f95f"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/show/BitfieldPackageStoreBrowseSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/show/BitfieldPackageStoreBrowseSurface.tsx",
+      "source_identity": "1f:9a798a43983e58425972b18ea94388ce0c635c4fd1f5dbb03bc94a59608060d6",
+      "identity": "1f:9a798a43983e58425972b18ea94388ce0c635c4fd1f5dbb03bc94a59608060d6"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/show/mount-package-store-browse-surface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/show/mount-package-store-browse-surface.tsx",
+      "source_identity": "1f:a287f3b6b14bbfd420fabf0ba10c85b84833456ce4396d67bd7f3f006f0e433f",
+      "identity": "1f:a287f3b6b14bbfd420fabf0ba10c85b84833456ce4396d67bd7f3f006f0e433f"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/show/PointillistPackagePreviewCanvas.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/show/PointillistPackagePreviewCanvas.tsx",
+      "source_identity": "1f:811843af9762da9f60b964ca47ef21eac3092bc1c3e10ae6e0c1fcda3bd09fda",
+      "identity": "1f:811843af9762da9f60b964ca47ef21eac3092bc1c3e10ae6e0c1fcda3bd09fda"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/show/pointillistPackedFrame.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/show/pointillistPackedFrame.ts",
+      "source_identity": "1f:a086963e666e29dadb7d69d1d10e9ba58834a2f73d58309fdd616e7bbc752cbc",
+      "identity": "1f:a086963e666e29dadb7d69d1d10e9ba58834a2f73d58309fdd616e7bbc752cbc"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/show/PresentationSectionRenderer.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/show/PresentationSectionRenderer.tsx",
+      "source_identity": "1f:b807c63d2104f600336a12201958553641d9c99ccefc2bedda6081ac596e46f1",
+      "identity": "1f:b807c63d2104f600336a12201958553641d9c99ccefc2bedda6081ac596e46f1"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/show/SearchModeRow.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/show/SearchModeRow.tsx",
+      "source_identity": "1f:bedb74b9b1f55baa383e541704eef4a17fd1f2e062085c6da14be761b8472ba5",
+      "identity": "1f:bedb74b9b1f55baa383e541704eef4a17fd1f2e062085c6da14be761b8472ba5"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/show/StoreRatingsReviews.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/show/StoreRatingsReviews.tsx",
+      "source_identity": "1f:018c076db1a6fbec7597683a891e39b9868d5da2ebef582b8e55b52be7c891fc",
+      "identity": "1f:018c076db1a6fbec7597683a891e39b9868d5da2ebef582b8e55b52be7c891fc"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/things-to-store-and-run.json",
+      "source_identity": "1f:58aaf92834440042d00837d359c4cc5c22bb20c6896c1edf07b2e8ab098174f7",
+      "identity": "1f:58aaf92834440042d00837d359c4cc5c22bb20c6896c1edf07b2e8ab098174f7"
+    }
+  ]
+}

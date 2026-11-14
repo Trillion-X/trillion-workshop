@@ -1,0 +1,8 @@
+{
+  "name": "@bitfield-package/access-rule",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "cd ../.. && ./node_modules/.bin/vitest run --config ./vitest.config.ts --pool=forks --maxWorkers=1 packages/access-rule/tests/*.test.ts"
+  }
+}

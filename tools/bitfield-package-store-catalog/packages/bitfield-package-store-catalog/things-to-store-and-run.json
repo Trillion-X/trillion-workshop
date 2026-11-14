@@ -1,0 +1,532 @@
+{
+  "package": "bitfield-package-store-catalog",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-catalog::target::resolve-current-install-inputs",
+      "path": ["current-item", "published-record"],
+      "payload": {"kind": "package-target-descriptor", "target": "bitfield-package-store.resolve-current-install-inputs", "entry_name": "resolve-current-install-inputs", "export_name": "resolveCurrentInstallInputs", "source_path": "read-data/resolve-current-install-inputs.ts", "rule": "Read only the current catalog and prepare exact installation inputs. Never install or grant trust."}
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-catalog::entry::resolve-current-install-inputs",
+      "path": ["packages", "bitfield-package-store-catalog", "entries", "resolve-current-install-inputs"],
+      "payload": {"kind": "bitfield-package-entry", "entry_name": "resolve-current-install-inputs", "export_name": "resolveCurrentInstallInputs", "source_path": "read-data/resolve-current-install-inputs.ts", "entry_bytes": {"stored_bytes": "entry-bytes-resolve-current-install-inputs"}}
+    },
+    {"type": "stored_bytes", "name": "entry-bytes-resolve-current-install-inputs", "source_path": "built-stored-bytes/entry-bytes-resolve-current-install-inputs", "source_closure_receipt_path": "built-stored-bytes/entry-bytes-resolve-current-install-inputs.source-closure.json"},
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-catalog::checks",
+      "path": ["packages", "bitfield-package-store-catalog", "checks"],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "__tests__/catalog-deriver.test.mjs",
+          "__tests__/ios-jscore.test.mjs",
+          "__tests__/record-projections.test.mjs",
+          "__tests__/resolve-release-inputs.test.mjs",
+          "__tests__/resolve-install-inputs.test.mjs",
+          "__tests__/resolve-current-install-inputs.test.ts",
+          "data/package-media.guard.test.mjs",
+          "processes/version-lineage.test.mjs"
+        ]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "package-preview-art",
+      "source_path": "package-preview.pfat.gz",
+      "media_type": "application/vnd.bitfield.pointillist-target-animation+gzip"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "catalog-data",
+      "source_path": "data/catalog.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "catalog-reader",
+      "source_path": "read-data/read-catalog.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "resolve-release-inputs",
+      "source_path": "read-data/resolve-release-inputs.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "catalog-snapshot-deriver",
+      "source_path": "processes/derive-catalog-snapshot.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "package-finding-language",
+      "source_path": "data/package-finding-language.json",
+      "media_type": "application/json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "replacement-catalog",
+      "source_path": "data/replacement-catalog.json",
+      "media_type": "application/json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "record-definitions",
+      "source_path": "data/record-definitions.json",
+      "media_type": "application/json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "record-projection-reader",
+      "source_path": "read-data/read-record-projections.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "catalog-ios-jscore",
+      "source_path": "show-ios-jscore/mount-catalog-jscore.js",
+      "media_type": "application/javascript"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "engine-offer-data",
+      "source_path": "data/engine-offer.json",
+      "media_type": "application/json"
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-catalog::contract",
+      "path": [
+        "bitfield-package-store",
+        "package",
+        "catalog"
+      ],
+      "payload": {
+        "package": "bitfield-package-store-catalog",
+        "owns": [
+          "catalog snapshot data",
+          "catalog reader source",
+          "catalog snapshot derivation process",
+          "package finding language data",
+          "generic record/action projection definitions",
+          "immutable release-input resolution from catalog data"
+        ],
+        "does_not_own": [
+          "package-file approval",
+          "payment truth",
+          "account identity",
+          "install authority"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-catalog::target::resolve-release-inputs",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "target": "bitfield-package-store.resolve-release-inputs",
+        "entry_name": "resolve-release-inputs",
+        "export_name": "resolveReleaseInputs",
+        "source_path": "read-data/resolve-release-inputs.ts",
+        "request_schema": "bitfield-package-store.resolve-release-inputs.request/v1",
+        "response_schema": "bitfield-package-store.resolve-release-inputs.response/v1",
+        "rule": "Resolve exact immutable package refs from caller-supplied catalog DATA. Missing or ambiguous identities fail closed."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-catalog::entry::resolve-release-inputs",
+      "path": [
+        "packages",
+        "bitfield-package-store-catalog",
+        "entries",
+        "resolve-release-inputs"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "resolve-release-inputs",
+        "export_name": "resolveReleaseInputs",
+        "source_path": "read-data/resolve-release-inputs.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-resolve-release-inputs"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-catalog::native-screen-command-entry",
+      "path": [
+        "bitfield-package-store",
+        "catalog",
+        "native-screen-command-entry"
+      ],
+      "payload": {
+        "kind": "bitfield-native-screen-command-entry",
+        "source_path": "show-ios-jscore/mount-catalog-jscore.js",
+        "readme_path": "show-ios-jscore/README.md",
+        "input_name": "record-action-projection",
+        "projection_schema": "generic.record_action_projection.v1",
+        "rule": "JSCore consumes the same generic projection and action refs as browser/desktop. Device differences are native snapshot layout only."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-catalog::record-definitions",
+      "path": [
+        "bitfield-package-store",
+        "catalog",
+        "contracts"
+      ],
+      "payload": {
+        "kind": "generic-record-action-projection-definition",
+        "stored_bytes": "record-definitions",
+        "reader_stored_bytes": "record-projection-reader",
+        "rule": "Catalog rows are projected through open field, block, relationship, and action roles. Package labels are data values and unknown values are preserved."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-catalog::catalog::snapshot",
+      "path": [
+        "bitfield-package-store",
+        "catalog"
+      ],
+      "payload": {
+        "catalog_stored_bytes": "catalog-data",
+        "derivation_stored_bytes": "catalog-snapshot-deriver",
+        "kind": "bitfield-package-catalog",
+        "row_kinds": [
+          "package-row",
+          "package-set-row",
+          "engine-row"
+        ],
+        "source_truth": [
+          "package-use proof",
+          "package contracts",
+          "Store-facing signed offer exchange refs",
+          "package finding language data"
+        ],
+        "schema": "bitfield.package_store.catalog.v3",
+        "schema_version": 3
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-catalog::row-contract::package-row",
+      "path": [
+        "bitfield-package-store",
+        "catalog",
+        "row-contracts"
+      ],
+      "payload": {
+        "kind": "bitfield-package-store-catalog-row-contract",
+        "row_kind": "package-row",
+        "identity_fields": [
+          "package_identity"
+        ],
+        "required_fields": [
+          "row_id",
+          "display_name",
+          "summary",
+          "capability_metadata",
+          "source_package",
+          "preview_art",
+          "package_finding",
+          "exchange",
+          "install"
+        ],
+        "source_reference_fields": [
+          "source_package.package_set_relative_path",
+          "source_package.contract_path",
+          "source_package.contract_hash",
+          "source_package.material_hash",
+          "preview_art.source_path",
+          "preview_art.material_ref"
+        ],
+        "install_subject": {
+          "additional_string_fields": true,
+          "required_fields": [
+            "subject_ref",
+            "subject_type_ref",
+            "subject_label"
+          ]
+        },
+        "forbidden_identity_fields": [
+          "package_set_identity"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-catalog::row-contract::package-set-row",
+      "path": [
+        "bitfield-package-store",
+        "catalog",
+        "row-contracts"
+      ],
+      "payload": {
+        "kind": "bitfield-package-store-catalog-row-contract",
+        "row_kind": "package-set-row",
+        "identity_fields": [
+          "recipe_identity"
+        ],
+        "required_fields": [
+          "row_id",
+          "display_name",
+          "summary",
+          "capability_metadata",
+          "recipe",
+          "source_package_set",
+          "preview_art",
+          "package_finding",
+          "exchange",
+          "install"
+        ],
+        "source_reference_fields": [
+          "source_package_set.package_set_relative_path",
+          "source_package_set.material_hash_ref",
+          "source_package_set.package_use_decision_ref",
+          "preview_art.source_path",
+          "preview_art.material_ref"
+        ],
+        "install_subject": {
+          "additional_string_fields": true,
+          "required_fields": [
+            "subject_ref",
+            "subject_type_ref",
+            "subject_label"
+          ]
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-catalog::row-contract::engine-row",
+      "path": [
+        "bitfield-package-store",
+        "catalog",
+        "row-contracts"
+      ],
+      "payload": {
+        "kind": "bitfield-package-store-catalog-row-contract",
+        "row_kind": "engine-row",
+        "identity_fields": [],
+        "required_fields": [
+          "row_id",
+          "display_name",
+          "summary",
+          "capability_metadata",
+          "preview_art",
+          "package_finding",
+          "exchange",
+          "install"
+        ],
+        "source_reference_fields": [
+          "preview_art.source_path",
+          "preview_art.material_ref"
+        ],
+        "install_subject": {
+          "additional_string_fields": true,
+          "required_fields": [
+            "subject_ref",
+            "engine_identity"
+          ]
+        },
+        "rule": "Engine rows describe the Runtime Kit and other platform engines. They compose portal targets (checkout, account-session, product-access) for free-trial and device licensing."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-catalog::capability-metadata-contract",
+      "path": [
+        "bitfield-package-store",
+        "catalog",
+        "contracts"
+      ],
+      "payload": {
+        "kind": "bitfield-package-store-capability-metadata-contract",
+        "required_fields": [
+          "capability_ids",
+          "public_capability_summary"
+        ],
+        "rule": "Capability metadata describes what the package or recipe provides. It does not encode package-set membership as package identity."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-catalog::package-finding-contract",
+      "path": [
+        "bitfield-package-store",
+        "catalog",
+        "contracts"
+      ],
+      "payload": {
+        "kind": "bitfield-package-store-package-finding-contract",
+        "stored_bytes": "package-finding-language",
+        "required_fields": [
+          "title",
+          "summary",
+          "blocks",
+          "facets",
+          "search",
+          "ranking",
+          "detail_blocks"
+        ],
+        "rule": "Package Finding Facts are the public discovery truth. Browse cards, search, categories, shelves, ranking explanations, visible blocks, and public detail blocks read these facts instead of deriving public language in React. Visible attributes are open blocks, not fixed label fields."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-catalog::exchange-reference-contract",
+      "path": [
+        "bitfield-package-store",
+        "catalog",
+        "contracts"
+      ],
+      "payload": {
+        "kind": "bitfield-package-store-exchange-reference-contract",
+        "required_fields": [
+          "package_file_download_pointer_object_keys",
+          "package_file_metadata_pointer_refs",
+          "package_use_decision_refs",
+          "access",
+          "offer",
+          "update_policy_refs",
+          "provenance_refs"
+        ],
+        "access_fields": [
+          "admission_fact_refs",
+          "product_access_proof_refs",
+          "required_owner_target_refs"
+        ],
+        "offer_fields": [
+          "display_ref",
+          "signed_deal_contract_refs",
+          "quote_reservation_target_refs",
+          "meter_unit_refs",
+          "policy_refs"
+        ],
+        "rule": "Catalog rows carry signed exchange references only. The Store may render and forward refs; Account Portal/signed-deal authority decide quotes and access; Runtime Kit admits package files."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-catalog::source-material-reference-contract",
+      "path": [
+        "bitfield-package-store",
+        "catalog",
+        "contracts"
+      ],
+      "payload": {
+        "kind": "bitfield-package-store-source-material-reference-contract",
+        "package_row_refs": [
+          "source_package.package_set_relative_path",
+          "source_package.contract_path",
+          "source_package.contract_hash",
+          "source_package.material_hash"
+        ],
+        "package_set_row_refs": [
+          "source_package_set.package_set_relative_path",
+          "source_package_set.material_hash_ref",
+          "source_package_set.package_use_decision_ref"
+        ],
+        "rule": "Hash references are material evidence. The package identity remains the package name for package rows and the recipe identity for package-set rows."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-catalog::preview-art-contract",
+      "path": [
+        "bitfield-package-store",
+        "catalog",
+        "contracts"
+      ],
+      "payload": {
+        "kind": "bitfield-package-store-preview-art-contract",
+        "stored_bytes_name": "package-preview-art",
+        "required_fields": [
+          "kind",
+          "owner_identity",
+          "source_package",
+          "stored_bytes_name",
+          "media_type",
+          "source_path",
+          "byte_length",
+          "material_ref",
+          "data_url"
+        ],
+        "rule": "Preview art is package-owned stored bytes projected through catalog rows. Browse surfaces render it and do not synthesize card art."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-catalog::external-reader::package-store-reviews",
+      "path": [
+        "bitfield-package-store",
+        "catalog",
+        "external-readers"
+      ],
+      "payload": {
+        "kind": "external-reader-output-link",
+        "owner_package": "package-store-reviews",
+        "reader_output_address": "package::package-store-reviews::reader-output::browse-summary",
+        "rule": "Catalog may link finished reader output refs. It does not store user review text, report state, reply rows, or aggregates as catalog truth."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-resolve-release-inputs",
+      "source_path": "built-stored-bytes/entry-bytes-resolve-release-inputs",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-resolve-release-inputs.source-closure.json"
+    }
+  ]
+}

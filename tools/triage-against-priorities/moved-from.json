@@ -1,0 +1,56 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "owner-first-name",
+      "find": "\\bB[r]ian\\b",
+      "replace": "The owner",
+      "means": "A real person's first name in a comment or a description, swapped for a made-up one: a public tree holds made-up data only."
+    },
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/commander-triage/read-data/visual-database-projection.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/triage-against-priorities/packages/commander-triage/read-data/visual-database-projection.ts",
+      "source_identity": "1f:982db5b99fec4205c7056747b37af137b6885f1687e99b2248693aa76680a305",
+      "identity": "1f:982db5b99fec4205c7056747b37af137b6885f1687e99b2248693aa76680a305"
+    },
+    {
+      "from": "packages/commander-triage/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/triage-against-priorities/packages/commander-triage/README.md",
+      "source_identity": "1f:bb04cdad151ea649d91d8a4d5c229574dce0d344c9f39e9826b4bf6b6132de3c",
+      "identity": "1f:ab0a3210f2b40d03b6c1280892a8f786f7f80767a497dd515778fb918ac04fd8",
+      "calls": [
+        "owner-first-name",
+        "private-notes-path"
+      ]
+    },
+    {
+      "from": "packages/commander-triage/show/mount-visual-database-surface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/triage-against-priorities/packages/commander-triage/show/mount-visual-database-surface.tsx",
+      "source_identity": "1f:7d0b7ad7391edde7bfd1e96ba5c104d56882ffaef992abad318b4ba68f3b3754",
+      "identity": "1f:7d0b7ad7391edde7bfd1e96ba5c104d56882ffaef992abad318b4ba68f3b3754"
+    },
+    {
+      "from": "packages/commander-triage/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/triage-against-priorities/packages/commander-triage/things-to-store-and-run.json",
+      "source_identity": "1f:8c5e00da86a16f41b1e2239275b21ab47a89e59a550a6d251e65d5b9fe8f9d9a",
+      "identity": "1f:114a26fd1d59a7bf9e931dd6f920c90f2aec129b1d9b7c538f9ca74d0d3dfa19",
+      "calls": [
+        "owner-first-name"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,430 @@
+{
+  "package": "choose-per-observer",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::choose-per-observer::public-source::index",
+      "path": ["packages", "choose-per-observer", "public-sources", "index"],
+      "payload": { "kind": "bitfield-package-public-source", "source_path": "index.ts" },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::choose-per-observer::public-source::capture-signals",
+      "path": ["packages", "choose-per-observer", "public-sources", "capture-signals"],
+      "payload": { "kind": "bitfield-package-public-source", "source_path": "write-data/capture-signals" },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::choose-per-observer::checks",
+      "path": [
+        "packages",
+        "choose-per-observer",
+        "checks"
+      ],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "__tests__/claim-and-attribute.integration.test.ts",
+          "__tests__/entry-scope-import-contract.test.mjs"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::choose-per-observer::record-contract::saved-work-result-learning-binding",
+      "path": [
+        "packages",
+        "choose-per-observer",
+        "record-contracts",
+        "saved-work-result-learning-binding"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "saved-work-result-learning-binding",
+        "required_fields": [
+          "binding_ref",
+          "state",
+          "work_ref",
+          "observer_id",
+          "candidate_id",
+          "candidate_material_ref",
+          "installation_ref",
+          "user_ref"
+        ],
+        "optional_fields": [
+          "selection_surface_ref",
+          "applicability_ref",
+          "useful_impact"
+        ],
+        "success_rule": "A current verified result revision may inform a local choice. Observation or a newer revision does not prove usefulness or authorize transfer."
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::choose-per-observer::entry::observe-saved-work-result",
+      "path": [
+        "packages",
+        "choose-per-observer",
+        "entries",
+        "observe-saved-work-result"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "observe-saved-work-result",
+        "export_name": "observeSavedWorkResultTarget",
+        "source_path": "write-data/observe-saved-work-result-target.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-observe-saved-work-result"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-observe-saved-work-result",
+      "source_path": "built-stored-bytes/entry-bytes-observe-saved-work-result",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-observe-saved-work-result.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::choose-per-observer::target::observe-saved-work-result",
+      "path": [
+        "packages",
+        "choose-per-observer",
+        "targets",
+        "observe-saved-work-result"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "observe-saved-work-result",
+        "export_name": "observeSavedWorkResultTarget",
+        "source_path": "write-data/observe-saved-work-result-target.ts",
+        "target": "choose-per-observer.observe-saved-work-result"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::choose-per-observer::action::observe-saved-work-result",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "kind": "action",
+        "id": "action:choose-per-observer:observe-saved-work-result",
+        "name": "observe-saved-work-result",
+        "version": 1,
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "description": "Use the current saved result to inform a later local choice. This does not claim the result was useful or authorize sharing.",
+        "input_schema": {
+          "type": "object",
+          "oneOf": [
+            {
+              "required": [
+                "binding_ref"
+              ]
+            }
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "binding_ref": {
+              "type": "string"
+            },
+            "saved_delivery": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "result_ref",
+                "result_content_hash",
+                "input_refs"
+              ],
+              "properties": {
+                "result_ref": {
+                  "type": "string"
+                },
+                "result_content_hash": {
+                  "type": "string"
+                },
+                "input_refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "canonical_address",
+                      "expected_content_hash"
+                    ],
+                    "properties": {
+                      "canonical_address": {
+                        "type": "string"
+                      },
+                      "expected_content_hash": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "observe",
+            "kind": "ask",
+            "config": {
+              "name": "choose-per-observer.observe-saved-work-result",
+              "input": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": ""
+                }
+              }
+            }
+          },
+          {
+            "id": "return",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "observe",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::choose-per-observer::public-source::read-data",
+      "path": [
+        "packages",
+        "choose-per-observer",
+        "public-sources",
+        "read-data"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "read-data"
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "score-candidates",
+      "source_path": "read-data/score-candidates.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "decider-schema",
+      "source_path": "read-data/decider-schema.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "candidate-set-schema",
+      "source_path": "read-data/candidate-set-schema.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "observe",
+      "source_path": "write-data/observe.ts"
+    },
+    {
+      "type": "record",
+      "address": "package::choose-per-observer::contract",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "choose-per-observer",
+        "contract"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "package-contract",
+        "package": "choose-per-observer",
+        "owns": [
+          "observer-conditioned candidate scoring (scoreCandidates pure evaluator)",
+          "decider program DATA schema + validateDecider",
+          "selection-surface DATA schema + validateCandidateSet",
+          "observation record shape + buildObservationRecord + appendObservation",
+          "FNV-1a sticky_hash op for deterministic per-observer bucketing",
+          "extensible OpRegistry (builtinOps: sticky_hash, eq, lt, gt, gte, not, and, or, case, outcome)"
+        ],
+        "does_not_own": [
+          "decider program DATA records (caller/package-set DATA)",
+          "selection-surface DATA records (caller/package-set DATA)",
+          "observer fact persistence (live engine write-batch, injected by caller)",
+          "resolver generalization from address→value to address→candidates→decide→value (T6, public-sales-page)",
+          "no-flash scene-assembly decide (T7, background-runner-shell)",
+          "observer-id derivation and signal capture (T8)",
+          "outbound mirror subscriber (T9)",
+          "entitlement gating (access-rule / signed-event authority — unchanged)"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null
+    },
+    {
+      "type": "record",
+      "address": "package::choose-per-observer::input::published-records",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "input_name": "published-records",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "package::choose-per-observer::published-records",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "cell_table"
+            },
+            "projection": {
+              "op": "rows",
+              "fields": [
+                {
+                  "column": 0,
+                  "key": "address",
+                  "required": true,
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "non_empty_text"
+                    }
+                  }
+                },
+                {
+                  "column": 1,
+                  "key": "payload",
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "json"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::choose-per-observer::published-records",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "cell_table",
+        "columns": [
+          {
+            "column": 0,
+            "source": {
+              "path": [
+                "record",
+                "address"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "non_empty_text"
+            }
+          },
+          {
+            "column": 1,
+            "source": {
+              "path": [
+                "record",
+                "payload_json_text"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "json_text"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::choose-per-observer::entry::scoreboard",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "choose-per-observer",
+        "entries",
+        "scoreboard"
+      ],
+      "remove": false,
+      "payload": {
+        "entry_name": "scoreboard",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-scoreboard.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-scoreboard"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::choose-per-observer::placeable-surface::experiment-scoreboard",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "placeable-surface",
+        "id": "choose-per-observer.experiment-scoreboard.panel",
+        "surface_id": "choose-per-observer.experiment-scoreboard.panel",
+        "label": "Experiment Scoreboard",
+        "icon": "BarChart3",
+        "material_target": "choose-per-observer",
+        "order": 668,
+        "section_id": "experiments",
+        "section_label": "Experiments",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000668:choose-per-observer.experiment-scoreboard.panel",
+        "package_entry": {
+          "package_name": "choose-per-observer",
+          "entry_name": "scoreboard"
+        },
+        "surface_input": {
+          "surface_address": "offer.framing",
+          "join_id": "offer-framing",
+          "assignment_kind": "experiment-assignment",
+          "outcome_kind": "experiment-conversion",
+          "leader_metric": "conversions"
+        }
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-scoreboard",
+      "source_path": "built-stored-bytes/entry-bytes-scoreboard",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-scoreboard.source-closure.json"
+    }
+  ]
+}

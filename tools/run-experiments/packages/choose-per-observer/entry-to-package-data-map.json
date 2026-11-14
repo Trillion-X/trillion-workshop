@@ -1,0 +1,9 @@
+{
+  "kind": "bitfield-entry-to-package-data-map",
+  "package": "choose-per-observer",
+  "package_data_path": "things-to-store-and-run.json",
+  "entries": [
+    {"entry_name": "scoreboard", "source_path": "show/mount-scoreboard.tsx", "package_data_path": "things-to-store-and-run.json"},
+    {"entry_name": "observe-saved-work-result", "source_path": "write-data/observe-saved-work-result-target.ts", "package_data_path": "things-to-store-and-run.json"}
+  ]
+}

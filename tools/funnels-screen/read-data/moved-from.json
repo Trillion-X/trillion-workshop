@@ -1,0 +1,16 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/choose-per-observer/read-data/candidate-set-schema.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/funnels-screen/read-data/candidate-set-schema.ts",
+      "source_identity": "1f:39076ab670f50fb85891748d2b441ef5806559401da4d30c37ff4bbcf264e76b",
+      "identity": "1f:39076ab670f50fb85891748d2b441ef5806559401da4d30c37ff4bbcf264e76b",
+      "reused": true
+    }
+  ]
+}

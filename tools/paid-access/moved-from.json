@@ -2,7 +2,14 @@
   "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
   "source": "Trillion-X/bitfield-packages",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    }
+  ],
   "files": [
     {
       "from": "packages/access-scoped-content/show/AccessScopedContent.renderer.test.tsx",
@@ -164,6 +171,86 @@
       "to": "tools/paid-access/show/product-access-surface-descriptor.ts",
       "source_identity": "1f:355a823bd9d0f45c90d13b300d2a8984b13e42f73813b2746147298a49368bf3",
       "identity": "1f:355a823bd9d0f45c90d13b300d2a8984b13e42f73813b2746147298a49368bf3"
+    },
+    {
+      "from": "packages/access-scoped-content/do-work/project-a-catalog-as-access-scoped-content.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/packages/access-scoped-content/do-work/project-a-catalog-as-access-scoped-content.mjs",
+      "source_identity": "1f:5015e4fdb3e55af5ce7c9da930979e75823fa11e18a23458bcad1ce8a3ab1c68",
+      "identity": "1f:5015e4fdb3e55af5ce7c9da930979e75823fa11e18a23458bcad1ce8a3ab1c68"
+    },
+    {
+      "from": "packages/access-scoped-content/do-work/write-a-projection-into-a-running-app.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/packages/access-scoped-content/do-work/write-a-projection-into-a-running-app.mjs",
+      "source_identity": "1f:b75ff11ea77f1764704178a7a9843a2a57a27e451da5b15f531fa6d5cd586f00",
+      "identity": "1f:b75ff11ea77f1764704178a7a9843a2a57a27e451da5b15f531fa6d5cd586f00"
+    },
+    {
+      "from": "packages/access-scoped-content/entry-read-scope-packages.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/packages/access-scoped-content/entry-read-scope-packages.json",
+      "source_identity": "1f:f5c0bbb86d5533dbb40caf15c3d80190af9248dd70fc92920515ebbdb8b53c4e",
+      "identity": "1f:f5c0bbb86d5533dbb40caf15c3d80190af9248dd70fc92920515ebbdb8b53c4e"
+    },
+    {
+      "from": "packages/access-scoped-content/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/packages/access-scoped-content/index.ts",
+      "source_identity": "1f:bcfdaa7cd2b0a0d3ba472a688b189c8ecc4317570fae242503194f87be466079",
+      "identity": "1f:bcfdaa7cd2b0a0d3ba472a688b189c8ecc4317570fae242503194f87be466079"
+    },
+    {
+      "from": "packages/access-scoped-content/read-data/read-access-scoped-items.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/packages/access-scoped-content/read-data/read-access-scoped-items.ts",
+      "source_identity": "1f:7ec7268c4259b1fead0fa01620cf8cafdcce41aa854c8682849493eb7e660200",
+      "identity": "1f:7ec7268c4259b1fead0fa01620cf8cafdcce41aa854c8682849493eb7e660200"
+    },
+    {
+      "from": "packages/access-scoped-content/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/packages/access-scoped-content/read-data/README.md",
+      "source_identity": "1f:893e3dd35045c4e38700fa64854789f9b621fecfe4665e9984487c46ba60ab4b",
+      "identity": "1f:893e3dd35045c4e38700fa64854789f9b621fecfe4665e9984487c46ba60ab4b"
+    },
+    {
+      "from": "packages/access-scoped-content/read-data/resolve-viewer-access.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/packages/access-scoped-content/read-data/resolve-viewer-access.ts",
+      "source_identity": "1f:1024cb8cf7d4cc52ddd17277d8dba09f0262959feed15f37b59113f0b0ccafe3",
+      "identity": "1f:1024cb8cf7d4cc52ddd17277d8dba09f0262959feed15f37b59113f0b0ccafe3"
+    },
+    {
+      "from": "packages/access-scoped-content/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/packages/access-scoped-content/README.md",
+      "source_identity": "1f:2c13656d192a8129c4145b9b939c10e6a08dc686875363b22e0aa0b9efb36ab7",
+      "identity": "1f:2c13656d192a8129c4145b9b939c10e6a08dc686875363b22e0aa0b9efb36ab7"
+    },
+    {
+      "from": "packages/access-scoped-content/reference-grounded-screen-contract.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/packages/access-scoped-content/reference-grounded-screen-contract.md",
+      "source_identity": "1f:6429c4a475bdbfbbbc900b9ed36e098ba6421fa2df2526a6240e8068adef2d27",
+      "identity": "1f:18d9b9398d8c10bb28602adf39a9881bb74d730b7980617fc74fa4597dd00ae6",
+      "calls": [
+        "private-notes-path"
+      ]
+    },
+    {
+      "from": "packages/access-scoped-content/show/AccessScopedContent.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/packages/access-scoped-content/show/AccessScopedContent.tsx",
+      "source_identity": "1f:c6d69458921abdcbd7091ca116409a7f1b3a0466a2b0df25e544ea28aa6dcf9b",
+      "identity": "1f:33c04f605959b26545a9a96645e87b9b1017a5dd4d2a40b13316656fbb213f50"
+    },
+    {
+      "from": "packages/access-scoped-content/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/packages/access-scoped-content/things-to-store-and-run.json",
+      "source_identity": "1f:4a63cb4b6c591b8e1ef3859ff5b6ce5368eecd67be80bfc03c9427110d87efcd",
+      "identity": "1f:4a63cb4b6c591b8e1ef3859ff5b6ce5368eecd67be80bfc03c9427110d87efcd"
     }
   ]
 }

@@ -1,0 +1,31 @@
+{
+  "kind": "bitfield-entry-to-package-data-map",
+  "package": "bitfield-package-store-offer-exchange",
+  "package_data_path": "things-to-store-and-run.json",
+  "entries": [
+    {
+      "entry_name": "build-owner-action-intent",
+      "source_path": "do-work/build-owner-action-intent.ts",
+      "package_data_path": "things-to-store-and-run.json",
+      "export_name": "buildOwnerActionIntentTarget"
+    },
+    {
+      "entry_name": "invoke-record-exchange-action",
+      "source_path": "do-work/invoke-record-exchange-action.ts",
+      "package_data_path": "things-to-store-and-run.json",
+      "export_name": "invokeRecordExchangeActionTarget"
+    },
+    {
+      "entry_name": "record-owner-action-result",
+      "source_path": "do-work/record-owner-action-result.ts",
+      "package_data_path": "things-to-store-and-run.json",
+      "export_name": "recordOwnerActionResultTarget"
+    },
+    {
+      "entry_name": "mount-offer-setup-jscore",
+      "source_path": "show-ios-jscore/mount-offer-setup-jscore.js",
+      "package_data_path": "things-to-store-and-run.json",
+      "export_name": "bitfieldMount"
+    }
+  ]
+}

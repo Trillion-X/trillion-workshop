@@ -38,6 +38,34 @@
       "to": "tools/published-destinations/packages/destination-surface/show/mount-destination.tsx",
       "source_identity": "1f:c21efefe2e5c29fbcb6e43de1a7fc22ba2c9709e14f1861ac16fc87e66d58ed3",
       "identity": "1f:c21efefe2e5c29fbcb6e43de1a7fc22ba2c9709e14f1861ac16fc87e66d58ed3"
+    },
+    {
+      "from": "packages/destination-surface/do-work/migrate-honest-destination-state.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/published-destinations/packages/destination-surface/do-work/migrate-honest-destination-state.ts",
+      "source_identity": "1f:81bfadc2e43c1a07e5e79edd7ceb00ccb6b5b422bca6e2197431d55e22159a73",
+      "identity": "1f:81bfadc2e43c1a07e5e79edd7ceb00ccb6b5b422bca6e2197431d55e22159a73"
+    },
+    {
+      "from": "packages/destination-surface/entry-scope-bindings.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/published-destinations/packages/destination-surface/entry-scope-bindings.json",
+      "source_identity": "1f:4f56932cc5ec20feb68683e7d3083892539fc2f5fd310e5f4197525481ab2805",
+      "identity": "1f:4f56932cc5ec20feb68683e7d3083892539fc2f5fd310e5f4197525481ab2805"
+    },
+    {
+      "from": "packages/destination-surface/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/published-destinations/packages/destination-surface/README.md",
+      "source_identity": "1f:c53e63c338b8ea28c5068a68052a43d80a62e33d65e2bc0533282e620693cd18",
+      "identity": "1f:c53e63c338b8ea28c5068a68052a43d80a62e33d65e2bc0533282e620693cd18"
+    },
+    {
+      "from": "packages/destination-surface/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/published-destinations/packages/destination-surface/things-to-store-and-run.json",
+      "source_identity": "1f:c28d27476846ee6d7e62f796f6bf6b3e38321d573246b6cb914b54bc62e53efb",
+      "identity": "1f:c28d27476846ee6d7e62f796f6bf6b3e38321d573246b6cb914b54bc62e53efb"
     }
   ]
 }

@@ -1,0 +1,18 @@
+{
+  "kind": "bitfield-entry-to-package-data-map",
+  "package": "ai-agent-profile",
+  "package_data_path": "things-to-store-and-run.json",
+  "entries": [
+    {
+      "entry_name": "ai-agent-profile-list",
+      "source_path": "show/mount-ai-agent-profile-list.tsx",
+      "package_data_path": "things-to-store-and-run.json",
+      "export_name": "default"
+    },
+    {
+      "entry_name": "agent-card",
+      "source_path": "show/mount-agent-card.tsx",
+      "package_data_path": "things-to-store-and-run.json"
+    }
+  ]
+}

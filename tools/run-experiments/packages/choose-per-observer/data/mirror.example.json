@@ -1,0 +1,12 @@
+{
+  "subscribe_address": "observer::observer-1::signal",
+  "endpoint_venue_ref": "venue:google-analytics",
+  "field_map": {
+    "utm_source": "utm_source",
+    "utm_medium": "utm_medium",
+    "utm_campaign": "utm_campaign",
+    "referrer": "referrer",
+    "device": "device"
+  },
+  "label": "Google Analytics event mirror"
+}

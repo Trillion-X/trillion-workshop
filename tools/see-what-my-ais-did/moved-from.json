@@ -116,6 +116,76 @@
         "web/src/workspace/record-model-inspection.tsx",
         "web/src/workspace/record-model-view.mjs"
       ]
+    },
+    {
+      "from": "packages/activity-feed/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-my-ais-did/packages/activity-feed/entry-to-package-data-map.json",
+      "source_identity": "1f:95d72a8c2a93dd0b58e2ba23c60f44e522459aba74abcc93784e0ebc9c1732f3",
+      "identity": "1f:95d72a8c2a93dd0b58e2ba23c60f44e522459aba74abcc93784e0ebc9c1732f3"
+    },
+    {
+      "from": "packages/activity-feed/read-data/activity-feed-surface.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-my-ais-did/packages/activity-feed/read-data/activity-feed-surface.ts",
+      "source_identity": "1f:d2e859ed9411e88fc5d37bd039c4ffb839f02a8f367f67b4d7eac71166893fc9",
+      "identity": "1f:d2e859ed9411e88fc5d37bd039c4ffb839f02a8f367f67b4d7eac71166893fc9"
+    },
+    {
+      "from": "packages/activity-feed/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-my-ais-did/packages/activity-feed/read-data/README.md",
+      "source_identity": "1f:0308b7964169c70679a891f375d594afa989d5773dfa3988498cb1dcc593c4c5",
+      "identity": "1f:0308b7964169c70679a891f375d594afa989d5773dfa3988498cb1dcc593c4c5"
+    },
+    {
+      "from": "packages/activity-feed/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-my-ais-did/packages/activity-feed/README.md",
+      "source_identity": "1f:0984407418b4c6a37ad27cce61b08bd6af5ac1517a29b91b677e55da9d906b24",
+      "identity": "1f:0984407418b4c6a37ad27cce61b08bd6af5ac1517a29b91b677e55da9d906b24"
+    },
+    {
+      "from": "packages/activity-feed/show/ActivityFeedPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-my-ais-did/packages/activity-feed/show/ActivityFeedPanel.tsx",
+      "source_identity": "1f:d313128551595bfe3f0a24af829ec843eaba9ebf51cf1c842441ddc7e696c9cb",
+      "identity": "1f:d313128551595bfe3f0a24af829ec843eaba9ebf51cf1c842441ddc7e696c9cb"
+    },
+    {
+      "from": "packages/activity-feed/show/ActivityIndicator.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-my-ais-did/packages/activity-feed/show/ActivityIndicator.tsx",
+      "source_identity": "1f:1f4214ea0eea6fe89a47be62035e4827f023b7af03b81e3ea8787f78692fb271",
+      "identity": "1f:1f4214ea0eea6fe89a47be62035e4827f023b7af03b81e3ea8787f78692fb271"
+    },
+    {
+      "from": "packages/activity-feed/show/mount-activity-feed.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-my-ais-did/packages/activity-feed/show/mount-activity-feed.tsx",
+      "source_identity": "1f:159c0b1c219e4ccd5f2e24faa8495aa58d1c5021c88e8b23102ef132bf2c3f3c",
+      "identity": "1f:159c0b1c219e4ccd5f2e24faa8495aa58d1c5021c88e8b23102ef132bf2c3f3c"
+    },
+    {
+      "from": "packages/activity-feed/show/mount-activity-overlay.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-my-ais-did/packages/activity-feed/show/mount-activity-overlay.tsx",
+      "source_identity": "1f:33b05a2f1935ec6507bb461174e5abf2c20773ab10f54c2852a299c58d935287",
+      "identity": "1f:33b05a2f1935ec6507bb461174e5abf2c20773ab10f54c2852a299c58d935287"
+    },
+    {
+      "from": "packages/activity-feed/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-my-ais-did/packages/activity-feed/show/README.md",
+      "source_identity": "1f:fb7e0268328aad2ec9c2652c41f4f5b94aaff31b58d0650590d0bfb2d38e38e9",
+      "identity": "1f:fb7e0268328aad2ec9c2652c41f4f5b94aaff31b58d0650590d0bfb2d38e38e9"
+    },
+    {
+      "from": "packages/activity-feed/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-my-ais-did/packages/activity-feed/things-to-store-and-run.json",
+      "source_identity": "1f:29d17404c378d3021c74e432e22b6e80e35094a05377728097340a6d69fd28b4",
+      "identity": "1f:29d17404c378d3021c74e432e22b6e80e35094a05377728097340a6d69fd28b4"
     }
   ]
 }

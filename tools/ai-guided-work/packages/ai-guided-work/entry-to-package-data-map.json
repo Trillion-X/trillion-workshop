@@ -1,0 +1,12 @@
+{
+  "kind": "bitfield-entry-to-package-data-map",
+  "package": "ai-guided-work",
+  "package_data_path": "things-to-store-and-run.json",
+  "entries": [
+    {
+      "entry_name": "ai-guided-work",
+      "source_path": "show/mount-ai-guided-work.tsx",
+      "package_data_path": "things-to-store-and-run.json"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "kind": "upsert",
+    "address": "attribute_fact|ai_provider:ollama|prop:provider:vendor|type:json",
+    "record": {
+      "type": "record",
+      "address": "attribute_fact|ai_provider:ollama|prop:provider:vendor|type:json",
+      "address_mode": "identity_text",
+      "path": ["current-item", "attribute_fact"],
+      "payload": {
+        "table": "attribute_fact",
+        "subject_id": "ai_provider:ollama",
+        "property_id": "prop:provider:vendor",
+        "type_id": "type:json",
+        "value_json": "\"ollama\""
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    }
+  },
+  {
+    "kind": "upsert",
+    "address": "attribute_fact|provider-routing:automatic|prop:provider_routing:policy|type:json",
+    "record": {
+      "type": "record",
+      "address": "attribute_fact|provider-routing:automatic|prop:provider_routing:policy|type:json",
+      "address_mode": "identity_text",
+      "path": ["current-item", "attribute_fact"],
+      "payload": {
+        "table": "attribute_fact",
+        "subject_id": "provider-routing:automatic",
+        "property_id": "prop:provider_routing:policy",
+        "type_id": "type:json",
+        "value_json": "{\"kind\":\"ai-provider-routing-policy\",\"eligibility\":[{\"property_id\":\"prop:provider:availability\",\"equals\":\"available\"},{\"property_id\":\"prop:provider:authority\",\"in\":[\"not-required\",\"granted\"]},{\"property_id\":\"prop:provider:capability_refs\",\"contains_all\":[\"capability:text-generation\"]}],\"order_by\":[{\"property_id\":\"prop:provider:quality_score\",\"direction\":\"desc\",\"missing\":\"last\"},{\"property_id\":\"prop:provider:reliability_score\",\"direction\":\"desc\",\"missing\":\"last\"},{\"property_id\":\"prop:provider:marginal_cost\",\"direction\":\"asc\",\"missing\":\"last\"},{\"property_id\":\"prop:provider:latency_score\",\"direction\":\"asc\",\"missing\":\"last\"}]}"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    }
+  }
+]

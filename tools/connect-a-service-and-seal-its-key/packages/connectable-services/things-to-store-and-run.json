@@ -1,0 +1,1647 @@
+{
+  "package": "connectable-services",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::connectable-services::commerce-provider::shopify-store",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "commerce-provider-descriptor",
+        "schema": "commerce-provider-descriptor/v1",
+        "id": "shopify-store",
+        "provider": "shopify",
+        "capabilities": [
+          "catalog-sync",
+          "product-listing",
+          "order-intake",
+          "settlement-readback"
+        ],
+        "connection_ref": {
+          "from": "service-connections",
+          "vendor": "shopify",
+          "descriptor_address": "package::service-connections::published-record::shopify",
+          "instance_id": null
+        },
+        "route_refs": [
+          {
+            "route_family": "catalog-sync",
+            "address": "package::payment-adapter::route::shopify-catalog-sync",
+            "object_hash": null
+          },
+          {
+            "route_family": "order-intake",
+            "address": "package::payment-adapter::route::shopify-order-intake",
+            "object_hash": null
+          }
+        ],
+        "inbound_decoder_ref": {
+          "leaf": "shopify-webhook-decoder",
+          "address": null,
+          "object_hash": null
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::commerce-provider::alibaba-supplier",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "commerce-provider-descriptor",
+        "schema": "commerce-provider-descriptor/v1",
+        "id": "alibaba-supplier",
+        "provider": "alibaba",
+        "capabilities": [
+          "sourcing-request",
+          "quote-negotiation"
+        ],
+        "connection_ref": {
+          "from": "service-connections",
+          "vendor": "alibaba",
+          "descriptor_address": "package::service-connections::published-record::alibaba",
+          "instance_id": null
+        },
+        "route_refs": [],
+        "inbound_decoder_ref": {
+          "leaf": "alibaba-quote-decoder",
+          "address": null,
+          "object_hash": null
+        },
+        "delivery_ref": {
+          "from": "content-distribution",
+          "target_kind": "generic.target-record"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::commerce-provider::printify-pod",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "commerce-provider-descriptor",
+        "schema": "commerce-provider-descriptor/v1",
+        "id": "printify-pod",
+        "provider": "printify",
+        "capabilities": [
+          "product-listing",
+          "fulfillment-dispatch",
+          "shipment-tracking"
+        ],
+        "connection_ref": {
+          "from": "service-connections",
+          "vendor": "printify",
+          "descriptor_address": "package::service-connections::published-record::printify",
+          "instance_id": null
+        },
+        "route_refs": [
+          {
+            "route_family": "fulfillment-dispatch",
+            "address": "package::payment-adapter::route::printify-fulfillment-dispatch",
+            "object_hash": null
+          }
+        ],
+        "inbound_decoder_ref": {
+          "leaf": "printify-tracking-decoder",
+          "address": null,
+          "object_hash": null
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::commerce-provider::stripe-settlement",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "commerce-provider-descriptor",
+        "schema": "commerce-provider-descriptor/v1",
+        "id": "stripe-settlement",
+        "provider": "stripe",
+        "capabilities": [
+          "settlement-readback",
+          "dispute-refund"
+        ],
+        "connection_ref": {
+          "from": "service-connections",
+          "vendor": "stripe",
+          "descriptor_address": "package::service-connections::published-record::stripe",
+          "instance_id": null
+        },
+        "route_refs": [
+          {
+            "route_family": "external-checkout",
+            "address": "package::payment-adapter::route::stripe",
+            "object_hash": null
+          },
+          {
+            "route_family": "settlement-readback",
+            "address": "package::payment-adapter::route::stripe-settlement-readback",
+            "object_hash": null
+          }
+        ],
+        "inbound_decoder_ref": null
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::commerce-provider::local-screenprinter",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "commerce-provider-descriptor",
+        "schema": "commerce-provider-descriptor/v1",
+        "id": "local-screenprinter",
+        "provider": "local-screenprint-shop",
+        "capabilities": [
+          "sourcing-request",
+          "quote-negotiation"
+        ],
+        "connection_ref": {
+          "from": "service-connections",
+          "vendor": "local-screenprint-shop",
+          "descriptor_address": "package::service-connections::published-record::local-screenprint-shop",
+          "instance_id": null
+        },
+        "route_refs": [],
+        "inbound_decoder_ref": null,
+        "delivery_ref": {
+          "from": "content-distribution",
+          "target_kind": "generic.target-record",
+          "transport": "email"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::commerce-provider::tiktok-shop",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "commerce-provider-descriptor",
+        "schema": "commerce-provider-descriptor/v1",
+        "id": "tiktok-shop",
+        "provider": "tiktok-shop",
+        "capabilities": [
+          "catalog-sync",
+          "product-listing",
+          "order-intake",
+          "settlement-readback"
+        ],
+        "connection_ref": {
+          "from": "service-connections",
+          "vendor": "tiktok-shop",
+          "descriptor_address": "package::service-connections::published-record::tiktok-shop",
+          "instance_id": null
+        },
+        "route_refs": [
+          {
+            "route_family": "order-intake",
+            "address": "package::payment-adapter::route::tiktok-shop-order-intake",
+            "object_hash": null
+          }
+        ],
+        "inbound_decoder_ref": {
+          "leaf": "tiktok-shop-webhook-decoder",
+          "address": null,
+          "object_hash": null
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::sourcing-request::alibaba-demo-tshirt-500u",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "sourcing-request-descriptor",
+        "schema": "sourcing-request-descriptor/v1",
+        "id": "alibaba-demo-tshirt-500u",
+        "supplier_ref": {
+          "from": "commerce-provider-descriptor",
+          "id": "alibaba-supplier"
+        },
+        "product_ref": {
+          "from": "product-descriptor",
+          "id": "demo-tshirt-unisex"
+        },
+        "tech_pack": {
+          "spec_fields": [
+            {
+              "key": "material",
+              "value": "100% combed organic cotton"
+            },
+            {
+              "key": "weight",
+              "value": "160gsm"
+            },
+            {
+              "key": "print-method",
+              "value": "screen-print front + back"
+            },
+            {
+              "key": "colors",
+              "value": "black, navy, white"
+            },
+            {
+              "key": "sizing",
+              "value": "XS-3XL"
+            }
+          ],
+          "measurements": [
+            {
+              "point": "chest-width",
+              "size": "M",
+              "value_cm": 52
+            },
+            {
+              "point": "body-length",
+              "size": "M",
+              "value_cm": 72
+            },
+            {
+              "point": "sleeve-length",
+              "size": "M",
+              "value_cm": 42
+            }
+          ],
+          "artifacts": [
+            {
+              "role": "design-front",
+              "object_hash": null,
+              "content_type": "image/png",
+              "produced_by": {
+                "from": "media-composition",
+                "render_ref": "package::media-composition::render::alibaba-tshirt-front-2026-01-15",
+                "revision": "v1"
+              }
+            },
+            {
+              "role": "design-back",
+              "object_hash": null,
+              "content_type": "image/png",
+              "produced_by": {
+                "from": "media-composition",
+                "render_ref": "package::media-composition::render::alibaba-tshirt-back-2026-01-15",
+                "revision": "v1"
+              }
+            },
+            {
+              "role": "tech-pack-pdf",
+              "object_hash": null,
+              "content_type": "application/pdf",
+              "produced_by": {
+                "from": "public-document-renderer",
+                "render_ref": "package::public-document-renderer::render::alibaba-tshirt-techpack-2026-01-15",
+                "revision": "v1"
+              }
+            }
+          ],
+          "provenance": {
+            "source_asset_hash": "1f:f8a7d9c2e11b",
+            "variant_of": null
+          }
+        },
+        "delivery": {
+          "via": {
+            "from": "content-distribution",
+            "target_id": "alibaba-supplier-shanghai-office"
+          }
+        },
+        "quantity": 500,
+        "spend_gate_ref": {
+          "from": "agent-wallet",
+          "reservation_required": true
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::sourcing-request::local-screenprinter-demo-tshirt-500u",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "sourcing-request-descriptor",
+        "schema": "sourcing-request-descriptor/v1",
+        "id": "local-screenprinter-demo-tshirt-500u",
+        "supplier_ref": {
+          "from": "commerce-provider-descriptor",
+          "id": "local-screenprinter"
+        },
+        "product_ref": {
+          "from": "product-descriptor",
+          "id": "demo-tshirt-unisex"
+        },
+        "tech_pack": {
+          "spec_fields": [
+            {
+              "key": "material",
+              "value": "100% combed organic cotton"
+            },
+            {
+              "key": "weight",
+              "value": "160gsm"
+            },
+            {
+              "key": "print-method",
+              "value": "screen-print front only"
+            },
+            {
+              "key": "colors",
+              "value": "black"
+            },
+            {
+              "key": "sizing",
+              "value": "S-XL"
+            }
+          ],
+          "measurements": [
+            {
+              "point": "chest-width",
+              "size": "M",
+              "value_cm": 52
+            },
+            {
+              "point": "body-length",
+              "size": "M",
+              "value_cm": 72
+            }
+          ],
+          "artifacts": [
+            {
+              "role": "design-front",
+              "object_hash": null,
+              "content_type": "image/png",
+              "produced_by": {
+                "from": "media-composition",
+                "render_ref": "package::media-composition::render::screenprinter-tshirt-front-2026-01-15",
+                "revision": "v1"
+              }
+            },
+            {
+              "role": "tech-pack-pdf",
+              "object_hash": null,
+              "content_type": "application/pdf",
+              "produced_by": {
+                "from": "public-document-renderer",
+                "render_ref": "package::public-document-renderer::render::screenprinter-tshirt-techpack-2026-01-15",
+                "revision": "v1"
+              }
+            }
+          ],
+          "provenance": {
+            "source_asset_hash": "1f:f8a7d9c2e11b",
+            "variant_of": null
+          }
+        },
+        "delivery": {
+          "via": {
+            "from": "content-distribution",
+            "target_id": "local-screenprinter-email-list"
+          }
+        },
+        "quantity": 500,
+        "spend_gate_ref": {
+          "from": "agent-wallet",
+          "reservation_required": true
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::supplier-delivery-receipt::template-awaiting-quote",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "supplier-delivery-receipt",
+        "schema": "supplier-delivery-receipt/v1",
+        "id": "template-awaiting-quote",
+        "is_template": true,
+        "sourcing_ref": {
+          "from": "sourcing-request-descriptor",
+          "id": "alibaba-demo-tshirt-500u"
+        },
+        "delivered_at_hash": null,
+        "delivery_channel": {
+          "from": "content-distribution",
+          "intent_id": null
+        },
+        "supplier_response": {
+          "state": "awaiting",
+          "revision_of": null,
+          "inbound_ref": {
+            "from": "observed-content",
+            "atom_id": null
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::input::known-service-options",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "known-service-options",
+        "is_default": true,
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "subject_id",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "property_id",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "value",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ],
+            "op": "rows"
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "known-apis"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::placeable-surface::services",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "Link",
+        "id": "connectable-services",
+        "kind": "placeable-surface",
+        "label": "Available services",
+        "material_target": "component:connectable-services",
+        "order": 410,
+        "surface_id": "connectable-services",
+        "placement_labels": [
+          "connections-workspace"
+        ],
+        "placement_order_key": "000000410:connectable-services",
+        "package_entry": {
+          "package_name": "connectable-services",
+          "entry_name": "connectable-services"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:connectable-services|prop:extension:instance_props|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:instance_props"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOmluc3RhbmNlX3Byb3BzIiwic3ViamVjdF9pZCI6ImNvbXBvbmVudDpjb25uZWN0YWJsZS1zZXJ2aWNlcyIsInRhYmxlIjoiYXR0cmlidXRlX2ZhY3QiLCJ0eXBlX2lkIjoidHlwZTpleHRlbnNpb24iLCJ2YWx1ZV9qc29uIjoie1wiZmxvYXRpbmdfZnJhbWVcIjp7XCJtb2RlXCI6XCJpbmxpbmVcIn19In0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:connectable-services|prop:extension:name|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:name"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOm5hbWUiLCJzdWJqZWN0X2lkIjoiY29tcG9uZW50OmNvbm5lY3RhYmxlLXNlcnZpY2VzIiwidGFibGUiOiJhdHRyaWJ1dGVfZmFjdCIsInR5cGVfaWQiOiJ0eXBlOmV4dGVuc2lvbiIsInZhbHVlX2pzb24iOiJcIkNvbm5lY3RhYmxlU2VydmljZXNcIiJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:connectable-services|prop:extension:source_path|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:source_path"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOnNvdXJjZV9wYXRoIiwic3ViamVjdF9pZCI6ImNvbXBvbmVudDpjb25uZWN0YWJsZS1zZXJ2aWNlcyIsInRhYmxlIjoiYXR0cmlidXRlX2ZhY3QiLCJ0eXBlX2lkIjoidHlwZTpleHRlbnNpb24iLCJ2YWx1ZV9qc29uIjoiXCJwYWNrYWdlcy9jb25uZWN0YWJsZS1zZXJ2aWNlcy9zaG93L21vdW50LWNvbm5lY3RhYmxlLXNlcnZpY2VzLnRzeFwiIn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:connectable-services|prop:extension:status|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:status"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOnN0YXR1cyIsInN1YmplY3RfaWQiOiJjb21wb25lbnQ6Y29ubmVjdGFibGUtc2VydmljZXMiLCJ0YWJsZSI6ImF0dHJpYnV0ZV9mYWN0IiwidHlwZV9pZCI6InR5cGU6ZXh0ZW5zaW9uIiwidmFsdWVfanNvbiI6IlwiYWN0aXZlXCIifQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:connectable-services|prop:extension:version|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:version"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOnZlcnNpb24iLCJzdWJqZWN0X2lkIjoiY29tcG9uZW50OmNvbm5lY3RhYmxlLXNlcnZpY2VzIiwidGFibGUiOiJhdHRyaWJ1dGVfZmFjdCIsInR5cGVfaWQiOiJ0eXBlOmV4dGVuc2lvbiIsInZhbHVlX2pzb24iOiJcIjEuMC4wXCIifQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:connectable-services|prop:resource:compiler_config|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:resource:compiler_config"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6cmVzb3VyY2U6Y29tcGlsZXJfY29uZmlnIiwic3ViamVjdF9pZCI6ImNvbXBvbmVudDpjb25uZWN0YWJsZS1zZXJ2aWNlcyIsInRhYmxlIjoiYXR0cmlidXRlX2ZhY3QiLCJ0eXBlX2lkIjoidHlwZTpleHRlbnNpb24iLCJ2YWx1ZV9qc29uIjoie1wiYXJndlwiOltcIi4vdG9vbFwiLFwiX19TT1VSQ0VfUEFUSF9fXCIsXCItLWJ1bmRsZVwiLFwiLS1mb3JtYXQ9Y2pzXCIsXCItLW91dGZpbGU9X19PVVRQVVRfMF9fXCIsXCItLXBsYXRmb3JtPWJyb3dzZXJcIixcIi0tdGFyZ2V0PWVzMjAyMFwiLFwiLS1qc3g9YXV0b21hdGljXCIsXCItLWxvYWRlcjoudHN4PXRzeFwiLFwiLS1sb2FkZXI6LnRzPXRzXCIsXCItLXJlc29sdmUtZXh0ZW5zaW9ucz0udHMsLnRzeCwuanMsLmpzeFwiLFwiLS1hbGlhczpAPS5cIixcIi0tYWxpYXM6QGJpdGZpZWxkL3J1bnRpbWUta2l0L3JlYWN0PS4vcGFja2FnZXMvY29ubmVjdGFibGUtc2VydmljZXMvLmJpdGZpZWxkLWVudHJ5LXNjb3BlL2VudHJ5LTYzNmY2ZTZlNjU2Mzc0NjE2MjZjNjUyZDczNjU3Mjc2Njk2MzY1NzMvcnVudGltZS1raXQtcmVhY3QudHNcIixcIi0tcHJlc2VydmUtc3ltbGlua3NcIixcIi0tZXh0ZXJuYWw6cmVhY3RcIixcIi0tZXh0ZXJuYWw6cmVhY3QtZG9tXCIsXCItLWV4dGVybmFsOnJlYWN0LWRvbS9jbGllbnRcIixcIi0tZXh0ZXJuYWw6cmVhY3QvanN4LXJ1bnRpbWVcIixcIi0tZXh0ZXJuYWw6cmVhY3QvanN4LWRldi1ydW50aW1lXCIsXCItLWV4dGVybmFsOnNjaGVkdWxlclwiXSxcImN3ZFwiOlwiLlwiLFwidGltZW91dF9tc1wiOjEyMDAwMCxcInRlcm1pbmF0aW9uX2dyYWNlX21zXCI6MTAwMCxcImV4cGVjdGVkX3Rlcm1pbmF0aW9uXCI6bnVsbCxcImVudlwiOnt9LFwiaW5wdXRzXCI6W10sXCJpbnB1dF90cmVlc1wiOltdLFwib3V0cHV0c1wiOlt7XCJjb250ZW50X3R5cGVcIjpcImFwcGxpY2F0aW9uL2phdmFzY3JpcHRcIixcIm1vdW50X3BhdGhcIjpcIm91dHB1dC5qc1wifV0sXCJjb250YWlubWVudFwiOntcImtpbmRcIjpcImRlc2NlbmRhbnRfZWZmZWN0X2NvbnRhaW5lZFwiLFwicGlwZV9lb2ZfdGltZW91dF9tc1wiOjEwMDAsXCJwdWJsaWNhdGlvbnNcIjpbXX0sXCJjYXB0dXJlX2Zkc1wiOlsxLDJdLFwiY29sbGVjdGVkX2ZpbGVzXCI6W10sXCJvdXRwdXRfbWFwcGluZ1wiOlt7XCJjb250ZW50X3R5cGVcIjpcImFwcGxpY2F0aW9uL2phdmFzY3JpcHRcIixcImhhc2hfcHJvcGVydHlfaWRcIjpcInByb3A6ZXh0ZW5zaW9uOmludGVncml0eV9oYXNoXCIsXCJvdXRwdXRfcGF0aFwiOlwib3V0cHV0LmpzXCIsXCJwcm9wZXJ0eV9pZFwiOlwicHJvcDpleHRlbnNpb246YnVuZGxlXCIsXCJ0eXBlX2lkXCI6XCJ0eXBlOmV4dGVuc2lvblwifV19In0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:connectable-services|prop:resource:compiler_resource|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:resource:compiler_resource"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6cmVzb3VyY2U6Y29tcGlsZXJfcmVzb3VyY2UiLCJzdWJqZWN0X2lkIjoiY29tcG9uZW50OmNvbm5lY3RhYmxlLXNlcnZpY2VzIiwidGFibGUiOiJhdHRyaWJ1dGVfZmFjdCIsInR5cGVfaWQiOiJ0eXBlOmV4dGVuc2lvbiIsInZhbHVlX2pzb24iOiJcInJlc291cmNlOmVzYnVpbGRcIiJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|component:connectable-services|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "type:extension"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJlbnRpdHlfaWQiOiJjb21wb25lbnQ6Y29ubmVjdGFibGUtc2VydmljZXMiLCJ0YWJsZSI6ImVudGl0eV90eXBlcyIsInR5cGVfaWQiOiJ0eXBlOmV4dGVuc2lvbiJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|component:connectable-services",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJpZCI6ImNvbXBvbmVudDpjb25uZWN0YWJsZS1zZXJ2aWNlcyIsInRhYmxlIjoiZW50aXR5In0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::calling-service::name",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:name",
+        "subject_id": "known-service:calling-service",
+        "value": "Calling Service"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::calling-service::domain",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:domain",
+        "subject_id": "known-service:calling-service",
+        "value": "calling-service"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::calling-service::auth-type",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:auth_type",
+        "subject_id": "known-service:calling-service",
+        "value": "credential-handle"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::calling-service::description",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:spec_url",
+        "subject_id": "known-service:calling-service",
+        "value": "Connect any outside-reach provider through service-connections, then execute through process-session or http-client descriptors."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::google-account::name",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:name",
+        "subject_id": "known-service:google-account",
+        "value": "Google Account"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::google-account::domain",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:domain",
+        "subject_id": "known-service:google-account",
+        "value": "google.com"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::google-account::auth-type",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:auth_type",
+        "subject_id": "known-service:google-account",
+        "value": "oauth-account"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::google-account::description",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:spec_url",
+        "subject_id": "known-service:google-account",
+        "value": "Connect a Google account for Gmail and Google Calendar account-backed services."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::google-gmail::name",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:name",
+        "subject_id": "known-service:google-gmail",
+        "value": "Gmail"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::google-gmail::domain",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:domain",
+        "subject_id": "known-service:google-gmail",
+        "value": "gmail.com"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::google-gmail::auth-type",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:auth_type",
+        "subject_id": "known-service:google-gmail",
+        "value": "oauth-account"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::google-gmail::description",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:spec_url",
+        "subject_id": "known-service:google-gmail",
+        "value": "Use a Google Account connection to read and send Gmail messages."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::google-calendar::name",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:name",
+        "subject_id": "known-service:google-calendar",
+        "value": "Google Calendar"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::google-calendar::domain",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:domain",
+        "subject_id": "known-service:google-calendar",
+        "value": "calendar.google.com"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::google-calendar::auth-type",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:auth_type",
+        "subject_id": "known-service:google-calendar",
+        "value": "oauth-account"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::google-calendar::description",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:spec_url",
+        "subject_id": "known-service:google-calendar",
+        "value": "Use a Google Account connection to read and write Google Calendar events."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::entry::connectable-services",
+      "path": [
+        "packages",
+        "connectable-services",
+        "entries",
+        "connectable-services"
+      ],
+      "payload": {
+        "entry_name": "connectable-services",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-connectable-services.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-connectable-services"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::youtube::name",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:name",
+        "subject_id": "known-service:youtube",
+        "value": "YouTube"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::youtube::domain",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:domain",
+        "subject_id": "known-service:youtube",
+        "value": "youtube.com"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::youtube::auth-type",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:auth_type",
+        "subject_id": "known-service:youtube",
+        "value": "credential-handle"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::youtube::description",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:spec_url",
+        "subject_id": "known-service:youtube",
+        "value": "Publish Ethos lesson clips, shorts, and private preview videos through a service-connection credential handle."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::x::name",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:name",
+        "subject_id": "known-service:x",
+        "value": "X"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::x::domain",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:domain",
+        "subject_id": "known-service:x",
+        "value": "x.com"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::x::auth-type",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:auth_type",
+        "subject_id": "known-service:x",
+        "value": "credential-handle"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::x::description",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:spec_url",
+        "subject_id": "known-service:x",
+        "value": "Publish Ethos short-form posts and threads through a service-connection credential handle."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::instagram::name",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:name",
+        "subject_id": "known-service:instagram",
+        "value": "Instagram"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::instagram::domain",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:domain",
+        "subject_id": "known-service:instagram",
+        "value": "instagram.com"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::instagram::auth-type",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:auth_type",
+        "subject_id": "known-service:instagram",
+        "value": "credential-handle"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::instagram::description",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:spec_url",
+        "subject_id": "known-service:instagram",
+        "value": "Publish Ethos reels, images, and captions through a service-connection credential handle."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::tiktok::name",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:name",
+        "subject_id": "known-service:tiktok",
+        "value": "TikTok"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::tiktok::domain",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:domain",
+        "subject_id": "known-service:tiktok",
+        "value": "tiktok.com"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::tiktok::auth-type",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:auth_type",
+        "subject_id": "known-service:tiktok",
+        "value": "credential-handle"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::tiktok::description",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:spec_url",
+        "subject_id": "known-service:tiktok",
+        "value": "Publish Ethos short-form videos through a service-connection credential handle; stays disabled until the service connection is approved."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::ethos-newsletter::name",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:name",
+        "subject_id": "known-service:ethos-newsletter",
+        "value": "Ethos Newsletter"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::ethos-newsletter::domain",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:domain",
+        "subject_id": "known-service:ethos-newsletter",
+        "value": "beehiiv.com"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::ethos-newsletter::auth-type",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:auth_type",
+        "subject_id": "known-service:ethos-newsletter",
+        "value": "credential-handle"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::ethos-newsletter::description",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:spec_url",
+        "subject_id": "known-service:ethos-newsletter",
+        "value": "Publish Ethos newsletter posts through Beehiiv by default, with the same destination grammar as Ghost if the operator swaps the service connection."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:known_api|prop:known_api:auth_type",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmtub3duX2FwaTphdXRoX3R5cGUiLAogICJ0YWJsZSI6ICJ0eXBlX3Byb3BlcnRpZXMiLAogICJ0eXBlX2lkIjogInR5cGU6a25vd25fYXBpIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:known_api|prop:known_api:domain",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmtub3duX2FwaTpkb21haW4iLAogICJ0YWJsZSI6ICJ0eXBlX3Byb3BlcnRpZXMiLAogICJ0eXBlX2lkIjogInR5cGU6a25vd25fYXBpIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:known_api|prop:known_api:name",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmtub3duX2FwaTpuYW1lIiwKICAidGFibGUiOiAidHlwZV9wcm9wZXJ0aWVzIiwKICAidHlwZV9pZCI6ICJ0eXBlOmtub3duX2FwaSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:known_api|prop:known_api:spec_url",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmtub3duX2FwaTpzcGVjX3VybCIsCiAgInRhYmxlIjogInR5cGVfcHJvcGVydGllcyIsCiAgInR5cGVfaWQiOiAidHlwZTprbm93bl9hcGkiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::apple-photos::name",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:name",
+        "subject_id": "known-service:apple-photos",
+        "value": "Apple Photos"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::apple-photos::domain",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:domain",
+        "subject_id": "known-service:apple-photos",
+        "value": "apple.com"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::apple-photos::description",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:spec_url",
+        "subject_id": "known-service:apple-photos",
+        "value": "Use the Photos library on this Mac through macOS device permission."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::apple-notes::name",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:name",
+        "subject_id": "known-service:apple-notes",
+        "value": "Apple Notes"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::apple-notes::domain",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:domain",
+        "subject_id": "known-service:apple-notes",
+        "value": "apple.com"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::apple-notes::description",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:spec_url",
+        "subject_id": "known-service:apple-notes",
+        "value": "Use the Notes library on this Mac through macOS device permission."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::apple-voice-memos::name",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:name",
+        "subject_id": "known-service:apple-voice-memos",
+        "value": "Apple Voice Memos"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::apple-voice-memos::domain",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:domain",
+        "subject_id": "known-service:apple-voice-memos",
+        "value": "apple.com"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::apple-voice-memos::description",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:spec_url",
+        "subject_id": "known-service:apple-voice-memos",
+        "value": "Use the Voice Memos library on this Mac through macOS device permission."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::notion::name",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:name",
+        "subject_id": "known-service:notion",
+        "value": "Notion"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::notion::domain",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:domain",
+        "subject_id": "known-service:notion",
+        "value": "notion.so"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::notion::auth-type",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:auth_type",
+        "subject_id": "known-service:notion",
+        "value": "credential-handle"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::notion::description",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:spec_url",
+        "subject_id": "known-service:notion",
+        "value": "Read and update Notion pages shared with an internal integration."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::supabase::name",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:name",
+        "subject_id": "known-service:supabase",
+        "value": "Supabase"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::supabase::domain",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:domain",
+        "subject_id": "known-service:supabase",
+        "value": "supabase.com"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::supabase::auth-type",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:auth_type",
+        "subject_id": "known-service:supabase",
+        "value": "credential-handle"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::connectable-services::known-service::supabase::description",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "known-service-fact",
+        "property_id": "prop:known_api:spec_url",
+        "subject_id": "known-service:supabase",
+        "value": "Connect one Supabase project per app and label each connection with its app name."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-connectable-services",
+      "source_path": "built-stored-bytes/entry-bytes-connectable-services",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-connectable-services.source-closure.json"
+    }
+  ]
+}

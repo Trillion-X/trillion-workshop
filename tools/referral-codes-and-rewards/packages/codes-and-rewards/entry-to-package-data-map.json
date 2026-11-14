@@ -1,0 +1,27 @@
+{
+  "package": "codes-and-rewards",
+  "entries": [
+    {
+      "entry_name": "read-record-interaction-surface",
+      "source_path": "read-data/read-record-interaction-surface.ts",
+      "export_name": "readRecordInteractionSurface",
+      "record_address": "package::codes-and-rewards::entry::read-record-interaction-surface"
+    },
+    {
+      "entry_name": "build-owner-action-request",
+      "source_path": "do-work/build-owner-action-request.ts",
+      "export_name": "buildOwnerActionRequest",
+      "record_address": "package::codes-and-rewards::entry::build-owner-action-request"
+    }
+  ],
+  "data": [
+    {
+      "source_path": "record-interaction-contract.json",
+      "record_address": "package::codes-and-rewards::record-interaction-contract"
+    },
+    {
+      "source_path": "things-to-store-and-run.json",
+      "record_address": "package::codes-and-rewards::contract"
+    }
+  ]
+}

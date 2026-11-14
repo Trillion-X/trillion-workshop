@@ -1,0 +1,49 @@
+{
+  "schema": "ai-orchestra.reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-AGENT-WALLET-CONSOLIDATION",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "For valuable work, inspect the actual behavior and integrate the final correct implementation into the default branch using ordinary commits.",
+    "message_sha256": "cce66acd2fc5f90f85208e7ee9d5c9099c91015cfed5263ff398626125969c38",
+    "hash_scope": "verbatim cleanup instruction excerpt"
+  },
+  "mode": "BEHAVIORAL_PORT",
+  "sources": [
+    {
+      "path": "packages/agent-wallet/read-data/read-agent-wallet.ts",
+      "sha256": "4469399fa41ced8a1cb15f630a7a71a718b9b0ff46f63f3ca87371a18f447830",
+      "ownership": "repository-owned"
+    }
+  ],
+  "targets": [
+    {
+      "path": "packages/agent-wallet/show/AgentWalletPanel.tsx"
+    }
+  ],
+  "preserve": [
+    "Existing Card, Container, Text, Button and Badge composition",
+    "Existing status, budget and configure behavior",
+    "Compatibility with existing X402Wallet consumers"
+  ],
+  "allowed_deltas": [
+    "Consume the generic SpendAuthority type and data-selected payment method",
+    "Replace payment-method-specific heading with plain budget wording"
+  ],
+  "banned_substitutions": [
+    "New layout, typography or component implementation",
+    "Fabricated payment state",
+    "Live payment or deployment during cleanup"
+  ],
+  "baseline": {
+    "git_source": "HEAD:packages/agent-wallet/show/AgentWalletPanel.tsx",
+    "visual_capture": "Unavailable: source consolidation only; running app remains untouched"
+  },
+  "proof": {
+    "test_refs": [
+      "packages/agent-wallet/do-work/decide-budget.test.mjs",
+      "packages/agent-wallet/read-data/read-agent-budget-authority.test.ts",
+      "packages/agent-wallet/read-data/spend-rails.test.ts"
+    ],
+    "limitation": "Source tests pass. No rendered or live-change claim."
+  }
+}

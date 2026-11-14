@@ -2,8 +2,240 @@
   "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
   "source": "Trillion-X/trillion-apps",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "owner-home-folder",
+      "find": "[/]Users[/]b[r]ianakhtar",
+      "replace": "/workspace/the-owner",
+      "means": "A person's home folder name in a path, swapped for a made-up one: a public tree holds made-up data only."
+    },
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    }
+  ],
   "files": [
+    {
+      "from": "packages/calendar/do-work/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/do-work/README.md",
+      "source_identity": "1f:fd0a2875aeb43fc2ccb9586649ab19680b1475134a85e5a860662d98ebaeee3c",
+      "identity": "1f:fd0a2875aeb43fc2ccb9586649ab19680b1475134a85e5a860662d98ebaeee3c"
+    },
+    {
+      "from": "packages/calendar/do-work/run-calendar-owner-action.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/do-work/run-calendar-owner-action.ts",
+      "source_identity": "1f:df7e56003260399cc5c9535607ce88d69345095cf0c81118183f9d485274202a",
+      "identity": "1f:df7e56003260399cc5c9535607ce88d69345095cf0c81118183f9d485274202a"
+    },
+    {
+      "from": "packages/calendar/do-work/sync-google-calendar.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/do-work/sync-google-calendar.ts",
+      "source_identity": "1f:79a2c6aecb403f3f14214e4c1e006f2887185b3ba28bdf2cb1d1c95096e8ca22",
+      "identity": "1f:79a2c6aecb403f3f14214e4c1e006f2887185b3ba28bdf2cb1d1c95096e8ca22"
+    },
+    {
+      "from": "packages/calendar/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/entry-to-package-data-map.json",
+      "source_identity": "1f:4883703701275f41e759c58094bca29752246422e6a69116e9d39a323bc7521b",
+      "identity": "1f:4883703701275f41e759c58094bca29752246422e6a69116e9d39a323bc7521b"
+    },
+    {
+      "from": "packages/calendar/read-data/read-calendar-accounts.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/read-data/read-calendar-accounts.ts",
+      "source_identity": "1f:5adafc618ac89508579bdb3f64a236267ae97e5c544c31d065397e6ab816cfdc",
+      "identity": "1f:5adafc618ac89508579bdb3f64a236267ae97e5c544c31d065397e6ab816cfdc"
+    },
+    {
+      "from": "packages/calendar/read-data/read-calendar-lens-feeds.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/read-data/read-calendar-lens-feeds.ts",
+      "source_identity": "1f:3863b50f645370be5e0cc961641b15a2d05f2a3e4c951940bac1f0baa1c59ae3",
+      "identity": "1f:3863b50f645370be5e0cc961641b15a2d05f2a3e4c951940bac1f0baa1c59ae3"
+    },
+    {
+      "from": "packages/calendar/read-data/read-calendar-sync-states.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/read-data/read-calendar-sync-states.ts",
+      "source_identity": "1f:7999cf2635173ede70f460249489007ede8be0b4660d33bcc4ec8a7ee29da6c9",
+      "identity": "1f:7999cf2635173ede70f460249489007ede8be0b4660d33bcc4ec8a7ee29da6c9"
+    },
+    {
+      "from": "packages/calendar/read-data/read-calendar-time-blocks.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/read-data/read-calendar-time-blocks.ts",
+      "source_identity": "1f:17f9d1d8a147c49ec453d6c18d7c6fd2b824d5a3b648d5e49eee0a81c43b4ae9",
+      "identity": "1f:17f9d1d8a147c49ec453d6c18d7c6fd2b824d5a3b648d5e49eee0a81c43b4ae9"
+    },
+    {
+      "from": "packages/calendar/read-data/read-calendar-view-descriptors.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/read-data/read-calendar-view-descriptors.ts",
+      "source_identity": "1f:86188989503010fa611dc9c554b2373260b9bf5b7cf74b662303e8e3f5dbad54",
+      "identity": "1f:86188989503010fa611dc9c554b2373260b9bf5b7cf74b662303e8e3f5dbad54"
+    },
+    {
+      "from": "packages/calendar/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/README.md",
+      "source_identity": "1f:964597f176052879f7d4bd39054e03b87ef1681349ad000816b5f86a6b5397e1",
+      "identity": "1f:c0b4a4767e48116cc23e8ce7d6e41176bc8bd13b9f49057912d27e5e1c24eb74",
+      "calls": [
+        "owner-home-folder"
+      ]
+    },
+    {
+      "from": "packages/calendar/reference/2026-06-19-reference-grounded-screen-contract.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/reference/2026-06-19-reference-grounded-screen-contract.md",
+      "source_identity": "1f:0bd745652255e7e6633268c39ef11a4850d0f83f6e5617ab72588374970dcf4b",
+      "identity": "1f:2f3e6e3f5bf82f9c00d4df2fc818385c8ffe1430ff3c835563e4a9a768261be3",
+      "calls": [
+        "owner-home-folder"
+      ]
+    },
+    {
+      "from": "packages/calendar/reference/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/reference/README.md",
+      "source_identity": "1f:a48b3ce2eb3acc9e8aaaabaae128039b00802f9b7adbeb2bfbd930bf263aa3ad",
+      "identity": "1f:a48b3ce2eb3acc9e8aaaabaae128039b00802f9b7adbeb2bfbd930bf263aa3ad"
+    },
+    {
+      "from": "packages/calendar/show-ios-jscore/calendar-jscore-renderer.js",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/show-ios-jscore/calendar-jscore-renderer.js",
+      "source_identity": "1f:16c9b808dfe98a66030c066fddac048c9b9d8ad49917a5f6d04bf3947d58cfee",
+      "identity": "1f:16c9b808dfe98a66030c066fddac048c9b9d8ad49917a5f6d04bf3947d58cfee"
+    },
+    {
+      "from": "packages/calendar/show-ios-jscore/mount-calendar-jscore.js",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/show-ios-jscore/mount-calendar-jscore.js",
+      "source_identity": "1f:bfd010bbc3bb7b26e33ba56e7588a662abd69357aae2abf2d4e0218a29ae52cf",
+      "identity": "1f:bfd010bbc3bb7b26e33ba56e7588a662abd69357aae2abf2d4e0218a29ae52cf"
+    },
+    {
+      "from": "packages/calendar/show-ios-jscore/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/show-ios-jscore/README.md",
+      "source_identity": "1f:12577ed2452df84065eacc9f4d0f4a3f8a0e70540f856ef4174460ded625acb7",
+      "identity": "1f:12577ed2452df84065eacc9f4d0f4a3f8a0e70540f856ef4174460ded625acb7"
+    },
+    {
+      "from": "packages/calendar/show/calendar-fixtures.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/show/calendar-fixtures.ts",
+      "source_identity": "1f:0300f805b1aa0e6608d985bd8ba8d4962d9a261d06e1880083510ee6bdf3309e",
+      "identity": "1f:0300f805b1aa0e6608d985bd8ba8d4962d9a261d06e1880083510ee6bdf3309e"
+    },
+    {
+      "from": "packages/calendar/show/calendar-overlap-layout.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/show/calendar-overlap-layout.ts",
+      "source_identity": "1f:1a3f33482625c0e52efc43a6aff63cce7cd3e2b851be60ed613c0995dc0b4597",
+      "identity": "1f:1a3f33482625c0e52efc43a6aff63cce7cd3e2b851be60ed613c0995dc0b4597"
+    },
+    {
+      "from": "packages/calendar/show/calendar-screen-model.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/show/calendar-screen-model.ts",
+      "source_identity": "1f:d3e9766057f2ee45c450779f26b2373af57bb0c7cbe7738c80336206718dc954",
+      "identity": "1f:d3e9766057f2ee45c450779f26b2373af57bb0c7cbe7738c80336206718dc954"
+    },
+    {
+      "from": "packages/calendar/show/calendar-view-dates.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/show/calendar-view-dates.ts",
+      "source_identity": "1f:6cc7f616cac6ecd23117c7b46b2068dbf3f7b8c26b1875ec1ea041b504d0376e",
+      "identity": "1f:6cc7f616cac6ecd23117c7b46b2068dbf3f7b8c26b1875ec1ea041b504d0376e"
+    },
+    {
+      "from": "packages/calendar/show/calendar-view-registry.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/show/calendar-view-registry.tsx",
+      "source_identity": "1f:b20e073c71913837a63a3d3aa2b3677c68a1da23a1b70a0953ed27bfe234be77",
+      "identity": "1f:b20e073c71913837a63a3d3aa2b3677c68a1da23a1b70a0953ed27bfe234be77"
+    },
+    {
+      "from": "packages/calendar/show/CalendarAccountRail.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/show/CalendarAccountRail.tsx",
+      "source_identity": "1f:a43c3650675933c82a011571439874eddfa999ddd155855229da5d8235022baa",
+      "identity": "1f:a43c3650675933c82a011571439874eddfa999ddd155855229da5d8235022baa"
+    },
+    {
+      "from": "packages/calendar/show/CalendarAgenda.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/show/CalendarAgenda.tsx",
+      "source_identity": "1f:521a86309397506df72de3f55182fee2f5a35425fc0ca0ba28040d5ddef610d0",
+      "identity": "1f:521a86309397506df72de3f55182fee2f5a35425fc0ca0ba28040d5ddef610d0"
+    },
+    {
+      "from": "packages/calendar/show/CalendarConflictPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/show/CalendarConflictPanel.tsx",
+      "source_identity": "1f:651d20c5331c05611b613cdc3c566ff287df665c159a7e97e6dbcf62f2bacfcf",
+      "identity": "1f:651d20c5331c05611b613cdc3c566ff287df665c159a7e97e6dbcf62f2bacfcf"
+    },
+    {
+      "from": "packages/calendar/show/CalendarDetailPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/show/CalendarDetailPanel.tsx",
+      "source_identity": "1f:c3fc2a2fac150b9b5cb8d709d74c68bf1b0585afcb456c887ed5768bd252dbd0",
+      "identity": "1f:c3fc2a2fac150b9b5cb8d709d74c68bf1b0585afcb456c887ed5768bd252dbd0"
+    },
+    {
+      "from": "packages/calendar/show/CalendarMonthView.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/show/CalendarMonthView.tsx",
+      "source_identity": "1f:983b21dca9e99664dda37fee7b46214769a7e6124c75a5902217dc71ca46c998",
+      "identity": "1f:983b21dca9e99664dda37fee7b46214769a7e6124c75a5902217dc71ca46c998"
+    },
+    {
+      "from": "packages/calendar/show/CalendarSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/show/CalendarSurface.tsx",
+      "source_identity": "1f:5fc9d95fc3a14a8b5686101006dad20f928bf48ca656a9b6166cfbe892aca6d6",
+      "identity": "1f:5fc9d95fc3a14a8b5686101006dad20f928bf48ca656a9b6166cfbe892aca6d6"
+    },
+    {
+      "from": "packages/calendar/show/CalendarTopBar.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/show/CalendarTopBar.tsx",
+      "source_identity": "1f:9ef4c9bf22c3f3da8cf036e468f8ff4aad4711b8960c3c3cfb7920808b8b06b4",
+      "identity": "1f:9ef4c9bf22c3f3da8cf036e468f8ff4aad4711b8960c3c3cfb7920808b8b06b4"
+    },
+    {
+      "from": "packages/calendar/show/mount-calendar.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/show/mount-calendar.tsx",
+      "source_identity": "1f:c0feba0690771375e1357c9fca595e542dbb3f8a980cce78564d9665b148bcb8",
+      "identity": "1f:c0feba0690771375e1357c9fca595e542dbb3f8a980cce78564d9665b148bcb8"
+    },
+    {
+      "from": "packages/calendar/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/show/README.md",
+      "source_identity": "1f:be4b437020d0f2223abb7493dc5a07e985326fae558edf1bf5f1e6bea9f61b4c",
+      "identity": "1f:006573bdb5efbfdc70f0d29aab68c8ffd112e004717aea0f17943617eb589500",
+      "calls": [
+        "owner-home-folder"
+      ]
+    },
+    {
+      "from": "packages/calendar/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/calendar/packages/calendar/things-to-store-and-run.json",
+      "source_identity": "1f:8f27b1668fe9c2cfa81530d21fdb706a44aaa3fad00ba05bbd719355345a680f",
+      "identity": "1f:8f27b1668fe9c2cfa81530d21fdb706a44aaa3fad00ba05bbd719355345a680f"
+    },
     {
       "from": "web/src/workspace/calendar-batch-actions.mjs",
       "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",

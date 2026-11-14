@@ -148,6 +148,34 @@
         "web/src/workspace/tray.ts",
         "web/src/workspace/upload.ts"
       ]
+    },
+    {
+      "from": "packages/cloud-files/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-upload-my-files/packages/cloud-files/entry-to-package-data-map.json",
+      "source_identity": "1f:85b173604e2bf1d2bb06d70abf9bf9d58f7219790807ed6fedda2b367edb2064",
+      "identity": "1f:85b173604e2bf1d2bb06d70abf9bf9d58f7219790807ed6fedda2b367edb2064"
+    },
+    {
+      "from": "packages/cloud-files/read-data/read-cloud-directory.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-upload-my-files/packages/cloud-files/read-data/read-cloud-directory.ts",
+      "source_identity": "1f:690175fa19e53215f4988ebc4f6226f82ab4a57cabce1dadebabe7d7d1ec8c1c",
+      "identity": "1f:690175fa19e53215f4988ebc4f6226f82ab4a57cabce1dadebabe7d7d1ec8c1c"
+    },
+    {
+      "from": "packages/cloud-files/read-data/read-cloud-file-sources.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-upload-my-files/packages/cloud-files/read-data/read-cloud-file-sources.ts",
+      "source_identity": "1f:ef1aecc5cfb7f3bee93c260e78e2bdee5ad5842d0e97eb7c9c547f9204935668",
+      "identity": "1f:ef1aecc5cfb7f3bee93c260e78e2bdee5ad5842d0e97eb7c9c547f9204935668"
+    },
+    {
+      "from": "packages/cloud-files/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-upload-my-files/packages/cloud-files/things-to-store-and-run.json",
+      "source_identity": "1f:5bb01eefcd9f7c317467375ab1d3f3fc02c04c9dfeb9624f2b174ed09cef1d04",
+      "identity": "1f:5bb01eefcd9f7c317467375ab1d3f3fc02c04c9dfeb9624f2b174ed09cef1d04"
     }
   ]
 }

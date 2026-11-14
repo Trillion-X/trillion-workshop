@@ -1,0 +1,549 @@
+{
+  "package": "ai-memory",
+  "things": [
+    {
+      "type": "stored_bytes",
+      "name": "index",
+      "source_path": "index.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "read-memory-context",
+      "source_path": "read-data/read-memory-context.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "request-memory-write",
+      "source_path": "do-work/request-memory-write.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "request-ai-response",
+      "source_path": "do-work/request-ai-response.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "ai-memory-panel",
+      "source_path": "show/mount-ai-memory-panel.tsx"
+    },
+    {
+      "type": "record",
+      "address": "package::ai-memory::contract",
+      "path": [
+        "packages",
+        "ai-memory",
+        "contract"
+      ],
+      "payload": {
+        "kind": "package-contract",
+        "package": "ai-memory",
+        "owns": [
+          "generic memory context reading",
+          "generic memory record reading",
+          "generic memory write request forwarding",
+          "generic AI response request forwarding",
+          "generic memory context rendering"
+        ],
+        "does_not_own": [
+          "conversation rendering",
+          "model providers",
+          "prompt policy",
+          "provider SDK calls",
+          "embedding storage",
+          "package-set-specific copy"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-memory::record-contract::memory-context-item",
+      "path": [
+        "packages",
+        "ai-memory",
+        "record-contracts",
+        "memory-context-item"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "memory-context-item",
+        "required_fields": [
+          "id",
+          "body"
+        ],
+        "data_owner": "package-set-records-or-imported-facts"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-memory::record-contract::ai-memory-record",
+      "path": [
+        "packages",
+        "ai-memory",
+        "record-contracts",
+        "ai-memory-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "ai-memory-record",
+        "required_fields": [
+          "id",
+          "content"
+        ],
+        "data_owner": "package-set-records-or-imported-facts"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-memory::input::memory-context",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "input_name": "memory-context",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "package::ai-memory::feed::memory-context",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::ai-memory::feed::memory-context",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "memory-context-item"
+            },
+            {
+              "path": [
+                "payload"
+              ],
+              "not_equals": "__bitfield_never__"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ai-memory::input::memory-records",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "input_name": "memory-records",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "package::ai-memory::feed::memory-records",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::ai-memory::feed::memory-records",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "ai-memory-record"
+            },
+            {
+              "path": [
+                "payload"
+              ],
+              "not_equals": "__bitfield_never__"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ai-memory::entry::ai-memory-panel",
+      "path": [
+        "packages",
+        "ai-memory",
+        "entries",
+        "ai-memory-panel"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "ai-memory-panel",
+        "source_path": "show/mount-ai-memory-panel.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-ai-memory-panel"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false,
+      "build_source_path": "show/mount-ai-memory-panel.tsx"
+    },
+    {
+      "type": "record",
+      "address": "package::ai-memory::target::request-memory-write",
+      "path": [
+        "packages",
+        "ai-memory",
+        "targets",
+        "request-memory-write"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "request-memory-write",
+        "export_name": "requestMemoryWrite",
+        "source_path": "do-work/request-memory-write.ts",
+        "target": "ai-memory.request-memory-write"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-memory::target::request-ai-response",
+      "path": [
+        "packages",
+        "ai-memory",
+        "targets",
+        "request-ai-response"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "request-ai-response",
+        "export_name": "requestAiResponse",
+        "source_path": "do-work/request-ai-response.ts",
+        "target": "ai-memory.request-ai-response"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-memory::workflow-action::publish-agent-memories",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:publish-agent-memories",
+        "kind": "action",
+        "name": "publish-agent-memories",
+        "description": "Read canonical agent_memory attribute facts and publish the addressed agent-memories sink payload.",
+        "input_schema": {},
+        "steps": [
+          {
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "attribute_fact",
+                "select": [
+                  "subject_id",
+                  "property_id",
+                  "value_json"
+                ],
+                "where": {
+                  "all": [
+                    {
+                      "field": "property_id",
+                      "in": [
+                        "prop:agent_memory:account",
+                        "prop:agent_memory:content",
+                        "prop:agent_memory:updated_at"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": "agent-memories",
+                  "path": [],
+                  "payload_bytes": {
+                    "rows": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "step_0",
+                        "path": "output.items"
+                      }
+                    },
+                    "columns": [
+                      {
+                        "column": 0,
+                        "source": {
+                          "path": [
+                            "subject_id"
+                          ]
+                        },
+                        "value": {
+                          "value_to_bytes": "non_empty_text"
+                        }
+                      },
+                      {
+                        "column": 1,
+                        "source": {
+                          "path": [
+                            "property_id"
+                          ]
+                        },
+                        "value": {
+                          "value_to_bytes": "non_empty_text"
+                        }
+                      },
+                      {
+                        "column": 2,
+                        "source": {
+                          "path": [
+                            "value_json"
+                          ],
+                          "parse": {
+                            "format": "json"
+                          }
+                        },
+                        "value": {
+                          "value_to_bytes": "json"
+                        }
+                      }
+                    ],
+                    "value_to_bytes": "cell_table"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-memory::trigger-rule::publish-agent-memories-on-change",
+      "address_mode": "identity_text",
+      "path": [
+        "trigger-rule"
+      ],
+      "payload": {
+        "id": "trigger:publish-agent-memories-on-change",
+        "match_condition": {
+          "conditions": [
+            {
+              "$bind": {
+                "select": {
+                  "from": "change",
+                  "path": "property_id"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.in_list",
+                    "args": {
+                      "values": [
+                        "prop:agent_memory:account",
+                        "prop:agent_memory:content",
+                        "prop:agent_memory:updated_at"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:publish-agent-memories",
+            "include_steps": false,
+            "include_output": false,
+            "input": {
+              "change": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": ""
+                }
+              },
+              "envelope": {
+                "$kind": "binding",
+                "select": {
+                  "from": "envelope",
+                  "path": ""
+                }
+              }
+            }
+          }
+        },
+        "is_active": true,
+        "topic": "attribute_changed"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-memory::trigger-rule::publish-agent-memories-on-runtime-loaded",
+      "address_mode": "identity_text",
+      "path": [
+        "trigger-rule"
+      ],
+      "payload": {
+        "id": "trigger:publish-agent-memories-on-runtime-loaded",
+        "match_condition": {
+          "conditions": [
+            {
+              "$bind": {
+                "select": {
+                  "from": "change",
+                  "path": "properties.event_type"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.equals",
+                    "args": {
+                      "value": "runtime_loaded"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:publish-agent-memories",
+            "include_steps": false,
+            "include_output": false,
+            "input": {
+              "change": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": ""
+                }
+              },
+              "envelope": {
+                "$kind": "binding",
+                "select": {
+                  "from": "envelope",
+                  "path": ""
+                }
+              }
+            }
+          }
+        },
+        "is_active": true,
+        "topic": "runtime_loaded"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-memory::retention-policy::ai-memory-record",
+      "path": [
+        "packages",
+        "ai-memory",
+        "retention-policies",
+        "ai-memory-record"
+      ],
+      "payload": {
+        "kind": "record-retention-policy",
+        "record_kind": "ai-memory-record",
+        "owner_package": "ai-memory",
+        "retention": {
+          "class": "durable"
+        },
+        "justification": "Operator/user memory = truth; the current version is pinned. Re-appended ~8x/id — durable keeps current, reclaims superseded versions, killing the re-append mass (5-12GB)."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-ai-memory-panel",
+      "source_path": "built-stored-bytes/entry-bytes-ai-memory-panel",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-ai-memory-panel.source-closure.json"
+    }
+  ]
+}

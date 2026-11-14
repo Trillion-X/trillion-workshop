@@ -1,0 +1,134 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/ai-execution-history/do-work/append-execution-step.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-execution-history/packages/ai-execution-history/do-work/append-execution-step.ts",
+      "source_identity": "1f:53df2ee4c8613ab2fe9a9c6048e2b5a486126efa06973a947b4292d1bca8f8ed",
+      "identity": "1f:53df2ee4c8613ab2fe9a9c6048e2b5a486126efa06973a947b4292d1bca8f8ed"
+    },
+    {
+      "from": "packages/ai-execution-history/do-work/prepare-local-fleet-source-target.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-execution-history/packages/ai-execution-history/do-work/prepare-local-fleet-source-target.ts",
+      "source_identity": "1f:2cf1d3cf60008923c7afcf9fe5801ecbf41068df4accb76132b8a6a23d5abc33",
+      "identity": "1f:2cf1d3cf60008923c7afcf9fe5801ecbf41068df4accb76132b8a6a23d5abc33"
+    },
+    {
+      "from": "packages/ai-execution-history/do-work/process-scripts/fleet-learning.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-execution-history/packages/ai-execution-history/do-work/process-scripts/fleet-learning.py",
+      "source_identity": "1f:17510ea80591cafe0e7e3a0fddbe331c903a4ba7549c10c7e8937b3620b434e9",
+      "identity": "1f:17510ea80591cafe0e7e3a0fddbe331c903a4ba7549c10c7e8937b3620b434e9"
+    },
+    {
+      "from": "packages/ai-execution-history/do-work/process-scripts/ingest-session-artifacts-to-runs.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-execution-history/packages/ai-execution-history/do-work/process-scripts/ingest-session-artifacts-to-runs.py",
+      "source_identity": "1f:08afbbd4f026ba6fe8323e42bd0fcf16d1c3046407b5bf5ee6b94e2bb1e288a1",
+      "identity": "1f:08afbbd4f026ba6fe8323e42bd0fcf16d1c3046407b5bf5ee6b94e2bb1e288a1"
+    },
+    {
+      "from": "packages/ai-execution-history/do-work/record-review-decision.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-execution-history/packages/ai-execution-history/do-work/record-review-decision.ts",
+      "source_identity": "1f:1627f7551c6371c79cbb1f0241a1ebe2a924e0e88d5c17455f2394a8f13b652f",
+      "identity": "1f:1627f7551c6371c79cbb1f0241a1ebe2a924e0e88d5c17455f2394a8f13b652f"
+    },
+    {
+      "from": "packages/ai-execution-history/do-work/request-execution-start.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-execution-history/packages/ai-execution-history/do-work/request-execution-start.ts",
+      "source_identity": "1f:792cc200597ae59e468b2066f317efdabe9e7a7d6b860000892068d124cca975",
+      "identity": "1f:792cc200597ae59e468b2066f317efdabe9e7a7d6b860000892068d124cca975"
+    },
+    {
+      "from": "packages/ai-execution-history/do-work/resolve-authorized-fleet-source-target.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-execution-history/packages/ai-execution-history/do-work/resolve-authorized-fleet-source-target.ts",
+      "source_identity": "1f:d0d559d8ddd2a7ecba15233f25335ecb53c48db52352ccc7210e9c6312db7aa8",
+      "identity": "1f:d0d559d8ddd2a7ecba15233f25335ecb53c48db52352ccc7210e9c6312db7aa8"
+    },
+    {
+      "from": "packages/ai-execution-history/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-execution-history/packages/ai-execution-history/entry-to-package-data-map.json",
+      "source_identity": "1f:94aa82115474b0fa6a509c31f742db1e5c35b6f24adb913b48b26b7f1eadea35",
+      "identity": "1f:94aa82115474b0fa6a509c31f742db1e5c35b6f24adb913b48b26b7f1eadea35"
+    },
+    {
+      "from": "packages/ai-execution-history/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-execution-history/packages/ai-execution-history/index.ts",
+      "source_identity": "1f:108e8397ee9cac3220f00093b9942b818a9e642b8f8caacea353f4ec1dc77e86",
+      "identity": "1f:108e8397ee9cac3220f00093b9942b818a9e642b8f8caacea353f4ec1dc77e86"
+    },
+    {
+      "from": "packages/ai-execution-history/read-data/derive-run-health.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-execution-history/packages/ai-execution-history/read-data/derive-run-health.ts",
+      "source_identity": "1f:2576619b5963c84b9b280b884bb52a03bb4862af16bd9a872e1424941ccdbc6c",
+      "identity": "1f:2576619b5963c84b9b280b884bb52a03bb4862af16bd9a872e1424941ccdbc6c"
+    },
+    {
+      "from": "packages/ai-execution-history/read-data/execution-history-visual-database.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-execution-history/packages/ai-execution-history/read-data/execution-history-visual-database.ts",
+      "source_identity": "1f:d950abc8c8b7823d8c224e19f287fd53d2b90adf94ca254ba34881306ee82304",
+      "identity": "1f:d950abc8c8b7823d8c224e19f287fd53d2b90adf94ca254ba34881306ee82304"
+    },
+    {
+      "from": "packages/ai-execution-history/read-data/prepare-local-fleet-source.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-execution-history/packages/ai-execution-history/read-data/prepare-local-fleet-source.ts",
+      "source_identity": "1f:76de6e5c6fc59fc121da5823826bea9468770fa53135bfcab1de5dcdefcfedf4",
+      "identity": "1f:76de6e5c6fc59fc121da5823826bea9468770fa53135bfcab1de5dcdefcfedf4"
+    },
+    {
+      "from": "packages/ai-execution-history/read-data/read-ai-execution-history.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-execution-history/packages/ai-execution-history/read-data/read-ai-execution-history.ts",
+      "source_identity": "1f:365a08f5b0c82c05decb542adff3ad77e450816774c611a04c0b2c4b57fffb77",
+      "identity": "1f:365a08f5b0c82c05decb542adff3ad77e450816774c611a04c0b2c4b57fffb77"
+    },
+    {
+      "from": "packages/ai-execution-history/read-data/run-triage-visual-database.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-execution-history/packages/ai-execution-history/read-data/run-triage-visual-database.ts",
+      "source_identity": "1f:e6db0abfaee902ae7365c012ffa3b458d0ad7df3e8bacda610c2f70d8d6e4014",
+      "identity": "1f:e6db0abfaee902ae7365c012ffa3b458d0ad7df3e8bacda610c2f70d8d6e4014"
+    },
+    {
+      "from": "packages/ai-execution-history/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-execution-history/packages/ai-execution-history/README.md",
+      "source_identity": "1f:d119a960a7de3c46a18bd26e56fbe64379ca66b983a48f0697f1a1507b8c0d33",
+      "identity": "1f:d119a960a7de3c46a18bd26e56fbe64379ca66b983a48f0697f1a1507b8c0d33"
+    },
+    {
+      "from": "packages/ai-execution-history/show/ExecutionHistoryPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-execution-history/packages/ai-execution-history/show/ExecutionHistoryPanel.tsx",
+      "source_identity": "1f:e286e9da5f81508f44c78ab1265c1855fcb6bb73273d58e959e9e676be30b54a",
+      "identity": "1f:e286e9da5f81508f44c78ab1265c1855fcb6bb73273d58e959e9e676be30b54a"
+    },
+    {
+      "from": "packages/ai-execution-history/show/mount-ai-execution-history.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-execution-history/packages/ai-execution-history/show/mount-ai-execution-history.tsx",
+      "source_identity": "1f:54f0f8d4e552e3fd73c4893114b6ea8bf9822ec17f5a08b46f498677fe26ec80",
+      "identity": "1f:54f0f8d4e552e3fd73c4893114b6ea8bf9822ec17f5a08b46f498677fe26ec80"
+    },
+    {
+      "from": "packages/ai-execution-history/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-execution-history/packages/ai-execution-history/things-to-store-and-run.json",
+      "source_identity": "1f:1d7a031a5b24c7d87eb455c43aefaa90da60f8edf55eca330e45325542430915",
+      "identity": "1f:1d7a031a5b24c7d87eb455c43aefaa90da60f8edf55eca330e45325542430915"
+    }
+  ]
+}

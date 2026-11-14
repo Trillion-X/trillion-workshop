@@ -1,0 +1,193 @@
+{
+  "kind": "record-exchange.descriptor-bundle",
+  "version": 1,
+  "record_descriptors": [
+    {
+      "id": "record-descriptor:package-store-offer-exchange",
+      "label": "Package store offer exchange",
+      "record_kind": "record.exchange",
+      "field_refs": ["field:title", "field:terms-summary", "field:primary-material"],
+      "relationship_refs": [
+        "relationship:exchange-to-required-material",
+        "relationship:exchange-to-blocked-material",
+        "relationship:exchange-to-owner-action",
+        "relationship:exchange-to-proof-record",
+        "relationship:exchange-to-process-session"
+      ],
+      "rule_refs": [
+        "rule:required-material-present",
+        "rule:blocked-material-absent",
+        "rule:owner-target-ready"
+      ],
+      "action_refs": ["action:submit-exchange-request"],
+      "projection_refs": ["projection:creator-review-surface", "projection:operator-proof-surface"]
+    },
+    {
+      "id": "record-descriptor:review-handoff",
+      "label": "Review handoff",
+      "record_kind": "record.exchange",
+      "field_refs": ["field:title", "field:terms-summary"],
+      "relationship_refs": [
+        "relationship:exchange-to-required-material",
+        "relationship:exchange-to-owner-action",
+        "relationship:exchange-to-proof-record"
+      ],
+      "rule_refs": ["rule:required-material-present", "rule:owner-target-ready"],
+      "action_refs": ["action:submit-exchange-request"],
+      "projection_refs": ["projection:creator-review-surface"]
+    }
+  ],
+  "field_descriptors": [
+    {
+      "id": "field:title",
+      "label": "Title",
+      "role": "primary-label",
+      "value_path": "title",
+      "order": 10
+    },
+    {
+      "id": "field:terms-summary",
+      "label": "Terms",
+      "role": "line",
+      "value_path": "summary",
+      "order": 20
+    },
+    {
+      "id": "field:primary-material",
+      "label": "Material",
+      "role": "line",
+      "value_path": "material_label",
+      "order": 30
+    }
+  ],
+  "relationship_descriptors": [
+    {
+      "id": "relationship:exchange-to-required-material",
+      "label": "Needed item",
+      "role": "requirement",
+      "source_ref": "record.current",
+      "target_ref": "record.related"
+    },
+    {
+      "id": "relationship:exchange-to-blocked-material",
+      "label": "Blocked item",
+      "role": "blocker",
+      "source_ref": "record.current",
+      "target_ref": "record.related"
+    },
+    {
+      "id": "relationship:exchange-to-owner-action",
+      "label": "Action owner",
+      "role": "owner-action",
+      "source_ref": "record.current",
+      "target_ref": "owner.action"
+    },
+    {
+      "id": "relationship:exchange-to-proof-record",
+      "label": "Proof",
+      "role": "proof",
+      "source_ref": "record.current",
+      "target_ref": "record.proof"
+    },
+    {
+      "id": "relationship:exchange-to-process-session",
+      "label": "Run",
+      "role": "process-session",
+      "source_ref": "record.current",
+      "target_ref": "process.session"
+    }
+  ],
+  "rule_descriptors": [
+    {
+      "id": "rule:required-material-present",
+      "label": "Needed items are present",
+      "method": "record-relationship-exists",
+      "params": {
+        "relationship_ref": "relationship:exchange-to-required-material",
+        "missing_result_ref": "result:missing-needed-item",
+        "pass_label": "Satisfied",
+        "fail_label": "Needs attention",
+        "pass_tone": "success",
+        "fail_tone": "warning"
+      }
+    },
+    {
+      "id": "rule:blocked-material-absent",
+      "label": "Blocked items are absent",
+      "method": "record-relationship-absent",
+      "params": {
+        "relationship_ref": "relationship:exchange-to-blocked-material",
+        "present_result_ref": "result:blocked-item-present",
+        "pass_label": "Satisfied",
+        "fail_label": "Needs attention",
+        "pass_tone": "success",
+        "fail_tone": "warning"
+      }
+    },
+    {
+      "id": "rule:owner-target-ready",
+      "label": "Action owner is reachable",
+      "method": "owner-target-ready",
+      "params": {
+        "relationship_ref": "relationship:exchange-to-owner-action",
+        "missing_result_ref": "result:owner-target-missing",
+        "pass_label": "Satisfied",
+        "fail_label": "Needs attention",
+        "pass_tone": "success",
+        "fail_tone": "warning"
+      }
+    }
+  ],
+  "owner_action_descriptors": [
+    {
+      "id": "action:submit-exchange-request",
+      "label": "Send request",
+      "target_owner_ref": "owner:record-exchange",
+      "target": "slot::workflow",
+      "operation_ref": "workflow:execute_definition",
+      "definition_ref": "definition:submit-record-exchange",
+      "input_bindings": [
+        { "from": "record.current", "to": "exchange_record_ref" },
+        { "from": "relationship:exchange-to-required-material", "to": "material_refs" },
+        { "from": "relationship:exchange-to-proof-record", "to": "proof_refs" }
+      ],
+      "rule_refs": [
+        "rule:required-material-present",
+        "rule:blocked-material-absent",
+        "rule:owner-target-ready"
+      ],
+      "result_projection_ref": "projection:exchange-result"
+    }
+  ],
+  "projection_descriptors": [
+    {
+      "id": "projection:creator-review-surface",
+      "label": "Review and send",
+      "slot_refs": ["field:title", "field:terms-summary", "field:primary-material"],
+      "action_refs": ["action:submit-exchange-request"],
+      "proof_relationship_refs": ["relationship:exchange-to-proof-record"],
+      "section_labels": {
+        "records_stat": "Records",
+        "available_actions_stat": "Available actions",
+        "checklist": "Checklist",
+        "problems": "Needs attention",
+        "review": "Review",
+        "proof": "Proof details",
+        "empty_title": "Review and send",
+        "empty_explanation": "No records are ready for this surface.",
+        "empty_value": "Available"
+      },
+      "order": 10
+    },
+    {
+      "id": "projection:operator-proof-surface",
+      "label": "Proof details",
+      "slot_refs": ["field:title"],
+      "proof_relationship_refs": [
+        "relationship:exchange-to-proof-record",
+        "relationship:exchange-to-process-session"
+      ],
+      "order": 20
+    }
+  ]
+}

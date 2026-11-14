@@ -250,6 +250,200 @@
       "source_identity": "1f:9a78f845f721b1a048cc04ab1937d4a066bdf0b81ff6133c968cfd09cdc066b5",
       "identity": "1f:1cb58df54a53ff4d161344b2f6cb77a1c9e15384351fb61e62060ab3cfdce9c5",
       "reused": true
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/do-work/answer-fact-writes.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/packages/ask-questions-sort-answers-follow-up/do-work/answer-fact-writes.ts",
+      "source_identity": "1f:98189cf3596d103940857e474f160f19d707ae80327758a16b0714ae1fc7c902",
+      "identity": "1f:98189cf3596d103940857e474f160f19d707ae80327758a16b0714ae1fc7c902"
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/do-work/generate-questions.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/packages/ask-questions-sort-answers-follow-up/do-work/generate-questions.mjs",
+      "source_identity": "1f:c703e0fee515edc220a5d3ffac6cd3f47f7cad3eac9dbf9645e10f44332326ce",
+      "identity": "1f:c703e0fee515edc220a5d3ffac6cd3f47f7cad3eac9dbf9645e10f44332326ce"
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/do-work/process-submission.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/packages/ask-questions-sort-answers-follow-up/do-work/process-submission.ts",
+      "source_identity": "1f:145fef194ffae8e638b85a09def59a601f1824422c25fe92dec7cd5c2f472062",
+      "identity": "1f:145fef194ffae8e638b85a09def59a601f1824422c25fe92dec7cd5c2f472062"
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/do-work/run-after-saved-actions.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/packages/ask-questions-sort-answers-follow-up/do-work/run-after-saved-actions.ts",
+      "source_identity": "1f:b497f4b7aa4776f22e03e07a5351d641072b6737adecd41b18026f2a792cf7f5",
+      "identity": "1f:b497f4b7aa4776f22e03e07a5351d641072b6737adecd41b18026f2a792cf7f5"
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/do-work/save-question-sequence.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/packages/ask-questions-sort-answers-follow-up/do-work/save-question-sequence.ts",
+      "source_identity": "1f:4d1f8a111c2beb937ef751013aaec739fac3e19b02ff95345930ca46cb7ec6d8",
+      "identity": "1f:4d1f8a111c2beb937ef751013aaec739fac3e19b02ff95345930ca46cb7ec6d8"
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/do-work/segment-assignment-writes.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/packages/ask-questions-sort-answers-follow-up/do-work/segment-assignment-writes.ts",
+      "source_identity": "1f:93b2bc35e249dff837c119ca3f1f3f082c0a6ce4a81c27a56253a25f173f73ab",
+      "identity": "1f:93b2bc35e249dff837c119ca3f1f3f082c0a6ce4a81c27a56253a25f173f73ab"
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/do-work/submit-answers.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/packages/ask-questions-sort-answers-follow-up/do-work/submit-answers.ts",
+      "source_identity": "1f:3d70dbf5cb42b6a093ab836fe4287ddef3ebaf9ea031bc2da8485e6dc596f6ec",
+      "identity": "1f:3d70dbf5cb42b6a093ab836fe4287ddef3ebaf9ea031bc2da8485e6dc596f6ec"
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/read-data/current-respondent.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/packages/ask-questions-sort-answers-follow-up/read-data/current-respondent.ts",
+      "source_identity": "1f:5eaf2b689da4c62e467b2909b4fd342a669c2fb31ae94720ec150719666d40ee",
+      "identity": "1f:5eaf2b689da4c62e467b2909b4fd342a669c2fb31ae94720ec150719666d40ee"
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/read-data/question-descriptor.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/packages/ask-questions-sort-answers-follow-up/read-data/question-descriptor.ts",
+      "source_identity": "1f:e2380b62706eec81ced693d797bb8f7370a1f97baff36ab2c521c383cba1de0c",
+      "identity": "1f:e2380b62706eec81ced693d797bb8f7370a1f97baff36ab2c521c383cba1de0c"
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/read-data/read-producer-message.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/packages/ask-questions-sort-answers-follow-up/read-data/read-producer-message.ts",
+      "source_identity": "1f:71b9d1b332071743ee03e167361356d8f4f579967b512c9f30d3e3a1123f9b47",
+      "identity": "1f:71b9d1b332071743ee03e167361356d8f4f579967b512c9f30d3e3a1123f9b47"
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/read-data/score-and-segment.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/packages/ask-questions-sort-answers-follow-up/read-data/score-and-segment.ts",
+      "source_identity": "1f:a0cc5bf67fe3dc0dc15dd0fccbcd5fd37b519812a81b1d0376c47056655d687a",
+      "identity": "1f:a0cc5bf67fe3dc0dc15dd0fccbcd5fd37b519812a81b1d0376c47056655d687a"
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/read-data/validate-answer.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/packages/ask-questions-sort-answers-follow-up/read-data/validate-answer.ts",
+      "source_identity": "1f:185eabc8de680bb6b0b75532bfa2a5ba046d7b8989b169b1d382f0f9f0db1df5",
+      "identity": "1f:f008c475a3cbf20dd17ba8d8c15f62f9528bf56b6892196118920bb5cd666ab2"
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/packages/ask-questions-sort-answers-follow-up/README.md",
+      "source_identity": "1f:a8a5fe2947b035f0188edaaa36dd6e778f94d985b78239ce0b45f1c68e0324b0",
+      "identity": "1f:a8a5fe2947b035f0188edaaa36dd6e778f94d985b78239ce0b45f1c68e0324b0"
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/reference-adaptation-contract.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/packages/ask-questions-sort-answers-follow-up/reference-adaptation-contract.json",
+      "source_identity": "1f:b58a592fd4c6c851f077fb97a4915d5a2136c3c2c629c9954abd2db9d0362d2e",
+      "identity": "1f:b58a592fd4c6c851f077fb97a4915d5a2136c3c2c629c9954abd2db9d0362d2e"
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/read-data/builder-model.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/read-data/builder-model.ts",
+      "source_identity": "1f:314e61a053221ff4e056dc342045c87dbd9cb126181335eba71be95be3ea8dd0",
+      "identity": "1f:7e68662e2a8dc56528091d11d14ae74ebfbc4fe2f8cab4624a2f3c2f93ef0763",
+      "reused": true
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/read-data/fill-screen-model.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/read-data/fill-screen-model.ts",
+      "source_identity": "1f:cda0034208dcab16eab9b75987cd3c2d20037d487fe92243cbead19ad66d4a48",
+      "identity": "1f:f8f3936b720d7fee64e70e0c6b94e0c3c0ce5148069fbac49736f589a85b8b54",
+      "reused": true
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/read-data/fold-answer-facts.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/read-data/fold-answer-facts.ts",
+      "source_identity": "1f:08cc73c6e031915fb9f4bcb1706c02a128cf77e3080198a856797ebccdcc4fd2",
+      "identity": "1f:08cc73c6e031915fb9f4bcb1706c02a128cf77e3080198a856797ebccdcc4fd2",
+      "reused": true
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/read-data/follow-up-sequences.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/read-data/follow-up-sequences.ts",
+      "source_identity": "1f:445c03296fe456237daf7691b92636140c8f24166f06f885e79e3c3ffe2c309f",
+      "identity": "1f:445c03296fe456237daf7691b92636140c8f24166f06f885e79e3c3ffe2c309f",
+      "reused": true
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/read-data/question-input-contract.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/read-data/question-input-contract.ts",
+      "source_identity": "1f:33f985fc0cc84fda4eedc1f20a255de74028dd6fb7ca71055ad1571f0c8904ee",
+      "identity": "1f:2333adbabba32d4e6dfea39234d4368ae3491b89c02a1c65c1cd5d2602bb44bd",
+      "reused": true
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/read-data/question-suggestions.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/read-data/question-suggestions.ts",
+      "source_identity": "1f:e0fdda90c568b93b345dabfa8de5e309a8a018599b4d2bdb8eab0ae72ecfd722",
+      "identity": "1f:ee30250c531809d5172f456cb6dab70b11b0dd70067b87e57565801fd99525da",
+      "reused": true
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/read-data/read-decide-config.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/read-data/read-decide-config.ts",
+      "source_identity": "1f:f7223707370cc308258e9491268847d033c34a3b2fce44201db32bc6515eca4a",
+      "identity": "1f:360ddd22fc52b5edf3c9e9fdf2371ddb722a58ca182ced743a2ae3bd233fe873",
+      "reused": true
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/read-data/read-forms-data.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/read-data/read-forms-data.ts",
+      "source_identity": "1f:9751039353ba118a3485fd7ce659b205a5cae7d6b3054f10ead5f9ce4f275d2e",
+      "identity": "1f:525606ab057199110d306b187d47f798f8237b4b2d4186dfe3882aeb0c69f5ab",
+      "reused": true
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/read-data/results-model.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/read-data/results-model.ts",
+      "source_identity": "1f:23133c641899fd1c46955b2e0952a94484451f31b61d41147fc18ec947a8a0a4",
+      "identity": "1f:0b8d0aac4faddfce938534845e67d16fccb1dabd23507b1e3aaa2a44fdb0014b",
+      "reused": true
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/read-data/session-progress-rows.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/read-data/session-progress-rows.ts",
+      "source_identity": "1f:49f58d2d8c175edf59086998beb2abee17d8ba28073cc150378136872c4b943b",
+      "identity": "1f:da5e9447d9f5128ff53e71b789d49c2ab45ecdc37d72d7777bc31317fd82d5c0",
+      "reused": true
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/read-data/synthesis-answer-lines.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/read-data/synthesis-answer-lines.ts",
+      "source_identity": "1f:cdf562540ab8b5d9156296abc7ecb9760acea16de3ff88555ef7b44e5a0b7e85",
+      "identity": "1f:4126ab8303ed1fbecb182171047ce011fe76ef980edbda9f901242a734e7b441",
+      "reused": true
+    },
+    {
+      "from": "packages/ask-questions-sort-answers-follow-up/read-data/synthesis-result.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ask-questions-sort-answers-follow-up/read-data/synthesis-result.ts",
+      "source_identity": "1f:1b771ed73240f4e9154180176bcb36664eaddba1632e029e58ff48bb08dc42bf",
+      "identity": "1f:1b771ed73240f4e9154180176bcb36664eaddba1632e029e58ff48bb08dc42bf",
+      "reused": true
     }
   ]
 }

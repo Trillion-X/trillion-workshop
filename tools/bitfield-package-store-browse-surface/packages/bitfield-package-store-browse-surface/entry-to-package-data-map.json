@@ -1,0 +1,18 @@
+{
+  "kind": "bitfield-entry-to-package-data-map",
+  "package": "bitfield-package-store-browse-surface",
+  "package_data_path": "things-to-store-and-run.json",
+  "entries": [
+    {
+      "entry_name": "package-store-browse-surface",
+      "source_path": "show/mount-package-store-browse-surface.tsx",
+      "package_data_path": "things-to-store-and-run.json",
+      "export_name": "default"
+    },
+    {
+      "entry_name": "package-store-browse-surface-mount",
+      "source_path": "show/mount-package-store-browse-surface.tsx",
+      "package_data_path": "things-to-store-and-run.json"
+    }
+  ]
+}

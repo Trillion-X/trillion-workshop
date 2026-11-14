@@ -1,0 +1,193 @@
+{
+  "version": 1,
+  "context": {
+    "browser": {
+      "storageKey": "bitfield.account-session.browser-id"
+    }
+  },
+  "sources": [
+    {
+      "id": "current-subject",
+      "role": "subject",
+      "request": {
+        "target": "account-session.browser-session",
+        "payload": {
+          "browser_id": { "fromContext": "browser.id" }
+        }
+      },
+      "result": {
+        "subjectPath": ["session", "accountId"]
+      }
+    },
+    {
+      "id": "subject-events",
+      "role": "evidence",
+      "dependsOn": "current-subject",
+      "request": {
+        "target": "signed-event-authority.list-effects",
+        "payload": {
+          "subject": { "fromSource": "current-subject.subject" }
+        }
+      },
+      "result": {
+        "rowsPath": ["effects"]
+      }
+    }
+  ],
+  "fields": [
+    {
+      "id": "subject-title",
+      "kind": "subject",
+      "label": "Account",
+      "source": "current-subject",
+      "paths": [["subject"]],
+      "empty": "Signed out"
+    },
+    {
+      "id": "access-state",
+      "kind": "status",
+      "label": "Access",
+      "source": "subject-events",
+      "paths": [
+        ["material", "lifecycle_state"],
+        ["material", "status"],
+        ["kind"]
+      ],
+      "match": {
+        "kind": ["account_lifecycle", "account_status"]
+      },
+      "empty": "Unknown"
+    },
+    {
+      "id": "plan",
+      "kind": "stat",
+      "label": "Plan",
+      "source": "subject-events",
+      "paths": [
+        ["material", "plan_label"],
+        ["object"]
+      ],
+      "match": {
+        "kind": ["account_plan", "license_access", "quote_reservation"]
+      },
+      "empty": "Not available"
+    },
+    {
+      "id": "devices",
+      "kind": "stat",
+      "label": "Devices",
+      "source": "subject-events",
+      "paths": [["material", "active_activation_count"]],
+      "match": {
+        "kind": ["activation_count"]
+      },
+      "empty": "Not available"
+    },
+    {
+      "id": "period",
+      "kind": "stat",
+      "label": "Renews",
+      "source": "subject-events",
+      "paths": [["material", "current_period_ends_at"]],
+      "match": {
+        "kind": ["account_plan", "license_access", "quote_reservation"]
+      },
+      "empty": "Not available"
+    },
+    {
+      "id": "identifier",
+      "kind": "identifier",
+      "label": "Account key",
+      "source": "current-subject",
+      "paths": [["subject"]],
+      "empty": ""
+    },
+    {
+      "id": "contract",
+      "kind": "detail",
+      "label": "Contract",
+      "source": "subject-events",
+      "paths": [
+        ["material", "contract_id"],
+        ["object"]
+      ],
+      "match": {
+        "kind": ["account_plan", "license_access", "quote_reservation"]
+      },
+      "empty": "Not available"
+    }
+  ],
+  "returnActions": [
+    {
+      "id": "complete-returning-login",
+      "match_query": { "account_login": "complete" },
+      "payload_fields": {
+        "token": { "query_param": "token" }
+      },
+      "steps": [
+        {
+          "target": "account-session.complete-returning-login",
+          "payload": { "token": { "fromPayload": "token" } },
+          "resultKey": "login"
+        },
+        {
+          "target": "account-session.start-verified-browser-session",
+          "payload": {
+            "account_id": { "fromResult": "login.accountId" },
+            "browser_id": { "fromContext": "browser.id" }
+          }
+        }
+      ],
+      "clear_query_params": ["account_login", "token"],
+      "reload_on_success": true
+    }
+  ],
+  "actions": [
+    {
+      "id": "request-access-link",
+      "slot": "signed-out-primary",
+      "label": "Email sign-in link",
+      "locus": "direct-target",
+      "target": "account-session.login-link",
+      "payload": {
+        "email": { "fromInput": "email" },
+        "returnPath": { "fromInput": "returnPath", "default": "/account" }
+      },
+      "successPath": ["accepted"]
+    },
+    {
+      "id": "end-current-browser-access",
+      "slot": "signed-in-primary",
+      "label": "Sign out",
+      "locus": "direct-target",
+      "target": "account-session.end-browser-session",
+      "payload": {
+        "browser_id": { "fromContext": "browser.id" }
+      }
+    }
+  ],
+  "freshness": {
+    "id": "source-freshness",
+    "kind": "freshness",
+    "label": "Current browser data",
+    "state": "fresh"
+  },
+  "relationships": [
+    {
+      "id": "subject-to-events",
+      "from": "current-subject",
+      "to": "subject-events"
+    }
+  ],
+  "fixtures": [
+    "empty",
+    "sparse",
+    "dense",
+    "loading",
+    "error",
+    "stale",
+    "offline",
+    "action-disabled",
+    "action-success"
+  ]
+}

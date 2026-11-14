@@ -1,0 +1,50 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/agent-catalog/index.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/agent-catalog/packages/agent-catalog/index.tsx",
+      "source_identity": "1f:358e213b7b1b64f842433d7a30d3499a151c887e5ca0e0aaa795da8702a2e93e",
+      "identity": "1f:358e213b7b1b64f842433d7a30d3499a151c887e5ca0e0aaa795da8702a2e93e"
+    },
+    {
+      "from": "packages/agent-catalog/read-data/read-agent-catalog.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/agent-catalog/packages/agent-catalog/read-data/read-agent-catalog.ts",
+      "source_identity": "1f:724c69badae0b7d45d68ae9cfdcb22096daf4f8b64d9f6b0897e3a3720faa81f",
+      "identity": "1f:724c69badae0b7d45d68ae9cfdcb22096daf4f8b64d9f6b0897e3a3720faa81f"
+    },
+    {
+      "from": "packages/agent-catalog/read-data/read-agent-role-catalog.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/agent-catalog/packages/agent-catalog/read-data/read-agent-role-catalog.ts",
+      "source_identity": "1f:92f8ffce2e51d74a7728aca85b2184a20a115a5083c3f56f1e21b0ff99b3a900",
+      "identity": "1f:92f8ffce2e51d74a7728aca85b2184a20a115a5083c3f56f1e21b0ff99b3a900"
+    },
+    {
+      "from": "packages/agent-catalog/show/AgentCatalog.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/agent-catalog/packages/agent-catalog/show/AgentCatalog.tsx",
+      "source_identity": "1f:e9e10181f6c8ae4e9b85ccf29b5f3b89805cb8ee38b67581bbaa8ad0e2bea921",
+      "identity": "1f:e9e10181f6c8ae4e9b85ccf29b5f3b89805cb8ee38b67581bbaa8ad0e2bea921"
+    },
+    {
+      "from": "packages/agent-catalog/show/OrganizationalChart.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/agent-catalog/packages/agent-catalog/show/OrganizationalChart.tsx",
+      "source_identity": "1f:392429b798d9133ae334b6a4edc69d2586330ef3c916984f26d368fcab46141f",
+      "identity": "1f:392429b798d9133ae334b6a4edc69d2586330ef3c916984f26d368fcab46141f"
+    },
+    {
+      "from": "packages/agent-catalog/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/agent-catalog/packages/agent-catalog/things-to-store-and-run.json",
+      "source_identity": "1f:9da350e282e731fafd58b51b8860556e1ba67c5836418a6a6518767852099974",
+      "identity": "1f:9da350e282e731fafd58b51b8860556e1ba67c5836418a6a6518767852099974"
+    }
+  ]
+}

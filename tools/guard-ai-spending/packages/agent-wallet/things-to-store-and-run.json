@@ -1,0 +1,2343 @@
+{
+  "package": "agent-wallet",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::agent-wallet::checks",
+      "path": [
+        "packages",
+        "agent-wallet",
+        "checks"
+      ],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "do-work/decide-budget.test.mjs",
+          "read-data/read-agent-budget-authority.test.ts",
+          "read-data/spend-rails.test.ts"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|service_connection:x402-agent-wallet|prop:connection:asset|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:connection:asset"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6Y29ubmVjdGlvbjphc3NldCIsInN1YmplY3RfaWQiOiJzZXJ2aWNlX2Nvbm5lY3Rpb246eDQwMi1hZ2VudC13YWxsZXQiLCJ0YWJsZSI6ImF0dHJpYnV0ZV9mYWN0IiwidHlwZV9pZCI6InR5cGU6c3RyaW5nIiwidmFsdWVfanNvbiI6IlwiVVNEQ1wiIn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|service_connection:x402-agent-wallet|prop:connection:auto_approve_threshold|type:integer",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:connection:auto_approve_threshold"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6Y29ubmVjdGlvbjphdXRvX2FwcHJvdmVfdGhyZXNob2xkIiwic3ViamVjdF9pZCI6InNlcnZpY2VfY29ubmVjdGlvbjp4NDAyLWFnZW50LXdhbGxldCIsInRhYmxlIjoiYXR0cmlidXRlX2ZhY3QiLCJ0eXBlX2lkIjoidHlwZTppbnRlZ2VyIiwidmFsdWVfanNvbiI6IjEwMCJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|service_connection:x402-agent-wallet|prop:connection:daily_limit|type:integer",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:connection:daily_limit"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6Y29ubmVjdGlvbjpkYWlseV9saW1pdCIsInN1YmplY3RfaWQiOiJzZXJ2aWNlX2Nvbm5lY3Rpb246eDQwMi1hZ2VudC13YWxsZXQiLCJ0YWJsZSI6ImF0dHJpYnV0ZV9mYWN0IiwidHlwZV9pZCI6InR5cGU6aW50ZWdlciIsInZhbHVlX2pzb24iOiIxMDAwMCJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|service_connection:x402-agent-wallet|prop:connection:enabled|type:boolean",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:connection:enabled"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6Y29ubmVjdGlvbjplbmFibGVkIiwic3ViamVjdF9pZCI6InNlcnZpY2VfY29ubmVjdGlvbjp4NDAyLWFnZW50LXdhbGxldCIsInRhYmxlIjoiYXR0cmlidXRlX2ZhY3QiLCJ0eXBlX2lkIjoidHlwZTpib29sZWFuIiwidmFsdWVfanNvbiI6ImZhbHNlIn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|service_connection:x402-agent-wallet|prop:connection:facilitator_url|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:connection:facilitator_url"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6Y29ubmVjdGlvbjpmYWNpbGl0YXRvcl91cmwiLCJzdWJqZWN0X2lkIjoic2VydmljZV9jb25uZWN0aW9uOng0MDItYWdlbnQtd2FsbGV0IiwidGFibGUiOiJhdHRyaWJ1dGVfZmFjdCIsInR5cGVfaWQiOiJ0eXBlOnN0cmluZyIsInZhbHVlX2pzb24iOiJcImh0dHBzOi8veDQwMi5jb2luYmFzZS5jb20vdjFcIiJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|service_connection:x402-agent-wallet|prop:connection:network|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:connection:network"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6Y29ubmVjdGlvbjpuZXR3b3JrIiwic3ViamVjdF9pZCI6InNlcnZpY2VfY29ubmVjdGlvbjp4NDAyLWFnZW50LXdhbGxldCIsInRhYmxlIjoiYXR0cmlidXRlX2ZhY3QiLCJ0eXBlX2lkIjoidHlwZTpzdHJpbmciLCJ2YWx1ZV9qc29uIjoiXCJiYXNlLW1haW5uZXRcIiJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|service_connection:x402-agent-wallet|prop:connection:service_name|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:connection:service_name"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6Y29ubmVjdGlvbjpzZXJ2aWNlX25hbWUiLCJzdWJqZWN0X2lkIjoic2VydmljZV9jb25uZWN0aW9uOng0MDItYWdlbnQtd2FsbGV0IiwidGFibGUiOiJhdHRyaWJ1dGVfZmFjdCIsInR5cGVfaWQiOiJ0eXBlOnN0cmluZyIsInZhbHVlX2pzb24iOiJcIlg0MDIgTWljcm9wYXltZW50IFdhbGxldFwiIn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|service_connection:x402-agent-wallet|prop:connection:service_vendor|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:connection:service_vendor"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6Y29ubmVjdGlvbjpzZXJ2aWNlX3ZlbmRvciIsInN1YmplY3RfaWQiOiJzZXJ2aWNlX2Nvbm5lY3Rpb246eDQwMi1hZ2VudC13YWxsZXQiLCJ0YWJsZSI6ImF0dHJpYnV0ZV9mYWN0IiwidHlwZV9pZCI6InR5cGU6c3RyaW5nIiwidmFsdWVfanNvbiI6IlwiY29pbmJhc2VcIiJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|service_connection:x402-agent-wallet|prop:connection:status|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:connection:status"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6Y29ubmVjdGlvbjpzdGF0dXMiLCJzdWJqZWN0X2lkIjoic2VydmljZV9jb25uZWN0aW9uOng0MDItYWdlbnQtd2FsbGV0IiwidGFibGUiOiJhdHRyaWJ1dGVfZmFjdCIsInR5cGVfaWQiOiJ0eXBlOnN0cmluZyIsInZhbHVlX2pzb24iOiJcInBlbmRpbmdfc2V0dXBcIiJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|service_connection:x402-agent-wallet|prop:connection:total_spent_all_time|type:integer",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:connection:total_spent_all_time"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6Y29ubmVjdGlvbjp0b3RhbF9zcGVudF9hbGxfdGltZSIsInN1YmplY3RfaWQiOiJzZXJ2aWNlX2Nvbm5lY3Rpb246eDQwMi1hZ2VudC13YWxsZXQiLCJ0YWJsZSI6ImF0dHJpYnV0ZV9mYWN0IiwidHlwZV9pZCI6InR5cGU6aW50ZWdlciIsInZhbHVlX2pzb24iOiIwIn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|service_connection:x402-agent-wallet|prop:connection:total_spent_today|type:integer",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:connection:total_spent_today"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6Y29ubmVjdGlvbjp0b3RhbF9zcGVudF90b2RheSIsInN1YmplY3RfaWQiOiJzZXJ2aWNlX2Nvbm5lY3Rpb246eDQwMi1hZ2VudC13YWxsZXQiLCJ0YWJsZSI6ImF0dHJpYnV0ZV9mYWN0IiwidHlwZV9pZCI6InR5cGU6aW50ZWdlciIsInZhbHVlX2pzb24iOiIwIn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|service_connection:x402-agent-wallet|prop:connection:wallet_address|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:connection:wallet_address"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6Y29ubmVjdGlvbjp3YWxsZXRfYWRkcmVzcyIsInN1YmplY3RfaWQiOiJzZXJ2aWNlX2Nvbm5lY3Rpb246eDQwMi1hZ2VudC13YWxsZXQiLCJ0YWJsZSI6ImF0dHJpYnV0ZV9mYWN0IiwidHlwZV9pZCI6InR5cGU6c3RyaW5nIiwidmFsdWVfanNvbiI6IlwiXCIifQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|service_connection:x402-agent-wallet|prop:connection:wallet_key_handle|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:connection:wallet_key_handle"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6Y29ubmVjdGlvbjp3YWxsZXRfa2V5X2hhbmRsZSIsInN1YmplY3RfaWQiOiJzZXJ2aWNlX2Nvbm5lY3Rpb246eDQwMi1hZ2VudC13YWxsZXQiLCJ0YWJsZSI6ImF0dHJpYnV0ZV9mYWN0IiwidHlwZV9pZCI6InR5cGU6c3RyaW5nIiwidmFsdWVfanNvbiI6IlwiXCIifQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|service_connection:x402-agent-wallet|type:service_connection",
+      "address_mode": "identity_text",
+      "path": [
+        "type:service_connection"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJlbnRpdHlfaWQiOiJzZXJ2aWNlX2Nvbm5lY3Rpb246eDQwMi1hZ2VudC13YWxsZXQiLCJ0YWJsZSI6ImVudGl0eV90eXBlcyIsInR5cGVfaWQiOiJ0eXBlOnNlcnZpY2VfY29ubmVjdGlvbiJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|service_connection:x402-agent-wallet",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJpZCI6InNlcnZpY2VfY29ubmVjdGlvbjp4NDAyLWFnZW50LXdhbGxldCIsInRhYmxlIjoiZW50aXR5In0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::agent-wallet::payment-rail::x402",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "payment-rail-descriptor",
+        "id": "payment-rail:x402",
+        "label": "x402",
+        "enabled": false,
+        "spend_authority_ref": "service_connection:x402-agent-wallet",
+        "credential_ref": "credentials-vault:card-or-bank-login",
+        "guard_invoke": {
+          "target": "slot::workflow",
+          "action_definition_id": "action:budget-gate",
+          "include_steps": false,
+          "include_output": true
+        },
+        "ledger_invoke": {
+          "target": "slot::workflow",
+          "action_definition_id": "action:record-spend",
+          "include_steps": false,
+          "include_output": true
+        },
+        "settlement_invoke": {
+          "target": "slot::workflow",
+          "action_definition_id": "action:apply-x402-payment",
+          "include_steps": false,
+          "include_output": true
+        },
+        "evidence_contract": {
+          "session_intent_kind": "operation-session-intent-record",
+          "evidence_ref": "operation-evidence:payment-settlement",
+          "projection_ref": "operation-projection:payment-settlement-readable-status"
+        },
+        "metadata": {
+          "service_vendor": "coinbase",
+          "legacy_wallet_entity_ref": "service_connection:x402-agent-wallet",
+          "signing_source_ref": "package::agent-wallet::stored-bytes::build-eip712-digest-mjs",
+          "descriptor_owner": "payment-adapter.PaymentRailDescriptor"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::agent-wallet::budget-check::default-work-control",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "agent_budget_check",
+        "check_ref": "agent-budget-check:default-work-control",
+        "operation_ref": "operation:paper-trading.default-submit",
+        "wallet_ref": "wallet:x402-agent-wallet",
+        "idempotency_key": "idem:default-work-control",
+        "result": "approved",
+        "estimated_cost": 0,
+        "currency": "USD",
+        "spend_snapshot_ref": "agent-wallet-spend-snapshot:default-work-control",
+        "checked_at": "2026-05-29T00:00:00.000Z",
+        "expires_at": null,
+        "evidence_refs": [
+          "service_connection:x402-agent-wallet"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::agent-wallet::budget-reservation::default-work-control",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "agent_budget_reservation",
+        "reservation_ref": "agent-budget-reservation:default-work-control",
+        "operation_ref": "operation:paper-trading.default-submit",
+        "wallet_ref": "wallet:x402-agent-wallet",
+        "idempotency_key": "idem:default-work-control",
+        "spend_snapshot_ref": "agent-wallet-spend-snapshot:default-work-control",
+        "fencing_token": "agent-wallet-budget-fence:default-work-control",
+        "status": "current",
+        "amount": 0,
+        "currency": "USD",
+        "reserved_at": "2026-05-29T00:00:01.000Z",
+        "expires_at": null,
+        "evidence_refs": [
+          "package::agent-wallet::budget-check::default-work-control"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::agent-wallet::public-source::read-data",
+      "path": [
+        "packages",
+        "agent-wallet",
+        "public-sources",
+        "read-data"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "read-data"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:service_connection|prop:connection:asset",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmNvbm5lY3Rpb246YXNzZXQiLAogICJ0YWJsZSI6ICJ0eXBlX3Byb3BlcnRpZXMiLAogICJ0eXBlX2lkIjogInR5cGU6c2VydmljZV9jb25uZWN0aW9uIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:service_connection|prop:connection:auto_approve_threshold",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmNvbm5lY3Rpb246YXV0b19hcHByb3ZlX3RocmVzaG9sZCIsCiAgInRhYmxlIjogInR5cGVfcHJvcGVydGllcyIsCiAgInR5cGVfaWQiOiAidHlwZTpzZXJ2aWNlX2Nvbm5lY3Rpb24iCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:service_connection|prop:connection:daily_limit",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmNvbm5lY3Rpb246ZGFpbHlfbGltaXQiLAogICJ0YWJsZSI6ICJ0eXBlX3Byb3BlcnRpZXMiLAogICJ0eXBlX2lkIjogInR5cGU6c2VydmljZV9jb25uZWN0aW9uIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:service_connection|prop:connection:enabled",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmNvbm5lY3Rpb246ZW5hYmxlZCIsCiAgInRhYmxlIjogInR5cGVfcHJvcGVydGllcyIsCiAgInR5cGVfaWQiOiAidHlwZTpzZXJ2aWNlX2Nvbm5lY3Rpb24iCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:service_connection|prop:connection:facilitator_url",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmNvbm5lY3Rpb246ZmFjaWxpdGF0b3JfdXJsIiwKICAidGFibGUiOiAidHlwZV9wcm9wZXJ0aWVzIiwKICAidHlwZV9pZCI6ICJ0eXBlOnNlcnZpY2VfY29ubmVjdGlvbiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:service_connection|prop:connection:network",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmNvbm5lY3Rpb246bmV0d29yayIsCiAgInRhYmxlIjogInR5cGVfcHJvcGVydGllcyIsCiAgInR5cGVfaWQiOiAidHlwZTpzZXJ2aWNlX2Nvbm5lY3Rpb24iCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:service_connection|prop:connection:service_name",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmNvbm5lY3Rpb246c2VydmljZV9uYW1lIiwKICAidGFibGUiOiAidHlwZV9wcm9wZXJ0aWVzIiwKICAidHlwZV9pZCI6ICJ0eXBlOnNlcnZpY2VfY29ubmVjdGlvbiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:service_connection|prop:connection:service_vendor",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmNvbm5lY3Rpb246c2VydmljZV92ZW5kb3IiLAogICJ0YWJsZSI6ICJ0eXBlX3Byb3BlcnRpZXMiLAogICJ0eXBlX2lkIjogInR5cGU6c2VydmljZV9jb25uZWN0aW9uIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:service_connection|prop:connection:status",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmNvbm5lY3Rpb246c3RhdHVzIiwKICAidGFibGUiOiAidHlwZV9wcm9wZXJ0aWVzIiwKICAidHlwZV9pZCI6ICJ0eXBlOnNlcnZpY2VfY29ubmVjdGlvbiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:service_connection|prop:connection:total_spent_all_time",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmNvbm5lY3Rpb246dG90YWxfc3BlbnRfYWxsX3RpbWUiLAogICJ0YWJsZSI6ICJ0eXBlX3Byb3BlcnRpZXMiLAogICJ0eXBlX2lkIjogInR5cGU6c2VydmljZV9jb25uZWN0aW9uIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:service_connection|prop:connection:total_spent_today",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmNvbm5lY3Rpb246dG90YWxfc3BlbnRfdG9kYXkiLAogICJ0YWJsZSI6ICJ0eXBlX3Byb3BlcnRpZXMiLAogICJ0eXBlX2lkIjogInR5cGU6c2VydmljZV9jb25uZWN0aW9uIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:service_connection|prop:connection:wallet_address",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmNvbm5lY3Rpb246d2FsbGV0X2FkZHJlc3MiLAogICJ0YWJsZSI6ICJ0eXBlX3Byb3BlcnRpZXMiLAogICJ0eXBlX2lkIjogInR5cGU6c2VydmljZV9jb25uZWN0aW9uIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:service_connection|prop:connection:wallet_key_handle",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmNvbm5lY3Rpb246d2FsbGV0X2tleV9oYW5kbGUiLAogICJ0YWJsZSI6ICJ0eXBlX3Byb3BlcnRpZXMiLAogICJ0eXBlX2lkIjogInR5cGU6c2VydmljZV9jb25uZWN0aW9uIgp9",
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "decide-budget-mjs",
+      "source_path": "do-work/decide-budget.mjs"
+    },
+    {
+      "_comment": "THE SPEND GATE. read wallet config rows (find-current-items) + open reservation (idempotency) -> decide() pure script -> write budget_check + budget_reservation (per-operation address AND the fixed default-work-control mirror the AgentWalletPanel reads). Input: operation_ref, estimated_cost (USD cents), spender_id (agent_id compatibility accepted), idempotency_key. Output: {approved, reason, check_ref, reservation_ref}. The CALLER inspects approved: false -> stop + emit AgentBlockedInsufficientBudget; true -> proceed carrying reservation_ref. A pending_setup/disabled authority DENIES every positive-cost request; a validated zero-cost request receives a zero-amount fence without consuming wallet authority.",
+      "type": "record",
+      "address": "package::agent-wallet::workflow-action::budget-gate",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:budget-gate",
+        "kind": "action",
+        "name": "budget-gate",
+        "description": "Structural pre-operation spend gate: read the selected spend-authority DATA, decide approve/deny against status+enabled+daily_limit+auto_approve_threshold, and write a spend_budget_check + spend_budget_reservation the caller must carry forward or block on. Rail-agnostic, status-string-opaque, fail-closed.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "operation_ref",
+            "estimated_cost",
+            "spend_authority_ref",
+            "rail_ref"
+          ],
+          "properties": {
+            "operation_ref": {
+              "type": "string"
+            },
+            "estimated_cost": {
+              "type": "integer",
+              "description": "Positive integer minor units; zero-cost work still gets an auditable reservation."
+            },
+            "spend_authority_ref": {
+              "type": "string",
+              "description": "Live-log service connection holding this rail's status, limits, and totals."
+            },
+            "rail_ref": {
+              "type": "string",
+              "description": "Swappable payment-rail descriptor ID."
+            },
+            "spender_id": {
+              "type": "string",
+              "description": "Any autonomous spender identity."
+            },
+            "wallet_ref": {
+              "type": "string",
+              "description": "Compatibility alias for spend_authority_ref."
+            },
+            "agent_id": {
+              "type": "string",
+              "description": "Compatibility alias for spender_id."
+            },
+            "idempotency_key": {
+              "type": "string"
+            },
+            "ttl_seconds": {
+              "type": "integer"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "read_status",
+            "kind": "ask",
+            "_comment": "Wallet config is read PER-PROPERTY via engine.operation.read-current. Live-log facts (write-batch) are readable this way at their identity address; they are NOT in the find-current-items projection (that index is populated by package admission, not write-batch — proven: read-current finds the selected rail facts, find-current-items returns []). Each read returns output.payload.value_json (a JSON-encoded scalar). Absent -> the decide script applies fail-closed defaults.",
+            "config": {
+              "name": "engine.operation.label-addressed",
+              "input": {
+                "operation_label": "engine.operation.read-current",
+                "address_label": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "spend_authority_ref"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.concat",
+                      "args": {
+                        "values": [
+                          "attribute_fact|service_connection:",
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "spend_authority_ref"
+                            }
+                          },
+                          "|prop:connection:status|type:string"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "address_mode": "identity_text"
+              }
+            }
+          },
+          {
+            "id": "read_enabled",
+            "kind": "ask",
+            "config": {
+              "name": "engine.operation.label-addressed",
+              "input": {
+                "operation_label": "engine.operation.read-current",
+                "address_label": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "spend_authority_ref"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.concat",
+                      "args": {
+                        "values": [
+                          "attribute_fact|service_connection:",
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "spend_authority_ref"
+                            }
+                          },
+                          "|prop:connection:enabled|type:boolean"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "address_mode": "identity_text"
+              }
+            }
+          },
+          {
+            "id": "read_daily_limit",
+            "kind": "ask",
+            "config": {
+              "name": "engine.operation.label-addressed",
+              "input": {
+                "operation_label": "engine.operation.read-current",
+                "address_label": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "spend_authority_ref"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.concat",
+                      "args": {
+                        "values": [
+                          "attribute_fact|service_connection:",
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "spend_authority_ref"
+                            }
+                          },
+                          "|prop:connection:daily_limit|type:integer"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "address_mode": "identity_text"
+              }
+            }
+          },
+          {
+            "id": "read_threshold",
+            "kind": "ask",
+            "config": {
+              "name": "engine.operation.label-addressed",
+              "input": {
+                "operation_label": "engine.operation.read-current",
+                "address_label": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "spend_authority_ref"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.concat",
+                      "args": {
+                        "values": [
+                          "attribute_fact|service_connection:",
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "spend_authority_ref"
+                            }
+                          },
+                          "|prop:connection:auto_approve_threshold|type:integer"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "address_mode": "identity_text"
+              }
+            }
+          },
+          {
+            "id": "read_spent_today",
+            "kind": "ask",
+            "config": {
+              "name": "engine.operation.label-addressed",
+              "input": {
+                "operation_label": "engine.operation.read-current",
+                "address_label": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "spend_authority_ref"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.concat",
+                      "args": {
+                        "values": [
+                          "attribute_fact|service_connection:",
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "spend_authority_ref"
+                            }
+                          },
+                          "|prop:connection:total_spent_today|type:integer"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "address_mode": "identity_text"
+              }
+            }
+          },
+          {
+            "id": "read_reservation",
+            "kind": "ask",
+            "_comment": "IDEMPOTENCY read: the existing per-operation reservation. Read at DEFAULT mode (no address_mode) because the write step persists this address hashed (runtime write ignores address_mode; non-'|' addresses are hashed — stores/mod.rs), so the read MUST match (default/hash). Absent on first call -> the decide script treats it as no prior reservation. The address is the same concat the write uses.",
+            "config": {
+              "name": "engine.operation.label-addressed",
+              "input": {
+                "operation_label": "engine.operation.read-current",
+                "address_label": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "operation_ref"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.if_null",
+                      "args": {
+                        "fallback": "operation"
+                      }
+                    },
+                    {
+                      "op": "op:core.concat",
+                      "args": {
+                        "values": [
+                          "package::agent-wallet::budget-reservation::",
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "operation_ref"
+                            },
+                            "transform": [
+                              {
+                                "op": "op:core.if_null",
+                                "args": {
+                                  "fallback": "operation"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": "read_decide_script",
+            "kind": "read",
+            "config": {
+              "from": "package::agent-wallet::stored-bytes::decide-budget-mjs"
+            }
+          },
+          {
+            "id": "now",
+            "kind": "ask",
+            "_comment": "Only a process has a wall clock — workflow bindings have no 'now'. This tiny process prints the current ISO time on stdout so the decide step and the check expiry are anchored to real time, not a binding.",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "-e",
+                  "process.stdout.write(JSON.stringify({now_iso:new Date().toISOString()}))"
+                ],
+                "cwd": null,
+                "timeout_ms": 15000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "decide",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "decide-budget.mjs",
+                  "decision.json",
+                  {
+                    "$kind": "binding",
+                    "_comment": "argv[3] = wallet status value_json (read-current payload.value_json). Absent -> '' -> fail-closed default pending_setup.",
+                    "select": {
+                      "from": "steps",
+                      "key": "read_status",
+                      "path": "output.payload.value_json"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "$kind": "binding",
+                    "_comment": "argv[4] = wallet enabled value_json. Absent -> '' -> fail-closed false.",
+                    "select": {
+                      "from": "steps",
+                      "key": "read_enabled",
+                      "path": "output.payload.value_json"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "$kind": "binding",
+                    "_comment": "argv[5] = wallet daily_limit value_json. Absent -> '' -> 0.",
+                    "select": {
+                      "from": "steps",
+                      "key": "read_daily_limit",
+                      "path": "output.payload.value_json"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "$kind": "binding",
+                    "_comment": "argv[6] = wallet auto_approve_threshold value_json. Absent -> '' -> 0.",
+                    "select": {
+                      "from": "steps",
+                      "key": "read_threshold",
+                      "path": "output.payload.value_json"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "$kind": "binding",
+                    "_comment": "argv[7] = wallet total_spent_today value_json. Absent -> '' -> 0.",
+                    "select": {
+                      "from": "steps",
+                      "key": "read_spent_today",
+                      "path": "output.payload.value_json"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "$kind": "binding",
+                    "_comment": "argv[8] = the action input payload (operation_ref, estimated_cost, spend_authority_ref, rail_ref, spender_id, compatibility aliases, idempotency_key, ttl_seconds). The script is rail-agnostic and fails closed on absent authority DATA.",
+                    "select": {
+                      "from": "input",
+                      "path": ""
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": {}
+                        }
+                      },
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "$kind": "binding",
+                    "_comment": "argv[9] = the wall-clock now from the now step (workflow bindings have no clock). The script anchors check + reservation expiry to this.",
+                    "select": {
+                      "from": "steps",
+                      "key": "now",
+                      "path": "output.captured_fds.0.bytes.base64"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      },
+                      {
+                        "op": "op:core.json_parse"
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "now_iso"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "$kind": "binding",
+                    "_comment": "argv[10] = the existing per-op reservation (IDEMPOTENCY). A still-current reservation for the same idempotency_key short-circuits to an idempotent approval — no re-approve, no double-count. Absent -> {} -> treated as no prior reservation.",
+                    "select": {
+                      "from": "steps",
+                      "key": "read_reservation",
+                      "path": "output.payload"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": {}
+                        }
+                      },
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "cwd": null,
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "decide-budget.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_decide_script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "decision.json",
+                    "content_type": "application/json"
+                  }
+                ],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "write_check",
+            "_comment": "Write the budget_check + budget_reservation. FOUR writes: (1) per-operation budget_check at package::agent-wallet::budget-check::<op_slug> (audit trail, never clobbered by concurrent ops), (2) the fixed default-work-control budget-check mirror the AgentWalletPanel reads (it can't discover per-op addresses), (3) per-operation budget_reservation, (4) the fixed default-work-control reservation mirror. ADDRESS MODE: runtime write IGNORES address_mode (step_executor build_writes never reads it) — a non-'|' address is ALWAYS hashed (stores/mod.rs runtime_fact_address), matching the existing seed default-work-control records the panel reads via label_hash. So these per-op + mirror addresses are hash-addressed; readers use label_hash. The reservation is ALWAYS a real object (status current on approval, denied on denial) — NEVER null — so every write has a concrete payload (payload:null = retract, types.rs PendingWrite). SSOT: check is the decision record; reservation is the double-spend fence. The caller proceeds/blocks on budget_check.result, NOT on reservation presence.",
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "operation_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": "operation"
+                        }
+                      },
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::agent-wallet::budget-check::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "operation_ref"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.if_null",
+                                  "args": {
+                                    "fallback": "operation"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "decide",
+                      "path": "output.captured_fds.0.bytes.base64"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      },
+                      {
+                        "op": "op:core.json_parse"
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "budget_check"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "address": "package::agent-wallet::budget-check::default-work-control",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "decide",
+                      "path": "output.captured_fds.0.bytes.base64"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      },
+                      {
+                        "op": "op:core.json_parse"
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "budget_check"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "operation_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": "operation"
+                        }
+                      },
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::agent-wallet::budget-reservation::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "operation_ref"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.if_null",
+                                  "args": {
+                                    "fallback": "operation"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "decide",
+                      "path": "output.captured_fds.0.bytes.base64"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      },
+                      {
+                        "op": "op:core.json_parse"
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "budget_reservation"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "address": "package::agent-wallet::budget-reservation::default-work-control",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "decide",
+                      "path": "output.captured_fds.0.bytes.base64"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      },
+                      {
+                        "op": "op:core.json_parse"
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "budget_reservation"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "return_result",
+            "kind": "return",
+            "config": {
+              "value": {
+                "approved": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "decide",
+                    "path": "output.captured_fds.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "approved"
+                      }
+                    }
+                  ]
+                },
+                "reason": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "decide",
+                    "path": "output.captured_fds.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "reason"
+                      }
+                    }
+                  ]
+                },
+                "check_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "decide",
+                    "path": "output.captured_fds.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "budget_check"
+                      }
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "check_ref"
+                      }
+                    }
+                  ]
+                },
+                "reservation_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "decide",
+                    "path": "output.captured_fds.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "budget_reservation"
+                      }
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "reservation_ref"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {
+          "gate_boundary": "structural pre-operation spend authorization; fail-closed on malformed or positive-cost requests against a non-active/disabled/over-limit wallet; zero-cost requests receive a zero-amount fence",
+          "side_effect_boundary": "writes budget_check + budget_reservation records ONLY; never performs the payment"
+        },
+        "extra_properties": {}
+      },
+      "remove": false
+    },
+    {
+      "_comment": "DAILY SPEND RESET — pure DATA. On the clock tick, a python gate decides whether the UTC day has rolled over since the last reset marker; if so, write total_spent_today = 0 (both the identity_text attribute_fact the engine assembles AND the value the gate reads) + advance the reset marker. Single-flight via the marker (mirrors agents-hub spawn-decision single-flight): overlapping ticks within the same UTC day are no-ops. Decision != side-effect: the reset write is gated on the python EXIT CODE (0 == roll-over), so a same-day tick Skips the write cleanly.",
+      "type": "stored_bytes",
+      "name": "decide-daily-reset-mjs",
+      "source_path": "do-work/decide-daily-reset.mjs"
+    },
+    {
+      "type": "record",
+      "address": "package::agent-wallet::workflow-action::reset-daily-spend",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:reset-daily-spend",
+        "kind": "action",
+        "name": "reset-daily-spend",
+        "description": "Clock-triggered rail-agnostic daily spend reset: if the UTC day rolled over since the selected authority's reset marker, zero its total_spent_today and advance the marker. Single-flight; pure DATA; never touches money.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "spend_authority_ref",
+            "rail_ref"
+          ],
+          "properties": {
+            "spend_authority_ref": {
+              "type": "string"
+            },
+            "rail_ref": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "read_last_reset",
+            "kind": "ask",
+            "_comment": "Read the last-reset marker at DEFAULT mode (the write persists default mode; the read must match for single-flight to see the prior reset). Absent on first run -> gate treats as never-reset and resets once.",
+            "config": {
+              "name": "engine.operation.label-addressed",
+              "input": {
+                "operation_label": "engine.operation.read-current",
+                "address_label": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "spend_authority_ref"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.concat",
+                      "args": {
+                        "values": [
+                          "agent-wallet:daily-reset:",
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "spend_authority_ref"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": "read_reset_script",
+            "kind": "read",
+            "config": {
+              "from": "package::agent-wallet::stored-bytes::decide-daily-reset-mjs"
+            }
+          },
+          {
+            "id": "gate",
+            "kind": "ask",
+            "_comment": "Pure roll-over decision. argv: <last_reset_marker_json>. Only a process has a wall clock. Outputs {should_reset, now_iso, day} on stdout; exit code 0 == should_reset (the gating edges read exit_code, the marker write reads now_iso). exit 3 == same day (no-op).",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "decide-daily-reset.mjs",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "read_last_reset",
+                      "path": "output.payload"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": {}
+                        }
+                      },
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "cwd": null,
+                "timeout_ms": 15000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "decide-daily-reset.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_reset_script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "write_reset",
+            "kind": "write",
+            "_comment": "Zero total_spent_today (identity_text attribute_fact the engine assembles) + advance the reset marker (default mode). Gated by the on_result edge gate->write_reset (exit_code == 0). value_json is the STRING \"0\" (attribute_fact values are JSON-encoded scalars; integer 0 encodes as \"0\").",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "spend_authority_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|service_connection:",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "spend_authority_ref"
+                              }
+                            },
+                            "|prop:connection:total_spent_today|type:integer"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "address_mode": "identity_text",
+                  "path": [
+                    "current-item",
+                    "attribute_fact"
+                  ],
+                  "payload": {
+                    "property_id": "prop:connection:total_spent_today",
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "spend_authority_ref"
+                      }
+                    },
+                    "table": "attribute_fact",
+                    "type_id": "type:integer",
+                    "value_json": "0",
+                    "rail_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "rail_ref"
+                      }
+                    }
+                  }
+                },
+                {
+                  "address": "agent-wallet:last-daily-reset",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "daily_reset_marker",
+                    "day": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "gate",
+                        "path": "output.captured_fds.0.bytes.base64"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.decode",
+                          "args": {
+                            "encoding": "base64"
+                          }
+                        },
+                        {
+                          "op": "op:core.json_parse"
+                        },
+                        {
+                          "op": "op:core.lookup",
+                          "args": {
+                            "key": "day"
+                          }
+                        }
+                      ]
+                    },
+                    "reset_at": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "gate",
+                        "path": "output.captured_fds.0.bytes.base64"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.decode",
+                          "args": {
+                            "encoding": "base64"
+                          }
+                        },
+                        {
+                          "op": "op:core.json_parse"
+                        },
+                        {
+                          "op": "op:core.lookup",
+                          "args": {
+                            "key": "now_iso"
+                          }
+                        }
+                      ]
+                    },
+                    "spend_authority_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "spend_authority_ref"
+                      }
+                    },
+                    "rail_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "rail_ref"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "read_last_reset",
+            "to": "read_reset_script",
+            "kind": "always"
+          },
+          {
+            "from": "read_reset_script",
+            "to": "gate",
+            "kind": "always"
+          },
+          {
+            "from": "gate",
+            "to": "write_reset",
+            "kind": "on_result",
+            "_comment": "Gate on the EXIT CODE (0 == day rolled over), NOT stdout: a compute.process step's stdout is a byte side-channel the EDGE resolver cannot materialize; exit_code IS inline. exit 3 (same day) -> condition false -> write Skipped (no-op tick).",
+            "config": {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "output.termination.code"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": 0
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "is_active": true,
+        "version": 0
+      },
+      "remove": false
+    },
+    {
+      "_comment": "SPEND-LEDGER INCREMENT — pure DATA. Runs AFTER a payment actually succeeds (called by action:apply-x402-payment, #102b). read wallet totals + now -> record-spend.mjs adds the amount (the engine has no arithmetic binding op) -> write total_spent_today + total_spent_all_time (identity_text attribute_facts the engine assembles) + a payment_processed audit record. Records reality; never authorizes. This is the post-payment counterpart to the pre-payment budget-gate.",
+      "type": "stored_bytes",
+      "name": "record-spend-mjs",
+      "source_path": "do-work/record-spend.mjs"
+    },
+    {
+      "type": "record",
+      "address": "package::agent-wallet::workflow-action::record-spend",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:record-spend",
+        "kind": "action",
+        "name": "record-spend",
+        "description": "Post-payment rail-agnostic spend-ledger increment: add a confirmed spend amount to the selected authority's total_spent_today + total_spent_all_time and write a spend_payment_processed audit record. Pure DATA; records reality, never authorizes.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "amount",
+            "operation_ref",
+            "spend_authority_ref",
+            "rail_ref"
+          ],
+          "properties": {
+            "amount": {
+              "type": "integer"
+            },
+            "operation_ref": {
+              "type": "string"
+            },
+            "spend_authority_ref": {
+              "type": "string"
+            },
+            "rail_ref": {
+              "type": "string"
+            },
+            "spender_id": {
+              "type": "string"
+            },
+            "wallet_ref": {
+              "type": "string"
+            },
+            "agent_id": {
+              "type": "string"
+            },
+            "payment_ref": {
+              "type": "string"
+            },
+            "facilitator_response": {}
+          }
+        },
+        "steps": [
+          {
+            "id": "read_spent_today",
+            "kind": "ask",
+            "_comment": "Prior totals read PER-PROPERTY via read-current (live-log facts are read by address, NOT find-current-items). Absent -> the script defaults to 0.",
+            "config": {
+              "name": "engine.operation.label-addressed",
+              "input": {
+                "operation_label": "engine.operation.read-current",
+                "address_label": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "spend_authority_ref"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.concat",
+                      "args": {
+                        "values": [
+                          "attribute_fact|service_connection:",
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "spend_authority_ref"
+                            }
+                          },
+                          "|prop:connection:total_spent_today|type:integer"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "address_mode": "identity_text"
+              }
+            }
+          },
+          {
+            "id": "read_spent_all_time",
+            "kind": "ask",
+            "config": {
+              "name": "engine.operation.label-addressed",
+              "input": {
+                "operation_label": "engine.operation.read-current",
+                "address_label": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "spend_authority_ref"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.concat",
+                      "args": {
+                        "values": [
+                          "attribute_fact|service_connection:",
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "spend_authority_ref"
+                            }
+                          },
+                          "|prop:connection:total_spent_all_time|type:integer"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "address_mode": "identity_text"
+              }
+            }
+          },
+          {
+            "id": "read_record_script",
+            "kind": "read",
+            "config": {
+              "from": "package::agent-wallet::stored-bytes::record-spend-mjs"
+            }
+          },
+          {
+            "id": "now",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "-e",
+                  "process.stdout.write(JSON.stringify({now_iso:new Date().toISOString()}))"
+                ],
+                "cwd": null,
+                "timeout_ms": 15000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "ledger",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "record-spend.mjs",
+                  "ledger.json",
+                  {
+                    "$kind": "binding",
+                    "_comment": "argv[3] = total_spent_today value_json",
+                    "select": {
+                      "from": "steps",
+                      "key": "read_spent_today",
+                      "path": "output.payload.value_json"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "$kind": "binding",
+                    "_comment": "argv[4] = total_spent_all_time value_json",
+                    "select": {
+                      "from": "steps",
+                      "key": "read_spent_all_time",
+                      "path": "output.payload.value_json"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "$kind": "binding",
+                    "_comment": "argv[5] = spend payload (amount, operation_ref, spend_authority_ref, rail_ref, spender_id, payment evidence).",
+                    "select": {
+                      "from": "input",
+                      "path": ""
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": {}
+                        }
+                      },
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "$kind": "binding",
+                    "_comment": "argv[6] = wall-clock now",
+                    "select": {
+                      "from": "steps",
+                      "key": "now",
+                      "path": "output.captured_fds.0.bytes.base64"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      },
+                      {
+                        "op": "op:core.json_parse"
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "now_iso"
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "cwd": null,
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "record-spend.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_record_script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "ledger.json",
+                    "content_type": "application/json"
+                  }
+                ],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "write_ledger",
+            "kind": "write",
+            "_comment": "Write the new spend totals (identity_text attribute_facts the engine assembles, value_json = JSON-encoded integer string) + a payment_processed audit record at package::agent-wallet::payment::<op_slug>. The totals come from the ledger script's computed sums (current + amount), NOT a stale binding.",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "spend_authority_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|service_connection:",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "spend_authority_ref"
+                              }
+                            },
+                            "|prop:connection:total_spent_today|type:integer"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "address_mode": "identity_text",
+                  "path": [
+                    "current-item",
+                    "attribute_fact"
+                  ],
+                  "payload": {
+                    "property_id": "prop:connection:total_spent_today",
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "spend_authority_ref"
+                      }
+                    },
+                    "table": "attribute_fact",
+                    "type_id": "type:integer",
+                    "value_json": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "ledger",
+                        "path": "output.captured_fds.0.bytes.base64"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.decode",
+                          "args": {
+                            "encoding": "base64"
+                          }
+                        },
+                        {
+                          "op": "op:core.json_parse"
+                        },
+                        {
+                          "op": "op:core.lookup",
+                          "args": {
+                            "key": "total_spent_today"
+                          }
+                        },
+                        {
+                          "op": "op:core.stringify",
+                          "args": {
+                            "format": "json"
+                          }
+                        }
+                      ]
+                    },
+                    "rail_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "rail_ref"
+                      }
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "spend_authority_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|service_connection:",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "spend_authority_ref"
+                              }
+                            },
+                            "|prop:connection:total_spent_all_time|type:integer"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "address_mode": "identity_text",
+                  "path": [
+                    "current-item",
+                    "attribute_fact"
+                  ],
+                  "payload": {
+                    "property_id": "prop:connection:total_spent_all_time",
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "spend_authority_ref"
+                      }
+                    },
+                    "table": "attribute_fact",
+                    "type_id": "type:integer",
+                    "value_json": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "ledger",
+                        "path": "output.captured_fds.0.bytes.base64"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.decode",
+                          "args": {
+                            "encoding": "base64"
+                          }
+                        },
+                        {
+                          "op": "op:core.json_parse"
+                        },
+                        {
+                          "op": "op:core.lookup",
+                          "args": {
+                            "key": "total_spent_all_time"
+                          }
+                        },
+                        {
+                          "op": "op:core.stringify",
+                          "args": {
+                            "format": "json"
+                          }
+                        }
+                      ]
+                    },
+                    "rail_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "rail_ref"
+                      }
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "operation_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": "operation"
+                        }
+                      },
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::agent-wallet::payment::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "operation_ref"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.if_null",
+                                  "args": {
+                                    "fallback": "operation"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "ledger",
+                      "path": "output.captured_fds.0.bytes.base64"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      },
+                      {
+                        "op": "op:core.json_parse"
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "payment_record"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "return_result",
+            "kind": "return",
+            "config": {
+              "value": {
+                "total_spent_today": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "ledger",
+                    "path": "output.captured_fds.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "total_spent_today"
+                      }
+                    }
+                  ]
+                },
+                "total_spent_all_time": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "ledger",
+                    "path": "output.captured_fds.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "total_spent_all_time"
+                      }
+                    }
+                  ]
+                },
+                "amount": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "ledger",
+                    "path": "output.captured_fds.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "amount"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0
+      },
+      "remove": false
+    },
+    {
+      "_comment": "DAILY-RESET CADENCE TRIGGER — EXACT clone of the proven agents-hub trigger:spawn-decision-on-clock-tick shape, dispatching to action:reset-daily-spend. is_active:FALSE — the team-lead flips it true after review (zero runaway risk during build). The single-flight UTC-day gate inside the def is the real safety; this flag is the second gate. Topic clock-tick, delta, match clock::tick.",
+      "type": "record",
+      "address": "package::agent-wallet::trigger-rule::reset-daily-spend-on-clock-tick",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "id": "trigger:reset-daily-spend-on-clock-tick",
+        "topic": "clock-tick",
+        "trigger_type": "delta",
+        "is_active": false,
+        "match_condition": {
+          "conditions": [
+            {
+              "$bind": {
+                "select": {
+                  "from": "envelope",
+                  "path": "address_text"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.equals",
+                    "args": {
+                      "value": "clock::tick"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:reset-daily-spend",
+            "input": {
+              "spend_authority_ref": "service_connection:x402-agent-wallet",
+              "rail_ref": "payment-rail:x402"
+            },
+            "include_output": false,
+            "include_steps": false
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "build-eip712-digest-mjs",
+      "source_path": "do-work/build-eip712-digest.mjs"
+    }
+  ]
+}

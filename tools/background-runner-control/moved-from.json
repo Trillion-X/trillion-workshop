@@ -1,0 +1,57 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/background-runner-control/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/background-runner-control/packages/background-runner-control/entry-to-package-data-map.json",
+      "source_identity": "1f:a3179341cf7589452497f64ab8606d9c0263f056f1cfcbe720ad2c037e7e113a",
+      "identity": "1f:a3179341cf7589452497f64ab8606d9c0263f056f1cfcbe720ad2c037e7e113a"
+    },
+    {
+      "from": "packages/background-runner-control/read-data/background-runner-cli-models.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/background-runner-control/packages/background-runner-control/read-data/background-runner-cli-models.ts",
+      "source_identity": "1f:33fc8d76bc154619c8f1eb3e7ff47f7db1ba4d139114491c970ff671cdc7c96d",
+      "identity": "1f:33fc8d76bc154619c8f1eb3e7ff47f7db1ba4d139114491c970ff671cdc7c96d"
+    },
+    {
+      "from": "packages/background-runner-control/read-data/read-background-runner-cli-registry.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/background-runner-control/packages/background-runner-control/read-data/read-background-runner-cli-registry.ts",
+      "source_identity": "1f:739e5766d823c10a35d38f7882e24ccb4599760b0d8510ebbfe8cc4af99f16b5",
+      "identity": "1f:739e5766d823c10a35d38f7882e24ccb4599760b0d8510ebbfe8cc4af99f16b5"
+    },
+    {
+      "from": "packages/background-runner-control/read-data/read-background-runner-status.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/background-runner-control/packages/background-runner-control/read-data/read-background-runner-status.ts",
+      "source_identity": "1f:9ed39810b702ac7b1c52e38afe4b3abcec8800d0e8f0198393bcd5e5a79baa5b",
+      "identity": "1f:9ed39810b702ac7b1c52e38afe4b3abcec8800d0e8f0198393bcd5e5a79baa5b"
+    },
+    {
+      "from": "packages/background-runner-control/show/BackgroundRunnerControl.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/background-runner-control/packages/background-runner-control/show/BackgroundRunnerControl.tsx",
+      "source_identity": "1f:16b1297dae013bbce05c26f456b34a2f71e607517f030022d238776c54b3195e",
+      "identity": "1f:16b1297dae013bbce05c26f456b34a2f71e607517f030022d238776c54b3195e"
+    },
+    {
+      "from": "packages/background-runner-control/show/mount-background-runner-control.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/background-runner-control/packages/background-runner-control/show/mount-background-runner-control.tsx",
+      "source_identity": "1f:4bd297eddf5cf6bd540ed610660394e2e1c1e5feccd04d70230530b6441f82db",
+      "identity": "1f:4bd297eddf5cf6bd540ed610660394e2e1c1e5feccd04d70230530b6441f82db"
+    },
+    {
+      "from": "packages/background-runner-control/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/background-runner-control/packages/background-runner-control/things-to-store-and-run.json",
+      "source_identity": "1f:fbc232c64fc06a5f3c25412e1e8a4570314d2230394ee527d9268044b7786562",
+      "identity": "1f:fbc232c64fc06a5f3c25412e1e8a4570314d2230394ee527d9268044b7786562"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "entity_type": "decider",
+  "decider_id": "bandit-outcome-shift",
+  "label": "Bandit decider: shift to highest-outcome candidate, cold-start to sticky_hash",
+  "score": {
+    "op": "case",
+    "cases": [
+      {
+        "when": {
+          "op": "outcome",
+          "metric": "conversion_rate"
+        },
+        "then": {
+          "op": "outcome",
+          "metric": "conversion_rate"
+        }
+      }
+    ],
+    "default": {
+      "op": "sticky_hash",
+      "of": { "const": "observer-id" },
+      "split": {
+        "split": {
+          "a": 0.5,
+          "b": 0.5
+        }
+      }
+    }
+  },
+  "accepts_trust": [
+    "trust:observer-supplied",
+    "trust:derived"
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "kind": "record-exchange.fixture-bundle",
+  "version": 1,
+  "records": [
+    {
+      "id": "exchange:package-store-offer:demo",
+      "descriptor_ref": "record-descriptor:package-store-offer-exchange",
+      "title": "Package store offer",
+      "summary": "Creator terms are ready for review.",
+      "material_label": "Package listing material"
+    },
+    {
+      "id": "exchange:review-handoff:demo",
+      "descriptor_ref": "record-descriptor:review-handoff",
+      "title": "Review handoff",
+      "summary": "A second record exchange uses the same descriptors.",
+      "material_label": "Review notes"
+    },
+    {
+      "id": "material:package-listing",
+      "title": "Package listing material"
+    },
+    {
+      "id": "material:review-notes",
+      "title": "Review notes"
+    },
+    {
+      "id": "owner:record-exchange",
+      "title": "Record exchange owner"
+    },
+    {
+      "id": "proof:package-store-offer:demo",
+      "title": "Request receipt",
+      "summary": "The request was accepted by the owner action path."
+    }
+  ],
+  "relationships": [
+    {
+      "id": "rel:offer-required-material",
+      "source_ref": "exchange:package-store-offer:demo",
+      "relationship_ref": "relationship:exchange-to-required-material",
+      "target_ref": "material:package-listing",
+      "label": "Package listing material"
+    },
+    {
+      "id": "rel:offer-owner-action",
+      "source_ref": "exchange:package-store-offer:demo",
+      "relationship_ref": "relationship:exchange-to-owner-action",
+      "target_ref": "owner:record-exchange",
+      "label": "Record exchange owner"
+    },
+    {
+      "id": "rel:offer-proof",
+      "source_ref": "exchange:package-store-offer:demo",
+      "relationship_ref": "relationship:exchange-to-proof-record",
+      "target_ref": "proof:package-store-offer:demo",
+      "label": "Request receipt"
+    },
+    {
+      "id": "rel:handoff-required-material",
+      "source_ref": "exchange:review-handoff:demo",
+      "relationship_ref": "relationship:exchange-to-required-material",
+      "target_ref": "material:review-notes",
+      "label": "Review notes"
+    },
+    {
+      "id": "rel:handoff-owner-action",
+      "source_ref": "exchange:review-handoff:demo",
+      "relationship_ref": "relationship:exchange-to-owner-action",
+      "target_ref": "owner:record-exchange",
+      "label": "Record exchange owner"
+    }
+  ],
+  "proofs": [
+    {
+      "id": "proof:package-store-offer:demo",
+      "label": "Request receipt",
+      "summary": "Accepted by workflow owner action",
+      "result_ref": "result:accepted"
+    }
+  ],
+  "process_sessions": [
+    {
+      "id": "process-session:demo",
+      "label": "Workflow run",
+      "summary": "Session reference is projected as proof data."
+    }
+  ]
+}

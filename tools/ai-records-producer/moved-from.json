@@ -31,6 +31,69 @@
       "source_identity": "1f:43aa7a6daa7464e6a8067ab759fb52428e47f40d5d95636660712cb157e7004e",
       "identity": "1f:43aa7a6daa7464e6a8067ab759fb52428e47f40d5d95636660712cb157e7004e",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/ai-records-producer/do-work/build-agent-turn-continuation.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-records-producer/packages/ai-records-producer/do-work/build-agent-turn-continuation.ts",
+      "source_identity": "1f:a81fb419d04d1847c60c2840d0a4f100cd04e8fd05314d1fe2809c1590970db3",
+      "identity": "1f:a81fb419d04d1847c60c2840d0a4f100cd04e8fd05314d1fe2809c1590970db3"
+    },
+    {
+      "from": "packages/ai-records-producer/do-work/process-scripts/make-ai-records-command-request.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-records-producer/packages/ai-records-producer/do-work/process-scripts/make-ai-records-command-request.mjs",
+      "source_identity": "1f:2c84d1ade4fdc709361458f68304841c76791ac8c49afaa1cc5d84c9687ebc29",
+      "identity": "1f:2c84d1ade4fdc709361458f68304841c76791ac8c49afaa1cc5d84c9687ebc29"
+    },
+    {
+      "from": "packages/ai-records-producer/do-work/process-scripts/make-ai-records-command-request.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-records-producer/packages/ai-records-producer/do-work/process-scripts/make-ai-records-command-request.py",
+      "source_identity": "1f:d74e126a471161abcfff2064a784fd4259dcc33f8773111bc6c8ac7c1bb04e98",
+      "identity": "1f:d74e126a471161abcfff2064a784fd4259dcc33f8773111bc6c8ac7c1bb04e98"
+    },
+    {
+      "from": "packages/ai-records-producer/do-work/process-scripts/make-ai-records-from-command-output.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-records-producer/packages/ai-records-producer/do-work/process-scripts/make-ai-records-from-command-output.mjs",
+      "source_identity": "1f:0bf08724a1b82b1f49cfea7f281a56a5a4db9ee11e732d4c9a2f39651f18d884",
+      "identity": "1f:0bf08724a1b82b1f49cfea7f281a56a5a4db9ee11e732d4c9a2f39651f18d884"
+    },
+    {
+      "from": "packages/ai-records-producer/do-work/process-scripts/make-ai-records-from-command-output.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-records-producer/packages/ai-records-producer/do-work/process-scripts/make-ai-records-from-command-output.py",
+      "source_identity": "1f:05fb1a5ea7640b241ef4692eaf5e5b9cf9c5cc514ad685e4b476b577c494cd49",
+      "identity": "1f:05fb1a5ea7640b241ef4692eaf5e5b9cf9c5cc514ad685e4b476b577c494cd49"
+    },
+    {
+      "from": "packages/ai-records-producer/do-work/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-records-producer/packages/ai-records-producer/do-work/README.md",
+      "source_identity": "1f:45823f18e5fd9a2ff4ebce2aa6faf977e504fed3027c3a23c25451cb1d65c852",
+      "identity": "1f:45823f18e5fd9a2ff4ebce2aa6faf977e504fed3027c3a23c25451cb1d65c852"
+    },
+    {
+      "from": "packages/ai-records-producer/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-records-producer/packages/ai-records-producer/index.ts",
+      "source_identity": "1f:66fd489d83982649cbae7e6cf414a6e3f1dfe5fd5ee7c937828d9d59f8d509d8",
+      "identity": "1f:66fd489d83982649cbae7e6cf414a6e3f1dfe5fd5ee7c937828d9d59f8d509d8"
+    },
+    {
+      "from": "packages/ai-records-producer/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-records-producer/packages/ai-records-producer/README.md",
+      "source_identity": "1f:1f6a3ac40789bbbd7b86d7d98a3a2c8b97cc7b37b3f2c0bc0a72ac579c9ec0e7",
+      "identity": "1f:1f6a3ac40789bbbd7b86d7d98a3a2c8b97cc7b37b3f2c0bc0a72ac579c9ec0e7"
+    },
+    {
+      "from": "packages/ai-records-producer/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-records-producer/packages/ai-records-producer/things-to-store-and-run.json",
+      "source_identity": "1f:bfc08b470f4b2f613bc34a50dced77a32bc6fd367f2a6eafad3cb447b12ed578",
+      "identity": "1f:bfc08b470f4b2f613bc34a50dced77a32bc6fd367f2a6eafad3cb447b12ed578"
     }
   ],
   "not_matched": [

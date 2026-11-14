@@ -1,0 +1,133 @@
+{
+  "edl": {
+    "base": {
+      "kind": "video",
+      "artifact": "assets/aroll-full-graded.mov"
+    },
+    "spine": {
+      "segments": [
+        {
+          "id": "intro",
+          "kind": "clip",
+          "source": "out/intro.mp4",
+          "silent_audio": true
+        },
+        {
+          "id": "A",
+          "kind": "base_span",
+          "src_in": 4,
+          "src_out": 112
+        },
+        {
+          "id": "ch1",
+          "kind": "chapter_insert"
+        },
+        {
+          "id": "B",
+          "kind": "base_span",
+          "src_in": 128.5,
+          "src_out": 206.35
+        },
+        {
+          "id": "ch2",
+          "kind": "chapter_insert"
+        },
+        {
+          "id": "C",
+          "kind": "base_span",
+          "src_in": 221.15,
+          "src_out": 638.65
+        },
+        {
+          "id": "outro",
+          "kind": "clip",
+          "source": "assets/outro.mp4"
+        }
+      ]
+    },
+    "source_time_map": {
+      "mode": "span-relative"
+    },
+    "overlays": [
+      {
+        "source": "assets/cutaways2/s1.mp4",
+        "at_src": 53.5,
+        "end_src": 62.02
+      },
+      {
+        "source": "assets/cutaways2/s2.mp4",
+        "at_src": 162.06,
+        "end_src": 178.2
+      },
+      {
+        "source": "assets/cutaways2/s4.mp4",
+        "at_src": 272.4,
+        "end_src": 284.72
+      },
+      {
+        "source": "assets/cutaways2/s5.mp4",
+        "at_src": 340.8,
+        "end_src": 352.56
+      },
+      {
+        "source": "assets/cutaways2/s6.mp4",
+        "at_src": 376,
+        "end_src": 388.7
+      },
+      {
+        "source": "assets/cutaways2/s7.mp4",
+        "at_src": 458,
+        "end_src": 471.62
+      },
+      {
+        "source": "assets/cutaways2/s8.mp4",
+        "at_src": 528,
+        "end_src": 541.99
+      },
+      {
+        "source": "assets/cutaways2/s9.mp4",
+        "at_src": 556,
+        "end_src": 567.84
+      }
+    ],
+    "chapter_inserts": [
+      {
+        "id": "ch1",
+        "artifact": "out/ch1-final.mp4"
+      },
+      {
+        "id": "ch2",
+        "artifact": "out/ch2-final.mp4"
+      }
+    ],
+    "audio_graph": {
+      "music_bed": {
+        "artifact": "assets/music-v2.mp3",
+        "trim": [
+          0,
+          31.5
+        ],
+        "fade_in": {
+          "st": 0,
+          "d": 2,
+          "curve": "qsin"
+        },
+        "fade_out": {
+          "st": 27.5,
+          "d": 4,
+          "curve": "qsin"
+        },
+        "volume": 0.9,
+        "apad": true
+      }
+    },
+    "encode": {
+      "width": 1920,
+      "height": 1080,
+      "fps": "24000/1001",
+      "crf": 18,
+      "preset": "medium",
+      "audio_bitrate": "256k"
+    }
+  }
+}

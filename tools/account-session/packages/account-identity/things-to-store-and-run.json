@@ -1,0 +1,323 @@
+{
+  "package": "account-identity",
+  "things": [
+    {
+      "type": "stored_bytes",
+      "name": "index",
+      "source_path": "index.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "account-identity-materialization",
+      "source_path": "read-data/account-identity-materialization.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "derive-account-identity",
+      "source_path": "do-work/derive-account-identity.ts"
+    },
+    {
+      "type": "record",
+      "address": "package::account-identity::contract",
+      "path": [
+        "generic-account-access",
+        "package",
+        "account-identity"
+      ],
+      "payload": {
+        "kind": "package-contract",
+        "package": "account-identity",
+        "owns": [
+          "role-addressed identity materialization",
+          "declared source role normalization",
+          "declared identifier and proof role derivation",
+          "materialized identity role projection"
+        ],
+        "does_not_own": [
+          "browser sessions",
+          "login proof signing",
+          "checkout policy",
+          "authority account state",
+          "provider delivery",
+          "payment handoff"
+        ]
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-identity::materialization::default",
+      "path": [
+        "packages",
+        "account-identity",
+        "materializations",
+        "default"
+      ],
+      "payload": {
+        "kind": "role-addressed-materialization",
+        "source_roles": [
+          {
+            "role": "identity.input.primary",
+            "input_key": "email",
+            "required": true,
+            "shape": "text"
+          }
+        ],
+        "rules": [
+          {
+            "role": "identity.input.normalized",
+            "method": "trim-lowercase-text",
+            "source_role": "identity.input.primary",
+            "params": {
+              "invalid_message": "Enter the email used for your Bitfield account.",
+              "max_length": 320,
+              "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+            }
+          },
+          {
+            "role": "identity.subject",
+            "method": "content-hash-text",
+            "source_role": "identity.input.normalized",
+            "params": {
+              "drop_hash_prefix_chars": 3,
+              "hash_input_prefix": "account:",
+              "output_prefix": "bitfield-account-"
+            }
+          },
+          {
+            "role": "identity.proof.email",
+            "method": "content-hash-text",
+            "source_role": "identity.input.normalized",
+            "params": {
+              "hash_input_prefix": "email:"
+            }
+          }
+        ],
+        "output_roles": [
+          {
+            "role": "identity.subject",
+            "label": "Account ID",
+            "copyable": true,
+            "value": {
+              "from": "rule",
+              "role": "identity.subject"
+            }
+          },
+          {
+            "role": "identity.input.normalized",
+            "label": "Account email",
+            "copyable": false,
+            "value": {
+              "from": "rule",
+              "role": "identity.input.normalized"
+            }
+          },
+          {
+            "role": "identity.proof.email",
+            "label": "Email proof",
+            "copyable": true,
+            "value": {
+              "from": "rule",
+              "role": "identity.proof.email"
+            }
+          }
+        ],
+        "projection": {
+          "address_label": "package::account-identity::projection::roles",
+          "value_to_bytes": "cell_table"
+        }
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-identity::target::derive-account-identity",
+      "path": [
+        "packages",
+        "account-identity",
+        "targets",
+        "derive-account-identity"
+      ],
+      "payload": {
+        "entry_name": "derive-account-identity",
+        "export_name": "resolveAccountIdentity",
+        "kind": "package-target-descriptor",
+        "source_path": "do-work/resolve-account-identity.ts",
+        "target": "account-identity.derive"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-identity::owner-action::derive",
+      "path": [
+        "packages",
+        "account-identity",
+        "owner-actions",
+        "derive"
+      ],
+      "payload": {
+        "kind": "owner-action-descriptor",
+        "action_id": "account-identity.derive",
+        "label": "Confirm account identity",
+        "operation": "execute_owner_action",
+        "target": "slot::workflow",
+        "target_ref": "package::account-identity::target::derive-account-identity",
+        "materialization_ref": "package::account-identity::materialization::default",
+        "writes": [
+          "package::account-identity::projection::roles"
+        ]
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-identity::entry::derive-account-identity",
+      "path": [
+        "packages",
+        "account-identity",
+        "entries",
+        "derive-account-identity"
+      ],
+      "payload": {
+        "entry_name": "derive-account-identity",
+        "export_name": "resolveAccountIdentity",
+        "kind": "bitfield-package-entry",
+        "source_path": "do-work/resolve-account-identity.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-derive-account-identity"
+        }
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-identity::input::published-records",
+      "path": [
+        "packages",
+        "account-identity",
+        "inputs"
+      ],
+      "payload": {
+        "input_name": "published-records",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "address",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "path",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "payload",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ],
+            "op": "rows",
+            "shape": {
+              "column_count": 3,
+              "row_count": 0
+            }
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "package::account-identity::value::published-records"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-identity::value::published-records",
+      "path": [
+        "packages",
+        "account-identity",
+        "projected-values",
+        "published-records"
+      ],
+      "payload": null,
+      "payload_base64": "UlRCTAAAAAAAAAAAAwAAAA==",
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-identity::public-source::read-data",
+      "path": [
+        "packages",
+        "account-identity",
+        "public-sources",
+        "read-data"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "read-data"
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-derive-account-identity",
+      "source_path": "built-stored-bytes/entry-bytes-derive-account-identity",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-derive-account-identity.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::account-identity::checks",
+      "path": [
+        "packages",
+        "account-identity",
+        "checks"
+      ],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "do-work/derive-account-identity.test.ts",
+          "do-work/resolve-account-identity.test.ts",
+          "do-work/test-established-subject-bindings.py",
+          "read-data/account-identity-materialization.test.ts"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "resolve-account-identity",
+      "source_path": "do-work/resolve-account-identity.ts"
+    }
+  ]
+}

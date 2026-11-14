@@ -1,0 +1,17 @@
+{
+  "kind": "bitfield-entry-to-package-data-map",
+  "package": "access-rule",
+  "package_data_path": "things-to-store-and-run.json",
+  "entries": [
+    {
+      "entry_name": "evaluate-access-decision-target",
+      "source_path": "do-work/decision-targets.ts",
+      "package_data_path": "things-to-store-and-run.json"
+    },
+    {
+      "entry_name": "verify-access-decision-target",
+      "source_path": "do-work/decision-targets.ts",
+      "package_data_path": "things-to-store-and-run.json"
+    }
+  ]
+}

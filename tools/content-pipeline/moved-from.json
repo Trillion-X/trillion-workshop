@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/content-pipeline/do-work/process-scripts/merge-object-field.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/content-pipeline/packages/content-pipeline/do-work/process-scripts/merge-object-field.mjs",
+      "source_identity": "1f:3132c14183f93ad0fe76dde114505c53cdc7514aa122df533758c5a6726b0c05",
+      "identity": "1f:3132c14183f93ad0fe76dde114505c53cdc7514aa122df533758c5a6726b0c05"
+    },
+    {
+      "from": "packages/content-pipeline/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/content-pipeline/packages/content-pipeline/things-to-store-and-run.json",
+      "source_identity": "1f:e1e15fe10d493f91bf4a6f7acee77fd5d83727883835deed49e771ae7c0fe904",
+      "identity": "1f:e1e15fe10d493f91bf4a6f7acee77fd5d83727883835deed49e771ae7c0fe904"
+    }
+  ]
+}

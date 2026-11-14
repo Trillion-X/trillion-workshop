@@ -1,0 +1,90 @@
+{
+  "schema": "generic.record_definitions.v1",
+  "definition_set_id": "package::bitfield-package-store-catalog::record-definitions",
+  "records": [
+    {
+      "id": "record-definition:catalog-row",
+      "label": "Catalog row",
+      "identity_path": ["row_id"],
+      "field_roles": [
+        { "role": "primary_text", "path": ["package_finding", "title"], "fallback_path": ["display_name"] },
+        { "role": "secondary_text", "path": ["package_finding", "summary"], "fallback_path": ["summary"] },
+        { "role": "sort_key", "path": ["package_finding", "ranking", "score"], "direction": "descending" },
+        { "role": "search_text", "path": ["package_finding", "search", "text"] }
+      ],
+      "block_roles": [
+        { "role": "finding-blocks", "path": ["package_finding", "blocks"], "mode": "spread" }
+      ],
+      "relationship_roles": [
+        { "role": "capability", "path": ["capability_metadata", "public_capability_summary"] },
+        { "role": "detail-section", "path": ["package_finding", "detail_blocks"] },
+        { "role": "finding-facet", "path": ["package_finding", "facets"] },
+        { "role": "trust-proof", "path": ["publisher_trust_root_refs"] },
+        { "role": "package-file-pointer", "path": ["exchange", "package_file_download_pointer_object_keys"] },
+        { "role": "package-use-proof", "path": ["exchange", "package_use_decision_refs"] },
+        { "role": "version-lineage", "path": ["version_lineage"] },
+        { "role": "presentation-section", "path": ["presentation_sections"] }
+      ],
+      "action_roles": [
+        {
+          "role": "primary_action",
+          "label_path": ["install", "install_subject", "action_label"],
+          "target_path": ["install", "target"],
+          "subject_path": ["install", "install_subject"],
+          "input_paths": {
+            "package_file_download_pointer_object_keys": ["exchange", "package_file_download_pointer_object_keys"],
+            "package_use_decision_refs": ["exchange", "package_use_decision_refs"],
+            "admission_fact_refs": ["exchange", "access", "admission_fact_refs"],
+            "access_proof_refs": ["exchange", "access", "product_access_proof_refs"],
+            "publisher_trust_root_refs": ["publisher_trust_root_refs"],
+            "publisher_trust_roots": ["publisher_trust_roots"],
+            "update_policy_refs": ["exchange", "update_policy_refs"],
+            "provenance_refs": ["exchange", "provenance_refs"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "record-definition:collection-row",
+      "label": "Collection row",
+      "identity_path": ["row_id"],
+      "field_roles": [
+        { "role": "primary_text", "path": ["package_finding", "title"], "fallback_path": ["display_name"] },
+        { "role": "secondary_text", "path": ["package_finding", "summary"], "fallback_path": ["summary"] },
+        { "role": "sort_key", "path": ["package_finding", "ranking", "score"], "direction": "descending" },
+        { "role": "search_text", "path": ["package_finding", "search", "text"] }
+      ],
+      "block_roles": [
+        { "role": "finding-blocks", "path": ["package_finding", "blocks"], "mode": "spread" }
+      ],
+      "relationship_roles": [
+        { "role": "capability", "path": ["capability_metadata", "public_capability_summary"] },
+        { "role": "detail-section", "path": ["package_finding", "detail_blocks"] },
+        { "role": "finding-facet", "path": ["package_finding", "facets"] },
+        { "role": "trust-proof", "path": ["publisher_trust_root_refs"] },
+        { "role": "member", "path": ["members"] }
+      ],
+      "action_roles": [
+        {
+          "role": "primary_action",
+          "label_path": ["install", "install_subject", "action_label"],
+          "target_path": ["install", "target"],
+          "subject_path": ["install", "install_subject"],
+          "input_paths": {
+            "members": ["members"],
+            "admission_fact_refs": ["exchange", "access", "admission_fact_refs"],
+            "access_proof_refs": ["exchange", "access", "product_access_proof_refs"],
+            "publisher_trust_root_refs": ["publisher_trust_root_refs"],
+            "publisher_trust_roots": ["publisher_trust_roots"],
+            "update_policy_refs": ["exchange", "update_policy_refs"],
+            "provenance_refs": ["exchange", "provenance_refs"]
+          }
+        }
+      ]
+    }
+  ],
+  "domain_values": [
+    { "id": "domain:any-label", "rule": "Labels and states are open data values. Code preserves unknown values." },
+    { "id": "domain:any-block", "rule": "Card/detail attributes are finding blocks. Adding a visible attribute is a data edit, not a reader or renderer edit." }
+  ]
+}

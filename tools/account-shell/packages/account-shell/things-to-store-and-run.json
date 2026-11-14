@@ -1,0 +1,132 @@
+{
+  "package": "account-shell",
+  "things": [
+    {
+      "type": "stored_bytes",
+      "name": "index",
+      "source_path": "index.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "read-portal-surfaces",
+      "source_path": "read-data/read-portal-surfaces.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "portal-surface-url",
+      "source_path": "show/portal-surface-url.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "account-portal-shell",
+      "source_path": "show/app-shell/AccountPortalShell.tsx"
+    },
+    {
+      "type": "record",
+      "address": "package::account-shell::contract",
+      "path": [
+        "packages",
+        "account-shell",
+        "contract"
+      ],
+      "payload": {
+        "package": "account-shell",
+        "components": [
+          "AccountPortalShell"
+        ],
+        "source_paths": [
+          "packages/account-shell/show/app-shell/AccountPortalShell.tsx",
+          "packages/account-shell/show/mount-account-portal-shell.tsx",
+          "packages/account-shell/show/portal-surface-url.ts",
+          "packages/account-shell/read-data/read-portal-surfaces.ts"
+        ],
+        "reads": [
+          "placeable-surface records via placeable-surface-list::main-workspace"
+        ],
+        "owns": [
+          "portal chrome",
+          "sidebar navigation",
+          "active-surface url state"
+        ],
+        "does_not_own": [
+          "account state",
+          "surface panels",
+          "checkout policy",
+          "activation authority",
+          "which surfaces exist"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::account-shell::input::portal-surface-list",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "portal-surface-list",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "address": "placeable-surface-list::main-workspace",
+            "missing": "empty",
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "placeable-surface-list::main-workspace"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::account-shell::input::package-entry-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "package-entry-by-address-label",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "bytes"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::account-shell::entry::account-portal-shell",
+      "build_source_path": "show/mount-account-portal-shell.tsx",
+      "path": [
+        "packages",
+        "account-shell",
+        "entries",
+        "account-portal-shell"
+      ],
+      "payload": {
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-account-portal-shell"
+        },
+        "entry_name": "account-portal-shell",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-account-portal-shell.tsx"
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-account-portal-shell",
+      "source_path": "built-stored-bytes/entry-bytes-account-portal-shell",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-account-portal-shell.source-closure.json"
+    }
+  ]
+}

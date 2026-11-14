@@ -1,0 +1,17 @@
+import type { AddressedParticipantLaunchSpec } from '@/packages/chat/read-data/read-addressed-exchange-participants';
+
+export interface ResolveInitialConversationSourceSessionRefInput {
+  launch: AddressedParticipantLaunchSpec;
+  shouldResumeSourceSession: boolean;
+  selectedSessionId: string | null;
+}
+
+export function resolveInitialConversationSourceSessionRef(
+  input: ResolveInitialConversationSourceSessionRefInput,
+): string | null {
+  if (!input.shouldResumeSourceSession) return null;
+  if (!input.selectedSessionId) return null;
+  return Array.isArray(input.launch.resumeArgv) && input.launch.resumeArgv.length > 0
+    ? input.selectedSessionId
+    : null;
+}

@@ -1,0 +1,43 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/browsing-surface-provider/dom-snapshot-contract.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browsing-surface-provider/packages/browsing-surface-provider/dom-snapshot-contract.mjs",
+      "source_identity": "1f:2dea20e37489cc59b2f9960c27038e90706724ccbc3b4c78be076488433e2043",
+      "identity": "1f:2dea20e37489cc59b2f9960c27038e90706724ccbc3b4c78be076488433e2043"
+    },
+    {
+      "from": "packages/browsing-surface-provider/provider.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browsing-surface-provider/packages/browsing-surface-provider/provider.mjs",
+      "source_identity": "1f:c21142caa952f52e5e823eecbe8bf9d47d21513be817983cccf9d1eb6560ebb0",
+      "identity": "1f:c21142caa952f52e5e823eecbe8bf9d47d21513be817983cccf9d1eb6560ebb0"
+    },
+    {
+      "from": "packages/browsing-surface-provider/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browsing-surface-provider/packages/browsing-surface-provider/README.md",
+      "source_identity": "1f:7b9c48dbb05627f23375099be3136de0db751e453d6e074d93ae54eb05afbe5e",
+      "identity": "1f:7b9c48dbb05627f23375099be3136de0db751e453d6e074d93ae54eb05afbe5e"
+    },
+    {
+      "from": "packages/browsing-surface-provider/terminal-page-proof.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browsing-surface-provider/packages/browsing-surface-provider/terminal-page-proof.mjs",
+      "source_identity": "1f:ac5a61811541a8eac2b86d462b01bbd5912bbdde9b2f289136b357d460e558ee",
+      "identity": "1f:ac5a61811541a8eac2b86d462b01bbd5912bbdde9b2f289136b357d460e558ee"
+    },
+    {
+      "from": "packages/browsing-surface-provider/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browsing-surface-provider/packages/browsing-surface-provider/things-to-store-and-run.json",
+      "source_identity": "1f:5f2fa39f27d1fa33f3ae493a4a37d755c62e6c01713a969521158a6fd3a0adc2",
+      "identity": "1f:5f2fa39f27d1fa33f3ae493a4a37d755c62e6c01713a969521158a6fd3a0adc2"
+    }
+  ]
+}

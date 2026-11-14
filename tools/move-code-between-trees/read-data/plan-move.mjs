@@ -292,6 +292,14 @@ export function planMove(row, source, destination) {
       const left = providerCallsLeft(swapped.text, detectors).filter(hit => !notProviderCall(path, hit));
       for (const hit of left) for (const id of owners) byId.get(id).held.push(`${to}:${hit.line} still calls ${hit.id} (${hit.found}); add a swap row for it in calls`);
     }
+    // A data or prose file (JSON, a README) takes the call rows too, so a real name in it is swapped like one in code.
+    if (!isCode(path) && !reused.has(path)) {
+      const bytes = source.read(path);
+      if (!bytes.includes(0)) {
+        const swapped = swapCalls(bytes.toString('utf8'), swaps);
+        if (swapped.hits.length) plan.swaps = swapped.hits;
+      }
+    }
     files.set(path, plan);
   }
   for (const [name, version] of packagesToAdd) {

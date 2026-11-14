@@ -1,0 +1,102 @@
+{
+  "schema": "bitfield.package_store.browse_surface.config.v1",
+  "row_kinds": [
+    {
+      "id": "package-row",
+      "label": "Packages",
+      "detail": "package rows"
+    },
+    {
+      "id": "package-set-row",
+      "label": "Bundles",
+      "detail": "package-set rows"
+    }
+  ],
+  "storefront_filter_groups": [
+    "kind",
+    "category"
+  ],
+  "local_package_file_request_defaults": {
+    "object_store_method": "http",
+    "object_store_settings_json": "{\"base_url\":\"https://packages.bitfield.so/byte-address/package-file-downloads-and-approval-records/filesystem-object-store\"}"
+  },
+  "popular_searches": [
+    "automation",
+    "package files",
+    "screen look"
+  ],
+  "surface_actions": [
+    {
+      "id": "sign-in",
+      "label": "Sign in",
+      "href": "/?surface=sign-in"
+    },
+    {
+      "id": "publish-package",
+      "label": "Publish package",
+      "href": "/?surface=package-store-creator-publish"
+    },
+    {
+      "id": "setup-offer",
+      "label": "Set up offer",
+      "href": "/?surface=package-store-offer-setup"
+    }
+  ],
+  "search_suggestions": [
+    {
+      "label": "Install packages",
+      "description": "Choose package files before adding them.",
+      "filter_id": "all",
+      "query": "install",
+      "package_identity": "bitfield-package-store-local-package-files"
+    },
+    {
+      "label": "Build surfaces",
+      "description": "Screen, sidebar, look, and UI pieces.",
+      "filter_id": "all",
+      "query": "screen",
+      "package_identity": "screen-arrangement"
+    },
+    {
+      "label": "Run automations",
+      "description": "Actions and automations packages can run.",
+      "filter_id": "all",
+      "query": "automation",
+      "package_identity": "workflow"
+    }
+  ],
+  "hero_scenes": [
+    {
+      "id": "find",
+      "title": "Find what fits.",
+      "description": "Browse packages and bundles.",
+      "package_identities": [
+        "bitfield-package-store-browse-surface",
+        "workflow",
+        "ui",
+        "screen-look"
+      ]
+    },
+    {
+      "id": "install",
+      "title": "Install cleanly.",
+      "description": "Review package files before adding them.",
+      "package_identities": [
+        "bitfield-package-store-local-package-files",
+        "browser-shell",
+        "composition-engine"
+      ]
+    },
+    {
+      "id": "publish",
+      "title": "Publish new work.",
+      "description": "Package screens, automations, and bundles.",
+      "package_identities": [
+        "bitfield-package-store-creator-publish",
+        "hosted-public-app",
+        "screen-arrangement",
+        "sidebar"
+      ]
+    }
+  ]
+}

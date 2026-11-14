@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "status": "completed",
+  "provider_id": "obscura",
+  "operation": "browser.fetch",
+  "url": "https://example.com/",
+  "content": "Example Domain\n\nThis domain is for use in documentation examples without needing permission. Avoid use in operations.\n\nLearn more\n"
+}

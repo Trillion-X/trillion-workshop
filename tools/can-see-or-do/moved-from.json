@@ -1,0 +1,43 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/can-see-or-do/read-data/read-can-see-or-do-records.d.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/can-see-or-do/packages/can-see-or-do/read-data/read-can-see-or-do-records.d.ts",
+      "source_identity": "1f:01b24ae6ef8c3f50f97c595a687317cec61e87d37a30196277f26756f0f3ed27",
+      "identity": "1f:01b24ae6ef8c3f50f97c595a687317cec61e87d37a30196277f26756f0f3ed27"
+    },
+    {
+      "from": "packages/can-see-or-do/read-data/read-can-see-or-do-records.js",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/can-see-or-do/packages/can-see-or-do/read-data/read-can-see-or-do-records.js",
+      "source_identity": "1f:ab779221cfa1f80e320c1c842cba12b2d77b82235aff722ad2aa2d44c2d8a154",
+      "identity": "1f:ab779221cfa1f80e320c1c842cba12b2d77b82235aff722ad2aa2d44c2d8a154"
+    },
+    {
+      "from": "packages/can-see-or-do/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/can-see-or-do/packages/can-see-or-do/read-data/README.md",
+      "source_identity": "1f:af3a201f0de0729a163270c5f3b0825296ce625af8b2e7d59b86e03ee347f784",
+      "identity": "1f:af3a201f0de0729a163270c5f3b0825296ce625af8b2e7d59b86e03ee347f784"
+    },
+    {
+      "from": "packages/can-see-or-do/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/can-see-or-do/packages/can-see-or-do/README.md",
+      "source_identity": "1f:47a6c4c1611641c299f57956465fec7d1ebbcadf571130f10c73dc2d0df2964b",
+      "identity": "1f:47a6c4c1611641c299f57956465fec7d1ebbcadf571130f10c73dc2d0df2964b"
+    },
+    {
+      "from": "packages/can-see-or-do/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/can-see-or-do/packages/can-see-or-do/things-to-store-and-run.json",
+      "source_identity": "1f:0aa91b6793ab77f6e6422b84aea8369dbf4cc0efd9b5684447c230a34c19dbd2",
+      "identity": "1f:0aa91b6793ab77f6e6422b84aea8369dbf4cc0efd9b5684447c230a34c19dbd2"
+    }
+  ]
+}

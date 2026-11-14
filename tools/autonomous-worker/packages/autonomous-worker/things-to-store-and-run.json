@@ -1,0 +1,147 @@
+{
+  "package": "autonomous-worker",
+  "things": [
+    {
+      "type": "stored_bytes",
+      "name": "autonomous-worker-mjs",
+      "source_path": "processes/autonomous-worker.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "work-board-groomer-descriptor",
+      "source_path": "worker-descriptors/work-board-groomer.json"
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-worker::workflow-action::start-work-board-groomer",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:autonomous-worker:start-work-board-groomer",
+        "kind": "action",
+        "is_active": true,
+        "name": "start work-board groomer worker",
+        "description": "Boot the unattended autonomous worker (compute.process_session running the SAME GENERIC autonomous-worker.mjs) driven by the work-board-groomer DESCRIPTOR (DATA): sense the live work board -> decide via the descriptor-named capability -> act a task-grooming-note to a deterministic address. Same blind engine as the accountant example; only the descriptor and env differ. The carrier and partition arrive as workflow input, so this record resolves no host.",
+        "input_schema": {
+          "properties": {
+            "carrier_url": {
+              "type": "string"
+            },
+            "partition": {
+              "type": "string"
+            }
+          },
+          "required": []
+        },
+        "steps": [
+          {
+            "id": "read_worker_script",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-worker::stored-bytes::autonomous-worker-mjs"
+            }
+          },
+          {
+            "id": "read_groomer_descriptor",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-worker::stored-bytes::work-board-groomer-descriptor"
+            }
+          },
+          {
+            "kind": "ask",
+            "config": {
+              "name": "compute.process_session",
+              "input": {
+                "operation": "start_session",
+                "descriptor": {
+                  "process": {
+                    "argv": [
+                      "node",
+                      "autonomous-worker.mjs"
+                    ],
+                    "cwd": null,
+                    "timeout_ms": 3600000,
+                    "termination_grace_ms": 1000,
+                    "expected_termination": null,
+                    "env": {
+                      "BITFIELD_TARGET_CARRIER_URL": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "carrier_url"
+                        }
+                      },
+                      "BITFIELD_WORKER_DESCRIPTOR_FILE": "work-board-groomer.json",
+                      "BITFIELD_WORKER_PARTITION": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "partition"
+                        }
+                      }
+                    },
+                    "inputs": [
+                      {
+                        "mount_path": "autonomous-worker.mjs",
+                        "content_type": "text/javascript",
+                        "source": {
+                          "kind": "blob_ref",
+                          "hash": {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "steps",
+                              "key": "read_worker_script",
+                              "path": "output.content_hash"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mount_path": "work-board-groomer.json",
+                        "content_type": "application/json",
+                        "source": {
+                          "kind": "blob_ref",
+                          "hash": {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "steps",
+                              "key": "read_groomer_descriptor",
+                              "path": "output.content_hash"
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "input_trees": [],
+                    "outputs": [],
+                    "containment": {
+                      "kind": "descendant_effect_contained",
+                      "pipe_eof_timeout_ms": 1000,
+                      "publications": []
+                    },
+                    "capture_fds": [
+                      1,
+                      2
+                    ],
+                    "collected_files": []
+                  },
+                  "session_settings": {
+                    "text_grid": null
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

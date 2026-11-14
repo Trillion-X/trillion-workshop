@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/ai-identity/do-work/update-ai-identity-profile.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-identity/packages/ai-identity/do-work/update-ai-identity-profile.ts",
+      "source_identity": "1f:f6f35cd8dadc69307b119dd4b90ab22bf226cafa7df2ddd64f1379fe8b5e3c2b",
+      "identity": "1f:f6f35cd8dadc69307b119dd4b90ab22bf226cafa7df2ddd64f1379fe8b5e3c2b"
+    },
+    {
+      "from": "packages/ai-identity/read-data/read-ai-identity.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-identity/packages/ai-identity/read-data/read-ai-identity.ts",
+      "source_identity": "1f:03ebb87eb14abec61a519ee23bca1bb1c9dfb90c4c9475a17ee7686be612e534",
+      "identity": "1f:03ebb87eb14abec61a519ee23bca1bb1c9dfb90c4c9475a17ee7686be612e534"
+    },
+    {
+      "from": "packages/ai-identity/show/AiIdentityPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-identity/packages/ai-identity/show/AiIdentityPanel.tsx",
+      "source_identity": "1f:db38d8b9c5fce9f3a28468ed52c32c8db8363cedc99315a07b364b40a3fdd866",
+      "identity": "1f:db38d8b9c5fce9f3a28468ed52c32c8db8363cedc99315a07b364b40a3fdd866"
+    },
+    {
+      "from": "packages/ai-identity/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-identity/packages/ai-identity/things-to-store-and-run.json",
+      "source_identity": "1f:b9347cb2e99e06ea126e3042537746196f7138b2694602b53c585d97e62cdb4e",
+      "identity": "1f:b9347cb2e99e06ea126e3042537746196f7138b2694602b53c585d97e62cdb4e"
+    }
+  ]
+}

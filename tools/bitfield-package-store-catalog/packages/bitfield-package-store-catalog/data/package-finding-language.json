@@ -1,0 +1,444 @@
+{
+  "schema": "bitfield.package_store.package_finding_language.v1",
+  "default_creator_text": "Bitfield",
+  "finding_blocks": [
+    {
+      "id": "creator",
+      "role": "hero-line",
+      "render_kind": "text",
+      "label": "Creator",
+      "value_source": "display_creator"
+    },
+    {
+      "id": "kind",
+      "role": "mark",
+      "render_kind": "mark",
+      "label": "Kind",
+      "value_source": "display_kind",
+      "tone_source": "row_kind"
+    },
+    {
+      "id": "access",
+      "role": "mark",
+      "render_kind": "mark",
+      "label": "Access",
+      "value_source": "display_access",
+      "tone_source": "access"
+    },
+    {
+      "id": "source",
+      "role": "mark",
+      "render_kind": "mark",
+      "label": "Source",
+      "value_source": "display_source",
+      "tone_source": "source"
+    },
+    {
+      "id": "runtime",
+      "role": "mark",
+      "render_kind": "mark",
+      "label": "Runtime",
+      "value_source": "display_runtime",
+      "tone_source": "execution"
+    },
+    {
+      "id": "primary-action",
+      "role": "action-label",
+      "render_kind": "text",
+      "label": "Primary action",
+      "value_source": "display_action",
+      "tone_source": "action"
+    },
+    {
+      "id": "price",
+      "role": "price-line",
+      "render_kind": "text",
+      "label": "Price",
+      "value_source": "display_access",
+      "tone_source": "access"
+    }
+  ],
+  "ranking_weights": {
+    "has_preview": 30,
+    "source_visible": 20,
+    "local_execution": 20,
+    "public_access": 10,
+    "category": 6,
+    "category_max": 18,
+    "capability": 4,
+    "capability_max": 16
+  },
+  "row_kind_labels": {
+    "package-row": {
+      "label": "Packages",
+      "detail": "package rows",
+      "facet_group": "kind"
+    },
+    "package-set-row": {
+      "label": "Recipes",
+      "detail": "package-set rows",
+      "facet_group": "kind"
+    },
+    "collection-row": {
+      "label": "Collections",
+      "detail": "collection rows",
+      "facet_group": "kind"
+    }
+  },
+  "source_labels": {
+    "source-visible": {
+      "label": "Code visible",
+      "facet_group": "source"
+    },
+    "source-hidden": {
+      "label": "Private code",
+      "facet_group": "source"
+    }
+  },
+  "execution_labels": {
+    "local": {
+      "label": "Runs locally",
+      "facet_group": "runtime"
+    },
+    "remote": {
+      "label": "Runs elsewhere",
+      "facet_group": "runtime"
+    }
+  },
+  "access_labels": {
+    "public": {
+      "label": "Free",
+      "facet_label": "Free to install",
+      "facet_group": "access"
+    },
+    "account": {
+      "label": "Sign in to install",
+      "facet_label": "Needs account",
+      "facet_group": "access"
+    },
+    "paid": {
+      "label": "Buy to install",
+      "facet_label": "Paid package",
+      "facet_group": "access"
+    }
+  },
+  "package_name_labels": {
+    "bitfield-package-store-browse-surface": "Browse Page",
+    "bitfield-package-store-catalog": "Package List",
+    "bitfield-package-store-creator-publish": "Publish Page",
+    "bitfield-package-store-local-package-files": "Local Package Files",
+    "bitfield-package-store-offer-exchange": "Price Data",
+    "bitfield-package-store-static-browse": "Static Browse Page",
+    "hosted-public-app": "Hosted Website",
+    "surface-registry": "Page Registry"
+  },
+  "summary_rewrites": {
+    "exact": {
+      "Archive one canonical layout_preset owner record.": "Save a page layout preset.",
+      "Write prop:screen_look:name on the screen-look owner.": "Save the selected page look.",
+      "Write prop:settings:sidebar_placement on the canonical configuration owner.": "Save where the sidebar goes."
+    },
+    "prefixes": [
+      {
+        "prefix": "accept the newest package files",
+        "contains": "compute.process",
+        "replacement": "Accept package files for the package set you choose."
+      },
+      {
+        "prefix": "publish package material",
+        "contains": "compute.process",
+        "replacement": "Publish package files."
+      },
+      {
+        "prefix": "publish the hosted public app",
+        "contains": "compute.process",
+        "replacement": "Publish the hosted Package Store website."
+      }
+    ],
+    "replacements": [
+      {
+        "pattern": "\\bsigned\\b",
+        "flags": "gi",
+        "replacement": ""
+      },
+      {
+        "pattern": "\\bpackage material\\b",
+        "flags": "gi",
+        "replacement": "package files"
+      },
+      {
+        "pattern": "\\bcatalog data\\b",
+        "flags": "gi",
+        "replacement": "package list"
+      },
+      {
+        "pattern": "\\bcatalog\\b",
+        "flags": "gi",
+        "replacement": "package list"
+      },
+      {
+        "pattern": "\\bpackage-file metadata\\b",
+        "flags": "gi",
+        "replacement": "package file details"
+      },
+      {
+        "pattern": "\\bpackage-file approval\\b",
+        "flags": "gi",
+        "replacement": "approval before adding package files"
+      },
+      {
+        "pattern": "\\bcompute\\.process\\b",
+        "flags": "gi",
+        "replacement": "visible work step"
+      },
+      {
+        "pattern": "\\bproofs?\\b",
+        "flags": "gi",
+        "replacement": "records"
+      },
+      {
+        "pattern": "\\bpolicy\\b",
+        "flags": "gi",
+        "replacement": "rules"
+      },
+      {
+        "pattern": "\\brefs?\\b",
+        "flags": "gi",
+        "replacement": "records"
+      }
+    ]
+  },
+  "capability_labels": {
+    "catalog browse surface records": "Package list page records",
+    "catalog-browse-surface-records": "Package list page records",
+    "browse packages, slots, and package sets": "Package list page",
+    "browse packages, slots, and package sets.": "Package list page",
+    "browse-packages-slots-and-package-sets": "Package list page",
+    "package preview art": "Preview image",
+    "package-preview-art": "Preview image",
+    "catalog view reader": "Package list data",
+    "catalog-view-reader": "Package list data",
+    "catalog snapshot data": "Package list data",
+    "catalog-snapshot-data": "Package list data",
+    "catalog reader source": "Package list code",
+    "catalog-reader-source": "Package list code",
+    "catalog snapshot derivation process": "Builds package list",
+    "catalog-snapshot-derivation-process": "Builds package list",
+    "package update policy": "Package update rules",
+    "package-update-policy": "Package update rules",
+    "store facing offer exchange fixture refs": "Store price data",
+    "store-facing-offer-exchange-fixture-refs": "Store price data",
+    "signed deal contract fixture refs": "Deal records",
+    "signed-deal-contract-fixture-refs": "Deal records",
+    "owner target descriptor fixture refs": "Account step records",
+    "owner-target-descriptor-fixture-refs": "Account step records",
+    "app page tsx": "Hosted web page",
+    "archive one canonical layout preset owner record": "Save page layout",
+    "browse packages, slots, package sets, and install pages": "Browse and install packages",
+    "browser shell bundle": "Browser shell",
+    "choose-a-target-package-set-and-request-package-file-approval": "Choose where to install packages",
+    "choose a target package set and request package file approval": "Choose where to install packages",
+    "choose the active screen look through the screen look owner": "Choose page look",
+    "creator publish request shape": "Publish form",
+    "creator publish surface records": "Publish page records",
+    "hosted projection records": "Hosted page records",
+    "index": "Hosted page",
+    "install request surface records": "Install page records",
+    "local package file acceptance request shape": "Local install request",
+    "placeable surface reader": "Page reader",
+    "publish the hosted public app by asking compute": "Publish website",
+    "screen look bundle": "Screen look",
+    "sidebar bundle": "Sidebar",
+    "static catalog page seed records": "Static package page records",
+    "static catalog page": "Static package page",
+    "static package list page": "Static package page",
+    "static package list page seed records": "Static package page records",
+    "target package set selection surface records": "Install destination page records",
+    "workflow and process descriptor assembly": "Package actions",
+    "write one canonical layout preset owner record": "Save layout preset",
+    "write prop screen look name on the screen look owner": "Save selected look",
+    "write prop settings sidebar placement on the canonical project config owner": "Save sidebar placement",
+    "write the canonical layout state owner facts": "Save layout state",
+    "creator publish lane": "Creator publishing",
+    "local package install": "Local package install",
+    "accept-the-newest-package-files-for-a-selected-package-set-by-asking-compute": "Accept package files",
+    "accept the newest package files for a selected package set by asking compute": "Accept package files"
+  },
+  "categories": [
+    {
+      "id": "browse",
+      "label": "Browse",
+      "description": "Pages and data people use to find packages.",
+      "match_terms": [
+        "browse",
+        "catalog",
+        "package list",
+        "static"
+      ]
+    },
+    {
+      "id": "install",
+      "label": "Install",
+      "description": "Packages that help add package files to a product.",
+      "match_terms": [
+        "install",
+        "accept",
+        "package file",
+        "local package"
+      ]
+    },
+    {
+      "id": "publish",
+      "label": "Publish",
+      "description": "Packages creators use to publish package files and listings.",
+      "match_terms": [
+        "publish",
+        "creator",
+        "offer setup"
+      ]
+    },
+    {
+      "id": "look-and-layout",
+      "label": "Look and layout",
+      "description": "Packages that shape screens, sidebars, themes, and UI.",
+      "match_terms": [
+        "screen",
+        "look",
+        "layout",
+        "sidebar",
+        "ui",
+        "browser shell"
+      ]
+    },
+    {
+      "id": "account-and-access",
+      "label": "Account and access",
+      "description": "Packages for identity, sign-in, checkout, and access.",
+      "match_terms": [
+        "account",
+        "login",
+        "checkout",
+        "payment",
+        "access",
+        "stripe",
+        "email"
+      ]
+    },
+    {
+      "id": "automation",
+      "label": "Automation",
+      "description": "Packages that run workflows or background work.",
+      "match_terms": [
+        "workflow",
+        "process",
+        "target carrier",
+        "effect",
+        "projector"
+      ]
+    },
+    {
+      "id": "recipe",
+      "label": "Recipe",
+      "description": "Installable package-set recipes.",
+      "match_terms": [
+        "recipe",
+        "package set"
+      ]
+    }
+  ],
+  "shelves": [
+    {
+      "id": "featured",
+      "label": "Featured",
+      "description": "Packages worth seeing first.",
+      "match_terms": [
+        "browse",
+        "workflow",
+        "catalog",
+        "install",
+        "creator",
+        "screen"
+      ]
+    },
+    {
+      "id": "runs-locally",
+      "label": "Runs locally",
+      "description": "Packages that run on your computer.",
+      "match_terms": [
+        "runs locally",
+        "local"
+      ]
+    },
+    {
+      "id": "code-visible",
+      "label": "Code visible",
+      "description": "Packages with source you can inspect.",
+      "match_terms": [
+        "code visible",
+        "source visible"
+      ]
+    },
+    {
+      "id": "creator-tools",
+      "label": "Creator tools",
+      "description": "Packages for publishing and selling.",
+      "match_terms": [
+        "publish",
+        "creator",
+        "offer",
+        "checkout"
+      ]
+    },
+    {
+      "id": "collections",
+      "label": "Collections",
+      "description": "Curated collections of related packages.",
+      "match_terms": [
+        "collection"
+      ],
+      "priority": 5
+    }
+  ],
+  "no_result_recovery": [
+    {
+      "id": "browse-all",
+      "label": "Browse all packages",
+      "description": "Clear search and scan every package.",
+      "filter_id": "all",
+      "query": ""
+    },
+    {
+      "id": "runs-locally",
+      "label": "Runs locally",
+      "description": "Show packages that run on your computer.",
+      "filter_id": "shelf:runs-locally",
+      "query": ""
+    },
+    {
+      "id": "creator-tools",
+      "label": "Creator tools",
+      "description": "Show packages for publishing and selling.",
+      "filter_id": "shelf:creator-tools",
+      "query": ""
+    }
+  ],
+  "detail_block_titles": {
+    "what_it_does": "What it does",
+    "best_for": "Best for",
+    "before_install": "Before you install"
+  },
+  "version_channel_labels": {
+    "stable": {
+      "label": "Stable",
+      "description": "Recommended for production use"
+    },
+    "beta": {
+      "label": "Beta",
+      "description": "Testing and feedback"
+    },
+    "alpha": {
+      "label": "Alpha",
+      "description": "Early development version"
+    }
+  }
+}

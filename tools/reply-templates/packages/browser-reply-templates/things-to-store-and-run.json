@@ -1,0 +1,48 @@
+{
+  "package": "browser-reply-templates",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::browser-reply-templates::published-record::primary-action",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "reply-template",
+        "target": "reply-template",
+        "template": {
+          "browser_react_element": {
+            "children": {
+              "$kind": "binding",
+              "select": {
+                "from": "dataSource",
+                "key": "caller_request",
+                "path": "words_for_use"
+              }
+            },
+            "events": {
+              "click": "use"
+            },
+            "props": {
+              "className": "inline-flex items-center justify-center gap-2 font-medium transition-colors min-h-[44px] sm:min-h-0 focus:outline-none focus-visible:ring-1 focus-visible:ring-accent-purple disabled:opacity-40 disabled:cursor-not-allowed bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:bg-[var(--button-primary-bg-hover)] h-9 px-4 text-sm rounded-lg",
+              "disabled": {
+                "$kind": "binding",
+                "select": {
+                  "from": "dataSource",
+                  "key": "caller_request",
+                  "path": "use_is_currently_unavailable"
+                }
+              },
+              "type": "button"
+            },
+            "type": "button"
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    }
+  ]
+}

@@ -1,0 +1,1325 @@
+{
+  "package": "content-analytics",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::content-analytics::public-source::customer-loop-measurement",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "content-analytics",
+        "public-sources",
+        "customer-loop-measurement"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "read-data/customer-loop-measurement.ts"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-analytics::placeable-surface::content-analytics",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "BarChart3",
+        "id": "content-analytics.panel",
+        "kind": "placeable-surface",
+        "label": "See content results",
+        "material_target": "content-analytics",
+        "factflow_ref": "package::content-analytics::factflow::content-analytics-surface",
+        "order": 644,
+        "audience": "operator",
+        "surface_id": "content-analytics.panel",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000644:content-analytics.panel",
+        "package_entry": {
+          "package_name": "content-analytics",
+          "entry_name": "content-analytics"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-analytics::factflow::content-analytics-surface",
+      "address_mode": "identity_text",
+      "path": [
+        "package-primitive",
+        "factflow"
+      ],
+      "payload": {
+        "kind": "bitfield-eeaf-factflow",
+        "journal": {
+          "address_label": "content-analytics.surface.journal"
+        },
+        "fact_sources": [
+          {
+            "address": "package::content-analytics::input::content-media-evidence"
+          },
+          {
+            "address": "package::content-analytics::fields::content-results"
+          },
+          {
+            "address": "package::content-analytics::record-view::content-results"
+          },
+          {
+            "address": "package::content-analytics::actions::content-results"
+          },
+          {
+            "address": "package::content-analytics::rules::content-results"
+          },
+          {
+            "address": "package::content-analytics::evidence-pipeline::config"
+          },
+          {
+            "address": "package::content-analytics::workflow-action::record-content-analytics-observation"
+          },
+          {
+            "address": "package::content-analytics::workflow-action::record-observation-from-publish-status"
+          },
+          {
+            "address": "package::content-analytics::workflow-action::read-provider-post-performance"
+          },
+          {
+            "address": "package::content-analytics::blocker::feed-heavy-proof"
+          }
+        ],
+        "genesis": [
+          {
+            "address": "package::content-analytics::placeable-surface::content-analytics"
+          }
+        ],
+        "blockers": [
+          {
+            "address": "package::content-analytics::blocker::feed-heavy-proof"
+          }
+        ],
+        "evidence": [
+          {
+            "address": "package::content-analytics::entry::content-analytics"
+          },
+          {
+            "address": "package::content-analytics::capability::content-analytics"
+          },
+          {
+            "address": "package::content-analytics::contract::observation"
+          },
+          {
+            "address": "package::content-analytics::contract::publish-status-observation"
+          }
+        ],
+        "interpreter_facts": {
+          "facts": [
+            {
+              "address_label": "content-analytics.facts.content-media-evidence"
+            }
+          ],
+          "intents": [
+            {
+              "address_label": "content-analytics.intent.record-observation"
+            }
+          ],
+          "effects": [
+            {
+              "address_label": "content-analytics.effect.workflow-http-process-records"
+            }
+          ],
+          "validation": [
+            {
+              "address_label": "content-analytics.validation.artifact-ref-multihash"
+            }
+          ],
+          "permissions": [
+            {
+              "address_label": "content-analytics.permission.invoke-workflow-intent"
+            }
+          ],
+          "projections": [
+            {
+              "address_label": "content-analytics-content-media-evidence"
+            }
+          ],
+          "materializations": [
+            {
+              "address_label": "content-analytics.materialization.placeable-surface"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-analytics::entry::content-analytics",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "content-analytics",
+        "entries",
+        "content-analytics"
+      ],
+      "payload": {
+        "entry_name": "content-analytics",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-content-analytics.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-content-analytics"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-analytics::capability::content-analytics",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-package-capability",
+        "id": "capability:content-analytics",
+        "package": "content-analytics",
+        "label": "See content results",
+        "description": "Collects metric observations, accepted snapshots, and rollup rows for published content without owning distribution, service connections, or credentials.",
+        "owned_record_kinds": [
+          "content-analytics.source",
+          "content-analytics.observation",
+          "content-analytics.snapshot",
+          "content-analytics.rollup"
+        ],
+        "reuses": [
+          "content-distribution",
+          "traffic-attribution",
+          "workflow",
+          "http-client",
+          "process-session",
+          "service-connections",
+          "credentials-vault",
+          "record_from_matching_records"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-analytics::input::content-media-evidence",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "content-analytics:contentMediaEvidence",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "role",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "payload",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "source_package",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 3,
+                "key": "blocker",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 4,
+                "key": "address",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              }
+            ],
+            "op": "rows"
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "content-analytics-content-media-evidence"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-analytics::fields::content-results",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "content-analytics.field-descriptors",
+        "version": 1,
+        "descriptors": [
+          {
+            "id": "result-title",
+            "label": "Result",
+            "role": "title",
+            "paths": [
+              [
+                "title"
+              ],
+              [
+                "label"
+              ],
+              [
+                "source_id"
+              ],
+              [
+                "observation_id"
+              ]
+            ]
+          },
+          {
+            "id": "primary-number",
+            "label": "Primary number",
+            "role": "value",
+            "paths": [
+              [
+                "summary",
+                "primary_value"
+              ],
+              [
+                "metrics",
+                "views"
+              ],
+              [
+                "metrics",
+                "impressions"
+              ],
+              [
+                "metrics",
+                "watch_seconds"
+              ]
+            ],
+            "format": {
+              "kind": "number",
+              "maximumFractionDigits": 2
+            }
+          },
+          {
+            "id": "measured-at",
+            "label": "Last updated",
+            "role": "detail",
+            "paths": [
+              [
+                "observed_at"
+              ],
+              [
+                "updated_at"
+              ],
+              [
+                "computed_at"
+              ]
+            ],
+            "format": {
+              "kind": "datetime"
+            }
+          },
+          {
+            "id": "trust-signal",
+            "label": "Trust",
+            "role": "badge",
+            "paths": [
+              [
+                "evidence",
+                "confidence"
+              ],
+              [
+                "confidence"
+              ]
+            ],
+            "format": {
+              "kind": "number",
+              "maximumFractionDigits": 2
+            }
+          },
+          {
+            "id": "attributed-visits",
+            "label": "UTM visits",
+            "role": "detail",
+            "paths": [
+              [
+                "attribution",
+                "visits"
+              ]
+            ],
+            "format": {
+              "kind": "number",
+              "maximumFractionDigits": 0
+            }
+          },
+          {
+            "id": "attributed-conversions",
+            "label": "Attributed conversions",
+            "role": "detail",
+            "paths": [
+              [
+                "attribution",
+                "conversions"
+              ]
+            ],
+            "format": {
+              "kind": "number",
+              "maximumFractionDigits": 0
+            }
+          },
+          {
+            "id": "attributed-value",
+            "label": "Attributed value",
+            "role": "detail",
+            "paths": [
+              [
+                "attribution",
+                "value"
+              ]
+            ],
+            "format": {
+              "kind": "number",
+              "maximumFractionDigits": 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-analytics::record-view::content-results",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "content-analytics.record-view",
+        "version": 1,
+        "views": [
+          {
+            "id": "content-results",
+            "label": "Content results",
+            "eyebrow": "Results",
+            "status": {
+              "empty": "Empty",
+              "waiting": "Waiting",
+              "ready": "Ready",
+              "blocked": "Needs attention"
+            },
+            "primary": {
+              "valueField": "primary-number",
+              "labelField": "result-title",
+              "detailField": "measured-at",
+              "emptyValue": "Waiting",
+              "emptyLabel": "Results appear after a finished post reports back."
+            },
+            "item": {
+              "sourceRole": "post_performance",
+              "titleField": "result-title",
+              "detailFields": [
+                "primary-number",
+                "measured-at",
+                "attributed-visits",
+                "attributed-conversions",
+                "attributed-value"
+              ],
+              "badgeField": "trust-signal",
+              "maxItems": 8
+            },
+            "detail": {
+              "fields": [
+                "primary-number",
+                "measured-at",
+                "trust-signal",
+                "attributed-visits",
+                "attributed-conversions",
+                "attributed-value"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-analytics::actions::content-results",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "content-analytics.action-descriptors",
+        "version": 1,
+        "actions": [
+          {
+            "id": "record-selected-result",
+            "label": "Record observation",
+            "target": "slot::workflow",
+            "operation": "execute_definition",
+            "definitionId": "action:record-content-analytics-observation",
+            "copy": [
+              {
+                "key": "observation_id",
+                "from": "selected.raw.observation_id"
+              },
+              {
+                "key": "source_id",
+                "from": "selected.raw.source_id"
+              },
+              {
+                "key": "source_fingerprint",
+                "from": "selected.raw.source_fingerprint"
+              },
+              {
+                "key": "metrics",
+                "from": "selected.raw.metrics"
+              },
+              {
+                "key": "evidence",
+                "from": "selected.raw.evidence"
+              },
+              {
+                "key": "observed_at",
+                "from": "selected.raw.observed_at"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-analytics::rules::content-results",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "content-analytics.rule-descriptors",
+        "version": 1,
+        "rules": [
+          {
+            "id": "content-results-missing",
+            "message": "Results are not ready yet.",
+            "severity": "blocked",
+            "when": {
+              "missingRole": "post_performance"
+            }
+          },
+          {
+            "id": "content-results-blocked-proof",
+            "message": "A required check is still running.",
+            "severity": "blocked",
+            "when": {
+              "blockerSeverity": "blocked"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-analytics::evidence-pipeline::config",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "content-media.evidence-pipeline.config",
+        "package": "content-analytics",
+        "roles": {
+          "sources": [
+            "content-analytics.source"
+          ],
+          "observations": [
+            "content-analytics.observation"
+          ],
+          "snapshots": [
+            "content-analytics.snapshot"
+          ],
+          "rollups": [
+            "content-analytics.rollup"
+          ],
+          "accepted_publish_statuses": [
+            "generic.action-state-event"
+          ],
+          "attribution_visits": [
+            "traffic-observer-fact"
+          ],
+          "attribution_conversions": [
+            "traffic-conversion"
+          ]
+        },
+        "artifact_roles": {
+          "source": [
+            "remote-metric-source",
+            "published-content"
+          ],
+          "outputs": [
+            "observation",
+            "snapshot",
+            "rollup"
+          ]
+        },
+        "execution_capabilities": [
+            "content-distribution",
+            "traffic-attribution",
+            "workflow",
+            "http-client",
+            "process-session",
+            "service-connections",
+            "credentials-vault",
+            "record_from_matching_records"
+        ],
+        "projection_lanes": [
+          "sources",
+          "observations",
+          "snapshots",
+          "rollups",
+          "accepted_publish_statuses",
+          "attribution_visits",
+          "attribution_conversions"
+        ],
+        "maintained_projection_label": "content-analytics-content-media-evidence",
+        "workflow_actions": [
+          {
+            "role": "record",
+            "action_id": "action:record-content-analytics-observation",
+            "execution_locus": "workflow",
+            "side_effect_boundary": "intent-only"
+          },
+          {
+            "role": "record-from-publish-status",
+            "action_id": "action:record-content-analytics-observation-from-publish-status",
+            "execution_locus": "workflow",
+            "side_effect_boundary": "accepted-publish-status-observation"
+          },
+          {
+            "role": "read-provider-post-performance",
+            "action_id": "action:read-provider-post-performance",
+            "execution_locus": "workflow",
+            "side_effect_boundary": "read-provider-and-record-real-observation"
+          }
+        ],
+        "artifact_ref_contract": {
+          "required_fields": [
+            "multihash"
+          ],
+          "optional_fields": [
+            "cas_address",
+            "byte_length",
+            "media_type"
+          ]
+        },
+        "proof_gates": [
+          "CPD-10F"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-analytics::blocker::feed-heavy-proof",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "content-media.evidence.blocker",
+        "code": "content-media.feed-heavy-proof.blocked",
+        "message": "Runtime proof remains blocked until CPD-10F source fingerprint and accepted-state no-op closure is recorded for content-analytics-content-media-evidence.",
+        "owner": "content-analytics",
+        "severity": "blocked",
+        "proof_gate": "CPD-10F"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-analytics::contract::source",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "content-analytics.source",
+        "required_fields": [
+          "source_id",
+          "service_connection_ref",
+          "credential_handle_ref",
+          "connection_enabled",
+          "metric_names",
+          "collection_profile"
+        ],
+        "optional_fields": [
+          "account_label",
+          "published_content_ref",
+          "metadata"
+        ],
+        "credential_contract": "credential_handle_ref is an opaque handle owned by credentials-vault; service_connection_ref is service-connections metadata",
+        "collection_profile_contract": {
+          "provider_and_metric_choices": "source/profile data, not package branches",
+          "read_profile_fields": ["note_name", "operation", "request_facts", "metric_paths", "comments_path", "comment_fields"],
+          "metric_paths": "JSON Pointer map from metric names to numeric values in the provider reply",
+          "comments": "JSON Pointer list path and selected per-comment field paths; only selected fields are stored"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-analytics::contract::observation",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "content-analytics.observation",
+        "required_fields": [
+          "observation_id",
+          "source_id",
+          "source_fingerprint",
+          "metrics",
+          "evidence",
+          "observed_at"
+        ],
+        "metric_values": "number map",
+        "evidence_fields": [
+          "collector",
+          "raw_payload_hash",
+          "confidence",
+          "service_connection_ref",
+          "credential_handle_ref"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-analytics::contract::publish-status-observation",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "content-analytics.publish-status-observation-input",
+        "required_fields": [
+          "observation_id",
+          "source_id",
+          "source_fingerprint",
+          "metrics",
+          "publish_status",
+          "publish_status_ref",
+          "observed_at"
+        ],
+        "accepted_status_contract": "Only generic.action-state-event records with state published may produce accepted-publish-status-observation evidence.",
+        "ownership_boundary": "content-analytics observes publish status refs and remote ids; content-distribution owns publishing state and remote identity."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-analytics::workflow-action::record-content-analytics-observation",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:record-content-analytics-observation",
+        "kind": "action",
+        "is_active": true,
+        "name": "record-content-analytics-observation",
+        "description": "Write one source-fingerprinted analytics observation and accepted snapshot record.",
+        "input_schema": {
+          "required": [
+            "observation_id",
+            "source_id",
+            "source_fingerprint",
+            "metrics",
+            "evidence",
+            "observed_at"
+          ],
+          "properties": {
+            "observation_id": {
+              "type": "string"
+            },
+            "source_id": {
+              "type": "string"
+            },
+            "source_fingerprint": {
+              "type": "string"
+            },
+            "metrics": {
+              "type": "object"
+            },
+            "evidence": {
+              "type": "object"
+            },
+            "observed_at": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "observation_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::content-analytics::observation::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "observation_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "content-analytics.observation",
+                    "observation_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "observation_id"
+                      }
+                    },
+                    "source_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "source_id"
+                      }
+                    },
+                    "source_fingerprint": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "source_fingerprint"
+                      }
+                    },
+                    "metrics": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "metrics"
+                      }
+                    },
+                    "evidence": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "evidence"
+                      }
+                    },
+                    "observed_at": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "observed_at"
+                      }
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "source_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::content-analytics::snapshot::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "source_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "content-analytics.snapshot",
+                    "source_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "source_id"
+                      }
+                    },
+                    "source_fingerprint": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "source_fingerprint"
+                      }
+                    },
+                    "metrics": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "metrics"
+                      }
+                    },
+                    "updated_at": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "observed_at"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-analytics::workflow-action::record-observation-from-publish-status",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:record-content-analytics-observation-from-publish-status",
+        "kind": "action",
+        "is_active": true,
+        "name": "record-content-analytics-observation-from-publish-status",
+        "description": "Convert one accepted content-distribution publish status into analytics observation evidence.",
+        "input_schema": {
+          "required": [
+            "observation_id",
+            "source_id",
+            "source_fingerprint",
+            "metrics",
+            "publish_status",
+            "publish_status_ref",
+            "observed_at"
+          ],
+          "properties": {
+            "observation_id": {
+              "type": "string"
+            },
+            "source_id": {
+              "type": "string"
+            },
+            "source_fingerprint": {
+              "type": "string"
+            },
+            "metrics": {
+              "type": "object"
+            },
+            "publish_status": {
+              "type": "object"
+            },
+            "publish_status_ref": {
+              "type": "object"
+            },
+            "observed_at": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "kind": "action",
+            "config": {
+              "definition_id": "action:record-content-analytics-observation",
+              "inputs": {
+                "observation_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "observation_id"
+                  }
+                },
+                "source_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "source_id"
+                  }
+                },
+                "source_fingerprint": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "source_fingerprint"
+                  }
+                },
+                "metrics": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "metrics"
+                  }
+                },
+                "evidence": {
+                  "collector": "content-analytics.publish-status-observer",
+                  "publish_status_ref": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "publish_status_ref"
+                    }
+                  },
+                  "accepted_publish_status": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "publish_status"
+                    }
+                  },
+                  "service_connection_ref": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "publish_status.remote.service_connection_ref"
+                    }
+                  },
+                  "remote_content_id": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "publish_status.remote.remote_content_id"
+                    }
+                  },
+                  "remote_url": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "publish_status.remote.remote_url"
+                    }
+                  }
+                },
+                "observed_at": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "observed_at"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-analytics::workflow-action::read-provider-post-performance",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:read-provider-post-performance",
+        "kind": "action",
+        "is_active": true,
+        "name": "read-provider-post-performance",
+        "description": "Read and save only provider metrics and comments tied to one current published post and enabled analytics source.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "publish_status_ref",
+            "source_id",
+            "observation_id",
+            "observed_at"
+          ],
+          "properties": {
+            "publish_status_ref": { "type": "string", "minLength": 1 },
+            "source_id": { "type": "string", "minLength": 1 },
+            "observation_id": { "type": "string", "minLength": 1 },
+            "observed_at": { "type": "string", "minLength": 1 }
+          },
+          "additionalProperties": false
+        },
+        "steps": [
+          {
+            "id": "read_publish_status",
+            "kind": "ask",
+            "config": {
+              "name": "engine.operation.label-addressed",
+              "input": {
+                "operation_label": "engine.operation.read-current",
+                "address_mode": "identity_text",
+                "address_label": {
+                  "$kind": "binding",
+                  "select": { "from": "input", "path": "publish_status_ref" }
+                }
+              }
+            }
+          },
+          {
+            "id": "read_source",
+            "kind": "ask",
+            "config": {
+              "name": "engine.operation.label-addressed",
+              "input": {
+                "operation_label": "engine.operation.read-current",
+                "address_mode": "identity_text",
+                "address_label": {
+                  "$kind": "binding",
+                  "select": { "from": "input", "path": "source_id" },
+                  "transform": [
+                    {
+                      "op": "op:core.concat",
+                      "args": { "values": ["package::content-analytics::source::", { "$kind": "binding", "select": { "from": "input", "path": "source_id" } }] }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": "read_preparer",
+            "kind": "read",
+            "config": { "from": "package::content-analytics::stored-bytes::prepare-provider-post-performance-read" }
+          },
+          {
+            "id": "read_operation_note",
+            "kind": "ask",
+            "config": {
+              "name": "engine.operation.label-addressed",
+              "input": {
+                "operation_label": "engine.operation.read-current",
+                "address_mode": "identity_text",
+                "address_label": {
+                  "$kind": "binding",
+                  "select": { "from": "steps", "key": "read_source", "path": "output.payload.collection_profile.note_name" },
+                  "transform": [
+                    {
+                      "op": "op:core.concat",
+                      "args": { "values": ["package::service-connections::how-to-ask-something-else-to-do-things::", { "$kind": "binding", "select": { "from": "steps", "key": "read_source", "path": "output.payload.collection_profile.note_name" } }] }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": "prepare_provider_read",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "python3",
+                  "prepare-provider-post-performance-read.py",
+                  { "$kind": "binding", "select": { "from": "steps", "key": "read_publish_status", "path": "output.payload" }, "transform": [{ "op": "op:core.stringify", "args": { "format": "json" } }] },
+                  { "$kind": "binding", "select": { "from": "input", "path": "publish_status_ref" } },
+                  { "$kind": "binding", "select": { "from": "steps", "key": "read_source", "path": "output.payload" }, "transform": [{ "op": "op:core.stringify", "args": { "format": "json" } }] },
+                  { "$kind": "binding", "select": { "from": "steps", "key": "read_operation_note", "path": "output.payload" }, "transform": [{ "op": "op:core.stringify", "args": { "format": "json" } }] }
+                ],
+                "cwd": ".",
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "prepare-provider-post-performance-read.py",
+                    "content_type": "text/x-python",
+                    "source": { "kind": "blob_ref", "hash": { "$kind": "binding", "select": { "from": "steps", "key": "read_preparer", "path": "output.content_hash" } } }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [],
+                "containment": { "kind": "leaf" },
+                "capture_fds": [1, 2],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "read_provider",
+            "kind": "action",
+            "config": {
+              "definition_id": "action:read-service-operation",
+              "inputs": {
+                "note_name": { "$kind": "binding", "select": { "from": "steps", "key": "prepare_provider_read", "path": "output.captured_fds.0.bytes.base64" }, "transform": [{ "op": "op:core.decode", "args": { "encoding": "base64" } }, { "op": "op:core.json_parse" }, { "op": "op:core.lookup", "args": { "key": "note_name" } }] },
+                "operation": { "$kind": "binding", "select": { "from": "steps", "key": "prepare_provider_read", "path": "output.captured_fds.0.bytes.base64" }, "transform": [{ "op": "op:core.decode", "args": { "encoding": "base64" } }, { "op": "op:core.json_parse" }, { "op": "op:core.lookup", "args": { "key": "operation" } }] },
+                "facts": { "$kind": "binding", "select": { "from": "steps", "key": "prepare_provider_read", "path": "output.captured_fds.0.bytes.base64" }, "transform": [{ "op": "op:core.decode", "args": { "encoding": "base64" } }, { "op": "op:core.json_parse" }, { "op": "op:core.lookup", "args": { "key": "facts" } }] }
+              }
+            }
+          },
+          {
+            "id": "read_normalizer",
+            "kind": "read",
+            "config": { "from": "package::content-analytics::stored-bytes::normalize-provider-post-performance" }
+          },
+          {
+            "id": "normalize_provider_response",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "python3",
+                  "normalize-provider-post-performance.py",
+                  { "$kind": "binding", "select": { "from": "steps", "key": "read_provider", "path": "output.status_code" }, "transform": [{ "op": "op:core.stringify", "args": { "format": "json" } }] },
+                  { "$kind": "binding", "select": { "from": "steps", "key": "read_provider", "path": "output.body" }, "transform": [{ "op": "op:core.stringify", "args": { "format": "json" } }] },
+                  { "$kind": "binding", "select": { "from": "steps", "key": "prepare_provider_read", "path": "output.captured_fds.0.bytes.base64" }, "transform": [{ "op": "op:core.decode", "args": { "encoding": "base64" } }, { "op": "op:core.json_parse" }, { "op": "op:core.lookup", "args": { "key": "collection_profile" } }, { "op": "op:core.stringify", "args": { "format": "json" } }] }
+                ],
+                "cwd": ".",
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "normalize-provider-post-performance.py",
+                    "content_type": "text/x-python",
+                    "source": { "kind": "blob_ref", "hash": { "$kind": "binding", "select": { "from": "steps", "key": "read_normalizer", "path": "output.content_hash" } } }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [],
+                "containment": { "kind": "leaf" },
+                "capture_fds": [1, 2],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "record_provider_observation",
+            "kind": "action",
+            "config": {
+              "definition_id": "action:record-content-analytics-observation",
+              "inputs": {
+                "observation_id": { "$kind": "binding", "select": { "from": "input", "path": "observation_id" } },
+                "source_id": { "$kind": "binding", "select": { "from": "input", "path": "source_id" } },
+                "source_fingerprint": { "$kind": "binding", "select": { "from": "steps", "key": "prepare_provider_read", "path": "output.captured_fds.0.bytes.base64" }, "transform": [{ "op": "op:core.decode", "args": { "encoding": "base64" } }, { "op": "op:core.json_parse" }, { "op": "op:core.lookup", "args": { "key": "source_fingerprint" } }] },
+                "metrics": { "$kind": "binding", "select": { "from": "steps", "key": "normalize_provider_response", "path": "output.captured_fds.0.bytes.base64" }, "transform": [{ "op": "op:core.decode", "args": { "encoding": "base64" } }, { "op": "op:core.json_parse" }, { "op": "op:core.lookup", "args": { "key": "metrics" } }] },
+                "evidence": {
+                  "collector": "content-analytics.provider-post-performance",
+                  "publish_status_ref": { "$kind": "binding", "select": { "from": "input", "path": "publish_status_ref" } },
+                  "remote_content_id": { "$kind": "binding", "select": { "from": "steps", "key": "prepare_provider_read", "path": "output.captured_fds.0.bytes.base64" }, "transform": [{ "op": "op:core.decode", "args": { "encoding": "base64" } }, { "op": "op:core.json_parse" }, { "op": "op:core.lookup", "args": { "key": "remote_content_id" } }] },
+                  "service_connection_ref": { "$kind": "binding", "select": { "from": "steps", "key": "prepare_provider_read", "path": "output.captured_fds.0.bytes.base64" }, "transform": [{ "op": "op:core.decode", "args": { "encoding": "base64" } }, { "op": "op:core.json_parse" }, { "op": "op:core.lookup", "args": { "key": "service_connection_ref" } }] },
+                  "provider_status_code": { "$kind": "binding", "select": { "from": "steps", "key": "normalize_provider_response", "path": "output.captured_fds.0.bytes.base64" }, "transform": [{ "op": "op:core.decode", "args": { "encoding": "base64" } }, { "op": "op:core.json_parse" }, { "op": "op:core.lookup", "args": { "key": "provider_status_code" } }] },
+                  "comments": { "$kind": "binding", "select": { "from": "steps", "key": "normalize_provider_response", "path": "output.captured_fds.0.bytes.base64" }, "transform": [{ "op": "op:core.decode", "args": { "encoding": "base64" } }, { "op": "op:core.json_parse" }, { "op": "op:core.lookup", "args": { "key": "comments" } }] }
+                },
+                "observed_at": { "$kind": "binding", "select": { "from": "input", "path": "observed_at" } }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-content-analytics",
+      "source_path": "built-stored-bytes/entry-bytes-content-analytics",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-content-analytics.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "prepare-provider-post-performance-read",
+      "source_path": "do-work/prepare-provider-post-performance-read.py"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "normalize-provider-post-performance",
+      "source_path": "do-work/normalize-provider-post-performance.py"
+    },
+    {
+      "type": "record",
+      "address": "package::content-analytics::checks",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "content-analytics",
+        "checks"
+      ],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "do-work/content-analytics-actions.test.ts",
+          "do-work/read-provider-post-performance.test.ts",
+          "do-work/provider-post-performance-processes.test.py",
+          "read-data/content-analytics-model.test.ts",
+          "read-data/post-performance-attribution.test.ts",
+          "show-ios-jscore/content-analytics-jscore.test.mjs",
+          "show/ContentAnalyticsPanel.test.tsx"
+        ]
+      }
+    }
+  ]
+}

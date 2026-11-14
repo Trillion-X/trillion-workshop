@@ -1,0 +1,32 @@
+{
+  "kind": "bitfield-entry-to-package-data-map",
+  "package": "content-production",
+  "package_data_path": "things-to-store-and-run.json",
+  "entries": [
+    {
+      "entry_name": "content-production",
+      "source_path": "show/mount-content-production.tsx",
+      "package_data_path": "things-to-store-and-run.json"
+    },
+    {
+      "entry_name": "content-workspace",
+      "source_path": "show/mount-content-workspace.tsx",
+      "package_data_path": "things-to-store-and-run.json"
+    },
+    {
+      "entry_name": "content-library",
+      "source_path": "show/mount-content-library.tsx",
+      "package_data_path": "things-to-store-and-run.json"
+    },
+    {
+      "entry_name": "content-style",
+      "source_path": "show/mount-content-style.tsx",
+      "package_data_path": "things-to-store-and-run.json"
+    },
+    {
+      "entry_name": "content-deliverables",
+      "source_path": "show/mount-content-deliverables.tsx",
+      "package_data_path": "things-to-store-and-run.json"
+    }
+  ]
+}

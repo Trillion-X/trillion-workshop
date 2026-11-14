@@ -2,7 +2,20 @@
   "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
   "source": "trillion",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "owner-home-folder",
+      "find": "[/]Users[/]b[r]ianakhtar",
+      "replace": "/workspace/the-owner",
+      "means": "A person's home folder name in a path, swapped for a made-up one: a public tree holds made-up data only."
+    },
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    }
+  ],
   "files": [
     {
       "from": "parts/process-session/do-work/owned-process-lifetime.mjs",
@@ -111,6 +124,220 @@
       "source_identity": "1f:374a94abc32ec011f63ddef2fb4139bdef1a9e8a3f3b80727eef1103c7dd2da1",
       "identity": "1f:b6d70a8b364641934906aa8f223086db2204fc41120bc8812a1de77354e1898f",
       "found_by": "same bytes once import paths are set aside"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/data/2026-09-17-visible-provider-routing-facts.manifest-edits.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/data/2026-09-17-visible-provider-routing-facts.manifest-edits.json",
+      "source_identity": "1f:8eb9f0a6f773396ffec7dd17070d087efb8887765c2ada2ff40bfb509f3a9cd8",
+      "identity": "1f:8eb9f0a6f773396ffec7dd17070d087efb8887765c2ada2ff40bfb509f3a9cd8"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/do-work/allocate-session.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/do-work/allocate-session.mjs",
+      "source_identity": "1f:3b19a6c6f232aec191eb9dc8db19e242346a6286880a513c9ac2529df0968bcf",
+      "identity": "1f:3b19a6c6f232aec191eb9dc8db19e242346a6286880a513c9ac2529df0968bcf"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/do-work/ask-one-method-of-a-codex-app-server.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/do-work/ask-one-method-of-a-codex-app-server.mjs",
+      "source_identity": "1f:41177009d7d9ffdf70a02296b761ae655b1988d18213035140f26e21901bd198",
+      "identity": "1f:41177009d7d9ffdf70a02296b761ae655b1988d18213035140f26e21901bd198"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/do-work/capture-native-readback.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/do-work/capture-native-readback.mjs",
+      "source_identity": "1f:f0be2b7f1b6f4abd198663684f76ab5b2173f2652bfc526ea0eed1c269c6afca",
+      "identity": "1f:f0be2b7f1b6f4abd198663684f76ab5b2173f2652bfc526ea0eed1c269c6afca"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/do-work/continue-outcome.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/do-work/continue-outcome.mjs",
+      "source_identity": "1f:667f27ca970cc92d8eed0b98eb6cdcbabe3d9d205d78120775b0938bdd077b1e",
+      "identity": "1f:667f27ca970cc92d8eed0b98eb6cdcbabe3d9d205d78120775b0938bdd077b1e"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/do-work/converge-declared-local-tools-to-their-served-version.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/do-work/converge-declared-local-tools-to-their-served-version.mjs",
+      "source_identity": "1f:5e4a48ec1c3af2ee7af832864c9be868c369448ff548dcd883a2791cd5fe2202",
+      "identity": "1f:5e4a48ec1c3af2ee7af832864c9be868c369448ff548dcd883a2791cd5fe2202"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/do-work/derive-model-catalog-with-tool-exposure.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/do-work/derive-model-catalog-with-tool-exposure.mjs",
+      "source_identity": "1f:6e85f7b60d81c9f55e006359c5decc2c48e59b209d27e27271b48b4ef35ac42c",
+      "identity": "1f:6e85f7b60d81c9f55e006359c5decc2c48e59b209d27e27271b48b4ef35ac42c"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/do-work/derive-model-invocation-options.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/do-work/derive-model-invocation-options.mjs",
+      "source_identity": "1f:33ab9aa029968110963b76e59205724de2bcd30a3c8aaddd7d7d962a6dcf739b",
+      "identity": "1f:33ab9aa029968110963b76e59205724de2bcd30a3c8aaddd7d7d962a6dcf739b"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/do-work/discover-declared-ai-providers-target.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/do-work/discover-declared-ai-providers-target.ts",
+      "source_identity": "1f:c1c907d3b55c5b45e72180b6942554080d0efc9326511eab39a703c8a7cb0ab7",
+      "identity": "1f:c1c907d3b55c5b45e72180b6942554080d0efc9326511eab39a703c8a7cb0ab7"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/do-work/discover-local-models-target.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/do-work/discover-local-models-target.ts",
+      "source_identity": "1f:ce444b9b5af1846356f657f98aea569aa48e8c42b40441990c66e9c9ed189308",
+      "identity": "1f:ce444b9b5af1846356f657f98aea569aa48e8c42b40441990c66e9c9ed189308"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/do-work/dispatch-harness-session.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/do-work/dispatch-harness-session.mjs",
+      "source_identity": "1f:7af0b683cdccfaf15225afa80f6fead284dff918b0441cb4ad4ad47ee25955d5",
+      "identity": "1f:7af0b683cdccfaf15225afa80f6fead284dff918b0441cb4ad4ad47ee25955d5"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/do-work/emit-session-event-target.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/do-work/emit-session-event-target.ts",
+      "source_identity": "1f:90a8a4320af08372415b43dba4d61cb7e5c0be7b069e8a8ca6b7632113129304",
+      "identity": "1f:90a8a4320af08372415b43dba4d61cb7e5c0be7b069e8a8ca6b7632113129304"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/do-work/emit-session-event.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/do-work/emit-session-event.mjs",
+      "source_identity": "1f:4a635e919a2525de5600acf9007ce55c2fcdca4acf2942eed502091d11642a71",
+      "identity": "1f:4a635e919a2525de5600acf9007ce55c2fcdca4acf2942eed502091d11642a71"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/do-work/evaluate-harness-guard.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/do-work/evaluate-harness-guard.mjs",
+      "source_identity": "1f:e1989f4f9eae93929ba2598d2c383b5eca98d4cfba4f72b313a1aa056476ea54",
+      "identity": "1f:e1989f4f9eae93929ba2598d2c383b5eca98d4cfba4f72b313a1aa056476ea54"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/do-work/local-model-client.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/do-work/local-model-client.mjs",
+      "source_identity": "1f:58edbb2b9bfba19566083888b3886a94890c5158db868712f7200a91621ad58f",
+      "identity": "1f:58edbb2b9bfba19566083888b3886a94890c5158db868712f7200a91621ad58f"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/do-work/local-model-inventory.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/do-work/local-model-inventory.ts",
+      "source_identity": "1f:3f1d79f82e5254f7b1da597be9e60f8bb4136a005a4be2bc241b53c7d22c244b",
+      "identity": "1f:3f1d79f82e5254f7b1da597be9e60f8bb4136a005a4be2bc241b53c7d22c244b"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/do-work/pause-outcome-contract.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/do-work/pause-outcome-contract.mjs",
+      "source_identity": "1f:c15d410efe54c5930fbbd52432ba25b289a15722516db5893d696dd5187f5b59",
+      "identity": "1f:c15d410efe54c5930fbbd52432ba25b289a15722516db5893d696dd5187f5b59"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/do-work/prepend-prompt-file-launcher.cjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/do-work/prepend-prompt-file-launcher.cjs",
+      "source_identity": "1f:7169b74ff6623301c6c4f2406b27e0c1983fced65f5931b3abcb836da6629a67",
+      "identity": "1f:7169b74ff6623301c6c4f2406b27e0c1983fced65f5931b3abcb836da6629a67"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/do-work/read-model-list-from-codex-app-server.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/do-work/read-model-list-from-codex-app-server.mjs",
+      "source_identity": "1f:dc1573578bd45bc569f489961d420864a46d2253ab7b236cd8a052ddcedec76d",
+      "identity": "1f:dc1573578bd45bc569f489961d420864a46d2253ab7b236cd8a052ddcedec76d"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/do-work/refresh-model-catalog-from-declared-sources.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/do-work/refresh-model-catalog-from-declared-sources.mjs",
+      "source_identity": "1f:6b4624bd1d3201fb71de1fd473087ce16d0330bb249bb81425cf05872688513e",
+      "identity": "1f:6b4624bd1d3201fb71de1fd473087ce16d0330bb249bb81425cf05872688513e"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/do-work/remote-http-stream-transport.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/do-work/remote-http-stream-transport.mjs",
+      "source_identity": "1f:a2c255e3882c6cc9c60cf8f7dbba208c9194314e5404562636bb265709ea4789",
+      "identity": "1f:a2c255e3882c6cc9c60cf8f7dbba208c9194314e5404562636bb265709ea4789"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/do-work/resolve-chat-launch.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/do-work/resolve-chat-launch.mjs",
+      "source_identity": "1f:db2a18a46e14e17b33d2f40915dbba54700327126b7c52b7d10116b17c8e998a",
+      "identity": "1f:db2a18a46e14e17b33d2f40915dbba54700327126b7c52b7d10116b17c8e998a"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/do-work/session-event-envelope.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/do-work/session-event-envelope.mjs",
+      "source_identity": "1f:4fa6795e55a3c7dd43b286209d9e888224fb05060a10ba1fbb9156138afd8f13",
+      "identity": "1f:4fa6795e55a3c7dd43b286209d9e888224fb05060a10ba1fbb9156138afd8f13"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/do-work/transport-capabilities.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/do-work/transport-capabilities.mjs",
+      "source_identity": "1f:e8b926145bacf58c42221624211fa27d758bca5e0d5084c76bfe77e989be18da",
+      "identity": "1f:e8b926145bacf58c42221624211fa27d758bca5e0d5084c76bfe77e989be18da"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/lesson-rules.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/lesson-rules.json",
+      "source_identity": "1f:d8ba828db496ed1146c22bec9544b84216d10938daeeb98e0ea32123814f6fe4",
+      "identity": "1f:2c6c12a24daed92bc32f5da4b0cbbfe0d78a6c34e20f785245685e8bd1c6b43b",
+      "calls": [
+        "owner-home-folder",
+        "private-notes-path"
+      ]
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/read-data/declared-local-tools.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/read-data/declared-local-tools.json",
+      "source_identity": "1f:4583242faac8ec310a73dc75ccf41f1227dda206c7311d51a6ddf10909dbdb25",
+      "identity": "1f:4583242faac8ec310a73dc75ccf41f1227dda206c7311d51a6ddf10909dbdb25"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/read-data/read-harness-controls.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/read-data/read-harness-controls.mjs",
+      "source_identity": "1f:cdc13d9c1fb90cb1958222c350f6d7a97b24a2e439758ec5a6ae1cd64ce5a01e",
+      "identity": "1f:cdc13d9c1fb90cb1958222c350f6d7a97b24a2e439758ec5a6ae1cd64ce5a01e"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/README.md",
+      "source_identity": "1f:4ce687c4ba26880c98a0d0d1753360c1224dd3702e94104b1c02fedf60608d3c",
+      "identity": "1f:4ce687c4ba26880c98a0d0d1753360c1224dd3702e94104b1c02fedf60608d3c"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/show/mount-harness-controls.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/show/mount-harness-controls.tsx",
+      "source_identity": "1f:8528c3356d968b5863f2ea087904a44c25558231476cfb6dc64112fa50714325",
+      "identity": "1f:8528c3356d968b5863f2ea087904a44c25558231476cfb6dc64112fa50714325"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/process-session/packages/ai-cli-launch-adapters/things-to-store-and-run.json",
+      "source_identity": "1f:3d1615d35c2528864720444920dd7aecbc0ffc274bb1c8a24bc1e380a3212ff7",
+      "identity": "1f:3d1615d35c2528864720444920dd7aecbc0ffc274bb1c8a24bc1e380a3212ff7"
     }
   ]
 }

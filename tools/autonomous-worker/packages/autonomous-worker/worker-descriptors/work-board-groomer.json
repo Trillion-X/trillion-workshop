@@ -1,0 +1,53 @@
+{
+  "kind": "autonomous-worker-descriptor",
+  "id": "work-board-groomer",
+  "label": "Autonomous operations director, work-board groomer. A second descriptor of a different shape from autonomous-accountant, which is what proves the same engine runs diverse descriptors unchanged (README section on the deletion test). It names no host: the installer supplies the partition.",
+  "subjects": [
+    "package-audit"
+  ],
+  "interval_seconds": 3600,
+  "sense": {
+    "persona": {
+      "kind": "ai-instruction-block",
+      "id_includes": "stay-on-task",
+      "required": false
+    },
+    "program": {
+      "kind": "task",
+      "subject_field": "board_id",
+      "summary_fields": [
+        "description",
+        "board_label",
+        "priority",
+        "group",
+        "order"
+      ]
+    }
+  },
+  "guard": {
+    "subject_field": "board_id",
+    "evidence_kinds": [
+      "task"
+    ]
+  },
+  "decide": {
+    "bin": "codex",
+    "model": "gpt-5.5",
+    "argv_template": [
+      "exec",
+      "--skip-git-repo-check",
+      "-m",
+      "{{model}}",
+      "--",
+      "{{prompt}}"
+    ],
+    "prompt_via": "arg",
+    "timeout_seconds": 280,
+    "prompt_template": "You are an autonomous operations director grooming a live work board. Operating policy \u2014 follow EXACTLY:\n{{persona}}\n\nBOARD: {{subject}}. CURRENT tasks (sensed live):\n{{program}}\n\nTASK: Produce the SINGLE most valuable grooming note for this board as ONE JSON object ONLY (no prose). Identify the highest-leverage next action, blocking gap, or reprioritization grounded in the sensed tasks. If the board state is too unclear to decide well, FAIL CLOSED (a request-clarification note, never a guess). Schema: {\"kind\":\"{{output_kind}}\",\"id\":\"<new-kebab-id>\",\"created_by\":\"autonomous-worker\",\"created_at\":\"<iso>\",\"board_id\":\"{{subject}}\",\"note\":\"...\",\"recommended_next\":\"...\",\"rationale\":\"...\",\"confidence_policy\":{\"minimum_confidence\":0.7,\"fail_closed_action\":\"request-clarification\"}}\nOutput ONLY the JSON object."
+  },
+  "act": {
+    "output_kind": "task-grooming-note",
+    "address_prefix": "package::autonomous-worker::task-grooming-note",
+    "created_by": "autonomous-worker"
+  }
+}

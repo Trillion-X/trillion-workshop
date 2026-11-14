@@ -1,0 +1,40 @@
+{
+  "package": "browser-saved-items",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::browser-saved-items::capability::organize-saved-browser-items",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "bitfield-package-capability",
+        "id": "capability:organize-saved-browser-items",
+        "package": "browser-saved-items",
+        "label": "Organize saved browser items",
+        "description": "Group explicitly authorized saved browser items while preserving every item, native grouping, a source backup, and a complete decision inventory.",
+        "owned_record_kinds": [],
+        "reuses": ["local-files", "file-classification", "structured-file-output"]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::browser-saved-items::public-source::do-work",
+      "path": ["packages", "browser-saved-items", "public-sources", "do-work"],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work",
+        "contract": "browser-saved-items owns reversible organization of explicitly authorized saved browser items and never reads history, cookies, credentials, or page content"
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "organize-arc-personal-ui",
+      "source_path": "do-work/organize-arc-personal-ui.py"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "add-arc-sources-to-component-catalog",
+      "source_path": "do-work/add-arc-sources-to-component-catalog.py"
+    }
+  ]
+}

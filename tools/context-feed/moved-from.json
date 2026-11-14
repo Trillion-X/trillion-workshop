@@ -1,0 +1,60 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "owner-home-folder",
+      "find": "[/]Users[/]b[r]ianakhtar",
+      "replace": "/workspace/the-owner",
+      "means": "A person's home folder name in a path, swapped for a made-up one: a public tree holds made-up data only."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/context-feed/read-data/context-feed.js",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/context-feed/packages/context-feed/read-data/context-feed.js",
+      "source_identity": "1f:b9550905723f7d279dabb129860c53728fb2671da5fcfb7f608804c588d28b76",
+      "identity": "1f:b9550905723f7d279dabb129860c53728fb2671da5fcfb7f608804c588d28b76"
+    },
+    {
+      "from": "packages/context-feed/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/context-feed/packages/context-feed/read-data/README.md",
+      "source_identity": "1f:7d4181a2ce5bdb73e9526ca6b4ec7977346bee103e1220d52791d42435fe5085",
+      "identity": "1f:7d4181a2ce5bdb73e9526ca6b4ec7977346bee103e1220d52791d42435fe5085"
+    },
+    {
+      "from": "packages/context-feed/read-data/record-projection-lens.d.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/context-feed/packages/context-feed/read-data/record-projection-lens.d.ts",
+      "source_identity": "1f:66fc474bb787d0d5bb127f91125bd7fa6380415bfe6c8734288e888b4647d60b",
+      "identity": "1f:66fc474bb787d0d5bb127f91125bd7fa6380415bfe6c8734288e888b4647d60b"
+    },
+    {
+      "from": "packages/context-feed/read-data/record-projection-lens.js",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/context-feed/packages/context-feed/read-data/record-projection-lens.js",
+      "source_identity": "1f:2871d6db0cdb048d123ab63b387b8ee523d68ad9c433cdadabc8f87ac45e9e1c",
+      "identity": "1f:2871d6db0cdb048d123ab63b387b8ee523d68ad9c433cdadabc8f87ac45e9e1c"
+    },
+    {
+      "from": "packages/context-feed/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/context-feed/packages/context-feed/README.md",
+      "source_identity": "1f:6fd95ed14b15a97edaf1f029fd0e843e9e3d881f131ffe6c00ae364cdbf862cd",
+      "identity": "1f:5554cd48c32fcc82b0665f5af9e0be726181934525d03216e000b795cfc71a4a",
+      "calls": [
+        "owner-home-folder"
+      ]
+    },
+    {
+      "from": "packages/context-feed/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/context-feed/packages/context-feed/things-to-store-and-run.json",
+      "source_identity": "1f:58489eb09a9d7cf605f4a2580e629a750d830485f31a9b022e23231dacd626fd",
+      "identity": "1f:58489eb09a9d7cf605f4a2580e629a750d830485f31a9b022e23231dacd626fd"
+    }
+  ]
+}

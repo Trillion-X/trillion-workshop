@@ -2,7 +2,14 @@
   "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
   "source": "Trillion-X/bitfield-packages",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "owner-home-folder",
+      "find": "[/]Users[/]b[r]ianakhtar",
+      "replace": "/workspace/the-owner",
+      "means": "A person's home folder name in a path, swapped for a made-up one: a public tree holds made-up data only."
+    }
+  ],
   "files": [
     {
       "from": "packages/referrals/do-work/read-portal-referrals.ts",
@@ -33,6 +40,72 @@
       "identity": "1f:f31f857d2511b9aab8b4487cdf38f832aa0d4985114122bc96ee3c990cb8c54f",
       "reused": true,
       "adapted": "referral-codes-and-rewards holds this fold as referralStateFor; the old copy is not moved a second time"
+    },
+    {
+      "from": "packages/codes-and-rewards/do-work/build-owner-action-request.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/referral-codes-and-rewards/packages/codes-and-rewards/do-work/build-owner-action-request.ts",
+      "source_identity": "1f:629e783658aaa31e8811a6896586e29284e80f23dea1ea674bd28233bd161889",
+      "identity": "1f:629e783658aaa31e8811a6896586e29284e80f23dea1ea674bd28233bd161889"
+    },
+    {
+      "from": "packages/codes-and-rewards/do-work/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/referral-codes-and-rewards/packages/codes-and-rewards/do-work/README.md",
+      "source_identity": "1f:0202937ce07784c36abff45e084d10291827f88bb7a6bb0c54e5b53650ebaa17",
+      "identity": "1f:0202937ce07784c36abff45e084d10291827f88bb7a6bb0c54e5b53650ebaa17"
+    },
+    {
+      "from": "packages/codes-and-rewards/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/referral-codes-and-rewards/packages/codes-and-rewards/entry-to-package-data-map.json",
+      "source_identity": "1f:353441e9cc31870bbba06976dcd3f4f8214d15938492cf9a3fe397dcc1f9bf35",
+      "identity": "1f:353441e9cc31870bbba06976dcd3f4f8214d15938492cf9a3fe397dcc1f9bf35"
+    },
+    {
+      "from": "packages/codes-and-rewards/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/referral-codes-and-rewards/packages/codes-and-rewards/index.ts",
+      "source_identity": "1f:39ecdfccfa65d06cdd6ff28bb26c3f01d81d4777bc366fe077493a1a4b44d77f",
+      "identity": "1f:39ecdfccfa65d06cdd6ff28bb26c3f01d81d4777bc366fe077493a1a4b44d77f"
+    },
+    {
+      "from": "packages/codes-and-rewards/read-data/read-record-interaction-surface.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/referral-codes-and-rewards/packages/codes-and-rewards/read-data/read-record-interaction-surface.ts",
+      "source_identity": "1f:88a93df36c1cbf6b203b7340b2ca62e8f5054656619e0f01c5ec76e5f1a23d2a",
+      "identity": "1f:88a93df36c1cbf6b203b7340b2ca62e8f5054656619e0f01c5ec76e5f1a23d2a"
+    },
+    {
+      "from": "packages/codes-and-rewards/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/referral-codes-and-rewards/packages/codes-and-rewards/read-data/README.md",
+      "source_identity": "1f:9e0225bea5ae201e1852e72b52dbc556289f1d614f1d8569cb9c7739a0ca4c43",
+      "identity": "1f:9e0225bea5ae201e1852e72b52dbc556289f1d614f1d8569cb9c7739a0ca4c43"
+    },
+    {
+      "from": "packages/codes-and-rewards/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/referral-codes-and-rewards/packages/codes-and-rewards/README.md",
+      "source_identity": "1f:fbd24cc739084c5870b6ab4b0104824fc8760beea83db3ef89a4e391f24cdacc",
+      "identity": "1f:e52a2eaf9bbba5ce8e5fc438b91673e032e82aca5479fd058d7b62a5d009808c",
+      "calls": [
+        "owner-home-folder"
+      ]
+    },
+    {
+      "from": "packages/codes-and-rewards/record-interaction-contract.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/referral-codes-and-rewards/packages/codes-and-rewards/record-interaction-contract.json",
+      "source_identity": "1f:c605641df03607fb3a8cd601f5e57bd0020db240875d0fd11daf0294e9c91b7b",
+      "identity": "1f:c605641df03607fb3a8cd601f5e57bd0020db240875d0fd11daf0294e9c91b7b"
+    },
+    {
+      "from": "packages/codes-and-rewards/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/referral-codes-and-rewards/packages/codes-and-rewards/things-to-store-and-run.json",
+      "source_identity": "1f:170a000d248817d02bf17fe4d7581b950d0e698cf453490d814127d8395daaa1",
+      "identity": "1f:170a000d248817d02bf17fe4d7581b950d0e698cf453490d814127d8395daaa1"
     }
   ]
 }

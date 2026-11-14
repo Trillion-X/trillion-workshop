@@ -1,0 +1,57 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/business-event/do-work/map-to-business-event.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/business-event/packages/business-event/do-work/map-to-business-event.ts",
+      "source_identity": "1f:b767cd1f7aa20c247f3148232a8d92bb9b791b2eaf33a2705771f79fee61e369",
+      "identity": "1f:b767cd1f7aa20c247f3148232a8d92bb9b791b2eaf33a2705771f79fee61e369"
+    },
+    {
+      "from": "packages/business-event/read-data/business-event-types.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/business-event/packages/business-event/read-data/business-event-types.ts",
+      "source_identity": "1f:861144972aed43cabc47fcd7eb082f7b33fdd62ed5f65754e4ccfdcc82c21814",
+      "identity": "1f:861144972aed43cabc47fcd7eb082f7b33fdd62ed5f65754e4ccfdcc82c21814"
+    },
+    {
+      "from": "packages/business-event/read-data/field-path.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/business-event/packages/business-event/read-data/field-path.ts",
+      "source_identity": "1f:2c48248cd116fcde1c9632e4f1f200db24f8c990ca1710cfa1f799f4757c1ba1",
+      "identity": "1f:2c48248cd116fcde1c9632e4f1f200db24f8c990ca1710cfa1f799f4757c1ba1"
+    },
+    {
+      "from": "packages/business-event/read-data/read-business-event-ledger.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/business-event/packages/business-event/read-data/read-business-event-ledger.ts",
+      "source_identity": "1f:da4c7bda960b93cfb360de661821b499c096dcc4fd5ad590aa0b7e3f7218b9d3",
+      "identity": "1f:da4c7bda960b93cfb360de661821b499c096dcc4fd5ad590aa0b7e3f7218b9d3"
+    },
+    {
+      "from": "packages/business-event/read-data/read-funnel-conversion.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/business-event/packages/business-event/read-data/read-funnel-conversion.ts",
+      "source_identity": "1f:5b6e8505edd6a33ac4cb204eaa8cc754a72029ef212eb14e569e18bbf504cae8",
+      "identity": "1f:5b6e8505edd6a33ac4cb204eaa8cc754a72029ef212eb14e569e18bbf504cae8"
+    },
+    {
+      "from": "packages/business-event/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/business-event/packages/business-event/things-to-store-and-run.json",
+      "source_identity": "1f:172ac827da10560ffda44d55121e414abf37b0c40883159f4ea3f3e95598609f",
+      "identity": "1f:172ac827da10560ffda44d55121e414abf37b0c40883159f4ea3f3e95598609f"
+    }
+  ]
+}

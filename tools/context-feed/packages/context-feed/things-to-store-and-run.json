@@ -1,0 +1,173 @@
+{
+  "package": "context-feed",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::context-feed::primitive-contract",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "bitfield-package-primitive-contract",
+        "version": 2,
+        "package": "context-feed",
+        "capability": "generic-record-projection-lens",
+        "owns": ["record projection lens configuration", "projection feed contract"],
+        "reuses": ["EEAF facts", "workflow owner-action contracts", "process-session records", "record_from_matching_records", "selected payload records"],
+        "new_slot": false,
+        "isolation": "package source evaluates data-described record projections and emits JSON-compatible feeds without executing owner actions or adjacent package effects"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::context-feed::public-source::read-data",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "read-data"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::context-feed::lens::default",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "generic-record-projection-lens",
+        "row_id_field": "hidden_id",
+        "status": "ready",
+        "include": {
+          "all": [
+            { "path": ["is_active"], "op": "not_equals", "right": false },
+            {
+              "op": "option_absent_or_equals_any",
+              "left": {
+                "paths": [
+                  ["target_ref"],
+                  ["targetRef"],
+                  ["conversation_ref"],
+                  ["conversationRef"],
+                  ["subject_ref"],
+                  ["subjectRef"]
+                ]
+              },
+              "right": { "from": "option", "name": "targetRef" }
+            }
+          ]
+        },
+        "field_readers": [
+          {
+            "output": "hidden_id",
+            "paths": [["context_ref"], ["contextRef"], ["id"]],
+            "value": "text",
+            "on_missing": "omit-row"
+          },
+          {
+            "output": "primary_text",
+            "paths": [["title"], ["label"], ["name"]],
+            "value": "text",
+            "on_missing": "empty"
+          },
+          {
+            "output": "supporting_text",
+            "paths": [["prompt_text"], ["promptText"]],
+            "value": "text",
+            "on_missing": "empty"
+          },
+          {
+            "output": "related_target",
+            "paths": [["target_ref"], ["targetRef"], ["subject_ref"], ["subjectRef"], ["conversation_ref"], ["conversationRef"]],
+            "value": "text",
+            "on_missing": "empty"
+          },
+          {
+            "output": "source_ref",
+            "paths": [["source_ref"], ["sourceRef"]],
+            "value": "text",
+            "on_missing": "empty"
+          },
+          {
+            "output": "freshness_value",
+            "paths": [["expires_at"], ["expiresAt"]],
+            "value": "text",
+            "on_missing": "empty"
+          },
+          {
+            "output": "suggested_items",
+            "paths": [["daily_prompts"], ["dailyPrompts"]],
+            "value": "list",
+            "on_missing": "empty-list"
+          }
+        ],
+        "groups": [
+          {
+            "id": "by-related-target",
+            "label": "Related",
+            "field": "related_target",
+            "default_key": "unassigned",
+            "labels": {}
+          }
+        ],
+        "action_handoffs": [
+          {
+            "id": "open-related-owner-action",
+            "owner_action_ref": "owner-action:open-related-record",
+            "label": "Open",
+            "input_map": {
+              "row_id": { "from": "row", "field": "hidden_id" },
+              "target": { "from": "row", "field": "related_target" }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::context-feed::projection::source-records",
+      "path": ["package", "context-feed", "projection", "source-records"],
+      "matching_record_paths": [["context-feed", "source-record"]],
+      "payload_bytes": {
+        "value_to_bytes": "cell_table",
+        "columns": [
+          {
+            "column": 0,
+            "source": { "path": ["record", "address"] },
+            "value": { "value_to_bytes": "non_empty_text" }
+          },
+          {
+            "column": 1,
+            "source": { "path": ["record", "payload_json_text"] },
+            "value": { "value_to_bytes": "json_text" }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::context-feed::projection::feed-contract",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "projection-feed-contract",
+        "output": "json-compatible-feed",
+        "consumer_contract": ["react-desktop-browser", "ios-jscore", "worker", "voice", "cli"],
+        "primary_output_hides": ["raw addresses", "payload bytes", "slot names", "process ids", "provider ids", "token ids", "stack traces"]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "context-feed-reader",
+      "source_path": "read-data/context-feed.js"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "context-feed-record-projection-lens",
+      "source_path": "read-data/record-projection-lens.js"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "context-feed-record-projection-lens-types",
+      "source_path": "read-data/record-projection-lens.d.ts"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "provider_id": "obscura",
+  "operation": "browser.fetch",
+  "url": "https://example.com",
+  "dump": "text"
+}

@@ -1,0 +1,42 @@
+{
+  "table_identity": "current-browser-session-routing-policy",
+  "routes": [
+    {
+      "id": "authenticated-isolated",
+      "intent_class": "authenticated_browser",
+      "surface_class": "task_isolated_agent_screen",
+      "owner_package": "computer-interface-actions",
+      "owner_capability_ref": "package::computer-interface-actions::capability::perform-bounded-computer-interface-actions",
+      "provider_id": "aside",
+      "provider_kind": "official_cli",
+      "status_operation": "provider.status",
+      "execution_operation": "cli.exec",
+      "requires_surface_proof": {
+        "surface_identity": true,
+        "task_isolation": true,
+        "independent_pointer": true,
+        "independent_keyboard": true,
+        "input_focus_identity": true
+      }
+    },
+    {
+      "id": "public-headless",
+      "intent_class": "public_headless",
+      "surface_class": "isolated_headless",
+      "owner_package": "computer-interface-actions",
+      "owner_capability_ref": "package::computer-interface-actions::capability::perform-bounded-computer-interface-actions",
+      "provider_id": "obscura",
+      "provider_kind": "headless_browser",
+      "status_operation": "provider.status",
+      "execution_operations": ["browser.fetch", "browser.screenshot"]
+    }
+  ],
+  "personal_browser_policy": {
+    "surface_class": "visible_personal_browser",
+    "eligible_by_default": false,
+    "requires_exact_founder_request": true,
+    "request_authority_ref": "authority:founder",
+    "required_grant_fields": ["requested_by", "exact_session_ref", "exact_provider_ref", "grant_ref"]
+  },
+  "forbidden_provider_kinds": ["local_cdp_browser"]
+}

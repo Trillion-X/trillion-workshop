@@ -1,0 +1,22 @@
+[package]
+name = "audit"
+version = "0.1.0"
+edition = "2021"
+
+# A slot is loaded as a WASM component, which is a cdylib. Without this block cargo emits
+# only an rlib and the declared build produces no slots/audit at all.
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+# Slot protocol — QueryHandler, Envelope, deserialize/serialize helpers
+slot-protocol = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+async-trait = { workspace = true }
+ed25519-dalek = { workspace = true }
+rand = { workspace = true }
+ulid = { workspace = true }
+chrono = { workspace = true }
+hex = { workspace = true }
+tokio = { workspace = true }

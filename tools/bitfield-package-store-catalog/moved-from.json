@@ -1,0 +1,183 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/bitfield-package-store-catalog/data/collection-definitions.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-catalog/packages/bitfield-package-store-catalog/data/collection-definitions.json",
+      "source_identity": "1f:52276190ec0e1eb5a0ba2d428ec27a164d08350f76936a3ea16560482272c859",
+      "identity": "1f:52276190ec0e1eb5a0ba2d428ec27a164d08350f76936a3ea16560482272c859"
+    },
+    {
+      "from": "packages/bitfield-package-store-catalog/data/engine-offer.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-catalog/packages/bitfield-package-store-catalog/data/engine-offer.json",
+      "source_identity": "1f:d246c0e1da3d2ca2dc5ea981687117ce92c239b80e2236e9b202eaacf57daf9f",
+      "identity": "1f:d246c0e1da3d2ca2dc5ea981687117ce92c239b80e2236e9b202eaacf57daf9f"
+    },
+    {
+      "from": "packages/bitfield-package-store-catalog/data/package-finding-language.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-catalog/packages/bitfield-package-store-catalog/data/package-finding-language.json",
+      "source_identity": "1f:192a9f0ec9d023d862d6bdd2e7923c6687d17c7f008c46c172e0dca7982f2238",
+      "identity": "1f:192a9f0ec9d023d862d6bdd2e7923c6687d17c7f008c46c172e0dca7982f2238"
+    },
+    {
+      "from": "packages/bitfield-package-store-catalog/data/package-media.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-catalog/packages/bitfield-package-store-catalog/data/package-media.json",
+      "source_identity": "1f:c815d9ddc477cee14230361ad24e66a4f624fe642778f19e2b2682794c3f417b",
+      "identity": "1f:c815d9ddc477cee14230361ad24e66a4f624fe642778f19e2b2682794c3f417b"
+    },
+    {
+      "from": "packages/bitfield-package-store-catalog/data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-catalog/packages/bitfield-package-store-catalog/data/README.md",
+      "source_identity": "1f:a613225bedc47b63ec71e6b8be12f655f5d4c4217dc22655efb8641955afb856",
+      "identity": "1f:a613225bedc47b63ec71e6b8be12f655f5d4c4217dc22655efb8641955afb856"
+    },
+    {
+      "from": "packages/bitfield-package-store-catalog/data/record-definitions.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-catalog/packages/bitfield-package-store-catalog/data/record-definitions.json",
+      "source_identity": "1f:caa6dc579e78059c3f357396d1a72e6a8f80827612778622a3bd52509dcbe2dc",
+      "identity": "1f:caa6dc579e78059c3f357396d1a72e6a8f80827612778622a3bd52509dcbe2dc"
+    },
+    {
+      "from": "packages/bitfield-package-store-catalog/entry-scope-bindings.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-catalog/packages/bitfield-package-store-catalog/entry-scope-bindings.json",
+      "source_identity": "1f:1c95a4d30355aa2ffd2bb865c6c5147aaa06d5c083cc82f9f1a937b82a3c0859",
+      "identity": "1f:1c95a4d30355aa2ffd2bb865c6c5147aaa06d5c083cc82f9f1a937b82a3c0859"
+    },
+    {
+      "from": "packages/bitfield-package-store-catalog/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-catalog/packages/bitfield-package-store-catalog/entry-to-package-data-map.json",
+      "source_identity": "1f:a4d5481af244762f644503fd4b5a783b031da3719f7c48b52c192d58b95b6eac",
+      "identity": "1f:a4d5481af244762f644503fd4b5a783b031da3719f7c48b52c192d58b95b6eac"
+    },
+    {
+      "from": "packages/bitfield-package-store-catalog/package-preview.pfat.gz",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-catalog/packages/bitfield-package-store-catalog/package-preview.pfat.gz",
+      "source_identity": "1f:11e362f0c15bc60be6e70bbdff7510481c0cf7d8b3d1425d67f754046b4aba65",
+      "identity": "1f:11e362f0c15bc60be6e70bbdff7510481c0cf7d8b3d1425d67f754046b4aba65"
+    },
+    {
+      "from": "packages/bitfield-package-store-catalog/package-preview.pfcf.gz",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-catalog/packages/bitfield-package-store-catalog/package-preview.pfcf.gz",
+      "source_identity": "1f:5bd200546cc1f162ccb8796a6171779387216e8b513e003dbf2315bce2643b3a",
+      "identity": "1f:5bd200546cc1f162ccb8796a6171779387216e8b513e003dbf2315bce2643b3a"
+    },
+    {
+      "from": "packages/bitfield-package-store-catalog/processes/add-collection-discovery-metadata.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-catalog/packages/bitfield-package-store-catalog/processes/add-collection-discovery-metadata.mjs",
+      "source_identity": "1f:89938f053f7ab227d8db1f927bd3418e2f07e193231b2a5f75caeeaca2b42e84",
+      "identity": "1f:89938f053f7ab227d8db1f927bd3418e2f07e193231b2a5f75caeeaca2b42e84"
+    },
+    {
+      "from": "packages/bitfield-package-store-catalog/processes/derive-catalog-snapshot.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-catalog/packages/bitfield-package-store-catalog/processes/derive-catalog-snapshot.mjs",
+      "source_identity": "1f:5a7e510e8ed4927ad133056d2e85244962bdffd709c905198576832efbebf9e9",
+      "identity": "1f:5a7e510e8ed4927ad133056d2e85244962bdffd709c905198576832efbebf9e9"
+    },
+    {
+      "from": "packages/bitfield-package-store-catalog/processes/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-catalog/packages/bitfield-package-store-catalog/processes/README.md",
+      "source_identity": "1f:de51b4ab5b89a701c8d7342a1a75371d3fddc7fac467acc298e772a1c60124f1",
+      "identity": "1f:de51b4ab5b89a701c8d7342a1a75371d3fddc7fac467acc298e772a1c60124f1"
+    },
+    {
+      "from": "packages/bitfield-package-store-catalog/processes/version-lineage.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-catalog/packages/bitfield-package-store-catalog/processes/version-lineage.mjs",
+      "source_identity": "1f:80c20265c593ae005e113fc145c9033ba357ba21c8ca7edebf3623d04a94d97b",
+      "identity": "1f:80c20265c593ae005e113fc145c9033ba357ba21c8ca7edebf3623d04a94d97b"
+    },
+    {
+      "from": "packages/bitfield-package-store-catalog/read-data/read-catalog.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-catalog/packages/bitfield-package-store-catalog/read-data/read-catalog.ts",
+      "source_identity": "1f:791e97d163b8e7ff063a313d40c0683c05c97e5b3ec0b311fbfb4962a8e6e1c8",
+      "identity": "1f:791e97d163b8e7ff063a313d40c0683c05c97e5b3ec0b311fbfb4962a8e6e1c8"
+    },
+    {
+      "from": "packages/bitfield-package-store-catalog/read-data/read-record-projections.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-catalog/packages/bitfield-package-store-catalog/read-data/read-record-projections.ts",
+      "source_identity": "1f:7d214db99d6ab829a39ca41b6957ad316a7565f90f41701781336a4a5c64942a",
+      "identity": "1f:7d214db99d6ab829a39ca41b6957ad316a7565f90f41701781336a4a5c64942a"
+    },
+    {
+      "from": "packages/bitfield-package-store-catalog/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-catalog/packages/bitfield-package-store-catalog/read-data/README.md",
+      "source_identity": "1f:8149302428f424793138feebf5d4bf3fd0b6ff2404042150efcf52d49acec4ee",
+      "identity": "1f:8149302428f424793138feebf5d4bf3fd0b6ff2404042150efcf52d49acec4ee"
+    },
+    {
+      "from": "packages/bitfield-package-store-catalog/read-data/resolve-current-install-inputs.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-catalog/packages/bitfield-package-store-catalog/read-data/resolve-current-install-inputs.ts",
+      "source_identity": "1f:43a3356f1dde113dcb0d37a1e752426f94bdf659fe23a140ab98f42669a76ac1",
+      "identity": "1f:43a3356f1dde113dcb0d37a1e752426f94bdf659fe23a140ab98f42669a76ac1"
+    },
+    {
+      "from": "packages/bitfield-package-store-catalog/read-data/resolve-install-inputs.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-catalog/packages/bitfield-package-store-catalog/read-data/resolve-install-inputs.ts",
+      "source_identity": "1f:14d16f02cf36e02219bc7e438482470b3d3ba426b6e417274c1443baa3b01225",
+      "identity": "1f:14d16f02cf36e02219bc7e438482470b3d3ba426b6e417274c1443baa3b01225"
+    },
+    {
+      "from": "packages/bitfield-package-store-catalog/read-data/resolve-release-inputs.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-catalog/packages/bitfield-package-store-catalog/read-data/resolve-release-inputs.ts",
+      "source_identity": "1f:c0a3ae67f18cd5973423955c6370722f0c4c6759465ede36171462a8d4f6fafb",
+      "identity": "1f:c0a3ae67f18cd5973423955c6370722f0c4c6759465ede36171462a8d4f6fafb"
+    },
+    {
+      "from": "packages/bitfield-package-store-catalog/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-catalog/packages/bitfield-package-store-catalog/README.md",
+      "source_identity": "1f:bfc0f703b44acddfc43fb6cf659c748ffe81da6e9c2a7f662bb861abe306f880",
+      "identity": "1f:bfc0f703b44acddfc43fb6cf659c748ffe81da6e9c2a7f662bb861abe306f880"
+    },
+    {
+      "from": "packages/bitfield-package-store-catalog/show-ios-jscore/mount-catalog-jscore.js",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-catalog/packages/bitfield-package-store-catalog/show-ios-jscore/mount-catalog-jscore.js",
+      "source_identity": "1f:5e202d3fd4ad08d297d820949ba3d69784c92b7316fa0739fb99aec0a8ecc995",
+      "identity": "1f:5e202d3fd4ad08d297d820949ba3d69784c92b7316fa0739fb99aec0a8ecc995"
+    },
+    {
+      "from": "packages/bitfield-package-store-catalog/show-ios-jscore/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-catalog/packages/bitfield-package-store-catalog/show-ios-jscore/README.md",
+      "source_identity": "1f:5dfb322374e0c2e86a472bf3cfec9a1ab0f072b63003d5390aebeb8b2e4597a6",
+      "identity": "1f:5dfb322374e0c2e86a472bf3cfec9a1ab0f072b63003d5390aebeb8b2e4597a6"
+    },
+    {
+      "from": "packages/bitfield-package-store-catalog/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bitfield-package-store-catalog/packages/bitfield-package-store-catalog/things-to-store-and-run.json",
+      "source_identity": "1f:b60bd6693dfd8999b0a058cd77e3d3fa7f991d035a02bda44ed0706c18c47909",
+      "identity": "1f:b60bd6693dfd8999b0a058cd77e3d3fa7f991d035a02bda44ed0706c18c47909"
+    }
+  ]
+}

@@ -1,0 +1,2498 @@
+{
+  "package": "customer-follow-up",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::customer-follow-up::capability",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "bitfield-package-capability",
+        "id": "capability:customer-follow-up",
+        "package": "customer-follow-up",
+        "label": "Customer Follow-Up",
+        "description": "Track customer lifecycle steps, product customer targets, evidence references, and follow-up actions without owning CRM, email, calendar, payment, access, or content truth.",
+        "owned_record_kinds": [
+          "customer-contact",
+          "customer-product-target",
+          "customer-step"
+        ],
+        "reuses": [
+          "visual-database",
+          "content-production",
+          "content-distribution",
+          "content-analytics",
+          "calendar-booker",
+          "sales-contract-builder",
+          "checkout",
+          "access",
+          "workflow",
+          "ui",
+          "screen-look"
+        ],
+        "does_not_own": [
+          "CRM relationship work",
+          "contact identity truth",
+          "email or message delivery",
+          "calendar bookings",
+          "payment or checkout truth",
+          "access entitlements",
+          "content publishing",
+          "analytics collection",
+          "fake customer data"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::customer-follow-up::placeable-surface::customer-follow-up",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "icon": "UserRoundCheck",
+        "id": "customer-follow-up.panel",
+        "kind": "placeable-surface",
+        "label": "Customer Follow-Up",
+        "material_target": "customer-follow-up",
+        "factflow_ref": "package::customer-follow-up::factflow::customer-follow-up-surface",
+        "order": 655,
+        "audience": "operator",
+        "surface_id": "customer-follow-up.panel",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000655:customer-follow-up.panel",
+        "package_entry": {
+          "package_name": "customer-follow-up",
+          "entry_name": "customer-follow-up"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::customer-follow-up::factflow::customer-follow-up-surface",
+      "address_mode": "identity_text",
+      "path": [
+        "package-primitive",
+        "factflow"
+      ],
+      "payload": {
+        "kind": "bitfield-eeaf-factflow",
+        "journal": {
+          "address_label": "customer-follow-up.surface.journal"
+        },
+        "fact_sources": [
+          {
+            "address": "package::customer-follow-up::capability"
+          },
+          {
+            "address": "package::customer-follow-up::contract::customer-contact"
+          },
+          {
+            "address": "package::customer-follow-up::contract::customer-product-target"
+          },
+          {
+            "address": "package::customer-follow-up::contract::customer-step"
+          },
+          {
+            "address": "package::customer-follow-up::workflow-action::record-step"
+          },
+          {
+            "address": "package::customer-follow-up::input::published-records"
+          }
+        ],
+        "genesis": [
+          {
+            "address": "package::customer-follow-up::placeable-surface::customer-follow-up"
+          }
+        ],
+        "evidence": [
+          {
+            "address": "package::customer-follow-up::entry::customer-follow-up"
+          },
+          {
+            "address": "package::customer-follow-up::capability"
+          },
+          {
+            "address": "package::customer-follow-up::contract::customer-contact"
+          },
+          {
+            "address": "package::customer-follow-up::contract::customer-product-target"
+          },
+          {
+            "address": "package::customer-follow-up::contract::customer-step"
+          },
+          {
+            "address": "package::customer-follow-up::workflow-action::record-step"
+          }
+        ],
+        "interpreter_facts": {
+          "facts": [
+            {
+              "address_label": "customer-follow-up.facts.published-records"
+            }
+          ],
+          "intents": [
+            {
+              "address_label": "customer-follow-up.intent.record-step"
+            }
+          ],
+          "effects": [
+            {
+              "address_label": "customer-follow-up.effect.write-step"
+            }
+          ],
+          "validation": [
+            {
+              "address_label": "customer-follow-up.validation.caller-supplied-contact-product"
+            },
+            {
+              "address_label": "customer-follow-up.validation.no-seeded-customer-rows"
+            }
+          ],
+          "permissions": [
+            {
+              "address_label": "customer-follow-up.permission.invoke-workflow-intent"
+            }
+          ],
+          "projections": [
+            {
+              "address_label": "customer-follow-up.materialization.progress"
+            }
+          ],
+          "materializations": [
+            {
+              "address_label": "customer-follow-up.materialization.placeable-surface"
+            }
+          ]
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::customer-follow-up::entry::customer-follow-up",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "customer-follow-up",
+        "entries",
+        "customer-follow-up"
+      ],
+      "payload": {
+        "entry_name": "customer-follow-up",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-customer-follow-up.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-customer-follow-up"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::customer-follow-up::input::published-records",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "input_name": "published-records",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "package::customer-follow-up::customer-feed"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::customer-follow-up::contract::customer-contact",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "customer-contact",
+        "required_fields": [
+          "contactId",
+          "displayName"
+        ],
+        "optional_fields": [
+          "channelLabel",
+          "ownerLabel",
+          "sourceLabel"
+        ],
+        "authority_contract": "This record is only a package-local display projection over caller-owned contact identity. CRM or contact-owner packages remain the identity authority."
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::customer-follow-up::contract::customer-product-target",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "customer-product-target",
+        "required_fields": [
+          "targetId",
+          "productId",
+          "productLabel",
+          "targetCount"
+        ],
+        "optional_fields": [
+          "active"
+        ],
+        "authority_contract": "This package tracks the product customer target. Product offer, pricing, payment, and access truth stay with their owner packages."
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::customer-follow-up::contract::customer-step",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "customer-step",
+        "required_fields": [
+          "stepId",
+          "contactId",
+          "stepKind",
+          "productId",
+          "label",
+          "evidenceRefs",
+          "ownerRefs",
+          "createdAt"
+        ],
+        "optional_fields": [
+          "actorId",
+          "outcome"
+        ],
+        "evidence_contract": "evidenceRefs point at content, distribution, checkout, CRM, calendar, access, analytics, or support records; this package never copies those owners' truth.",
+        "step_contract": "Purchase, onboarding, follow-up, and feedback are lifecycle evidence rows. Real checkout/payment/access/customer identity facts remain with their owner packages."
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::customer-follow-up::workflow-action::record-step",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:customer-follow-up.record-step",
+        "kind": "action",
+        "name": "customer-follow-up-record-step",
+        "description": "Write one customer lifecycle step with product, evidence, and owner references.",
+        "input_schema": {
+          "step_id": "string",
+          "step_record": "object"
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "step_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::customer-follow-up::step::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "step_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "step_record"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::customer-follow-up::email-config::account-onboarding",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "email-config",
+        "id": "email-config:account-onboarding",
+        "loginUrl": "https://ethos-school-of-tennis.fly.dev/"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::customer-follow-up::trigger-rule::send-onboarding-email-on-payment-confirmed",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:customer-follow-up.send-onboarding-email-on-payment-confirmed",
+        "topic": "data_state",
+        "trigger_type": "delta",
+        "is_active": true,
+        "match_condition": {
+          "conditions": [
+            {
+              "$bind": {
+                "select": {
+                  "from": "change",
+                  "path": "event_kind"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.equals",
+                    "args": {
+                      "value": "payment.confirmed"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "$bind": {
+                "select": {
+                  "from": "change",
+                  "path": "attributes.provider_event_id"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.if_null",
+                    "args": {
+                      "fallback": ""
+                    }
+                  },
+                  {
+                    "op": "op:core.not_equals",
+                    "args": {
+                      "value": ""
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "$bind": {
+                "select": {
+                  "from": "change",
+                  "path": "attributes.customer_email"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.if_null",
+                    "args": {
+                      "fallback": ""
+                    }
+                  },
+                  {
+                    "op": "op:core.not_equals",
+                    "args": {
+                      "value": ""
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:resend-email-sender.send-templated-email-from-bound-event",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "config_address": "package::customer-follow-up::email-config::account-onboarding",
+              "event": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": ""
+                }
+              },
+              "request_template": {
+                "$kind": "binding",
+                "select": {
+                  "from": "literal",
+                  "value": {
+                    "template": "account-onboarding",
+                    "to": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "event.attributes.customer_email"
+                      }
+                    },
+                    "variables": {
+                      "loginUrl": "https://ethos-school-of-tennis.fly.dev/"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::customer-follow-up::workflow-action::send-account-onboarding-from-claim",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "remove": false,
+      "payload": {
+        "id": "action:customer-follow-up.send-account-onboarding-from-claim",
+        "kind": "action",
+        "name": "send-account-onboarding-from-claim",
+        "description": "Second half of the exactly-once welcome pipeline: given a won account-delivery-claim (account_id + idempotency_key), resolve the account's controlled email via account-contact-points.resolve-email-contact-point (email never enters the event log), then dispatch the generic resend-email-sender.send-templated-email-from-bound-event with idempotencyKey=<idempotency_key> (Resend header dedup = external exactly-once, covers trigger observation-replay). Fail-closed: no resolved address -> the send step is skipped (no email to an empty address). No god package: resolve lives in account-contact-points, send in resend-email-sender; this action only orchestrates.",
+        "input_schema": {
+          "account_id": "string",
+          "idempotency_key": "string"
+        },
+        "steps": [
+          {
+            "id": "resolve",
+            "kind": "action",
+            "config": {
+              "definition_id": "action:resolve-email-contact-point",
+              "inputs": {
+                "account_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "account_id"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "send",
+            "kind": "action",
+            "config": {
+              "definition_id": "action:resend-email-sender.send-templated-email-from-bound-event",
+              "inputs": {
+                "config_address": "package::customer-follow-up::email-config::account-onboarding",
+                "event": {},
+                "request_template": {
+                  "template": "account-onboarding",
+                  "to": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "resolve",
+                      "path": "output.address"
+                    }
+                  },
+                  "idempotencyKey": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "idempotency_key"
+                    }
+                  },
+                  "variables": {
+                    "loginUrl": "https://ethos-school-of-tennis.fly.dev/"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "sent": true,
+                "account_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "account_id"
+                  }
+                },
+                "idempotency_key": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "idempotency_key"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "resolve",
+            "to": "send",
+            "kind": "on_result",
+            "config": {
+              "$kind": "binding",
+              "select": {
+                "from": "steps",
+                "key": "resolve",
+                "path": "output.address"
+              }
+            }
+          },
+          {
+            "from": "send",
+            "to": "done",
+            "kind": "on_result",
+            "config": {}
+          }
+        ],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::customer-follow-up::trigger-rule::send-onboarding-on-delivery-claim",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:customer-follow-up.send-onboarding-on-delivery-claim",
+        "topic": "data_state",
+        "trigger_type": "delta",
+        "is_active": true,
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "account-delivery-claim"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "purpose"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "account-onboarding"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "is_retraction"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:customer-follow-up.send-account-onboarding-from-claim",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "account_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "account_id"
+                }
+              },
+              "idempotency_key": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "idempotency_key"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::customer-follow-up::workflow-action::claim-welcome-for-contact",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "remove": false,
+      "payload": {
+        "id": "action:customer-follow-up.claim-welcome-for-contact",
+        "kind": "action",
+        "name": "claim-welcome-for-contact",
+        "description": "Pipeline ENTRY: when an account first becomes contactable (an account-email-contact-point record is written locally at signup), attempt the once-per-account welcome claim. Owns the welcome POLICY (grain = <account_id>:welcome, purpose=welcome, template=account-onboarding) and delegates the exactly-once barrier to the GENERIC account-contact-points.claim-delivery-once (CAS create-only). Only the first attempt per account writes the account-delivery-claim record -> its delta fires trigger B -> resolve+send. Grants are admitted to the EXTERNAL check-license-online authority (not the envelope log), so this LOCAL contact-point delta is the correct trigger point, not the grant event.",
+        "input_schema": {
+          "account_id": "string",
+          "at": "string"
+        },
+        "steps": [
+          {
+            "id": "claim",
+            "kind": "action",
+            "config": {
+              "definition_id": "action:claim-delivery-once",
+              "inputs": {
+                "idempotency_key": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "account_id"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.concat",
+                      "args": {
+                        "values": [
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "account_id"
+                            }
+                          },
+                          ":welcome"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "account_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "account_id"
+                  }
+                },
+                "purpose": "welcome",
+                "template": "account-onboarding",
+                "partition_label": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "context",
+                    "path": "partition_key"
+                  }
+                },
+                "at": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "at"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "claimed_for": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "account_id"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "claim",
+            "to": "done",
+            "kind": "on_result",
+            "config": {}
+          }
+        ],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::customer-follow-up::trigger-rule::claim-welcome-on-contact-point",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:customer-follow-up.claim-welcome-on-contact-point",
+        "topic": "data_state",
+        "trigger_type": "delta",
+        "is_active": true,
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "account-email-contact-point"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "is_retraction"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:customer-follow-up.claim-welcome-for-contact",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "account_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "account_id"
+                }
+              },
+              "at": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "updated_at"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::customer-follow-up::trigger-rule::claim-welcome-on-next-step-state",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:customer-follow-up.claim-welcome-on-next-step-state",
+        "topic": "data_state",
+        "trigger_type": "delta",
+        "is_active": true,
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "capability-state-evidence-record"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "state_key"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "paid-owes-welcome"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "is_retraction"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:customer-follow-up.claim-welcome-for-contact",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "account_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "account_id"
+                }
+              },
+              "at": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "advanced_at"
+                }
+              }
+            }
+          }
+        }
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::customer-follow-up::workflow-action::publish-welcome-chat-from-claim",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "remove": false,
+      "payload": {
+        "id": "action:customer-follow-up.publish-welcome-chat-from-claim",
+        "kind": "action",
+        "name": "publish-welcome-chat-from-claim",
+        "description": "Given a won welcome delivery claim, publish the outbound follow-up chat turn by writing the conversations-contracted addressed-exchange attribute facts (the DATA seam; conversations' record-projection descriptor is maintained:true so materialization follows the facts). No dispatch to action:publish-addressed-exchange-conversations - that def carries value_to_bytes:json/object_rows, unsupported by workflow-core value_to_bytes.rs:106 (cell_table only): latent conversations-lane defect, dead code path removed (L030).",
+        "input_schema": {
+          "account_id": "string",
+          "idempotency_key": "string",
+          "claimed_at": "string"
+        },
+        "steps": [
+          {
+            "id": "write_chat",
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "account_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "account_id"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.concat",
+                                  "args": {
+                                    "values": [
+                                      "addressed-exchange-conversation:customer-follow-up:welcome:",
+                                      {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "input",
+                                          "path": "account_id"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            },
+                            "|",
+                            "prop:addressed_exchange_conversation:conversation_ref",
+                            "|",
+                            "type:string"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "prop:addressed_exchange_conversation:conversation_ref"
+                  ],
+                  "payload": {
+                    "table": "attribute_fact",
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "account_id"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "addressed-exchange-conversation:customer-follow-up:welcome:",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "account_id"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "property_id": "prop:addressed_exchange_conversation:conversation_ref",
+                    "type_id": "type:string",
+                    "value_json": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "account_id"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "addressed-exchange-conversation:customer-follow-up:welcome:",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "account_id"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "op": "op:core.stringify",
+                          "args": {
+                            "format": "json"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "account_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "account_id"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.concat",
+                                  "args": {
+                                    "values": [
+                                      "addressed-exchange-conversation:customer-follow-up:welcome:",
+                                      {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "input",
+                                          "path": "account_id"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            },
+                            "|",
+                            "prop:addressed_exchange_conversation:participant_refs",
+                            "|",
+                            "type:json"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "prop:addressed_exchange_conversation:participant_refs"
+                  ],
+                  "payload": {
+                    "table": "attribute_fact",
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "account_id"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "addressed-exchange-conversation:customer-follow-up:welcome:",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "account_id"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "property_id": "prop:addressed_exchange_conversation:participant_refs",
+                    "type_id": "type:json",
+                    "value_json": "[\"participant:self\"]"
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "account_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "account_id"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.concat",
+                                  "args": {
+                                    "values": [
+                                      "addressed-exchange-conversation:customer-follow-up:welcome:",
+                                      {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "input",
+                                          "path": "account_id"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            },
+                            "|",
+                            "prop:addressed_exchange_conversation:way_refs",
+                            "|",
+                            "type:json"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "prop:addressed_exchange_conversation:way_refs"
+                  ],
+                  "payload": {
+                    "table": "attribute_fact",
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "account_id"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "addressed-exchange-conversation:customer-follow-up:welcome:",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "account_id"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "property_id": "prop:addressed_exchange_conversation:way_refs",
+                    "type_id": "type:json",
+                    "value_json": "[]"
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "account_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "account_id"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.concat",
+                                  "args": {
+                                    "values": [
+                                      "addressed-exchange-conversation:customer-follow-up:welcome:",
+                                      {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "input",
+                                          "path": "account_id"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            },
+                            "|",
+                            "prop:addressed_exchange_conversation:service_connection_refs",
+                            "|",
+                            "type:json"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "prop:addressed_exchange_conversation:service_connection_refs"
+                  ],
+                  "payload": {
+                    "table": "attribute_fact",
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "account_id"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "addressed-exchange-conversation:customer-follow-up:welcome:",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "account_id"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "property_id": "prop:addressed_exchange_conversation:service_connection_refs",
+                    "type_id": "type:json",
+                    "value_json": "[]"
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "account_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "account_id"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.concat",
+                                  "args": {
+                                    "values": [
+                                      "addressed-exchange-conversation:customer-follow-up:welcome:",
+                                      {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "input",
+                                          "path": "account_id"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            },
+                            "|",
+                            "prop:addressed_exchange_conversation:title",
+                            "|",
+                            "type:json"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "prop:addressed_exchange_conversation:title"
+                  ],
+                  "payload": {
+                    "table": "attribute_fact",
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "account_id"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "addressed-exchange-conversation:customer-follow-up:welcome:",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "account_id"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "property_id": "prop:addressed_exchange_conversation:title",
+                    "type_id": "type:json",
+                    "value_json": "\"Welcome to Ethos School of Tennis\""
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "account_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "account_id"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.concat",
+                                  "args": {
+                                    "values": [
+                                      "addressed-exchange-conversation:customer-follow-up:welcome:",
+                                      {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "input",
+                                          "path": "account_id"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            },
+                            "|",
+                            "prop:addressed_exchange_conversation:last_message_preview",
+                            "|",
+                            "type:json"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "prop:addressed_exchange_conversation:last_message_preview"
+                  ],
+                  "payload": {
+                    "table": "attribute_fact",
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "account_id"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "addressed-exchange-conversation:customer-follow-up:welcome:",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "account_id"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "property_id": "prop:addressed_exchange_conversation:last_message_preview",
+                    "type_id": "type:json",
+                    "value_json": "\"Welcome to Ethos School of Tennis. Your account is ready: https://ethos-school-of-tennis.fly.dev/\""
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "account_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "account_id"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.concat",
+                                  "args": {
+                                    "values": [
+                                      "addressed-exchange-conversation:customer-follow-up:welcome:",
+                                      {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "input",
+                                          "path": "account_id"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            },
+                            "|",
+                            "prop:addressed_exchange_conversation:last_activity_at",
+                            "|",
+                            "type:json"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "prop:addressed_exchange_conversation:last_activity_at"
+                  ],
+                  "payload": {
+                    "table": "attribute_fact",
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "account_id"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "addressed-exchange-conversation:customer-follow-up:welcome:",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "account_id"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "property_id": "prop:addressed_exchange_conversation:last_activity_at",
+                    "type_id": "type:json",
+                    "value_json": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "claimed_at"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.stringify",
+                          "args": {
+                            "format": "json"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "account_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "account_id"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.concat",
+                                  "args": {
+                                    "values": [
+                                      "addressed-exchange-turn:customer-follow-up:welcome:",
+                                      {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "input",
+                                          "path": "account_id"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            },
+                            "|",
+                            "prop:addressed_exchange_turn:conversation_ref",
+                            "|",
+                            "type:string"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "prop:addressed_exchange_turn:conversation_ref"
+                  ],
+                  "payload": {
+                    "table": "attribute_fact",
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "account_id"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "addressed-exchange-turn:customer-follow-up:welcome:",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "account_id"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "property_id": "prop:addressed_exchange_turn:conversation_ref",
+                    "type_id": "type:string",
+                    "value_json": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "account_id"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "addressed-exchange-conversation:customer-follow-up:welcome:",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "account_id"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "op": "op:core.stringify",
+                          "args": {
+                            "format": "json"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "account_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "account_id"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.concat",
+                                  "args": {
+                                    "values": [
+                                      "addressed-exchange-turn:customer-follow-up:welcome:",
+                                      {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "input",
+                                          "path": "account_id"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            },
+                            "|",
+                            "prop:addressed_exchange_turn:author_ref",
+                            "|",
+                            "type:string"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "prop:addressed_exchange_turn:author_ref"
+                  ],
+                  "payload": {
+                    "table": "attribute_fact",
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "account_id"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "addressed-exchange-turn:customer-follow-up:welcome:",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "account_id"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "property_id": "prop:addressed_exchange_turn:author_ref",
+                    "type_id": "type:string",
+                    "value_json": "\"participant:self\""
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "account_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "account_id"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.concat",
+                                  "args": {
+                                    "values": [
+                                      "addressed-exchange-turn:customer-follow-up:welcome:",
+                                      {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "input",
+                                          "path": "account_id"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            },
+                            "|",
+                            "prop:addressed_exchange_turn:addressed_participant_refs",
+                            "|",
+                            "type:json"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "prop:addressed_exchange_turn:addressed_participant_refs"
+                  ],
+                  "payload": {
+                    "table": "attribute_fact",
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "account_id"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "addressed-exchange-turn:customer-follow-up:welcome:",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "account_id"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "property_id": "prop:addressed_exchange_turn:addressed_participant_refs",
+                    "type_id": "type:json",
+                    "value_json": "[]"
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "account_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "account_id"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.concat",
+                                  "args": {
+                                    "values": [
+                                      "addressed-exchange-turn:customer-follow-up:welcome:",
+                                      {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "input",
+                                          "path": "account_id"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            },
+                            "|",
+                            "prop:addressed_exchange_turn:content",
+                            "|",
+                            "type:string"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "prop:addressed_exchange_turn:content"
+                  ],
+                  "payload": {
+                    "table": "attribute_fact",
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "account_id"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "addressed-exchange-turn:customer-follow-up:welcome:",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "account_id"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "property_id": "prop:addressed_exchange_turn:content",
+                    "type_id": "type:string",
+                    "value_json": "\"Welcome to Ethos School of Tennis. Your account is ready: https://ethos-school-of-tennis.fly.dev/\""
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "account_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "account_id"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.concat",
+                                  "args": {
+                                    "values": [
+                                      "addressed-exchange-turn:customer-follow-up:welcome:",
+                                      {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "input",
+                                          "path": "account_id"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            },
+                            "|",
+                            "prop:addressed_exchange_turn:created_at",
+                            "|",
+                            "type:json"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "prop:addressed_exchange_turn:created_at"
+                  ],
+                  "payload": {
+                    "table": "attribute_fact",
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "account_id"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "addressed-exchange-turn:customer-follow-up:welcome:",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "account_id"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "property_id": "prop:addressed_exchange_turn:created_at",
+                    "type_id": "type:json",
+                    "value_json": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "claimed_at"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.stringify",
+                          "args": {
+                            "format": "json"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "published": true,
+                "account_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "account_id"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "write_chat",
+            "to": "done",
+            "kind": "on_result",
+            "config": {}
+          }
+        ],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::customer-follow-up::workflow-action::send-welcome-sms-from-claim",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "remove": false,
+      "payload": {
+        "id": "action:customer-follow-up.send-welcome-sms-from-claim",
+        "kind": "action",
+        "name": "send-welcome-sms-from-claim",
+        "description": "Resolve an account phone contact-point by data shape, then dispatch broadcast-delivery action:send-broadcast with provider_ref message-provider-adapter::twilio-sms. Fail-closed when no phone address exists.",
+        "input_schema": {
+          "account_id": "string",
+          "idempotency_key": "string"
+        },
+        "steps": [
+          {
+            "id": "find_phone",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "published-record",
+                "where": {
+                  "all": [
+                    {
+                      "field": "kind",
+                      "in": [
+                        "account-phone-contact-point"
+                      ]
+                    },
+                    {
+                      "field": "channel",
+                      "in": [
+                        "phone",
+                        "sms"
+                      ]
+                    },
+                    {
+                      "field": "account_id",
+                      "in": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "account_id"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": "send",
+            "kind": "action",
+            "config": {
+              "definition_id": "action:send-broadcast",
+              "inputs": {
+                "recipients": [
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "find_phone",
+                      "path": "output.items.0.payload.address"
+                    }
+                  }
+                ],
+                "subject": "Welcome to Ethos School of Tennis",
+                "html": "<p>Welcome to Ethos School of Tennis. Your account is ready: https://ethos-school-of-tennis.fly.dev/</p>",
+                "text": "Welcome to Ethos School of Tennis. Your account is ready: https://ethos-school-of-tennis.fly.dev/",
+                "provider_ref": "message-provider-adapter::twilio-sms",
+                "idempotencyKey": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "idempotency_key"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "sent": true,
+                "account_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "account_id"
+                  }
+                },
+                "idempotency_key": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "idempotency_key"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "find_phone",
+            "to": "send",
+            "kind": "on_result",
+            "config": {
+              "$kind": "binding",
+              "select": {
+                "from": "steps",
+                "key": "find_phone",
+                "path": "output.items.0.payload.address"
+              }
+            }
+          },
+          {
+            "from": "send",
+            "to": "done",
+            "kind": "on_result",
+            "config": {}
+          }
+        ],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::customer-follow-up::trigger-rule::publish-welcome-chat-on-delivery-claim",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:customer-follow-up.publish-welcome-chat-on-delivery-claim",
+        "topic": "data_state",
+        "trigger_type": "delta",
+        "is_active": true,
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "account-delivery-claim"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "purpose"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "welcome"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "is_retraction"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:customer-follow-up.publish-welcome-chat-from-claim",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "account_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "account_id"
+                }
+              },
+              "idempotency_key": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "idempotency_key"
+                }
+              },
+              "claimed_at": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "claimed_at"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::customer-follow-up::trigger-rule::send-welcome-sms-on-delivery-claim",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:customer-follow-up.send-welcome-sms-on-delivery-claim",
+        "topic": "data_state",
+        "trigger_type": "delta",
+        "is_active": true,
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "account-delivery-claim"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "purpose"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "welcome"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "is_retraction"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:customer-follow-up.send-welcome-sms-from-claim",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "account_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "account_id"
+                }
+              },
+              "idempotency_key": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "idempotency_key"
+                }
+              },
+              "claimed_at": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "claimed_at"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::customer-follow-up::customer-feed",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "in": [
+                "customer-contact",
+                "customer-product-target",
+                "customer-step"
+              ]
+            },
+            {
+              "path": [
+                "payload"
+              ],
+              "not_equals": "__bitfield_never__"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-customer-follow-up",
+      "source_path": "built-stored-bytes/entry-bytes-customer-follow-up",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-customer-follow-up.source-closure.json"
+    }
+  ]
+}

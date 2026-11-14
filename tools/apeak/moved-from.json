@@ -1,0 +1,141 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/apeak/assets/icons/bulb.png",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/apeak/packages/apeak/assets/icons/bulb.png",
+      "source_identity": "1f:b6ee09b0cc125fea233ce2ddd76c0fecc06879a24bce2dc70bf3d30150ccbc7c",
+      "identity": "1f:b6ee09b0cc125fea233ce2ddd76c0fecc06879a24bce2dc70bf3d30150ccbc7c"
+    },
+    {
+      "from": "packages/apeak/assets/icons/clock.png",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/apeak/packages/apeak/assets/icons/clock.png",
+      "source_identity": "1f:f205c6400a097d5b5050c335cb5bcd40aef676a621ea7d64484ab18ae0ef5e0f",
+      "identity": "1f:f205c6400a097d5b5050c335cb5bcd40aef676a621ea7d64484ab18ae0ef5e0f"
+    },
+    {
+      "from": "packages/apeak/assets/icons/fire.png",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/apeak/packages/apeak/assets/icons/fire.png",
+      "source_identity": "1f:7882d5e407edd1b18f1eee1285112696d4e4aa3129f5e50f6e78d0b74b642cfd",
+      "identity": "1f:7882d5e407edd1b18f1eee1285112696d4e4aa3129f5e50f6e78d0b74b642cfd"
+    },
+    {
+      "from": "packages/apeak/assets/icons/flash.png",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/apeak/packages/apeak/assets/icons/flash.png",
+      "source_identity": "1f:ea628223a538a6e726b9637a5a782d26bdbed066c1adc96d8c68d100f8dced6d",
+      "identity": "1f:ea628223a538a6e726b9637a5a782d26bdbed066c1adc96d8c68d100f8dced6d"
+    },
+    {
+      "from": "packages/apeak/assets/icons/heart.png",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/apeak/packages/apeak/assets/icons/heart.png",
+      "source_identity": "1f:8e50297ea0fac856e03ef9d8fbf03d393dbecb284eabbc90002e6a7089fb9084",
+      "identity": "1f:8e50297ea0fac856e03ef9d8fbf03d393dbecb284eabbc90002e6a7089fb9084"
+    },
+    {
+      "from": "packages/apeak/assets/icons/medal.png",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/apeak/packages/apeak/assets/icons/medal.png",
+      "source_identity": "1f:9ca2ce8adcdace70b17cd68f1d32eca839bc866ac00dc27bbe2a91f8eaad55d8",
+      "identity": "1f:9ca2ce8adcdace70b17cd68f1d32eca839bc866ac00dc27bbe2a91f8eaad55d8"
+    },
+    {
+      "from": "packages/apeak/assets/icons/moon.png",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/apeak/packages/apeak/assets/icons/moon.png",
+      "source_identity": "1f:80b400c726c582ea9611b11a2eab38c4008bd5eeb4c62535ee4ffa43256132a6",
+      "identity": "1f:80b400c726c582ea9611b11a2eab38c4008bd5eeb4c62535ee4ffa43256132a6"
+    },
+    {
+      "from": "packages/apeak/assets/icons/star.png",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/apeak/packages/apeak/assets/icons/star.png",
+      "source_identity": "1f:26e54d3ec5809fcf06a553d4bd6de9eb5a255015a205aa0e3353d4fbf6c6d7e9",
+      "identity": "1f:26e54d3ec5809fcf06a553d4bd6de9eb5a255015a205aa0e3353d4fbf6c6d7e9"
+    },
+    {
+      "from": "packages/apeak/assets/icons/sun.png",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/apeak/packages/apeak/assets/icons/sun.png",
+      "source_identity": "1f:116947efbce5f7229e376253ba2e7471ad5028584a87946f43feefe5b16fc1cf",
+      "identity": "1f:116947efbce5f7229e376253ba2e7471ad5028584a87946f43feefe5b16fc1cf"
+    },
+    {
+      "from": "packages/apeak/assets/icons/target.png",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/apeak/packages/apeak/assets/icons/target.png",
+      "source_identity": "1f:ac3756a39ccbf35bcb16ff1754d8c712d842e4d05ac931f3cd044d6a3973b409",
+      "identity": "1f:ac3756a39ccbf35bcb16ff1754d8c712d842e4d05ac931f3cd044d6a3973b409"
+    },
+    {
+      "from": "packages/apeak/assets/icons/trophy.png",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/apeak/packages/apeak/assets/icons/trophy.png",
+      "source_identity": "1f:fe131ec6c3db47e1c8b37dfaef84267c82e105ea33aae28340b69b1acaad43d1",
+      "identity": "1f:fe131ec6c3db47e1c8b37dfaef84267c82e105ea33aae28340b69b1acaad43d1"
+    },
+    {
+      "from": "packages/apeak/assets/icons/zoom.png",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/apeak/packages/apeak/assets/icons/zoom.png",
+      "source_identity": "1f:0236647c4fe182d066db8a31d745488b2024f11b846f7e351963b552dcecb8db",
+      "identity": "1f:0236647c4fe182d066db8a31d745488b2024f11b846f7e351963b552dcecb8db"
+    },
+    {
+      "from": "packages/apeak/DESIGN-CONTRACT.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/apeak/packages/apeak/DESIGN-CONTRACT.md",
+      "source_identity": "1f:268912b96fd5531bfbaa3aefb4712dee12ffc8077a7d99b9990011f27cfe8ecf",
+      "identity": "1f:268912b96fd5531bfbaa3aefb4712dee12ffc8077a7d99b9990011f27cfe8ecf"
+    },
+    {
+      "from": "packages/apeak/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/apeak/packages/apeak/entry-to-package-data-map.json",
+      "source_identity": "1f:b6366330cb8a12a60c03f33081a733cff7bf55454e3881991715cf55adaf0d93",
+      "identity": "1f:b6366330cb8a12a60c03f33081a733cff7bf55454e3881991715cf55adaf0d93"
+    },
+    {
+      "from": "packages/apeak/show/apeak-surface-model.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/apeak/packages/apeak/show/apeak-surface-model.ts",
+      "source_identity": "1f:d78095d300a46258c5ee222b12a49892a8157da8e406207b911720c14f22a487",
+      "identity": "1f:d78095d300a46258c5ee222b12a49892a8157da8e406207b911720c14f22a487"
+    },
+    {
+      "from": "packages/apeak/show/ApeakSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/apeak/packages/apeak/show/ApeakSurface.tsx",
+      "source_identity": "1f:456e7a8248e7a862b1839c0a3624946df41e7152780623ffc90d167e51440b8c",
+      "identity": "1f:456e7a8248e7a862b1839c0a3624946df41e7152780623ffc90d167e51440b8c"
+    },
+    {
+      "from": "packages/apeak/show/mount-apeak-surface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/apeak/packages/apeak/show/mount-apeak-surface.tsx",
+      "source_identity": "1f:9b6c999dead7732dc795ce67c8d6b92242959feace84687bf1df8185041cef62",
+      "identity": "1f:9b6c999dead7732dc795ce67c8d6b92242959feace84687bf1df8185041cef62"
+    },
+    {
+      "from": "packages/apeak/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/apeak/packages/apeak/things-to-store-and-run.json",
+      "source_identity": "1f:cde418a29a8279cfaa9ecb8813519975f3366dee540300c4de8b89d22b9f3c69",
+      "identity": "1f:cde418a29a8279cfaa9ecb8813519975f3366dee540300c4de8b89d22b9f3c69"
+    }
+  ]
+}

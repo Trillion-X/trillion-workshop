@@ -1,0 +1,332 @@
+{
+  "package": "destination-surface",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::destination-surface::checks",
+      "path": ["packages", "destination-surface", "checks"],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "read-data/read-destination.test.ts",
+          "show/DestinationView.test.tsx",
+          "do-work/migrate-honest-destination-state.test.ts",
+          "destination-honest-state.conformance.test.ts"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::destination-surface::contract",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "destination-surface",
+        "contract"
+      ],
+      "payload": {
+        "kind": "bitfield-package-contract",
+        "package": "destination-surface",
+        "capability": "generic destination rendering from owner-published descriptors",
+        "owns": [
+          "destination-descriptor rendering contract",
+          "section presentation physics",
+          "guarded honest-state migration for destination-owned rows"
+        ],
+        "does_not_own": [
+          "which destinations exist",
+          "destination names, labels, or vocabulary",
+          "identity or authorization",
+          "effect, score, progression, rank, history, or activity authority"
+        ],
+        "reuses": [
+          "owner-published destination projections",
+          "engine.operation guarded current-row writes"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::destination-surface::destination-descriptor-feed",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "in": [
+                "destination-descriptor"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::destination-surface::input::published-records",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "published-records",
+        "value_address_label": "package::destination-surface::destination-descriptor-feed",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "package": "destination-surface"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::destination-surface::descriptor-contract::v2",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "destination-surface.descriptor-contract/v2",
+        "descriptor_kind": "destination-descriptor",
+        "subject_scope_field": "subject_ref",
+        "projection_provenance_fields": [
+          "projection_ref",
+          "progression_ref"
+        ],
+        "state_rules": {
+          "browser_mutations": "forbidden",
+          "browser_aggregation": "forbidden",
+          "rank_history_and_item_rows": "owner-published",
+          "pulse_rows": "owner-published",
+          "progress": "owner-published",
+          "static_user_state": "forbidden"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::destination-surface::migration-contract::honest-state-v1",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "destination-surface.honest-state-migration-contract/v1",
+        "target": "destination-surface.migrate-honest-destination-state",
+        "sequence": [
+          "read-exact-current-bases",
+          "write-guarded-honest-successors",
+          "read-back-exact-successors",
+          "retract-exact-invented-rows",
+          "prove-final-absence"
+        ],
+        "replacement_input": [
+          "address",
+          "path_labels",
+          "expected_payload",
+          "successor"
+        ],
+        "retraction_input": [
+          "address",
+          "path_labels",
+          "expected_payload"
+        ],
+        "scope": "destination owner namespace only",
+        "source_of_truth": "canonical owner-published destination projections"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::destination-surface::factflow::destination",
+      "path": [
+        "package-primitive",
+        "factflow"
+      ],
+      "payload": {
+        "kind": "bitfield-eeaf-factflow",
+        "version": 2,
+        "package": "destination-surface",
+        "journal": {
+          "address_label": "destination-surface.factflow.journal"
+        },
+        "fact_sources": [
+          {
+            "address": "package::destination-surface::entry::destination",
+            "role": "package entry fact source"
+          },
+          {
+            "address": "package::destination-surface::target::migrate-honest-destination-state",
+            "role": "owner migration target"
+          }
+        ],
+        "genesis": [],
+        "blockers": [],
+        "evidence": [
+          {
+            "address": "package::destination-surface::entry::destination",
+            "proves": "surface materializes from declared package entry"
+          },
+          {
+            "address": "package::destination-surface::migration-contract::honest-state-v1",
+            "proves": "successor-before-retraction migration contract"
+          }
+        ],
+        "interpreter_facts": {
+          "facts": [],
+          "intents": [],
+          "effects": [],
+          "validation": [
+            {
+              "rule": "surface renders only descriptor and owner-returned state"
+            },
+            {
+              "rule": "browser code cannot author effects, scores, ranks, history, or progress"
+            }
+          ],
+          "permissions": [
+            {
+              "rule": "screen arrangement owns placement"
+            },
+            {
+              "rule": "honest-state migration is owner-to-owner only"
+            }
+          ],
+          "projections": [
+            {
+              "address_label": "published-records",
+              "source_path": [
+                "current-item",
+                "published-record"
+              ]
+            }
+          ],
+          "materializations": [
+            {
+              "entry_name": "destination",
+              "role": "placeable package entry bytes"
+            },
+            {
+              "entry_name": "migrate-honest-destination-state-target",
+              "role": "guarded owner migration bytes"
+            }
+          ]
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::destination-surface::target::migrate-honest-destination-state",
+      "path": [
+        "packages",
+        "destination-surface",
+        "targets",
+        "migrate-honest-destination-state"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "target": "destination-surface.migrate-honest-destination-state",
+        "exposure": "owner-to-owner-only",
+        "entry_name": "migrate-honest-destination-state-target",
+        "export_name": "migrateHonestDestinationStateTarget",
+        "source_path": "do-work/migrate-honest-destination-state.ts",
+        "input_contract": {
+          "required": [
+            "migration_ref",
+            "idempotency_ref",
+            "replacements",
+            "retraction_bases",
+            "retractions"
+          ],
+          "trusted_context": [
+            "runtime.partition_label"
+          ],
+          "forbidden": [
+            "partition_label",
+            "owner_target",
+            "actor_ref"
+          ]
+        },
+        "replacement_pair": [
+          "write-successors-and-readback",
+          "basis-retract-invented-rows-and-prove-absence"
+        ],
+        "idempotency_key": "idempotency_ref"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::destination-surface::entry::migrate-honest-destination-state-target",
+      "path": [
+        "packages",
+        "destination-surface",
+        "entries",
+        "migrate-honest-destination-state-target"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "migrate-honest-destination-state-target",
+        "export_name": "migrateHonestDestinationStateTarget",
+        "source_path": "do-work/migrate-honest-destination-state.ts",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-migrate-honest-destination-state-target"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-migrate-honest-destination-state-target",
+      "source_path": "built-stored-bytes/entry-bytes-migrate-honest-destination-state-target",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-migrate-honest-destination-state-target.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::destination-surface::entry::destination",
+      "path": [
+        "packages",
+        "destination-surface",
+        "entries",
+        "destination"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "destination",
+        "source_path": "show/mount-destination.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-destination"
+        }
+      },
+      "build_source_path": "show/mount-destination.tsx",
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-destination",
+      "source_path": "built-stored-bytes/entry-bytes-destination",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-destination.source-closure.json"
+    }
+  ]
+}

@@ -5,6 +5,111 @@
   "calls": [],
   "files": [
     {
+      "from": "packages/content-gate/do-work/evaluate-gate.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/judge-words/packages/content-gate/do-work/evaluate-gate.ts",
+      "source_identity": "1f:4d7cfd9afa08df3763d9c33716219ade5dd1e728f3ecbc568992a32bc6283869",
+      "identity": "1f:4d7cfd9afa08df3763d9c33716219ade5dd1e728f3ecbc568992a32bc6283869"
+    },
+    {
+      "from": "packages/content-gate/do-work/evaluator.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/judge-words/packages/content-gate/do-work/evaluator.ts",
+      "source_identity": "1f:ea8558098508f583236a25ec5d29639943e08a897faad05dde3499eef2859f76",
+      "identity": "1f:ea8558098508f583236a25ec5d29639943e08a897faad05dde3499eef2859f76"
+    },
+    {
+      "from": "packages/content-gate/do-work/evaluators/emotion-signal.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/judge-words/packages/content-gate/do-work/evaluators/emotion-signal.ts",
+      "source_identity": "1f:b957f60c96f77561ad94f4f8e1e68a5779c78f5682215cf2147ef97a725487ce",
+      "identity": "1f:b957f60c96f77561ad94f4f8e1e68a5779c78f5682215cf2147ef97a725487ce"
+    },
+    {
+      "from": "packages/content-gate/do-work/evaluators/humor-and-personality.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/judge-words/packages/content-gate/do-work/evaluators/humor-and-personality.ts",
+      "source_identity": "1f:b2f12a90fa15e6b6fd40411e4c47f1b2d95ddd070a6d23a53b61dba4290178a0",
+      "identity": "1f:b2f12a90fa15e6b6fd40411e4c47f1b2d95ddd070a6d23a53b61dba4290178a0"
+    },
+    {
+      "from": "packages/content-gate/do-work/evaluators/provenance-and-capture.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/judge-words/packages/content-gate/do-work/evaluators/provenance-and-capture.ts",
+      "source_identity": "1f:30f577f724d26d891509a82de570ecbab7e2777829498d857c9f661431a7c0a4",
+      "identity": "1f:30f577f724d26d891509a82de570ecbab7e2777829498d857c9f661431a7c0a4"
+    },
+    {
+      "from": "packages/content-gate/do-work/evaluators/retention-protocol.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/judge-words/packages/content-gate/do-work/evaluators/retention-protocol.ts",
+      "source_identity": "1f:d052c636ee484177fdec9fc32d3efbc6466d7bb70fe0e49424ca4d3588d27316",
+      "identity": "1f:d052c636ee484177fdec9fc32d3efbc6466d7bb70fe0e49424ca4d3588d27316"
+    },
+    {
+      "from": "packages/content-gate/do-work/evaluators/voice-intonation.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/judge-words/packages/content-gate/do-work/evaluators/voice-intonation.ts",
+      "source_identity": "1f:1e61de585317652e07577ecbe241e9106e8b78337f1e1787829826d7d7bdc8d2",
+      "identity": "1f:1e61de585317652e07577ecbe241e9106e8b78337f1e1787829826d7d7bdc8d2"
+    },
+    {
+      "from": "packages/content-gate/do-work/process-scripts/evaluate-gate.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/judge-words/packages/content-gate/do-work/process-scripts/evaluate-gate.mjs",
+      "source_identity": "1f:3b54565e2bc8ee77b76e29ba8afe99cfd06d5cddafaa7135277970989e5892af",
+      "identity": "1f:3b54565e2bc8ee77b76e29ba8afe99cfd06d5cddafaa7135277970989e5892af"
+    },
+    {
+      "from": "packages/content-gate/do-work/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/judge-words/packages/content-gate/do-work/README.md",
+      "source_identity": "1f:1c506f97d81861a1852b5bd801fdb99d57934fe9786d43ec7c2fa6fe602ed5bc",
+      "identity": "1f:1c506f97d81861a1852b5bd801fdb99d57934fe9786d43ec7c2fa6fe602ed5bc"
+    },
+    {
+      "from": "packages/content-gate/do-work/standard-evaluators.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/judge-words/packages/content-gate/do-work/standard-evaluators.ts",
+      "source_identity": "1f:fcaf5880090220b2a9a5d5a5536a577f42ad8aea02ad97dcd277fb75bf8ac7ea",
+      "identity": "1f:fcaf5880090220b2a9a5d5a5536a577f42ad8aea02ad97dcd277fb75bf8ac7ea"
+    },
+    {
+      "from": "packages/content-gate/read-data/build-copy-subject.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/judge-words/packages/content-gate/read-data/build-copy-subject.ts",
+      "source_identity": "1f:5e5539fa321447c6da50529a0575127a537e5fb275867da04567972592ac7847",
+      "identity": "1f:5e5539fa321447c6da50529a0575127a537e5fb275867da04567972592ac7847"
+    },
+    {
+      "from": "packages/content-gate/read-data/gate-types.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/judge-words/packages/content-gate/read-data/gate-types.ts",
+      "source_identity": "1f:eee68a550cddf8e660ce760de3efc5500e8c32b999530e832960f19df19e3c1a",
+      "identity": "1f:eee68a550cddf8e660ce760de3efc5500e8c32b999530e832960f19df19e3c1a"
+    },
+    {
+      "from": "packages/content-gate/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/judge-words/packages/content-gate/read-data/README.md",
+      "source_identity": "1f:6d123fc784cfb17944410c79fffd468a94e0d37947e4a11a1da44db0c0b1178f",
+      "identity": "1f:6d123fc784cfb17944410c79fffd468a94e0d37947e4a11a1da44db0c0b1178f"
+    },
+    {
+      "from": "packages/content-gate/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/judge-words/packages/content-gate/things-to-store-and-run.json",
+      "source_identity": "1f:3eff405047b27382002829402190f1395b5baac62bcea9f6b8b588d7b4641ad4",
+      "identity": "1f:3eff405047b27382002829402190f1395b5baac62bcea9f6b8b588d7b4641ad4"
+    },
+    {
+      "from": "packages/content-gate/vitest.config.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/judge-words/packages/content-gate/vitest.config.mjs",
+      "source_identity": "1f:1b4d9d5d3da2aa4d5a5608dad1bbaf783db0683306dedf6d930461b6af519f6c",
+      "identity": "1f:1b4d9d5d3da2aa4d5a5608dad1bbaf783db0683306dedf6d930461b6af519f6c"
+    },
+    {
       "from": "parts/judge-words/do-work/judge-words.mjs",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
       "to": "tools/judge-words/parts/judge-words/do-work/judge-words.mjs",

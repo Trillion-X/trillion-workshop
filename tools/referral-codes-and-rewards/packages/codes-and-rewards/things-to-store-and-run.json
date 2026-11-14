@@ -1,0 +1,181 @@
+{
+  "package": "codes-and-rewards",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::codes-and-rewards::contract",
+      "path": [
+        "packages",
+        "codes-and-rewards"
+      ],
+      "payload": {
+        "kind": "package-boundary-contract",
+        "package": "codes-and-rewards",
+        "owns": [
+          "record interaction contract data for account-readable codes and rewards surfaces",
+          "descriptor-driven projection of package records into human-readable rows",
+          "descriptor-driven owner-action request materialization"
+        ],
+        "does_not_own": [
+          "reward math",
+          "fraud policy",
+          "payment effects",
+          "account identity",
+          "relationship graph truth",
+          "workflow execution",
+          "HTTP calls",
+          "credentials",
+          "process-session execution",
+          "slot lifecycle",
+          "EEAF internals"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::codes-and-rewards::record-interaction-contract",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "record-interaction-contract-ref",
+        "package": "codes-and-rewards",
+        "source_path": "record-interaction-contract.json",
+        "read_entry": "read-record-interaction-surface",
+        "action_entry": "build-owner-action-request"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::codes-and-rewards::input::record-interaction-rows",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "record-interaction-rows",
+        "is_default": true,
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "codes-and-rewards.record-interaction-rows"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::codes-and-rewards::entry::read-record-interaction-surface",
+      "path": [
+        "packages",
+        "codes-and-rewards",
+        "entries",
+        "read-record-interaction-surface"
+      ],
+      "payload": {
+        "entry_name": "read-record-interaction-surface",
+        "kind": "bitfield-package-entry",
+        "source_path": "read-data/read-record-interaction-surface.ts",
+        "export_name": "readRecordInteractionSurface",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-read-record-interaction-surface"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::codes-and-rewards::entry::build-owner-action-request",
+      "path": [
+        "packages",
+        "codes-and-rewards",
+        "entries",
+        "build-owner-action-request"
+      ],
+      "payload": {
+        "entry_name": "build-owner-action-request",
+        "kind": "bitfield-package-entry",
+        "source_path": "do-work/build-owner-action-request.ts",
+        "export_name": "buildOwnerActionRequest",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-build-owner-action-request"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::codes-and-rewards::target::build-owner-action-request",
+      "path": [
+        "packages",
+        "codes-and-rewards",
+        "targets",
+        "build-owner-action-request"
+      ],
+      "payload": {
+        "entry_name": "build-owner-action-request",
+        "kind": "package-target-descriptor",
+        "source_path": "do-work/build-owner-action-request.ts",
+        "export_name": "buildOwnerActionRequest"
+      },
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::codes-and-rewards::published-records",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "cell_table",
+        "columns": [
+          {
+            "column": 0,
+            "source": {
+              "path": [
+                "record",
+                "address"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "non_empty_text"
+            }
+          },
+          {
+            "column": 1,
+            "source": {
+              "path": [
+                "record",
+                "payload_json_text"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "json_text"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-read-record-interaction-surface",
+      "source_path": "built-stored-bytes/entry-bytes-read-record-interaction-surface",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-read-record-interaction-surface.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-build-owner-action-request",
+      "source_path": "built-stored-bytes/entry-bytes-build-owner-action-request",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-build-owner-action-request.source-closure.json"
+    }
+  ]
+}

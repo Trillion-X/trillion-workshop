@@ -1,0 +1,522 @@
+{
+  "package": "agents-hub",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::agents-hub::checks",
+      "path": ["packages", "agents-hub", "checks"],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "read-data/resolve-agent-cards.test.ts",
+          "do-work/agent-record-writes.test.ts"
+        ]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "index",
+      "source_path": "index.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "resolve-agent-cards",
+      "source_path": "read-data/resolve-agent-cards.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "agent-record-writes",
+      "source_path": "do-work/agent-record-writes.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "dispatch-agent-message",
+      "source_path": "do-work/dispatch-agent-message.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "agents-hub-surface",
+      "source_path": "show/AgentsHubSurface.tsx"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "agent-card",
+      "source_path": "show/AgentCard.tsx"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "agent-quick-view",
+      "source_path": "show/AgentQuickView.tsx"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "agent-edit-view",
+      "source_path": "show/AgentEditView.tsx"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "mount-agents-hub",
+      "source_path": "show/mount-agents-hub.tsx"
+    },
+    {
+      "type": "record",
+      "address": "package::agents-hub::contract",
+      "path": [
+        "packages",
+        "agents-hub",
+        "contract"
+      ],
+      "payload": {
+        "kind": "package-contract",
+        "package": "agents-hub",
+        "owns": [
+          "agents management surface rendering",
+          "agent card composition from published records",
+          "agent configuration editing surface"
+        ],
+        "does_not_own": [
+          "agent records",
+          "provider records",
+          "instruction block records",
+          "tool records",
+          "execution history records",
+          "conversation data",
+          "message delivery"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::agents-hub::agents-hub-registry-feed",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ],
+        [
+          "current-item",
+          "ai-execution-run-index"
+        ],
+        [
+          "current-item",
+          "ai-memory-index"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "in": [
+                "ai-agent-profile",
+                "ai-model-descriptor",
+                "ai-model-runtime-descriptor",
+                "ai-provider-option",
+                "ai-instruction-block",
+                "ai-tool-descriptor",
+                "ai-memory-record",
+                "memory-context-item",
+                "ai-guard-limit",
+                "ai-guard-state",
+                "agents-hub-hidden-entity",
+                "ai-execution-run",
+                "agents-hub-capability-icons-config"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::agents-hub::input::published-records",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "published-records",
+        "is_default": true,
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "package::agents-hub::agents-hub-registry-feed"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::agents-hub::input::conversation-sessions",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "chat-sessions",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "recordId",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                },
+                "required": true
+              },
+              {
+                "column": 1,
+                "key": "sessionId",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "agentId",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 3,
+                "key": "title",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 5,
+                "key": "model",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 7,
+                "key": "prompt",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 8,
+                "key": "projectName",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 10,
+                "key": "startedAt",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 11,
+                "key": "lastActivityAt",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 12,
+                "key": "messageCount",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ],
+            "op": "rows"
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "chat-sessions"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::agents-hub::input::agent-memory-facts",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "agent-memory-facts",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "subject_id",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                },
+                "required": true
+              },
+              {
+                "column": 1,
+                "key": "property_id",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                },
+                "required": true
+              },
+              {
+                "column": 2,
+                "key": "value",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ],
+            "op": "rows"
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "agent-memories"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::agents-hub::config::capability-icons",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "agents-hub-capability-icons-config",
+        "icons": [
+          {
+            "capability": "text",
+            "icon": "MessageSquare",
+            "label": "Text"
+          },
+          {
+            "capability": "conversation",
+            "icon": "MessageSquare",
+            "label": "Conversation"
+          },
+          {
+            "capability": "vision",
+            "icon": "Eye",
+            "label": "Vision"
+          },
+          {
+            "capability": "audio",
+            "icon": "Mic",
+            "label": "Audio"
+          },
+          {
+            "capability": "video",
+            "icon": "Film",
+            "label": "Video"
+          },
+          {
+            "capability": "tools",
+            "icon": "Wrench",
+            "label": "Tools"
+          },
+          {
+            "capability": "context_grounding",
+            "icon": "Anchor",
+            "label": "Grounded answers"
+          },
+          {
+            "capability": "citations",
+            "icon": "Quote",
+            "label": "Citations"
+          },
+          {
+            "capability": "omni",
+            "icon": "Sparkles",
+            "label": "All modalities"
+          }
+        ],
+        "vendor_fallback": [
+          {
+            "vendor": "anthropic",
+            "capabilities": [
+              "text",
+              "vision",
+              "tools"
+            ]
+          },
+          {
+            "vendor": "openai",
+            "capabilities": [
+              "text",
+              "vision",
+              "tools"
+            ]
+          },
+          {
+            "vendor": "google",
+            "capabilities": [
+              "text",
+              "vision",
+              "audio",
+              "video",
+              "tools"
+            ]
+          },
+          {
+            "vendor": "ollama",
+            "capabilities": [
+              "text",
+              "tools"
+            ]
+          }
+        ],
+        "placement_marks": [
+          {
+            "deployment_class": "local",
+            "mark": { "icon": "HardDrive", "label": "Runs on this computer" }
+          },
+          {
+            "deployment_class": "local-routing-hub",
+            "mark": { "icon": "Route", "label": "Routed from this computer" }
+          },
+          {
+            "deployment_class": "cloud",
+            "mark": { "icon": "Cloud", "label": "Cloud" }
+          }
+        ],
+        "unknown_placement": { "icon": "CircleHelp", "label": "Where this runs is not published" }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::agents-hub::config::message-dispatch",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "agents-hub-message-dispatch-config",
+        "definition_id": "action:create-agent-inbox-message",
+        "default_team": "agents-hub",
+        "from": "human"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::agents-hub::placeable-surface::agents-hub",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "Bot",
+        "id": "agents-hub",
+        "kind": "placeable-surface",
+        "label": "Agents",
+        "material_target": "component:agents-hub",
+        "accepts_material_kinds": [
+          "agent-profile"
+        ],
+        "order": 55,
+        "package_entry": {
+          "package_name": "agents-hub",
+          "entry_name": "agents-hub"
+        },
+        "surface_id": "agents-hub",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000055:agents-hub"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::agents-hub::entry::agents-hub",
+      "path": [
+        "packages",
+        "agents-hub",
+        "entries",
+        "agents-hub"
+      ],
+      "payload": {
+        "entry_name": "agents-hub",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-agents-hub.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-agents-hub"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-agents-hub",
+      "source_path": "built-stored-bytes/entry-bytes-agents-hub",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-agents-hub.source-closure.json"
+    }
+  ]
+}

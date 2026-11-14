@@ -1,0 +1,57 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/away-summary/do-work/update-away-summary-last-seen.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/away-summary/packages/away-summary/do-work/update-away-summary-last-seen.ts",
+      "source_identity": "1f:21234a196be2a8ff3e709eaaff1919ed6c1d712a47fbde30eed836d8fe0f47c8",
+      "identity": "1f:21234a196be2a8ff3e709eaaff1919ed6c1d712a47fbde30eed836d8fe0f47c8"
+    },
+    {
+      "from": "packages/away-summary/read-data/read-away-summary-last-seen.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/away-summary/packages/away-summary/read-data/read-away-summary-last-seen.ts",
+      "source_identity": "1f:f63a2ebc6b2fb71523116f8e3d56e67c79580cc961f2ebb91965773b85e22ab6",
+      "identity": "1f:f63a2ebc6b2fb71523116f8e3d56e67c79580cc961f2ebb91965773b85e22ab6"
+    },
+    {
+      "from": "packages/away-summary/read-data/read-away-summary.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/away-summary/packages/away-summary/read-data/read-away-summary.ts",
+      "source_identity": "1f:2b57a8d2c505d1f3dfb546ad14cc487cabcf30c9ae4449514d70e40b542821b2",
+      "identity": "1f:2b57a8d2c505d1f3dfb546ad14cc487cabcf30c9ae4449514d70e40b542821b2"
+    },
+    {
+      "from": "packages/away-summary/read-data/select-away-summary.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/away-summary/packages/away-summary/read-data/select-away-summary.ts",
+      "source_identity": "1f:c7bd78894517d84e30d7c0d2ca7edc42c62cb245ec99f1cf6fe99b4f2308d0b6",
+      "identity": "1f:c7bd78894517d84e30d7c0d2ca7edc42c62cb245ec99f1cf6fe99b4f2308d0b6"
+    },
+    {
+      "from": "packages/away-summary/show/AwaySummary.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/away-summary/packages/away-summary/show/AwaySummary.tsx",
+      "source_identity": "1f:e9dc3ac74ac6efe3f959eebb56e9f39fa3dbf725583e42d8e74fe9846e9f25ad",
+      "identity": "1f:e9dc3ac74ac6efe3f959eebb56e9f39fa3dbf725583e42d8e74fe9846e9f25ad"
+    },
+    {
+      "from": "packages/away-summary/show/AwaySummaryGate.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/away-summary/packages/away-summary/show/AwaySummaryGate.tsx",
+      "source_identity": "1f:55e30c9297648172b34d3355ed0f62d23a9c2bf040a4c42bc918e7a22f9cdc25",
+      "identity": "1f:55e30c9297648172b34d3355ed0f62d23a9c2bf040a4c42bc918e7a22f9cdc25"
+    },
+    {
+      "from": "packages/away-summary/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/away-summary/packages/away-summary/things-to-store-and-run.json",
+      "source_identity": "1f:9ae4e6c2551294ccdc63b709228b924a46b8e94c033ffb7047dca76cd85523f9",
+      "identity": "1f:9ae4e6c2551294ccdc63b709228b924a46b8e94c033ffb7047dca76cd85523f9"
+    }
+  ]
+}

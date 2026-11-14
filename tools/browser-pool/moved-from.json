@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/browser-pool/browser-pool-providers.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browser-pool/packages/browser-pool/browser-pool-providers.json",
+      "source_identity": "1f:2abea1822f7fc9f2527bc6d8662bcc51e131da94126be6de48b921ee98106b57",
+      "identity": "1f:2abea1822f7fc9f2527bc6d8662bcc51e131da94126be6de48b921ee98106b57"
+    },
+    {
+      "from": "packages/browser-pool/do-work/browser-pool.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browser-pool/packages/browser-pool/do-work/browser-pool.mjs",
+      "source_identity": "1f:54398829212db88d4451c9014e64aa8f0b9f69d2d1ad023d9f20889082003857",
+      "identity": "1f:54398829212db88d4451c9014e64aa8f0b9f69d2d1ad023d9f20889082003857"
+    },
+    {
+      "from": "packages/browser-pool/do-work/run-browser-pool-request.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browser-pool/packages/browser-pool/do-work/run-browser-pool-request.mjs",
+      "source_identity": "1f:ccaef1d5dc0ea7a9b274d3fa5b62b1a0eaba03f60d39f40551ca8d3a7601b7aa",
+      "identity": "1f:ccaef1d5dc0ea7a9b274d3fa5b62b1a0eaba03f60d39f40551ca8d3a7601b7aa"
+    },
+    {
+      "from": "packages/browser-pool/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browser-pool/packages/browser-pool/things-to-store-and-run.json",
+      "source_identity": "1f:b039d9ad2c3a2514c0580b1d9c190013b6fde7d95542571956dec9aa86a1a3a7",
+      "identity": "1f:b039d9ad2c3a2514c0580b1d9c190013b6fde7d95542571956dec9aa86a1a3a7"
+    }
+  ]
+}

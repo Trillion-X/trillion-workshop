@@ -1,0 +1,302 @@
+{
+  "package": "background-runner-control",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::background-runner-control::placeable-surface::control",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "Bot",
+        "id": "background-runner-control.control",
+        "kind": "placeable-surface",
+        "label": "Background Runner",
+        "material_target": "component:background-runner-control",
+        "order": 80,
+        "surface_id": "background-runner-control.control",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000080:background-runner-control.control",
+        "package_entry": {
+          "package_name": "background-runner-control",
+          "entry_name": "background-runner-control"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::background-runner-control::bitfield-input::daemon-status",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "daemon-status",
+        "is_default": true,
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "running",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "byte_boolean"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "maxConcurrentExecutions",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "queueDepth",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 3,
+                "key": "executingTasks",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 4,
+                "key": "loopsCompleted",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 5,
+                "key": "tasksExecuted",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ],
+            "op": "rows"
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "daemon-status"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::background-runner-control::bitfield-input::execution-options",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "execution-options",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "subject_id",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "property_id",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "value",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ],
+            "op": "rows"
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "cli-registry"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:background-runner-control|prop:extension:instance_props|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:instance_props"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOmluc3RhbmNlX3Byb3BzIiwic3ViamVjdF9pZCI6ImNvbXBvbmVudDpiYWNrZ3JvdW5kLXJ1bm5lci1jb250cm9sIiwidGFibGUiOiJhdHRyaWJ1dGVfZmFjdCIsInR5cGVfaWQiOiJ0eXBlOmV4dGVuc2lvbiIsInZhbHVlX2pzb24iOiJ7XCJmbG9hdGluZ19mcmFtZVwiOntcIm1vZGVcIjpcImlubGluZVwifX0ifQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:background-runner-control|prop:extension:name|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:name"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOm5hbWUiLCJzdWJqZWN0X2lkIjoiY29tcG9uZW50OmJhY2tncm91bmQtcnVubmVyLWNvbnRyb2wiLCJ0YWJsZSI6ImF0dHJpYnV0ZV9mYWN0IiwidHlwZV9pZCI6InR5cGU6ZXh0ZW5zaW9uIiwidmFsdWVfanNvbiI6IlwiQmFja2dyb3VuZFJ1bm5lckNvbnRyb2xcIiJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:background-runner-control|prop:extension:source_path|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:source_path"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOnNvdXJjZV9wYXRoIiwic3ViamVjdF9pZCI6ImNvbXBvbmVudDpiYWNrZ3JvdW5kLXJ1bm5lci1jb250cm9sIiwidGFibGUiOiJhdHRyaWJ1dGVfZmFjdCIsInR5cGVfaWQiOiJ0eXBlOmV4dGVuc2lvbiIsInZhbHVlX2pzb24iOiJcInBhY2thZ2VzL2JhY2tncm91bmQtcnVubmVyLWNvbnRyb2wvc2hvdy9tb3VudC1iYWNrZ3JvdW5kLXJ1bm5lci1jb250cm9sLnRzeFwiIn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:background-runner-control|prop:extension:status|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:status"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOnN0YXR1cyIsInN1YmplY3RfaWQiOiJjb21wb25lbnQ6YmFja2dyb3VuZC1ydW5uZXItY29udHJvbCIsInRhYmxlIjoiYXR0cmlidXRlX2ZhY3QiLCJ0eXBlX2lkIjoidHlwZTpleHRlbnNpb24iLCJ2YWx1ZV9qc29uIjoiXCJhY3RpdmVcIiJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:background-runner-control|prop:extension:version|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:version"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOnZlcnNpb24iLCJzdWJqZWN0X2lkIjoiY29tcG9uZW50OmJhY2tncm91bmQtcnVubmVyLWNvbnRyb2wiLCJ0YWJsZSI6ImF0dHJpYnV0ZV9mYWN0IiwidHlwZV9pZCI6InR5cGU6ZXh0ZW5zaW9uIiwidmFsdWVfanNvbiI6IlwiMS4wLjBcIiJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:background-runner-control|prop:resource:compiler_config|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:resource:compiler_config"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6cmVzb3VyY2U6Y29tcGlsZXJfY29uZmlnIiwic3ViamVjdF9pZCI6ImNvbXBvbmVudDpiYWNrZ3JvdW5kLXJ1bm5lci1jb250cm9sIiwidGFibGUiOiJhdHRyaWJ1dGVfZmFjdCIsInR5cGVfaWQiOiJ0eXBlOmV4dGVuc2lvbiIsInZhbHVlX2pzb24iOiJ7XCJhcmd2XCI6W1wiLi90b29sXCIsXCJfX1NPVVJDRV9QQVRIX19cIixcIi0tYnVuZGxlXCIsXCItLWZvcm1hdD1janNcIixcIi0tb3V0ZmlsZT1fX09VVFBVVF8wX19cIixcIi0tcGxhdGZvcm09YnJvd3NlclwiLFwiLS10YXJnZXQ9ZXMyMDIwXCIsXCItLWpzeD1hdXRvbWF0aWNcIixcIi0tbG9hZGVyOi50c3g9dHN4XCIsXCItLWxvYWRlcjoudHM9dHNcIixcIi0tcmVzb2x2ZS1leHRlbnNpb25zPS50cywudHN4LC5qcywuanN4XCIsXCItLWFsaWFzOkA9LlwiLFwiLS1hbGlhczpAYml0ZmllbGQvcnVudGltZS1raXQvcmVhY3Q9Li9wYWNrYWdlcy9iYWNrZ3JvdW5kLXJ1bm5lci1jb250cm9sLy5iaXRmaWVsZC1lbnRyeS1zY29wZS9lbnRyeS02MjYxNjM2YjY3NzI2Zjc1NmU2NDJkNzI3NTZlNmU2NTcyMmQ2MzZmNmU3NDcyNmY2Yy9ydW50aW1lLWtpdC1yZWFjdC50c1wiLFwiLS1wcmVzZXJ2ZS1zeW1saW5rc1wiLFwiLS1leHRlcm5hbDpyZWFjdFwiLFwiLS1leHRlcm5hbDpyZWFjdC1kb21cIixcIi0tZXh0ZXJuYWw6cmVhY3QtZG9tL2NsaWVudFwiLFwiLS1leHRlcm5hbDpyZWFjdC9qc3gtcnVudGltZVwiLFwiLS1leHRlcm5hbDpyZWFjdC9qc3gtZGV2LXJ1bnRpbWVcIixcIi0tZXh0ZXJuYWw6c2NoZWR1bGVyXCJdLFwiY3dkXCI6XCIuXCIsXCJ0aW1lb3V0X21zXCI6MTIwMDAwLFwidGVybWluYXRpb25fZ3JhY2VfbXNcIjoxMDAwLFwiZXhwZWN0ZWRfdGVybWluYXRpb25cIjpudWxsLFwiZW52XCI6e30sXCJpbnB1dHNcIjpbXSxcImlucHV0X3RyZWVzXCI6W10sXCJvdXRwdXRzXCI6W3tcImNvbnRlbnRfdHlwZVwiOlwiYXBwbGljYXRpb24vamF2YXNjcmlwdFwiLFwibW91bnRfcGF0aFwiOlwib3V0cHV0LmpzXCJ9XSxcImNvbnRhaW5tZW50XCI6e1wia2luZFwiOlwiZGVzY2VuZGFudF9lZmZlY3RfY29udGFpbmVkXCIsXCJwaXBlX2VvZl90aW1lb3V0X21zXCI6MTAwMCxcInB1YmxpY2F0aW9uc1wiOltdfSxcImNhcHR1cmVfZmRzXCI6WzEsMl0sXCJjb2xsZWN0ZWRfZmlsZXNcIjpbXSxcIm91dHB1dF9tYXBwaW5nXCI6W3tcImNvbnRlbnRfdHlwZVwiOlwiYXBwbGljYXRpb24vamF2YXNjcmlwdFwiLFwiaGFzaF9wcm9wZXJ0eV9pZFwiOlwicHJvcDpleHRlbnNpb246aW50ZWdyaXR5X2hhc2hcIixcIm91dHB1dF9wYXRoXCI6XCJvdXRwdXQuanNcIixcInByb3BlcnR5X2lkXCI6XCJwcm9wOmV4dGVuc2lvbjpidW5kbGVcIixcInR5cGVfaWRcIjpcInR5cGU6ZXh0ZW5zaW9uXCJ9XX0ifQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:background-runner-control|prop:resource:compiler_resource|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:resource:compiler_resource"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6cmVzb3VyY2U6Y29tcGlsZXJfcmVzb3VyY2UiLCJzdWJqZWN0X2lkIjoiY29tcG9uZW50OmJhY2tncm91bmQtcnVubmVyLWNvbnRyb2wiLCJ0YWJsZSI6ImF0dHJpYnV0ZV9mYWN0IiwidHlwZV9pZCI6InR5cGU6ZXh0ZW5zaW9uIiwidmFsdWVfanNvbiI6IlwicmVzb3VyY2U6ZXNidWlsZFwiIn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|component:background-runner-control|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "type:extension"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJlbnRpdHlfaWQiOiJjb21wb25lbnQ6YmFja2dyb3VuZC1ydW5uZXItY29udHJvbCIsInRhYmxlIjoiZW50aXR5X3R5cGVzIiwidHlwZV9pZCI6InR5cGU6ZXh0ZW5zaW9uIn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|component:background-runner-control",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJpZCI6ImNvbXBvbmVudDpiYWNrZ3JvdW5kLXJ1bm5lci1jb250cm9sIiwidGFibGUiOiJlbnRpdHkifQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::background-runner-control::entry::background-runner-control",
+      "path": [
+        "packages",
+        "background-runner-control",
+        "entries",
+        "background-runner-control"
+      ],
+      "payload": {
+        "entry_name": "background-runner-control",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-background-runner-control.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-background-runner-control"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-background-runner-control",
+      "source_path": "built-stored-bytes/entry-bytes-background-runner-control",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-background-runner-control.source-closure.json"
+    }
+  ]
+}

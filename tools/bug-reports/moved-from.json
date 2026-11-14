@@ -1,0 +1,71 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/bug-reports/do-work/create-quick-bug-report.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bug-reports/packages/bug-reports/do-work/create-quick-bug-report.ts",
+      "source_identity": "1f:2f33c722753a03413d2ebaa6ef42eadf3ec847f0f243296819766f5a997b276a",
+      "identity": "1f:2f33c722753a03413d2ebaa6ef42eadf3ec847f0f243296819766f5a997b276a"
+    },
+    {
+      "from": "packages/bug-reports/do-work/read-bug-report-configured-action.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bug-reports/packages/bug-reports/do-work/read-bug-report-configured-action.ts",
+      "source_identity": "1f:0b6ebc73d2cc29ba38782a59def46f575c1f8d5ed8c5b3c46416ace63a1662a3",
+      "identity": "1f:0b6ebc73d2cc29ba38782a59def46f575c1f8d5ed8c5b3c46416ace63a1662a3"
+    },
+    {
+      "from": "packages/bug-reports/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bug-reports/packages/bug-reports/entry-to-package-data-map.json",
+      "source_identity": "1f:a0fde168b47a3db55224b2738421b2568415d8426910d2601dbdb13ca74f574c",
+      "identity": "1f:a0fde168b47a3db55224b2738421b2568415d8426910d2601dbdb13ca74f574c"
+    },
+    {
+      "from": "packages/bug-reports/read-data/read-bug-reports.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bug-reports/packages/bug-reports/read-data/read-bug-reports.ts",
+      "source_identity": "1f:9c7b3745221bd160188282043364d09977dd5a3e20f64574f1d6971ff5e9a982",
+      "identity": "1f:9c7b3745221bd160188282043364d09977dd5a3e20f64574f1d6971ff5e9a982"
+    },
+    {
+      "from": "packages/bug-reports/read-data/read-investigations.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bug-reports/packages/bug-reports/read-data/read-investigations.ts",
+      "source_identity": "1f:9192acbb1b410dc67c2e319dfab5fd8039db10a4da208bac79805844ff93f6fa",
+      "identity": "1f:9192acbb1b410dc67c2e319dfab5fd8039db10a4da208bac79805844ff93f6fa"
+    },
+    {
+      "from": "packages/bug-reports/show/BugReportModal.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bug-reports/packages/bug-reports/show/BugReportModal.tsx",
+      "source_identity": "1f:eee5b8d9dfecf58fadec71e111df5379d737f58d084e70b403a6a77a9870bf4f",
+      "identity": "1f:eee5b8d9dfecf58fadec71e111df5379d737f58d084e70b403a6a77a9870bf4f"
+    },
+    {
+      "from": "packages/bug-reports/show/BugReportsSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bug-reports/packages/bug-reports/show/BugReportsSurface.tsx",
+      "source_identity": "1f:9fe6b9a9616d1e4bfb2b880a6e3692058e210a559117da0b9ff61bee1f142668",
+      "identity": "1f:9fe6b9a9616d1e4bfb2b880a6e3692058e210a559117da0b9ff61bee1f142668"
+    },
+    {
+      "from": "packages/bug-reports/show/mount-bug-reports.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bug-reports/packages/bug-reports/show/mount-bug-reports.tsx",
+      "source_identity": "1f:81ebba393edde1c29f5b5194511689886fe297d867a382d2d5210669b6c99700",
+      "identity": "1f:81ebba393edde1c29f5b5194511689886fe297d867a382d2d5210669b6c99700"
+    },
+    {
+      "from": "packages/bug-reports/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/bug-reports/packages/bug-reports/things-to-store-and-run.json",
+      "source_identity": "1f:a7940872b6a4f4622353cee46c41eff1a074e7532295169e260d8a01d475ce0b",
+      "identity": "1f:a7940872b6a4f4622353cee46c41eff1a074e7532295169e260d8a01d475ce0b"
+    }
+  ]
+}

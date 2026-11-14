@@ -1,0 +1,919 @@
+{
+  "package": "ai-cli-conversations",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::ai-cli-conversations::checks",
+      "path": [
+        "packages",
+        "ai-cli-conversations",
+        "checks"
+      ],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "tests/test_user_messages.py",
+          "tests/test_bounded_range_descriptors.py",
+          "tests/test_merge_conversation_source.py",
+          "tests/test_automatic_intake_chain.py"
+        ]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "read-ai-cli-conversations-script",
+      "source_path": "do-work/process-scripts/read-ai-cli-conversations.py"
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "transcript-sources",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "prop:observed_content:conversation_source_descriptor"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": [
+              "payload"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ai-cli-conversations::source-templates",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-cli-conversation-source-template-set",
+        "policy": "Templates describe supported decoders. Discovery plus customer authorization must materialize an active source descriptor in that customer's runtime.",
+        "templates": [
+          {
+            "template_id": "ai-cli-source-template:codex",
+            "source_ref": "source:codex",
+            "descriptor_kind": "observed-content.conversation-source",
+            "descriptor": [
+              {
+                "cli_id": "codex",
+                "account_prefix": ".codex",
+                "root_path": [
+                  "sessions"
+                ],
+                "glob": "**/rollout-*.jsonl",
+                "project_slug": {
+                  "from": "cwd_basename"
+                },
+                "non_human_envelope_roots": [
+                  "heartbeat",
+                  "codex_delegation",
+                  "codex_internal_context",
+                  "environment_context",
+                  "hook_prompt"
+                ],
+                "non_human_message_prefixes": [
+                  {
+                    "id": "recommended_plugins",
+                    "value": "<recommended_plugins>"
+                  },
+                  {
+                    "id": "agents_instructions",
+                    "value": "# AGENTS.md instructions for "
+                  }
+                ],
+                "acquisition_mode": "bounded-jsonl-range"
+              }
+            ]
+          },
+          {
+            "template_id": "ai-cli-source-template:cowork",
+            "source_ref": "source:cowork",
+            "descriptor_kind": "observed-content.conversation-source",
+            "descriptor": [
+              {
+                "cli_id": "cowork",
+                "account_prefix": "Library",
+                "root_path": [
+                  "Application Support",
+                  "Claude",
+                  "local-agent-mode-sessions"
+                ],
+                "glob": "**/.claude/projects/**/*.jsonl",
+                "project_slug": {
+                  "from": "cwd_basename"
+                },
+                "non_human_envelope_roots": [
+                  "heartbeat",
+                  "codex_delegation",
+                  "codex_internal_context",
+                  "environment_context",
+                  "hook_prompt"
+                ],
+                "non_human_message_prefixes": [
+                  {
+                    "id": "recommended_plugins",
+                    "value": "<recommended_plugins>"
+                  },
+                  {
+                    "id": "agents_instructions",
+                    "value": "# AGENTS.md instructions for "
+                  }
+                ],
+                "acquisition_mode": "bounded-jsonl-range"
+              }
+            ]
+          },
+          {
+            "template_id": "ai-cli-source-template:gemini",
+            "source_ref": "source:gemini",
+            "descriptor_kind": "observed-content.conversation-source",
+            "descriptor": [
+              {
+                "source_ref": "source:gemini",
+                "descriptor_ref": "descriptor:gemini-cli-logs",
+                "revision": "2",
+                "cli_id": "gemini",
+                "account_prefix": ".gemini",
+                "root_path": [
+                  "tmp"
+                ],
+                "glob": "**/logs.json",
+                "observer_capability_ref": "capability:observe-file-glob",
+                "decoder_capability_ref": "capability:decode-gemini-logs",
+                "decoder_process_module": {
+                  "script_address": "package::gemini-logs-decoder::stored-bytes::decode-gemini-logs-script",
+                  "module_name": "decode_gemini_logs",
+                  "support_module": {
+                    "script_address": "package::transcript-mapper::stored-bytes::bitfield-crypto-python-module",
+                    "module_name": "bitfield_crypto",
+                    "mount_path": "bitfield_crypto.py"
+                  }
+                },
+                "input_shape": {
+                  "media_types": [
+                    "application/json"
+                  ],
+                  "extensions": [
+                    ".json"
+                  ],
+                  "required_json_keys": [
+                    "sessionId",
+                    "messageId",
+                    "type",
+                    "message"
+                  ]
+                },
+                "provenance": {
+                  "source_kind": "local-cli-log",
+                  "raw_bytes_immutable": true
+                },
+                "project_slug": {
+                  "from": "relative_path_segment",
+                  "index": 0
+                },
+                "non_human_envelope_roots": [
+                  "heartbeat",
+                  "codex_delegation",
+                  "codex_internal_context",
+                  "environment_context",
+                  "hook_prompt"
+                ],
+                "non_human_message_prefixes": [
+                  {
+                    "id": "recommended_plugins",
+                    "value": "<recommended_plugins>"
+                  },
+                  {
+                    "id": "agents_instructions",
+                    "value": "# AGENTS.md instructions for "
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "template_id": "ai-cli-source-template:hermes",
+            "source_ref": "source:hermes",
+            "descriptor_kind": "observed-content.conversation-source",
+            "descriptor": [
+              {
+                "source_ref": "source:hermes",
+                "descriptor_ref": "descriptor:hermes-sessions",
+                "revision": "2",
+                "cli_id": "hermes",
+                "account_prefix": ".hermes",
+                "root_path": [
+                  "sessions"
+                ],
+                "glob": "*.jsonl",
+                "observer_capability_ref": "capability:observe-file-glob",
+                "decoder_capability_ref": "capability:decode-hermes-session",
+                "decoder_process_module": {
+                  "script_address": "package::hermes-session-decoder::stored-bytes::decode-hermes-session-script",
+                  "module_name": "decode_hermes_session",
+                  "support_module": {
+                    "script_address": "package::transcript-mapper::stored-bytes::bitfield-crypto-python-module",
+                    "module_name": "bitfield_crypto",
+                    "mount_path": "bitfield_crypto.py"
+                  }
+                },
+                "provenance": {
+                  "source_kind": "local-cli-log",
+                  "raw_bytes_immutable": true
+                },
+                "project_slug": {
+                  "from": "file_stem"
+                },
+                "non_human_envelope_roots": [
+                  "heartbeat",
+                  "codex_delegation",
+                  "codex_internal_context",
+                  "environment_context",
+                  "hook_prompt"
+                ],
+                "non_human_message_prefixes": [
+                  {
+                    "id": "recommended_plugins",
+                    "value": "<recommended_plugins>"
+                  },
+                  {
+                    "id": "agents_instructions",
+                    "value": "# AGENTS.md instructions for "
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "template_id": "ai-cli-source-template:claude",
+            "source_ref": "source:claude",
+            "descriptor_kind": "observed-content.conversation-source",
+            "descriptor": [
+              {
+                "cli_id": "claude",
+                "account_prefix": ".claude",
+                "root_path": [
+                  "projects"
+                ],
+                "glob": "**/*.jsonl",
+                "project_slug": {
+                  "from": "relative_path_segment",
+                  "index": 0
+                },
+                "non_human_envelope_roots": [
+                  "heartbeat",
+                  "codex_delegation",
+                  "codex_internal_context",
+                  "environment_context",
+                  "hook_prompt"
+                ],
+                "non_human_message_prefixes": [
+                  {
+                    "id": "recommended_plugins",
+                    "value": "<recommended_plugins>"
+                  },
+                  {
+                    "id": "agents_instructions",
+                    "value": "# AGENTS.md instructions for "
+                  }
+                ],
+                "acquisition_mode": "bounded-jsonl-range"
+              }
+            ]
+          },
+          {
+            "template_id": "ai-cli-source-template:codex-fleet-history",
+            "source_ref": "source:codex",
+            "descriptor_kind": "observed-content.source",
+            "descriptor": {
+              "source_ref": "source:codex",
+              "location": {
+                "data": {
+                  "base": [
+                    "{home}",
+                    ".codex",
+                    "sessions"
+                  ],
+                  "glob": "**/rollout-*.jsonl",
+                  "include_kinds": [
+                    "file"
+                  ],
+                  "scan_budget": {
+                    "limit": 512,
+                    "max_total_bytes": 134217728,
+                    "max_entries": 1000000
+                  }
+                }
+              },
+              "access_connection_ref": "connection:none",
+              "observer_capability_ref": "package::file-glob-observer::capability::observe-file-glob",
+              "decoder_capability_ref": "package::jsonl-session-decoder::capability::decode-jsonl-session-events",
+              "projection_lens_ref": "package::jsonl-session-decoder::capability::decode-jsonl-session-events",
+              "identity_lens": {
+                "native_ref_path": "native_ref",
+                "content_identity_paths": [
+                  "content_multihash"
+                ]
+              },
+              "freshness_policy": {
+                "kind": "file-set-cursor",
+                "cursor_path": "cursor"
+              },
+              "display_mark_ref": "display-mark:observed-content:default",
+              "provenance": {
+                "source_kind": "local-cli-session-log",
+                "raw_bytes_immutable": true
+              },
+              "fleet_run_projection": {
+                "id_namespace": "codex-jsonl",
+                "launcher_ref": "selected-cli/codex",
+                "agent_ref": "selected-cli/codex",
+                "extract": {
+                  "native_id": {
+                    "from": "filename_stem"
+                  },
+                  "started_at": {
+                    "from": "first",
+                    "path": [
+                      "timestamp"
+                    ]
+                  },
+                  "ended_at": {
+                    "from": "last",
+                    "path": [
+                      "timestamp"
+                    ]
+                  },
+                  "objective": {
+                    "from": "first_where",
+                    "where": {
+                      "path": [
+                        "type"
+                      ],
+                      "equals": "event_msg"
+                    },
+                    "path": [
+                      "payload",
+                      "message"
+                    ],
+                    "max_chars": 240
+                  },
+                  "total_units": {
+                    "from": "count"
+                  },
+                  "status": {
+                    "from": "last_where",
+                    "where": {
+                      "path": [
+                        "type"
+                      ],
+                      "equals": "error"
+                    },
+                    "path": [
+                      "type"
+                    ]
+                  }
+                },
+                "evidence_policy_ref": "package::ai-execution-history::fleet-source-evidence-policy::local-session-owner",
+                "evidence_policy_revision": "bounded-local-files-session-evidence"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "merge-conversation-source-script",
+      "source_path": "do-work/process-scripts/merge-conversation-source.py"
+    },
+    {
+      "type": "record",
+      "address": "package::ai-cli-conversations::workflow-action::publish-current-transcript-sources",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:publish-current-transcript-sources",
+        "kind": "action",
+        "name": "publish-current-transcript-sources",
+        "description": "Refresh one current conversation source in Chat's source list without scanning unrelated records.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "source_ref"
+          ],
+          "properties": {
+            "source_ref": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "descriptor",
+            "kind": "read",
+            "config": {
+              "from": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "source_ref"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.concat",
+                    "args": {
+                      "values": [
+                        "attribute_fact|",
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "source_ref"
+                          }
+                        },
+                        "|prop:observed_content:conversation_source_descriptor|type:observed_content"
+                      ]
+                    }
+                  }
+                ]
+              },
+              "fallback_output": null
+            }
+          },
+          {
+            "id": "current",
+            "kind": "read",
+            "config": {
+              "from": "transcript-sources",
+              "fallback_output": []
+            }
+          },
+          {
+            "id": "script",
+            "kind": "read",
+            "config": {
+              "from": "package::ai-cli-conversations::stored-bytes::merge-conversation-source-script"
+            }
+          },
+          {
+            "id": "merge",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "python3",
+                  "merge-conversation-source.py",
+                  "current.json",
+                  "addressed.json",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "source_ref"
+                    }
+                  },
+                  "merged.json"
+                ],
+                "cwd": null,
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "merge-conversation-source.py",
+                    "content_type": "text/x-python",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "current.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "current",
+                          "path": "output"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "addressed.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "descriptor",
+                          "path": "output"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "merged.json",
+                    "content_type": "application/json"
+                  }
+                ],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "publish",
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": "transcript-sources",
+                  "path": [
+                    "current-item",
+                    "published-record",
+                    "conversation-source-descriptors"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "merge",
+                      "path": "output.outputs.0.bytes.base64"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      },
+                      {
+                        "op": "op:core.json_parse"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ai-cli-conversations::trigger-rule::refresh-transcript-sources-on-change",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:refresh-transcript-sources-on-change",
+        "topic": "data_state",
+        "trigger_type": "delta",
+        "is_active": true,
+        "match_condition": {
+          "conditions": [
+            {
+              "$bind": {
+                "select": {
+                  "from": "change",
+                  "path": "property_id"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.equals",
+                    "args": {
+                      "value": "prop:observed_content:conversation_source_descriptor"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:publish-current-transcript-sources",
+            "include_steps": false,
+            "include_output": false,
+            "input": {
+              "source_ref": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "subject_id"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ai-cli-conversations::waiter::codex-message-source",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "notice-when-something-shows-up.waiter-descriptor",
+        "id": "waiter:codex-message-source",
+        "is_active": true,
+        "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::elapsed-time",
+        "mechanism_leaf": "elapsed-time.mjs",
+        "mechanism_settings": {
+          "interval_seconds": 900,
+          "every": "interval"
+        },
+        "emitted_record": {
+          "change_kind": "codex-message-source-tick",
+          "address_label": "package::ai-cli-conversations::tick::codex-message-source",
+          "path_labels": [
+            "current-item",
+            "codex-message-source-tick"
+          ],
+          "payload_fields": [
+            "iso_time",
+            "epoch_ms",
+            "counter",
+            "every"
+          ]
+        },
+        "candidate_identity_feed": null
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ai-cli-conversations::workflow-action::observe-codex-message-source",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "kind": "action",
+        "id": "action:observe-codex-message-source",
+        "name": "observe-codex-message-source",
+        "version": 1,
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "description": "Read the current authorized Codex source and cursor, then ask the existing file-glob observer to admit changed session files.",
+        "input_schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        },
+        "steps": [
+          {
+            "id": "read_descriptor",
+            "kind": "ask",
+            "config": {
+              "name": "engine.operation.label-addressed",
+              "input": {
+                "operation_label": "engine.operation.read-current",
+                "address_mode": "identity_text",
+                "address_label": "attribute_fact|source:codex|prop:observed_content:source_descriptor|type:observed_content"
+              }
+            }
+          },
+          {
+            "id": "read_cursor",
+            "kind": "ask",
+            "config": {
+              "name": "engine.operation.label-addressed",
+              "input": {
+                "operation_label": "engine.operation.read-current",
+                "address_mode": "identity_text",
+                "address_label": "attribute_fact|source:codex|prop:observed_content:cursor|type:observed_content"
+              }
+            }
+          },
+          {
+            "id": "descriptor_found",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "read_descriptor",
+                  "path": "output.found"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.equals",
+                    "args": {
+                      "value": true
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "observe",
+            "kind": "action",
+            "join": "all",
+            "config": {
+              "definition_id": "action:observe-file-glob-source",
+              "inputs": {
+                "plan_entry": {
+                  "source_ref": "source:codex",
+                  "descriptor": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "read_descriptor",
+                      "path": "output.payload.value_json"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.json_parse"
+                      }
+                    ]
+                  },
+                  "cursor": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "read_cursor",
+                      "path": "output.payload.value_json"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": "{}"
+                        }
+                      },
+                      {
+                        "op": "op:core.json_parse"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "read_descriptor",
+            "to": "read_cursor",
+            "kind": "always"
+          },
+          {
+            "from": "read_cursor",
+            "to": "descriptor_found",
+            "kind": "always"
+          },
+          {
+            "from": "descriptor_found",
+            "to": "observe",
+            "kind": "on_result",
+            "config": {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "output"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ai-cli-conversations::trigger::observe-codex-message-source",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:observe-codex-message-source",
+        "name": "observe-codex-message-source",
+        "version": 1,
+        "trigger_type": "delta",
+        "is_active": true,
+        "description": "A separate fifteen-minute source tick observes Codex sessions without arming the global observed-content clock or competing for other source consumers.",
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "codex-message-source-tick"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "is_retraction"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:observe-codex-message-source",
+            "input": {}
+          }
+        }
+      }
+    }
+  ]
+}

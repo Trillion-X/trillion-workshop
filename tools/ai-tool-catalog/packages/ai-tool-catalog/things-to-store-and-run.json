@@ -1,0 +1,514 @@
+{
+  "package": "ai-tool-catalog",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::ai-tool-catalog::checks",
+      "path": [
+        "packages",
+        "ai-tool-catalog",
+        "checks"
+      ],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "do-work/probe-jobs-through-public-tools.test.mjs",
+          "do-work/remote-tool-servers.test.mjs"
+        ]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "index",
+      "source_path": "index.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "read-ai-tool-catalog",
+      "source_path": "read-data/read-ai-tool-catalog.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "request-tool-run",
+      "source_path": "do-work/request-tool-run.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "ai-tool-catalog-list",
+      "source_path": "show/mount-ai-tool-catalog-list.tsx"
+    },
+    {
+      "type": "record",
+      "address": "package::ai-tool-catalog::contract",
+      "path": [
+        "packages",
+        "ai-tool-catalog",
+        "contract"
+      ],
+      "payload": {
+        "kind": "package-contract",
+        "package": "ai-tool-catalog",
+        "owns": [
+          "generic tool descriptor reading",
+          "generic tool run request forwarding",
+          "generic tool catalog rendering"
+        ],
+        "does_not_own": [
+          "tool implementation code",
+          "tool execution policy",
+          "provider SDK calls",
+          "credential reads",
+          "package-set-specific copy"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-tool-catalog::record-contract::ai-tool-descriptor",
+      "path": [
+        "packages",
+        "ai-tool-catalog",
+        "record-contracts",
+        "ai-tool-descriptor"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "ai-tool-descriptor",
+        "required_fields": [
+          "id"
+        ],
+        "data_owner": "package-set-records-or-imported-facts"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-tool-catalog::entry::ai-tool-catalog-list",
+      "path": [
+        "packages",
+        "ai-tool-catalog",
+        "entries",
+        "ai-tool-catalog-list"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "ai-tool-catalog-list",
+        "export_name": "default",
+        "source_path": "show/mount-ai-tool-catalog-list.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-ai-tool-catalog-list"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false,
+      "build_source_path": "show/mount-ai-tool-catalog-list.tsx"
+    },
+    {
+      "type": "record",
+      "address": "package::ai-tool-catalog::target::request-tool-run",
+      "path": [
+        "packages",
+        "ai-tool-catalog",
+        "targets",
+        "request-tool-run"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "request-tool-run",
+        "export_name": "requestToolRun",
+        "source_path": "do-work/request-tool-run.ts",
+        "target": "ai-tool-catalog.request-tool-run"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-tool-catalog::tool::outside-conversations-open",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:outside-conversations.open",
+        "label": "Open outside conversation",
+        "description": "Create package-owned outside conversation, proof, and routing ledger records through workflow.",
+        "handler_ref": "workflow:action:outside-conversations.open",
+        "status": "active",
+        "input_schema": {
+          "required": [
+            "conversation_ref",
+            "conversation_record",
+            "surface_state"
+          ],
+          "properties": {
+            "conversation_ref": {
+              "type": "string"
+            },
+            "conversation_record": {
+              "record_kind": "outside-conversations.conversation"
+            },
+            "surface_state": {
+              "record_kind": "outside-conversations.surface"
+            }
+          }
+        },
+        "output_schema": {
+          "writes": [
+            "outside-conversations.person-or-company",
+            "outside-conversations.way-to-reach",
+            "outside-conversations.conversation",
+            "outside-conversations.message-or-event",
+            "outside-conversations.proof",
+            "outside-conversations.surface"
+          ]
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-tool-catalog::tool::outside-conversations-record-execution-handoff",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:outside-conversations.record-execution-handoff",
+        "label": "Record outside execution handoff",
+        "description": "Record owner-package evidence resolution and dispatch handoff state through workflow.",
+        "handler_ref": "workflow:action:outside-conversations.record-execution-handoff",
+        "status": "active",
+        "input_schema": {
+          "required": [
+            "blocker_ref",
+            "execution_handoff_ref",
+            "updated_blocker_record",
+            "execution_handoff_record",
+            "surface_state"
+          ]
+        },
+        "output_schema": {
+          "writes": [
+            "outside-conversations.blocker",
+            "outside-conversations.execution-handoff",
+            "outside-conversations.surface"
+          ]
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-tool-catalog::tool::outside-conversations-record-proof",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:outside-conversations.record-proof",
+        "label": "Record outside proof",
+        "description": "Attach proof, outside events, promises/plans, routed results, final results, or stop evidence through workflow.",
+        "handler_ref": "workflow:action-family:outside-conversations.transitions",
+        "status": "active",
+        "input_schema": {
+          "required": [
+            "record_ref",
+            "record",
+            "surface_state"
+          ],
+          "properties": {
+            "record_ref": {
+              "type": "string"
+            },
+            "record": {
+              "one_of_record_kinds": [
+                "outside-conversations.message-or-event",
+                "outside-conversations.proof",
+                "outside-conversations.promise-or-plan",
+                "outside-conversations.send-result-to-right-package",
+                "outside-conversations.final-result"
+              ]
+            },
+            "surface_state": {
+              "record_kind": "outside-conversations.surface"
+            }
+          }
+        },
+        "output_schema": {
+          "writes": [
+            "package-owned outside-conversation transition record",
+            "outside-conversations.surface"
+          ]
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-tool-catalog::tool::run-process",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:run-process",
+        "label": "Run a read-only command on your computer",
+        "description": "Run an allow-listed read-only command (e.g. find, ls, wc, grep) on the user machine and return its output. Guarded DENY-BY-DEFAULT: non-allow-listed argv0, mutation/escape args, or a tripped guard are refused. Use to inspect files/folders the user asks about (e.g. count folders in a directory).",
+        "handler_ref": "workflow:action:run-a-job-on-your-stuff.run-guarded-process-tool",
+        "status": "active",
+        "input_schema": {
+          "required": [
+            "command",
+            "agent_ref",
+            "result_address"
+          ],
+          "properties": {
+            "command": {
+              "type": "string"
+            },
+            "args": {
+              "type": "array"
+            },
+            "cwd": {
+              "type": "string"
+            },
+            "agent_ref": {
+              "type": "string"
+            },
+            "result_address": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "writes": [
+            "tool-result"
+          ]
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-tool-catalog::tool::start-assigned-work-session",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:start-assigned-work-session",
+        "label": "Start one admitted assigned worker",
+        "description": "Starts one owner-assigned worker through the configured process-session target only after exact source, profile, guard, permission, and budget owner readback.",
+        "handler_ref": "compute.process_session",
+        "permission_capability_ref": "capability:process-session.start-assigned-work-session",
+        "guard_limit_ref": "package::ai-action-guard::limit::start-assigned-work-session",
+        "guard_state_ref": "package::ai-action-guard::state::start-assigned-work-session",
+        "guard_subject_ref": "actor:ai-agent",
+        "status": "active",
+        "input_schema": {
+          "required": [
+            "source_record_ref",
+            "worker_record_ref"
+          ],
+          "properties": {
+            "source_record_ref": {
+              "type": "string"
+            },
+            "worker_record_ref": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "writes": [
+            "process-session",
+            "process-session-event-feed"
+          ]
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-tool-catalog::tool::conversations-open-addressed-exchange",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:conversations.open-addressed-exchange",
+        "label": "Open addressed exchange",
+        "description": "Save a request with its addressed participant, way to reach, initial proof, and handoff correlation. This tool never sends externally.",
+        "handler_ref": "workflow:action:conversations.open-addressed-exchange",
+        "status": "active",
+        "input_schema": {
+          "required": [
+            "participant_ref",
+            "label",
+            "way_ref",
+            "adapter_json",
+            "conversation_ref",
+            "proof_ref",
+            "objective_ref",
+            "operation_ref",
+            "title",
+            "request_text",
+            "submitted_at"
+          ]
+        },
+        "output_schema": {
+          "writes": [
+            "conversations.addressed-exchange-conversation.v1",
+            "conversations.addressed-participant",
+            "conversations.addressed-way-to-reach",
+            "conversations.proof",
+            "conversations.addressed-exchange-feed.v1"
+          ],
+          "external_effects": []
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-tool-catalog::public-source::do-work",
+      "path": [
+        "packages",
+        "ai-tool-catalog",
+        "public-sources",
+        "do-work"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-tool-catalog::public-source::do-work-parse-agent-tool-requests",
+      "path": [
+        "packages",
+        "ai-tool-catalog",
+        "public-sources",
+        "do-work-parse-agent-tool-requests"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work/parse-agent-tool-requests"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-tool-catalog::public-source::do-work-prepare-tool-result",
+      "path": [
+        "packages",
+        "ai-tool-catalog",
+        "public-sources",
+        "do-work-prepare-tool-result"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work/prepare-tool-result"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-tool-catalog::public-source::read-data",
+      "path": [
+        "packages",
+        "ai-tool-catalog",
+        "public-sources",
+        "read-data"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "read-data"
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-ai-tool-catalog-list",
+      "source_path": "built-stored-bytes/entry-bytes-ai-tool-catalog-list",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-ai-tool-catalog-list.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::ai-tool-catalog::job-probe-harness::claude-with-public-tools-only",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "job-probe-harness",
+        "id": "harness:claude-with-public-tools-only",
+        "label": "An outside agent that can only use the public tool servers",
+        "command": "claude",
+        "argv": [
+          "-p",
+          {
+            "fill": "prompt"
+          },
+          "--output-format",
+          "json",
+          "--mcp-config",
+          {
+            "fill": "server_config"
+          },
+          "--allowedTools",
+          {
+            "fill": "allowed_tools"
+          },
+          "--disallowedTools",
+          "Bash,Read,Edit,Write,Glob,Grep,WebFetch,WebSearch,Agent,NotebookEdit,Task",
+          "--model",
+          "sonnet",
+          "--max-turns",
+          "30"
+        ],
+        "reply": {
+          "format": "json",
+          "text_pointer": "/result"
+        },
+        "server_config_source": {
+          "home_relative_file": ".claude.json",
+          "pointer": "/mcpServers"
+        },
+        "allowed_tool_prefix": "mcp__",
+        "working_directory": "home",
+        "timeout_seconds": 600,
+        "concurrency": 3
+      }
+    }
+  ]
+}

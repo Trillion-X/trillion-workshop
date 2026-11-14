@@ -1,0 +1,381 @@
+{
+  "package": "account-dashboard",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::account-dashboard::checks",
+      "path": ["packages", "account-dashboard", "checks"],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": ["tests/read-account-dashboard-surface-state.test.ts"]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "index",
+      "source_path": "index.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "account-state-reader",
+      "source_path": "read-data/read-account-state.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "account-surface-model",
+      "source_path": "read-data/account-surface-model.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "account-surface-materializer",
+      "source_path": "read-data/account-surface-materializer.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "account-surface-actions",
+      "source_path": "do-work/account-surface-actions.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "account-surface-descriptors",
+      "source_path": "data/account-surface-descriptors.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "account-dashboard-surface-state-reader",
+      "source_path": "do-work/read-account-dashboard-surface-state.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "account-dashboard",
+      "source_path": "show/AccountDashboard.tsx"
+    },
+    {
+      "type": "record",
+      "address": "package::account-dashboard::contract",
+      "path": [
+        "packages",
+        "account-dashboard",
+        "contract"
+      ],
+      "payload": {
+        "component": "AccountDashboard",
+        "does_not_own": [
+          "payment truth",
+          "plan policy",
+          "activation authority"
+        ],
+        "package": "account-dashboard",
+        "reads": [
+          "signed-event-authority.list-effects"
+        ],
+        "source_path": "show/AccountDashboard.tsx"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-dashboard::published-record::placeable-surface::account",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "description": "View your account.",
+        "factflow_ref": "package::account-dashboard::factflow::account",
+        "id": "account",
+        "kind": "placeable-surface",
+        "label": "Account",
+        "material_target": "component:account-dashboard",
+        "order": 20,
+        "package_entry": {
+          "entry_name": "account-dashboard-surface",
+          "package_name": "account-dashboard"
+        },
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000020:account",
+        "section_id": "portal",
+        "section_label": "Account",
+        "surface_id": "account"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-dashboard::factflow::account",
+      "path": [
+        "package-primitive",
+        "factflow"
+      ],
+      "payload": {
+        "blockers": [],
+        "evidence": [
+          {
+            "address": "package::account-dashboard::factflow::account::evidence"
+          }
+        ],
+        "fact_sources": [
+          {
+            "address": "package::account-dashboard::published-record::placeable-surface::account"
+          }
+        ],
+        "genesis": [],
+        "interpreter_facts": {
+          "effects": [],
+          "facts": [
+            {
+              "address_label": "package::account-dashboard::surface-descriptor-set"
+            }
+          ],
+          "intents": [],
+          "materializations": [
+            {
+              "address_label": "account-dashboard.account.materialization"
+            }
+          ],
+          "permissions": [],
+          "projections": [
+            {
+              "address_label": "account-dashboard.account.projection"
+            }
+          ],
+          "validation": []
+        },
+        "journal": {
+          "address_label": "account-dashboard.account.journal"
+        },
+        "kind": "bitfield-eeaf-factflow"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-dashboard::surface-descriptor-set",
+      "path": [
+        "packages",
+        "account-dashboard",
+        "surface",
+        "descriptors"
+      ],
+      "payload": {
+        "kind": "record-described-surface",
+        "descriptor_bytes": {
+          "stored_bytes": "account-surface-descriptors"
+        },
+        "sources_record": "package::account-dashboard::surface-sources",
+        "fields_record": "package::account-dashboard::surface-fields",
+        "actions_record": "package::account-dashboard::surface-actions",
+        "freshness_record": "package::account-dashboard::surface-freshness",
+        "fixture_record": "package::account-dashboard::surface-fixtures"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-dashboard::surface-sources",
+      "path": [
+        "packages",
+        "account-dashboard",
+        "surface",
+        "sources"
+      ],
+      "payload": {
+        "kind": "record-surface-source",
+        "descriptor_bytes": {
+          "stored_bytes": "account-surface-descriptors"
+        }
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-dashboard::surface-fields",
+      "path": [
+        "packages",
+        "account-dashboard",
+        "surface",
+        "fields"
+      ],
+      "payload": {
+        "kind": "record-surface-field",
+        "descriptor_bytes": {
+          "stored_bytes": "account-surface-descriptors"
+        }
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-dashboard::surface-actions",
+      "path": [
+        "packages",
+        "account-dashboard",
+        "surface",
+        "actions"
+      ],
+      "payload": {
+        "kind": "record-surface-action",
+        "descriptor_bytes": {
+          "stored_bytes": "account-surface-descriptors"
+        }
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-dashboard::surface-freshness",
+      "path": [
+        "packages",
+        "account-dashboard",
+        "surface",
+        "freshness"
+      ],
+      "payload": {
+        "kind": "record-surface-freshness",
+        "descriptor_bytes": {
+          "stored_bytes": "account-surface-descriptors"
+        }
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-dashboard::surface-fixtures",
+      "path": [
+        "packages",
+        "account-dashboard",
+        "surface",
+        "fixtures"
+      ],
+      "payload": {
+        "kind": "record-surface-fixture",
+        "descriptor_bytes": {
+          "stored_bytes": "account-surface-descriptors"
+        }
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-dashboard::entry::account-dashboard-surface",
+      "build_source_path": "show/mount-account-dashboard.tsx",
+      "path": [
+        "packages",
+        "account-dashboard",
+        "entries",
+        "account-dashboard-surface"
+      ],
+      "payload": {
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-account-dashboard-surface"
+        },
+        "entry_name": "account-dashboard-surface",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-account-dashboard.tsx"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-dashboard::input::published-records",
+      "path": [
+        "packages",
+        "account-dashboard",
+        "inputs"
+      ],
+      "payload": {
+        "input_name": "published-records",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "address",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "path",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "payload",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ],
+            "op": "rows",
+            "shape": {
+              "column_count": 3,
+              "row_count": 0
+            }
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "package::account-dashboard::value::published-records"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-dashboard::value::published-records",
+      "path": [
+        "packages",
+        "account-dashboard",
+        "projected-values",
+        "published-records"
+      ],
+      "payload": null,
+      "payload_base64": "UlRCTAAAAAAAAAAAAwAAAA==",
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-account-dashboard-surface",
+      "source_path": "built-stored-bytes/entry-bytes-account-dashboard-surface",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-account-dashboard-surface.source-closure.json"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+<!doctype html>
+<!--
+  Host shell for the landing render proof. It carries no copy and no product
+  identity: it mounts the bundle and gets out of the way, exactly as the live
+  host's island page does.
+
+  It is a FILE rather than a string inside the build script because a build
+  script that carries page markup is a source file authoring markup, and the
+  shared guard refuses that on sight — correctly. The shell is data the script
+  fills in, which is also why the two placeholders below are the only things
+  that vary between runs.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Landing render proof</title>
+<!--ASSET-BASE-->
+<link rel="stylesheet" href="./app.css"/>
+<style>html,body{margin:0;padding:0}</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="module" src="./app.js"></script>
+</body>
+</html>

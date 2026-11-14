@@ -21,3 +21,8 @@ Pure, I/O-free analysis functions that structurally guard the `ui` package (and 
 **Depends on:** nothing (pure string analysis; the test file uses `node:fs` to sweep the repo).
 
 **Depended on by:** the vitest suite (structural CI guard). Any package may import the scanner to add its own sweep.
+# tools/ui/read-data/
+
+Files more than one moved group imports, kept once.
+
+Moved here byte for byte from bitfield-packages by `tools/move-code-between-trees`; `moved-from.json` names each file's source path and commit and the identity of its bytes there and here. bitfield-packages imports these files from this package. The folder keeps the source tree's own paths under it, so the files import each other as they did.

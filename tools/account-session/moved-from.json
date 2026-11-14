@@ -8,6 +8,12 @@
       "find": "p@e\\.com",
       "replace": "person@example.com",
       "means": "A test address shaped like a real one; made up on example.com."
+    },
+    {
+      "id": "person-address-at-product-domain",
+      "find": "\\b(?:j[i]bran|j[i]b|b[r]ian|noreply)@bitfield\\.so\\b",
+      "replace": "owner@example.com",
+      "means": "A real mailbox on the retired product's domain, swapped for a made-up one at the reserved example domain: a public tree holds made-up data only."
     }
   ],
   "files": [
@@ -154,6 +160,380 @@
       "to": "tools/account-session/packages/supabase-sign-in/show/mount-supabase-sign-in-completion.tsx",
       "source_identity": "1f:c9cf01ca8f208c2fe76b98d03923cc06a329dd8b477163fbe40ba472b8e394ab",
       "identity": "1f:c9cf01ca8f208c2fe76b98d03923cc06a329dd8b477163fbe40ba472b8e394ab"
+    },
+    {
+      "from": "packages/account-identity/do-work/derive-account-identity.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-identity/do-work/derive-account-identity.ts",
+      "source_identity": "1f:d87586b4190663c5ba32f12ef6cd887af8901bcecf73c25d9baa4eba7ddcefb6",
+      "identity": "1f:872920f40c07c42d83755ca462f5778448b0567b586a666d5731918e4ea123a4"
+    },
+    {
+      "from": "packages/account-identity/do-work/plan-established-subject-bindings.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-identity/do-work/plan-established-subject-bindings.py",
+      "source_identity": "1f:9b1f64e4310667c96b6bcf3c7e31082ed4008e97bc68c103e6c1cafc04816b2b",
+      "identity": "1f:9b1f64e4310667c96b6bcf3c7e31082ed4008e97bc68c103e6c1cafc04816b2b"
+    },
+    {
+      "from": "packages/account-identity/do-work/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-identity/do-work/README.md",
+      "source_identity": "1f:d8db2424760a4c52f117fa1b57aa63f2291b408fdf9317f912441cfdb052cb22",
+      "identity": "1f:d8db2424760a4c52f117fa1b57aa63f2291b408fdf9317f912441cfdb052cb22"
+    },
+    {
+      "from": "packages/account-identity/do-work/resolve-account-identity.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-identity/do-work/resolve-account-identity.ts",
+      "source_identity": "1f:3830b055b61a0a03f667ee9bf2aaadd3a7b70e57e7caa81125128a854dee1226",
+      "identity": "1f:6461f08f615389697b42a20d5deb513d497cd2c4591671dfbd1d9315ea35c83f"
+    },
+    {
+      "from": "packages/account-identity/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-identity/index.ts",
+      "source_identity": "1f:b184b47b59bbca2a5230528499ec231bc93f9e3b7072eab670be7b43a8cc3729",
+      "identity": "1f:b64512deb27338e38e1e9938f3868863e891a161bbe2021f25a0b589b829ad95"
+    },
+    {
+      "from": "packages/account-identity/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-identity/read-data/README.md",
+      "source_identity": "1f:9d61eb714d8ead8aae7325754924ee3fd730c5ce49f5d67672b966a254709b4a",
+      "identity": "1f:9d61eb714d8ead8aae7325754924ee3fd730c5ce49f5d67672b966a254709b4a"
+    },
+    {
+      "from": "packages/account-identity/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-identity/README.md",
+      "source_identity": "1f:78b69a88f21438ba0c8c23dafa4b7f595f64c85ca76f5b529afacc3daed45367",
+      "identity": "1f:78b69a88f21438ba0c8c23dafa4b7f595f64c85ca76f5b529afacc3daed45367"
+    },
+    {
+      "from": "packages/account-identity/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-identity/things-to-store-and-run.json",
+      "source_identity": "1f:45c916b03d29327ad32f2fb16265efe711edf4d58b03041c20725e42ccde5fcf",
+      "identity": "1f:45c916b03d29327ad32f2fb16265efe711edf4d58b03041c20725e42ccde5fcf"
+    },
+    {
+      "from": "packages/account-session/do-work/adopt-local-first-run-state.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/adopt-local-first-run-state.ts",
+      "source_identity": "1f:a1223ee24765baac0e35043d3a6806b5f4872d08237e16123acbb61e42dd6c6e",
+      "identity": "1f:a1223ee24765baac0e35043d3a6806b5f4872d08237e16123acbb61e42dd6c6e"
+    },
+    {
+      "from": "packages/account-session/do-work/authorize-transient-session-target.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/authorize-transient-session-target.ts",
+      "source_identity": "1f:9f61ebd0827383c801f1acb98630d529ae10a6e67921efda01a7a3383ea0f5ea",
+      "identity": "1f:9f61ebd0827383c801f1acb98630d529ae10a6e67921efda01a7a3383ea0f5ea"
+    },
+    {
+      "from": "packages/account-session/do-work/complete-returning-login-target.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/complete-returning-login-target.ts",
+      "source_identity": "1f:288e2b4716a0fb93a9917710f80935447c69c9e6a0472c053d42de4851840281",
+      "identity": "1f:288e2b4716a0fb93a9917710f80935447c69c9e6a0472c053d42de4851840281"
+    },
+    {
+      "from": "packages/account-session/do-work/complete-returning-login.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/complete-returning-login.ts",
+      "source_identity": "1f:d68eb01c7955ccf3fae829dda0c1642a11f982ecc7435a2b1e6ef75adf4a13b5",
+      "identity": "1f:d68eb01c7955ccf3fae829dda0c1642a11f982ecc7435a2b1e6ef75adf4a13b5"
+    },
+    {
+      "from": "packages/account-session/do-work/current-log-browser-session.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/current-log-browser-session.ts",
+      "source_identity": "1f:1d261082e456a65290b4f88625dd55139b65065c4bc29f7bbe79c5b689314ed4",
+      "identity": "1f:1d261082e456a65290b4f88625dd55139b65065c4bc29f7bbe79c5b689314ed4"
+    },
+    {
+      "from": "packages/account-session/do-work/desktop-account-session.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/desktop-account-session.ts",
+      "source_identity": "1f:cf879e573d3d8e82515895bb8266d6e8b3fb52db768ad8bb4cfa12680eec3a6c",
+      "identity": "1f:cf879e573d3d8e82515895bb8266d6e8b3fb52db768ad8bb4cfa12680eec3a6c"
+    },
+    {
+      "from": "packages/account-session/do-work/desktop-login-handoff.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/desktop-login-handoff.ts",
+      "source_identity": "1f:2b2159d76039f5cf1a5e03283c529287d675617c29034dc2d4e0e6e8e235a8ec",
+      "identity": "1f:2b2159d76039f5cf1a5e03283c529287d675617c29034dc2d4e0e6e8e235a8ec"
+    },
+    {
+      "from": "packages/account-session/do-work/end-browser-session-target.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/end-browser-session-target.ts",
+      "source_identity": "1f:37f3401efbde36384793d64fa2f1d98ac0acceeee162fbedcd411dcc5401b13b",
+      "identity": "1f:37f3401efbde36384793d64fa2f1d98ac0acceeee162fbedcd411dcc5401b13b"
+    },
+    {
+      "from": "packages/account-session/do-work/end-browser-session.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/end-browser-session.ts",
+      "source_identity": "1f:efe988c13740fbdda5a98c60fee18afb9e23d6751b45f4a624c420fc18d01a15",
+      "identity": "1f:e026ab1b8348ee82ccd2e32bdbd7f46e5bd0bea2ac7872cccf9f56d1c696577e"
+    },
+    {
+      "from": "packages/account-session/do-work/end-session.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/end-session.ts",
+      "source_identity": "1f:a32360d9458f96d5c2feb113f1e3043b56e9bf510d9e18b02fabcaf78e4aa724",
+      "identity": "1f:a32360d9458f96d5c2feb113f1e3043b56e9bf510d9e18b02fabcaf78e4aa724"
+    },
+    {
+      "from": "packages/account-session/do-work/fixtures/shell-transient-session-handshake-evidence.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/fixtures/shell-transient-session-handshake-evidence.json",
+      "source_identity": "1f:c1fb47edf53c465cd570e4a8fb9e927b7c08c3cfb5b296f73a4385c21e4625d8",
+      "identity": "1f:c1fb47edf53c465cd570e4a8fb9e927b7c08c3cfb5b296f73a4385c21e4625d8"
+    },
+    {
+      "from": "packages/account-session/do-work/hosted-account-authority.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/hosted-account-authority.ts",
+      "source_identity": "1f:d48702eadbe326b810ded8cbac0455117e1456ea0c90691e7fc1ac1eb583e573",
+      "identity": "1f:d48702eadbe326b810ded8cbac0455117e1456ea0c90691e7fc1ac1eb583e573"
+    },
+    {
+      "from": "packages/account-session/do-work/login-proof-token-crypto.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/login-proof-token-crypto.ts",
+      "source_identity": "1f:cc9372236ded303504fa4d5121bafb1ca9138ad0aa48dd2e33641d7e542ae205",
+      "identity": "1f:cc9372236ded303504fa4d5121bafb1ca9138ad0aa48dd2e33641d7e542ae205"
+    },
+    {
+      "from": "packages/account-session/do-work/read-browser-session-target.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/read-browser-session-target.ts",
+      "source_identity": "1f:300c4ff1cf4dc497cda252a396ba5d096e8f40cacb6a6805db1dd7e2301f224a",
+      "identity": "1f:4758359554dce604907b5707c5ed317ba8d5567fd496a36173d53d44667f0cba"
+    },
+    {
+      "from": "packages/account-session/do-work/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/README.md",
+      "source_identity": "1f:ba98b0f88cd38fef3aadd1e4ba4c85fd0569d8ebc31c37227f2798a2d2e2afef",
+      "identity": "1f:ba98b0f88cd38fef3aadd1e4ba4c85fd0569d8ebc31c37227f2798a2d2e2afef"
+    },
+    {
+      "from": "packages/account-session/do-work/remove-local-first-run-provenance.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/remove-local-first-run-provenance.ts",
+      "source_identity": "1f:27fe0af4ac2b9dd626a08d0fd1a317026a9fcca6de1839aa6b0823ef8a460007",
+      "identity": "1f:27fe0af4ac2b9dd626a08d0fd1a317026a9fcca6de1839aa6b0823ef8a460007"
+    },
+    {
+      "from": "packages/account-session/do-work/request-account-recovery.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/request-account-recovery.ts",
+      "source_identity": "1f:8c96e4211f936819607f3444b71e62dd0742fefb9b508eddb1d8fad4f5f86910",
+      "identity": "1f:8c96e4211f936819607f3444b71e62dd0742fefb9b508eddb1d8fad4f5f86910"
+    },
+    {
+      "from": "packages/account-session/do-work/request-login-link.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/request-login-link.ts",
+      "source_identity": "1f:7966e97c386bbc2882b0bf55ae80ea53f86dcae0d8d223495e65e7b786b87f90",
+      "identity": "1f:7966e97c386bbc2882b0bf55ae80ea53f86dcae0d8d223495e65e7b786b87f90"
+    },
+    {
+      "from": "packages/account-session/do-work/resolve-local-first-run-conflict.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/resolve-local-first-run-conflict.ts",
+      "source_identity": "1f:90b157f3eb4ecc00d9d15164fdea6a2a4a41db9d46d829cc14972726539c3492",
+      "identity": "1f:90b157f3eb4ecc00d9d15164fdea6a2a4a41db9d46d829cc14972726539c3492"
+    },
+    {
+      "from": "packages/account-session/do-work/send-login-link-target.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/send-login-link-target.ts",
+      "source_identity": "1f:6dc3190a76a6ecda4b7da6d7cf8e03b44d13edbc1cd47e8c0163a920d5bcbed9",
+      "identity": "1f:6dc3190a76a6ecda4b7da6d7cf8e03b44d13edbc1cd47e8c0163a920d5bcbed9"
+    },
+    {
+      "from": "packages/account-session/do-work/start-enterprise-login.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/start-enterprise-login.ts",
+      "source_identity": "1f:8ad248b6cfb1f09de4060f2c5b48e468db7ef42e914fdbfbba90b09e199addc4",
+      "identity": "1f:8ad248b6cfb1f09de4060f2c5b48e468db7ef42e914fdbfbba90b09e199addc4"
+    },
+    {
+      "from": "packages/account-session/do-work/start-login.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/start-login.ts",
+      "source_identity": "1f:c1392066b96532131e5d52e8b5ae131dc2d0b8d4dd5ae555ed2359dad9122382",
+      "identity": "1f:c1392066b96532131e5d52e8b5ae131dc2d0b8d4dd5ae555ed2359dad9122382"
+    },
+    {
+      "from": "packages/account-session/do-work/start-returning-login.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/start-returning-login.ts",
+      "source_identity": "1f:03125bf26b2f114af046ea47ebd071ace5ed3f9909a50a29b0689423e97f557b",
+      "identity": "1f:c9cb5ba9a2af1f0ddc25528bf0ca31636e154dea498630fba63a3867c5779d73",
+      "calls": [
+        "person-address-at-product-domain"
+      ]
+    },
+    {
+      "from": "packages/account-session/do-work/start-verified-browser-session.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/start-verified-browser-session.ts",
+      "source_identity": "1f:71ad66d2d6b4851bd0195c6b23c7338649b92c3ed50b594ebb7b422067c9307a",
+      "identity": "1f:71ad66d2d6b4851bd0195c6b23c7338649b92c3ed50b594ebb7b422067c9307a"
+    },
+    {
+      "from": "packages/account-session/do-work/verify-desktop-session-target.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/verify-desktop-session-target.ts",
+      "source_identity": "1f:95e9e2a142b63ac671dfa23410b6d29b71a92257b71c5070a2fcb1185af08656",
+      "identity": "1f:95e9e2a142b63ac671dfa23410b6d29b71a92257b71c5070a2fcb1185af08656"
+    },
+    {
+      "from": "packages/account-session/do-work/write-browser-session.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/write-browser-session.ts",
+      "source_identity": "1f:88fea9e225162f86afbfa994aa2e5fd745050c410469de47da63cd81a448a935",
+      "identity": "1f:88fea9e225162f86afbfa994aa2e5fd745050c410469de47da63cd81a448a935"
+    },
+    {
+      "from": "packages/account-session/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/index.ts",
+      "source_identity": "1f:4b3ef09664a75b8e0050f8b09b9bee4c669bf0cbec63c0172552f15cfbf23b03",
+      "identity": "1f:4b3ef09664a75b8e0050f8b09b9bee4c669bf0cbec63c0172552f15cfbf23b03"
+    },
+    {
+      "from": "packages/account-session/read-data/choose-callback-origin.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/read-data/choose-callback-origin.ts",
+      "source_identity": "1f:147eaeee2dc46b6b830838d11161b640d662374418cbf9275322ee3bff3d9ecf",
+      "identity": "1f:147eaeee2dc46b6b830838d11161b640d662374418cbf9275322ee3bff3d9ecf"
+    },
+    {
+      "from": "packages/account-session/read-data/login-proof-token.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/read-data/login-proof-token.ts",
+      "source_identity": "1f:f0476ea1ce18cb751331171f61d70f425dad72bede8cf4b7f8bc824145f84a42",
+      "identity": "1f:f0476ea1ce18cb751331171f61d70f425dad72bede8cf4b7f8bc824145f84a42"
+    },
+    {
+      "from": "packages/account-session/read-data/read-account-authority-access.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/read-data/read-account-authority-access.ts",
+      "source_identity": "1f:4ce9b8bb4b8350549d23ff29d2a1442b42f5c3a38deeebe74a6d171d77664810",
+      "identity": "1f:4ce9b8bb4b8350549d23ff29d2a1442b42f5c3a38deeebe74a6d171d77664810"
+    },
+    {
+      "from": "packages/account-session/read-data/read-login-options.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/read-data/read-login-options.ts",
+      "source_identity": "1f:cfe09e515f31e2589dc853bea94131e128a746446d36b9286a317edde7c55fdc",
+      "identity": "1f:cfe09e515f31e2589dc853bea94131e128a746446d36b9286a317edde7c55fdc"
+    },
+    {
+      "from": "packages/account-session/read-data/safe-account-id.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/read-data/safe-account-id.ts",
+      "source_identity": "1f:971af77f79dc350edb2bdb9953a0db5c97d864220f4c9bd5c11e52d3626f966a",
+      "identity": "1f:971af77f79dc350edb2bdb9953a0db5c97d864220f4c9bd5c11e52d3626f966a"
+    },
+    {
+      "from": "packages/account-session/read-data/session-token.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/read-data/session-token.ts",
+      "source_identity": "1f:f206e29501fb89476c2a20e5cfa94ff8cd8c3f310d14b15989beb1780d0416c0",
+      "identity": "1f:f206e29501fb89476c2a20e5cfa94ff8cd8c3f310d14b15989beb1780d0416c0"
+    },
+    {
+      "from": "packages/account-session/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/README.md",
+      "source_identity": "1f:0856b2764df181fb9f125c512b9230cad5f9120e67c8f373aaee4106caffd1d7",
+      "identity": "1f:0856b2764df181fb9f125c512b9230cad5f9120e67c8f373aaee4106caffd1d7"
+    },
+    {
+      "from": "packages/account-session/show/AccountSessionSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/show/AccountSessionSurface.tsx",
+      "source_identity": "1f:545f6e16692ad23cc051bb19aa7a6fa6e30b33772b84618d8bce1610554b9f4d",
+      "identity": "1f:545f6e16692ad23cc051bb19aa7a6fa6e30b33772b84618d8bce1610554b9f4d"
+    },
+    {
+      "from": "packages/account-session/show/AccountSessionSurfaceClient.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/show/AccountSessionSurfaceClient.tsx",
+      "source_identity": "1f:526a053e8d1cef964c0cbe524f55af22c65fe0b939da26d8f1adbd502ab71566",
+      "identity": "1f:526a053e8d1cef964c0cbe524f55af22c65fe0b939da26d8f1adbd502ab71566"
+    },
+    {
+      "from": "packages/account-session/show/HostedSignInSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/show/HostedSignInSurface.tsx",
+      "source_identity": "1f:226c2318517d3badd818e549f922d2f19a8ae6443e7a55d76f1f7fcbfdfc4a7e",
+      "identity": "1f:4a5895c1fa281d9102637d62d262a835cb33dc2f8db1fa76ebba996d6fd2db21"
+    },
+    {
+      "from": "packages/account-session/show/LoginPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/show/LoginPanel.tsx",
+      "source_identity": "1f:0de544f8ea4276ceb79454cc110aa0d4a62c179994c9a53fb4c8c8f74c08c087",
+      "identity": "1f:8d9df767d9d53eb040c3fe928457957406675fb99a210a3bc420036f4051896b"
+    },
+    {
+      "from": "packages/account-session/show/MagicLinkLoginSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/show/MagicLinkLoginSurface.tsx",
+      "source_identity": "1f:53ee66983b5d1b19de6e4ebd88968f09a5f0a7ae05ed95935188e97e34c60aea",
+      "identity": "1f:7c0ebe670920a3441f0b6d4d21d47cd703b7c7c3c855ecff25410c05c40ce431"
+    },
+    {
+      "from": "packages/account-session/show/mount-account-session-surface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/show/mount-account-session-surface.tsx",
+      "source_identity": "1f:2852b006a2a009567c43f208480d33f3638bb0cbdf4acfdaac0ba29c0bf6e251",
+      "identity": "1f:2852b006a2a009567c43f208480d33f3638bb0cbdf4acfdaac0ba29c0bf6e251"
+    },
+    {
+      "from": "packages/account-session/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/show/README.md",
+      "source_identity": "1f:e83d6730bd40bb8a79d0a00603e455b204d64eb50825359bc56c94d5a9249d80",
+      "identity": "1f:e83d6730bd40bb8a79d0a00603e455b204d64eb50825359bc56c94d5a9249d80"
+    },
+    {
+      "from": "packages/account-session/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/things-to-store-and-run.json",
+      "source_identity": "1f:5ca51af70ab025a338b957fae2abbc5e026f8fe07c09f4ccd295e233d5ac87b0",
+      "identity": "1f:5ca51af70ab025a338b957fae2abbc5e026f8fe07c09f4ccd295e233d5ac87b0"
+    },
+    {
+      "from": "packages/resend-email-sender/do-work/render-email.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/resend-email-sender/do-work/render-email.ts",
+      "source_identity": "1f:1a97b590ad026f359fadc89e390d4e5b6588b17ab79a8ff48e68acb52a21e67e",
+      "identity": "1f:1a97b590ad026f359fadc89e390d4e5b6588b17ab79a8ff48e68acb52a21e67e"
+    },
+    {
+      "from": "packages/resend-email-sender/do-work/send-resend-email.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/resend-email-sender/do-work/send-resend-email.ts",
+      "source_identity": "1f:dad600ff959cd7620bd1f01929634313bfcb11779f7901d18031ed6ef608da74",
+      "identity": "1f:dad600ff959cd7620bd1f01929634313bfcb11779f7901d18031ed6ef608da74"
+    },
+    {
+      "from": "packages/resend-email-sender/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/resend-email-sender/things-to-store-and-run.json",
+      "source_identity": "1f:e9aee071cf9a3b2d3542c80fc20d0724a76170de7db1ccb492f4cb328a89c0a4",
+      "identity": "1f:e9aee071cf9a3b2d3542c80fc20d0724a76170de7db1ccb492f4cb328a89c0a4"
     }
   ]
 }

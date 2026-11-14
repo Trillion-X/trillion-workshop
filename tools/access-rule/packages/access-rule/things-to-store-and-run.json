@@ -1,0 +1,549 @@
+{
+  "package": "access-rule",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::access-rule::checks",
+      "path": ["packages", "access-rule", "checks"],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "tests/decision-targets.test.ts",
+          "tests/process-method.test.ts",
+          "tests/records.test.ts",
+          "tests/projection.test.ts",
+          "tests/evaluate.test.ts",
+          "tests/boundary.test.ts",
+          "tests/owner-action.test.ts"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::access-rule::target::verify-transport-permission",
+      "path": [
+        "packages",
+        "access-rule",
+        "targets",
+        "verify-transport-permission"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "target": "access-rule.verify-transport-permission",
+        "entry_name": "verify-transport-permission-target",
+        "export_name": "verifyTransportPermissionTarget",
+        "source_path": "do-work/decision-targets.ts",
+        "exposure": "owner-to-owner-only",
+        "fixed_owner_targets": [
+          "engine.operation",
+          "access-rule.verify-permission-dependency"
+        ],
+        "input_contract": {
+          "required": [
+            "decision_proof",
+            "actor_ref",
+            "session_ref",
+            "session_revision"
+          ]
+        },
+        "output_contract": {
+          "authorized": "current-owner-permission",
+          "transport_binding": "verified-owner-resource-binding"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::access-rule::entry::verify-transport-permission-target",
+      "path": [
+        "packages",
+        "access-rule",
+        "entries",
+        "verify-transport-permission-target"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "verify-transport-permission-target",
+        "export_name": "verifyTransportPermissionTarget",
+        "source_path": "do-work/decision-targets.ts",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-verify-transport-permission-target"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-verify-transport-permission-target",
+      "source_path": "built-stored-bytes/entry-bytes-verify-transport-permission-target",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-verify-transport-permission-target.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::access-rule::target::verify-permission-dependency",
+      "path": [
+        "packages",
+        "access-rule",
+        "targets",
+        "verify-permission-dependency"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "target": "access-rule.verify-permission-dependency",
+        "entry_name": "verify-permission-dependency-target",
+        "export_name": "verifyPermissionDependencyTarget",
+        "source_path": "do-work/decision-targets.ts",
+        "exposure": "owner-to-owner-only",
+        "fixed_owner_targets": [
+          "engine.operation"
+        ],
+        "input_contract": {
+          "required": [
+            "owner_address",
+            "revision"
+          ]
+        },
+        "output_contract": {
+          "verified": "current-owner-permission"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::access-rule::entry::verify-permission-dependency-target",
+      "path": [
+        "packages",
+        "access-rule",
+        "entries",
+        "verify-permission-dependency-target"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "verify-permission-dependency-target",
+        "export_name": "verifyPermissionDependencyTarget",
+        "source_path": "do-work/decision-targets.ts",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-verify-permission-dependency-target"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-verify-permission-dependency-target",
+      "source_path": "built-stored-bytes/entry-bytes-verify-permission-dependency-target",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-verify-permission-dependency-target.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::access-rule::contract",
+      "path": [
+        "packages",
+        "access-rule"
+      ],
+      "payload": {
+        "kind": "package-boundary-contract",
+        "package": "access-rule",
+        "owns": [
+          "universal rule evaluation records",
+          "rule evaluation request and result materialization",
+          "rule proof and handoff descriptors"
+        ],
+        "does_not_own": [
+          "EEAF storage internals",
+          "workflow internals",
+          "process execution",
+          "adjacent owner package policy",
+          "consumer rendering policy"
+        ],
+        "new_slot": false,
+        "source_kind": "package implementation proposal"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::access-rule::input::evaluation-records",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "evaluation-records",
+        "value_address_label": "rule-evaluation-records",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "package": "access-rule",
+        "is_default": true
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::access-rule::owner-action::record-evaluation-request",
+      "path": [
+        "package-primitive",
+        "owner-action"
+      ],
+      "payload": {
+        "kind": "bitfield-owner-action-contract",
+        "package": "access-rule",
+        "action": "record-evaluation-request",
+        "request_shape": "json-object",
+        "response_shape": "json-object",
+        "execution_owner": "chosen-by-package-set-data",
+        "source_imports_allowed": false
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::access-rule::owner-action::record-handoff-receipt",
+      "path": [
+        "package-primitive",
+        "owner-action"
+      ],
+      "payload": {
+        "kind": "bitfield-owner-action-contract",
+        "package": "access-rule",
+        "action": "record-handoff-receipt",
+        "request_shape": "json-object",
+        "response_shape": "json-object",
+        "execution_owner": "chosen-by-package-set-data",
+        "source_imports_allowed": false
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::access-rule::workflow::record-evaluation-request",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:access-rule.record-evaluation-request",
+        "kind": "action",
+        "is_active": true,
+        "name": "access-rule.record-evaluation-request",
+        "description": "Record one generic rule evaluation request from an opaque owner-action request.",
+        "input_schema": {},
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "request_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "rule-evaluation-request:",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "request_ref"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": ""
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.stringify",
+                        "args": {}
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::access-rule::workflow::record-evaluation-result",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:access-rule.record-evaluation-result",
+        "kind": "action",
+        "is_active": true,
+        "name": "access-rule.record-evaluation-result",
+        "description": "Record one generic rule evaluation result and proof payload.",
+        "input_schema": {},
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "result_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "rule-evaluation-result:",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "result_ref"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": ""
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.stringify",
+                        "args": {}
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "edge::package-set.matching-records::access-rule::evaluation-results",
+      "path": [
+        "current-item",
+        "published-record",
+        "reactive-edge"
+      ],
+      "payload": {
+        "kind": "record_from_matching_records",
+        "id": "edge:access-rule.evaluation-results",
+        "source_record_kind": "evaluation_result",
+        "target_address": "package::access-rule::projection::evaluation-results",
+        "target_path": [
+          "current-item",
+          "published-record"
+        ],
+        "match": {
+          "payload": {
+            "kind": "evaluation_result"
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "edge::package-set.matching-records::access-rule::handoff-receipts",
+      "path": [
+        "current-item",
+        "published-record",
+        "reactive-edge"
+      ],
+      "payload": {
+        "kind": "record_from_matching_records",
+        "id": "edge:access-rule.handoff-receipts",
+        "source_record_kind": "receipt_record",
+        "target_address": "package::access-rule::projection::handoff-receipts",
+        "target_path": [
+          "current-item",
+          "published-record"
+        ],
+        "match": {
+          "payload": {
+            "kind": "receipt_record"
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::access-rule::target::evaluate",
+      "path": [
+        "packages",
+        "access-rule",
+        "targets",
+        "evaluate"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "target": "access-rule.evaluate",
+        "entry_name": "evaluate-access-decision-target",
+        "export_name": "evaluateAccessDecisionTarget",
+        "source_path": "do-work/decision-targets.ts",
+        "exposure": "owner-to-owner-only",
+        "fixed_owner_targets": [
+          "slot::formula-engine",
+          "engine.operation"
+        ],
+        "input_contract": {
+          "kind": "access-decision-request",
+          "required": [
+            "correlation_id",
+            "subject_ref",
+            "action_ref",
+            "authorized_action_refs",
+            "constraints",
+            "predicate_ref",
+            "predicate_binding",
+            "context",
+            "ambient_actor",
+            "revisions"
+          ]
+        },
+        "output_contract": {
+          "kind": "access-decision/v1",
+          "authority": "durable-engine-owner-record"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::access-rule::entry::evaluate-access-decision-target",
+      "path": [
+        "packages",
+        "access-rule",
+        "entries",
+        "evaluate-access-decision-target"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "evaluate-access-decision-target",
+        "export_name": "evaluateAccessDecisionTarget",
+        "source_path": "do-work/decision-targets.ts",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-evaluate-access-decision-target"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::access-rule::target::verify-decision",
+      "path": [
+        "packages",
+        "access-rule",
+        "targets",
+        "verify-decision"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "target": "access-rule.verify-decision",
+        "entry_name": "verify-access-decision-target",
+        "export_name": "verifyAccessDecisionTarget",
+        "source_path": "do-work/decision-targets.ts",
+        "exposure": "owner-to-owner-only",
+        "fixed_owner_targets": [
+          "engine.operation"
+        ],
+        "input_contract": {
+          "required": [
+            "decision_proof",
+            "actor_ref",
+            "session_ref",
+            "subject_ref",
+            "revisions"
+          ],
+          "optional": [
+            "action_ref"
+          ]
+        },
+        "output_contract": {
+          "verified": "exact-live-owner-decision"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::access-rule::entry::verify-access-decision-target",
+      "path": [
+        "packages",
+        "access-rule",
+        "entries",
+        "verify-access-decision-target"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "verify-access-decision-target",
+        "export_name": "verifyAccessDecisionTarget",
+        "source_path": "do-work/decision-targets.ts",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-verify-access-decision-target"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-evaluate-access-decision-target",
+      "source_path": "built-stored-bytes/entry-bytes-evaluate-access-decision-target",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-evaluate-access-decision-target.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-verify-access-decision-target",
+      "source_path": "built-stored-bytes/entry-bytes-verify-access-decision-target",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-verify-access-decision-target.source-closure.json"
+    }
+  ]
+}

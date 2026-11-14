@@ -59,6 +59,209 @@
       "to": "tools/run-experiments/packages/choose-per-observer/show/ScoreboardSurface.tsx",
       "source_identity": "1f:9e27eb96de38b8a987043316c2d606cc38d6dd4bf795a81fbfbf1502f6144f3c",
       "identity": "1f:9e27eb96de38b8a987043316c2d606cc38d6dd4bf795a81fbfbf1502f6144f3c"
+    },
+    {
+      "from": "packages/choose-per-observer/data/decider-bandit.example.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/data/decider-bandit.example.json",
+      "source_identity": "1f:87f2a5ea9bb544c5eae53f707cd27588287b6b4a898affa737404ab69ac6c391",
+      "identity": "1f:87f2a5ea9bb544c5eae53f707cd27588287b6b4a898affa737404ab69ac6c391"
+    },
+    {
+      "from": "packages/choose-per-observer/data/mirror.example.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/data/mirror.example.json",
+      "source_identity": "1f:1d5693b01a5d97be7927f2362ff39bbef4e952d842e745c1db837d3ffdf32a60",
+      "identity": "1f:1d5693b01a5d97be7927f2362ff39bbef4e952d842e745c1db837d3ffdf32a60"
+    },
+    {
+      "from": "packages/choose-per-observer/data/profile-descriptors.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/data/profile-descriptors.ts",
+      "source_identity": "1f:21a3ef324dfb63e2140d0212dae238ff52996d8673a8610d3de3804b9f8a52e5",
+      "identity": "1f:21a3ef324dfb63e2140d0212dae238ff52996d8673a8610d3de3804b9f8a52e5"
+    },
+    {
+      "from": "packages/choose-per-observer/data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/data/README.md",
+      "source_identity": "1f:444af1fbe2e5e2607920edc0d8e2e537a14ae4db882b33f60aba0d5de0e5a5ad",
+      "identity": "1f:444af1fbe2e5e2607920edc0d8e2e537a14ae4db882b33f60aba0d5de0e5a5ad"
+    },
+    {
+      "from": "packages/choose-per-observer/data/scoreboard-descriptors.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/data/scoreboard-descriptors.ts",
+      "source_identity": "1f:7add5376c9f397c132bba7d13bf519c6969d420d6a029c6b84a47163909bed26",
+      "identity": "1f:7add5376c9f397c132bba7d13bf519c6969d420d6a029c6b84a47163909bed26"
+    },
+    {
+      "from": "packages/choose-per-observer/do-work/mirror-facts.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/do-work/mirror-facts.ts",
+      "source_identity": "1f:192f0863b28197ce32fb4179be78cf3fe378ff11f7bfa82fb3e5c020a8734d12",
+      "identity": "1f:192f0863b28197ce32fb4179be78cf3fe378ff11f7bfa82fb3e5c020a8734d12"
+    },
+    {
+      "from": "packages/choose-per-observer/do-work/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/do-work/README.md",
+      "source_identity": "1f:ba83d864237a6e0d959b87c65c4c54f89a48c054abdcfddea640e09c6c4444bd",
+      "identity": "1f:ba83d864237a6e0d959b87c65c4c54f89a48c054abdcfddea640e09c6c4444bd"
+    },
+    {
+      "from": "packages/choose-per-observer/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/entry-to-package-data-map.json",
+      "source_identity": "1f:c5eab75a92de80daef09af772be93cb1b0030b27373970ffe98d84356b11c78d",
+      "identity": "1f:c5eab75a92de80daef09af772be93cb1b0030b27373970ffe98d84356b11c78d"
+    },
+    {
+      "from": "packages/choose-per-observer/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/index.ts",
+      "source_identity": "1f:18991626b5bbd887e5c6f8976818c5d414e9cf891f9129954f04e9816fd0a4c6",
+      "identity": "1f:2f01efd45b29d62b9ece4dd073076a6b1ac27e2cfef8b747d7d08daa3f79b735"
+    },
+    {
+      "from": "packages/choose-per-observer/read-data/aggregate-by-dimension.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/read-data/aggregate-by-dimension.ts",
+      "source_identity": "1f:c30132b375706e98b2f5eeeb838e267ac58d1069168932362440cd5acacb20c0",
+      "identity": "1f:c30132b375706e98b2f5eeeb838e267ac58d1069168932362440cd5acacb20c0"
+    },
+    {
+      "from": "packages/choose-per-observer/read-data/attribute-outcomes.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/read-data/attribute-outcomes.ts",
+      "source_identity": "1f:e9af42049cf6a19d474a937cfd7d316063982a54de1ad7abac38b558633bd66a",
+      "identity": "1f:e9af42049cf6a19d474a937cfd7d316063982a54de1ad7abac38b558633bd66a"
+    },
+    {
+      "from": "packages/choose-per-observer/read-data/decider-schema.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/read-data/decider-schema.ts",
+      "source_identity": "1f:8161ba7b543878393cb6d0bb47551361a32e6fd8df6ea12979e55bb50a3ac5f3",
+      "identity": "1f:8161ba7b543878393cb6d0bb47551361a32e6fd8df6ea12979e55bb50a3ac5f3"
+    },
+    {
+      "from": "packages/choose-per-observer/read-data/map-fact-fields.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/read-data/map-fact-fields.ts",
+      "source_identity": "1f:0d452ebc61620e9b55066409118b264902999dd4809c8bf8412c632231547b2a",
+      "identity": "1f:0d452ebc61620e9b55066409118b264902999dd4809c8bf8412c632231547b2a"
+    },
+    {
+      "from": "packages/choose-per-observer/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/read-data/README.md",
+      "source_identity": "1f:c1a16ec8efdd519f624bc6dac7f344476b4df1866ab937f7764e35c99a0a23e9",
+      "identity": "1f:c1a16ec8efdd519f624bc6dac7f344476b4df1866ab937f7764e35c99a0a23e9"
+    },
+    {
+      "from": "packages/choose-per-observer/read-data/scope-records.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/read-data/scope-records.ts",
+      "source_identity": "1f:cfe8f41d633fd9a01dbe12a788792d11e98628430099ba0c1ca899d2076b74f7",
+      "identity": "1f:9f127bb7cd23cdc45466c59c46988997942bff0ee81aaf6d35177ad5fc2b84f2"
+    },
+    {
+      "from": "packages/choose-per-observer/read-data/score-candidates.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/read-data/score-candidates.ts",
+      "source_identity": "1f:607bc4d6a2752141958a121fcaeccf60224b48e486215fc9f59671dff4c692c1",
+      "identity": "1f:607bc4d6a2752141958a121fcaeccf60224b48e486215fc9f59671dff4c692c1"
+    },
+    {
+      "from": "packages/choose-per-observer/read-data/scoreboard-projection.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/read-data/scoreboard-projection.ts",
+      "source_identity": "1f:398fea12acb07edf3dd030bcf9eef861147b6d083bd3544c1a015d471579d5ea",
+      "identity": "1f:398fea12acb07edf3dd030bcf9eef861147b6d083bd3544c1a015d471579d5ea"
+    },
+    {
+      "from": "packages/choose-per-observer/read-data/scoreboard.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/read-data/scoreboard.ts",
+      "source_identity": "1f:5d11631079da2c93035bf6ce443e11e3516d4b76b557e9c2ba228a10d946f7f3",
+      "identity": "1f:5d11631079da2c93035bf6ce443e11e3516d4b76b557e9c2ba228a10d946f7f3"
+    },
+    {
+      "from": "packages/choose-per-observer/read-data/select.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/read-data/select.ts",
+      "source_identity": "1f:e24869eb65aa1f1356ed0155fe93dc0391e36dcc9675cf79dd6810afb605125d",
+      "identity": "1f:e24869eb65aa1f1356ed0155fe93dc0391e36dcc9675cf79dd6810afb605125d"
+    },
+    {
+      "from": "packages/choose-per-observer/read-data/traffic-attribution.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/read-data/traffic-attribution.ts",
+      "source_identity": "1f:3bd0c3a7c5f39d3987f1e8d5c3955d6ece18c431f9ef2f551bf5084f3a22ce93",
+      "identity": "1f:3bd0c3a7c5f39d3987f1e8d5c3955d6ece18c431f9ef2f551bf5084f3a22ce93"
+    },
+    {
+      "from": "packages/choose-per-observer/read-data/traffic-signals-rollup.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/read-data/traffic-signals-rollup.ts",
+      "source_identity": "1f:3dbba9d9fea5a7a6e2111f0469696092ec292fa1e00b6c10668e3d79af87d241",
+      "identity": "1f:3dbba9d9fea5a7a6e2111f0469696092ec292fa1e00b6c10668e3d79af87d241"
+    },
+    {
+      "from": "packages/choose-per-observer/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/README.md",
+      "source_identity": "1f:d16cd67374021a6252c8e37056b3fb825b1a64982103d655aa290967096cd8fd",
+      "identity": "1f:d16cd67374021a6252c8e37056b3fb825b1a64982103d655aa290967096cd8fd"
+    },
+    {
+      "from": "packages/choose-per-observer/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/things-to-store-and-run.json",
+      "source_identity": "1f:22447636a75f8f8407fe9d4a1da2b4e5114193f98178a79678b14201511473b8",
+      "identity": "1f:22447636a75f8f8407fe9d4a1da2b4e5114193f98178a79678b14201511473b8"
+    },
+    {
+      "from": "packages/choose-per-observer/vitest.config.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/vitest.config.mjs",
+      "source_identity": "1f:9487752e0e192bd9ab79c1a75c424fb54b6c975a2d6d1ac1cef90f528fa63411",
+      "identity": "1f:9487752e0e192bd9ab79c1a75c424fb54b6c975a2d6d1ac1cef90f528fa63411"
+    },
+    {
+      "from": "packages/choose-per-observer/write-data/capture-signals.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/write-data/capture-signals.ts",
+      "source_identity": "1f:444cc87d1f3d3b7e6e405fda0241d4be3bf5125d8c40278881a51d4bd250afae",
+      "identity": "1f:444cc87d1f3d3b7e6e405fda0241d4be3bf5125d8c40278881a51d4bd250afae"
+    },
+    {
+      "from": "packages/choose-per-observer/write-data/observe-saved-work-result-target.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/write-data/observe-saved-work-result-target.ts",
+      "source_identity": "1f:6c81ae64efc5a1a934efe447d5d719f1564d02b327053092edab9f46fd296a46",
+      "identity": "1f:6c81ae64efc5a1a934efe447d5d719f1564d02b327053092edab9f46fd296a46"
+    },
+    {
+      "from": "packages/choose-per-observer/write-data/observe-saved-work-result.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/write-data/observe-saved-work-result.ts",
+      "source_identity": "1f:0c0839dbb6cdcdf3b6dde41cbfaf27ae9ce3eda79349b476bd8bb2a8c05883e6",
+      "identity": "1f:79285e56b422ee836b60f9c58d61552ffcf2ede4126acf1a402d8ef73097fa4b"
+    },
+    {
+      "from": "packages/choose-per-observer/write-data/observe.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/write-data/observe.ts",
+      "source_identity": "1f:c46226332a96910cd1a4890f5f84556476232df1d802758c6723036ff7977c9f",
+      "identity": "1f:c46226332a96910cd1a4890f5f84556476232df1d802758c6723036ff7977c9f"
+    },
+    {
+      "from": "packages/choose-per-observer/write-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/write-data/README.md",
+      "source_identity": "1f:513e6e714ddce7dc3eb206ab6ae34960d3d68e64eb2e5d9ee0ee7e4e9a7af085",
+      "identity": "1f:513e6e714ddce7dc3eb206ab6ae34960d3d68e64eb2e5d9ee0ee7e4e9a7af085"
     }
   ]
 }

@@ -1,0 +1,193 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "owner-home-folder",
+      "find": "[/]Users[/]b[r]ianakhtar",
+      "replace": "/workspace/the-owner",
+      "means": "A person's home folder name in a path, swapped for a made-up one: a public tree holds made-up data only."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/activation-manager/do-work/build-owner-action-workflow.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-manager/packages/activation-manager/do-work/build-owner-action-workflow.ts",
+      "source_identity": "1f:094f1f48980d0166ca4ee711a08a3ceb955a2003e8b2751f04cde809bcc05965",
+      "identity": "1f:094f1f48980d0166ca4ee711a08a3ceb955a2003e8b2751f04cde809bcc05965"
+    },
+    {
+      "from": "packages/activation-manager/do-work/deliver-device-permission.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-manager/packages/activation-manager/do-work/deliver-device-permission.ts",
+      "source_identity": "1f:f3052d46fe07cfee6443b4960cde5a4c732b654700b5f873e8f9f8d135f761a6",
+      "identity": "1f:f3052d46fe07cfee6443b4960cde5a4c732b654700b5f873e8f9f8d135f761a6"
+    },
+    {
+      "from": "packages/activation-manager/do-work/invoke-capability-action.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-manager/packages/activation-manager/do-work/invoke-capability-action.ts",
+      "source_identity": "1f:fe87b8be6278fa4e4ce3b30762e7db9b2137cb51241befbb7d13c6c70bfd2040",
+      "identity": "1f:fe87b8be6278fa4e4ce3b30762e7db9b2137cb51241befbb7d13c6c70bfd2040"
+    },
+    {
+      "from": "packages/activation-manager/do-work/read-activation-manager-surface-state.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-manager/packages/activation-manager/do-work/read-activation-manager-surface-state.ts",
+      "source_identity": "1f:6cc05c772776e7ecb0296c66fb61d249af738563a940c211ed4aa0e143521344",
+      "identity": "1f:6cc05c772776e7ecb0296c66fb61d249af738563a940c211ed4aa0e143521344"
+    },
+    {
+      "from": "packages/activation-manager/do-work/read-portal-activations.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-manager/packages/activation-manager/do-work/read-portal-activations.ts",
+      "source_identity": "1f:731e1dfd4f9b4982c9a8dabcd9097f8d457c74b7d997509d551d4bac30c90f4d",
+      "identity": "1f:731e1dfd4f9b4982c9a8dabcd9097f8d457c74b7d997509d551d4bac30c90f4d"
+    },
+    {
+      "from": "packages/activation-manager/do-work/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-manager/packages/activation-manager/do-work/README.md",
+      "source_identity": "1f:18e40b865175bcaa5358f6e8836ee33fcac8d65aa2cd48f777ea4780236aec89",
+      "identity": "1f:18e40b865175bcaa5358f6e8836ee33fcac8d65aa2cd48f777ea4780236aec89"
+    },
+    {
+      "from": "packages/activation-manager/do-work/record-capability-attempt.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-manager/packages/activation-manager/do-work/record-capability-attempt.ts",
+      "source_identity": "1f:90751222bddec44c855afa8812d71f5188d059169d8d45221c60dfa099588cd7",
+      "identity": "1f:90751222bddec44c855afa8812d71f5188d059169d8d45221c60dfa099588cd7"
+    },
+    {
+      "from": "packages/activation-manager/do-work/resolve-caller-context.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-manager/packages/activation-manager/do-work/resolve-caller-context.ts",
+      "source_identity": "1f:bcd91a2c0a66f8271a0d79c47d47adb358947354d85b27d1e4931c54784d6ff6",
+      "identity": "1f:bcd91a2c0a66f8271a0d79c47d47adb358947354d85b27d1e4931c54784d6ff6"
+    },
+    {
+      "from": "packages/activation-manager/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-manager/packages/activation-manager/index.ts",
+      "source_identity": "1f:d0a8bb3a493c634d04ed7df8a7633b9ab2513d94459b30a379bbc3d20a05c232",
+      "identity": "1f:d0a8bb3a493c634d04ed7df8a7633b9ab2513d94459b30a379bbc3d20a05c232"
+    },
+    {
+      "from": "packages/activation-manager/read-data/capability-state-records.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-manager/packages/activation-manager/read-data/capability-state-records.ts",
+      "source_identity": "1f:1c30215f80b5d6d97d0d1fc28e9e8a4030f184340f78542ee4f977f0c9b8611d",
+      "identity": "1f:1c30215f80b5d6d97d0d1fc28e9e8a4030f184340f78542ee4f977f0c9b8611d"
+    },
+    {
+      "from": "packages/activation-manager/read-data/fold-capability-state.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-manager/packages/activation-manager/read-data/fold-capability-state.ts",
+      "source_identity": "1f:f8947ede9e84cb8526711e526c1324c52620024bb654a43ed5903323a8bbe6f2",
+      "identity": "1f:f8947ede9e84cb8526711e526c1324c52620024bb654a43ed5903323a8bbe6f2"
+    },
+    {
+      "from": "packages/activation-manager/read-data/read-activations.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-manager/packages/activation-manager/read-data/read-activations.ts",
+      "source_identity": "1f:61b830164b3e5d816cba6b649369e2d450f9152682e334029169dd21d73e3128",
+      "identity": "1f:61b830164b3e5d816cba6b649369e2d450f9152682e334029169dd21d73e3128"
+    },
+    {
+      "from": "packages/activation-manager/read-data/read-gate-activations.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-manager/packages/activation-manager/read-data/read-gate-activations.ts",
+      "source_identity": "1f:9ce845d1f2f9ed08c22aacce8a9b0cc4bb7a68aeb52f3bd1d8b98f0cfc7e3c45",
+      "identity": "1f:9ce845d1f2f9ed08c22aacce8a9b0cc4bb7a68aeb52f3bd1d8b98f0cfc7e3c45"
+    },
+    {
+      "from": "packages/activation-manager/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-manager/packages/activation-manager/read-data/README.md",
+      "source_identity": "1f:53a9a99bcd4e59fd129d7b7a7dcfa2c39eee38d4d2c257e21554359b22eb6d89",
+      "identity": "1f:53a9a99bcd4e59fd129d7b7a7dcfa2c39eee38d4d2c257e21554359b22eb6d89"
+    },
+    {
+      "from": "packages/activation-manager/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-manager/packages/activation-manager/README.md",
+      "source_identity": "1f:dc1f33f7cfdc464e10b505d48586d45a1ead0ec73fe7e2586fa7992b5b15abd5",
+      "identity": "1f:2fc30b87406ba96f2ab04900f33add4e6493c6a3bf06232894742aeaa797420d",
+      "calls": [
+        "owner-home-folder"
+      ]
+    },
+    {
+      "from": "packages/activation-manager/show-ios-jscore/mount-activation-manager-jscore.js",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-manager/packages/activation-manager/show-ios-jscore/mount-activation-manager-jscore.js",
+      "source_identity": "1f:8908c055054e0af07fcec98e05b7efcb52bc3e3b228d585a46909e687fa9c60e",
+      "identity": "1f:8908c055054e0af07fcec98e05b7efcb52bc3e3b228d585a46909e687fa9c60e"
+    },
+    {
+      "from": "packages/activation-manager/show-ios-jscore/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-manager/packages/activation-manager/show-ios-jscore/README.md",
+      "source_identity": "1f:3ee84ba94d6ea2aa4d6d37fccd726130bd8dd3f24b7b7c2cdbc7ef0180a32a8a",
+      "identity": "1f:3ee84ba94d6ea2aa4d6d37fccd726130bd8dd3f24b7b7c2cdbc7ef0180a32a8a"
+    },
+    {
+      "from": "packages/activation-manager/show/ActivationManager.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-manager/packages/activation-manager/show/ActivationManager.tsx",
+      "source_identity": "1f:bded94fa980f1714f9aeed50d2ab43767e8a0c57fd97895224d4fd9dfb52e5d1",
+      "identity": "1f:0c9652f11a5a8273ef8f229542a8886450ad2366de82785a7ae4ab47dc3b7ed1"
+    },
+    {
+      "from": "packages/activation-manager/show/ActivationManagerSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-manager/packages/activation-manager/show/ActivationManagerSurface.tsx",
+      "source_identity": "1f:a70d29763a2add441994d02339930de67b862d00ab7bae9b8616b653c7011e2b",
+      "identity": "1f:a70d29763a2add441994d02339930de67b862d00ab7bae9b8616b653c7011e2b"
+    },
+    {
+      "from": "packages/activation-manager/show/app-shell/ActivationManagerPortalSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-manager/packages/activation-manager/show/app-shell/ActivationManagerPortalSurface.tsx",
+      "source_identity": "1f:a0cc7e48aae99d9cf50b53e286328b1c2d150b2d7a2cd152c6aae69aeaef8ec0",
+      "identity": "1f:5149f164c8723bf6d3820f5418224a5f4a1b36ff4df3214daaeadeb4f52064f2"
+    },
+    {
+      "from": "packages/activation-manager/show/AuthorizeDeviceGrantPage.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-manager/packages/activation-manager/show/AuthorizeDeviceGrantPage.tsx",
+      "source_identity": "1f:e657ebc5fb11a650f7aea3624427b5b85861a69992911ed269d655dc03154c27",
+      "identity": "1f:e657ebc5fb11a650f7aea3624427b5b85861a69992911ed269d655dc03154c27"
+    },
+    {
+      "from": "packages/activation-manager/show/mount-activation-manager-portal.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-manager/packages/activation-manager/show/mount-activation-manager-portal.tsx",
+      "source_identity": "1f:c3f3690018c142c0e0792ec976fda40f12608163ae958517c182831e8a867bc1",
+      "identity": "1f:c3f3690018c142c0e0792ec976fda40f12608163ae958517c182831e8a867bc1"
+    },
+    {
+      "from": "packages/activation-manager/show/mount-authorize-device-grant.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-manager/packages/activation-manager/show/mount-authorize-device-grant.tsx",
+      "source_identity": "1f:d0b33c92e98ec6398479b649dd70d5acee04136461a7e0c453e6a66cefea4c6f",
+      "identity": "1f:d0b33c92e98ec6398479b649dd70d5acee04136461a7e0c453e6a66cefea4c6f"
+    },
+    {
+      "from": "packages/activation-manager/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-manager/packages/activation-manager/show/README.md",
+      "source_identity": "1f:5917d811d0c038cc2f49fac57ed7b9d99be7b650d1e28aa0560d49a3e52f3453",
+      "identity": "1f:5917d811d0c038cc2f49fac57ed7b9d99be7b650d1e28aa0560d49a3e52f3453"
+    },
+    {
+      "from": "packages/activation-manager/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-manager/packages/activation-manager/things-to-store-and-run.json",
+      "source_identity": "1f:caaaeaa26aec9784534879b508e7cc57287b895a35bedc0977e2c099adc1bb83",
+      "identity": "1f:caaaeaa26aec9784534879b508e7cc57287b895a35bedc0977e2c099adc1bb83"
+    }
+  ]
+}

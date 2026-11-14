@@ -1,0 +1,56 @@
+{
+  "schema": "ai-orchestra.reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-FORM-CONSOLIDATION",
+  "status": "VERIFIED",
+  "directive": {
+    "quote": "For valuable work, inspect the actual behavior and integrate the final correct implementation into the default branch using ordinary commits.",
+    "message_sha256": "cce66acd2fc5f90f85208e7ee9d5c9099c91015cfed5263ff398626125969c38"
+  },
+  "mode": "BEHAVIORAL_PORT",
+  "sources": [
+    {
+      "path": "packages/ask-questions-sort-answers-follow-up/things-to-store-and-run.json",
+      "sha256": "48aecafc6a2ea1f393c06a3cd1ac97b11ae61fb08627d0eb8a0938101c076a96",
+      "ownership": "repository-owned"
+    }
+  ],
+  "targets": [
+    {
+      "path": "packages/ask-questions-sort-answers-follow-up/show/AskQuestionsView.tsx"
+    },
+    {
+      "path": "packages/ask-questions-sort-answers-follow-up/show/FillSurface.tsx"
+    },
+    {
+      "path": "packages/ask-questions-sort-answers-follow-up/show/inputs/EvidenceReferenceInput.tsx"
+    },
+    {
+      "path": "packages/ask-questions-sort-answers-follow-up/show/inputs/NumberInput.tsx"
+    },
+    {
+      "path": "packages/ask-questions-sort-answers-follow-up/show/inputs/index.ts"
+    }
+  ],
+  "preserve": [
+    "Current question sequencing, shared controls, suggestion feeds, answer validation and atomic answer/decision writes."
+  ],
+  "allowed_deltas": [
+    "Retain generic decimal and opaque source-reference inputs with owner callbacks and shared draft identity; preserve current DATA-driven suggestions."
+  ],
+  "banned_substitutions": [
+    "No source-specific verification, caller-controlled persistence partition or app-specific workflow in generic forms.",
+    "No running-app changes or promotion."
+  ],
+  "baseline": {
+    "copied_before_adaptation": false,
+    "note": "Retained repository behavior; no appearance redesign or deployed proof claim."
+  },
+  "proof": {
+    "test_refs": [
+      "packages/ask-questions-sort-answers-follow-up/show/AskQuestionsView.test.tsx",
+      "packages/ask-questions-sort-answers-follow-up/show/inputs/source-and-number.test.tsx",
+      "packages/ask-questions-sort-answers-follow-up/show/FillSurface.test.tsx"
+    ],
+    "note": "Local component and source checks; no deployed or visual-completion claim."
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "package": "browsing-surface-provider",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::browsing-surface-provider::entry::provider",
+      "path": [
+        "packages",
+        "browsing-surface-provider",
+        "entries",
+        "provider"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "provider",
+        "source_path": "provider.mjs",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-provider"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-provider",
+      "source_path": "built-stored-bytes/entry-bytes-provider",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-provider.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::browsing-surface-provider::record-contract::spatial-source-capture-request",
+      "path": [
+        "packages",
+        "browsing-surface-provider",
+        "record-contracts",
+        "spatial-source-capture-request"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "browsing-surface-provider.spatial-source-capture.request",
+        "required_fields": [
+          "schema"
+        ],
+        "data_owner": "runtime request to the mounted provider, never stored"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::browsing-surface-provider::record-contract::spatial-source-capture-response",
+      "path": [
+        "packages",
+        "browsing-surface-provider",
+        "record-contracts",
+        "spatial-source-capture-response"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "browsing-surface-provider.spatial-source-capture.response",
+        "required_fields": [
+          "schema",
+          "captured_at",
+          "source",
+          "viewport",
+          "snapshot"
+        ],
+        "data_owner": "runtime reply from the mounted provider, never stored"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::browsing-surface-provider::record-contract::task-surface-isolation-observation",
+      "path": [
+        "packages",
+        "browsing-surface-provider",
+        "record-contracts",
+        "task-surface-isolation-observation"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "process-session.task-surface-isolation-observation",
+        "required_fields": [
+          "bootstrap_identity",
+          "task_ref",
+          "process_session_id",
+          "provider_session_id",
+          "lifecycle_revision",
+          "valid_until_ms",
+          "surface_identity",
+          "page_identity",
+          "pointer_identity",
+          "keyboard_identity",
+          "input_focus_identity"
+        ],
+        "data_owner": "current reply from the mounted provider for one exact headless CDP surface; the realm-held process-session capability publishes and revokes its exact address/hash binding atomically"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::browsing-surface-provider::checks",
+      "path": [
+        "packages",
+        "browsing-surface-provider",
+        "checks"
+      ],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "provider.test.mjs",
+          "dom-snapshot-contract.test.mjs",
+          "terminal-page-proof.test.mjs"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::browsing-surface-provider::reaches-past-the-engine::network",
+      "path": [
+        "current-item",
+        "reaches-past-the-engine"
+      ],
+      "payload": {
+        "kind": "reaches-past-the-engine",
+        "reach_class": "network",
+        "why": "speaking Chrome DevTools Protocol to the one browser process this package asked the engine to start is the whole of its job, and CDP is a WebSocket the browser serves, not a record the engine holds: the socket address arrives from the process-session endpoint the engine hands back (parseExternalProcessEndpointLine, resolveDevtoolsWsFromExternalEndpoint), never from a literal, and every frame that crosses it is a screencast pixel or an input event the realm forwards for the surface the user is looking at. No sibling package can take this reach on without also owning the browser process. A second reach, a fetch to a bring-up beacon on a frozen loopback port, was deleted on 2026-09-09 the day this declaration was written."
+      },
+      "remove": false
+    }
+  ]
+}

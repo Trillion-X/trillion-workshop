@@ -1,0 +1,170 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "owner-first-name",
+      "find": "\\bB[r]ian\\b",
+      "replace": "The owner",
+      "means": "A real person's first name in a comment or a description, swapped for a made-up one: a public tree holds made-up data only."
+    },
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/autonomous-agent-tick/processes/.surface-agent-decisions-state.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/autonomous-agent-tick/packages/autonomous-agent-tick/processes/.surface-agent-decisions-state.json",
+      "source_identity": "1f:ac5eb7cae4e4de6d87c1c9d74856ab50c0a069823e71fdde2af347d5e48da5c7",
+      "identity": "1f:ac5eb7cae4e4de6d87c1c9d74856ab50c0a069823e71fdde2af347d5e48da5c7"
+    },
+    {
+      "from": "packages/autonomous-agent-tick/processes/build-retention-fly-bundle.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/autonomous-agent-tick/packages/autonomous-agent-tick/processes/build-retention-fly-bundle.mjs",
+      "source_identity": "1f:9d112affcd98cdd4d1db2d691ce86d24e5f781f0ef82cd5800b3a58fa3559624",
+      "identity": "1f:9d112affcd98cdd4d1db2d691ce86d24e5f781f0ef82cd5800b3a58fa3559624"
+    },
+    {
+      "from": "packages/autonomous-agent-tick/processes/drain-work-queues-once.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/autonomous-agent-tick/packages/autonomous-agent-tick/processes/drain-work-queues-once.mjs",
+      "source_identity": "1f:5bbbcfc987924a8f529ba8296580ac26c63a1b917402d707a39cd8e265c5693e",
+      "identity": "1f:68076fb1a4ffd12abb18881a6655e236d46f18c276729db8f9fe21d4f07189cf",
+      "calls": [
+        "owner-first-name"
+      ]
+    },
+    {
+      "from": "packages/autonomous-agent-tick/processes/enforce-retention-once.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/autonomous-agent-tick/packages/autonomous-agent-tick/processes/enforce-retention-once.mjs",
+      "source_identity": "1f:281fa64903de06d8ae44d6cec992e1c15f320c4e123e5ef445e8962752fdd7f7",
+      "identity": "1f:281fa64903de06d8ae44d6cec992e1c15f320c4e123e5ef445e8962752fdd7f7"
+    },
+    {
+      "from": "packages/autonomous-agent-tick/processes/lib/artifact-store.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/autonomous-agent-tick/packages/autonomous-agent-tick/processes/lib/artifact-store.mjs",
+      "source_identity": "1f:af52e65d7121f117cecd16458136d54dfe52147555c69ac0cfa289ddc1d0a2f4",
+      "identity": "1f:af52e65d7121f117cecd16458136d54dfe52147555c69ac0cfa289ddc1d0a2f4"
+    },
+    {
+      "from": "packages/autonomous-agent-tick/processes/lib/carrier.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/autonomous-agent-tick/packages/autonomous-agent-tick/processes/lib/carrier.mjs",
+      "source_identity": "1f:425477823919e9b3dc38c6d6691f7b42887832df5d1bb4177916dbe47418ff98",
+      "identity": "1f:425477823919e9b3dc38c6d6691f7b42887832df5d1bb4177916dbe47418ff98"
+    },
+    {
+      "from": "packages/autonomous-agent-tick/processes/lib/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/autonomous-agent-tick/packages/autonomous-agent-tick/processes/lib/README.md",
+      "source_identity": "1f:b7fa20c254a7da619585077c46e8218a9f46072d7c765bbeac7e3e81b3a352b2",
+      "identity": "1f:b7fa20c254a7da619585077c46e8218a9f46072d7c765bbeac7e3e81b3a352b2"
+    },
+    {
+      "from": "packages/autonomous-agent-tick/processes/lib/reply-route.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/autonomous-agent-tick/packages/autonomous-agent-tick/processes/lib/reply-route.mjs",
+      "source_identity": "1f:327d42c3a75cae058b43e00050c2a47dbc03f3a9d90ac0604409f0329780c1e5",
+      "identity": "1f:327d42c3a75cae058b43e00050c2a47dbc03f3a9d90ac0604409f0329780c1e5"
+    },
+    {
+      "from": "packages/autonomous-agent-tick/processes/lib/retention-enforcement.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/autonomous-agent-tick/packages/autonomous-agent-tick/processes/lib/retention-enforcement.mjs",
+      "source_identity": "1f:bc6fc03c90929fab23f23ca1f867a7f72719e7e9664319802d4fd56032d5d0d9",
+      "identity": "1f:bc6fc03c90929fab23f23ca1f867a7f72719e7e9664319802d4fd56032d5d0d9"
+    },
+    {
+      "from": "packages/autonomous-agent-tick/processes/lib/retention-policy.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/autonomous-agent-tick/packages/autonomous-agent-tick/processes/lib/retention-policy.mjs",
+      "source_identity": "1f:c3eab337b7fcc796c96c061dce54826f20db8724cfb59a96dfef1ac1e17b2e9d",
+      "identity": "1f:c3eab337b7fcc796c96c061dce54826f20db8724cfb59a96dfef1ac1e17b2e9d"
+    },
+    {
+      "from": "packages/autonomous-agent-tick/processes/lib/template.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/autonomous-agent-tick/packages/autonomous-agent-tick/processes/lib/template.mjs",
+      "source_identity": "1f:2ff72beb8543519b165ece2fa5e63fc35e945007c3910a67ca791c18e8d85ddf",
+      "identity": "1f:2ff72beb8543519b165ece2fa5e63fc35e945007c3910a67ca791c18e8d85ddf"
+    },
+    {
+      "from": "packages/autonomous-agent-tick/processes/materialize-pending-once.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/autonomous-agent-tick/packages/autonomous-agent-tick/processes/materialize-pending-once.mjs",
+      "source_identity": "1f:bbe4f43d0d52eb7599ec50cd2dd32ee581976571e83abb593695b4cdff49fcd3",
+      "identity": "1f:bbe4f43d0d52eb7599ec50cd2dd32ee581976571e83abb593695b4cdff49fcd3"
+    },
+    {
+      "from": "packages/autonomous-agent-tick/processes/produce-grounded.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/autonomous-agent-tick/packages/autonomous-agent-tick/processes/produce-grounded.mjs",
+      "source_identity": "1f:70dc2db59997eb9e62531d2c1b4e8d18b5c9054879ba9b24b7f16bbfe30f3ccb",
+      "identity": "1f:70dc2db59997eb9e62531d2c1b4e8d18b5c9054879ba9b24b7f16bbfe30f3ccb"
+    },
+    {
+      "from": "packages/autonomous-agent-tick/processes/send-poll.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/autonomous-agent-tick/packages/autonomous-agent-tick/processes/send-poll.mjs",
+      "source_identity": "1f:5560e97e1bfc1d2aa7b4db81ff6f3173656a3256d80f6927b5c47bcb64a59bf6",
+      "identity": "1f:5560e97e1bfc1d2aa7b4db81ff6f3173656a3256d80f6927b5c47bcb64a59bf6"
+    },
+    {
+      "from": "packages/autonomous-agent-tick/processes/send-reply.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/autonomous-agent-tick/packages/autonomous-agent-tick/processes/send-reply.mjs",
+      "source_identity": "1f:3d1d378edc661464e5790f53ef6ceb3c41da1cb33f58c67a4e73a15364f00826",
+      "identity": "1f:3d1d378edc661464e5790f53ef6ceb3c41da1cb33f58c67a4e73a15364f00826"
+    },
+    {
+      "from": "packages/autonomous-agent-tick/processes/spawn-check.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/autonomous-agent-tick/packages/autonomous-agent-tick/processes/spawn-check.mjs",
+      "source_identity": "1f:ac2f0ea9f2f616021d759a192f5e901b6c9203e0650de467e767da6eaf22e3d5",
+      "identity": "1f:ac2f0ea9f2f616021d759a192f5e901b6c9203e0650de467e767da6eaf22e3d5"
+    },
+    {
+      "from": "packages/autonomous-agent-tick/processes/surface-agent-decisions.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/autonomous-agent-tick/packages/autonomous-agent-tick/processes/surface-agent-decisions.mjs",
+      "source_identity": "1f:e31fc7fbf0a430ab0b30cfe40ecae2c0f96912e9feb187fadf534dd8276a2a16",
+      "identity": "1f:e31fc7fbf0a430ab0b30cfe40ecae2c0f96912e9feb187fadf534dd8276a2a16"
+    },
+    {
+      "from": "packages/autonomous-agent-tick/processes/sweep-decisions-once.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/autonomous-agent-tick/packages/autonomous-agent-tick/processes/sweep-decisions-once.mjs",
+      "source_identity": "1f:22b7f441ae767f3f492f1c9140e0c5e8a22de48aff7bd3ee9cad637740ae40a1",
+      "identity": "1f:f84f7a3a4c8aebd1da2cc68acd4d594159bfbe67893ca0c51e4c656af97a74da",
+      "calls": [
+        "owner-first-name"
+      ]
+    },
+    {
+      "from": "packages/autonomous-agent-tick/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/autonomous-agent-tick/packages/autonomous-agent-tick/README.md",
+      "source_identity": "1f:13c5ced495cebdd429c0abe2f36598306e8d6f0ff4a72c85903b96fd15f7b997",
+      "identity": "1f:13c5ced495cebdd429c0abe2f36598306e8d6f0ff4a72c85903b96fd15f7b997"
+    },
+    {
+      "from": "packages/autonomous-agent-tick/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/autonomous-agent-tick/packages/autonomous-agent-tick/things-to-store-and-run.json",
+      "source_identity": "1f:fe2758cbb45befbc8da5506d077d7476d8fdb418b1ad21bbf75990efda6684f4",
+      "identity": "1f:8671f95308250ad63a9e52394ea195f531274ed38ac9a91071057641d94e65c1",
+      "calls": [
+        "owner-first-name"
+      ]
+    }
+  ]
+}

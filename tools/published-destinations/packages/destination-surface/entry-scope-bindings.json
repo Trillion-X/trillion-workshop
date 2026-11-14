@@ -1,0 +1,22 @@
+{
+  "kind": "bitfield-entry-scope-bindings",
+  "entries": [
+    {
+      "entry_name": "destination",
+      "scope_binding": {
+        "target_writes": []
+      }
+    },
+    {
+      "entry_name": "migrate-honest-destination-state-target",
+      "scope_binding": {
+        "target_writes": [
+          {
+            "answer_cells": [{"name": "result"}],
+            "request": {"target": "engine.operation.label-addressed"}
+          }
+        ]
+      }
+    }
+  ]
+}

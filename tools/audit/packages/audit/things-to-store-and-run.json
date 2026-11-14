@@ -1,0 +1,83 @@
+{
+ "package": "audit",
+ "things": [
+  {
+   "type": "slot",
+   "name": "audit",
+   "build": {
+     "sequence": {
+       "inputs": [],
+       "input_trees": [],
+       "steps": [
+         {
+           "name": "build",
+           "process": {
+             "argv": [
+               "cargo",
+               "build",
+               "--target",
+               "wasm32-wasip2",
+               "--release",
+               "--manifest-path",
+               "Cargo.toml"
+             ],
+             "cwd": "source",
+             "timeout_ms": 120000,
+             "termination_grace_ms": 1000,
+             "expected_termination": {
+               "kind": "exited",
+               "code": 0
+             },
+             "env": {
+               "CARGO_TARGET_DIR": "target"
+             },
+             "inputs": [],
+             "input_trees": [],
+             "outputs": [
+               {
+                 "mount_path": "target/wasm32-wasip2/release/audit.wasm"
+               }
+             ],
+             "containment": {
+               "kind": "descendant_effect_contained",
+               "pipe_eof_timeout_ms": 1000,
+               "publications": []
+             },
+             "capture_fds": [
+               1,
+               2
+             ],
+             "collected_files": []
+           },
+           "workspace_bindings": {
+             "environment": [],
+             "arguments": []
+           },
+           "predecessor_outputs": []
+         }
+       ]
+     },
+     "output": {
+       "step": "build",
+       "mount_path": "target/wasm32-wasip2/release/audit.wasm"
+     }
+   },
+   "boundary": {
+    "call_shape": "envelope-bytes-in-envelope-bytes-out",
+    "methods": [
+     {
+      "name": "query"
+     }
+    ]
+   },
+   "runner": {
+    "private_config": {}
+   },
+   "methods": [
+    {
+     "name": "query"
+    }
+   ]
+  }
+ ]
+}

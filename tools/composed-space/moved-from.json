@@ -1,0 +1,92 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/composed-space/do-work/apply-space.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/composed-space/packages/composed-space/do-work/apply-space.ts",
+      "source_identity": "1f:82ba725903eca39ec351e6e5c628c258f252aba2919e1c8229059625512afc07",
+      "identity": "1f:82ba725903eca39ec351e6e5c628c258f252aba2919e1c8229059625512afc07"
+    },
+    {
+      "from": "packages/composed-space/do-work/migrate-embedded-space-members.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/composed-space/packages/composed-space/do-work/migrate-embedded-space-members.ts",
+      "source_identity": "1f:e2929b5cb4f2e9c3607f29d1c3fd0ce097fd03068cf7bd54ccb29e8edab2e259",
+      "identity": "1f:e2929b5cb4f2e9c3607f29d1c3fd0ce097fd03068cf7bd54ccb29e8edab2e259"
+    },
+    {
+      "from": "packages/composed-space/do-work/pin-space.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/composed-space/packages/composed-space/do-work/pin-space.ts",
+      "source_identity": "1f:66df7e00d97b4de7cf95c91bd1aef63b3cf6ebab9967f9cc992662df004e74b6",
+      "identity": "1f:66df7e00d97b4de7cf95c91bd1aef63b3cf6ebab9967f9cc992662df004e74b6"
+    },
+    {
+      "from": "packages/composed-space/do-work/save-space.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/composed-space/packages/composed-space/do-work/save-space.ts",
+      "source_identity": "1f:17b5fe6d16fc5f81fb190cb20f314c9d024618709b56e089fe27e744714e1439",
+      "identity": "1f:17b5fe6d16fc5f81fb190cb20f314c9d024618709b56e089fe27e744714e1439"
+    },
+    {
+      "from": "packages/composed-space/read-data/read-composed-spaces.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/composed-space/packages/composed-space/read-data/read-composed-spaces.ts",
+      "source_identity": "1f:de0ef6de9b3fcd9e003c10a1ee3dee7c9bd1a300af327fc33a5618c9d365e0b8",
+      "identity": "1f:de0ef6de9b3fcd9e003c10a1ee3dee7c9bd1a300af327fc33a5618c9d365e0b8"
+    },
+    {
+      "from": "packages/composed-space/read-data/use-composed-spaces.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/composed-space/packages/composed-space/read-data/use-composed-spaces.ts",
+      "source_identity": "1f:d35c8172a6ca4f5d8cb6c3ea676822cd4143f65abab43223f6fcef371db95091",
+      "identity": "1f:d35c8172a6ca4f5d8cb6c3ea676822cd4143f65abab43223f6fcef371db95091"
+    },
+    {
+      "from": "packages/composed-space/read-data/use-members.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/composed-space/packages/composed-space/read-data/use-members.ts",
+      "source_identity": "1f:02bddfdf3980f1fea3250a200d4157479d920de434a9775c44a6963f75804eed",
+      "identity": "1f:02bddfdf3980f1fea3250a200d4157479d920de434a9775c44a6963f75804eed"
+    },
+    {
+      "from": "packages/composed-space/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/composed-space/packages/composed-space/README.md",
+      "source_identity": "1f:1d5ab486acd8e93095c4472dbf304ee50968fd9fbf1f43f9dd324d866848a59a",
+      "identity": "1f:1d5ab486acd8e93095c4472dbf304ee50968fd9fbf1f43f9dd324d866848a59a"
+    },
+    {
+      "from": "packages/composed-space/show/mount-composed-space.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/composed-space/packages/composed-space/show/mount-composed-space.tsx",
+      "source_identity": "1f:36e65e68b24356d48def36ea4b4c59b7f04586942914a757194feabdd10af3d0",
+      "identity": "1f:36e65e68b24356d48def36ea4b4c59b7f04586942914a757194feabdd10af3d0"
+    },
+    {
+      "from": "packages/composed-space/show/SpaceCollection.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/composed-space/packages/composed-space/show/SpaceCollection.tsx",
+      "source_identity": "1f:3875cc0ab89c6bb5dc4507936e22bda4593a8a4e70380048af6341b840877bbd",
+      "identity": "1f:3875cc0ab89c6bb5dc4507936e22bda4593a8a4e70380048af6341b840877bbd"
+    },
+    {
+      "from": "packages/composed-space/show/SpacesView.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/composed-space/packages/composed-space/show/SpacesView.tsx",
+      "source_identity": "1f:e6fc3f7cf01d9621af6c34ab52efa640e956c15018182b3eb4a854486137dfd4",
+      "identity": "1f:e6fc3f7cf01d9621af6c34ab52efa640e956c15018182b3eb4a854486137dfd4"
+    },
+    {
+      "from": "packages/composed-space/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/composed-space/packages/composed-space/things-to-store-and-run.json",
+      "source_identity": "1f:9700e27589fe6c1b4bdfd6817cfb7daa39cac3f17f8d58834f1843fba726d2a1",
+      "identity": "1f:9700e27589fe6c1b4bdfd6817cfb7daa39cac3f17f8d58834f1843fba726d2a1"
+    }
+  ]
+}

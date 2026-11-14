@@ -1,0 +1,48 @@
+{
+  "instance_id": "signup:generic-working-session",
+  "label": "Generic working session signup",
+  "primitive_ref": "primitive:high-agency-working-session",
+  "focus_ref": "focus:ai-execution",
+  "coordination_session": {
+    "session_id": "session:generic-working-session",
+    "purpose_contract": {
+      "key": "focus:ai-execution",
+      "descriptor_ref": "data::coordination-session::focus:ai-execution",
+      "data": {
+        "primitive_ref": "primitive:high-agency-working-session",
+        "schedule_intent": "friday",
+        "signup_label": "Generic working session signup"
+      }
+    },
+    "candidate_occurrences": [],
+    "candidate_places": [
+      {
+        "place_ref": "place:chosen-venue"
+      }
+    ],
+    "candidate_modes": [
+      {
+        "key": "mode:in-person",
+        "descriptor_ref": "descriptor::coordination-session::mode:in-person"
+      }
+    ],
+    "capacity_plan": {
+      "capacity_policy_ref": "policy::coordination-session::capacity:generic-working-session",
+      "seat_ledger_ref": "seat-ledger:generic-working-session"
+    },
+    "participation_policy": {
+      "visibility_predicate_ref": "predicate::signup-visible",
+      "eligibility_predicate_ref": "predicate::signup-eligible",
+      "guest_policy_ref": "policy::guest:configured-by-data",
+      "host_policy_ref": "policy::host:configured-by-data",
+      "cancellation_policy_ref": "policy::cancellation:configured-by-data"
+    },
+    "lifecycle_state": {
+      "key": "signup-open",
+      "descriptor_ref": "descriptor::coordination-session::lifecycle:signup-open"
+    },
+    "workflow_definition_ref": "coordination-session.generic-event-platform",
+    "participant_provenance": [],
+    "preference_provenance": []
+  }
+}

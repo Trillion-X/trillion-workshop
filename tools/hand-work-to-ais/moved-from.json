@@ -176,6 +176,41 @@
         "web/src/workspace/job-run.json",
         "web/src/workspace/store-changes.ts"
       ]
+    },
+    {
+      "from": "packages/agent-auto-start/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/hand-work-to-ais/packages/agent-auto-start/things-to-store-and-run.json",
+      "source_identity": "1f:da3927db50a5b80cb50b84bb70a505f37f5d549e9f872ed3636d213e6ffce552",
+      "identity": "1f:da3927db50a5b80cb50b84bb70a505f37f5d549e9f872ed3636d213e6ffce552"
+    },
+    {
+      "from": "packages/agent-work-gate-compliance/index.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/hand-work-to-ais/packages/agent-work-gate-compliance/index.tsx",
+      "source_identity": "1f:94831c491f25fcbef70f2fa099974d5896b1206147b5b7522c9433fdd0d57760",
+      "identity": "1f:94831c491f25fcbef70f2fa099974d5896b1206147b5b7522c9433fdd0d57760"
+    },
+    {
+      "from": "packages/agent-work-gate-compliance/read-data/read-agent-work-gate-summary.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/hand-work-to-ais/packages/agent-work-gate-compliance/read-data/read-agent-work-gate-summary.ts",
+      "source_identity": "1f:c516d10cc503d7d377e0b325625c87c43e160a15c58916f662c7753c2bf4c329",
+      "identity": "1f:c516d10cc503d7d377e0b325625c87c43e160a15c58916f662c7753c2bf4c329"
+    },
+    {
+      "from": "packages/agent-work-gate-compliance/show/AgentWorkGateCompliancePanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/hand-work-to-ais/packages/agent-work-gate-compliance/show/AgentWorkGateCompliancePanel.tsx",
+      "source_identity": "1f:829afca459d1ba8fd36dfc36d5c2a6731a2a741aedfa5a90ddb9ec3ef7e6dc78",
+      "identity": "1f:829afca459d1ba8fd36dfc36d5c2a6731a2a741aedfa5a90ddb9ec3ef7e6dc78"
+    },
+    {
+      "from": "packages/agent-work-gate-compliance/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/hand-work-to-ais/packages/agent-work-gate-compliance/things-to-store-and-run.json",
+      "source_identity": "1f:ee28f3471876797a6ac6c6cbdf98c4ee11c7f9e43ac44ac82db1e0e77d373ee3",
+      "identity": "1f:ee28f3471876797a6ac6c6cbdf98c4ee11c7f9e43ac44ac82db1e0e77d373ee3"
     }
   ]
 }

@@ -1,0 +1,13 @@
+{
+  "kind": "bitfield-entry-to-package-data-map",
+  "package": "ai-training-batch",
+  "package_data_path": "things-to-store-and-run.json",
+  "entries": [
+    {
+      "entry_name": "ai-training-batch-panel",
+      "source_path": "show/TrainingBatchPanel.tsx",
+      "package_data_path": "things-to-store-and-run.json",
+      "export_name": "TrainingBatchPanel"
+    }
+  ]
+}

@@ -1112,6 +1112,55 @@
       "source_identity": "1f:bb17a41b6a103e37e4eb871196f75ce3729418a4de2a6722a2c7afff4fd6ac71",
       "identity": "1f:951d6568820083b51105661eda91da49b4d059e9cde38ed508190f6133e4e996",
       "adapted": "imports name the store host and table generations in keep-and-wake-ai-sessions-on-this-computer; the physical-carry test is left out: no repository keeps old src/resource-state-carry.mjs."
+    },
+    {
+      "from": "packages/account-identity/read-data/account-identity-materialization.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/shared-code/packages/account-identity/read-data/account-identity-materialization.ts",
+      "source_identity": "1f:dfecc6c98e8311d1de88d283f0cb3ce4842fdd12e74080d7ca22df38aeba73e9",
+      "identity": "1f:dfecc6c98e8311d1de88d283f0cb3ce4842fdd12e74080d7ca22df38aeba73e9"
+    },
+    {
+      "from": "packages/ask-a-small-model-for-a-verdict/do-work/ask-a-hosted-classifier.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/shared-code/packages/ask-a-small-model-for-a-verdict/do-work/ask-a-hosted-classifier.mjs",
+      "source_identity": "1f:621447838d249ed46d9716de60bbe6d4164e4cab682408de07ff10fdc201d013",
+      "identity": "1f:621447838d249ed46d9716de60bbe6d4164e4cab682408de07ff10fdc201d013"
+    },
+    {
+      "from": "packages/ask-a-small-model-for-a-verdict/do-work/ask-a-locally-served-model.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/shared-code/packages/ask-a-small-model-for-a-verdict/do-work/ask-a-locally-served-model.mjs",
+      "source_identity": "1f:bf5c7295875dca1148e1ea15b8d1733349e54ea3dd33c42fb38a4b76e1210184",
+      "identity": "1f:bf5c7295875dca1148e1ea15b8d1733349e54ea3dd33c42fb38a4b76e1210184"
+    },
+    {
+      "from": "packages/ask-a-small-model-for-a-verdict/do-work/ask-for-a-verdict.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/shared-code/packages/ask-a-small-model-for-a-verdict/do-work/ask-for-a-verdict.mjs",
+      "source_identity": "1f:7311f57a86cb1fcd14d994ada6ec69074ca260d1b18e673b91b71d8e5ec12d4f",
+      "identity": "1f:7311f57a86cb1fcd14d994ada6ec69074ca260d1b18e673b91b71d8e5ec12d4f"
+    },
+    {
+      "from": "packages/ask-a-small-model-for-a-verdict/do-work/ask-through-model-response.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/shared-code/packages/ask-a-small-model-for-a-verdict/do-work/ask-through-model-response.mjs",
+      "source_identity": "1f:5eca630b98b8e82752700efbf055011aae3d10bb696dd27674d63d39736eed83",
+      "identity": "1f:5eca630b98b8e82752700efbf055011aae3d10bb696dd27674d63d39736eed83"
+    },
+    {
+      "from": "packages/ask-a-small-model-for-a-verdict/do-work/judge-content.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/shared-code/packages/ask-a-small-model-for-a-verdict/do-work/judge-content.mjs",
+      "source_identity": "1f:ada3b09806a9527c27dffc2d108af43d092277c5073e5a25d5ef50328d9b3702",
+      "identity": "1f:ada3b09806a9527c27dffc2d108af43d092277c5073e5a25d5ef50328d9b3702"
+    },
+    {
+      "from": "packages/ui/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/shared-code/packages/ui/index.ts",
+      "source_identity": "1f:a9d17ab104934524fe95d35cb7af4763d66846185b3c3d20051d03310ae2f6f7",
+      "identity": "1f:a9d17ab104934524fe95d35cb7af4763d66846185b3c3d20051d03310ae2f6f7"
     }
   ]
 }

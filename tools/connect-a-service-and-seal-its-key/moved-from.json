@@ -20,6 +20,12 @@
       "find": "[/]Users[/]br[i]anakhtar[/]",
       "replace": "",
       "means": "A path in the maker's home folder, written from the home folder instead."
+    },
+    {
+      "id": "owner-home-folder",
+      "find": "[/]Users[/]b[r]ianakhtar",
+      "replace": "/workspace/the-owner",
+      "means": "A person's home folder name in a path, swapped for a made-up one: a public tree holds made-up data only."
     }
   ],
   "sources": [
@@ -289,6 +295,51 @@
       "source_identity": "1f:93073d70b2793cfd2a375f2e5903d76b0819230fe2f5b2943d82eb6b673c81aa",
       "identity": "1f:93073d70b2793cfd2a375f2e5903d76b0819230fe2f5b2943d82eb6b673c81aa",
       "source": "bitfield-packages"
+    },
+    {
+      "from": "packages/connectable-services/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/packages/connectable-services/entry-to-package-data-map.json",
+      "source_identity": "1f:0bf6abf62c019db998101f28ceb3d90991b15787c12c13b97bc03e2618d5a175",
+      "identity": "1f:0bf6abf62c019db998101f28ceb3d90991b15787c12c13b97bc03e2618d5a175"
+    },
+    {
+      "from": "packages/connectable-services/read-data/read-connectable-services.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/packages/connectable-services/read-data/read-connectable-services.ts",
+      "source_identity": "1f:ada6c4bf3a330f6f6e801b2ce1591f1c4adbec39916aada6eabd2ccc4d603bba",
+      "identity": "1f:ada6c4bf3a330f6f6e801b2ce1591f1c4adbec39916aada6eabd2ccc4d603bba"
+    },
+    {
+      "from": "packages/connectable-services/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/packages/connectable-services/README.md",
+      "source_identity": "1f:c572565ae0a3b8c586bf24ed64ee7bbe120a83681bef469e99d717d0b7d5b3d6",
+      "identity": "1f:fa8a1678f805abbe99cf592cb7963fc8f72eb3ed922682bde962cc4bb15cf244",
+      "calls": [
+        "owner-home-folder"
+      ]
+    },
+    {
+      "from": "packages/connectable-services/show/ConnectableServicesPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/packages/connectable-services/show/ConnectableServicesPanel.tsx",
+      "source_identity": "1f:cc45f3a8fc4e1ea82b6606b7fc6d1aa8884a0713638ae7a83e2da5b95c9178a6",
+      "identity": "1f:cc45f3a8fc4e1ea82b6606b7fc6d1aa8884a0713638ae7a83e2da5b95c9178a6"
+    },
+    {
+      "from": "packages/connectable-services/show/mount-connectable-services.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/packages/connectable-services/show/mount-connectable-services.tsx",
+      "source_identity": "1f:d8cff64c51ad0a8355333fe05fe474f84b77be86863fbd2a7b569985fdf1a30f",
+      "identity": "1f:d8cff64c51ad0a8355333fe05fe474f84b77be86863fbd2a7b569985fdf1a30f"
+    },
+    {
+      "from": "packages/connectable-services/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/packages/connectable-services/things-to-store-and-run.json",
+      "source_identity": "1f:678d6e9d724bf248d509401410f5128c956bfd4ff2f23e41389f5feff7919a36",
+      "identity": "1f:678d6e9d724bf248d509401410f5128c956bfd4ff2f23e41389f5feff7919a36"
     }
   ],
   "not_matched": []

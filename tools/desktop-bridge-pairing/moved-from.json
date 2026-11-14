@@ -1,0 +1,71 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/desktop-bridge-pairing/do-work/connect-desktop-bridge.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/desktop-bridge-pairing/packages/desktop-bridge-pairing/do-work/connect-desktop-bridge.ts",
+      "source_identity": "1f:fedc28cfd6284292cef551e6dba1e3a585ab53083bbc1f81cd5332d97a7bf176",
+      "identity": "1f:fedc28cfd6284292cef551e6dba1e3a585ab53083bbc1f81cd5332d97a7bf176"
+    },
+    {
+      "from": "packages/desktop-bridge-pairing/do-work/disconnect-desktop-bridge.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/desktop-bridge-pairing/packages/desktop-bridge-pairing/do-work/disconnect-desktop-bridge.ts",
+      "source_identity": "1f:dcbb7cd5c19da35d4e1459e0a137f3ca26898cb85674146183c6f272cd8269c3",
+      "identity": "1f:dcbb7cd5c19da35d4e1459e0a137f3ca26898cb85674146183c6f272cd8269c3"
+    },
+    {
+      "from": "packages/desktop-bridge-pairing/do-work/invoke-desktop-bridge-command.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/desktop-bridge-pairing/packages/desktop-bridge-pairing/do-work/invoke-desktop-bridge-command.ts",
+      "source_identity": "1f:5dfa9e38e2c85923a8d42098f833fc66e91fe6121c62f805b82426a73d0cf478",
+      "identity": "1f:5dfa9e38e2c85923a8d42098f833fc66e91fe6121c62f805b82426a73d0cf478"
+    },
+    {
+      "from": "packages/desktop-bridge-pairing/do-work/read-desktop-bridge-pairing-code.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/desktop-bridge-pairing/packages/desktop-bridge-pairing/do-work/read-desktop-bridge-pairing-code.ts",
+      "source_identity": "1f:d3f6f9c9181cf2b229d95124866c859e6782b1447b85547477fd77d88ac0b7fa",
+      "identity": "1f:d3f6f9c9181cf2b229d95124866c859e6782b1447b85547477fd77d88ac0b7fa"
+    },
+    {
+      "from": "packages/desktop-bridge-pairing/index.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/desktop-bridge-pairing/packages/desktop-bridge-pairing/index.tsx",
+      "source_identity": "1f:1a6a55685d95d2032afc5067e1f2e8d7e537f58f1ef1f042c2b3f7694c12b838",
+      "identity": "1f:1a6a55685d95d2032afc5067e1f2e8d7e537f58f1ef1f042c2b3f7694c12b838"
+    },
+    {
+      "from": "packages/desktop-bridge-pairing/read-data/read-desktop-bridge-config.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/desktop-bridge-pairing/packages/desktop-bridge-pairing/read-data/read-desktop-bridge-config.ts",
+      "source_identity": "1f:7973395c37c61052095257540d1529df424d828dec0583f2891246fc5039a738",
+      "identity": "1f:7973395c37c61052095257540d1529df424d828dec0583f2891246fc5039a738"
+    },
+    {
+      "from": "packages/desktop-bridge-pairing/read-data/read-desktop-bridge-status.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/desktop-bridge-pairing/packages/desktop-bridge-pairing/read-data/read-desktop-bridge-status.ts",
+      "source_identity": "1f:c054230e4ef4f301e4856979687718565e63fe53665cd32a98bcffd92ec81ff0",
+      "identity": "1f:c054230e4ef4f301e4856979687718565e63fe53665cd32a98bcffd92ec81ff0"
+    },
+    {
+      "from": "packages/desktop-bridge-pairing/show/DesktopBridgePairingPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/desktop-bridge-pairing/packages/desktop-bridge-pairing/show/DesktopBridgePairingPanel.tsx",
+      "source_identity": "1f:38b2549cde0982c094d896e51d41a2833d978147e05e6b632a49f775cf54ff71",
+      "identity": "1f:38b2549cde0982c094d896e51d41a2833d978147e05e6b632a49f775cf54ff71"
+    },
+    {
+      "from": "packages/desktop-bridge-pairing/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/desktop-bridge-pairing/packages/desktop-bridge-pairing/things-to-store-and-run.json",
+      "source_identity": "1f:f6abae5bcc9f079eebd3d1486fe70ec09ede059f760bfd1f4d5cbc18cc7038c7",
+      "identity": "1f:f6abae5bcc9f079eebd3d1486fe70ec09ede059f760bfd1f4d5cbc18cc7038c7"
+    }
+  ]
+}

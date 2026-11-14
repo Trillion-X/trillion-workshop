@@ -2,7 +2,26 @@
   "about": "Files moved here from Trillion-X/trillion by #76 (a9ee2580). Each matched file names its source path and commit and the BLAKE3 identity of its source bytes and of its bytes here. not_matched lists files #76 adapted or renamed, so no source file holds their exact bytes; their sources are under the old capability row's owner paths in sources.",
   "source": "Trillion-X/trillion",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "owner-home-folder",
+      "find": "[/]Users[/]b[r]ianakhtar",
+      "replace": "/workspace/the-owner",
+      "means": "A person's home folder name in a path, swapped for a made-up one: a public tree holds made-up data only."
+    },
+    {
+      "id": "owner-first-name",
+      "find": "\\bB[r]ian\\b",
+      "replace": "The owner",
+      "means": "A real person's first name in a comment or a description, swapped for a made-up one: a public tree holds made-up data only."
+    },
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    }
+  ],
   "sources": [
     "parts/public-sales-page/"
   ],
@@ -209,6 +228,139 @@
       "to": "tools/write-a-sales-page/records.json",
       "source_identity": "1f:e64ada3768afee3d5e392aad20094029858e0af47dc28754cacdd7f5875d2aa0",
       "identity": "1f:e64ada3768afee3d5e392aad20094029858e0af47dc28754cacdd7f5875d2aa0"
+    },
+    {
+      "from": "packages/adaptive-program-landing/do-work/landing-proof-shell.html",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/do-work/landing-proof-shell.html",
+      "source_identity": "1f:25016d71e0ec673e62ad209183b3354d62ef913e662d4ac359ab8ed5d4e4ea40",
+      "identity": "1f:25016d71e0ec673e62ad209183b3354d62ef913e662d4ac359ab8ed5d4e4ea40"
+    },
+    {
+      "from": "packages/adaptive-program-landing/do-work/publish-hosted-landing-island.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/do-work/publish-hosted-landing-island.mjs",
+      "source_identity": "1f:ff05014b29d89810c5fab55442812c707f130d7cf006647c43b16ad73518ebc0",
+      "identity": "1f:ff05014b29d89810c5fab55442812c707f130d7cf006647c43b16ad73518ebc0"
+    },
+    {
+      "from": "packages/adaptive-program-landing/do-work/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/do-work/README.md",
+      "source_identity": "1f:2fa154645338344fbd545053fbe623ac06e760b66981318ffe375be5299fd67b",
+      "identity": "1f:68bf26eee0570786a59d233486b3e29a9fd06df24adf8946791578afb1867310",
+      "calls": [
+        "owner-home-folder"
+      ]
+    },
+    {
+      "from": "packages/adaptive-program-landing/do-work/render-landing-proof.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/do-work/render-landing-proof.mjs",
+      "source_identity": "1f:dfb08cd992537a619eb249077625787431bf0994988e2e6629b1ffe70bb2cd6a",
+      "identity": "1f:dfb08cd992537a619eb249077625787431bf0994988e2e6629b1ffe70bb2cd6a"
+    },
+    {
+      "from": "packages/adaptive-program-landing/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/things-to-store-and-run.json",
+      "source_identity": "1f:5abae8b50cb40e3631af8d7190008168c6f6fb4e9bd1362ce4413666e3ca24f6",
+      "identity": "1f:5abae8b50cb40e3631af8d7190008168c6f6fb4e9bd1362ce4413666e3ca24f6"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/flatten-current-container-base.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/hosted-public-app/processes/flatten-current-container-base.mjs",
+      "source_identity": "1f:8ad2688d29b600760fa33e9b020724788818fb1aad46d2d1af4196cf945fcdf2",
+      "identity": "1f:8ad2688d29b600760fa33e9b020724788818fb1aad46d2d1af4196cf945fcdf2"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/prove-a-release-starts-before-it-goes-live.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/hosted-public-app/processes/prove-a-release-starts-before-it-goes-live.mjs",
+      "source_identity": "1f:5bb476547773467b417b76ff64869d1c24445484bb9fb6ba31d89309d3c52042",
+      "identity": "1f:5bb476547773467b417b76ff64869d1c24445484bb9fb6ba31d89309d3c52042"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/provider-credential.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/hosted-public-app/processes/provider-credential.mjs",
+      "source_identity": "1f:6c016ed428a09af8d4a7fce0c508d01fa53151dd082fd3bcb22e2a8dc434de4a",
+      "identity": "1f:6c016ed428a09af8d4a7fce0c508d01fa53151dd082fd3bcb22e2a8dc434de4a"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/publish-reviewed-article.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/hosted-public-app/processes/publish-reviewed-article.mjs",
+      "source_identity": "1f:ae500171fcd0396974a5267413316b215db1ed04901458c54426df3b72aa2f63",
+      "identity": "1f:ae500171fcd0396974a5267413316b215db1ed04901458c54426df3b72aa2f63"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/run-provider-deploy.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/hosted-public-app/processes/run-provider-deploy.mjs",
+      "source_identity": "1f:5dcec2d5013dc4db676edbf41dee63baaf7b3a480fda79e29efd0df6e6d0635c",
+      "identity": "1f:5dcec2d5013dc4db676edbf41dee63baaf7b3a480fda79e29efd0df6e6d0635c"
+    },
+    {
+      "from": "packages/hosted-public-app/processes/verify-release-viewport-paint.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/hosted-public-app/processes/verify-release-viewport-paint.mjs",
+      "source_identity": "1f:d92e9ef32cebda0dc827d3028901c1e093b12991ca3c2d2e5aa4b25a7b4f0b35",
+      "identity": "1f:d92e9ef32cebda0dc827d3028901c1e093b12991ca3c2d2e5aa4b25a7b4f0b35"
+    },
+    {
+      "from": "packages/hosted-public-app/read-data/release-machine-settings.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/hosted-public-app/read-data/release-machine-settings.json",
+      "source_identity": "1f:80594b44578a034aa642b178f46e23f4990cae65e3f60b6b7680a346e57cd69a",
+      "identity": "1f:80594b44578a034aa642b178f46e23f4990cae65e3f60b6b7680a346e57cd69a"
+    },
+    {
+      "from": "packages/local-files/read-data/names-and-content-identities-from-a-folder-tree.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/local-files/read-data/names-and-content-identities-from-a-folder-tree.mjs",
+      "source_identity": "1f:fd7d8922b15e641e237e413840f70265330eefe8f6fa6a7940955fa35fea422a",
+      "identity": "1f:fd7d8922b15e641e237e413840f70265330eefe8f6fa6a7940955fa35fea422a"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/build-declared-stored-bytes-for-chosen-packages.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/make-packages-match-their-source/do-work/build-declared-stored-bytes-for-chosen-packages.mjs",
+      "source_identity": "1f:1183a548eb8804934b76de504396f1738db1837c5d63b31356fa480711307a31",
+      "identity": "1f:1183a548eb8804934b76de504396f1738db1837c5d63b31356fa480711307a31"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/make-one-package-match-its-source.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/make-packages-match-their-source/do-work/make-one-package-match-its-source.mjs",
+      "source_identity": "1f:02c47522bb3e5c0a433fb4cb31a5ad0498d2f0b47e394c4a4c1d812a0913fb3c",
+      "identity": "1f:02c47522bb3e5c0a433fb4cb31a5ad0498d2f0b47e394c4a4c1d812a0913fb3c"
+    },
+    {
+      "from": "packages/run-the-declared-checks-for-chosen-packages/do-work/run-the-declared-checks-for-chosen-packages.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/run-the-declared-checks-for-chosen-packages/do-work/run-the-declared-checks-for-chosen-packages.mjs",
+      "source_identity": "1f:14c3871539806bef34207ede5b39590dfc844037d4b373ec097fb0588a052fb1",
+      "identity": "1f:5e4a4029fac219bba27871133245ae58a260732e9dcc8eb5a66422d1c94cf4b5",
+      "calls": [
+        "owner-first-name",
+        "private-notes-path"
+      ]
+    },
+    {
+      "from": "packages/send-requests-to-an-engine/read-data/find-the-running-app-and-send-requests-to-it.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/send-requests-to-an-engine/read-data/find-the-running-app-and-send-requests-to-it.mjs",
+      "source_identity": "1f:9f514003109213deb0ae76ddff465ca433cf274ee17cc5f5d2166cc12788e81c",
+      "identity": "1f:9f514003109213deb0ae76ddff465ca433cf274ee17cc5f5d2166cc12788e81c"
+    },
+    {
+      "from": "packages/ui/show/server-rendered-page/page-sections-html.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/ui/show/server-rendered-page/page-sections-html.mjs",
+      "source_identity": "1f:d2cbe82550dce7a97887973e9318e80f4f5d6f7170e26a3bc181d7fece275560",
+      "identity": "1f:d2cbe82550dce7a97887973e9318e80f4f5d6f7170e26a3bc181d7fece275560"
     }
   ],
   "not_matched": []

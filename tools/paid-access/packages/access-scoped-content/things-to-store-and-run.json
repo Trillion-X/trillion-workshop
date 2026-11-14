@@ -1,0 +1,160 @@
+{
+  "package": "access-scoped-content",
+  "things": [
+    {"type": "record", "address": "package::access-scoped-content::checks", "path": ["packages", "access-scoped-content", "checks"], "payload": {
+      "kind": "package-checks-descriptor", "checks": [
+        "read-data/read-access-scoped-items.test.ts", "read-data/resolve-viewer-access.test.ts", "show/AccessScopedContent.renderer.test.tsx", "show/AccessScopedContent.shipped-library.test.ts"
+      ]
+    }},
+    {
+      "type": "record",
+      "address": "package::access-scoped-content::public-source::read-data",
+      "path": [
+        "packages",
+        "access-scoped-content",
+        "public-sources",
+        "read-data"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "read-data"
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "index",
+      "source_path": "index.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "read-access-scoped-items",
+      "source_path": "read-data/read-access-scoped-items.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "access-scoped-content",
+      "source_path": "show/AccessScopedContent.tsx"
+    },
+    {
+      "type": "record",
+      "address": "package::access-scoped-content::contract",
+      "path": [
+        "packages",
+        "access-scoped-content",
+        "contract"
+      ],
+      "payload": {
+        "does_not_own": [
+          "access decisions",
+          "access grant creation",
+          "pricing",
+          "provider SDK calls",
+          "package-set-specific copy"
+        ],
+        "kind": "package-contract",
+        "owns": [
+          "caller-ready access projection reading",
+          "current viewer access reduction from durable license effects",
+          "generic owner-surface mounting",
+          "generic purchased-download presentation"
+        ],
+        "package": "access-scoped-content"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::access-scoped-content::record-contract::access-projection",
+      "path": [
+        "packages",
+        "access-scoped-content",
+        "record-contracts",
+        "access-projection"
+      ],
+      "payload": {
+        "data_owner": "access decision owner projection",
+        "kind": "package-record-contract",
+        "record_kind": "access-scoped-content-projection",
+        "required_fields": [
+          "id",
+          "content_ref",
+          "available",
+          "render_surface"
+        ],
+        "one_of_access_authority_fields": [
+          [
+            "required_access_refs"
+          ],
+          [
+            "access_decision_ref",
+            "access_decision_revision",
+            "access_decision_current_revision"
+          ]
+        ]
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::access-scoped-content::input::access-projection-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "access-projection-by-address-label",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::access-scoped-content::entry::access-scoped-content",
+      "build_source_path": "show/mount-access-scoped-content.tsx",
+      "path": [
+        "packages",
+        "access-scoped-content",
+        "entries",
+        "access-scoped-content"
+      ],
+      "payload": {
+        "entry_name": "access-scoped-content",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-access-scoped-content.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-access-scoped-content"
+        }
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-access-scoped-content",
+      "source_path": "built-stored-bytes/entry-bytes-access-scoped-content",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-access-scoped-content.source-closure.json"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/container-engine/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/container-engine/packages/container-engine/things-to-store-and-run.json",
+      "source_identity": "1f:11340f004bdb5d026208f2e2141372adbaa09f38175d99a68f61397e286a4bc2",
+      "identity": "1f:11340f004bdb5d026208f2e2141372adbaa09f38175d99a68f61397e286a4bc2"
+    }
+  ]
+}

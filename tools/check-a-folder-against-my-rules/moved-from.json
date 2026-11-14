@@ -1,0 +1,58 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/check-source-files-against-declared-rules/do-work/read-source-file-in-repository.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/check-a-folder-against-my-rules/do-work/read-source-file-in-repository.mjs",
+      "source_identity": "1f:97aae8ea65bdc739d4c793098237d62c1a0b23a438b8f753053ecc8de9ffc30b",
+      "identity": "1f:97aae8ea65bdc739d4c793098237d62c1a0b23a438b8f753053ecc8de9ffc30b",
+      "reused": true
+    },
+    {
+      "from": "packages/check-source-files-against-declared-rules/do-work/lift-reader-notes-out-of-package-data.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/check-a-folder-against-my-rules/packages/check-source-files-against-declared-rules/do-work/lift-reader-notes-out-of-package-data.mjs",
+      "source_identity": "1f:3222a6defbb89c8b9d37d183b20a1debc228089557c72804d5e812f72fc19447",
+      "identity": "1f:3222a6defbb89c8b9d37d183b20a1debc228089557c72804d5e812f72fc19447"
+    },
+    {
+      "from": "packages/check-source-files-against-declared-rules/do-work/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/check-a-folder-against-my-rules/packages/check-source-files-against-declared-rules/do-work/README.md",
+      "source_identity": "1f:41b479af15e5a4b7083add597c2c200077de3f0a77eaf53cd021c7d0bf9a2e01",
+      "identity": "1f:41b479af15e5a4b7083add597c2c200077de3f0a77eaf53cd021c7d0bf9a2e01"
+    },
+    {
+      "from": "packages/check-source-files-against-declared-rules/do-work/run-check-source-files-against-declared-rules.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/check-a-folder-against-my-rules/packages/check-source-files-against-declared-rules/do-work/run-check-source-files-against-declared-rules.mjs",
+      "source_identity": "1f:61df1903f055985439ef997cb17d0708bdc19b55dd745b0d21cfe71c43c38eb5",
+      "identity": "1f:e5cf67cf40127238daf8b3a9c41e539705fa0265324e50c8b97720a9913fcba7"
+    },
+    {
+      "from": "packages/check-source-files-against-declared-rules/do-work/run-write-control-bytes-as-escapes.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/check-a-folder-against-my-rules/packages/check-source-files-against-declared-rules/do-work/run-write-control-bytes-as-escapes.mjs",
+      "source_identity": "1f:a09e17893f34fe7e243a82d5fa49fc176b4c4a19a2652dd62a346ba67bdbc6e6",
+      "identity": "1f:a09e17893f34fe7e243a82d5fa49fc176b4c4a19a2652dd62a346ba67bdbc6e6"
+    },
+    {
+      "from": "packages/check-source-files-against-declared-rules/do-work/write-control-bytes-as-escapes.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/check-a-folder-against-my-rules/packages/check-source-files-against-declared-rules/do-work/write-control-bytes-as-escapes.mjs",
+      "source_identity": "1f:18e7670c5bb39e4f392478e28959ba1c4b58ce8577ec24b1cbde25168e04086e",
+      "identity": "1f:18e7670c5bb39e4f392478e28959ba1c4b58ce8577ec24b1cbde25168e04086e"
+    }
+  ]
+}

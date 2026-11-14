@@ -2,7 +2,20 @@
   "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
   "source": "Trillion-X/trillion-apps",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "owner-home-folder",
+      "find": "[/]Users[/]b[r]ianakhtar",
+      "replace": "/workspace/the-owner",
+      "means": "A person's home folder name in a path, swapped for a made-up one: a public tree holds made-up data only."
+    },
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    }
+  ],
   "files": [
     {
       "from": "packages/content-analytics/show/ContentAnalyticsPanel.test.tsx",
@@ -188,6 +201,115 @@
         "web/src/workspace/records-door.ts",
         "web/src/workspace/say-about-this.tsx"
       ]
+    },
+    {
+      "from": "packages/content-analytics/do-work/content-analytics-actions.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/social-posts/packages/content-analytics/do-work/content-analytics-actions.ts",
+      "source_identity": "1f:c754307963ab43c2c2b4ebc65bbe3ccdabd6166b31016f7dc555c3a6caf4ff6f",
+      "identity": "1f:c754307963ab43c2c2b4ebc65bbe3ccdabd6166b31016f7dc555c3a6caf4ff6f"
+    },
+    {
+      "from": "packages/content-analytics/do-work/normalize-provider-post-performance.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/social-posts/packages/content-analytics/do-work/normalize-provider-post-performance.py",
+      "source_identity": "1f:5dd13d7e0422de9a5580065d0fa219f9140f3042c746d4a3fc0006e7b1b31698",
+      "identity": "1f:5dd13d7e0422de9a5580065d0fa219f9140f3042c746d4a3fc0006e7b1b31698"
+    },
+    {
+      "from": "packages/content-analytics/do-work/prepare-provider-post-performance-read.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/social-posts/packages/content-analytics/do-work/prepare-provider-post-performance-read.py",
+      "source_identity": "1f:7d6cf1d93464e6a8e30c5b5592e7192b92210083b4c9337e3c10ac6d4be86729",
+      "identity": "1f:7d6cf1d93464e6a8e30c5b5592e7192b92210083b4c9337e3c10ac6d4be86729"
+    },
+    {
+      "from": "packages/content-analytics/do-work/read-provider-post-performance.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/social-posts/packages/content-analytics/do-work/read-provider-post-performance.ts",
+      "source_identity": "1f:1335b297ce6483f43d1073bf75684a76f4cb8f0ac55b6a015fc5879f33dc5a21",
+      "identity": "1f:1335b297ce6483f43d1073bf75684a76f4cb8f0ac55b6a015fc5879f33dc5a21"
+    },
+    {
+      "from": "packages/content-analytics/do-work/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/social-posts/packages/content-analytics/do-work/README.md",
+      "source_identity": "1f:4721aed00c2769d2f950ec90fa4858f9febb8600466066b4fb2363bd6eff53bd",
+      "identity": "1f:4721aed00c2769d2f950ec90fa4858f9febb8600466066b4fb2363bd6eff53bd"
+    },
+    {
+      "from": "packages/content-analytics/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/social-posts/packages/content-analytics/entry-to-package-data-map.json",
+      "source_identity": "1f:5f1c6438666038f3547b08c1f41ad486a34a96f49b31a21c6a417a6c49e0eedf",
+      "identity": "1f:5f1c6438666038f3547b08c1f41ad486a34a96f49b31a21c6a417a6c49e0eedf"
+    },
+    {
+      "from": "packages/content-analytics/read-data/content-analytics-model.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/social-posts/packages/content-analytics/read-data/content-analytics-model.ts",
+      "source_identity": "1f:0da8f230c803db10a0ed0956560047bfaa43fd45c096356161dcb51c99c4066a",
+      "identity": "1f:0da8f230c803db10a0ed0956560047bfaa43fd45c096356161dcb51c99c4066a"
+    },
+    {
+      "from": "packages/content-analytics/read-data/customer-loop-measurement.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/social-posts/packages/content-analytics/read-data/customer-loop-measurement.ts",
+      "source_identity": "1f:4c11c568506949d71b31e1b188c1c16a6994d33917a075c8642d8b27339846dc",
+      "identity": "1f:4c11c568506949d71b31e1b188c1c16a6994d33917a075c8642d8b27339846dc"
+    },
+    {
+      "from": "packages/content-analytics/read-data/post-performance-attribution.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/social-posts/packages/content-analytics/read-data/post-performance-attribution.ts",
+      "source_identity": "1f:be0c7f3f57dd4d0111ca7e2d83a300b82c1fa14ceccd778a54302f6d4e450b9b",
+      "identity": "1f:be0c7f3f57dd4d0111ca7e2d83a300b82c1fa14ceccd778a54302f6d4e450b9b"
+    },
+    {
+      "from": "packages/content-analytics/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/social-posts/packages/content-analytics/read-data/README.md",
+      "source_identity": "1f:c49e30b5ac8d032b0b882ad8fe71f0692f14a6d11c34764287c6b2e3d2686f8b",
+      "identity": "1f:c49e30b5ac8d032b0b882ad8fe71f0692f14a6d11c34764287c6b2e3d2686f8b"
+    },
+    {
+      "from": "packages/content-analytics/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/social-posts/packages/content-analytics/README.md",
+      "source_identity": "1f:0eb7094945a6d70d8bf2833f6f64cddf168affed7f4dfb444eaa6daf4cd1fc99",
+      "identity": "1f:0eb7094945a6d70d8bf2833f6f64cddf168affed7f4dfb444eaa6daf4cd1fc99"
+    },
+    {
+      "from": "packages/content-analytics/reference-grounded-screen-contract.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/social-posts/packages/content-analytics/reference-grounded-screen-contract.md",
+      "source_identity": "1f:56982071d7bfe6a3f58512a1358c4a9476d3036ca3fa55bc0206c750f6c6ed5f",
+      "identity": "1f:ca032b44941d3ba5f41be28a4b6d9e767efe4f434762939eab31671069dd2381",
+      "calls": [
+        "owner-home-folder",
+        "private-notes-path"
+      ]
+    },
+    {
+      "from": "packages/content-analytics/show-ios-jscore/content-analytics-jscore.js",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/social-posts/packages/content-analytics/show-ios-jscore/content-analytics-jscore.js",
+      "source_identity": "1f:5a59aebd4454928b6b1c835e35a06652bf9f63fc1eda2861b84f65877b50fffc",
+      "identity": "1f:5a59aebd4454928b6b1c835e35a06652bf9f63fc1eda2861b84f65877b50fffc"
+    },
+    {
+      "from": "packages/content-analytics/show-ios-jscore/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/social-posts/packages/content-analytics/show-ios-jscore/README.md",
+      "source_identity": "1f:3c7177b358d0cd113acf72440dd2a4322fcefb5bf34cecb34fb0b0e993641230",
+      "identity": "1f:3c7177b358d0cd113acf72440dd2a4322fcefb5bf34cecb34fb0b0e993641230"
+    },
+    {
+      "from": "packages/content-analytics/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/social-posts/packages/content-analytics/things-to-store-and-run.json",
+      "source_identity": "1f:2e2f2c231ba430cc3735f396d138cc718bbcb4961b5b08e2b031f77a39ad863c",
+      "identity": "1f:2e2f2c231ba430cc3735f396d138cc718bbcb4961b5b08e2b031f77a39ad863c"
     }
   ]
 }

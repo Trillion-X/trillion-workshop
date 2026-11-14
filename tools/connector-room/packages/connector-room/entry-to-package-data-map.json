@@ -1,0 +1,12 @@
+{
+  "kind": "bitfield-entry-to-package-data-map",
+  "package": "connector-room",
+  "package_data_path": "things-to-store-and-run.json",
+  "entries": [
+    {
+      "entry_name": "connector-room",
+      "source_path": "show/mount-connector-room.tsx",
+      "package_data_path": "things-to-store-and-run.json"
+    }
+  ]
+}

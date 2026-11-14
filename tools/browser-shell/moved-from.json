@@ -1,0 +1,64 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/browser-shell/do-work/give-each-package-its-own-read-scope.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browser-shell/packages/browser-shell/do-work/give-each-package-its-own-read-scope.mjs",
+      "source_identity": "1f:cbd78a68b8edce358b6545a49a18a150b3d4b4cc66d0a427e3b4bb8d0ade7ecf",
+      "identity": "1f:cbd78a68b8edce358b6545a49a18a150b3d4b4cc66d0a427e3b4bb8d0ade7ecf"
+    },
+    {
+      "from": "packages/browser-shell/do-work/let-another-server-reach-a-running-app.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browser-shell/packages/browser-shell/do-work/let-another-server-reach-a-running-app.mjs",
+      "source_identity": "1f:c8d2064e978f69d2195c70e005b447746ced01fdaf484faf574e4aebb499c06f",
+      "identity": "1f:c8d2064e978f69d2195c70e005b447746ced01fdaf484faf574e4aebb499c06f"
+    },
+    {
+      "from": "packages/browser-shell/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browser-shell/packages/browser-shell/entry-to-package-data-map.json",
+      "source_identity": "1f:d3094e472a1b80fbaf10df717f9c0dc0d8d3cee81caa8adf7bc6229d41368aec",
+      "identity": "1f:d3094e472a1b80fbaf10df717f9c0dc0d8d3cee81caa8adf7bc6229d41368aec"
+    },
+    {
+      "from": "packages/browser-shell/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browser-shell/packages/browser-shell/README.md",
+      "source_identity": "1f:12395a26277c9a0ee9cf8a16593b1b005c8a8f0e64db18e57b8563d72db06a3b",
+      "identity": "1f:12395a26277c9a0ee9cf8a16593b1b005c8a8f0e64db18e57b8563d72db06a3b"
+    },
+    {
+      "from": "packages/browser-shell/show/BrowserShell.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browser-shell/packages/browser-shell/show/BrowserShell.tsx",
+      "source_identity": "1f:c1842a432ba2febde6e1be67a943c565d1f1a0aae73d555ac2b66877a77034d9",
+      "identity": "1f:c1842a432ba2febde6e1be67a943c565d1f1a0aae73d555ac2b66877a77034d9"
+    },
+    {
+      "from": "packages/browser-shell/show/mount-browser-shell.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browser-shell/packages/browser-shell/show/mount-browser-shell.tsx",
+      "source_identity": "1f:2a1a0d5c9a3c6a1317caa0af6b316fd301febbd7a1a0af251dd85cc2b243f7de",
+      "identity": "1f:2a1a0d5c9a3c6a1317caa0af6b316fd301febbd7a1a0af251dd85cc2b243f7de"
+    },
+    {
+      "from": "packages/browser-shell/show/put-host-screens-beside-package-screens.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browser-shell/packages/browser-shell/show/put-host-screens-beside-package-screens.mjs",
+      "source_identity": "1f:42eb231781dce48019372a96658d991c9690511ca887cf06850dee546ca1963c",
+      "identity": "1f:42eb231781dce48019372a96658d991c9690511ca887cf06850dee546ca1963c"
+    },
+    {
+      "from": "packages/browser-shell/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browser-shell/packages/browser-shell/things-to-store-and-run.json",
+      "source_identity": "1f:08427f30072437819fd008a6823a45df5be00954d6edeb0b6d615a427826cc99",
+      "identity": "1f:08427f30072437819fd008a6823a45df5be00954d6edeb0b6d615a427826cc99"
+    }
+  ]
+}

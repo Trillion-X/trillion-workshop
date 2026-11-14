@@ -1,0 +1,176 @@
+{
+  "package": "coordination-session",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::coordination-session::public-source::do-work",
+      "path": [
+        "packages",
+        "coordination-session",
+        "public-sources",
+        "do-work"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::coordination-session::public-source::read-data",
+      "path": [
+        "packages",
+        "coordination-session",
+        "public-sources",
+        "read-data"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "read-data"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::coordination-session::public-source::data",
+      "path": [
+        "packages",
+        "coordination-session",
+        "public-sources",
+        "data"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "data"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::coordination-session::target::session-lifecycle",
+      "path": [
+        "packages",
+        "coordination-session",
+        "targets",
+        "session-lifecycle"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "target": "coordination-session.session-lifecycle",
+        "entry_name": "session-lifecycle",
+        "export_name": "executeSessionLifecycleOperationTarget",
+        "source_path": "do-work/session-lifecycle-operations.ts",
+        "request_schema_ref": "coordination-session.session-lifecycle-operation-request",
+        "response_schema_ref": "coordination-session.session-lifecycle-operation-result",
+        "operation_family": [
+          "create",
+          "update",
+          "reschedule",
+          "fork",
+          "merge",
+          "cancel",
+          "supersede",
+          "confirm",
+          "record_no_show",
+          "close",
+          "request_feedback"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::coordination-session::entry::session-lifecycle",
+      "path": [
+        "packages",
+        "coordination-session",
+        "entries",
+        "session-lifecycle"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "session-lifecycle",
+        "export_name": "executeSessionLifecycleOperationTarget",
+        "source_path": "do-work/session-lifecycle-operations.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-session-lifecycle"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-session-lifecycle",
+      "source_path": "built-stored-bytes/entry-bytes-session-lifecycle",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-session-lifecycle.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::coordination-session::target::session-catalog",
+      "path": [
+        "packages",
+        "coordination-session",
+        "targets",
+        "session-catalog"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "target": "coordination-session.session-catalog",
+        "entry_name": "session-catalog",
+        "export_name": "readSessionCatalog",
+        "source_path": "read-data/read-session-catalog.ts",
+        "request_schema_ref": "coordination-session.session-catalog-request",
+        "response_schema_ref": "coordination-session.session-catalog-result"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::coordination-session::entry::session-catalog",
+      "path": [
+        "packages",
+        "coordination-session",
+        "entries",
+        "session-catalog"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "session-catalog",
+        "export_name": "readSessionCatalog",
+        "source_path": "read-data/read-session-catalog.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-session-catalog"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-session-catalog",
+      "source_path": "built-stored-bytes/entry-bytes-session-catalog",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-session-catalog.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::coordination-session::checks",
+      "path": [
+        "packages",
+        "coordination-session",
+        "checks"
+      ],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "data/high-agency-working-session.test.ts",
+          "do-work/generic-event-platform-readback.test.ts",
+          "do-work/manifest-target-contract.test.ts",
+          "do-work/session-lifecycle-operations.test.ts",
+          "read-data/read-session-catalog.test.ts",
+          "read-data/materialize-organizer-event.test.ts"
+        ]
+      },
+      "remove": false
+    }
+  ]
+}

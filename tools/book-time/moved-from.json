@@ -1,0 +1,200 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "person-address-at-product-domain",
+      "find": "\\b(?:j[i]bran|j[i]b|b[r]ian|noreply)@bitfield\\.so\\b",
+      "replace": "owner@example.com",
+      "means": "A real mailbox on the retired product's domain, swapped for a made-up one at the reserved example domain: a public tree holds made-up data only."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/calendar-booker/do-work/calendar-booker-actions.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/do-work/calendar-booker-actions.ts",
+      "source_identity": "1f:26e2dcf1cd5927f19cbf7ceab8c5a34f6b6c916b09264596265b8318eed5b1cf",
+      "identity": "1f:26e2dcf1cd5927f19cbf7ceab8c5a34f6b6c916b09264596265b8318eed5b1cf"
+    },
+    {
+      "from": "packages/calendar-booker/do-work/calendar-invite-file.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/do-work/calendar-invite-file.ts",
+      "source_identity": "1f:7f4f7277c113dfb6a751689edb00a9c81b1d598dcae10f3d15c5e3c3c54ef122",
+      "identity": "1f:7f4f7277c113dfb6a751689edb00a9c81b1d598dcae10f3d15c5e3c3c54ef122"
+    },
+    {
+      "from": "packages/calendar-booker/do-work/create-external-calendar-event.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/do-work/create-external-calendar-event.ts",
+      "source_identity": "1f:365e219a252f4c94338e0ca1d05118232f9c73b7d85a4a35bc59a8181a3d37f8",
+      "identity": "1f:1a58015d97309c39fd4019279424cb195d72dd3b5bd25d9748d3d15c5324cb58",
+      "calls": [
+        "person-address-at-product-domain"
+      ]
+    },
+    {
+      "from": "packages/calendar-booker/do-work/derive-open-slots.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/do-work/derive-open-slots.ts",
+      "source_identity": "1f:603af494cb8ff4f7d273b82d4ca8a72cd7cc3422fd9598b5bb80a3d95886a669",
+      "identity": "1f:603af494cb8ff4f7d273b82d4ca8a72cd7cc3422fd9598b5bb80a3d95886a669"
+    },
+    {
+      "from": "packages/calendar-booker/do-work/invoke-owner-action-descriptor.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/do-work/invoke-owner-action-descriptor.ts",
+      "source_identity": "1f:02935ef6cd10ef0e7eab2db47a6df864204951816971a1505bc6f30fec44430f",
+      "identity": "1f:02935ef6cd10ef0e7eab2db47a6df864204951816971a1505bc6f30fec44430f"
+    },
+    {
+      "from": "packages/calendar-booker/do-work/publish-availability-policy.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/do-work/publish-availability-policy.ts",
+      "source_identity": "1f:70fc6c1b6341be5047afd3fef5d509553664a44e07c705fb3c07c51678e1bb9d",
+      "identity": "1f:70fc6c1b6341be5047afd3fef5d509553664a44e07c705fb3c07c51678e1bb9d"
+    },
+    {
+      "from": "packages/calendar-booker/do-work/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/do-work/README.md",
+      "source_identity": "1f:78f7a86fc476d12a9d67e5e324c492339e1bac9ff824b6f110341aeb8ab2ee56",
+      "identity": "1f:78f7a86fc476d12a9d67e5e324c492339e1bac9ff824b6f110341aeb8ab2ee56"
+    },
+    {
+      "from": "packages/calendar-booker/do-work/scheduling-offer-feed.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/do-work/scheduling-offer-feed.ts",
+      "source_identity": "1f:c7c19fa632b3c0f132b86e2751fa4e5bda5f9b6f2878eb0b223189e1ce0d475f",
+      "identity": "1f:c7c19fa632b3c0f132b86e2751fa4e5bda5f9b6f2878eb0b223189e1ce0d475f"
+    },
+    {
+      "from": "packages/calendar-booker/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/entry-to-package-data-map.json",
+      "source_identity": "1f:fcca78483af01dbd1d2642fe9887fc07f5bdc14ad8fe8f39f6be5d75beaa8f3b",
+      "identity": "1f:fcca78483af01dbd1d2642fe9887fc07f5bdc14ad8fe8f39f6be5d75beaa8f3b"
+    },
+    {
+      "from": "packages/calendar-booker/read-data/read-calendar-booker-work-graph.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/read-data/read-calendar-booker-work-graph.ts",
+      "source_identity": "1f:3270195321537b7b3f73ea4c2f2a7db9949d716b1d2a4250830eef78ab13375d",
+      "identity": "1f:3270195321537b7b3f73ea4c2f2a7db9949d716b1d2a4250830eef78ab13375d"
+    },
+    {
+      "from": "packages/calendar-booker/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/read-data/README.md",
+      "source_identity": "1f:2331fe1ed7368531a58855b47e59ab92a692c6b7576b74e8a2d9ab25b5c53a46",
+      "identity": "1f:2331fe1ed7368531a58855b47e59ab92a692c6b7576b74e8a2d9ab25b5c53a46"
+    },
+    {
+      "from": "packages/calendar-booker/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/README.md",
+      "source_identity": "1f:167a9a1705e77f6f1b42adc0e4457d9db01ac0463bfc4d229fed037c70080bac",
+      "identity": "1f:167a9a1705e77f6f1b42adc0e4457d9db01ac0463bfc4d229fed037c70080bac"
+    },
+    {
+      "from": "packages/calendar-booker/show-ios-jscore/mount-calendar-booker-jscore.js",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/show-ios-jscore/mount-calendar-booker-jscore.js",
+      "source_identity": "1f:bf8ff2f7eda5a6175018e7ecedfaca61fc6f4ff51a320575b867c3323aeb6ca3",
+      "identity": "1f:bf8ff2f7eda5a6175018e7ecedfaca61fc6f4ff51a320575b867c3323aeb6ca3"
+    },
+    {
+      "from": "packages/calendar-booker/show-ios-jscore/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/show-ios-jscore/README.md",
+      "source_identity": "1f:6878f52eda8dcf58e48a08aa8822d6c935e201b36077953c3d6304ceae5d2158",
+      "identity": "1f:6878f52eda8dcf58e48a08aa8822d6c935e201b36077953c3d6304ceae5d2158"
+    },
+    {
+      "from": "packages/calendar-booker/show/AvailabilitySetupForm.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/show/AvailabilitySetupForm.tsx",
+      "source_identity": "1f:06804c065c8009137e2d51d38344b057f9c504889990bce6b37610fd74871245",
+      "identity": "1f:06804c065c8009137e2d51d38344b057f9c504889990bce6b37610fd74871245"
+    },
+    {
+      "from": "packages/calendar-booker/show/BookingsInbox.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/show/BookingsInbox.tsx",
+      "source_identity": "1f:de8b413b864bec72909ef44532f65a43c3a92c8e16ec824a6fc207159fbe4767",
+      "identity": "1f:de8b413b864bec72909ef44532f65a43c3a92c8e16ec824a6fc207159fbe4767"
+    },
+    {
+      "from": "packages/calendar-booker/show/CalendarAvailabilitySetupSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/show/CalendarAvailabilitySetupSurface.tsx",
+      "source_identity": "1f:1326b1859ef2b8690a08494db9d32fa8b8831aeaf25da4c2b10b6a9398800484",
+      "identity": "1f:1326b1859ef2b8690a08494db9d32fa8b8831aeaf25da4c2b10b6a9398800484"
+    },
+    {
+      "from": "packages/calendar-booker/show/CalendarBookerSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/show/CalendarBookerSurface.tsx",
+      "source_identity": "1f:5999ccef510944885a6a1436f94a5c37ba2c626351004b5a34e5faf95b02de4b",
+      "identity": "1f:5999ccef510944885a6a1436f94a5c37ba2c626351004b5a34e5faf95b02de4b"
+    },
+    {
+      "from": "packages/calendar-booker/show/descriptor-surface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/show/descriptor-surface.tsx",
+      "source_identity": "1f:b689dfa65f07c757ba1e3ad6f05445513684c5854c5ea7272d817c4759d2a23f",
+      "identity": "1f:b689dfa65f07c757ba1e3ad6f05445513684c5854c5ea7272d817c4759d2a23f"
+    },
+    {
+      "from": "packages/calendar-booker/show/descriptor-workbench.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/show/descriptor-workbench.tsx",
+      "source_identity": "1f:fd2c209be3e8d2ce2eea299da74f732115ca506f637dc33ff7e3ea4dc2917f79",
+      "identity": "1f:fd2c209be3e8d2ce2eea299da74f732115ca506f637dc33ff7e3ea4dc2917f79"
+    },
+    {
+      "from": "packages/calendar-booker/show/mount-calendar-availability-setup.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/show/mount-calendar-availability-setup.tsx",
+      "source_identity": "1f:8c6f5f7b12ca2dcfd8f1643703c8e607e7e92c0f7c8f57d988bca406e965a988",
+      "identity": "1f:8c6f5f7b12ca2dcfd8f1643703c8e607e7e92c0f7c8f57d988bca406e965a988"
+    },
+    {
+      "from": "packages/calendar-booker/show/mount-calendar-booker.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/show/mount-calendar-booker.tsx",
+      "source_identity": "1f:b541061f0a590204e07c90cd1767697756b2f0c8f09636b136c761ae6a871e1a",
+      "identity": "1f:b541061f0a590204e07c90cd1767697756b2f0c8f09636b136c761ae6a871e1a"
+    },
+    {
+      "from": "packages/calendar-booker/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/show/README.md",
+      "source_identity": "1f:dd90df523710954db25f32ff771ce6e3e172388396c8dab8129c77a0d9b35d9e",
+      "identity": "1f:dd90df523710954db25f32ff771ce6e3e172388396c8dab8129c77a0d9b35d9e"
+    },
+    {
+      "from": "packages/calendar-booker/show/render-capability-map.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/show/render-capability-map.tsx",
+      "source_identity": "1f:35dbc08c53b450098d4b52347fd20c196b8a5d23177de7fe708144c43669de48",
+      "identity": "1f:35dbc08c53b450098d4b52347fd20c196b8a5d23177de7fe708144c43669de48"
+    },
+    {
+      "from": "packages/calendar-booker/show/view-descriptor.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/show/view-descriptor.ts",
+      "source_identity": "1f:a7692951cca1634f69470aa3120a17280338ae7f1bb391e7b6a96d01b4801223",
+      "identity": "1f:a7692951cca1634f69470aa3120a17280338ae7f1bb391e7b6a96d01b4801223"
+    },
+    {
+      "from": "packages/calendar-booker/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/book-time/packages/calendar-booker/things-to-store-and-run.json",
+      "source_identity": "1f:bfd97371c13e1efa24e7dee18207ade430d699dc99fcbb32b09aea5d0e8768eb",
+      "identity": "1f:bfd97371c13e1efa24e7dee18207ade430d699dc99fcbb32b09aea5d0e8768eb"
+    }
+  ]
+}

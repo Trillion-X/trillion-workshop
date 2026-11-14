@@ -1,0 +1,43 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/browser-session-actions/browser-session-providers.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browser-session-actions/packages/browser-session-actions/browser-session-providers.json",
+      "source_identity": "1f:4b39492ec96d991126e23467dd76480c21d317bc7211f77ba72923a744ea427b",
+      "identity": "1f:4b39492ec96d991126e23467dd76480c21d317bc7211f77ba72923a744ea427b"
+    },
+    {
+      "from": "packages/browser-session-actions/do-work/browser-session-actions.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browser-session-actions/packages/browser-session-actions/do-work/browser-session-actions.mjs",
+      "source_identity": "1f:f2069a5515a21d9009a3205b3b6585003f925fb6858829a2c824a8f7ec05657e",
+      "identity": "1f:f2069a5515a21d9009a3205b3b6585003f925fb6858829a2c824a8f7ec05657e"
+    },
+    {
+      "from": "packages/browser-session-actions/do-work/run-browser-session-action.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browser-session-actions/packages/browser-session-actions/do-work/run-browser-session-action.mjs",
+      "source_identity": "1f:e997878cd6db9a39e4beddcf8a1d4a0ad816ab563a27f608fde5354220352a21",
+      "identity": "1f:e997878cd6db9a39e4beddcf8a1d4a0ad816ab563a27f608fde5354220352a21"
+    },
+    {
+      "from": "packages/browser-session-actions/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browser-session-actions/packages/browser-session-actions/README.md",
+      "source_identity": "1f:be1cddb14481a7f695436d9680e0d8cd947bf03e01c96955e57c1e3ebc264b58",
+      "identity": "1f:be1cddb14481a7f695436d9680e0d8cd947bf03e01c96955e57c1e3ebc264b58"
+    },
+    {
+      "from": "packages/browser-session-actions/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browser-session-actions/packages/browser-session-actions/things-to-store-and-run.json",
+      "source_identity": "1f:495a805715a7e3ebb4ea8c442320876dd5485e655c0a63f5efc1c74464439608",
+      "identity": "1f:495a805715a7e3ebb4ea8c442320876dd5485e655c0a63f5efc1c74464439608"
+    }
+  ]
+}

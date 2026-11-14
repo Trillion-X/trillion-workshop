@@ -1,0 +1,1090 @@
+{
+  "package": "ai-action-guard",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::checks",
+      "path": ["packages", "ai-action-guard", "checks"],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "do-work/evaluate-evidence-policy.test.ts",
+          "do-work/evaluate-guard-policy.test.ts",
+          "do-work/govern-computer-action.test.ts",
+          "do-work/request-guard-check.test.ts",
+          "read-data/read-ai-action-guards.test.ts",
+          "read-data/read-openbot-operator.test.ts",
+          "show/ActionGuardPanel.test.tsx"
+        ]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "index",
+      "source_path": "index.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "read-ai-action-guards",
+      "source_path": "read-data/read-ai-action-guards.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "request-guard-check",
+      "source_path": "do-work/request-guard-check.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "evaluate-guard-policy",
+      "source_path": "do-work/evaluate-guard-policy.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "evaluate-evidence-policy",
+      "source_path": "do-work/evaluate-evidence-policy.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "govern-computer-action",
+      "source_path": "do-work/govern-computer-action.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "ai-action-guard-panel",
+      "source_path": "show/mount-ai-action-guard-panel.tsx"
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::contract",
+      "path": [
+        "packages",
+        "ai-action-guard",
+        "contract"
+      ],
+      "payload": {
+        "kind": "package-contract",
+        "package": "ai-action-guard",
+        "owns": [
+          "generic guard limit reading",
+          "generic guard state reading",
+          "generic deterministic guard policy evaluation",
+          "generic guard check request forwarding",
+          "generic authoritative-snapshot ref resolution",
+          "generic attribute deny/allow policy evaluation",
+          "record-before-effect ordering assertion",
+          "generic guard rendering"
+        ],
+        "does_not_own": [
+          "guarded action behavior",
+          "caller identity",
+          "counter storage internals",
+          "resilience algorithms",
+          "package-set-specific copy"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::record-contract::ai-guard-limit",
+      "path": [
+        "packages",
+        "ai-action-guard",
+        "record-contracts",
+        "ai-guard-limit"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "ai-guard-limit",
+        "required_fields": [
+          "id"
+        ],
+        "data_owner": "package-set-records-or-imported-facts"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::record-contract::ai-guard-state",
+      "path": [
+        "packages",
+        "ai-action-guard",
+        "record-contracts",
+        "ai-guard-state"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "ai-guard-state",
+        "required_fields": [
+          "id"
+        ],
+        "data_owner": "package-set-records-or-imported-facts"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::record-contract::ai-guard-authoritative-snapshot",
+      "path": [
+        "packages",
+        "ai-action-guard",
+        "record-contracts",
+        "ai-guard-authoritative-snapshot"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "ai-guard-authoritative-snapshot",
+        "required_fields": [
+          "id",
+          "snapshot_id"
+        ],
+        "field_families": {
+          "scope_ref": "address-shaped ref of the governed computer/workspace",
+          "domain_ref": "ai-guard-domain id selecting how refs resolve",
+          "snapshot_id": "monotonic capture id; a caller ref carried against a superseded snapshot fails closed",
+          "context_ref": "{ url?, host? } server-observed page/context",
+          "elements": "[ { ref, role, name, type? } ] server-held opaque-ref mapping"
+        },
+        "authoritative_rule": "written ONLY by the server-side perception/actuator owner at capture time; the calling agent never writes it. The guard resolves the caller's opaque element ref against these server-held attributes, never the caller's label.",
+        "address_rule": "current owner record at package::ai-action-guard::snapshot::<scope>, superseded on each capture",
+        "data_owner": "server-side actuator (perception capture)"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::record-contract::ai-guard-rule",
+      "path": [
+        "packages",
+        "ai-action-guard",
+        "record-contracts",
+        "ai-guard-rule"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "ai-guard-rule",
+        "required_fields": [
+          "id"
+        ],
+        "field_families": {
+          "mode": "enforce | dry-run (DATA, not code): dry-run records a refusal but still forwards so an operator can read the trail first",
+          "deny": "[ { id, predicate } ] evaluated first; a matching deny refuses; a broken deny predicate still denies",
+          "allow": "[ { id, predicate } ] evaluated after deny; a broken allow predicate does not permit; absent-and-no-match denies"
+        },
+        "predicate_contract": "STRUCTURED self-describing predicate trees (machine-readable, no CEL/string DSL): combinators all/any/not and a bounded comparison-op set (equals, not_equals, contains_ci, matches_ci, in, exists) over a field path array. Adding a new context field is DATA; adding a new op would be the only code change (enum-dissolution boundary).",
+        "fail_closed_rule": "deny beats allow; an absent rule denies; a malformed predicate throws and is treated per its list (broken deny denies, broken allow does not permit)",
+        "data_owner": "package-set-records-or-imported-facts"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::record-contract::ai-guard-domain",
+      "path": [
+        "packages",
+        "ai-action-guard",
+        "record-contracts",
+        "ai-guard-domain"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "ai-guard-domain",
+        "required_fields": [
+          "id"
+        ],
+        "field_families": {
+          "resolves_ref": "true for a snapshot-resolving domain (browser aria); false for path/tool domains (file, mcp)",
+          "snapshot_owner_address_template": "template for the authoritative-snapshot owner address, e.g. package::ai-action-guard::snapshot::{scope}",
+          "context_fields": "the self-describing context fields this domain contributes (element, file, mcp, key, ...)",
+          "intent_map": "{ tool_name: intent } so the same policy vocabulary spans domains"
+        },
+        "domain_is_data_rule": "the resource domain (browser, file, MCP, payment, phone-actuation, anything later) is a DATA descriptor; the govern-computer-action door reads it and never branches on domain in code. A new domain is one ai-guard-domain row plus predicates, zero engine code.",
+        "data_owner": "package-set-records-or-imported-facts"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::input::guard-limits",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "input_name": "guard-limits",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "package::ai-action-guard::feed::guard-limits",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::ai-action-guard::feed::guard-limits",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "ai-guard-limit"
+            },
+            {
+              "path": [
+                "payload"
+              ],
+              "not_equals": "__bitfield_never__"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::input::guard-states",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "input_name": "guard-states",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "package::ai-action-guard::feed::guard-states",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::ai-action-guard::feed::guard-states",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "ai-guard-state"
+            },
+            {
+              "path": [
+                "payload"
+              ],
+              "not_equals": "__bitfield_never__"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::limit::outside-contact-execution",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-guard-limit",
+        "id": "ai-guard-limit:outside-contact-execution",
+        "action_ref": "outside-conversations.reach-outside-person-or-company",
+        "limit": 1,
+        "period_ref": "per-operation",
+        "subject_ref": "actor:ai-agent"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::state::outside-contact-execution",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-guard-state",
+        "id": "ai-guard-state:outside-contact-execution",
+        "action_ref": "outside-conversations.reach-outside-person-or-company",
+        "allowed": false,
+        "failure_count": 0,
+        "state": "requires-owner-check",
+        "subject_ref": "actor:ai-agent"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::entry::ai-action-guard-panel",
+      "path": [
+        "packages",
+        "ai-action-guard",
+        "entries",
+        "ai-action-guard-panel"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "ai-action-guard-panel",
+        "source_path": "show/mount-ai-action-guard-panel.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-ai-action-guard-panel"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false,
+      "build_source_path": "show/mount-ai-action-guard-panel.tsx"
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::target::request-guard-check",
+      "path": [
+        "packages",
+        "ai-action-guard",
+        "targets",
+        "request-guard-check"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "request-guard-check",
+        "export_name": "requestGuardCheck",
+        "source_path": "do-work/request-guard-check.ts",
+        "target": "ai-action-guard.request-guard-check"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::entry::request-guard-check",
+      "path": [
+        "packages",
+        "ai-action-guard",
+        "entries",
+        "request-guard-check"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "request-guard-check",
+        "export_name": "requestGuardCheck",
+        "source_path": "do-work/request-guard-check.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-request-guard-check"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::target::evaluate-guard-policy",
+      "path": [
+        "packages",
+        "ai-action-guard",
+        "targets",
+        "evaluate-guard-policy"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "evaluate-guard-policy",
+        "export_name": "evaluateGuardPolicy",
+        "source_path": "do-work/evaluate-guard-policy.ts",
+        "target": "ai-action-guard.evaluate-guard-policy",
+        "request_schema_ref": "ai-action-guard-policy-evaluation-request/v2",
+        "response_schema_ref": "ai-action-guard-policy-evaluation-receipt/v2"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::entry::evaluate-guard-policy",
+      "path": [
+        "packages",
+        "ai-action-guard",
+        "entries",
+        "evaluate-guard-policy"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "evaluate-guard-policy",
+        "export_name": "evaluateGuardPolicy",
+        "source_path": "do-work/evaluate-guard-policy.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-evaluate-guard-policy"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::target::evaluate-evidence-policy",
+      "path": [
+        "packages",
+        "ai-action-guard",
+        "targets",
+        "evaluate-evidence-policy"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "evaluate-evidence-policy",
+        "export_name": "evaluateEvidencePolicy",
+        "source_path": "do-work/evaluate-evidence-policy.ts",
+        "target": "ai-action-guard.evaluate-evidence-policy",
+        "request_schema_ref": "ai-action-guard-evidence-policy-request/v1",
+        "response_schema_ref": "ai-action-guard-evidence-policy-receipt/v1"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::entry::evaluate-evidence-policy",
+      "path": [
+        "packages",
+        "ai-action-guard",
+        "entries",
+        "evaluate-evidence-policy"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "evaluate-evidence-policy",
+        "export_name": "evaluateEvidencePolicy",
+        "source_path": "do-work/evaluate-evidence-policy.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-evaluate-evidence-policy"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::workflow-action::evaluate-evidence-policy",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:ai-action-guard.evaluate-evidence-policy",
+        "kind": "action",
+        "is_active": true,
+        "name": "evaluate-evidence-policy",
+        "description": "Expose the canonical evidence-policy evaluator through the declared workflow action road so agents and tests can exercise the exact same fail-closed target used by guarded callers without running the guarded content effect.",
+        "input_schema": {
+          "required": [
+            "schema",
+            "request_ref",
+            "action_ref",
+            "subject_ref",
+            "descriptor",
+            "evidence"
+          ],
+          "properties": {
+            "schema": {
+              "type": "string"
+            },
+            "request_ref": {
+              "type": "string"
+            },
+            "action_ref": {
+              "type": "string"
+            },
+            "subject_ref": {
+              "type": "string"
+            },
+            "descriptor": {
+              "type": "object"
+            },
+            "evidence": {
+              "type": "object"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "evaluate",
+            "kind": "ask",
+            "config": {
+              "name": "ai-action-guard.evaluate-evidence-policy",
+              "input": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input"
+                }
+              }
+            }
+          },
+          {
+            "id": "return",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "evaluate",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::target::govern-computer-action",
+      "path": [
+        "packages",
+        "ai-action-guard",
+        "targets",
+        "govern-computer-action"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "govern-computer-action",
+        "export_name": "governComputerAction",
+        "source_path": "do-work/govern-computer-action.ts",
+        "target": "ai-action-guard.govern-computer-action",
+        "request_schema_ref": "ai-action-guard-govern-computer-action-request/v1",
+        "response_schema_ref": "ai-action-guard-govern-computer-action-receipt/v1",
+        "composes": [
+          "ai-execution-history.append-execution-step"
+        ],
+        "description": "The one door a governed computer action passes through: resolve the caller's opaque ref against the server-held authoritative snapshot, decide fail-closed attribute policy (deny beats allow), record the audit row through ai-execution-history and read it back, and only then mint a forward token. A denied or unrecorded action mints no token."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::entry::govern-computer-action",
+      "path": [
+        "packages",
+        "ai-action-guard",
+        "entries",
+        "govern-computer-action"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "govern-computer-action",
+        "export_name": "governComputerAction",
+        "source_path": "do-work/govern-computer-action.ts",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-govern-computer-action"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::limit::run-process",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-guard-limit",
+        "id": "ai-guard-limit:run-process",
+        "action_ref": "run-a-job-on-your-stuff.run-guarded-process-tool",
+        "limit": 120,
+        "period_ref": "per-hour",
+        "subject_ref": "actor:ai-agent"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::state::run-process",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-guard-state",
+        "id": "ai-guard-state:run-process",
+        "action_ref": "run-a-job-on-your-stuff.run-guarded-process-tool",
+        "allowed": true,
+        "failure_count": 0,
+        "state": "ok",
+        "subject_ref": "actor:ai-agent"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::limit::start-assigned-work-session",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-guard-limit",
+        "id": "ai-guard-limit:start-assigned-work-session",
+        "action_ref": "compute.process_session",
+        "limit": 120,
+        "period_ref": "per-hour",
+        "subject_ref": "actor:ai-agent"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::state::start-assigned-work-session",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-guard-state",
+        "id": "ai-guard-state:start-assigned-work-session",
+        "action_ref": "compute.process_session",
+        "allowed": true,
+        "failure_count": 0,
+        "state": "ok",
+        "subject_ref": "actor:ai-agent"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-ai-action-guard-panel",
+      "source_path": "built-stored-bytes/entry-bytes-ai-action-guard-panel",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-ai-action-guard-panel.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-request-guard-check",
+      "source_path": "built-stored-bytes/entry-bytes-request-guard-check",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-request-guard-check.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-evaluate-guard-policy",
+      "source_path": "built-stored-bytes/entry-bytes-evaluate-guard-policy",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-evaluate-guard-policy.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-govern-computer-action",
+      "source_path": "built-stored-bytes/entry-bytes-govern-computer-action",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-govern-computer-action.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "read-openbot-operator",
+      "source_path": "read-data/read-openbot-operator.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "openbot-operator-console",
+      "source_path": "show/OpenbotOperatorConsole.tsx"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "mount-openbot-operator",
+      "source_path": "show/mount-openbot-operator.tsx"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-openbot-operator",
+      "source_path": "built-stored-bytes/entry-bytes-openbot-operator",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-openbot-operator.source-closure.json"
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::ai-action-guard::feed::governed-actions",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "ai-execution-step"
+            },
+            {
+              "path": [
+                "payload"
+              ],
+              "not_equals": "__bitfield_never__"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::ai-action-guard::feed::control-leases",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "in": [
+                "permission_lease",
+                "permission_lease_revocation"
+              ]
+            },
+            {
+              "path": [
+                "payload"
+              ],
+              "not_equals": "__bitfield_never__"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::ai-action-guard::feed::agent-profiles",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "ai-agent-profile"
+            },
+            {
+              "path": [
+                "payload"
+              ],
+              "not_equals": "__bitfield_never__"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::input::governed-actions",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "input_name": "governed-actions",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "package::ai-action-guard::feed::governed-actions",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::input::control-leases",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "input_name": "control-leases",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "package::ai-action-guard::feed::control-leases",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::input::agent-profiles",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "input_name": "agent-profiles",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "package::ai-action-guard::feed::agent-profiles",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::entry::openbot-operator",
+      "path": [
+        "packages",
+        "ai-action-guard",
+        "entries",
+        "openbot-operator"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "openbot-operator",
+        "source_path": "show/mount-openbot-operator.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-openbot-operator"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false,
+      "build_source_path": "show/mount-openbot-operator.tsx"
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::placeable-surface::openbot-operator",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "auto_open": true,
+        "description": "Watch and drive the autonomous operator: governed actions, take the wheel, and give it a scoped secret.",
+        "id": "ai-action-guard.openbot-operator",
+        "kind": "placeable-surface",
+        "label": "Union Operator",
+        "material_target": "component:openbot-operator",
+        "order": 690,
+        "package_entry": {
+          "entry_name": "openbot-operator",
+          "package_name": "ai-action-guard"
+        },
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000690:ai-action-guard.openbot-operator",
+        "section_id": "operate",
+        "section_label": "Operate",
+        "surface_id": "ai-action-guard.openbot-operator",
+        "surface_input": {
+          "computer_scope_ref": "computer:default"
+        },
+        "wrap_material": false
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-evaluate-evidence-policy",
+      "source_path": "built-stored-bytes/entry-bytes-evaluate-evidence-policy",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-evaluate-evidence-policy.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::record-contract::ai-guard-decision",
+      "path": [
+        "packages",
+        "ai-action-guard",
+        "record-contracts",
+        "ai-guard-decision"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "ai-guard-decision",
+        "required_fields": [
+          "id"
+        ],
+        "data_owner": "package-set-records-or-imported-facts"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::input::guard-decisions",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "input_name": "guard-decisions",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "package::ai-action-guard::feed::guard-decisions",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::ai-action-guard::feed::guard-decisions",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "ai-guard-decision"
+            },
+            {
+              "path": [
+                "payload"
+              ],
+              "not_equals": "__bitfield_never__"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

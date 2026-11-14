@@ -1,0 +1,107 @@
+{
+  "schema": "bitfield.workflow.definition/coordination-session",
+  "definition_id": "coordination-session.generic-event-platform",
+  "kind": "workflow-engine-data",
+  "owners": {
+    "workflow": "package::workflow::definition-hydration-and-execution",
+    "trigger_engine": "slot::trigger-engine",
+    "timed_action": "package::timed-action::evaluate-due-scheduled-actions",
+    "clock_tick": "package::notice-when-something-shows-up::waiter-descriptor::elapsed-time"
+  },
+  "trigger_rules": {
+    "owner_ref": "slot::trigger-engine",
+    "source": "transitions",
+    "match_field": "trigger",
+    "dispatch": {
+      "target": "package::workflow::definition-hydration-and-execution",
+      "request_template": {
+        "operation": "execute_definition",
+        "definition_id_from": "transition"
+      }
+    }
+  },
+  "workflow_definitions": {
+    "owner_ref": "package::workflow::definition-hydration-and-execution",
+    "source": "transitions",
+    "definition_id_field": "transition",
+    "effect_field": "workflow_effect"
+  },
+  "time_trigger_binding": {
+    "transition": "reminder.due",
+    "clock_tick_owner_ref": "package::notice-when-something-shows-up::waiter-descriptor::elapsed-time",
+    "timed_action_owner_ref": "package::timed-action::evaluate-due-scheduled-actions",
+    "notification_invocation_requires_authority_proof": true
+  },
+  "authority_boundary": {
+    "public_send_authorized": false,
+    "payment_authorized": false,
+    "credential_use_authorized": false,
+    "production_deploy_authorized": false
+  },
+  "transitions": [
+    {
+      "transition": "submission.saved_draft",
+      "trigger": "participant edit or recovery token open",
+      "workflow_effect": "persist partial submission and recovery token; no seat claim"
+    },
+    {
+      "transition": "submission.submitted",
+      "trigger": "request-intake completed trigger rule",
+      "workflow_effect": "validate access, eligibility, selected sessions, ranked preferences, duplicate identity, and capacity atomically"
+    },
+    {
+      "transition": "submission.seat_claimed",
+      "trigger": "capacity compare succeeds",
+      "workflow_effect": "write claim receipt, participant relation, visual-database projection, and confirmation workflow"
+    },
+    {
+      "transition": "submission.waitlisted",
+      "trigger": "capacity full and waitlist policy open",
+      "workflow_effect": "write normalized queue entry and rank; do not infer attendance"
+    },
+    {
+      "transition": "waitlist.promoted",
+      "trigger": "seat release or capacity increase",
+      "workflow_effect": "atomic release-promote transaction, idempotent invite, expiry policy, and next-candidate fallback"
+    },
+    {
+      "transition": "session.confirmed",
+      "trigger": "host/policy confirmation or accepted payment/entitlement evidence",
+      "workflow_effect": "update participation state, calendar reference, owner readback, and authority-gated notification offer"
+    },
+    {
+      "transition": "reminder.due",
+      "trigger": "clock-tick through timed-action",
+      "workflow_effect": "evaluate due action; invoke notification owner only after channel consent and authority proof"
+    },
+    {
+      "transition": "session.rescheduled_or_superseded",
+      "trigger": "host/policy update",
+      "workflow_effect": "preserve participant preferences, release old claims, evaluate new preferences atomically, write supersedes provenance, and start recovery notices"
+    },
+    {
+      "transition": "session.cancelled_or_no_show",
+      "trigger": "host/policy/check-in evidence",
+      "workflow_effect": "release seats, promote waitlist, update visual projection, and open recovery/replacement workflow"
+    },
+    {
+      "transition": "feedback.requested",
+      "trigger": "session close/check-in",
+      "workflow_effect": "invoke question sequence through owner action; no direct send"
+    },
+    {
+      "transition": "learning.adjusted",
+      "trigger": "feedback and progression evaluator receipt",
+      "workflow_effect": "derive next-session proposal, update recommendation policy DATA, and prove owner outcome before recurrence advance"
+    }
+  ],
+  "generic_guards": {
+    "group_identity_is_data": true,
+    "domain_branches_forbidden": true,
+    "poller_forbidden": true,
+    "direct_send_forbidden": true,
+    "payment_forbidden": true,
+    "credential_use_forbidden": true,
+    "production_deploy_forbidden": true
+  }
+}

@@ -48,6 +48,14 @@
       "calls": [
         "a-home-folder-made-relative"
       ]
+    },
+    {
+      "from": "packages/ui/read-data/declared-selector.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/read-data/declared-selector.ts",
+      "source_identity": "1f:309840630881e6c74572f918d5b0f25add6b8fc9cd27beaaa0cb1015943be0fe",
+      "identity": "1f:309840630881e6c74572f918d5b0f25add6b8fc9cd27beaaa0cb1015943be0fe",
+      "reused": true
     }
   ]
 }

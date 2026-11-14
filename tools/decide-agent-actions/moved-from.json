@@ -61,14 +61,67 @@
       "identity": "1f:6f01d2a10151616bfa54d9998a2857d8c68b621196a0211875826814536702fd"
     },
     {
-      "from": "packages/ai-action-guard/show/OpenbotOperatorConsole.tsx",
+      "from": "packages/ai-action-guard/do-work/evaluate-evidence-policy.ts",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/decide-agent-actions/packages/ai-action-guard/show/OpenbotOperatorConsole.tsx",
-      "source_identity": "1f:d38d8cab9315669a01da81fb9b51f27e09f7c4c43cf2e6a23cb4c7544993bd06",
-      "identity": "1f:581974536ab13680b1d6e7b683592ce34f5539ce7bff092e10cc3527ca14de73",
-      "calls": [
-        "private-notes-path"
-      ]
+      "to": "tools/decide-agent-actions/packages/ai-action-guard/do-work/evaluate-evidence-policy.ts",
+      "source_identity": "1f:27e44a957dd3dd94e61926882ce4598845ea075866f7f5556c2d4745995284d0",
+      "identity": "1f:27e44a957dd3dd94e61926882ce4598845ea075866f7f5556c2d4745995284d0"
+    },
+    {
+      "from": "packages/ai-action-guard/do-work/evaluate-guard-policy.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/decide-agent-actions/packages/ai-action-guard/do-work/evaluate-guard-policy.ts",
+      "source_identity": "1f:31223b09f6482c4f3565a6d0b0e1bfa31358df22402bd2d54a10a9b817f51f6a",
+      "identity": "1f:31223b09f6482c4f3565a6d0b0e1bfa31358df22402bd2d54a10a9b817f51f6a"
+    },
+    {
+      "from": "packages/ai-action-guard/do-work/govern-computer-action.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/decide-agent-actions/packages/ai-action-guard/do-work/govern-computer-action.ts",
+      "source_identity": "1f:1cc2fe5fdcb764c2e8aa2c605e9cd4d9df3eafa98eaaa7bddf6450e66efff093",
+      "identity": "1f:1cc2fe5fdcb764c2e8aa2c605e9cd4d9df3eafa98eaaa7bddf6450e66efff093"
+    },
+    {
+      "from": "packages/ai-action-guard/do-work/request-guard-check.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/decide-agent-actions/packages/ai-action-guard/do-work/request-guard-check.ts",
+      "source_identity": "1f:6f13caa2b99ec64a59b477c896cd2b9c34d226d50a3d6426985407401b03eb19",
+      "identity": "1f:6f13caa2b99ec64a59b477c896cd2b9c34d226d50a3d6426985407401b03eb19"
+    },
+    {
+      "from": "packages/ai-action-guard/entry-scope-bindings.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/decide-agent-actions/packages/ai-action-guard/entry-scope-bindings.json",
+      "source_identity": "1f:a057e4821c5215ced80ef9f01e20f609222ea1574e89024db91515b154a28579",
+      "identity": "1f:a057e4821c5215ced80ef9f01e20f609222ea1574e89024db91515b154a28579"
+    },
+    {
+      "from": "packages/ai-action-guard/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/decide-agent-actions/packages/ai-action-guard/entry-to-package-data-map.json",
+      "source_identity": "1f:8c6c41ef259b4d8a84e2c3bc27bf071b1f8fca815069241641dcf8df588cea0a",
+      "identity": "1f:8c6c41ef259b4d8a84e2c3bc27bf071b1f8fca815069241641dcf8df588cea0a"
+    },
+    {
+      "from": "packages/ai-action-guard/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/decide-agent-actions/packages/ai-action-guard/index.ts",
+      "source_identity": "1f:84168905b98542604e38959f92f790bafae3c408613bb0dbb903bbe9a6d93748",
+      "identity": "1f:84168905b98542604e38959f92f790bafae3c408613bb0dbb903bbe9a6d93748"
+    },
+    {
+      "from": "packages/ai-action-guard/reference-adaptation-contract.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/decide-agent-actions/packages/ai-action-guard/reference-adaptation-contract.json",
+      "source_identity": "1f:b235a0b1b76e911017dc7edd9d591ed6873c8ad7b31ffd9baf71b27d61b05a9f",
+      "identity": "1f:b235a0b1b76e911017dc7edd9d591ed6873c8ad7b31ffd9baf71b27d61b05a9f"
+    },
+    {
+      "from": "packages/ai-action-guard/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/decide-agent-actions/packages/ai-action-guard/things-to-store-and-run.json",
+      "source_identity": "1f:71d8e073e970906d28589646d58b3184e7ac1efca4aae823e4c8ca8d7a31d2f7",
+      "identity": "1f:71d8e073e970906d28589646d58b3184e7ac1efca4aae823e4c8ca8d7a31d2f7"
     }
   ]
 }

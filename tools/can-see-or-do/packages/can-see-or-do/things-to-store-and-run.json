@@ -1,0 +1,122 @@
+{
+  "package": "can-see-or-do",
+  "things": [
+    {
+      "type": "stored_bytes",
+      "name": "can-see-or-do-answer-reader",
+      "source_path": "read-data/read-can-see-or-do-records.js"
+    },
+    {
+      "type": "record",
+      "address": "package::can-see-or-do::published-record::hosted-entry-export::can-see-or-do-answers::readCanSeeOrDoAnswers",
+      "path": [
+        "published-records"
+      ],
+      "payload": {
+        "entry_name": "can-see-or-do-answers",
+        "export_group": "hosted-surface-client",
+        "export_alias": "readCanSeeOrDoAnswers",
+        "export_name": "readCanSeeOrDoAnswers",
+        "kind": "hosted-entry-export"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::can-see-or-do::entry::can-see-or-do-answers",
+      "path": [
+        "packages",
+        "can-see-or-do",
+        "entries",
+        "can-see-or-do-answers"
+      ],
+      "payload": {
+        "entry_name": "can-see-or-do-answers",
+        "kind": "bitfield-package-entry",
+        "source_path": "read-data/read-can-see-or-do-records.js",
+        "export_name": "readCanSeeOrDoAnswers",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-can-see-or-do-answers"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::can-see-or-do::primitive-contract",
+      "path": [
+        "package-primitive",
+        "contract"
+      ],
+      "payload": {
+        "kind": "bitfield-package-primitive-contract",
+        "version": 1,
+        "package": "can-see-or-do",
+        "capability": "answer-can-this-actor-see-or-do-this-capability-for-this-subject",
+        "owns": [
+          "can_see_or_do_answer"
+        ],
+        "reuses": [
+          "access-rule",
+          "permission-lease",
+          "account-session"
+        ],
+        "new_slot": false,
+        "isolation": "package source reads declared records only"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::can-see-or-do::factflow::answer-records",
+      "path": [
+        "package-primitive",
+        "factflow"
+      ],
+      "payload": {
+        "kind": "bitfield-eeaf-factflow",
+        "package": "can-see-or-do",
+        "fact_sources": [
+          {
+            "address": "package::can-see-or-do::primitive-contract"
+          }
+        ],
+        "interpreter_facts": {
+          "facts": [
+            {
+              "address_label": "can-see-or-do.fact.answer"
+            }
+          ],
+          "intents": [],
+          "projections": [
+            {
+              "address_label": "can-see-or-do.projection.answers"
+            }
+          ],
+          "materializations": []
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::can-see-or-do::input::answer-records",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "answer-records",
+        "value_address_label": "answer-records",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "package": "can-see-or-do"
+      },
+      "remove": false
+    }
+  ]
+}

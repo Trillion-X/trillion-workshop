@@ -1,0 +1,12 @@
+{
+  "kind": "bitfield-entry-to-package-data-map",
+  "package": "activity-feed",
+  "package_data_path": "things-to-store-and-run.json",
+  "entries": [
+    {
+      "entry_name": "activity-feed",
+      "source_path": "show/mount-activity-feed.tsx",
+      "package_data_path": "things-to-store-and-run.json"
+    }
+  ]
+}

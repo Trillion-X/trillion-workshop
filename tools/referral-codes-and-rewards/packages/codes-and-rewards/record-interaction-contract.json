@@ -1,0 +1,200 @@
+{
+  "kind": "record-interaction-contract",
+  "package": "codes-and-rewards",
+  "version": 1,
+  "record_types": [
+    {
+      "id": "codes-and-rewards.shareable-entry",
+      "label": "Shareable entry",
+      "source_role": "shareable-entry",
+      "title_field": "name"
+    },
+    {
+      "id": "codes-and-rewards.activity-entry",
+      "label": "Activity entry",
+      "source_role": "activity-entry",
+      "title_field": "name"
+    },
+    {
+      "id": "codes-and-rewards.summary-entry",
+      "label": "Summary entry",
+      "source_role": "summary-entry"
+    }
+  ],
+  "field_descriptors": [
+    {
+      "id": "name",
+      "label": "Name",
+      "paths": [["name"], ["label"], ["payload", "name"], ["payload", "label"]],
+      "format": { "kind": "text", "empty": "" }
+    },
+    {
+      "id": "category",
+      "label": "Category",
+      "paths": [["category", "label"], ["category"], ["kind_label"], ["kind"]],
+      "format": { "kind": "text", "empty": "" }
+    },
+    {
+      "id": "value",
+      "label": "Value",
+      "paths": [["value", "text"], ["amount", "text"], ["amount"], ["value"]],
+      "format": { "kind": "text", "empty": "" }
+    },
+    {
+      "id": "state",
+      "label": "State",
+      "paths": [["state", "label"], ["status", "label"], ["state"], ["status"]],
+      "format": { "kind": "text", "empty": "" }
+    },
+    {
+      "id": "observed-at",
+      "label": "Observed",
+      "paths": [["observed_at"], ["occurred_at"], ["created_at"]],
+      "format": { "kind": "datetime", "empty": "" }
+    },
+    {
+      "id": "summary-value",
+      "label": "Value",
+      "paths": [["value", "text"], ["value"], ["count"]],
+      "format": { "kind": "text", "empty": "" }
+    }
+  ],
+  "relation_descriptors": [
+    {
+      "id": "owner-evidence",
+      "label": "Owner evidence",
+      "source_path": ["owner_evidence_refs"],
+      "target_role": "owner-evidence"
+    }
+  ],
+  "projection_views": [
+    {
+      "id": "account-readable",
+      "label": "Codes & rewards",
+      "record_sources": [
+        { "role": "shareable-entry" },
+        { "role": "activity-entry" }
+      ],
+      "columns": ["name", "category", "value", "state", "observed-at"],
+      "summary_sources": [
+        { "role": "summary-entry", "label_field": "name", "value_field": "summary-value" }
+      ],
+      "actions": ["apply-entry", "share-entry", "claim-entry"],
+      "empty": {
+        "title": "No entries yet",
+        "detail": "Entries appear here after an owner publishes them."
+      }
+    }
+  ],
+  "rule_descriptors": [
+    {
+      "id": "missing-current-records",
+      "severity": "attention",
+      "message": "No current records are available for this view.",
+      "when": { "missing_view_records": true }
+    }
+  ],
+  "action_descriptors": [
+    {
+      "id": "apply-entry",
+      "label": "Redeem",
+      "owner_invoke": {
+        "target": "slot::workflow",
+        "action_definition_id": "action:codes-and-rewards.apply-entry",
+        "include_steps": false,
+        "include_output": true
+      },
+      "input_bindings": [
+        { "key": "entered_value", "label": "Entered value", "input_kind": "text", "required": true },
+        { "key": "actor_ref", "label": "Actor", "input_kind": "record-ref", "required": true }
+      ],
+      "relationship_refs": ["relationship:actor-to-entry"],
+      "evidence_ref": "owner-evidence:codes-and-rewards.apply-entry",
+      "projection_ref": "projection:codes-and-rewards.account-readable",
+      "payload_template": { "request_family": "owner-action" },
+      "metadata": { "surface": "account-readable" }
+    },
+    {
+      "id": "share-entry",
+      "label": "Share",
+      "owner_invoke": {
+        "target": "slot::workflow",
+        "action_definition_id": "action:codes-and-rewards.share-entry",
+        "include_steps": false,
+        "include_output": true
+      },
+      "input_bindings": [
+        { "key": "entry_ref", "label": "Entry", "input_kind": "record-ref", "required": true }
+      ],
+      "relationship_refs": ["relationship:actor-to-entry"],
+      "evidence_ref": "owner-evidence:codes-and-rewards.share-entry",
+      "projection_ref": "projection:codes-and-rewards.account-readable",
+      "payload_template": { "request_family": "owner-action" },
+      "metadata": { "surface": "account-readable" }
+    },
+    {
+      "id": "claim-entry",
+      "label": "Claim",
+      "owner_invoke": {
+        "target": "slot::workflow",
+        "action_definition_id": "action:codes-and-rewards.claim-entry",
+        "include_steps": false,
+        "include_output": true
+      },
+      "input_bindings": [
+        { "key": "entry_ref", "label": "Entry", "input_kind": "record-ref", "required": true }
+      ],
+      "relationship_refs": ["relationship:actor-to-entry"],
+      "evidence_ref": "owner-evidence:codes-and-rewards.claim-entry",
+      "projection_ref": "projection:codes-and-rewards.account-readable",
+      "payload_template": { "request_family": "owner-action" },
+      "metadata": { "surface": "account-readable" }
+    },
+    {
+      "id": "copy-visible-value",
+      "label": "Copy",
+      "local_acknowledgement": true,
+      "input_bindings": [
+        { "key": "visible_value", "label": "Visible value", "input_kind": "text", "required": true }
+      ],
+      "payload_template": { "request_family": "presentation-only" },
+      "metadata": { "surface": "account-readable" }
+    }
+  ],
+  "owner_evidence_refs": [
+    {
+      "id": "owner-evidence:codes-and-rewards.apply-entry",
+      "label": "Apply request evidence",
+      "owner": "workflow"
+    },
+    {
+      "id": "owner-evidence:codes-and-rewards.share-entry",
+      "label": "Share request evidence",
+      "owner": "workflow"
+    },
+    {
+      "id": "owner-evidence:codes-and-rewards.claim-entry",
+      "label": "Claim request evidence",
+      "owner": "workflow"
+    }
+  ],
+  "human_translation_records": [
+    {
+      "id": "codes-and-rewards.empty",
+      "label": "No entries yet",
+      "detail": "Entries appear here after an owner publishes them."
+    }
+  ],
+  "proof_descriptors": [
+    {
+      "id": "codes-and-rewards.backend-boundary",
+      "label": "Backend boundary proof",
+      "requires": [
+        "json-parse",
+        "descriptor-projection-test",
+        "owner-action-request-test",
+        "forbidden-old-family-scan"
+      ]
+    }
+  ]
+}

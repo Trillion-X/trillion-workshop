@@ -1,0 +1,1191 @@
+{
+  "package": "content-pipeline",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::content-pipeline::action::produce-and-publish",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "id": "action:content-pipeline.produce-and-publish",
+        "name": "content-pipeline-produce-and-publish",
+        "kind": "pipeline",
+        "is_active": true,
+        "trigger_source": "",
+        "input_schema": {
+          "required": [
+            "clip_ref"
+          ],
+          "properties": {
+            "clip_ref": {
+              "type": "object",
+              "required": [
+                "motion_request_id",
+                "comparison_id",
+                "source_clip_id",
+                "source_hash",
+                "subject_descriptor_ref",
+                "subject_pose_ref",
+                "requested_at"
+              ],
+              "properties": {
+                "motion_request_id": {
+                  "type": "string"
+                },
+                "comparison_id": {
+                  "type": "string"
+                },
+                "source_clip_id": {
+                  "type": "string"
+                },
+                "source_hash": {
+                  "type": "string"
+                },
+                "subject_descriptor_ref": {
+                  "type": "object"
+                },
+                "subject_pose_ref": {
+                  "type": "object"
+                },
+                "requested_at": {
+                  "type": "string"
+                }
+              }
+            },
+            "reference_query": {
+              "type": "object",
+              "required": [
+                "reference_clip_id",
+                "reference_index_ref"
+              ],
+              "properties": {
+                "reference_clip_id": {
+                  "type": "string"
+                },
+                "reference_index_ref": {
+                  "type": "object"
+                },
+                "minimum_confidence": {
+                  "type": "number"
+                },
+                "salience_config": {
+                  "type": "object"
+                },
+                "comparison_spec": {
+                  "type": "object"
+                }
+              }
+            },
+            "voice_profile": {
+              "type": "object",
+              "required": [
+                "request_id",
+                "voice_profile_ref",
+                "voice_profile_approval_ref",
+                "options"
+              ],
+              "properties": {
+                "request_id": {
+                  "type": "string"
+                },
+                "voice_profile_ref": {
+                  "type": "string"
+                },
+                "voice_profile_approval_ref": {
+                  "type": "string"
+                },
+                "options": {
+                  "type": "object"
+                },
+                "reference_artifact_refs": {
+                  "type": "array"
+                }
+              }
+            },
+            "channels": {
+              "type": "object",
+              "required": [
+                "intent_id",
+                "destination_id",
+                "schedule"
+              ],
+              "properties": {
+                "intent_id": {
+                  "type": "string"
+                },
+                "destination_id": {
+                  "type": "string"
+                },
+                "schedule": {
+                  "type": "object"
+                },
+                "metadata": {
+                  "type": "object"
+                }
+              }
+            },
+            "caption_instruction_text": {
+              "type": "string"
+            },
+            "caption_instruction_ref": {
+              "type": "string"
+            },
+            "media_base_url": {
+              "type": "string"
+            },
+            "render": {
+              "type": "object"
+            }
+          }
+        },
+        "edges": [
+          {
+            "from": "pf_read",
+            "to": "pf_run"
+          },
+          {
+            "from": "pf_run",
+            "to": "pf_write"
+          },
+          {
+            "from": "pf_write",
+            "to": "compare"
+          },
+          {
+            "from": "compare",
+            "to": "caption"
+          },
+          {
+            "from": "caption",
+            "to": "voice"
+          },
+          {
+            "from": "compare",
+            "to": "compose"
+          },
+          {
+            "from": "voice",
+            "to": "compose"
+          },
+          {
+            "from": "compose",
+            "to": "publish"
+          },
+          {
+            "from": "compare",
+            "to": "read-comparison-result"
+          },
+          {
+            "from": "compose-edl",
+            "to": "compose"
+          },
+          {
+            "from": "read-comparison-result",
+            "to": "read-reference-clip"
+          },
+          {
+            "from": "read-reference-clip",
+            "to": "compose-edl"
+          },
+          {
+            "from": "voice",
+            "to": "compose-edl"
+          },
+          {
+            "from": "pf_read",
+            "to": "read_merge_script"
+          },
+          {
+            "from": "caption",
+            "to": "merge_caption"
+          },
+          {
+            "from": "read_merge_script",
+            "to": "merge_caption"
+          },
+          {
+            "from": "merge_caption",
+            "to": "publish"
+          }
+        ],
+        "steps": [
+          {
+            "config": {
+              "from": "package::motion-analysis::stored-bytes::perception-scripts-tar"
+            },
+            "kind": "read",
+            "id": "pf_read",
+            "join": "any",
+            "join_config": null
+          },
+          {
+            "config": {
+              "input": {
+                "argv": [
+                  "bash",
+                  "-c",
+                  "set -e; tar -xf perception.tar; : \"${MATCH_VENDOR_ROOT:?MATCH_VENDOR_ROOT must be set on the host to the provisioned perception vendor root (onnx models + static ffmpeg + sp/ wheels)}\"; export MATCH_FFMPEG=\"$MATCH_VENDOR_ROOT/ffmpeg\"; export PYTHONPATH=\"$MATCH_VENDOR_ROOT/sp:perception\"; for m in yolo11n-pose.onnx jointbdoe_coco_l.onnx clip_vitb32_visual.onnx; do ln -sf \"$MATCH_VENDOR_ROOT/$m\" \"perception/$m\"; done; exec bash perception/orchestrate.sh clip.mp4 . subject \"$REQUEST_ID\" perception/yolo11n-pose.onnx"
+                ],
+                "cwd": null,
+                "timeout_ms": 600000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {
+                  "MATCH_PERCEPTION_BACKEND": "onnx",
+                  "REQUEST_ID": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "clip_ref.motion_request_id"
+                    }
+                  }
+                },
+                "inputs": [
+                  {
+                    "content_type": "application/x-tar",
+                    "mount_path": "perception.tar",
+                    "source": {
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "pf_read",
+                          "path": "output.content_hash"
+                        }
+                      },
+                      "kind": "blob_ref"
+                    }
+                  },
+                  {
+                    "content_type": "video/mp4",
+                    "mount_path": "clip.mp4",
+                    "source": {
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "clip_ref.source_hash"
+                        }
+                      },
+                      "kind": "blob_ref"
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "content_type": "application/json",
+                    "mount_path": "command-output.json",
+                    "storage": "addressed_chunks"
+                  },
+                  {
+                    "content_type": "application/json",
+                    "mount_path": "command-output.kp.json",
+                    "storage": "addressed_chunks"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              },
+              "name": "compute.process"
+            },
+            "kind": "ask",
+            "id": "pf_run",
+            "join": "any",
+            "join_config": null
+          },
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "clip_ref.motion_request_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::motion-analysis::comparison-ready::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "clip_ref.motion_request_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "address_mode": "identity_text",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "motion-comparison-ready",
+                    "requestId": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "clip_ref.motion_request_id"
+                      }
+                    },
+                    "comparisonId": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "clip_ref.comparison_id"
+                      }
+                    },
+                    "sourceClipId": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "clip_ref.source_clip_id"
+                      }
+                    },
+                    "referenceClipId": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "reference_query.reference_clip_id"
+                      }
+                    },
+                    "referenceIndexRef": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "reference_query.reference_index_ref"
+                      }
+                    },
+                    "createdAt": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "clip_ref.requested_at"
+                      }
+                    },
+                    "minimumConfidence": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "reference_query.minimum_confidence"
+                      }
+                    },
+                    "comparisonSpec": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "reference_query.comparison_spec"
+                      }
+                    },
+                    "salienceConfig": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "reference_query.salience_config"
+                      }
+                    },
+                    "subjectClipRef": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "clip_ref"
+                      }
+                    },
+                    "subjectDescriptorRef": {
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "pf_run",
+                          "path": "output.outputs.0.integrity_hash"
+                        }
+                      }
+                    },
+                    "subjectPoseRef": {
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "pf_run",
+                          "path": "output.outputs.1.integrity_hash"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "id": "pf_write",
+            "join": "any",
+            "join_config": null
+          },
+          {
+            "id": "compare",
+            "join": "any",
+            "join_config": null,
+            "kind": "action",
+            "config": {
+              "definition_id": "action:motion-comparison.run-comparison",
+              "inputs": {
+                "request_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "clip_ref.motion_request_id"
+                  }
+                },
+                "comparison_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "clip_ref.comparison_id"
+                  }
+                },
+                "source_clip_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "clip_ref.source_clip_id"
+                  }
+                },
+                "reference_clip_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "reference_query.reference_clip_id"
+                  }
+                },
+                "created_at": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "clip_ref.requested_at"
+                  }
+                },
+                "subject_descriptor_ref": {
+                  "hash": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "pf_run",
+                      "path": "output.outputs.0.integrity_hash"
+                    }
+                  }
+                },
+                "subject_pose_ref": {
+                  "hash": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "pf_run",
+                      "path": "output.outputs.1.integrity_hash"
+                    }
+                  }
+                },
+                "subject_clip_ref": {
+                  "hash": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "clip_ref.source_hash"
+                    }
+                  }
+                },
+                "reference_index_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "reference_query.reference_index_ref"
+                  }
+                },
+                "minimum_confidence": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "reference_query.minimum_confidence"
+                  }
+                },
+                "salience_config": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "reference_query.salience_config"
+                  }
+                },
+                "comparison_spec": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "reference_query.comparison_spec"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "caption",
+            "join": "any",
+            "join_config": null,
+            "kind": "action",
+            "config": {
+              "definition_id": "action:run-ai-records-production",
+              "inputs": {
+                "request_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "clip_ref.motion_request_id"
+                  }
+                },
+                "output_kind": "social-caption",
+                "wrap_instruction_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "caption_instruction_ref"
+                  }
+                },
+                "instruction_text": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "caption_instruction_text"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.concat",
+                      "args": {
+                        "values": [
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "caption_instruction_text"
+                            }
+                          },
+                          "\n\nComparison summary: ",
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "steps",
+                              "key": "compare",
+                              "path": "output.0.tradeoffNote"
+                            }
+                          },
+                          "\nReference clip: ",
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "steps",
+                              "key": "compare",
+                              "path": "output.0.referenceClipId"
+                            }
+                          },
+                          "\nConfidence: ",
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "steps",
+                              "key": "compare",
+                              "path": "output.0.confidence"
+                            },
+                            "transform": [
+                              {
+                                "op": "op:core.stringify",
+                                "args": {
+                                  "format": "json"
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": "voice",
+            "join": "any",
+            "join_config": null,
+            "kind": "action",
+            "config": {
+              "definition_id": "action:submit-speech-generation-request",
+              "inputs": {
+                "request_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "voice_profile.request_id"
+                  }
+                },
+                "text": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "caption",
+                    "path": "output.items.0.text"
+                  }
+                },
+                "voice_profile_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "voice_profile.voice_profile_ref"
+                  }
+                },
+                "voice_profile_approval_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "voice_profile.voice_profile_approval_ref"
+                  }
+                },
+                "reference_artifact_refs": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "voice_profile.reference_artifact_refs"
+                  }
+                },
+                "options": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "voice_profile.options"
+                  },
+                  "resolve_nested_bindings": false
+                },
+                "requested_at": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "clip_ref.requested_at"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "read-comparison-result",
+            "join": "any",
+            "join_config": null,
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "compare",
+                  "path": "output.0"
+                }
+              }
+            }
+          },
+          {
+            "id": "read-reference-clip",
+            "kind": "read",
+            "join": "any",
+            "join_config": null,
+            "config": {
+              "from": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "compare",
+                  "path": "output.0.matchedReferenceClipCas"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.concat",
+                    "args": {
+                      "values": [
+                        "package::motion-analysis::reference-clip::",
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "steps",
+                            "key": "compare",
+                            "path": "output.0.matchedReferenceClipCas"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "compose-edl",
+            "join": "all",
+            "join_config": null,
+            "kind": "action",
+            "config": {
+              "definition_id": "action:motion-comparison.author-comparison-edl",
+              "inputs": {
+                "comparison_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "clip_ref.comparison_id"
+                  }
+                },
+                "source_clip_url": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "media_base_url"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.concat",
+                      "args": {
+                        "values": [
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "media_base_url"
+                            }
+                          },
+                          "/cas/",
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "clip_ref.source_hash"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "reference_clip_url": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "media_base_url"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.concat",
+                      "args": {
+                        "values": [
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "media_base_url"
+                            }
+                          },
+                          "/cas/",
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "steps",
+                              "key": "read-reference-clip",
+                              "path": "output.clip_cas"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "source_pose_url": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "media_base_url"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.concat",
+                      "args": {
+                        "values": [
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "media_base_url"
+                            }
+                          },
+                          "/cas/",
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "steps",
+                              "key": "pf_run",
+                              "path": "output.outputs.1.integrity_hash"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "reference_pose_url": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "media_base_url"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.concat",
+                      "args": {
+                        "values": [
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "media_base_url"
+                            }
+                          },
+                          "/cas/",
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "steps",
+                              "key": "read-reference-clip",
+                              "path": "output.kp_cas"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "source_peak": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "compare",
+                    "path": "output.0.syncEvidence.sourceWindow.midpointSeconds"
+                  }
+                },
+                "reference_peak": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "compare",
+                    "path": "output.0.syncEvidence.referenceWindow.midpointSeconds"
+                  }
+                },
+                "render": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "render"
+                  }
+                },
+                "voice_audio": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "media_base_url"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.concat",
+                      "args": {
+                        "values": [
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "media_base_url"
+                            }
+                          },
+                          "/cas/",
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "steps",
+                              "key": "voice",
+                              "path": "output.records.0.payload.output_artifact_refs.0.multihash"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": "compose",
+            "join": "all",
+            "join_config": null,
+            "kind": "action",
+            "config": {
+              "definition_id": "action:video-compose",
+              "inputs": {
+                "edl_path": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "compose-edl",
+                    "path": "output.edl_cas"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.concat",
+                      "args": {
+                        "values": [
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "media_base_url"
+                            }
+                          },
+                          "/cas/",
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "steps",
+                              "key": "compose-edl",
+                              "path": "output.edl_cas"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "out": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "voice",
+                    "path": "output.composed_video_out"
+                  }
+                },
+                "timeout_ms": 600000,
+                "env": {}
+              }
+            }
+          },
+          {
+            "id": "read_merge_script",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::content-pipeline::stored-bytes::merge-object-field-script"
+            }
+          },
+          {
+            "id": "merge_caption",
+            "join": "all",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "packages/content-pipeline/do-work/process-scripts/merge-object-field.mjs",
+                  "--base",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "channels.metadata"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": {}
+                        }
+                      },
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  },
+                  "--key",
+                  "caption",
+                  "--value",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "channels.metadata.caption"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "steps",
+                              "key": "caption",
+                              "path": "output.items.0.text"
+                            },
+                            "transform": [
+                              {
+                                "op": "op:core.if_null",
+                                "args": {
+                                  "fallback": ""
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "--out",
+                  "merged.json"
+                ],
+                "cwd": null,
+                "timeout_ms": 60000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "packages/content-pipeline/do-work/process-scripts/merge-object-field.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_merge_script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "merged.json",
+                    "content_type": "application/json"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "publish",
+            "join": "all",
+            "join_config": null,
+            "kind": "action",
+            "config": {
+              "definition_id": "action:submit-publish-intent",
+              "inputs": {
+                "intent_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "channels.intent_id"
+                  }
+                },
+                "destination_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "channels.destination_id"
+                  }
+                },
+                "artifacts": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "compose",
+                    "path": "output.artifacts"
+                  }
+                },
+                "metadata": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "merge_caption",
+                    "path": "output.outputs.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    }
+                  ]
+                },
+                "schedule": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "channels.schedule"
+                  }
+                },
+                "requested_at": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "clip_ref.requested_at"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "merge-object-field-script",
+      "source_path": "do-work/process-scripts/merge-object-field.mjs"
+    }
+  ]
+}

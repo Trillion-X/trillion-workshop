@@ -1,0 +1,50 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/autonomous-worker/processes/autonomous-worker.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/autonomous-worker/packages/autonomous-worker/processes/autonomous-worker.mjs",
+      "source_identity": "1f:2bc6723b8b59a8b1b01a2fd1f898c130adceef9a55c0bdbbd2db0f029ab3300e",
+      "identity": "1f:2bc6723b8b59a8b1b01a2fd1f898c130adceef9a55c0bdbbd2db0f029ab3300e"
+    },
+    {
+      "from": "packages/autonomous-worker/processes/autonomous-worker.selftest.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/autonomous-worker/packages/autonomous-worker/processes/autonomous-worker.selftest.mjs",
+      "source_identity": "1f:fd838092fe914a36f568012afc8e4922d5f319e21e35afc01c906e9f7ba44958",
+      "identity": "1f:fd838092fe914a36f568012afc8e4922d5f319e21e35afc01c906e9f7ba44958"
+    },
+    {
+      "from": "packages/autonomous-worker/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/autonomous-worker/packages/autonomous-worker/things-to-store-and-run.json",
+      "source_identity": "1f:2ca8a1c6b463a7cfb129be0e840385181ed3ba614fbdcb6cd04fd1a6c5f2c57e",
+      "identity": "1f:2ca8a1c6b463a7cfb129be0e840385181ed3ba614fbdcb6cd04fd1a6c5f2c57e"
+    },
+    {
+      "from": "packages/autonomous-worker/worker-descriptors/autonomous-accountant.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/autonomous-worker/packages/autonomous-worker/worker-descriptors/autonomous-accountant.json",
+      "source_identity": "1f:053e4eda526b830699a9ad93a64ebb692df12fc734ba42ebafffc937e63e6461",
+      "identity": "1f:053e4eda526b830699a9ad93a64ebb692df12fc734ba42ebafffc937e63e6461"
+    },
+    {
+      "from": "packages/autonomous-worker/worker-descriptors/work-board-groomer.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/autonomous-worker/packages/autonomous-worker/worker-descriptors/work-board-groomer.json",
+      "source_identity": "1f:df1952bad0190d9606acc38f86a2baf76596c14043296879e2cecdf7f6a3b084",
+      "identity": "1f:df1952bad0190d9606acc38f86a2baf76596c14043296879e2cecdf7f6a3b084"
+    }
+  ]
+}

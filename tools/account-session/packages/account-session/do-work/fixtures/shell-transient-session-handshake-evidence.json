@@ -1,0 +1,16 @@
+{
+  "headers": [
+    {
+      "name": "host",
+      "value": "app.example.test"
+    },
+    {
+      "name": "Cookie",
+      "value": "theme=dark; __Host_account_session=__ACCOUNT_SESSION_TOKEN__; locale=en"
+    },
+    {
+      "name": "sec-websocket-version",
+      "value": "13"
+    }
+  ]
+}

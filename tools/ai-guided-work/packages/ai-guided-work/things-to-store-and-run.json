@@ -1,0 +1,355 @@
+{
+  "package": "ai-guided-work",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::ai-guided-work::published-record::placeable-surface::ai-guided-work",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "Sparkles",
+        "id": "ai-guided-work.guide",
+        "kind": "placeable-surface",
+        "label": "AI Guided Work",
+        "material_target": "component:ai-guided-work",
+        "order": 156,
+        "package_entry": {
+          "package_name": "ai-guided-work",
+          "entry_name": "ai-guided-work"
+        },
+        "surface_id": "ai-guided-work.guide",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000156:ai-guided-work.guide"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-guided-work::input::ai-guided-work",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "ai-guided-work",
+        "is_default": true,
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "ai-guided-work.guide"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "ai-guided-work.guide",
+      "path": [
+        "packages",
+        "ai-guided-work",
+        "generated-values",
+        "guide"
+      ],
+      "payload": {
+        "claims": [],
+        "guidedSessions": [],
+        "operations": [],
+        "repeatRequests": []
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-guided-work::owner-route::learning-mastery",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "ai-guided-work",
+        "owner-routes",
+        "learning-mastery"
+      ],
+      "payload": {
+        "kind": "ai-guided-work-owner-route",
+        "id": "route:ai-guided-work:learning-mastery",
+        "claim_actor_ref": "actor:ai-guided-work.guide",
+        "learning_session_action_id": "action:create-learning-session",
+        "recommendation_action_id": "action:recommend-next-learning-step",
+        "agent_profile_refs": [
+          "package:ai-agent-profile"
+        ],
+        "instruction_block_refs": [
+          "package:ai-instruction-blocks"
+        ],
+        "memory_context_refs": [
+          "package:ai-memory"
+        ],
+        "waiting_packages": [
+          "operation-records",
+          "workflow",
+          "trigger-engine",
+          "learning-mastery-protocol",
+          "ai-agent-profile",
+          "ai-instruction-blocks",
+          "ai-memory",
+          "ai-tool-catalog",
+          "ai-action-guard",
+          "ai-execution-history",
+          "journal",
+          "process-session"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-guided-work::workflow-action::start-session",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:ai-guided-work:start-session",
+        "kind": "action",
+        "name": "start-ai-guided-work-session",
+        "description": "Start one AI-guided work session by publishing the guide record, repeat request, operation record, claim record, and AI Guided Work surface state.",
+        "input_schema": {
+          "guide_session_id": "string",
+          "repeat_request_id": "string",
+          "operation_id": "string",
+          "claim_id": "string",
+          "guided_session_record": "object",
+          "repeat_request_record": "object",
+          "operation_record": "object",
+          "claim_record": "object",
+          "surface_state": "object"
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "guide_session_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::ai-guided-work::session::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "guide_session_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "guided_session_record"
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "repeat_request_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::ai-guided-work::repeat-request::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "repeat_request_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "repeat_request_record"
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "operation_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::ai-guided-work::operation::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "operation_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "operation_record"
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "claim_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::ai-guided-work::claim::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "claim_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "claim_record"
+                    }
+                  }
+                },
+                {
+                  "address": "ai-guided-work.guide",
+                  "path": [
+                    "packages",
+                    "ai-guided-work",
+                    "generated-values",
+                    "guide"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "surface_state"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-guided-work::entry::ai-guided-work",
+      "path": [
+        "packages",
+        "ai-guided-work",
+        "entries",
+        "ai-guided-work"
+      ],
+      "payload": {
+        "entry_name": "ai-guided-work",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-ai-guided-work.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-ai-guided-work"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-ai-guided-work",
+      "source_path": "built-stored-bytes/entry-bytes-ai-guided-work",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-ai-guided-work.source-closure.json"
+    }
+  ]
+}

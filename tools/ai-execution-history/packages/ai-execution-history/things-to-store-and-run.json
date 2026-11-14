@@ -1,0 +1,4569 @@
+{
+  "package": "ai-execution-history",
+  "things": [
+    {
+      "type": "stored_bytes",
+      "name": "index",
+      "source_path": "index.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "read-ai-execution-history",
+      "source_path": "read-data/read-ai-execution-history.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "request-execution-start",
+      "source_path": "do-work/request-execution-start.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "record-review-decision",
+      "source_path": "do-work/record-review-decision.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "append-execution-step",
+      "source_path": "do-work/append-execution-step.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "ingest-session-artifacts-to-runs",
+      "source_path": "do-work/process-scripts/ingest-session-artifacts-to-runs.py"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "fleet-learning",
+      "source_path": "do-work/process-scripts/fleet-learning.py"
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::checks",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "checks"
+      ],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "tests/authorized-analysis-dispatch.test.ts",
+          "do-work/prepare-local-fleet-source-target.test.ts",
+          "do-work/resolve-authorized-fleet-source-target.test.ts",
+          "tests/authorized-fleet-ingestion.test.ts",
+          "tests/exhaust-off-ai-execution-run.test.ts",
+          "tests/test_ingest_acquired_session_artifacts.py",
+          "do-work/process-scripts/__tests__/test_ingest_session_artifacts_to_runs.py",
+          "tests/test_fleet_learning.py"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::contract",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "contract"
+      ],
+      "payload": {
+        "kind": "package-contract",
+        "package": "ai-execution-history",
+        "owns": [
+          "generic execution run reading",
+          "generic execution step reading",
+          "generic execution step appending",
+          "generic execution start request forwarding",
+          "immutable execution review decision receipts",
+          "generic execution history rendering",
+          "privacy-safe authorized session evidence normalization",
+          "fleet learning failure clustering, analysis requests, candidate, compatibility, application and outcome evidence"
+        ],
+        "does_not_own": [
+          "tool catalogs",
+          "provider calls",
+          "reward formulas",
+          "storage engines",
+          "package-set-specific copy",
+          "repair implementation",
+          "installation convergence"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::record-contract::fleet-learning-analysis",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "record-contracts",
+        "fleet-learning-analysis"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "fleet-learning-analysis-state",
+        "required_fields": [
+          "analysis_ref",
+          "policy_ref",
+          "state",
+          "dimensions",
+          "run_refs",
+          "installation_refs"
+        ],
+        "state_semantics": [
+          "observed",
+          "analysis-requested",
+          "candidate-present",
+          "rejected"
+        ],
+        "privacy_rule": "Only DATA-selected bounded normalized scalars plus opaque run and installation refs may leave source-local evidence.",
+        "identity_rule": "analysis_ref is the SHA-256 identity of policy_ref, normalized cluster dimensions and the bounded evidence frontier; identical evaluation is idempotent while new trusted failures reopen analysis.",
+        "data_owner": "ai-execution-history"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::record-contract::fleet-learning-repair-candidate",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "record-contracts",
+        "fleet-learning-repair-candidate"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "fleet-learning-repair-candidate",
+        "required_fields": [
+          "candidate_ref",
+          "analysis_ref",
+          "rule_ref",
+          "outcome_contract_ref",
+          "owner_ref",
+          "change_ref",
+          "repair_action_ref",
+          "convergence_action_ref",
+          "applicability_ref",
+          "review",
+          "deepest_owner_proof",
+          "caller_sibling_sweep",
+          "hostile_proof"
+        ],
+        "acceptance_rule": "The candidate materializer rejects private material and requires passed deepest-owner, caller/sibling-sweep, and hostile proofs before publishing an immutable content-addressed candidate revision. Revisions advance only through a linear supersedes_candidate_revision_ref chain; forks, missing ancestors and integrity mismatches reject before repair or convergence.",
+        "data_owner": "ai-execution-history"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::analysis-policy::recurring-normalized-failures",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "fleet-learning-analysis-policy",
+        "policy_ref": "policy:fleet-learning:recurring-normalized-failures",
+        "analysis_action_ref": "action:write-fleet-learning-record",
+        "analysis_owner_ref": "capability:fleet-learning-analysis",
+        "failure_predicates": [
+          {
+            "path": [
+              "status"
+            ],
+            "op": "in",
+            "value": [
+              "failed",
+              "error",
+              "timed-out",
+              "rejected"
+            ]
+          }
+        ],
+        "cluster_paths": [
+          [
+            "status"
+          ],
+          [
+            "metrics",
+            "failure_class_ref"
+          ],
+          [
+            "outcome",
+            "reason_ref"
+          ]
+        ],
+        "min_distinct_sessions": 2,
+        "min_distinct_installations": 1,
+        "min_trust_score": 0.9,
+        "max_evidence_refs": 64
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::fleet-source-evidence-policy::local-session-owner",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "fleet-learning-source-evidence-policy/v1",
+        "policy_ref": "package::ai-execution-history::fleet-source-evidence-policy::local-session-owner",
+        "policy_revision": "bounded-local-files-session-evidence",
+        "state": "active",
+        "source_kind": "local-cli-session-log",
+        "acquisition_action_ref": "action:scan-local-files",
+        "observer_capability_ref": "package::file-glob-observer::capability::observe-file-glob",
+        "decoder_capability_ref": "package::jsonl-session-decoder::capability::decode-jsonl-session-events",
+        "trust": {
+          "state": "trusted",
+          "score": 1
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::record-contract::fleet-learning-analysis-policy",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "record-contracts",
+        "fleet-learning-analysis-policy"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "fleet-learning-analysis-policy",
+        "optional_fields": [
+          "worker_binding"
+        ],
+        "worker_dispatch_policy_required_fields": [
+          "status",
+          "policy_record_ref"
+        ],
+        "worker_dispatch_recheck_rule": "An assigned operation carries exact current-record conditions for its binding and active policy. The process-session owner checks them before budget and immediately before process dispatch; missing, revoked or changed records reject. This is not permission to select a worker or create a grant.",
+        "worker_binding_required_fields": [
+          "state",
+          "worker_ref",
+          "worker_record_ref",
+          "tool_record_ref",
+          "estimated_cost",
+          "effect_boundary"
+        ],
+        "worker_binding_state_rule": "Only explicit active binding state can request work. Missing, revoked, or non-active binding state is rejected automatically and never creates an approval wait.",
+        "worker_selection_rule": "Select a current profile and tool from their owners. Cost uses the budget owner's integer units. Worker selection is not permission or spend approval. Missing selection leaves analysis saved but not running.",
+        "dispatch_rule": "The existing evaluation cycle saves the assigned operation first. A later cycle reads the saved operation and requests work only when it exactly matches. The existing process-session owner rechecks the assignment, profile, tool, guard, permission and budget. Failed checks stay visible; retry uses the same reservation key. A changed worker binding produces a new work identity instead of rewriting an earlier assignment.",
+        "data_owner": "ai-execution-history"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::record-contract::ai-execution-run",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "record-contracts",
+        "ai-execution-run"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "ai-execution-run",
+        "required_fields": [
+          "id"
+        ],
+        "optional_field_families": {
+          "agent_ref": "open string naming the executing agent (any launcher vocabulary)",
+          "started_at": "ISO-8601",
+          "ended_at": "ISO-8601",
+          "status": "open string",
+          "objective": "{ objective_ref?, snapshot_text? }",
+          "launch": "{ launcher_ref?, launch_template_ref?, process_session_ref?, native_session_ref?, cwd? } ÃÂ¢ÃÂÃÂ all open/address-shaped",
+          "cost": "{ total_cost?, currency?, total_units?, unit_breakdown? }",
+          "outcome": "{ summary?, reason?, exit_code?, result_refs? }",
+          "correlation_refs": "[ { role: open string, ref: address-shaped } ]",
+          "provenance": "{ producer_ref?, decoder_capability_ref?, source_ref?, source_artifact_count?, source_permission_state?, installation_ref?, user_ref?, ingested_at?, confidence? }; raw transcript paths and bytes are forbidden",
+          "metrics": "{ <metric_name>: number|string|boolean } â raw source-declared measures only; thresholds and classifications remain DATA"
+        },
+        "identity_rule": "id = ai-execution-run:<id_namespace>:<native_session_id>; record address = package::ai-execution-history::run::<token(namespace:native_id)> so re-ingestion folds the same record (idempotent)",
+        "data_owner": "package-set-records-or-imported-facts"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::record-contract::ai-execution-step",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "record-contracts",
+        "ai-execution-step"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "ai-execution-step",
+        "required_fields": [
+          "id",
+          "run_ref"
+        ],
+        "data_owner": "package-set-records-or-imported-facts"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::record-contract::ai-execution-review-decision",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "record-contracts",
+        "ai-execution-review-decision"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "ai-execution-review-decision",
+        "required_fields": [
+          "id",
+          "execution_ref",
+          "candidate_ref",
+          "decision",
+          "review_note",
+          "reviewer_ref",
+          "reviewed_at",
+          "evidence_refs"
+        ],
+        "decision_contract": "open descriptor-owned string; no decision taxonomy is compiled into the owner",
+        "identity_rule": "review_id selects one immutable address; identical replay is idempotent and conflicting replay is rejected",
+        "data_owner": "ai-execution-history"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::capability::ingest-session-artifacts",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "capabilities",
+        "ingest-session-artifacts"
+      ],
+      "payload": {
+        "kind": "bitfield-package-capability",
+        "capability": "capability:ingest-session-artifacts",
+        "description": "Fold session-artifact JSONL files into ai-execution-run write dispatches. Blind: every artifact shape/launcher is a caller-supplied source DATA row ({root, glob, id_namespace, launcher_ref, decoder_capability_ref, agent_ref, extract rules}); a new launcher is one DATA row, zero code. Deterministic run identity makes re-ingestion idempotent; unreadable artifacts emit machine-readable rejections, never silent skips. Backfill is the first invocation of the standing pipeline, not a one-shot.",
+        "process_script": "do-work/process-scripts/ingest-session-artifacts-to-runs.py",
+        "input": "config JSON via stdin or --config: { partition_label, sources[], since?, limit? }",
+        "output": "{ writes[] (engine.operation.write-batch dispatch rows), rejections[], artifact_count }"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::capability::fleet-learning",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "capabilities",
+        "fleet-learning"
+      ],
+      "payload": {
+        "kind": "bitfield-package-capability",
+        "capability": "capability:fleet-learning",
+        "description": "Discover authorized installation-local session sources, normalize privacy-safe execution facts, evaluate descriptor-defined failure signals, and publish candidate/compatibility/application/outcome states. Repair and convergence stay with their named canonical owners.",
+        "process_script": "do-work/process-scripts/fleet-learning.py",
+        "privacy": "Raw transcript content, paths, prompts, messages and credentials never enter transferable learning records."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::record-contract::fleet-learning-application",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "record-contracts",
+        "fleet-learning-application"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "fleet-learning-application",
+        "required_fields": [
+          "application_id",
+          "candidate_ref",
+          "installation_ref",
+          "state",
+          "change_ref"
+        ],
+        "state_semantics": [
+          "eligible",
+          "received",
+          "current",
+          "used",
+          "improved",
+          "incompatible",
+          "absent",
+          "rejected",
+          "forward-recovery-required"
+        ],
+        "success_rule": "Only improved means a comparable later consumer outcome improved; received/current/used remain distinct non-success states.",
+        "data_owner": "ai-execution-history"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::record-contract::fleet-learning-outcome-observation",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "record-contracts",
+        "fleet-learning-outcome-observation"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "fleet-learning-outcome-observation",
+        "required_fields": [
+          "candidate_ref",
+          "installation_ref",
+          "phase",
+          "evidence_class",
+          "attempt_ref",
+          "observed_at",
+          "applicability_ref",
+          "correlation_refs",
+          "real_outcome_proof",
+          "result"
+        ],
+        "later_attempt_required_fields": [
+          "prior_attempt_ref",
+          "application_id",
+          "applied_candidate_ref",
+          "change_ref",
+          "selection_or_execution_changed",
+          "change_evidence_ref"
+        ],
+        "success_rule": "Improved requires trusted permission-active observations, a distinct chronologically later observed-real attempt satisfying the rule-owned outcome_contract pinned by the candidate outcome_contract_ref, matching applicability, exact evidence that this application changed later selection or execution, and a privacy-safe boolean or finite numeric outcome measure. Publishing uses the published-result contract including complete Production and Customer-loop correlation and a distinct remote object. Other jobs use their own evidence requirements without changing evaluator code.",
+        "data_owner": "ai-execution-history"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::record-contract::fleet-learning-application-observation",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "record-contracts",
+        "fleet-learning-application-observation"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "fleet-learning-application-observation",
+        "required_fields": [
+          "application_id",
+          "observation_ref",
+          "observed_at",
+          "state",
+          "trust",
+          "provenance"
+        ],
+        "recovery_required_fields": [
+          "recovers_observation_ref"
+        ],
+        "state_semantics": [
+          "received",
+          "current",
+          "used",
+          "failed"
+        ],
+        "success_rule": "The newest unambiguous timezone-bound observation wins. A state after failure becomes current only when it explicitly references the failed observation it recovers.",
+        "data_owner": "ai-execution-history"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::outcome-contract-template::published-result",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "outcome-contract-templates"
+      ],
+      "payload": {
+        "kind": "fleet-learning-outcome-contract-template",
+        "id": "outcome-contract-template:published-result",
+        "selection_rule": "The failure rule owner supplies outcome_contract; each candidate pins its canonical JSON SHA-256 as fleet-outcome-contract:<digest>. This template is not an implicit fallback or permission grant.",
+        "contract": {
+          "proof_path": [
+            "real_outcome_proof"
+          ],
+          "correlation_roles": [
+            "source",
+            "result",
+            "job",
+            "outcome"
+          ],
+          "required_ref_paths": [
+            [
+              "provider_ref"
+            ],
+            [
+              "remote_object_id"
+            ],
+            [
+              "publication_readback",
+              "ref"
+            ],
+            [
+              "inbound_event_ref"
+            ],
+            [
+              "customer_outcome_ref"
+            ]
+          ],
+          "predicates": [
+            {
+              "path": [
+                "publication_readback",
+                "state"
+              ],
+              "op": "eq",
+              "value": "verified"
+            }
+          ],
+          "correlation_bindings": [
+            {
+              "path": [
+                "customer_outcome_ref"
+              ],
+              "role": "outcome"
+            }
+          ],
+          "distinct_proof_paths": [
+            [
+              "remote_object_id"
+            ]
+          ],
+          "failure_reasons": {
+            "absent": "real-provider-publication-outcome-absent",
+            "mismatch": "real-provider-publication-outcome-mismatch",
+            "correlation_mismatch": "provider-customer-correlation-mismatch"
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::ai-execution-history::fleet-learning-input",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ],
+        [
+          "current-item",
+          "ai-execution-run-index"
+        ],
+        [
+          "current-item",
+          "fleet-learning-index"
+        ],
+        [
+          "prop:observed_content:source_descriptor"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": [
+              "payload"
+            ]
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "in": [
+                "fleet-learning-source-descriptor",
+                "ai-execution-run",
+                "fleet-learning-failure-signal-rule",
+                "fleet-learning-repair-candidate",
+                "fleet-learning-installation",
+                "fleet-learning-application-observation",
+                "fleet-learning-outcome-observation",
+                "saved-work-result-learning-binding",
+                "fleet-learning-summary",
+                "fleet-learning-analysis-policy",
+                "fleet-learning-local-provider",
+                "ai-work-operation"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::workflow-action::read-fleet-learning-input",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:read-fleet-learning-input",
+        "kind": "action",
+        "name": "read-fleet-learning-input",
+        "version": 1,
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "description": "Return the current privacy-scoped Fleet-learning input feed for runtime diagnosis and evidence readback.",
+        "input_schema": {
+          "type": "object",
+          "properties": {}
+        },
+        "steps": [
+          {
+            "id": "input_feed",
+            "kind": "read",
+            "config": {
+              "from": "package::ai-execution-history::fleet-learning-input"
+            }
+          },
+          {
+            "id": "return",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "input_feed",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::workflow-action::discover-current-agent-sessions",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:discover-current-agent-sessions",
+        "kind": "action",
+        "name": "discover-current-agent-sessions",
+        "version": 1,
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "description": "Read current local session-source descriptors, verify their installed provider revisions, and ingest each current source without a separate approval record.",
+        "input_schema": {
+          "type": "object",
+          "properties": {}
+        },
+        "steps": [
+          {
+            "id": "input_feed",
+            "kind": "read",
+            "config": {
+              "from": "package::ai-execution-history::fleet-learning-input"
+            }
+          },
+          {
+            "id": "script",
+            "kind": "read",
+            "config": {
+              "from": "package::ai-execution-history::stored-bytes::fleet-learning"
+            }
+          },
+          {
+            "id": "read_crypto",
+            "kind": "read",
+            "config": {
+              "from": "package::transcript-mapper::stored-bytes::bitfield-crypto-python-module"
+            }
+          },
+          {
+            "id": "plan",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "python3",
+                  "fleet-learning.py",
+                  "plan-discovery",
+                  "request.json",
+                  "result.json"
+                ],
+                "cwd": ".",
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "fleet-learning.py",
+                    "content_type": "text/x-python",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "request.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "input_feed",
+                          "path": "output"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "bitfield_crypto.py",
+                    "content_type": "text/x-python",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_crypto",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "result.json",
+                    "content_type": "application/json",
+                    "storage": "inline"
+                  }
+                ],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "commit_discovery",
+            "kind": "loop",
+            "config": {
+              "source": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "plan",
+                  "path": "output.outputs.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  },
+                  {
+                    "op": "op:core.lookup",
+                    "args": {
+                      "key": "records"
+                    }
+                  }
+                ]
+              },
+              "item_var": "record",
+              "parallel": false,
+              "max_iterations": 512,
+              "definition_id": "action:write-fleet-learning-record",
+              "inputs": {
+                "record": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "loop",
+                    "path": "record"
+                  }
+                }
+              }
+            },
+            "join": "all"
+          },
+          {
+            "id": "ingest_sources",
+            "kind": "loop",
+            "config": {
+              "source": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "plan",
+                  "path": "output.outputs.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  },
+                  {
+                    "op": "op:core.lookup",
+                    "args": {
+                      "key": "sources"
+                    }
+                  }
+                ]
+              },
+              "item_var": "source",
+              "parallel": false,
+              "max_iterations": 64,
+              "definition_id": "action:ingest-one-agent-session-source",
+              "inputs": {
+                "source": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "loop",
+                    "path": "source"
+                  }
+                }
+              }
+            },
+            "join": "all"
+          },
+          {
+            "id": "return",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "plan",
+                  "path": "output.outputs.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::workflow-action::evaluate-fleet-learning",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:evaluate-fleet-learning",
+        "kind": "action",
+        "name": "evaluate-fleet-learning",
+        "version": 1,
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "description": "Evaluate current normalized runs against DATA-defined failure, trust, privacy, compatibility, application, and later-outcome evidence; commit every success and rejection state.",
+        "input_schema": {
+          "type": "object",
+          "properties": {}
+        },
+        "steps": [
+          {
+            "id": "input_feed",
+            "kind": "read",
+            "config": {
+              "from": "package::ai-execution-history::fleet-learning-input"
+            }
+          },
+          {
+            "id": "script",
+            "kind": "read",
+            "config": {
+              "from": "package::ai-execution-history::stored-bytes::fleet-learning"
+            }
+          },
+          {
+            "id": "read_crypto",
+            "kind": "read",
+            "config": {
+              "from": "package::transcript-mapper::stored-bytes::bitfield-crypto-python-module"
+            }
+          },
+          {
+            "id": "evaluate",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "python3",
+                  "fleet-learning.py",
+                  "evaluate",
+                  "request.json",
+                  "result.json"
+                ],
+                "cwd": ".",
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "fleet-learning.py",
+                    "content_type": "text/x-python",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "request.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "input_feed",
+                          "path": "output"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "bitfield_crypto.py",
+                    "content_type": "text/x-python",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_crypto",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "result.json",
+                    "content_type": "application/json",
+                    "storage": "inline"
+                  }
+                ],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "dispatch_failure_analysis",
+            "kind": "loop",
+            "config": {
+              "source": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "evaluate",
+                  "path": "output.outputs.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  },
+                  {
+                    "op": "op:core.lookup",
+                    "args": {
+                      "key": "analysis_requests"
+                    }
+                  }
+                ]
+              },
+              "item_var": "request",
+              "parallel": false,
+              "max_iterations": 64,
+              "definition_refs": [
+                "action:write-fleet-learning-record"
+              ],
+              "definition_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "loop",
+                  "path": "request.definition_id"
+                }
+              },
+              "inputs": {
+                "$kind": "binding",
+                "select": {
+                  "from": "loop",
+                  "path": "request.input"
+                }
+              },
+              "tolerate_item_errors": true
+            },
+            "join": "all"
+          },
+          {
+            "id": "observe_saved_results",
+            "kind": "loop",
+            "config": {
+              "source": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "evaluate",
+                  "path": "output.outputs.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  },
+                  {
+                    "op": "op:core.lookup",
+                    "args": {
+                      "key": "learning_requests"
+                    }
+                  }
+                ]
+              },
+              "item_var": "request",
+              "parallel": false,
+              "max_iterations": 64,
+              "definition_refs": [
+                "action:choose-per-observer:observe-saved-work-result"
+              ],
+              "definition_id": "action:choose-per-observer:observe-saved-work-result",
+              "inputs": {
+                "$kind": "binding",
+                "select": {
+                  "from": "loop",
+                  "path": "request.input"
+                }
+              },
+              "tolerate_item_errors": true
+            },
+            "join": "all"
+          },
+          {
+            "id": "dispatch_authorized_workers",
+            "kind": "loop",
+            "config": {
+              "source": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "evaluate",
+                  "path": "output.outputs.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  },
+                  {
+                    "op": "op:core.lookup",
+                    "args": {
+                      "key": "worker_requests"
+                    }
+                  }
+                ]
+              },
+              "item_var": "request",
+              "parallel": false,
+              "max_iterations": 64,
+              "definition_refs": [
+                "action:process-session:start-authorized-assigned-work-session"
+              ],
+              "definition_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "loop",
+                  "path": "request.definition_id"
+                }
+              },
+              "inputs": {
+                "$kind": "binding",
+                "select": {
+                  "from": "loop",
+                  "path": "request.input"
+                }
+              },
+              "tolerate_item_errors": true
+            },
+            "join": "all"
+          },
+          {
+            "id": "dispatch_repairs",
+            "kind": "loop",
+            "config": {
+              "source": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "evaluate",
+                  "path": "output.outputs.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  },
+                  {
+                    "op": "op:core.lookup",
+                    "args": {
+                      "key": "repair_requests"
+                    }
+                  }
+                ]
+              },
+              "item_var": "request",
+              "parallel": false,
+              "max_iterations": 64,
+              "definition_refs": [
+                "action:write-fleet-learning-record"
+              ],
+              "definition_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "loop",
+                  "path": "request.definition_id"
+                }
+              },
+              "inputs": {
+                "$kind": "binding",
+                "select": {
+                  "from": "loop",
+                  "path": "request.input"
+                }
+              },
+              "tolerate_item_errors": true
+            },
+            "join": "all"
+          },
+          {
+            "id": "dispatch_convergence",
+            "kind": "loop",
+            "config": {
+              "source": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "evaluate",
+                  "path": "output.outputs.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  },
+                  {
+                    "op": "op:core.lookup",
+                    "args": {
+                      "key": "convergence_requests"
+                    }
+                  }
+                ]
+              },
+              "item_var": "request",
+              "parallel": false,
+              "max_iterations": 64,
+              "definition_refs": [
+                "action:converge-installed-apps-to-their-current-handle"
+              ],
+              "definition_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "loop",
+                  "path": "request.definition_id"
+                }
+              },
+              "inputs": {
+                "$kind": "binding",
+                "select": {
+                  "from": "loop",
+                  "path": "request.input"
+                }
+              },
+              "tolerate_item_errors": true
+            },
+            "join": "all"
+          },
+          {
+            "id": "finalize_dispatches",
+            "kind": "action",
+            "config": {
+              "definition_id": "action:finalize-fleet-dispatch-results",
+              "inputs": {
+                "evaluation": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "evaluate",
+                    "path": "output.outputs.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    }
+                  ]
+                },
+                "dispatch_groups": [
+                  {
+                    "kind": "saved-result-observation",
+                    "requests": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "evaluate",
+                        "path": "output.outputs.0.bytes.base64"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.decode",
+                          "args": {
+                            "encoding": "base64"
+                          }
+                        },
+                        {
+                          "op": "op:core.json_parse"
+                        },
+                        {
+                          "op": "op:core.lookup",
+                          "args": {
+                            "key": "learning_requests"
+                          }
+                        }
+                      ]
+                    },
+                    "results": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "observe_saved_results",
+                        "path": "output"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "authorized-worker",
+                    "requests": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "evaluate",
+                        "path": "output.outputs.0.bytes.base64"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.decode",
+                          "args": {
+                            "encoding": "base64"
+                          }
+                        },
+                        {
+                          "op": "op:core.json_parse"
+                        },
+                        {
+                          "op": "op:core.lookup",
+                          "args": {
+                            "key": "worker_requests"
+                          }
+                        }
+                      ]
+                    },
+                    "results": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "dispatch_authorized_workers",
+                        "path": "output"
+                      }
+                    }
+                  },
+                  {
+                    "requests": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "evaluate",
+                        "path": "output.outputs.0.bytes.base64"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.decode",
+                          "args": {
+                            "encoding": "base64"
+                          }
+                        },
+                        {
+                          "op": "op:core.json_parse"
+                        },
+                        {
+                          "op": "op:core.lookup",
+                          "args": {
+                            "key": "analysis_requests"
+                          }
+                        }
+                      ]
+                    },
+                    "results": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "dispatch_failure_analysis",
+                        "path": "output"
+                      }
+                    }
+                  },
+                  {
+                    "requests": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "evaluate",
+                        "path": "output.outputs.0.bytes.base64"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.decode",
+                          "args": {
+                            "encoding": "base64"
+                          }
+                        },
+                        {
+                          "op": "op:core.json_parse"
+                        },
+                        {
+                          "op": "op:core.lookup",
+                          "args": {
+                            "key": "repair_requests"
+                          }
+                        }
+                      ]
+                    },
+                    "results": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "dispatch_repairs",
+                        "path": "output"
+                      }
+                    }
+                  },
+                  {
+                    "requests": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "evaluate",
+                        "path": "output.outputs.0.bytes.base64"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.decode",
+                          "args": {
+                            "encoding": "base64"
+                          }
+                        },
+                        {
+                          "op": "op:core.json_parse"
+                        },
+                        {
+                          "op": "op:core.lookup",
+                          "args": {
+                            "key": "convergence_requests"
+                          }
+                        }
+                      ]
+                    },
+                    "results": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "dispatch_convergence",
+                        "path": "output"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "commit_evaluation",
+            "kind": "loop",
+            "config": {
+              "source": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "finalize_dispatches",
+                  "path": "output.records"
+                }
+              },
+              "item_var": "record",
+              "parallel": false,
+              "max_iterations": 512,
+              "definition_id": "action:write-fleet-learning-record",
+              "inputs": {
+                "record": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "loop",
+                    "path": "record"
+                  }
+                }
+              }
+            },
+            "join": "all"
+          },
+          {
+            "id": "return",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "finalize_dispatches",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::workflow-action::finalize-fleet-dispatch-results",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:finalize-fleet-dispatch-results",
+        "kind": "action",
+        "name": "Save repair request results",
+        "description": "Save which repair requests failed. A returned request does not mean the repair worked.",
+        "is_active": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "evaluation",
+            "dispatch_groups"
+          ],
+          "properties": {
+            "evaluation": {
+              "type": "object"
+            },
+            "dispatch_groups": {
+              "type": "array"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "script",
+            "kind": "read",
+            "config": {
+              "from": "package::ai-execution-history::stored-bytes::fleet-learning"
+            }
+          },
+          {
+            "id": "read_crypto",
+            "kind": "read",
+            "config": {
+              "from": "package::transcript-mapper::stored-bytes::bitfield-crypto-python-module"
+            }
+          },
+          {
+            "id": "finalize",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "python3",
+                  "fleet-learning.py",
+                  "finalize-dispatches",
+                  "request.json",
+                  "result.json"
+                ],
+                "cwd": ".",
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "fleet-learning.py",
+                    "content_type": "text/x-python",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "request.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "bitfield_crypto.py",
+                    "content_type": "text/x-python",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_crypto",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "result.json",
+                    "content_type": "application/json",
+                    "storage": "inline"
+                  }
+                ],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "return",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "finalize",
+                  "path": "output.outputs.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::workflow-action::run-fleet-learning-cycle",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:run-fleet-learning-cycle",
+        "kind": "action",
+        "name": "run-fleet-learning-cycle",
+        "version": 1,
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "description": "Run automatic authorized discovery and bounded fleet-learning evaluation in owner order.",
+        "input_schema": {
+          "type": "object",
+          "properties": {}
+        },
+        "steps": [
+          {
+            "id": "discover",
+            "kind": "action",
+            "config": {
+              "definition_id": "action:discover-current-agent-sessions",
+              "inputs": {}
+            }
+          },
+          {
+            "id": "evaluate",
+            "kind": "action",
+            "config": {
+              "definition_id": "action:evaluate-fleet-learning",
+              "inputs": {}
+            }
+          },
+          {
+            "id": "return",
+            "kind": "return",
+            "config": {
+              "value": {
+                "discovery": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "discover",
+                    "path": "output"
+                  }
+                },
+                "evaluation": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "evaluate",
+                    "path": "output"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::trigger-rule::fleet-learning-on-clock-tick",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:fleet-learning-on-clock-tick",
+        "name": "fleet-learning-on-clock-tick",
+        "topic": "data_state",
+        "trigger_type": "delta",
+        "version": 1,
+        "is_active": true,
+        "description": "Use the existing clock owner to discover authorized session evidence and evaluate transferable improvements; this package owns no timer, watcher or poller.",
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:run-fleet-learning-cycle",
+            "input": {},
+            "include_output": false,
+            "include_steps": false
+          }
+        },
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "clock-tick"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "is_retraction"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::workflow-action::write-execution-run-record",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:write-execution-run-record",
+        "kind": "action",
+        "name": "write-execution-run-record",
+        "version": 1,
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": false,
+        "extra": {},
+        "extra_properties": {},
+        "description": "Disabled legacy caller-authored run writer. Authenticated local-session ingestion is owned by action:ingest-one-agent-session-source and never accepts caller-authored run content.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "record": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "record"
+          ]
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record.address_label"
+                    }
+                  },
+                  "path": [
+                    "current-item",
+                    "ai-execution-run-index"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record.payload"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::workflow-action::derive-acquired-fleet-execution-runs",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:derive-acquired-fleet-execution-runs",
+        "kind": "action",
+        "name": "derive-acquired-fleet-execution-runs",
+        "version": 1,
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "description": "Deterministically derive execution-run candidates from caller-supplied acquired bytes. This compute-only action has no write step and grants no authority; the Fleet ingestion owner supplies the authentic acquisition and verifies the returned acquisition revision before writing.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "acquisition": {
+              "type": "object"
+            },
+            "ingest_config": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "acquisition",
+            "ingest_config"
+          ],
+          "additionalProperties": false
+        },
+        "steps": [
+          {
+            "id": "script",
+            "kind": "read",
+            "config": {
+              "from": "package::ai-execution-history::stored-bytes::ingest-session-artifacts-to-runs"
+            }
+          },
+          {
+            "id": "derive",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "python3",
+                  "packages/ai-execution-history/do-work/process-scripts/ingest-session-artifacts-to-runs.py",
+                  "--config",
+                  "config.json",
+                  "--acquisition",
+                  "acquisition.json",
+                  "--out",
+                  "result.json"
+                ],
+                "cwd": ".",
+                "timeout_ms": 600000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "packages/ai-execution-history/do-work/process-scripts/ingest-session-artifacts-to-runs.py",
+                    "content_type": "text/x-python",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "config.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "ingest_config"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "acquisition.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "acquisition"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "result.json",
+                    "content_type": "application/json",
+                    "storage": "inline"
+                  }
+                ],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "return",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "derive",
+                  "path": "output.outputs.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::workflow-action::write-authorized-fleet-execution-run-record",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:write-authorized-fleet-execution-run-record",
+        "kind": "action",
+        "name": "write-authorized-fleet-execution-run-record",
+        "version": 1,
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "description": "Acquire authentic private local session bytes inside the owner, derive all runs through the package decoder, reject stale source revisions, and atomically bind every write to the unchanged provider, evidence policy, permission note, trusted time, and destination bases.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "object"
+            },
+            "since": {
+              "type": "string"
+            },
+            "limit": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "source"
+          ],
+          "additionalProperties": false
+        },
+        "steps": [
+          {
+            "id": "write",
+            "kind": "ask",
+            "config": {
+              "name": "ai-execution-history.write-authorized-fleet-execution-run-record",
+              "input": {
+                "source": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "source"
+                  }
+                },
+                "since": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "since"
+                  }
+                },
+                "limit": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "limit"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::workflow-action::materialize-fleet-learning-repair-candidate",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:materialize-fleet-learning-repair-candidate",
+        "kind": "action",
+        "name": "materialize-fleet-learning-repair-candidate",
+        "version": 1,
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "description": "Validate and publish one reviewed privacy-safe repair candidate produced by the canonical work-control analysis path.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "candidate": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "candidate"
+          ]
+        },
+        "steps": [
+          {
+            "id": "script",
+            "kind": "read",
+            "config": {
+              "from": "package::ai-execution-history::stored-bytes::fleet-learning"
+            }
+          },
+          {
+            "id": "read_crypto",
+            "kind": "read",
+            "config": {
+              "from": "package::transcript-mapper::stored-bytes::bitfield-crypto-python-module"
+            }
+          },
+          {
+            "id": "validate",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "python3",
+                  "fleet-learning.py",
+                  "validate-candidate",
+                  "request.json",
+                  "result.json"
+                ],
+                "cwd": ".",
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "fleet-learning.py",
+                    "content_type": "text/x-python",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "request.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "bitfield_crypto.py",
+                    "content_type": "text/x-python",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_crypto",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "result.json",
+                    "content_type": "application/json",
+                    "storage": "inline"
+                  }
+                ],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "write",
+            "kind": "action",
+            "config": {
+              "definition_id": "action:write-fleet-learning-record",
+              "inputs": {
+                "record": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "validate",
+                    "path": "output.outputs.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "record"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": "return",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "validate",
+                  "path": "output.outputs.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::workflow-action::write-fleet-learning-record",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:write-fleet-learning-record",
+        "kind": "action",
+        "name": "write-fleet-learning-record",
+        "version": 1,
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "description": "Write one evaluator-produced privacy-safe fleet-learning state at its deterministic address.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "record": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "record"
+          ]
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record.address_label"
+                    }
+                  },
+                  "path": [
+                    "current-item",
+                    "fleet-learning-index"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record.payload"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::workflow-action::legacy-disabled-ingest-one-agent-session-source",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:legacy-disabled-ingest-one-agent-session-source",
+        "kind": "action",
+        "name": "legacy-disabled-ingest-one-agent-session-source",
+        "version": 1,
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": false,
+        "extra": {},
+        "extra_properties": {},
+        "description": "Acquire one caller-described session-artifact source through the native local.files owner, fold its bounded local JSONL bytes into deterministic ai-execution-run writes inside contained compute, and commit only the derived run records. Raw transcript bytes never enter durable package records.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "object"
+            },
+            "since": {
+              "type": "string"
+            },
+            "limit": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "source"
+          ]
+        },
+        "steps": [
+          {
+            "id": "initial_authorization",
+            "kind": "ask",
+            "config": {
+              "name": "ai-execution-history.resolve-authorized-fleet-source",
+              "input": {
+                "source": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "source"
+                  }
+                },
+                "since": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "since"
+                  }
+                },
+                "limit": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "limit"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "scan",
+            "kind": "action",
+            "config": {
+              "definition_id": "action:scan-local-files",
+              "inputs": {
+                "base": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "initial_authorization",
+                    "path": "output.scan.base"
+                  }
+                },
+                "sub_path": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "initial_authorization",
+                    "path": "output.scan.sub_path"
+                  }
+                },
+                "glob": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "initial_authorization",
+                    "path": "output.scan.glob"
+                  }
+                },
+                "include_bytes": true,
+                "limit": 512,
+                "max_total_bytes": 134217728,
+                "max_entries": 1000000
+              }
+            }
+          },
+          {
+            "id": "after_scan_authorization",
+            "kind": "ask",
+            "config": {
+              "name": "ai-execution-history.resolve-authorized-fleet-source",
+              "input": {
+                "source": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "source"
+                  }
+                },
+                "since": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "since"
+                  }
+                },
+                "limit": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "limit"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "script",
+            "kind": "read",
+            "config": {
+              "from": "package::ai-execution-history::stored-bytes::ingest-session-artifacts-to-runs"
+            }
+          },
+          {
+            "id": "ingest_process",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "python3",
+                  "packages/ai-execution-history/do-work/process-scripts/ingest-session-artifacts-to-runs.py",
+                  "--config",
+                  "config.json",
+                  "--acquisition",
+                  "acquisition.json",
+                  "--out",
+                  "result.json"
+                ],
+                "cwd": ".",
+                "timeout_ms": 600000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "packages/ai-execution-history/do-work/process-scripts/ingest-session-artifacts-to-runs.py",
+                    "content_type": "text/x-python",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "config.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "after_scan_authorization",
+                          "path": "output.ingest_config"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "acquisition.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "scan",
+                          "path": "output"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "result.json",
+                    "content_type": "application/json",
+                    "storage": "inline"
+                  }
+                ],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "after_process_authorization",
+            "kind": "ask",
+            "config": {
+              "name": "ai-execution-history.resolve-authorized-fleet-source",
+              "input": {
+                "source": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "source"
+                  }
+                },
+                "since": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "since"
+                  }
+                },
+                "limit": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "limit"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "commit_runs",
+            "kind": "loop",
+            "config": {
+              "source": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "ingest_process",
+                  "path": "output.outputs.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  },
+                  {
+                    "op": "op:core.lookup",
+                    "args": {
+                      "key": "writes"
+                    }
+                  }
+                ]
+              },
+              "item_var": "record",
+              "parallel": false,
+              "max_iterations": 512,
+              "definition_id": "action:write-authorized-fleet-execution-run-record",
+              "inputs": {
+                "record": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "loop",
+                    "path": "record"
+                  }
+                },
+                "source": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "source"
+                  }
+                },
+                "since": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "since"
+                  }
+                },
+                "limit": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "limit"
+                  }
+                }
+              }
+            },
+            "join": "all"
+          },
+          {
+            "id": "return",
+            "kind": "return",
+            "config": {
+              "value": {
+                "artifact_count": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "ingest_process",
+                    "path": "output.outputs.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "artifact_count"
+                      }
+                    }
+                  ]
+                },
+                "rejections": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "ingest_process",
+                    "path": "output.outputs.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "rejections"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::workflow-action::ingest-one-agent-session-source",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:ingest-one-agent-session-source",
+        "kind": "action",
+        "name": "ingest-one-agent-session-source",
+        "version": 2,
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "description": "Ask the Fleet ingestion owner to acquire current local bytes, derive bounded execution runs, reject stale revisions, and commit the resulting records under current scoped permission.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "object"
+            },
+            "since": {
+              "type": "string"
+            },
+            "limit": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "source"
+          ],
+          "additionalProperties": false
+        },
+        "steps": [
+          {
+            "id": "ingest",
+            "kind": "ask",
+            "config": {
+              "name": "ai-execution-history.write-authorized-fleet-execution-run-record",
+              "input": {
+                "source": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "source"
+                  }
+                },
+                "since": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "since"
+                  }
+                },
+                "limit": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "limit"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::workflow-action::ingest-one-agent-session-file",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:ingest-one-agent-session-file",
+        "kind": "action",
+        "name": "ingest-one-agent-session-file",
+        "version": 1,
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": false,
+        "extra": {},
+        "extra_properties": {},
+        "description": "Disabled legacy caller-selected exact-file ingestion. Authenticated local-session ingestion resolves its locator from the current provider and permission inside action:ingest-one-agent-session-source.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "partition_label": {
+              "type": "string"
+            },
+            "source": {
+              "type": "object"
+            },
+            "path": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "partition_label",
+            "source",
+            "path"
+          ]
+        },
+        "steps": [
+          {
+            "id": "acquire",
+            "kind": "action",
+            "config": {
+              "definition_id": "action:read-local-file",
+              "inputs": {
+                "path": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "path"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "script",
+            "kind": "read",
+            "config": {
+              "from": "package::ai-execution-history::stored-bytes::ingest-session-artifacts-to-runs"
+            }
+          },
+          {
+            "id": "ingest_process",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "python3",
+                  "packages/ai-execution-history/do-work/process-scripts/ingest-session-artifacts-to-runs.py",
+                  "--config",
+                  "config.json",
+                  "--acquisition",
+                  "acquisition.json",
+                  "--out",
+                  "result.json"
+                ],
+                "cwd": null,
+                "timeout_ms": 600000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "packages/ai-execution-history/do-work/process-scripts/ingest-session-artifacts-to-runs.py",
+                    "content_type": "text/x-python",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "config.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": ""
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "acquisition.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "acquire",
+                          "path": "output"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "result.json",
+                    "content_type": "application/json",
+                    "storage": "inline"
+                  }
+                ],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "commit_runs",
+            "kind": "loop",
+            "config": {
+              "source": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "ingest_process",
+                  "path": "output.outputs.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  },
+                  {
+                    "op": "op:core.lookup",
+                    "args": {
+                      "key": "writes"
+                    }
+                  }
+                ]
+              },
+              "item_var": "record",
+              "parallel": false,
+              "max_iterations": 512,
+              "definition_id": "action:write-execution-run-record",
+              "inputs": {
+                "record": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "loop",
+                    "path": "record"
+                  }
+                }
+              }
+            },
+            "join": "all"
+          },
+          {
+            "id": "return",
+            "kind": "return",
+            "config": {
+              "value": {
+                "artifact_count": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "ingest_process",
+                    "path": "output.outputs.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "artifact_count"
+                      }
+                    }
+                  ]
+                },
+                "rejections": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "ingest_process",
+                    "path": "output.outputs.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "rejections"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::workflow-action::ingest-agent-session-artifacts",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:ingest-agent-session-artifacts",
+        "kind": "action",
+        "name": "ingest-agent-session-artifacts",
+        "version": 1,
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "extra": {},
+        "extra_properties": {},
+        "description": "Standing ingestion: acquire every caller-described session-artifact source through local.files, then fold bounded local JSONL bytes into deterministic ai-execution-run records. Backfill is the first invocation; re-runs update the same addresses.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "partition_label": {
+              "type": "string"
+            },
+            "sources": {
+              "type": "array"
+            },
+            "since": {
+              "type": "string"
+            },
+            "limit": {
+              "type": "number"
+            },
+            "extractor_modules": {
+              "type": "array"
+            }
+          },
+          "required": [
+            "partition_label",
+            "sources"
+          ]
+        },
+        "steps": [
+          {
+            "id": "ingest_sources",
+            "kind": "loop",
+            "config": {
+              "source": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "sources"
+                }
+              },
+              "item_var": "source",
+              "parallel": false,
+              "max_iterations": 64,
+              "definition_id": "action:ingest-one-agent-session-source",
+              "inputs": {
+                "partition_label": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "partition_label"
+                  }
+                },
+                "source": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "loop",
+                    "path": "source"
+                  }
+                },
+                "since": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "since"
+                  }
+                },
+                "limit": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "limit"
+                  }
+                }
+              }
+            },
+            "join": "all"
+          },
+          {
+            "id": "return",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "ingest_sources",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::target::request-execution-start",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "targets",
+        "request-execution-start"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "request-execution-start",
+        "export_name": "requestExecutionStart",
+        "source_path": "do-work/request-execution-start.ts",
+        "target": "ai-execution-history.request-execution-start"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::target::record-review-decision",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "targets",
+        "record-review-decision"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "record-review-decision",
+        "export_name": "recordReviewDecision",
+        "source_path": "do-work/record-review-decision.ts",
+        "target": "ai-execution-history.record-review-decision",
+        "input_contract": {
+          "required": [
+            "review_id",
+            "execution_ref",
+            "candidate_ref",
+            "decision",
+            "review_note",
+            "reviewer_ref"
+          ],
+          "optional": [
+            "reviewed_at",
+            "supersedes_review_ref",
+            "evidence_refs"
+          ]
+        },
+        "output_contract": {
+          "accepted": true,
+          "review_ref": "opaque owner address",
+          "idempotent": "boolean"
+        },
+        "revision": 1
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::target::append-execution-step",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "targets",
+        "append-execution-step"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "append-execution-step",
+        "export_name": "appendExecutionStep",
+        "source_path": "do-work/append-execution-step.ts",
+        "target": "ai-execution-history.append-execution-step",
+        "input_contract": {
+          "required": [
+            "step"
+          ],
+          "step_required": [
+            "id",
+            "run_ref"
+          ]
+        },
+        "output_contract": {
+          "accepted": true,
+          "step_ref": "opaque owner address",
+          "idempotent": "boolean",
+          "payload_hash_code_hex": "1f: blake3 multihash hex of the exact stored bytes (the durable record-before-effect basis)"
+        },
+        "description": "Append ONE immutable ai-execution-step to the run ledger and prove it durable by owner readback. The record-before-effect primitive the actuation gateway (ai-action-guard.govern-computer-action) dispatches to: a forward token can only be minted after this owner has written and confirmed the row. Step vocabulary (step_kind, tool, intent, decision, ...) stays caller DATA; identical replay is idempotent, a conflicting replay is rejected.",
+        "revision": 1
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::entry::append-execution-step",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "entries",
+        "append-execution-step"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "append-execution-step",
+        "export_name": "appendExecutionStep",
+        "source_path": "do-work/append-execution-step.ts",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-append-execution-step"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::target::prepare-local-fleet-source",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "targets",
+        "prepare-local-fleet-source"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "prepare-local-fleet-source",
+        "export_name": "prepareLocalFleetSourceTarget",
+        "source_path": "do-work/prepare-local-fleet-source-target.ts",
+        "target": "ai-execution-history.prepare-local-fleet-source",
+        "exposure": "hosted-session-admitted",
+        "admission": {
+          "target": "access-rule.evaluate",
+          "action_ref": "ai-execution-history.prepare-local-fleet-source",
+          "authorized_action_refs": [
+            "ai-execution-history.prepare-local-fleet-source"
+          ],
+          "constraints": {},
+          "predicate_ref": "predicate:authenticated-session",
+          "predicate_binding": {
+            "$kind": "binding",
+            "select": {
+              "from": "literal",
+              "value": true
+            }
+          },
+          "subject_binding": {
+            "$kind": "binding",
+            "select": {
+              "from": "context",
+              "path": "payload.source_ref"
+            }
+          },
+          "resource_revision_binding": {
+            "$kind": "binding",
+            "select": {
+              "from": "context",
+              "path": "payload.source_ref"
+            }
+          }
+        },
+        "description": "Join one installed local session-source provider to the trusted local actor and current runtime partition. The current provider revision is the complete source identity; no approval record is created or required.",
+        "revision": 1
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::entry::prepare-local-fleet-source",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "entries",
+        "prepare-local-fleet-source"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "prepare-local-fleet-source",
+        "export_name": "prepareLocalFleetSourceTarget",
+        "source_path": "do-work/prepare-local-fleet-source-target.ts",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-prepare-local-fleet-source"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::target::resolve-authorized-fleet-source",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "targets",
+        "resolve-authorized-fleet-source"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "resolve-authorized-fleet-source",
+        "export_name": "resolveAuthorizedFleetSourceTarget",
+        "source_path": "do-work/resolve-authorized-fleet-source-target.ts",
+        "target": "ai-execution-history.resolve-authorized-fleet-source",
+        "exposure": "owner-to-owner-only",
+        "revision": "current-provider-and-evidence-policy",
+        "fixed_owner_targets": [
+          "engine.operation.label-addressed"
+        ],
+        "input_contract": {
+          "required": [
+            "source"
+          ],
+          "forbidden": [
+            "root",
+            "path",
+            "glob",
+            "base",
+            "sub_path",
+            "permission",
+            "grant"
+          ],
+          "authority_source": "the current installed provider revision and evidence policy",
+          "external_effect": false
+        },
+        "description": "Confirm current Fleet source admission after re-reading the exact provider and permission without returning its private locator or decoder configuration. Changed, revoked, expired, remote, or ambiguous authority refuses."
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::target::write-authorized-fleet-execution-run-record",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "targets",
+        "write-authorized-fleet-execution-run-record"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "write-authorized-fleet-execution-run-record",
+        "export_name": "writeAuthorizedFleetExecutionRunRecordTarget",
+        "source_path": "do-work/resolve-authorized-fleet-source-target.ts",
+        "target": "ai-execution-history.write-authorized-fleet-execution-run-record",
+        "exposure": "owner-to-owner-only",
+        "revision": "owner-acquired-byte-derived-stale-safe-atomic-run-write",
+        "fixed_owner_targets": [
+          "engine.operation.label-addressed",
+          "slot::workflow"
+        ],
+        "write_scope": {
+          "derived_records": [
+            {
+              "derivation": "authorized-fleet-execution-run",
+              "address_segments": [
+                {
+                  "literal": "package"
+                },
+                {
+                  "literal": "ai-execution-history"
+                },
+                {
+                  "literal": "run"
+                },
+                {
+                  "variable": "run_identity"
+                }
+              ]
+            }
+          ]
+        },
+        "input_contract": {
+          "required": [
+            "source"
+          ],
+          "forbidden": [
+            "record",
+            "payload",
+            "writes",
+            "root",
+            "path",
+            "glob",
+            "base",
+            "sub_path"
+          ],
+          "authority_source": "the current provider and evidence policy",
+          "external_effect": false
+        },
+        "description": "Acquire current local bytes through the provider-owned scan, derive runs through the package decoder, reject stale or conflicting source revisions, and write the whole bounded set in one atomic operation requiring every authorization and destination basis to remain current. Caller-authored runs are never accepted."
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::entry::write-authorized-fleet-execution-run-record",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "entries",
+        "write-authorized-fleet-execution-run-record"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "write-authorized-fleet-execution-run-record",
+        "export_name": "writeAuthorizedFleetExecutionRunRecordTarget",
+        "source_path": "do-work/resolve-authorized-fleet-source-target.ts",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-write-authorized-fleet-execution-run-record"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::entry::resolve-authorized-fleet-source",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "entries",
+        "resolve-authorized-fleet-source"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "resolve-authorized-fleet-source",
+        "export_name": "resolveAuthorizedFleetSourceTarget",
+        "source_path": "do-work/resolve-authorized-fleet-source-target.ts",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-resolve-authorized-fleet-source"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::entry::record-review-decision",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "entries",
+        "record-review-decision"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "record-review-decision",
+        "export_name": "recordReviewDecision",
+        "source_path": "do-work/record-review-decision.ts",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-record-review-decision"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "execution-history-panel",
+      "source_path": "show/ExecutionHistoryPanel.tsx"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "mount-ai-execution-history",
+      "source_path": "show/mount-ai-execution-history.tsx"
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::entry::ai-execution-history-surface",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "entries",
+        "ai-execution-history-surface"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "ai-execution-history-surface",
+        "dynamic_read_selector_policy": "declared-provider-input-membership",
+        "source_path": "show/mount-ai-execution-history.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-ai-execution-history-surface"
+        }
+      },
+      "build_source_path": "show/mount-ai-execution-history.tsx"
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::ai-execution-history::exec-history-feed",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "ai-execution-run-index"
+        ],
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": [
+              "payload"
+            ]
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "in": [
+                "ai-execution-run",
+                "ai-execution-step",
+                "ai-execution-review-decision"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::input::exec-history-feed",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "input_name": "exec-history-feed",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "package::ai-execution-history::exec-history-feed",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::placeable-surface::execution-history",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "placeable-surface",
+        "id": "ai-execution-history.panel",
+        "surface_id": "ai-execution-history.panel",
+        "label": "AI Execution History",
+        "icon": "Activity",
+        "material_target": "ai-execution-history-surface",
+        "surface_input": {
+          "healthRules": [
+            {
+              "key": "stalled",
+              "label": "Stalled",
+              "tone": "error",
+              "severity": "high",
+              "requires": [
+                {
+                  "fact": "ended",
+                  "op": "absent"
+                },
+                {
+                  "fact": "ageSeconds",
+                  "op": "gte",
+                  "value": 1800
+                }
+              ]
+            },
+            {
+              "key": "running",
+              "label": "Running",
+              "tone": "info",
+              "severity": "info",
+              "requires": [
+                {
+                  "fact": "ended",
+                  "op": "absent"
+                }
+              ]
+            },
+            {
+              "key": "completed",
+              "label": "Completed",
+              "tone": "success",
+              "severity": "low",
+              "requires": [
+                {
+                  "fact": "ended",
+                  "op": "present"
+                }
+              ]
+            }
+          ]
+        },
+        "order": 680,
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000680:ai-execution-history.panel",
+        "package_entry": {
+          "package_name": "ai-execution-history",
+          "entry_name": "ai-execution-history-surface"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::placeable-surface::run-triage",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "placeable-surface",
+        "id": "ai-execution-history.run-triage",
+        "surface_id": "ai-execution-history.run-triage",
+        "label": "Runs needing attention",
+        "icon": "Activity",
+        "material_target": "component:visual-database",
+        "surface_input": {
+          "surfaceKind": "visual-database",
+          "initialViewId": "run-triage",
+          "fields": {
+            "kind": "visual-database.fields",
+            "version": 3,
+            "descriptors": [
+              {
+                "id": "id",
+                "label": "Run",
+                "role": "id",
+                "paths": [
+                  [
+                    "payload",
+                    "id"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "objective",
+                "label": "What it was doing",
+                "role": "title",
+                "paths": [
+                  [
+                    "payload",
+                    "objective"
+                  ],
+                  [
+                    "payload",
+                    "label"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "label",
+                "label": "Raw label",
+                "role": "body",
+                "paths": [
+                  [
+                    "payload",
+                    "label"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "started_at",
+                "label": "Started",
+                "role": "date",
+                "shape": "temporal",
+                "paths": [
+                  [
+                    "payload",
+                    "started_at"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "ended_at",
+                "label": "Ended",
+                "role": "none",
+                "shape": "temporal",
+                "paths": [
+                  [
+                    "payload",
+                    "ended_at"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "status",
+                "label": "Status",
+                "role": "status",
+                "shape": "choice",
+                "paths": [
+                  [
+                    "payload",
+                    "status"
+                  ]
+                ],
+                "write_path": [
+                  "payload",
+                  "status"
+                ],
+                "editable": false,
+                "domain": {
+                  "values": [
+                    {
+                      "id": "stalled",
+                      "label": "Stalled",
+                      "tone": "error",
+                      "order": 0
+                    },
+                    {
+                      "id": "running",
+                      "label": "Running",
+                      "tone": "info",
+                      "order": 1
+                    },
+                    {
+                      "id": "completed",
+                      "label": "Completed",
+                      "tone": "success",
+                      "order": 2
+                    }
+                  ]
+                },
+                "default_expression": {
+                  "derive": {
+                    "target": "slot::formula-engine",
+                    "evaluator_ref": "evaluator::run-triage-health",
+                    "request": {
+                      "classify_by_rules": {
+                        "facts": [
+                          {
+                            "key": "ended",
+                            "path": [
+                              "ended_at"
+                            ],
+                            "as": "present"
+                          },
+                          {
+                            "key": "ageSeconds",
+                            "path": [
+                              "started_at"
+                            ],
+                            "as": "age-seconds"
+                          }
+                        ],
+                        "rules": [
+                          {
+                            "key": "stalled",
+                            "label": "Stalled",
+                            "tone": "error",
+                            "severity": "attention",
+                            "requires": [
+                              {
+                                "fact": "ended",
+                                "op": "absent"
+                              },
+                              {
+                                "fact": "ageSeconds",
+                                "op": "gte",
+                                "value": 1800
+                              }
+                            ]
+                          },
+                          {
+                            "key": "running",
+                            "label": "Running",
+                            "tone": "info",
+                            "severity": "info",
+                            "requires": [
+                              {
+                                "fact": "ended",
+                                "op": "absent"
+                              }
+                            ]
+                          },
+                          {
+                            "key": "completed",
+                            "label": "Completed",
+                            "tone": "success",
+                            "severity": "low",
+                            "requires": [
+                              {
+                                "fact": "ended",
+                                "op": "present"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "result_path": [
+                      "result",
+                      "key"
+                    ],
+                    "context_from_fields": [
+                      "started_at",
+                      "ended_at"
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "severity",
+                "label": "Severity",
+                "role": "badge",
+                "shape": "choice",
+                "paths": [
+                  [
+                    "payload",
+                    "severity"
+                  ]
+                ],
+                "write_path": [
+                  "payload",
+                  "severity"
+                ],
+                "editable": false,
+                "default_expression": {
+                  "derive": {
+                    "target": "slot::formula-engine",
+                    "evaluator_ref": "evaluator::run-triage-health",
+                    "request": {
+                      "classify_by_rules": {
+                        "facts": [
+                          {
+                            "key": "ended",
+                            "path": [
+                              "ended_at"
+                            ],
+                            "as": "present"
+                          },
+                          {
+                            "key": "ageSeconds",
+                            "path": [
+                              "started_at"
+                            ],
+                            "as": "age-seconds"
+                          }
+                        ],
+                        "rules": [
+                          {
+                            "key": "stalled",
+                            "label": "Stalled",
+                            "tone": "error",
+                            "severity": "attention",
+                            "requires": [
+                              {
+                                "fact": "ended",
+                                "op": "absent"
+                              },
+                              {
+                                "fact": "ageSeconds",
+                                "op": "gte",
+                                "value": 1800
+                              }
+                            ]
+                          },
+                          {
+                            "key": "running",
+                            "label": "Running",
+                            "tone": "info",
+                            "severity": "info",
+                            "requires": [
+                              {
+                                "fact": "ended",
+                                "op": "absent"
+                              }
+                            ]
+                          },
+                          {
+                            "key": "completed",
+                            "label": "Completed",
+                            "tone": "success",
+                            "severity": "low",
+                            "requires": [
+                              {
+                                "fact": "ended",
+                                "op": "present"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "result_path": [
+                      "result",
+                      "severity"
+                    ],
+                    "context_from_fields": [
+                      "started_at",
+                      "ended_at"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "views": {
+            "kind": "visual-database.views",
+            "version": 3,
+            "palette": [],
+            "views": [
+              {
+                "id": "run-triage",
+                "label": "Runs needing attention",
+                "kind": "table",
+                "order": 0,
+                "filters": [
+                  {
+                    "field": "severity",
+                    "equals": [
+                      "attention"
+                    ],
+                    "exclude": []
+                  }
+                ],
+                "columns": {
+                  "order": [
+                    "objective",
+                    "status",
+                    "started_at",
+                    "label",
+                    "ended_at",
+                    "severity",
+                    "id"
+                  ],
+                  "hidden": [
+                    "started_at",
+                    "label",
+                    "ended_at",
+                    "severity",
+                    "id"
+                  ],
+                  "widths": {
+                    "objective": 520,
+                    "status": 180
+                  }
+                },
+                "projectionRules": []
+              }
+            ]
+          },
+          "evaluatorDescriptors": {
+            "version": 2,
+            "descriptors": [
+              {
+                "ref": "evaluator::run-triage-health",
+                "revision": "1",
+                "label": "Run triage health",
+                "target": "slot::formula-engine",
+                "context_path": [
+                  "classify_by_rules",
+                  "record"
+                ]
+              }
+            ]
+          }
+        },
+        "order": 681,
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000681:ai-execution-history.run-triage",
+        "package_entry": {
+          "package_name": "ai-execution-history",
+          "entry_name": "ai-execution-history-surface"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::retention-policy::ai-execution-run",
+      "path": [
+        "packages",
+        "ai-execution-history",
+        "retention-policies",
+        "ai-execution-run"
+      ],
+      "payload": {
+        "kind": "record-retention-policy",
+        "record_kind": "ai-execution-run",
+        "owner_package": "ai-execution-history",
+        "retention": {
+          "class": "expiring",
+          "ttl_ms": 5184000000
+        },
+        "justification": "Run ledger record (triage). Net-new runs accumulate unbounded per session (46GB studio); history(keep=3) only bounded re-append, not net-new unique addresses. address = package::ai-execution-history::run::address_token(stable_id) is reconstructable (LIVE-VALIDATED) for ai-execution-run:<ns>:<native> ids; expiring(60d) bounds accumulation while keeping 2 months for triage. Caller-supplied-address runs (write-execution-run-record path) fail-safe skip until they self-describe record_address (L090)."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::ai-execution-history::feed::founder-execution-program-context",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "ai-execution-run-index"
+        ],
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": [
+              "payload"
+            ]
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "in": [
+                "ai-execution-run",
+                "ai-execution-step"
+              ]
+            },
+            {
+              "comment": "SCOPING: filter to selected program context via correlation_refs ÃÂ¢ÃÂÃÂ L098 scoped feed pattern",
+              "path": [
+                "payload",
+                "correlation_refs"
+              ],
+              "any": [
+                {
+                  "path": [
+                    "role"
+                  ],
+                  "eq": "program-context-group"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::input::founder-execution-program-context-feed",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "input_name": "founder-execution-program-context-feed",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "package::ai-execution-history::feed::founder-execution-program-context",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null
+    },
+    {
+      "type": "record",
+      "address": "package::ai-execution-history::placeable-surface::founder-execution-truth",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "placeable-surface",
+        "id": "ai-execution-history.founder-truth",
+        "surface_id": "ai-execution-history.founder-truth",
+        "label": "Execution Summary",
+        "icon": "CheckCircle",
+        "material_target": "component:visual-database",
+        "surface_input": {
+          "surfaceKind": "visual-database",
+          "recordShape": "execution-runs",
+          "feedInputName": "founder-execution-program-context-feed",
+          "initialViewId": "founder-truth",
+          "fields": {
+            "kind": "visual-database.fields",
+            "version": 3,
+            "descriptors": [
+              {
+                "id": "id",
+                "label": "Run",
+                "role": "id",
+                "paths": [
+                  [
+                    "payload",
+                    "id"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "action_description",
+                "label": "What it did",
+                "role": "title",
+                "paths": [
+                  [
+                    "payload",
+                    "objective"
+                  ],
+                  [
+                    "payload",
+                    "label"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "worker",
+                "label": "Worker",
+                "role": "body",
+                "paths": [
+                  [
+                    "payload",
+                    "agent_label"
+                  ],
+                  [
+                    "payload",
+                    "agent_ref"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "outcome_status",
+                "label": "Outcome",
+                "role": "status",
+                "shape": "choice",
+                "paths": [
+                  [
+                    "payload",
+                    "status"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "when",
+                "label": "When",
+                "role": "date",
+                "shape": "temporal",
+                "paths": [
+                  [
+                    "payload",
+                    "started_at"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "evidence_source",
+                "label": "Evidence",
+                "role": "body",
+                "paths": [
+                  [
+                    "payload",
+                    "evidence_source"
+                  ]
+                ],
+                "editable": false
+              },
+              {
+                "id": "artifact_link",
+                "label": "Review",
+                "role": "body",
+                "paths": [
+                  [
+                    "payload",
+                    "artifact_link"
+                  ]
+                ],
+                "editable": false
+              }
+            ]
+          },
+          "views": {
+            "kind": "visual-database.views",
+            "version": 3,
+            "palette": [],
+            "views": [
+              {
+                "id": "founder-truth",
+                "label": "Work completed",
+                "kind": "table",
+                "order": 0,
+                "filters": [],
+                "columns": {
+                  "order": [
+                    "action_description",
+                    "outcome_status",
+                    "worker",
+                    "when",
+                    "evidence_source",
+                    "artifact_link",
+                    "id"
+                  ],
+                  "hidden": [
+                    "id"
+                  ],
+                  "widths": {
+                    "action_description": 520,
+                    "outcome_status": 180,
+                    "worker": 220
+                  }
+                },
+                "projectionRules": []
+              }
+            ]
+          }
+        },
+        "order": 172,
+        "placement_labels": [
+          "operator-workroom"
+        ],
+        "placement_order_key": "000000172:ai-execution-history.founder-truth",
+        "package_entry": {
+          "package_name": "ai-execution-history",
+          "entry_name": "ai-execution-history-surface"
+        }
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-record-review-decision",
+      "source_path": "built-stored-bytes/entry-bytes-record-review-decision",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-record-review-decision.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-append-execution-step",
+      "source_path": "built-stored-bytes/entry-bytes-append-execution-step",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-append-execution-step.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-prepare-local-fleet-source",
+      "source_path": "built-stored-bytes/entry-bytes-prepare-local-fleet-source",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-prepare-local-fleet-source.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-resolve-authorized-fleet-source",
+      "source_path": "built-stored-bytes/entry-bytes-resolve-authorized-fleet-source",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-resolve-authorized-fleet-source.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-write-authorized-fleet-execution-run-record",
+      "source_path": "built-stored-bytes/entry-bytes-write-authorized-fleet-execution-run-record",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-write-authorized-fleet-execution-run-record.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-ai-execution-history-surface",
+      "source_path": "built-stored-bytes/entry-bytes-ai-execution-history-surface",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-ai-execution-history-surface.source-closure.json"
+    }
+  ]
+}

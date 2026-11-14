@@ -1,0 +1,16 @@
+{
+  "kind": "bitfield-entry-read-scope-packages",
+  "entries": [
+    {
+      "entry_name": "chat",
+      "read_scope_package_data_packages": [
+        "conversations",
+        "operation-records",
+        "notifications",
+        "progression-evaluator",
+        "sidebar",
+        "ui"
+      ]
+    }
+  ]
+}

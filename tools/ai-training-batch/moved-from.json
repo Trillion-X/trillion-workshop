@@ -1,0 +1,50 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/ai-training-batch/do-work/request-ai-training-batch.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-training-batch/packages/ai-training-batch/do-work/request-ai-training-batch.ts",
+      "source_identity": "1f:43700d2bbdb3dbc91e75e15df3e440200ec4bc78ab1166ff82ab04e9f933054a",
+      "identity": "1f:43700d2bbdb3dbc91e75e15df3e440200ec4bc78ab1166ff82ab04e9f933054a"
+    },
+    {
+      "from": "packages/ai-training-batch/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-training-batch/packages/ai-training-batch/entry-to-package-data-map.json",
+      "source_identity": "1f:9033be0f20da36a8f2e72ca41b8faaa31275ba228f605730e91736729d1faf4e",
+      "identity": "1f:9033be0f20da36a8f2e72ca41b8faaa31275ba228f605730e91736729d1faf4e"
+    },
+    {
+      "from": "packages/ai-training-batch/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-training-batch/packages/ai-training-batch/index.ts",
+      "source_identity": "1f:3f698b4aa18e95b41c90d6c18d2ce868815031508299a4fc2b740aba46911ff8",
+      "identity": "1f:3f698b4aa18e95b41c90d6c18d2ce868815031508299a4fc2b740aba46911ff8"
+    },
+    {
+      "from": "packages/ai-training-batch/read-data/read-ai-training-batches.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-training-batch/packages/ai-training-batch/read-data/read-ai-training-batches.ts",
+      "source_identity": "1f:0dec56cc8a266275d8cdd6411bc640087d2c9009caa5772ac02e10ab0d945b64",
+      "identity": "1f:0dec56cc8a266275d8cdd6411bc640087d2c9009caa5772ac02e10ab0d945b64"
+    },
+    {
+      "from": "packages/ai-training-batch/show/TrainingBatchPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-training-batch/packages/ai-training-batch/show/TrainingBatchPanel.tsx",
+      "source_identity": "1f:41358efaf534283ed2ab7fa0b9242e8701a36495302045c84c7d24eea13c587a",
+      "identity": "1f:41358efaf534283ed2ab7fa0b9242e8701a36495302045c84c7d24eea13c587a"
+    },
+    {
+      "from": "packages/ai-training-batch/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-training-batch/packages/ai-training-batch/things-to-store-and-run.json",
+      "source_identity": "1f:b9e04e38e366bc69c14445c5805486fad14abf637a53ad818257a018855b3134",
+      "identity": "1f:b9e04e38e366bc69c14445c5805486fad14abf637a53ad818257a018855b3134"
+    }
+  ]
+}

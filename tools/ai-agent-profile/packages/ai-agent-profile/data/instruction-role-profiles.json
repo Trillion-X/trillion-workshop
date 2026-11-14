@@ -1,0 +1,1178 @@
+{
+  "schema": "ai-agent-profile.instruction-role-profile-selection/current",
+  "source_closure": {
+    "closure_id": "sha256:658013a6f758090749bb04dc97f3ffef5140b748c4cdcd715f1e806fd8d1495c",
+    "snapshot_id": "sha256:bc1a9dd7b680171c96bd6bd88ab3d0b66d7e1d76bafb4fc8fff4a69409b83b38",
+    "closure_sha256": "sha256:48a65d9b305cf02505863e6700f79f5660533953bb6f4c8da91ba8a530fd7fcd",
+    "source_count": 2081,
+    "unit_count": 18967,
+    "dynamic_row_count": 15
+  },
+  "authority_sections": [
+    {
+      "id": "instruction-authority.operating-gates",
+      "closure_class_ids": [
+        "binding-prompts-and-skills",
+        "claude-native-project-context",
+        "codex-native-context",
+        "delegation-authority",
+        "deterministic-enforcement"
+      ],
+      "semantic_role": "mandatory operating, delegation, and deterministic gate semantics"
+    },
+    {
+      "id": "instruction-authority.native-context",
+      "closure_class_ids": [
+        "claude-native-project-context",
+        "codex-native-context"
+      ],
+      "semantic_role": "provider-native instruction and enforcement context"
+    },
+    {
+      "id": "instruction-authority.memory-and-incident-evidence",
+      "closure_class_ids": [
+        "claude-native-user-and-memory-context",
+        "claude-repository-agent-memory"
+      ],
+      "semantic_role": "memory, incident, and prior-work evidence without authority widening"
+    },
+    {
+      "id": "instruction-authority.package-semantics",
+      "closure_class_ids": [
+        "package-set-semantic-data"
+      ],
+      "semantic_role": "Package-set and profile DATA semantics"
+    },
+    {
+      "id": "instruction-authority.deterministic-gates",
+      "closure_class_ids": [
+        "deterministic-enforcement"
+      ],
+      "semantic_role": "hook- or guard-owned deterministic denial and replacement semantics"
+    },
+    {
+      "id": "instruction-authority.delegation-boundaries",
+      "closure_class_ids": [
+        "delegation-authority"
+      ],
+      "semantic_role": "parent-to-child authority, inherited context, and handoff boundaries"
+    },
+    {
+      "id": "instruction-authority.generator-closure",
+      "closure_class_ids": [
+        "closure-generator-current-source"
+      ],
+      "semantic_role": "closure-generator provenance and deterministic rerun semantics"
+    }
+  ],
+  "profiles": [
+    {
+      "kind": "ai-agent-profile",
+      "id": "ai-agent-profile:founder-interactive-operator",
+      "label": "Founder interactive operator",
+      "status": "available",
+      "authority_boundary": "founder interaction and system operation; reserved effects still require their deterministic authority owners",
+      "effect_policy": {
+        "denied_effects": [
+          "public-effect",
+          "spend",
+          "credential-use",
+          "production-deploy",
+          "sensitive-data"
+        ],
+        "widening_allowed": false
+      },
+      "instruction_selection": {
+        "kind": "ai-agent-profile.instruction-role-section-selection/current",
+        "source_closure_id": "sha256:658013a6f758090749bb04dc97f3ffef5140b748c4cdcd715f1e806fd8d1495c",
+        "source_closure_sha256": "sha256:48a65d9b305cf02505863e6700f79f5660533953bb6f4c8da91ba8a530fd7fcd",
+        "semantic_sections": [
+          {
+            "section_id": "instruction-authority.operating-gates",
+            "closure_class_ids": [
+              "binding-prompts-and-skills",
+              "claude-native-project-context",
+              "codex-native-context",
+              "delegation-authority",
+              "deterministic-enforcement"
+            ],
+            "selected_static_unit_count": 12594,
+            "selected_dynamic_row_count": 10,
+            "selected_unit_id_hash": "sha256:273feb29463d2fb8f789a793a5bd1888544a930388063240c875b8a2fead798e",
+            "selected_dynamic_row_id_hash": "sha256:8031e2d61de34beb1a58c90bb08c1f5f4fde3a033ef901411bd4e01248168a64"
+          },
+          {
+            "section_id": "instruction-authority.native-context",
+            "closure_class_ids": [
+              "claude-native-project-context",
+              "codex-native-context"
+            ],
+            "selected_static_unit_count": 2588,
+            "selected_dynamic_row_count": 4,
+            "selected_unit_id_hash": "sha256:ac93419f4b0d46a7caea046910d0c5109c1b7099dd82e804d39b08694e2cb467",
+            "selected_dynamic_row_id_hash": "sha256:adb7beb2ea5175fd971083a941020469b7b7c59515ce42857ff391f12403de8d"
+          },
+          {
+            "section_id": "instruction-authority.memory-and-incident-evidence",
+            "closure_class_ids": [
+              "claude-native-user-and-memory-context",
+              "claude-repository-agent-memory"
+            ],
+            "selected_static_unit_count": 6337,
+            "selected_dynamic_row_count": 0,
+            "selected_unit_id_hash": "sha256:5b4de97503112da49654752588a9f34cbf7978b0624c34912d543d5f6e2aa72e",
+            "selected_dynamic_row_id_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          {
+            "section_id": "instruction-authority.package-semantics",
+            "closure_class_ids": [
+              "package-set-semantic-data"
+            ],
+            "selected_static_unit_count": 31,
+            "selected_dynamic_row_count": 5,
+            "selected_unit_id_hash": "sha256:7df97be5fcc8fc12d650af0b02974a7ccf709b329fbba40c39c7ee7e8d809c48",
+            "selected_dynamic_row_id_hash": "sha256:e48590dd6492380264dc7b4200c587621ef0f0aa1e77ace11f4cf2549d6ea1a6"
+          },
+          {
+            "section_id": "instruction-authority.deterministic-gates",
+            "closure_class_ids": [
+              "deterministic-enforcement"
+            ],
+            "selected_static_unit_count": 331,
+            "selected_dynamic_row_count": 1,
+            "selected_unit_id_hash": "sha256:a13d1bc5d8b4dc3397b0e162cb9c565e328bda8c8533edba5e6d0300e5924a9f",
+            "selected_dynamic_row_id_hash": "sha256:bc8232f3ffd43913b784fa9e87c3742355fd528f7959648d14f218137cf126a4"
+          },
+          {
+            "section_id": "instruction-authority.delegation-boundaries",
+            "closure_class_ids": [
+              "delegation-authority"
+            ],
+            "selected_static_unit_count": 0,
+            "selected_dynamic_row_count": 5,
+            "selected_unit_id_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "selected_dynamic_row_id_hash": "sha256:b47c9f9b8cbdb8be9613da5765ae513f7e18ca716993afb9e0faa48605e7358f"
+          },
+          {
+            "section_id": "instruction-authority.generator-closure",
+            "closure_class_ids": [
+              "closure-generator-current-source"
+            ],
+            "selected_static_unit_count": 5,
+            "selected_dynamic_row_count": 0,
+            "selected_unit_id_hash": "sha256:79fbfd94f4e7aa6adf7ea4fe975bdddaf6290496c6dfd945fb99fa99e99af37c",
+            "selected_dynamic_row_id_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        ],
+        "selected_static_unit_count": 18967,
+        "selected_dynamic_row_count": 15,
+        "selected_row_id_hash": "sha256:55586715e3f0780f30d04697542e0e10f30a3207985bb82803392879de018570",
+        "selection_hash": "sha256:3bcd1332d131321cbf1dabfecc170b4fb48864e7155ffc0da58068c50784f4cd",
+        "resolve_mode": "closure-class-semantic-section"
+      },
+      "semantic_probes": [
+        {
+          "kind": "required-sections-present",
+          "required_section_ids": [
+            "instruction-authority.operating-gates",
+            "instruction-authority.native-context",
+            "instruction-authority.memory-and-incident-evidence",
+            "instruction-authority.package-semantics",
+            "instruction-authority.deterministic-gates",
+            "instruction-authority.delegation-boundaries",
+            "instruction-authority.generator-closure"
+          ]
+        },
+        {
+          "kind": "authority-non-widening",
+          "denied_effects": [
+            "public-effect",
+            "spend",
+            "credential-use",
+            "production-deploy",
+            "sensitive-data"
+          ]
+        },
+        {
+          "kind": "immutable-source-snapshot",
+          "expected_closure_sha256": "sha256:48a65d9b305cf02505863e6700f79f5660533953bb6f4c8da91ba8a530fd7fcd"
+        }
+      ]
+    },
+    {
+      "kind": "ai-agent-profile",
+      "id": "ai-agent-profile:production-source-engineer",
+      "label": "Production source engineer",
+      "status": "available",
+      "authority_boundary": "reversible local production-source change after owner adoption; no launch or external effect",
+      "effect_policy": {
+        "denied_effects": [
+          "public-effect",
+          "spend",
+          "credential-use",
+          "production-deploy",
+          "sensitive-data"
+        ],
+        "widening_allowed": false
+      },
+      "instruction_selection": {
+        "kind": "ai-agent-profile.instruction-role-section-selection/current",
+        "source_closure_id": "sha256:658013a6f758090749bb04dc97f3ffef5140b748c4cdcd715f1e806fd8d1495c",
+        "source_closure_sha256": "sha256:48a65d9b305cf02505863e6700f79f5660533953bb6f4c8da91ba8a530fd7fcd",
+        "semantic_sections": [
+          {
+            "section_id": "instruction-authority.operating-gates",
+            "closure_class_ids": [
+              "binding-prompts-and-skills",
+              "claude-native-project-context",
+              "codex-native-context",
+              "delegation-authority",
+              "deterministic-enforcement"
+            ],
+            "selected_static_unit_count": 12594,
+            "selected_dynamic_row_count": 10,
+            "selected_unit_id_hash": "sha256:273feb29463d2fb8f789a793a5bd1888544a930388063240c875b8a2fead798e",
+            "selected_dynamic_row_id_hash": "sha256:8031e2d61de34beb1a58c90bb08c1f5f4fde3a033ef901411bd4e01248168a64"
+          },
+          {
+            "section_id": "instruction-authority.native-context",
+            "closure_class_ids": [
+              "claude-native-project-context",
+              "codex-native-context"
+            ],
+            "selected_static_unit_count": 2588,
+            "selected_dynamic_row_count": 4,
+            "selected_unit_id_hash": "sha256:ac93419f4b0d46a7caea046910d0c5109c1b7099dd82e804d39b08694e2cb467",
+            "selected_dynamic_row_id_hash": "sha256:adb7beb2ea5175fd971083a941020469b7b7c59515ce42857ff391f12403de8d"
+          },
+          {
+            "section_id": "instruction-authority.package-semantics",
+            "closure_class_ids": [
+              "package-set-semantic-data"
+            ],
+            "selected_static_unit_count": 31,
+            "selected_dynamic_row_count": 5,
+            "selected_unit_id_hash": "sha256:7df97be5fcc8fc12d650af0b02974a7ccf709b329fbba40c39c7ee7e8d809c48",
+            "selected_dynamic_row_id_hash": "sha256:e48590dd6492380264dc7b4200c587621ef0f0aa1e77ace11f4cf2549d6ea1a6"
+          },
+          {
+            "section_id": "instruction-authority.deterministic-gates",
+            "closure_class_ids": [
+              "deterministic-enforcement"
+            ],
+            "selected_static_unit_count": 331,
+            "selected_dynamic_row_count": 1,
+            "selected_unit_id_hash": "sha256:a13d1bc5d8b4dc3397b0e162cb9c565e328bda8c8533edba5e6d0300e5924a9f",
+            "selected_dynamic_row_id_hash": "sha256:bc8232f3ffd43913b784fa9e87c3742355fd528f7959648d14f218137cf126a4"
+          },
+          {
+            "section_id": "instruction-authority.generator-closure",
+            "closure_class_ids": [
+              "closure-generator-current-source"
+            ],
+            "selected_static_unit_count": 5,
+            "selected_dynamic_row_count": 0,
+            "selected_unit_id_hash": "sha256:79fbfd94f4e7aa6adf7ea4fe975bdddaf6290496c6dfd945fb99fa99e99af37c",
+            "selected_dynamic_row_id_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        ],
+        "selected_static_unit_count": 12630,
+        "selected_dynamic_row_count": 10,
+        "selected_row_id_hash": "sha256:5a11080b03ce8f12e25e20bfb59ea9643f8f4783c67099bbbd232db7e2f9bf5a",
+        "selection_hash": "sha256:06f598a6a327505df10f2350cafc9b3310e49c167edeab6a8d948f43a1d227b2",
+        "resolve_mode": "closure-class-semantic-section"
+      },
+      "semantic_probes": [
+        {
+          "kind": "required-sections-present",
+          "required_section_ids": [
+            "instruction-authority.operating-gates",
+            "instruction-authority.native-context",
+            "instruction-authority.package-semantics",
+            "instruction-authority.deterministic-gates",
+            "instruction-authority.generator-closure"
+          ]
+        },
+        {
+          "kind": "authority-non-widening",
+          "denied_effects": [
+            "public-effect",
+            "spend",
+            "credential-use",
+            "production-deploy",
+            "sensitive-data"
+          ]
+        },
+        {
+          "kind": "immutable-source-snapshot",
+          "expected_closure_sha256": "sha256:48a65d9b305cf02505863e6700f79f5660533953bb6f4c8da91ba8a530fd7fcd"
+        }
+      ]
+    },
+    {
+      "kind": "ai-agent-profile",
+      "id": "ai-agent-profile:ui-design-implementer",
+      "label": "UI and design implementer",
+      "status": "available",
+      "authority_boundary": "local UI implementation with reference and accessibility gates; no customer-facing publication",
+      "effect_policy": {
+        "denied_effects": [
+          "public-effect",
+          "spend",
+          "credential-use",
+          "production-deploy",
+          "sensitive-data"
+        ],
+        "widening_allowed": false
+      },
+      "instruction_selection": {
+        "kind": "ai-agent-profile.instruction-role-section-selection/current",
+        "source_closure_id": "sha256:658013a6f758090749bb04dc97f3ffef5140b748c4cdcd715f1e806fd8d1495c",
+        "source_closure_sha256": "sha256:48a65d9b305cf02505863e6700f79f5660533953bb6f4c8da91ba8a530fd7fcd",
+        "semantic_sections": [
+          {
+            "section_id": "instruction-authority.operating-gates",
+            "closure_class_ids": [
+              "binding-prompts-and-skills",
+              "claude-native-project-context",
+              "codex-native-context",
+              "delegation-authority",
+              "deterministic-enforcement"
+            ],
+            "selected_static_unit_count": 12594,
+            "selected_dynamic_row_count": 10,
+            "selected_unit_id_hash": "sha256:273feb29463d2fb8f789a793a5bd1888544a930388063240c875b8a2fead798e",
+            "selected_dynamic_row_id_hash": "sha256:8031e2d61de34beb1a58c90bb08c1f5f4fde3a033ef901411bd4e01248168a64"
+          },
+          {
+            "section_id": "instruction-authority.native-context",
+            "closure_class_ids": [
+              "claude-native-project-context",
+              "codex-native-context"
+            ],
+            "selected_static_unit_count": 2588,
+            "selected_dynamic_row_count": 4,
+            "selected_unit_id_hash": "sha256:ac93419f4b0d46a7caea046910d0c5109c1b7099dd82e804d39b08694e2cb467",
+            "selected_dynamic_row_id_hash": "sha256:adb7beb2ea5175fd971083a941020469b7b7c59515ce42857ff391f12403de8d"
+          },
+          {
+            "section_id": "instruction-authority.package-semantics",
+            "closure_class_ids": [
+              "package-set-semantic-data"
+            ],
+            "selected_static_unit_count": 31,
+            "selected_dynamic_row_count": 5,
+            "selected_unit_id_hash": "sha256:7df97be5fcc8fc12d650af0b02974a7ccf709b329fbba40c39c7ee7e8d809c48",
+            "selected_dynamic_row_id_hash": "sha256:e48590dd6492380264dc7b4200c587621ef0f0aa1e77ace11f4cf2549d6ea1a6"
+          },
+          {
+            "section_id": "instruction-authority.deterministic-gates",
+            "closure_class_ids": [
+              "deterministic-enforcement"
+            ],
+            "selected_static_unit_count": 331,
+            "selected_dynamic_row_count": 1,
+            "selected_unit_id_hash": "sha256:a13d1bc5d8b4dc3397b0e162cb9c565e328bda8c8533edba5e6d0300e5924a9f",
+            "selected_dynamic_row_id_hash": "sha256:bc8232f3ffd43913b784fa9e87c3742355fd528f7959648d14f218137cf126a4"
+          }
+        ],
+        "selected_static_unit_count": 12625,
+        "selected_dynamic_row_count": 10,
+        "selected_row_id_hash": "sha256:c59289499b48f1de48cca45fc2952ccdaab47df0c13b41436e14a4b8aaaeb114",
+        "selection_hash": "sha256:753ff5c3d1bd2df21f13930aaf3cb8f095409275e9ca2952c34fe2720f8229cc",
+        "resolve_mode": "closure-class-semantic-section"
+      },
+      "semantic_probes": [
+        {
+          "kind": "required-sections-present",
+          "required_section_ids": [
+            "instruction-authority.operating-gates",
+            "instruction-authority.native-context",
+            "instruction-authority.package-semantics",
+            "instruction-authority.deterministic-gates"
+          ]
+        },
+        {
+          "kind": "authority-non-widening",
+          "denied_effects": [
+            "public-effect",
+            "spend",
+            "credential-use",
+            "production-deploy",
+            "sensitive-data"
+          ]
+        },
+        {
+          "kind": "immutable-source-snapshot",
+          "expected_closure_sha256": "sha256:48a65d9b305cf02505863e6700f79f5660533953bb6f4c8da91ba8a530fd7fcd"
+        }
+      ]
+    },
+    {
+      "kind": "ai-agent-profile",
+      "id": "ai-agent-profile:deploy-publish-external-action-operator",
+      "label": "Deploy, publish, and external-action operator",
+      "status": "available",
+      "authority_boundary": "describes deploy/publish preparation only; every reserved external effect remains denied unless separately authorized",
+      "effect_policy": {
+        "denied_effects": [
+          "public-effect",
+          "spend",
+          "credential-use",
+          "production-deploy",
+          "sensitive-data"
+        ],
+        "widening_allowed": false
+      },
+      "instruction_selection": {
+        "kind": "ai-agent-profile.instruction-role-section-selection/current",
+        "source_closure_id": "sha256:658013a6f758090749bb04dc97f3ffef5140b748c4cdcd715f1e806fd8d1495c",
+        "source_closure_sha256": "sha256:48a65d9b305cf02505863e6700f79f5660533953bb6f4c8da91ba8a530fd7fcd",
+        "semantic_sections": [
+          {
+            "section_id": "instruction-authority.operating-gates",
+            "closure_class_ids": [
+              "binding-prompts-and-skills",
+              "claude-native-project-context",
+              "codex-native-context",
+              "delegation-authority",
+              "deterministic-enforcement"
+            ],
+            "selected_static_unit_count": 12594,
+            "selected_dynamic_row_count": 10,
+            "selected_unit_id_hash": "sha256:273feb29463d2fb8f789a793a5bd1888544a930388063240c875b8a2fead798e",
+            "selected_dynamic_row_id_hash": "sha256:8031e2d61de34beb1a58c90bb08c1f5f4fde3a033ef901411bd4e01248168a64"
+          },
+          {
+            "section_id": "instruction-authority.native-context",
+            "closure_class_ids": [
+              "claude-native-project-context",
+              "codex-native-context"
+            ],
+            "selected_static_unit_count": 2588,
+            "selected_dynamic_row_count": 4,
+            "selected_unit_id_hash": "sha256:ac93419f4b0d46a7caea046910d0c5109c1b7099dd82e804d39b08694e2cb467",
+            "selected_dynamic_row_id_hash": "sha256:adb7beb2ea5175fd971083a941020469b7b7c59515ce42857ff391f12403de8d"
+          },
+          {
+            "section_id": "instruction-authority.package-semantics",
+            "closure_class_ids": [
+              "package-set-semantic-data"
+            ],
+            "selected_static_unit_count": 31,
+            "selected_dynamic_row_count": 5,
+            "selected_unit_id_hash": "sha256:7df97be5fcc8fc12d650af0b02974a7ccf709b329fbba40c39c7ee7e8d809c48",
+            "selected_dynamic_row_id_hash": "sha256:e48590dd6492380264dc7b4200c587621ef0f0aa1e77ace11f4cf2549d6ea1a6"
+          },
+          {
+            "section_id": "instruction-authority.deterministic-gates",
+            "closure_class_ids": [
+              "deterministic-enforcement"
+            ],
+            "selected_static_unit_count": 331,
+            "selected_dynamic_row_count": 1,
+            "selected_unit_id_hash": "sha256:a13d1bc5d8b4dc3397b0e162cb9c565e328bda8c8533edba5e6d0300e5924a9f",
+            "selected_dynamic_row_id_hash": "sha256:bc8232f3ffd43913b784fa9e87c3742355fd528f7959648d14f218137cf126a4"
+          }
+        ],
+        "selected_static_unit_count": 12625,
+        "selected_dynamic_row_count": 10,
+        "selected_row_id_hash": "sha256:c59289499b48f1de48cca45fc2952ccdaab47df0c13b41436e14a4b8aaaeb114",
+        "selection_hash": "sha256:654b8694d470ee0e51c1890798f819ec97d82f336dfa7837402d77cc5bf2d264",
+        "resolve_mode": "closure-class-semantic-section"
+      },
+      "semantic_probes": [
+        {
+          "kind": "required-sections-present",
+          "required_section_ids": [
+            "instruction-authority.operating-gates",
+            "instruction-authority.native-context",
+            "instruction-authority.package-semantics",
+            "instruction-authority.deterministic-gates"
+          ]
+        },
+        {
+          "kind": "authority-non-widening",
+          "denied_effects": [
+            "public-effect",
+            "spend",
+            "credential-use",
+            "production-deploy",
+            "sensitive-data"
+          ]
+        },
+        {
+          "kind": "immutable-source-snapshot",
+          "expected_closure_sha256": "sha256:48a65d9b305cf02505863e6700f79f5660533953bb6f4c8da91ba8a530fd7fcd"
+        }
+      ]
+    },
+    {
+      "kind": "ai-agent-profile",
+      "id": "ai-agent-profile:privacy-data-handling-operator",
+      "label": "Privacy and data-handling operator",
+      "status": "available",
+      "authority_boundary": "privacy-safe local reasoning and redaction; no credential, sensitive-data export, or external effect",
+      "effect_policy": {
+        "denied_effects": [
+          "public-effect",
+          "spend",
+          "credential-use",
+          "production-deploy",
+          "sensitive-data"
+        ],
+        "widening_allowed": false
+      },
+      "instruction_selection": {
+        "kind": "ai-agent-profile.instruction-role-section-selection/current",
+        "source_closure_id": "sha256:658013a6f758090749bb04dc97f3ffef5140b748c4cdcd715f1e806fd8d1495c",
+        "source_closure_sha256": "sha256:48a65d9b305cf02505863e6700f79f5660533953bb6f4c8da91ba8a530fd7fcd",
+        "semantic_sections": [
+          {
+            "section_id": "instruction-authority.operating-gates",
+            "closure_class_ids": [
+              "binding-prompts-and-skills",
+              "claude-native-project-context",
+              "codex-native-context",
+              "delegation-authority",
+              "deterministic-enforcement"
+            ],
+            "selected_static_unit_count": 12594,
+            "selected_dynamic_row_count": 10,
+            "selected_unit_id_hash": "sha256:273feb29463d2fb8f789a793a5bd1888544a930388063240c875b8a2fead798e",
+            "selected_dynamic_row_id_hash": "sha256:8031e2d61de34beb1a58c90bb08c1f5f4fde3a033ef901411bd4e01248168a64"
+          },
+          {
+            "section_id": "instruction-authority.native-context",
+            "closure_class_ids": [
+              "claude-native-project-context",
+              "codex-native-context"
+            ],
+            "selected_static_unit_count": 2588,
+            "selected_dynamic_row_count": 4,
+            "selected_unit_id_hash": "sha256:ac93419f4b0d46a7caea046910d0c5109c1b7099dd82e804d39b08694e2cb467",
+            "selected_dynamic_row_id_hash": "sha256:adb7beb2ea5175fd971083a941020469b7b7c59515ce42857ff391f12403de8d"
+          },
+          {
+            "section_id": "instruction-authority.memory-and-incident-evidence",
+            "closure_class_ids": [
+              "claude-native-user-and-memory-context",
+              "claude-repository-agent-memory"
+            ],
+            "selected_static_unit_count": 6337,
+            "selected_dynamic_row_count": 0,
+            "selected_unit_id_hash": "sha256:5b4de97503112da49654752588a9f34cbf7978b0624c34912d543d5f6e2aa72e",
+            "selected_dynamic_row_id_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          {
+            "section_id": "instruction-authority.package-semantics",
+            "closure_class_ids": [
+              "package-set-semantic-data"
+            ],
+            "selected_static_unit_count": 31,
+            "selected_dynamic_row_count": 5,
+            "selected_unit_id_hash": "sha256:7df97be5fcc8fc12d650af0b02974a7ccf709b329fbba40c39c7ee7e8d809c48",
+            "selected_dynamic_row_id_hash": "sha256:e48590dd6492380264dc7b4200c587621ef0f0aa1e77ace11f4cf2549d6ea1a6"
+          },
+          {
+            "section_id": "instruction-authority.deterministic-gates",
+            "closure_class_ids": [
+              "deterministic-enforcement"
+            ],
+            "selected_static_unit_count": 331,
+            "selected_dynamic_row_count": 1,
+            "selected_unit_id_hash": "sha256:a13d1bc5d8b4dc3397b0e162cb9c565e328bda8c8533edba5e6d0300e5924a9f",
+            "selected_dynamic_row_id_hash": "sha256:bc8232f3ffd43913b784fa9e87c3742355fd528f7959648d14f218137cf126a4"
+          }
+        ],
+        "selected_static_unit_count": 18962,
+        "selected_dynamic_row_count": 10,
+        "selected_row_id_hash": "sha256:2f8c7fce4d4e8375107f03146c0b244f42005b33c7ecf40b7443a3789a44156d",
+        "selection_hash": "sha256:573d832951d19ac7badd571114db9a90e6890753d3c54def3c50b72648fa7560",
+        "resolve_mode": "closure-class-semantic-section"
+      },
+      "semantic_probes": [
+        {
+          "kind": "required-sections-present",
+          "required_section_ids": [
+            "instruction-authority.operating-gates",
+            "instruction-authority.native-context",
+            "instruction-authority.memory-and-incident-evidence",
+            "instruction-authority.package-semantics",
+            "instruction-authority.deterministic-gates"
+          ]
+        },
+        {
+          "kind": "authority-non-widening",
+          "denied_effects": [
+            "public-effect",
+            "spend",
+            "credential-use",
+            "production-deploy",
+            "sensitive-data"
+          ]
+        },
+        {
+          "kind": "immutable-source-snapshot",
+          "expected_closure_sha256": "sha256:48a65d9b305cf02505863e6700f79f5660533953bb6f4c8da91ba8a530fd7fcd"
+        }
+      ]
+    },
+    {
+      "kind": "ai-agent-profile",
+      "id": "ai-agent-profile:runtime-recovery-operator",
+      "label": "Runtime recovery operator",
+      "status": "available",
+      "authority_boundary": "diagnosis and forward recovery without stale-version retreat or blind restart",
+      "effect_policy": {
+        "denied_effects": [
+          "public-effect",
+          "spend",
+          "credential-use",
+          "production-deploy",
+          "sensitive-data"
+        ],
+        "widening_allowed": false
+      },
+      "instruction_selection": {
+        "kind": "ai-agent-profile.instruction-role-section-selection/current",
+        "source_closure_id": "sha256:658013a6f758090749bb04dc97f3ffef5140b748c4cdcd715f1e806fd8d1495c",
+        "source_closure_sha256": "sha256:48a65d9b305cf02505863e6700f79f5660533953bb6f4c8da91ba8a530fd7fcd",
+        "semantic_sections": [
+          {
+            "section_id": "instruction-authority.operating-gates",
+            "closure_class_ids": [
+              "binding-prompts-and-skills",
+              "claude-native-project-context",
+              "codex-native-context",
+              "delegation-authority",
+              "deterministic-enforcement"
+            ],
+            "selected_static_unit_count": 12594,
+            "selected_dynamic_row_count": 10,
+            "selected_unit_id_hash": "sha256:273feb29463d2fb8f789a793a5bd1888544a930388063240c875b8a2fead798e",
+            "selected_dynamic_row_id_hash": "sha256:8031e2d61de34beb1a58c90bb08c1f5f4fde3a033ef901411bd4e01248168a64"
+          },
+          {
+            "section_id": "instruction-authority.native-context",
+            "closure_class_ids": [
+              "claude-native-project-context",
+              "codex-native-context"
+            ],
+            "selected_static_unit_count": 2588,
+            "selected_dynamic_row_count": 4,
+            "selected_unit_id_hash": "sha256:ac93419f4b0d46a7caea046910d0c5109c1b7099dd82e804d39b08694e2cb467",
+            "selected_dynamic_row_id_hash": "sha256:adb7beb2ea5175fd971083a941020469b7b7c59515ce42857ff391f12403de8d"
+          },
+          {
+            "section_id": "instruction-authority.memory-and-incident-evidence",
+            "closure_class_ids": [
+              "claude-native-user-and-memory-context",
+              "claude-repository-agent-memory"
+            ],
+            "selected_static_unit_count": 6337,
+            "selected_dynamic_row_count": 0,
+            "selected_unit_id_hash": "sha256:5b4de97503112da49654752588a9f34cbf7978b0624c34912d543d5f6e2aa72e",
+            "selected_dynamic_row_id_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          {
+            "section_id": "instruction-authority.package-semantics",
+            "closure_class_ids": [
+              "package-set-semantic-data"
+            ],
+            "selected_static_unit_count": 31,
+            "selected_dynamic_row_count": 5,
+            "selected_unit_id_hash": "sha256:7df97be5fcc8fc12d650af0b02974a7ccf709b329fbba40c39c7ee7e8d809c48",
+            "selected_dynamic_row_id_hash": "sha256:e48590dd6492380264dc7b4200c587621ef0f0aa1e77ace11f4cf2549d6ea1a6"
+          },
+          {
+            "section_id": "instruction-authority.deterministic-gates",
+            "closure_class_ids": [
+              "deterministic-enforcement"
+            ],
+            "selected_static_unit_count": 331,
+            "selected_dynamic_row_count": 1,
+            "selected_unit_id_hash": "sha256:a13d1bc5d8b4dc3397b0e162cb9c565e328bda8c8533edba5e6d0300e5924a9f",
+            "selected_dynamic_row_id_hash": "sha256:bc8232f3ffd43913b784fa9e87c3742355fd528f7959648d14f218137cf126a4"
+          },
+          {
+            "section_id": "instruction-authority.generator-closure",
+            "closure_class_ids": [
+              "closure-generator-current-source"
+            ],
+            "selected_static_unit_count": 5,
+            "selected_dynamic_row_count": 0,
+            "selected_unit_id_hash": "sha256:79fbfd94f4e7aa6adf7ea4fe975bdddaf6290496c6dfd945fb99fa99e99af37c",
+            "selected_dynamic_row_id_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        ],
+        "selected_static_unit_count": 18967,
+        "selected_dynamic_row_count": 10,
+        "selected_row_id_hash": "sha256:c2973566a1eb37a28d8c6b6e1748cd79e4d59f3a4cc19d32ef7d3c3501cd37e9",
+        "selection_hash": "sha256:8cf51180bba4ffb62661f770ca5dd0c70c51407d2bcc7fe737d514b4380e206b",
+        "resolve_mode": "closure-class-semantic-section"
+      },
+      "semantic_probes": [
+        {
+          "kind": "required-sections-present",
+          "required_section_ids": [
+            "instruction-authority.operating-gates",
+            "instruction-authority.native-context",
+            "instruction-authority.memory-and-incident-evidence",
+            "instruction-authority.package-semantics",
+            "instruction-authority.deterministic-gates",
+            "instruction-authority.generator-closure"
+          ]
+        },
+        {
+          "kind": "authority-non-widening",
+          "denied_effects": [
+            "public-effect",
+            "spend",
+            "credential-use",
+            "production-deploy",
+            "sensitive-data"
+          ]
+        },
+        {
+          "kind": "immutable-source-snapshot",
+          "expected_closure_sha256": "sha256:48a65d9b305cf02505863e6700f79f5660533953bb6f4c8da91ba8a530fd7fcd"
+        }
+      ]
+    },
+    {
+      "kind": "ai-agent-profile",
+      "id": "ai-agent-profile:research-auditor",
+      "label": "Research and auditor",
+      "status": "available",
+      "authority_boundary": "read-biased evidence collection and adversarial audit without production mutation",
+      "effect_policy": {
+        "denied_effects": [
+          "public-effect",
+          "spend",
+          "credential-use",
+          "production-deploy",
+          "sensitive-data"
+        ],
+        "widening_allowed": false
+      },
+      "instruction_selection": {
+        "kind": "ai-agent-profile.instruction-role-section-selection/current",
+        "source_closure_id": "sha256:658013a6f758090749bb04dc97f3ffef5140b748c4cdcd715f1e806fd8d1495c",
+        "source_closure_sha256": "sha256:48a65d9b305cf02505863e6700f79f5660533953bb6f4c8da91ba8a530fd7fcd",
+        "semantic_sections": [
+          {
+            "section_id": "instruction-authority.operating-gates",
+            "closure_class_ids": [
+              "binding-prompts-and-skills",
+              "claude-native-project-context",
+              "codex-native-context",
+              "delegation-authority",
+              "deterministic-enforcement"
+            ],
+            "selected_static_unit_count": 12594,
+            "selected_dynamic_row_count": 10,
+            "selected_unit_id_hash": "sha256:273feb29463d2fb8f789a793a5bd1888544a930388063240c875b8a2fead798e",
+            "selected_dynamic_row_id_hash": "sha256:8031e2d61de34beb1a58c90bb08c1f5f4fde3a033ef901411bd4e01248168a64"
+          },
+          {
+            "section_id": "instruction-authority.native-context",
+            "closure_class_ids": [
+              "claude-native-project-context",
+              "codex-native-context"
+            ],
+            "selected_static_unit_count": 2588,
+            "selected_dynamic_row_count": 4,
+            "selected_unit_id_hash": "sha256:ac93419f4b0d46a7caea046910d0c5109c1b7099dd82e804d39b08694e2cb467",
+            "selected_dynamic_row_id_hash": "sha256:adb7beb2ea5175fd971083a941020469b7b7c59515ce42857ff391f12403de8d"
+          },
+          {
+            "section_id": "instruction-authority.memory-and-incident-evidence",
+            "closure_class_ids": [
+              "claude-native-user-and-memory-context",
+              "claude-repository-agent-memory"
+            ],
+            "selected_static_unit_count": 6337,
+            "selected_dynamic_row_count": 0,
+            "selected_unit_id_hash": "sha256:5b4de97503112da49654752588a9f34cbf7978b0624c34912d543d5f6e2aa72e",
+            "selected_dynamic_row_id_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          {
+            "section_id": "instruction-authority.package-semantics",
+            "closure_class_ids": [
+              "package-set-semantic-data"
+            ],
+            "selected_static_unit_count": 31,
+            "selected_dynamic_row_count": 5,
+            "selected_unit_id_hash": "sha256:7df97be5fcc8fc12d650af0b02974a7ccf709b329fbba40c39c7ee7e8d809c48",
+            "selected_dynamic_row_id_hash": "sha256:e48590dd6492380264dc7b4200c587621ef0f0aa1e77ace11f4cf2549d6ea1a6"
+          },
+          {
+            "section_id": "instruction-authority.deterministic-gates",
+            "closure_class_ids": [
+              "deterministic-enforcement"
+            ],
+            "selected_static_unit_count": 331,
+            "selected_dynamic_row_count": 1,
+            "selected_unit_id_hash": "sha256:a13d1bc5d8b4dc3397b0e162cb9c565e328bda8c8533edba5e6d0300e5924a9f",
+            "selected_dynamic_row_id_hash": "sha256:bc8232f3ffd43913b784fa9e87c3742355fd528f7959648d14f218137cf126a4"
+          },
+          {
+            "section_id": "instruction-authority.delegation-boundaries",
+            "closure_class_ids": [
+              "delegation-authority"
+            ],
+            "selected_static_unit_count": 0,
+            "selected_dynamic_row_count": 5,
+            "selected_unit_id_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "selected_dynamic_row_id_hash": "sha256:b47c9f9b8cbdb8be9613da5765ae513f7e18ca716993afb9e0faa48605e7358f"
+          },
+          {
+            "section_id": "instruction-authority.generator-closure",
+            "closure_class_ids": [
+              "closure-generator-current-source"
+            ],
+            "selected_static_unit_count": 5,
+            "selected_dynamic_row_count": 0,
+            "selected_unit_id_hash": "sha256:79fbfd94f4e7aa6adf7ea4fe975bdddaf6290496c6dfd945fb99fa99e99af37c",
+            "selected_dynamic_row_id_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        ],
+        "selected_static_unit_count": 18967,
+        "selected_dynamic_row_count": 15,
+        "selected_row_id_hash": "sha256:55586715e3f0780f30d04697542e0e10f30a3207985bb82803392879de018570",
+        "selection_hash": "sha256:ca73c8629ffde3d88e057baada20c755140923bcc88fb3e177c9f5443c0657c9",
+        "resolve_mode": "closure-class-semantic-section"
+      },
+      "semantic_probes": [
+        {
+          "kind": "required-sections-present",
+          "required_section_ids": [
+            "instruction-authority.operating-gates",
+            "instruction-authority.native-context",
+            "instruction-authority.memory-and-incident-evidence",
+            "instruction-authority.package-semantics",
+            "instruction-authority.deterministic-gates",
+            "instruction-authority.delegation-boundaries",
+            "instruction-authority.generator-closure"
+          ]
+        },
+        {
+          "kind": "authority-non-widening",
+          "denied_effects": [
+            "public-effect",
+            "spend",
+            "credential-use",
+            "production-deploy",
+            "sensitive-data"
+          ]
+        },
+        {
+          "kind": "immutable-source-snapshot",
+          "expected_closure_sha256": "sha256:48a65d9b305cf02505863e6700f79f5660533953bb6f4c8da91ba8a530fd7fcd"
+        }
+      ]
+    },
+    {
+      "kind": "ai-agent-profile",
+      "id": "ai-agent-profile:bounded-subagent-executor",
+      "label": "Bounded subagent executor",
+      "status": "available",
+      "authority_boundary": "one explicitly bounded task with no inherited founder or coordinator authority",
+      "effect_policy": {
+        "denied_effects": [
+          "public-effect",
+          "spend",
+          "credential-use",
+          "production-deploy",
+          "sensitive-data",
+          "subagent-delegation"
+        ],
+        "widening_allowed": false
+      },
+      "instruction_selection": {
+        "kind": "ai-agent-profile.instruction-role-section-selection/current",
+        "source_closure_id": "sha256:658013a6f758090749bb04dc97f3ffef5140b748c4cdcd715f1e806fd8d1495c",
+        "source_closure_sha256": "sha256:48a65d9b305cf02505863e6700f79f5660533953bb6f4c8da91ba8a530fd7fcd",
+        "semantic_sections": [
+          {
+            "section_id": "instruction-authority.operating-gates",
+            "closure_class_ids": [
+              "binding-prompts-and-skills",
+              "claude-native-project-context",
+              "codex-native-context",
+              "delegation-authority",
+              "deterministic-enforcement"
+            ],
+            "selected_static_unit_count": 12594,
+            "selected_dynamic_row_count": 10,
+            "selected_unit_id_hash": "sha256:273feb29463d2fb8f789a793a5bd1888544a930388063240c875b8a2fead798e",
+            "selected_dynamic_row_id_hash": "sha256:8031e2d61de34beb1a58c90bb08c1f5f4fde3a033ef901411bd4e01248168a64"
+          },
+          {
+            "section_id": "instruction-authority.native-context",
+            "closure_class_ids": [
+              "claude-native-project-context",
+              "codex-native-context"
+            ],
+            "selected_static_unit_count": 2588,
+            "selected_dynamic_row_count": 4,
+            "selected_unit_id_hash": "sha256:ac93419f4b0d46a7caea046910d0c5109c1b7099dd82e804d39b08694e2cb467",
+            "selected_dynamic_row_id_hash": "sha256:adb7beb2ea5175fd971083a941020469b7b7c59515ce42857ff391f12403de8d"
+          },
+          {
+            "section_id": "instruction-authority.delegation-boundaries",
+            "closure_class_ids": [
+              "delegation-authority"
+            ],
+            "selected_static_unit_count": 0,
+            "selected_dynamic_row_count": 5,
+            "selected_unit_id_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "selected_dynamic_row_id_hash": "sha256:b47c9f9b8cbdb8be9613da5765ae513f7e18ca716993afb9e0faa48605e7358f"
+          },
+          {
+            "section_id": "instruction-authority.deterministic-gates",
+            "closure_class_ids": [
+              "deterministic-enforcement"
+            ],
+            "selected_static_unit_count": 331,
+            "selected_dynamic_row_count": 1,
+            "selected_unit_id_hash": "sha256:a13d1bc5d8b4dc3397b0e162cb9c565e328bda8c8533edba5e6d0300e5924a9f",
+            "selected_dynamic_row_id_hash": "sha256:bc8232f3ffd43913b784fa9e87c3742355fd528f7959648d14f218137cf126a4"
+          }
+        ],
+        "selected_static_unit_count": 12594,
+        "selected_dynamic_row_count": 10,
+        "selected_row_id_hash": "sha256:3a345c954f3cdbfd1ddb14e5fa896013f88a74288d0471388aefa239a2c597df",
+        "selection_hash": "sha256:956fbbc02535add27d0d39b1412061cd1af54c66948a4963b40bde2fbef28629",
+        "resolve_mode": "closure-class-semantic-section"
+      },
+      "semantic_probes": [
+        {
+          "kind": "required-sections-present",
+          "required_section_ids": [
+            "instruction-authority.operating-gates",
+            "instruction-authority.native-context",
+            "instruction-authority.delegation-boundaries",
+            "instruction-authority.deterministic-gates"
+          ]
+        },
+        {
+          "kind": "authority-non-widening",
+          "denied_effects": [
+            "public-effect",
+            "spend",
+            "credential-use",
+            "production-deploy",
+            "sensitive-data",
+            "subagent-delegation"
+          ]
+        },
+        {
+          "kind": "immutable-source-snapshot",
+          "expected_closure_sha256": "sha256:48a65d9b305cf02505863e6700f79f5660533953bb6f4c8da91ba8a530fd7fcd"
+        }
+      ]
+    },
+    {
+      "kind": "ai-agent-profile",
+      "id": "ai-agent-profile:independent-reviewer",
+      "label": "Independent reviewer",
+      "status": "available",
+      "authority_boundary": "independent review against the locked plan and tests; no implementation-authority reuse",
+      "effect_policy": {
+        "denied_effects": [
+          "public-effect",
+          "spend",
+          "credential-use",
+          "production-deploy",
+          "sensitive-data"
+        ],
+        "widening_allowed": false
+      },
+      "instruction_selection": {
+        "kind": "ai-agent-profile.instruction-role-section-selection/current",
+        "source_closure_id": "sha256:658013a6f758090749bb04dc97f3ffef5140b748c4cdcd715f1e806fd8d1495c",
+        "source_closure_sha256": "sha256:48a65d9b305cf02505863e6700f79f5660533953bb6f4c8da91ba8a530fd7fcd",
+        "semantic_sections": [
+          {
+            "section_id": "instruction-authority.operating-gates",
+            "closure_class_ids": [
+              "binding-prompts-and-skills",
+              "claude-native-project-context",
+              "codex-native-context",
+              "delegation-authority",
+              "deterministic-enforcement"
+            ],
+            "selected_static_unit_count": 12594,
+            "selected_dynamic_row_count": 10,
+            "selected_unit_id_hash": "sha256:273feb29463d2fb8f789a793a5bd1888544a930388063240c875b8a2fead798e",
+            "selected_dynamic_row_id_hash": "sha256:8031e2d61de34beb1a58c90bb08c1f5f4fde3a033ef901411bd4e01248168a64"
+          },
+          {
+            "section_id": "instruction-authority.native-context",
+            "closure_class_ids": [
+              "claude-native-project-context",
+              "codex-native-context"
+            ],
+            "selected_static_unit_count": 2588,
+            "selected_dynamic_row_count": 4,
+            "selected_unit_id_hash": "sha256:ac93419f4b0d46a7caea046910d0c5109c1b7099dd82e804d39b08694e2cb467",
+            "selected_dynamic_row_id_hash": "sha256:adb7beb2ea5175fd971083a941020469b7b7c59515ce42857ff391f12403de8d"
+          },
+          {
+            "section_id": "instruction-authority.memory-and-incident-evidence",
+            "closure_class_ids": [
+              "claude-native-user-and-memory-context",
+              "claude-repository-agent-memory"
+            ],
+            "selected_static_unit_count": 6337,
+            "selected_dynamic_row_count": 0,
+            "selected_unit_id_hash": "sha256:5b4de97503112da49654752588a9f34cbf7978b0624c34912d543d5f6e2aa72e",
+            "selected_dynamic_row_id_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          {
+            "section_id": "instruction-authority.package-semantics",
+            "closure_class_ids": [
+              "package-set-semantic-data"
+            ],
+            "selected_static_unit_count": 31,
+            "selected_dynamic_row_count": 5,
+            "selected_unit_id_hash": "sha256:7df97be5fcc8fc12d650af0b02974a7ccf709b329fbba40c39c7ee7e8d809c48",
+            "selected_dynamic_row_id_hash": "sha256:e48590dd6492380264dc7b4200c587621ef0f0aa1e77ace11f4cf2549d6ea1a6"
+          },
+          {
+            "section_id": "instruction-authority.deterministic-gates",
+            "closure_class_ids": [
+              "deterministic-enforcement"
+            ],
+            "selected_static_unit_count": 331,
+            "selected_dynamic_row_count": 1,
+            "selected_unit_id_hash": "sha256:a13d1bc5d8b4dc3397b0e162cb9c565e328bda8c8533edba5e6d0300e5924a9f",
+            "selected_dynamic_row_id_hash": "sha256:bc8232f3ffd43913b784fa9e87c3742355fd528f7959648d14f218137cf126a4"
+          },
+          {
+            "section_id": "instruction-authority.delegation-boundaries",
+            "closure_class_ids": [
+              "delegation-authority"
+            ],
+            "selected_static_unit_count": 0,
+            "selected_dynamic_row_count": 5,
+            "selected_unit_id_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "selected_dynamic_row_id_hash": "sha256:b47c9f9b8cbdb8be9613da5765ae513f7e18ca716993afb9e0faa48605e7358f"
+          },
+          {
+            "section_id": "instruction-authority.generator-closure",
+            "closure_class_ids": [
+              "closure-generator-current-source"
+            ],
+            "selected_static_unit_count": 5,
+            "selected_dynamic_row_count": 0,
+            "selected_unit_id_hash": "sha256:79fbfd94f4e7aa6adf7ea4fe975bdddaf6290496c6dfd945fb99fa99e99af37c",
+            "selected_dynamic_row_id_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        ],
+        "selected_static_unit_count": 18967,
+        "selected_dynamic_row_count": 15,
+        "selected_row_id_hash": "sha256:55586715e3f0780f30d04697542e0e10f30a3207985bb82803392879de018570",
+        "selection_hash": "sha256:cbdef5765f20e0e5ae07fab0cfa1d94b4301d27650e6b7cc27a3239050aa5434",
+        "resolve_mode": "closure-class-semantic-section"
+      },
+      "semantic_probes": [
+        {
+          "kind": "required-sections-present",
+          "required_section_ids": [
+            "instruction-authority.operating-gates",
+            "instruction-authority.native-context",
+            "instruction-authority.memory-and-incident-evidence",
+            "instruction-authority.package-semantics",
+            "instruction-authority.deterministic-gates",
+            "instruction-authority.delegation-boundaries",
+            "instruction-authority.generator-closure"
+          ]
+        },
+        {
+          "kind": "authority-non-widening",
+          "denied_effects": [
+            "public-effect",
+            "spend",
+            "credential-use",
+            "production-deploy",
+            "sensitive-data"
+          ]
+        },
+        {
+          "kind": "immutable-source-snapshot",
+          "expected_closure_sha256": "sha256:48a65d9b305cf02505863e6700f79f5660533953bb6f4c8da91ba8a530fd7fcd"
+        }
+      ]
+    },
+    {
+      "id": "ai-agent-profile:mixed-role-work",
+      "label": "Mixed-role work",
+      "kind": "ai-agent-profile",
+      "status": "available",
+      "authority_boundary": "explicit composition only; an owner must resolve required and optional unions and deny ambiguity",
+      "composed_profile_refs": [
+        "ai-agent-profile:production-source-engineer",
+        "ai-agent-profile:independent-reviewer"
+      ],
+      "composition_policy": {
+        "owner": "ai-agent-profile",
+        "required_union": [
+          "ai-agent-profile:production-source-engineer"
+        ],
+        "optional_union": [
+          "ai-agent-profile:independent-reviewer"
+        ],
+        "ambiguity_disposition": "most-restrictive-required",
+        "implicit_union_allowed": false
+      },
+      "effect_policy": {
+        "denied_effects": [
+          "public-effect",
+          "spend",
+          "credential-use",
+          "production-deploy",
+          "sensitive-data"
+        ],
+        "widening_allowed": false
+      },
+      "semantic_probes": [
+        {
+          "kind": "composition-owner-present",
+          "owner": "ai-agent-profile"
+        },
+        {
+          "kind": "implicit-union-denied",
+          "implicit_union_allowed": false
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "closure_unit_count": 18967,
+    "closure_dynamic_row_count": 15,
+    "authority_section_covered_unit_count": 18967,
+    "authority_section_covered_dynamic_row_count": 15,
+    "uncovered_unit_count": 0,
+    "uncovered_dynamic_row_count": 0,
+    "class_counts": {
+      "binding-prompts-and-skills": 9675,
+      "claude-native-project-context": 2427,
+      "claude-native-user-and-memory-context": 542,
+      "claude-repository-agent-memory": 5795,
+      "closure-generator-current-source": 5,
+      "codex-native-context": 161,
+      "deterministic-enforcement": 331,
+      "package-set-semantic-data": 31
+    },
+    "dynamic_class_counts": {
+      "claude-native-project-context": 2,
+      "codex-native-context": 2,
+      "delegation-authority": 5,
+      "deterministic-enforcement": 1,
+      "package-set-semantic-data": 5
+    }
+  }
+}

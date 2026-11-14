@@ -1,8 +1,5 @@
 {
   "imported_by": [
-    "Trillion-X/trillion-apps"
-  ],
-  "public": [
-    "do-work/content-media-work-loop.ts"
+    "bitfield-packages"
   ]
 }

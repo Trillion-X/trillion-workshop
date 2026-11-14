@@ -1,0 +1,43 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/account-contact-points/do-work/contact-points.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-contact-points/packages/account-contact-points/do-work/contact-points.ts",
+      "source_identity": "1f:cd2caa837ab6054abb94adda6a033512cda0314cd25d0eddb7a97ba255a152f8",
+      "identity": "1f:cd2caa837ab6054abb94adda6a033512cda0314cd25d0eddb7a97ba255a152f8"
+    },
+    {
+      "from": "packages/account-contact-points/do-work/import-contact-points-target.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-contact-points/packages/account-contact-points/do-work/import-contact-points-target.ts",
+      "source_identity": "1f:c51163757490556345a8938ba75ddea89c7bb89728abaef002fc18a460801817",
+      "identity": "1f:851dcf416ea2afedc47afb9770dd65aca05ed7ec88ddca09a84d8aaedb2c6a6b"
+    },
+    {
+      "from": "packages/account-contact-points/do-work/import-contact-points.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-contact-points/packages/account-contact-points/do-work/import-contact-points.ts",
+      "source_identity": "1f:44dbafd2b683cbb76da9239f9e67d7f51d89be7bd5b45e759b1f74fc88f80b65",
+      "identity": "1f:44dbafd2b683cbb76da9239f9e67d7f51d89be7bd5b45e759b1f74fc88f80b65"
+    },
+    {
+      "from": "packages/account-contact-points/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-contact-points/packages/account-contact-points/things-to-store-and-run.json",
+      "source_identity": "1f:64d1b2c5ac73d561ae7025d771cd4244efe97d8eeb29c20d98b9cc04009718b1",
+      "identity": "1f:64d1b2c5ac73d561ae7025d771cd4244efe97d8eeb29c20d98b9cc04009718b1"
+    }
+  ]
+}

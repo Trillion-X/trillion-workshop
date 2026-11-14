@@ -1,0 +1,266 @@
+{
+  "package": "browser-shell",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::browser-shell::checks",
+      "path": ["packages", "browser-shell", "checks"],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": ["do-work/give-each-package-its-own-read-scope.test.mjs", "do-work/let-another-server-reach-a-running-app.test.mjs"]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "browser-shell-bundle",
+      "build": {
+        "sequence": {
+          "inputs": [],
+          "input_trees": [],
+          "steps": [
+            {
+              "name": "build",
+              "process": {
+                "argv": [
+                  "node",
+                  "bitfield-package-entry-builder"
+                ],
+                "cwd": ".",
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": ".bitfield-build-output"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              },
+              "workspace_bindings": {
+                "environment": [],
+                "arguments": [
+                  {
+                    "index": 1,
+                    "parts": [
+                      {
+                        "kind": "workspace_root"
+                      },
+                      {
+                        "kind": "literal",
+                        "value": "/packages/make-packages-match-their-source/do-work/build-package-entry-byte.mjs"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "predecessor_outputs": []
+            }
+          ]
+        },
+        "output": {
+          "step": "build",
+          "mount_path": ".bitfield-build-output"
+        },
+        "request": {
+          "entry_name": "browser-shell"
+        }
+      },
+      "source_path": "built-stored-bytes/browser-shell-bundle"
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:browser-shell|prop:extension:integrity_hash|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:integrity_hash"
+      ],
+      "payload_template": {
+        "payload": {
+          "property_id": "prop:extension:integrity_hash",
+          "subject_id": "component:browser-shell",
+          "table": "attribute_fact",
+          "type_id": "type:extension",
+          "value_json": ""
+        },
+        "replacements": [
+          {
+            "path": [
+              "value_json"
+            ],
+            "value": {
+              "type": "stored_bytes_content_hash",
+              "name": "browser-shell-bundle",
+              "encoding": "json_string"
+            }
+          }
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:browser-shell|prop:extension:things_to_put_on_screen|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:things_to_put_on_screen"
+      ],
+      "payload": {
+        "property_id": "prop:extension:things_to_put_on_screen",
+        "subject_id": "component:browser-shell",
+        "table": "attribute_fact",
+        "type_id": "type:extension",
+        "value_json": [
+          {
+            "source_bytes": {
+              "address_label": "package::browser-shell::entry-bytes::browser-shell"
+            },
+            "source_key": "package::browser-shell::entry-bytes::browser-shell",
+            "required_capabilities": [
+              "can-put-thing-on-screen-using-screen-element"
+            ],
+            "lifecycle_key": "component:browser-shell:live-entry-bytes"
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:browser-shell|prop:extension:name|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:name"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOm5hbWUiLCJzdWJqZWN0X2lkIjoiY29tcG9uZW50OmJyb3dzZXItc2hlbGwiLCJ0YWJsZSI6ImF0dHJpYnV0ZV9mYWN0IiwidHlwZV9pZCI6InR5cGU6ZXh0ZW5zaW9uIiwidmFsdWVfanNvbiI6IlwiQnJvd3NlclNoZWxsXCIifQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:browser-shell|prop:extension:source_path|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:source_path"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOnNvdXJjZV9wYXRoIiwic3ViamVjdF9pZCI6ImNvbXBvbmVudDpicm93c2VyLXNoZWxsIiwidGFibGUiOiJhdHRyaWJ1dGVfZmFjdCIsInR5cGVfaWQiOiJ0eXBlOmV4dGVuc2lvbiIsInZhbHVlX2pzb24iOiJcInBhY2thZ2VzL2Jyb3dzZXItc2hlbGwvc2hvdy9tb3VudC1icm93c2VyLXNoZWxsLnRzeFwiIn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:browser-shell|prop:extension:status|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:status"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOnN0YXR1cyIsInN1YmplY3RfaWQiOiJjb21wb25lbnQ6YnJvd3Nlci1zaGVsbCIsInRhYmxlIjoiYXR0cmlidXRlX2ZhY3QiLCJ0eXBlX2lkIjoidHlwZTpleHRlbnNpb24iLCJ2YWx1ZV9qc29uIjoiXCJhY3RpdmVcIiJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:browser-shell|prop:extension:version|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:version"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOnZlcnNpb24iLCJzdWJqZWN0X2lkIjoiY29tcG9uZW50OmJyb3dzZXItc2hlbGwiLCJ0YWJsZSI6ImF0dHJpYnV0ZV9mYWN0IiwidHlwZV9pZCI6InR5cGU6ZXh0ZW5zaW9uIiwidmFsdWVfanNvbiI6IlwiMS4wLjBcIiJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:browser-shell|prop:resource:compiler_config|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:resource:compiler_config"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6cmVzb3VyY2U6Y29tcGlsZXJfY29uZmlnIiwic3ViamVjdF9pZCI6ImNvbXBvbmVudDpicm93c2VyLXNoZWxsIiwidGFibGUiOiJhdHRyaWJ1dGVfZmFjdCIsInR5cGVfaWQiOiJ0eXBlOmV4dGVuc2lvbiIsInZhbHVlX2pzb24iOiJ7XCJhcmd2XCI6W1wiLi90b29sXCIsXCJfX1NPVVJDRV9QQVRIX19cIixcIi0tYnVuZGxlXCIsXCItLWZvcm1hdD1janNcIixcIi0tb3V0ZmlsZT1fX09VVFBVVF8wX19cIixcIi0tcGxhdGZvcm09YnJvd3NlclwiLFwiLS10YXJnZXQ9ZXMyMDIwXCIsXCItLWpzeD1hdXRvbWF0aWNcIixcIi0tbG9hZGVyOi50c3g9dHN4XCIsXCItLWxvYWRlcjoudHM9dHNcIixcIi0tcmVzb2x2ZS1leHRlbnNpb25zPS50cywudHN4LC5qcywuanN4XCIsXCItLWFsaWFzOkA9LlwiLFwiLS1hbGlhczpAYml0ZmllbGQvcnVudGltZS1raXQvcmVhY3Q9Li9wYWNrYWdlcy9icm93c2VyLXNoZWxsLy5iaXRmaWVsZC1lbnRyeS1zY29wZS9lbnRyeS02MjcyNmY3NzczNjU3MjJkNzM2ODY1NmM2Yy9ydW50aW1lLWtpdC1yZWFjdC50c1wiLFwiLS1wcmVzZXJ2ZS1zeW1saW5rc1wiLFwiLS1leHRlcm5hbDpyZWFjdFwiLFwiLS1leHRlcm5hbDpyZWFjdC1kb21cIixcIi0tZXh0ZXJuYWw6cmVhY3QtZG9tL2NsaWVudFwiLFwiLS1leHRlcm5hbDpyZWFjdC9qc3gtcnVudGltZVwiLFwiLS1leHRlcm5hbDpyZWFjdC9qc3gtZGV2LXJ1bnRpbWVcIixcIi0tZXh0ZXJuYWw6c2NoZWR1bGVyXCJdLFwiY3dkXCI6XCIuXCIsXCJ0aW1lb3V0X21zXCI6MTIwMDAwLFwidGVybWluYXRpb25fZ3JhY2VfbXNcIjoxMDAwLFwiZXhwZWN0ZWRfdGVybWluYXRpb25cIjpudWxsLFwiZW52XCI6e30sXCJpbnB1dHNcIjpbXSxcImlucHV0X3RyZWVzXCI6W10sXCJvdXRwdXRzXCI6W3tcImNvbnRlbnRfdHlwZVwiOlwiYXBwbGljYXRpb24vamF2YXNjcmlwdFwiLFwibW91bnRfcGF0aFwiOlwib3V0cHV0LmpzXCJ9XSxcImNvbnRhaW5tZW50XCI6e1wia2luZFwiOlwiZGVzY2VuZGFudF9lZmZlY3RfY29udGFpbmVkXCIsXCJwaXBlX2VvZl90aW1lb3V0X21zXCI6MTAwMCxcInB1YmxpY2F0aW9uc1wiOltdfSxcImNhcHR1cmVfZmRzXCI6WzEsMl0sXCJjb2xsZWN0ZWRfZmlsZXNcIjpbXSxcIm91dHB1dF9tYXBwaW5nXCI6W3tcImNvbnRlbnRfdHlwZVwiOlwiYXBwbGljYXRpb24vamF2YXNjcmlwdFwiLFwiaGFzaF9wcm9wZXJ0eV9pZFwiOlwicHJvcDpleHRlbnNpb246aW50ZWdyaXR5X2hhc2hcIixcIm91dHB1dF9wYXRoXCI6XCJvdXRwdXQuanNcIixcInByb3BlcnR5X2lkXCI6XCJwcm9wOmV4dGVuc2lvbjpidW5kbGVcIixcInR5cGVfaWRcIjpcInR5cGU6ZXh0ZW5zaW9uXCJ9XX0ifQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:browser-shell|prop:resource:compiler_resource|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:resource:compiler_resource"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6cmVzb3VyY2U6Y29tcGlsZXJfcmVzb3VyY2UiLCJzdWJqZWN0X2lkIjoiY29tcG9uZW50OmJyb3dzZXItc2hlbGwiLCJ0YWJsZSI6ImF0dHJpYnV0ZV9mYWN0IiwidHlwZV9pZCI6InR5cGU6ZXh0ZW5zaW9uIiwidmFsdWVfanNvbiI6IlwicmVzb3VyY2U6ZXNidWlsZFwiIn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|component:browser-shell|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "type:extension"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJlbnRpdHlfaWQiOiJjb21wb25lbnQ6YnJvd3Nlci1zaGVsbCIsInRhYmxlIjoiZW50aXR5X3R5cGVzIiwidHlwZV9pZCI6InR5cGU6ZXh0ZW5zaW9uIn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|component:browser-shell",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJpZCI6ImNvbXBvbmVudDpicm93c2VyLXNoZWxsIiwidGFibGUiOiJlbnRpdHkifQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::browser-shell::entry::browser-shell",
+      "path": [
+        "packages",
+        "browser-shell",
+        "entries",
+        "browser-shell"
+      ],
+      "payload": {
+        "entry_name": "browser-shell",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-browser-shell.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-browser-shell"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-browser-shell",
+      "source_path": "built-stored-bytes/entry-bytes-browser-shell",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-browser-shell.source-closure.json"
+    }
+  ]
+}

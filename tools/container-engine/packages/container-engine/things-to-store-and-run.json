@@ -1,0 +1,110 @@
+{
+  "package": "container-engine",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::container-engine::contract",
+      "address_mode": "identity_text",
+      "path": ["packages", "container-engine"],
+      "payload": {
+        "kind": "package-boundary-contract",
+        "package": "container-engine",
+        "owns": [
+          "portable external process-provider runtime binding descriptors",
+          "OCI provider protocol-selection data",
+          "external provider capability requirement data"
+        ],
+        "does_not_own": [
+          "process lifecycle execution",
+          "persistent session records",
+          "host provider sockets or endpoints",
+          "credentials or secret handles",
+          "ambient Docker or Podman discovery",
+          "native subprocess spawning",
+          "custom slot implementations"
+        ],
+        "execution_owner": "slot::process-engine",
+        "session_owner": "slot::process-session",
+        "connection_owner": "service-connections",
+        "secret_owner": "credentials-vault",
+        "new_slot": false
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::container-engine::external-provider-operation::execute",
+      "address_mode": "identity_text",
+      "path": ["package-primitive", "external-process-provider-operation"],
+      "payload": {
+        "kind": "bitfield-external-process-provider-operation-contract",
+        "operation": "execute",
+        "provider_protocol_revision": "bitfield.oci-engine-api/v1",
+        "one_shot_target": "compute.process",
+        "persistent_session_target": "compute.process_session",
+        "portable_request_contract": "bitfield.process_descriptor.v1",
+        "portable_session_contract": "bitfield.process_session_descriptor.v1",
+        "admitted_execution_binding_kind": "external_provider",
+        "required_provider_capabilities": [
+          "persistent_session",
+          "descendant_lifecycle",
+          "exclusive_private_volume_lease",
+          "correlated_output",
+          "cleanup",
+          "zero_unowned_descendants"
+        ],
+        "package_supplied_host_fields": [],
+        "provider_connection_ref_owner": "service-connections",
+        "provider_secret_handle_owner": "credentials-vault"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::container-engine::input::runtime-bindings",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "runtime-bindings",
+        "value_address_label": "external-process-provider-runtime-bindings",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "package": "container-engine",
+        "is_default": false
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::container-engine::proof-case::oci-browser-arm64",
+      "address_mode": "identity_text",
+      "path": ["packages", "container-engine", "proof-cases"],
+      "payload": {
+        "kind": "external-process-provider-proof-case",
+        "provider_protocol_revision": "bitfield.oci-engine-api/v1",
+        "immutable_runtime_artifact": "chromedp/headless-shell@sha256:cba8f608b239aab12ed4dad23ce3a76bf7143b3189734857d63ef2d855541f44",
+        "runtime_alias": "browser",
+        "private_volume_ref": "browser-profile",
+        "named_endpoint": {
+          "name": "devtools",
+          "transport": "tcp",
+          "provider_port": 9222
+        },
+        "required_proofs": [
+          "real_cdp_navigation",
+          "profile_persistence_across_intentional_restart",
+          "correlated_output",
+          "exclusive_volume_collision_denial",
+          "provider_terminal_acknowledgement",
+          "zero_remaining_provider_owned_descendants"
+        ],
+        "production_default": false
+      },
+      "remove": false
+    }
+  ]
+}

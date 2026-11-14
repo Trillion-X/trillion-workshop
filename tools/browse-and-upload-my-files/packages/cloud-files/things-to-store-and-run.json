@@ -1,0 +1,472 @@
+{
+  "package": "cloud-files",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::cloud-files::placeable-surface::browser",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "Globe",
+        "id": "cloud-files.browser",
+        "kind": "placeable-surface",
+        "label": "Cloud Files",
+        "material_target": "component:cloud-files-browser",
+        "order": 30,
+        "surface_id": "cloud-files.browser",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000030:cloud-files.browser",
+        "package_entry": {
+          "package_name": "cloud-files",
+          "entry_name": "cloud-files-browser"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::cloud-files::sources-feed",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "cloud-file-source"
+            },
+            {
+              "path": [
+                "payload"
+              ],
+              "not_equals": "__bitfield_never__"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::cloud-files::input::sources",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "sources",
+        "is_default": true,
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "package::cloud-files::sources-feed"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::cloud-files::contract::cloud-file-source",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "cloud-file-source",
+        "required_fields": [
+          "id",
+          "service_connection_ref",
+          "credential_handle_ref",
+          "operations"
+        ],
+        "optional_fields": [
+          "name",
+          "provider",
+          "root_path",
+          "connection_enabled",
+          "metadata"
+        ],
+        "credential_contract": "credential_handle_ref is an opaque handle owned by credentials-vault; service_connection_ref is service-connections metadata",
+        "operation_contract": "operation routes are data and receive service_connection_ref plus credential_handle_ref; browser code does not branch on providers"
+      }
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:cloud-files-browser|prop:extension:instance_props|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:instance_props"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOmluc3RhbmNlX3Byb3BzIiwic3ViamVjdF9pZCI6ImNvbXBvbmVudDpjbG91ZC1maWxlcy1icm93c2VyIiwidGFibGUiOiJhdHRyaWJ1dGVfZmFjdCIsInR5cGVfaWQiOiJ0eXBlOmV4dGVuc2lvbiIsInZhbHVlX2pzb24iOiJ7XCJmbG9hdGluZ19mcmFtZVwiOntcInRvcF9weFwiOjk2LFwibGVmdF9weFwiOjcwNCxcIndpZHRoX3B4XCI6MzYwLFwiYm90dG9tX3B4XCI6MjQsXCJ6X2luZGV4XCI6NjV9fSJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:cloud-files-browser|prop:extension:name|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:name"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOm5hbWUiLCJzdWJqZWN0X2lkIjoiY29tcG9uZW50OmNsb3VkLWZpbGVzLWJyb3dzZXIiLCJ0YWJsZSI6ImF0dHJpYnV0ZV9mYWN0IiwidHlwZV9pZCI6InR5cGU6ZXh0ZW5zaW9uIiwidmFsdWVfanNvbiI6IlwiQ2xvdWRGaWxlc0Jyb3dzZXJcIiJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:cloud-files-browser|prop:extension:source_path|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:source_path"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOnNvdXJjZV9wYXRoIiwic3ViamVjdF9pZCI6ImNvbXBvbmVudDpjbG91ZC1maWxlcy1icm93c2VyIiwidGFibGUiOiJhdHRyaWJ1dGVfZmFjdCIsInR5cGVfaWQiOiJ0eXBlOmV4dGVuc2lvbiIsInZhbHVlX2pzb24iOiJcInBhY2thZ2VzL2Nsb3VkLWZpbGVzL3Nob3cvbW91bnQtY2xvdWQtZmlsZS1icm93c2VyLnRzeFwiIn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:cloud-files-browser|prop:extension:status|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:status"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOnN0YXR1cyIsInN1YmplY3RfaWQiOiJjb21wb25lbnQ6Y2xvdWQtZmlsZXMtYnJvd3NlciIsInRhYmxlIjoiYXR0cmlidXRlX2ZhY3QiLCJ0eXBlX2lkIjoidHlwZTpleHRlbnNpb24iLCJ2YWx1ZV9qc29uIjoiXCJhY3RpdmVcIiJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:cloud-files-browser|prop:extension:version|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:version"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOnZlcnNpb24iLCJzdWJqZWN0X2lkIjoiY29tcG9uZW50OmNsb3VkLWZpbGVzLWJyb3dzZXIiLCJ0YWJsZSI6ImF0dHJpYnV0ZV9mYWN0IiwidHlwZV9pZCI6InR5cGU6ZXh0ZW5zaW9uIiwidmFsdWVfanNvbiI6IlwiMS4wLjBcIiJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:cloud-files-browser|prop:resource:compiler_config|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:resource:compiler_config"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6cmVzb3VyY2U6Y29tcGlsZXJfY29uZmlnIiwic3ViamVjdF9pZCI6ImNvbXBvbmVudDpjbG91ZC1maWxlcy1icm93c2VyIiwidGFibGUiOiJhdHRyaWJ1dGVfZmFjdCIsInR5cGVfaWQiOiJ0eXBlOmV4dGVuc2lvbiIsInZhbHVlX2pzb24iOiJ7XCJhcmd2XCI6W1wiLi90b29sXCIsXCJfX1NPVVJDRV9QQVRIX19cIixcIi0tYnVuZGxlXCIsXCItLWZvcm1hdD1janNcIixcIi0tb3V0ZmlsZT1fX09VVFBVVF8wX19cIixcIi0tcGxhdGZvcm09YnJvd3NlclwiLFwiLS10YXJnZXQ9ZXMyMDIwXCIsXCItLWpzeD1hdXRvbWF0aWNcIixcIi0tbG9hZGVyOi50c3g9dHN4XCIsXCItLWxvYWRlcjoudHM9dHNcIixcIi0tcmVzb2x2ZS1leHRlbnNpb25zPS50cywudHN4LC5qcywuanN4XCIsXCItLWFsaWFzOkA9LlwiLFwiLS1hbGlhczpAYml0ZmllbGQvcnVudGltZS1raXQvcmVhY3Q9Li9wYWNrYWdlcy9jbG91ZC1maWxlcy8uYml0ZmllbGQtZW50cnktc2NvcGUvZW50cnktNjM2YzZmNzU2NDJkNjY2OTZjNjU3MzJkNjI3MjZmNzc3MzY1NzIvcnVudGltZS1raXQtcmVhY3QudHNcIixcIi0tcHJlc2VydmUtc3ltbGlua3NcIixcIi0tZXh0ZXJuYWw6cmVhY3RcIixcIi0tZXh0ZXJuYWw6cmVhY3QtZG9tXCIsXCItLWV4dGVybmFsOnJlYWN0LWRvbS9jbGllbnRcIixcIi0tZXh0ZXJuYWw6cmVhY3QvanN4LXJ1bnRpbWVcIixcIi0tZXh0ZXJuYWw6cmVhY3QvanN4LWRldi1ydW50aW1lXCIsXCItLWV4dGVybmFsOnNjaGVkdWxlclwiXSxcImN3ZFwiOlwiLlwiLFwidGltZW91dF9tc1wiOjEyMDAwMCxcInRlcm1pbmF0aW9uX2dyYWNlX21zXCI6MTAwMCxcImV4cGVjdGVkX3Rlcm1pbmF0aW9uXCI6bnVsbCxcImVudlwiOnt9LFwiaW5wdXRzXCI6W10sXCJpbnB1dF90cmVlc1wiOltdLFwib3V0cHV0c1wiOlt7XCJjb250ZW50X3R5cGVcIjpcImFwcGxpY2F0aW9uL2phdmFzY3JpcHRcIixcIm1vdW50X3BhdGhcIjpcIm91dHB1dC5qc1wifV0sXCJjb250YWlubWVudFwiOntcImtpbmRcIjpcImRlc2NlbmRhbnRfZWZmZWN0X2NvbnRhaW5lZFwiLFwicGlwZV9lb2ZfdGltZW91dF9tc1wiOjEwMDAsXCJwdWJsaWNhdGlvbnNcIjpbXX0sXCJjYXB0dXJlX2Zkc1wiOlsxLDJdLFwiY29sbGVjdGVkX2ZpbGVzXCI6W10sXCJvdXRwdXRfbWFwcGluZ1wiOlt7XCJjb250ZW50X3R5cGVcIjpcImFwcGxpY2F0aW9uL2phdmFzY3JpcHRcIixcImhhc2hfcHJvcGVydHlfaWRcIjpcInByb3A6ZXh0ZW5zaW9uOmludGVncml0eV9oYXNoXCIsXCJvdXRwdXRfcGF0aFwiOlwib3V0cHV0LmpzXCIsXCJwcm9wZXJ0eV9pZFwiOlwicHJvcDpleHRlbnNpb246YnVuZGxlXCIsXCJ0eXBlX2lkXCI6XCJ0eXBlOmV4dGVuc2lvblwifV19In0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:cloud-files-browser|prop:resource:compiler_resource|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:resource:compiler_resource"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6cmVzb3VyY2U6Y29tcGlsZXJfcmVzb3VyY2UiLCJzdWJqZWN0X2lkIjoiY29tcG9uZW50OmNsb3VkLWZpbGVzLWJyb3dzZXIiLCJ0YWJsZSI6ImF0dHJpYnV0ZV9mYWN0IiwidHlwZV9pZCI6InR5cGU6ZXh0ZW5zaW9uIiwidmFsdWVfanNvbiI6IlwicmVzb3VyY2U6ZXNidWlsZFwiIn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|component:cloud-files-browser|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "type:extension"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJlbnRpdHlfaWQiOiJjb21wb25lbnQ6Y2xvdWQtZmlsZXMtYnJvd3NlciIsInRhYmxlIjoiZW50aXR5X3R5cGVzIiwidHlwZV9pZCI6InR5cGU6ZXh0ZW5zaW9uIn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|component:cloud-files-browser",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJpZCI6ImNvbXBvbmVudDpjbG91ZC1maWxlcy1icm93c2VyIiwidGFibGUiOiJlbnRpdHkifQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::cloud-files::evidence-pipeline::config",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "content-media.evidence-pipeline.config",
+        "package": "cloud-files",
+        "roles": {
+          "source_refs": [
+            "cloud-files.source-ref"
+          ]
+        },
+        "artifact_roles": {
+          "source": [
+            "artifact-ref",
+            "provider-file-ref"
+          ],
+          "outputs": [
+            "package-visible-source-ref"
+          ]
+        },
+        "execution_capabilities": [
+          "workflow",
+          "http-client",
+          "credentials-vault",
+          "stored_bytes"
+        ],
+        "projection_lanes": [
+          "source_refs"
+        ],
+        "maintained_projection_label": "cloud-files-content-media-evidence",
+        "source_ref_contract": {
+          "required_fields": [
+            "source_id",
+            "label",
+            "source_ref"
+          ],
+          "source_ref_required_fields": [
+            "artifact_ref"
+          ],
+          "source_ref_optional_fields": [
+            "media_type",
+            "display_name",
+            "provider_object_ref",
+            "service_connection_ref",
+            "credential_handle_ref",
+            "connection_enabled"
+          ]
+        },
+        "proof_gates": [
+          "CPD-10F"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::cloud-files::contract::source-ref",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "cloud-files.source-ref",
+        "required_fields": [
+          "source_id",
+          "label",
+          "source_ref"
+        ],
+        "optional_fields": [
+          "media_type",
+          "metadata"
+        ],
+        "source_ref_contract": "Cloud source refs published to production contain durable artifact refs or provider-visible object refs with service_connection_ref plus opaque credential_handle_ref. Provider-specific operations remain cloud-files data."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::cloud-files::contract::origin-budget-policy",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "cloud-files.origin-budget-policy",
+        "required_fields": [
+          "kind",
+          "monthly_budget",
+          "first_payment_budget",
+          "originals_cloud_only",
+          "no_home_live_dependency",
+          "selected_provider",
+          "all_in_monthly_cost",
+          "selection_reason",
+          "candidate_states",
+          "all_in_quote_gate"
+        ],
+        "optional_fields": [],
+        "authority_contract": "The app owner's standing approval covers provider selection and purchase. selected_provider names the rank-1 cloud-files.origin row; the choice and its all-in monthly cost are recorded here, never asked for.",
+        "budget_contract": "monthly_budget is the historical planning target. all_in_monthly_cost states the real recurring bill at the measured corpus size so an overrun is visible, never hidden; it is not an approval limit.",
+        "quote_contract": "An eligible quote must state region, stock, recurring bill, setup, tax, transfer terms, cancellation, support, and recovery implications before provider admission.",
+        "placement_contract": "A decision record is one app's choice and lives in that app's package set, never in this package."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::cloud-files::contract::origin",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "cloud-files.origin",
+        "required_fields": [
+          "kind",
+          "id",
+          "interface",
+          "vendor",
+          "price"
+        ],
+        "optional_fields": [
+          "credential"
+        ],
+        "selection_contract": "A host binds, among the origins an app has chosen in its `cloud-files.origin-settings` rows, the lowest `rank` whose interface it can run and whose credential it holds, and names the ones it skipped with the reason. An origin row describes a vendor's storage (interface, price, credential names); which origins an app uses, in what order and for what, is that app's own DATA. Adding a vendor is one row; the host code names shapes (interface), never vendors.",
+        "credential_contract": "credential names vault secrets by name only (secret_name); the value is placed by the credentials vault at request time and never appears in DATA, source, argv, environment or logs.",
+        "settings_contract": "Which origins an app keeps its files in, in what order (`rank`), what each is for (`label`, `role`), and which bucket or account it uses (`settings`) is that app's own DATA: a `cloud-files.origin-settings` row in its package set, joined to an origin by origin_id. An origin row never names an app."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::cloud-files::origin::backblaze-b2",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "cloud-files.origin",
+        "id": "backblaze-b2",
+        "interface": "s3-compatible",
+        "vendor": "Backblaze B2",
+        "price": {
+          "usd_per_gb_month": 0.00695,
+          "egress": "free to Cloudflare; otherwise free up to 3x stored",
+          "requests": "class A/B/C free"
+        },
+        "credential": {
+          "key_id_secret_name": "backblaze-b2-key-id",
+          "key_secret_name": "backblaze-b2-application-key"
+        },
+        "key_describes_itself": {
+          "comment": "Backblaze answers which bucket an application key opens when the key signs in to its own API; a key limited to one bucket may not list buckets over S3, so the bucket is read here.",
+          "request": {
+            "url": "https://api.backblazeb2.com/b2api/v2/b2_authorize_account",
+            "method": "GET",
+            "authorization": "basic-key-id-and-key"
+          },
+          "bucket_name_pointer": [
+            "allowed",
+            "bucketName"
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::cloud-files::origin::cloudflare-r2",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "cloud-files.origin",
+        "id": "cloudflare-r2",
+        "interface": "object-bucket",
+        "vendor": "Cloudflare R2",
+        "price": {
+          "usd_per_gb_month": 0.015,
+          "egress": "none",
+          "requests": "class A $4.50 and class B $0.36 per million"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::cloud-files::contract::origin-protection-profile",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "cloud-files.origin-protection-profile",
+        "required_fields": [
+          "kind",
+          "failure_classes",
+          "recovery_point_objective",
+          "recovery_time_objective",
+          "new_cloud_write_backup_policy",
+          "resilience_claim_admitted"
+        ],
+        "optional_fields": [],
+        "failure_class_contract": "failure_classes is an open map from a failure class slug to {protection_state, mechanism, candidate_consequence, basis}. protection_state is closed by physics: none, undecided, or protected. mechanism is an open DATA slug naming the protection that exists and is null unless protection_state is protected. A new failure class or a new mechanism is a new key or value, never a code or test change.",
+        "objective_contract": "recovery_point_objective and recovery_time_objective are null until a founder statement sets them. Null means undecided, never zero and never a default. A decided value carries its own basis next to itself.",
+        "backup_policy_contract": "new_cloud_write_backup_policy says what happens to a byte that exists only in the cloud: {state, policy, basis}. While state is undecided, policy is null and the source copy of any uploaded byte must remain where it is; no cloud-only byte is admitted.",
+        "resilience_contract": "resilience_claim_admitted is exactly the predicate that every failure class has protection_state protected. It may not be true while any class is none or undecided. The value is stored for readers and its derivation is enforced by test.",
+        "authority_contract": "This record discloses protection state. It authorizes no purchase, selects no provider, admits no replica, parity, snapshot, or backup owner into cloud-files, and creates no spend. Every basis that names a founder statement carries its date inline; every other basis begins with the word undecided.",
+        "durability_seam_contract": "This record is origin policy. The optional durability field on live-namespace locator rows is observed per-copy state for one representation. Neither is derived from the other, and a locator claiming a durability better than this profile's protection state is a defect in the locator, not evidence of protection.",
+        "placement_contract": "A decision record is one app's choice and lives in that app's package set, never in this package."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::cloud-files::entry::cloud-files-browser",
+      "path": [
+        "packages",
+        "cloud-files",
+        "entries",
+        "cloud-files-browser"
+      ],
+      "payload": {
+        "entry_name": "cloud-files-browser",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-cloud-file-browser.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-cloud-files-browser"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-cloud-files-browser",
+      "source_path": "built-stored-bytes/entry-bytes-cloud-files-browser",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-cloud-files-browser.source-closure.json"
+    }
+  ]
+}

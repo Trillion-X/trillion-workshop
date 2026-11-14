@@ -1,0 +1,22 @@
+{
+  "package": "composition-scene-renderer",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::composition-scene-renderer::public-source::show",
+      "path": [
+        "packages",
+        "composition-scene-renderer",
+        "public-sources",
+        "show"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "show"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    }
+  ]
+}

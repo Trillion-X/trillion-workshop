@@ -8,6 +8,12 @@
       "find": "[/]Users[/]br[i]anakhtar[/]",
       "replace": "",
       "means": "A path in the maker's home folder, written from the home folder instead."
+    },
+    {
+      "id": "owner-home-folder",
+      "find": "[/]Users[/]b[r]ianakhtar",
+      "replace": "/workspace/the-owner",
+      "means": "A person's home folder name in a path, swapped for a made-up one: a public tree holds made-up data only."
     }
   ],
   "files": [
@@ -26,14 +32,79 @@
       "identity": "1f:57994294aeefd407c540103c40204cc52de3a3489899b1cbdc100b4fc0e6f10a"
     },
     {
-      "from": "packages/customer-follow-up/show/README.md",
+      "from": "packages/customer-follow-up/BOOKING-CRM-FOLLOW-THROUGH-LIVE-2026-08-02.md",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/customer-follow-up/packages/customer-follow-up/show/README.md",
-      "source_identity": "1f:dd9d2310cab83f59552b21eb970000a44ec493cd3cb046163f3cbf62d548dfe0",
-      "identity": "1f:133fce3b4d07dc471857e31811f7f50d90ea880adb01857880101597be48b2e5",
+      "to": "tools/customer-follow-up/packages/customer-follow-up/BOOKING-CRM-FOLLOW-THROUGH-LIVE-2026-08-02.md",
+      "source_identity": "1f:2d5e77e4d83ae859962b04186a68e9b68e66aed81d1f7bf253097e87973df742",
+      "identity": "1f:2d5e77e4d83ae859962b04186a68e9b68e66aed81d1f7bf253097e87973df742"
+    },
+    {
+      "from": "packages/customer-follow-up/do-work/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/customer-follow-up/packages/customer-follow-up/do-work/README.md",
+      "source_identity": "1f:b30b3092f0bf6510bfc8b8589d0a4f79a39548b69346b4ad668c80a822592c83",
+      "identity": "1f:b30b3092f0bf6510bfc8b8589d0a4f79a39548b69346b4ad668c80a822592c83"
+    },
+    {
+      "from": "packages/customer-follow-up/do-work/record-customer-step.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/customer-follow-up/packages/customer-follow-up/do-work/record-customer-step.ts",
+      "source_identity": "1f:549a6dc47a85f3fc06dad0ed099ea95b2c5eb8692e28099d6a74caee9dceacd2",
+      "identity": "1f:549a6dc47a85f3fc06dad0ed099ea95b2c5eb8692e28099d6a74caee9dceacd2"
+    },
+    {
+      "from": "packages/customer-follow-up/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/customer-follow-up/packages/customer-follow-up/entry-to-package-data-map.json",
+      "source_identity": "1f:4b6e6fbfacb39644db2174b501d0c4d190b22ebe46b184bc78458132f1ccd09a",
+      "identity": "1f:4b6e6fbfacb39644db2174b501d0c4d190b22ebe46b184bc78458132f1ccd09a"
+    },
+    {
+      "from": "packages/customer-follow-up/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/customer-follow-up/packages/customer-follow-up/read-data/README.md",
+      "source_identity": "1f:5568c66967f78924b6eeb3aebddf29117e99673ff0627ca4d5042345ad288e22",
+      "identity": "1f:5568c66967f78924b6eeb3aebddf29117e99673ff0627ca4d5042345ad288e22"
+    },
+    {
+      "from": "packages/customer-follow-up/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/customer-follow-up/packages/customer-follow-up/README.md",
+      "source_identity": "1f:b54b9c8a9acf52364279d556636f50994b22ddecadfbcae8886d73c866bb375a",
+      "identity": "1f:b54b9c8a9acf52364279d556636f50994b22ddecadfbcae8886d73c866bb375a"
+    },
+    {
+      "from": "packages/customer-follow-up/reference-grounded-screen-contract.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/customer-follow-up/packages/customer-follow-up/reference-grounded-screen-contract.md",
+      "source_identity": "1f:dda664605013d33f692ae30e54b89408cb264d5cc56eb2f188dcfe93b5cf92d6",
+      "identity": "1f:3627010bae38cd024aa66154f995c8985187097c66e6c6c4b075acc9adcab9dd",
       "calls": [
-        "a-home-folder-made-relative"
+        "owner-home-folder"
       ]
+    },
+    {
+      "from": "packages/customer-follow-up/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/customer-follow-up/packages/customer-follow-up/things-to-store-and-run.json",
+      "source_identity": "1f:153253316165c72e2d685557bc059e76199909e8029984b392c45544aa960db2",
+      "identity": "1f:153253316165c72e2d685557bc059e76199909e8029984b392c45544aa960db2"
+    },
+    {
+      "from": "packages/customer-follow-up/read-data/customer-follow-up-types.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/customer-follow-up/read-data/customer-follow-up-types.ts",
+      "source_identity": "1f:c67c5611d83d0db667d605665331ed606d4509c482dc6f44dd58c9dd1a55fb9a",
+      "identity": "1f:c67c5611d83d0db667d605665331ed606d4509c482dc6f44dd58c9dd1a55fb9a",
+      "reused": true
+    },
+    {
+      "from": "packages/customer-follow-up/read-data/read-customer-follow-up.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/customer-follow-up/read-data/read-customer-follow-up.ts",
+      "source_identity": "1f:a7c45699b7670d2d18af6fcbbc8dbde21e8e24194a0cfae05244feece79ed6eb",
+      "identity": "1f:0ffa055183338d3997937973470978a004401b1bfc44e254010376b81a42e6c6",
+      "reused": true
     }
   ]
 }

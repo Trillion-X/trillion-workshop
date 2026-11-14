@@ -1,0 +1,12 @@
+{
+  "kind": "bitfield-entry-to-package-data-map",
+  "package": "ai-memory",
+  "package_data_path": "things-to-store-and-run.json",
+  "entries": [
+    {
+      "entry_name": "ai-memory-panel",
+      "source_path": "show/mount-ai-memory-panel.tsx",
+      "package_data_path": "things-to-store-and-run.json"
+    }
+  ]
+}

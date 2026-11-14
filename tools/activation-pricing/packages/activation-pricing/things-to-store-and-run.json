@@ -1,0 +1,185 @@
+{
+  "package": "activation-pricing",
+  "things": [
+    {
+      "type": "stored_bytes",
+      "name": "index",
+      "source_path": "index.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "activation-pricing-config",
+      "source_path": "read-data/activation-pricing-config.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "activation-pricing-model",
+      "source_path": "read-data/activation-pricing-model.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "animated-price-value",
+      "source_path": "show/AnimatedPriceValue.tsx"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "pricing-billing-toggle",
+      "source_path": "show/PricingBillingToggle.tsx"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "pricing-plan-card",
+      "source_path": "show/PricingPlanCard.tsx"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "source-leaf-index",
+      "source_path": "source-leaf/index.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "source-leaf-activation-pricing-config",
+      "source_path": "source-leaf/read-data/activation-pricing-config.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "source-leaf-activation-pricing-model",
+      "source_path": "source-leaf/read-data/activation-pricing-model.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "source-leaf-view-section-model",
+      "source_path": "source-leaf/view-model/view-section-model.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "source-leaf-build-view-section-model",
+      "source_path": "source-leaf/view-model/build-view-section-model.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "source-leaf-animated-price-value",
+      "source_path": "source-leaf/show/AnimatedPriceValue.tsx"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "source-leaf-pricing-billing-toggle",
+      "source_path": "source-leaf/show/PricingBillingToggle.tsx"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "source-leaf-pricing-plan-card",
+      "source_path": "source-leaf/show/PricingPlanCard.tsx"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "source-leaf-render-kind-jscore",
+      "source_path": "source-leaf/show-ios-jscore/render-kind-jscore.js"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "source-leaf-mount-activation-pricing-jscore",
+      "source_path": "source-leaf/show-ios-jscore/mount-activation-pricing-jscore.js"
+    },
+    {
+      "type": "record",
+      "address": "package::activation-pricing::public-source::index",
+      "path": [
+        "packages",
+        "activation-pricing",
+        "public-sources",
+        "index"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "index.ts"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::activation-pricing::public-source::read-data",
+      "path": [
+        "packages",
+        "activation-pricing",
+        "public-sources",
+        "read-data"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "read-data"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::activation-pricing::public-source::show",
+      "path": [
+        "packages",
+        "activation-pricing",
+        "public-sources",
+        "show"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "show"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::activation-pricing::public-source::show-ios-jscore",
+      "path": [
+        "packages",
+        "activation-pricing",
+        "public-sources",
+        "show-ios-jscore"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "source-leaf/show-ios-jscore"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::activation-pricing::contract",
+      "path": [
+        "bitfield-account-portal",
+        "package",
+        "activation-pricing"
+      ],
+      "payload": {
+        "owns": [
+          "generic terms projection for activation-related human explanation",
+          "descriptor-driven option display",
+          "descriptor-driven action availability display",
+          "opaque adjacent-owner handoff descriptors"
+        ],
+        "does_not_own": [
+          "payment provider material",
+          "checkout session creation",
+          "plan lifecycle mutation",
+          "signed account event admission",
+          "product access admission"
+        ],
+        "package": "activation-pricing",
+        "source_paths": [
+          "packages/activation-pricing/read-data/activation-pricing-model.ts",
+          "packages/activation-pricing/read-data/activation-pricing-config.ts",
+          "packages/activation-pricing/show/PricingPlanCard.tsx",
+          "packages/activation-pricing/show/PricingBillingToggle.tsx",
+          "packages/activation-pricing/show/AnimatedPriceValue.tsx",
+          "packages/activation-pricing/source-leaf/read-data/activation-pricing-model.ts",
+          "packages/activation-pricing/source-leaf/read-data/activation-pricing-config.ts",
+          "packages/activation-pricing/source-leaf/view-model/view-section-model.ts",
+          "packages/activation-pricing/source-leaf/view-model/build-view-section-model.ts",
+          "packages/activation-pricing/source-leaf/show-ios-jscore/render-kind-jscore.js",
+          "packages/activation-pricing/source-leaf/show-ios-jscore/mount-activation-pricing-jscore.js",
+          "packages/activation-pricing/source-leaf/show/PricingPlanCard.tsx",
+          "packages/activation-pricing/source-leaf/show/PricingBillingToggle.tsx",
+          "packages/activation-pricing/source-leaf/show/AnimatedPriceValue.tsx"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    }
+  ]
+}

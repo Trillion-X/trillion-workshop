@@ -1,0 +1,93 @@
+{
+  "schema": "bitfield.visual-database/placeable-surface-descriptors/v1",
+  "owner_package": "coordination-session",
+  "renderer_package": "visual-database",
+  "record_sources": ["coordination-session.catalog", "coordination-session.session", "coordination-session.submission", "coordination-session.seat-ledger", "coordination-session.composed-readback"],
+  "status_overrides": {
+    "open": { "label": "Open", "tone": "success" },
+    "draft": { "label": "Draft saved", "tone": "warning" },
+    "validation_failed": { "label": "Needs attention", "tone": "error" },
+    "full": { "label": "Full", "tone": "error" },
+    "waitlisted": { "label": "Waitlisted", "tone": "warning" },
+    "promoted": { "label": "Seat offered", "tone": "success" },
+    "confirmed": { "label": "Confirmed", "tone": "success" },
+    "stale": { "label": "Superseded", "tone": "neutral" },
+    "offline": { "label": "Queued offline", "tone": "warning" },
+    "feedback_open": { "label": "Feedback open", "tone": "accent" }
+  },
+  "fields": {
+    "kind": "visual-database.fields",
+    "version": 2,
+    "descriptors": [
+      { "id": "title", "label": "Session", "role": "title", "paths": [["payload", "title"], ["title"]], "writePath": ["payload", "title"] },
+      { "id": "record-kind", "label": "Record kind", "role": "kind", "paths": [["payload", "record_kind"]], "writePath": ["payload", "record_kind"] },
+      { "id": "status", "label": "Status", "role": "badge", "shape": "choice", "paths": [["payload", "status"]], "writePath": ["payload", "status"], "domain": { "open": true, "values": [] } },
+      { "id": "mode", "label": "Mode", "role": "metric", "shape": "choice", "paths": [["payload", "mode"]], "writePath": ["payload", "mode"], "domain": { "open": true } },
+      { "id": "time", "label": "Event time", "role": "date", "shape": "datetime", "paths": [["payload", "time"]], "writePath": ["payload", "time"] },
+      { "id": "local-time", "label": "Your time", "role": "metric", "shape": "datetime", "paths": [["payload", "local_time"]], "writePath": ["payload", "local_time"] },
+      { "id": "place", "label": "Place", "role": "metric", "paths": [["payload", "place"]], "writePath": ["payload", "place"] },
+      { "id": "hosts", "label": "Hosts", "role": "metric", "shape": "multi", "paths": [["payload", "hosts"]], "writePath": ["payload", "hosts"] },
+      { "id": "capacity", "label": "Capacity", "role": "metric", "shape": "number", "paths": [["payload", "capacity"]], "writePath": ["payload", "capacity"] },
+      { "id": "remaining", "label": "Remaining", "role": "metric", "shape": "number", "paths": [["payload", "remaining"]], "writePath": ["payload", "remaining"] },
+      { "id": "waitlist-rank", "label": "Waitlist rank", "role": "metric", "shape": "number", "paths": [["payload", "waitlist_rank"]], "writePath": ["payload", "waitlist_rank"] },
+      { "id": "selected", "label": "Selected", "role": "metric", "shape": "boolean", "paths": [["payload", "selected"]], "writePath": ["payload", "selected"] },
+      { "id": "primary-rank", "label": "Primary", "role": "metric", "shape": "number", "paths": [["payload", "primary_rank"]], "writePath": ["payload", "primary_rank"] },
+      { "id": "alternate-rank", "label": "Alternate", "role": "metric", "shape": "number", "paths": [["payload", "alternate_rank"]], "writePath": ["payload", "alternate_rank"] },
+      { "id": "participant", "label": "Participant", "role": "metric", "paths": [["payload", "participant"]], "writePath": ["payload", "participant"] },
+      { "id": "bottleneck", "label": "Bottleneck", "role": "metric", "paths": [["payload", "bottleneck"]], "writePath": ["payload", "bottleneck"] },
+      { "id": "helper", "label": "Helper", "role": "metric", "paths": [["payload", "helper"]], "writePath": ["payload", "helper"] },
+      { "id": "completion", "label": "Completion", "role": "metric", "shape": "choice", "paths": [["payload", "completion"]], "writePath": ["payload", "completion"], "domain": { "open": true } },
+      { "id": "feedback", "label": "Feedback", "role": "body", "paths": [["payload", "feedback"]], "writePath": ["payload", "feedback"] },
+      { "id": "next-learning", "label": "Next learning", "role": "link", "paths": [["payload", "next_learning"]], "writePath": ["payload", "next_learning"] },
+      { "id": "receipt", "label": "Receipt", "role": "metric", "paths": [["payload", "receipt"]], "writePath": ["payload", "receipt"] },
+      { "id": "successor", "label": "Successor", "role": "link", "paths": [["payload", "successor"]], "writePath": ["payload", "successor"] },
+      { "id": "provenance", "label": "Provenance", "role": "metric", "shape": "multi", "paths": [["payload", "provenance"]], "writePath": ["payload", "provenance"] },
+      { "id": "node-ref", "label": "Node ref", "role": "id", "paths": [["payload", "node_ref"]], "writePath": ["payload", "node_ref"] },
+      { "id": "parent-ref", "label": "Parent ref", "role": "link", "paths": [["payload", "parent_ref"]], "writePath": ["payload", "parent_ref"] }
+    ]
+  },
+  "views": {
+    "views": [
+      { "id": "catalog", "label": "Catalog", "kind": "table", "order": 10, "filters": [{ "field": "record-kind", "equals": ["catalog-session"], "exclude": [] }], "projectionRules": [], "columns": { "order": ["title", "status", "mode", "time", "place", "hosts", "remaining"], "widths": { "title": 260, "time": 190, "place": 180 }, "hidden": ["record-kind", "local-time", "capacity", "waitlist-rank", "selected", "primary-rank", "alternate-rank", "participant", "bottleneck", "helper", "completion", "feedback", "next-learning", "receipt", "successor", "provenance", "node-ref", "parent-ref"] } },
+      { "id": "session-detail", "label": "Session detail", "kind": "table", "order": 20, "filters": [{ "field": "record-kind", "equals": ["session-detail"], "exclude": [] }], "projectionRules": [], "columns": { "order": ["title", "status", "time", "local-time", "place", "mode", "capacity", "remaining", "waitlist-rank", "hosts"], "hidden": ["record-kind", "selected", "primary-rank", "alternate-rank", "participant", "bottleneck", "helper", "completion", "feedback", "next-learning", "receipt", "successor", "provenance", "node-ref", "parent-ref"] } },
+      { "id": "selection", "label": "Selection", "kind": "gallery", "order": 30, "filters": [{ "field": "record-kind", "equals": ["catalog-session"], "exclude": [] }], "projectionRules": [], "columns": { "order": ["selected", "title", "status", "time", "place", "mode"] } },
+      { "id": "ranked-choice", "label": "Ranked choices", "kind": "table", "order": 40, "filters": [{ "field": "record-kind", "equals": ["ranked-choice"], "exclude": [] }], "projectionRules": [], "columns": { "order": ["title", "time", "place", "mode", "primary-rank", "alternate-rank"], "widths": { "title": 240, "time": 190 }, "hidden": ["record-kind", "status", "local-time", "hosts", "capacity", "remaining", "waitlist-rank", "selected", "participant", "bottleneck", "helper", "completion", "feedback", "next-learning", "receipt", "successor", "provenance", "node-ref", "parent-ref"] } },
+      { "id": "host-capacity-queue", "label": "Host queue", "kind": "table", "order": 50, "filters": [{ "field": "record-kind", "equals": ["seat-claim"], "exclude": [] }], "projectionRules": [], "columns": { "order": ["participant", "status", "capacity", "remaining", "waitlist-rank", "receipt"], "hidden": ["title", "record-kind", "mode", "time", "local-time", "place", "hosts", "selected", "primary-rank", "alternate-rank", "bottleneck", "helper", "completion", "feedback", "next-learning", "successor", "provenance", "node-ref", "parent-ref"] } },
+      { "id": "receipt-status", "label": "Receipt & status", "kind": "table", "order": 60, "filters": [{ "field": "record-kind", "equals": ["submission-receipt"], "exclude": [] }], "projectionRules": [], "columns": { "order": ["title", "status", "receipt", "waitlist-rank", "successor"], "widths": { "title": 280, "receipt": 260 }, "hidden": ["record-kind", "mode", "time", "local-time", "place", "hosts", "capacity", "remaining", "selected", "primary-rank", "alternate-rank", "participant", "bottleneck", "helper", "completion", "feedback", "next-learning", "provenance", "node-ref", "parent-ref"] } },
+      { "id": "outcome-relations", "label": "Outcome relations", "kind": "table", "order": 70, "filters": [{ "field": "record-kind", "equals": ["outcome-relation"], "exclude": [] }], "projectionRules": [], "columns": { "order": ["title", "participant", "bottleneck", "helper", "completion", "feedback", "next-learning", "successor", "provenance"], "widths": { "title": 200, "feedback": 210, "provenance": 280 }, "hidden": ["record-kind", "status", "mode", "time", "local-time", "place", "hosts", "capacity", "remaining", "waitlist-rank", "selected", "primary-rank", "alternate-rank", "receipt", "node-ref", "parent-ref"] }, "topology": { "nodeSources": [{ "id": "payload.node_ref", "label": "payload.title" }], "edgeSources": [{ "from": "payload.parent_ref", "to": "payload.node_ref" }] } }
+    ]
+  },
+  "placeable_surfaces": [
+    { "id": "desktop-catalog", "viewport": "desktop", "view_ref": "catalog" },
+    { "id": "desktop-session-detail", "viewport": "desktop", "view_ref": "session-detail" },
+    { "id": "desktop-selection", "viewport": "desktop", "view_ref": "selection" },
+    { "id": "desktop-ranked-choice", "viewport": "desktop", "view_ref": "ranked-choice" },
+    { "id": "desktop-host-capacity-queue", "viewport": "desktop", "view_ref": "host-capacity-queue" },
+    { "id": "desktop-receipt-status", "viewport": "desktop", "view_ref": "receipt-status" },
+    { "id": "desktop-outcome-relations", "viewport": "desktop", "view_ref": "outcome-relations" },
+    { "id": "mobile-catalog", "viewport": "mobile", "view_ref": "catalog", "columns_override": { "order": ["title", "status", "remaining"], "widths": { "title": 190, "status": 105, "remaining": 80 }, "hidden": ["record-kind", "mode", "time", "local-time", "place", "hosts", "capacity", "waitlist-rank", "selected", "primary-rank", "alternate-rank", "participant", "bottleneck", "helper", "completion", "feedback", "next-learning", "receipt", "successor", "provenance", "node-ref", "parent-ref"] } },
+    { "id": "mobile-selection", "viewport": "mobile", "view_ref": "selection", "interaction": "check-multiselect" },
+    { "id": "mobile-ranked-choice", "viewport": "mobile", "view_ref": "ranked-choice", "interaction": "accessible-step-controls", "columns_override": { "order": ["title", "primary-rank", "alternate-rank"], "widths": { "title": 190, "primary-rank": 82, "alternate-rank": 92 }, "hidden": ["record-kind", "status", "mode", "time", "local-time", "place", "hosts", "capacity", "remaining", "waitlist-rank", "selected", "participant", "bottleneck", "helper", "completion", "feedback", "next-learning", "receipt", "successor", "provenance", "node-ref", "parent-ref"] } },
+    { "id": "mobile-draft-recovery", "viewport": "mobile", "view_ref": "receipt-status", "state_ref": "partial-draft", "columns_override": { "order": ["title", "status", "receipt"], "widths": { "title": 155, "status": 100, "receipt": 145 }, "hidden": ["record-kind", "mode", "time", "local-time", "place", "hosts", "capacity", "remaining", "waitlist-rank", "selected", "primary-rank", "alternate-rank", "participant", "bottleneck", "helper", "completion", "feedback", "next-learning", "successor", "provenance", "node-ref", "parent-ref"] } },
+    { "id": "mobile-full-waitlist", "viewport": "mobile", "view_ref": "host-capacity-queue", "state_ref": "full-waitlist", "columns_override": { "order": ["participant", "status", "waitlist-rank"], "widths": { "participant": 190, "status": 110, "waitlist-rank": 90 }, "hidden": ["title", "record-kind", "mode", "time", "local-time", "place", "hosts", "capacity", "remaining", "selected", "primary-rank", "alternate-rank", "bottleneck", "helper", "completion", "feedback", "next-learning", "receipt", "successor", "provenance", "node-ref", "parent-ref"] } },
+    { "id": "mobile-feedback", "viewport": "mobile", "view_ref": "outcome-relations", "state_ref": "feedback", "columns_override": { "order": ["title", "successor", "provenance"], "widths": { "title": 145, "successor": 120, "provenance": 140 }, "hidden": ["record-kind", "status", "mode", "time", "local-time", "place", "hosts", "capacity", "remaining", "waitlist-rank", "selected", "primary-rank", "alternate-rank", "participant", "bottleneck", "helper", "completion", "feedback", "next-learning", "receipt", "node-ref", "parent-ref"] } }
+  ],
+  "render_state_matrix": [
+    { "key": "empty", "label": "Empty catalog", "surface_state": "empty", "proof": "no invented rows" },
+    { "key": "loading", "label": "Loading", "surface_state": "loading", "proof": "stable deterministic skeleton" },
+    { "key": "partial-draft", "label": "Partial submission", "record_patch": { "status": "draft" }, "proof": "recovery token restores submission" },
+    { "key": "validation-failure", "label": "Validation failure", "record_patch": { "status": "validation_failed" }, "proof": "valid values retained" },
+    { "key": "retry", "label": "Retry", "surface_state": "retryable", "proof": "idempotency key prevents duplicate claim" },
+    { "key": "duplicate-identity", "label": "Duplicate identity", "surface_state": "identity-resolution", "proof": "one subject relation" },
+    { "key": "permission-denied", "label": "Permission denied", "surface_state": "closed", "proof": "no record leak" },
+    { "key": "invitation-required", "label": "Invitation required", "surface_state": "authority-missing", "proof": "invite receipt" },
+    { "key": "stale-superseded", "label": "Stale / superseded", "record_patch": { "status": "stale" }, "proof": "successor visible and old claim released" },
+    { "key": "full-waitlist", "label": "Full + waitlist", "record_patch": { "status": "full", "remaining": 0 }, "proof": "waitlist rank normalized" },
+    { "key": "waitlist-promotion", "label": "Waitlist promotion", "record_patch": { "status": "promoted" }, "proof": "one live claim with expiry" },
+    { "key": "timezone-conflict", "label": "Timezone conflict", "surface_state": "dual-locale", "proof": "event and local time visible" },
+    { "key": "concurrent-edit", "label": "Concurrent edit", "surface_state": "generation-conflict", "proof": "draft retained after refresh" },
+    { "key": "offline", "label": "Offline / degraded", "record_patch": { "status": "offline" }, "proof": "no local seat claim" },
+    { "key": "cancellation-no-show", "label": "Cancellation / no-show", "surface_state": "replacement-offer", "proof": "seat ledger balanced" },
+    { "key": "feedback", "label": "Feedback", "record_patch": { "status": "feedback_open" }, "proof": "progress and edit window visible" }
+  ]
+}

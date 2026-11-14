@@ -1,0 +1,116 @@
+{
+  "package": "ai-training-batch",
+  "things": [
+    {
+      "type": "stored_bytes",
+      "name": "index",
+      "source_path": "index.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "read-ai-training-batches",
+      "source_path": "read-data/read-ai-training-batches.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "request-ai-training-batch",
+      "source_path": "do-work/request-ai-training-batch.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "ai-training-batch-panel",
+      "source_path": "show/TrainingBatchPanel.tsx"
+    },
+    {
+      "type": "record",
+      "address": "package::ai-training-batch::contract",
+      "path": [
+        "packages",
+        "ai-training-batch",
+        "contract"
+      ],
+      "payload": {
+        "kind": "package-contract",
+        "package": "ai-training-batch",
+        "owns": [
+          "generic training batch reading",
+          "generic training recipe reading",
+          "generic training batch request forwarding",
+          "generic training batch rendering"
+        ],
+        "does_not_own": [
+          "model execution",
+          "model storage",
+          "reward scoring formulas",
+          "legal hold policy",
+          "package-set-specific copy"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-training-batch::record-contract::ai-training-batch",
+      "path": [
+        "packages",
+        "ai-training-batch",
+        "record-contracts",
+        "ai-training-batch"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "ai-training-batch",
+        "required_fields": [
+          "id"
+        ],
+        "data_owner": "package-set-records-or-imported-facts"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-training-batch::record-contract::training-recipe",
+      "path": [
+        "packages",
+        "ai-training-batch",
+        "record-contracts",
+        "training-recipe"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "training-recipe",
+        "required_fields": [
+          "id"
+        ],
+        "data_owner": "package-set-records-or-imported-facts"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-training-batch::target::request-ai-training-batch",
+      "path": [
+        "packages",
+        "ai-training-batch",
+        "targets",
+        "request-ai-training-batch"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "request-ai-training-batch",
+        "export_name": "requestTrainingBatch",
+        "source_path": "do-work/request-ai-training-batch.ts",
+        "target": "ai-training-batch.request-ai-training-batch"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    }
+  ]
+}

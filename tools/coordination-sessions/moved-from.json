@@ -1,0 +1,78 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/coordination-session/data/generic-event-platform-visual-fixture.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/coordination-sessions/packages/coordination-session/data/generic-event-platform-visual-fixture.json",
+      "source_identity": "1f:add287dc216882b46d81090448b51293bd9e72efc6085bdc1edd95303a5415ab",
+      "identity": "1f:add287dc216882b46d81090448b51293bd9e72efc6085bdc1edd95303a5415ab"
+    },
+    {
+      "from": "packages/coordination-session/data/generic-event-platform-visual-surfaces.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/coordination-sessions/packages/coordination-session/data/generic-event-platform-visual-surfaces.json",
+      "source_identity": "1f:0b1afd581a6d8666563fc78a95011eb2e22114d216db28b6462120a85e8e321e",
+      "identity": "1f:0b1afd581a6d8666563fc78a95011eb2e22114d216db28b6462120a85e8e321e"
+    },
+    {
+      "from": "packages/coordination-session/data/generic-event-platform-workflow.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/coordination-sessions/packages/coordination-session/data/generic-event-platform-workflow.json",
+      "source_identity": "1f:5a5490268b4976ab28af312e97fdc1a9178a94efd17c245556eeaa05b4218eb3",
+      "identity": "1f:5a5490268b4976ab28af312e97fdc1a9178a94efd17c245556eeaa05b4218eb3"
+    },
+    {
+      "from": "packages/coordination-session/data/high-agency-working-session.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/coordination-sessions/packages/coordination-session/data/high-agency-working-session.json",
+      "source_identity": "1f:90859e37e96976d8d937ab098141c664f7c1ebc4d0be540938d34a2340942f5f",
+      "identity": "1f:90859e37e96976d8d937ab098141c664f7c1ebc4d0be540938d34a2340942f5f"
+    },
+    {
+      "from": "packages/coordination-session/data/session-instance.fixture.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/coordination-sessions/packages/coordination-session/data/session-instance.fixture.json",
+      "source_identity": "1f:fee60887f0f64767a0f464a23315646060a50d22e69171a7a2801185414f643b",
+      "identity": "1f:fee60887f0f64767a0f464a23315646060a50d22e69171a7a2801185414f643b"
+    },
+    {
+      "from": "packages/coordination-session/do-work/session-lifecycle-operations.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/coordination-sessions/packages/coordination-session/do-work/session-lifecycle-operations.ts",
+      "source_identity": "1f:27ee9061076225e1fad5a5a8f01071bfeb986848b6c4eb6d54568747c4e4acbc",
+      "identity": "1f:27ee9061076225e1fad5a5a8f01071bfeb986848b6c4eb6d54568747c4e4acbc"
+    },
+    {
+      "from": "packages/coordination-session/read-data/materialize-organizer-event.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/coordination-sessions/packages/coordination-session/read-data/materialize-organizer-event.ts",
+      "source_identity": "1f:84173ab3335334a3dea2bf854f731e3d198ff5c8dc8520cf132d99537b215458",
+      "identity": "1f:84173ab3335334a3dea2bf854f731e3d198ff5c8dc8520cf132d99537b215458"
+    },
+    {
+      "from": "packages/coordination-session/read-data/read-session-catalog.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/coordination-sessions/packages/coordination-session/read-data/read-session-catalog.ts",
+      "source_identity": "1f:67f0732dfa264188bfda3dbb1a0fe7a2ba6a60f8fa35a19cfe459e461ce367e3",
+      "identity": "1f:67f0732dfa264188bfda3dbb1a0fe7a2ba6a60f8fa35a19cfe459e461ce367e3"
+    },
+    {
+      "from": "packages/coordination-session/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/coordination-sessions/packages/coordination-session/README.md",
+      "source_identity": "1f:84cabc9183a6e26959f563f16701f0d2c3a68ccf91363a87cd414528c3f1801d",
+      "identity": "1f:84cabc9183a6e26959f563f16701f0d2c3a68ccf91363a87cd414528c3f1801d"
+    },
+    {
+      "from": "packages/coordination-session/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/coordination-sessions/packages/coordination-session/things-to-store-and-run.json",
+      "source_identity": "1f:5f98b68cd38bd445820bc6026ddcf0b801b227e4a43c38b5a75cc1210e1359fc",
+      "identity": "1f:5f98b68cd38bd445820bc6026ddcf0b801b227e4a43c38b5a75cc1210e1359fc"
+    }
+  ]
+}

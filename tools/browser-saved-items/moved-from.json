@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/browser-saved-items/do-work/add-arc-sources-to-component-catalog.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browser-saved-items/packages/browser-saved-items/do-work/add-arc-sources-to-component-catalog.py",
+      "source_identity": "1f:e5016ed4a6821d41cb6a67cb4de8dd9a2c9fe0f22aae807522331826b52965d2",
+      "identity": "1f:e5016ed4a6821d41cb6a67cb4de8dd9a2c9fe0f22aae807522331826b52965d2"
+    },
+    {
+      "from": "packages/browser-saved-items/do-work/organize-arc-personal-ui.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browser-saved-items/packages/browser-saved-items/do-work/organize-arc-personal-ui.py",
+      "source_identity": "1f:85d71f5ce2d2b57e5e7cdcaec991823f19f5cf6fda36031e72e53b55484a7d63",
+      "identity": "1f:85d71f5ce2d2b57e5e7cdcaec991823f19f5cf6fda36031e72e53b55484a7d63"
+    },
+    {
+      "from": "packages/browser-saved-items/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browser-saved-items/packages/browser-saved-items/README.md",
+      "source_identity": "1f:4a309bad5cecb56e47d49a249cf8de9e4246280c81ffd9d1b5afe61c92565530",
+      "identity": "1f:4a309bad5cecb56e47d49a249cf8de9e4246280c81ffd9d1b5afe61c92565530"
+    },
+    {
+      "from": "packages/browser-saved-items/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browser-saved-items/packages/browser-saved-items/things-to-store-and-run.json",
+      "source_identity": "1f:d74dbc99030c7747c352c6c53f5289338ae764333393a561b4052657112190b2",
+      "identity": "1f:d74dbc99030c7747c352c6c53f5289338ae764333393a561b4052657112190b2"
+    }
+  ]
+}

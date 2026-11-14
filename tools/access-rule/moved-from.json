@@ -1,0 +1,147 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "owner-home-folder",
+      "find": "[/]Users[/]b[r]ianakhtar",
+      "replace": "/workspace/the-owner",
+      "means": "A person's home folder name in a path, swapped for a made-up one: a public tree holds made-up data only."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/access-rule/do-work/decision-targets.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/access-rule/packages/access-rule/do-work/decision-targets.ts",
+      "source_identity": "1f:b31e202c5dda4c926def0ee78fe7d03c27a9e276f4c7929c61e959a1e4a357eb",
+      "identity": "1f:b31e202c5dda4c926def0ee78fe7d03c27a9e276f4c7929c61e959a1e4a357eb"
+    },
+    {
+      "from": "packages/access-rule/do-work/process-scripts/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/access-rule/packages/access-rule/do-work/process-scripts/README.md",
+      "source_identity": "1f:be152369a82e73b9531cc669d5576509c70ccd52e313c13e29eebf29668ee436",
+      "identity": "1f:be152369a82e73b9531cc669d5576509c70ccd52e313c13e29eebf29668ee436"
+    },
+    {
+      "from": "packages/access-rule/do-work/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/access-rule/packages/access-rule/do-work/README.md",
+      "source_identity": "1f:d37762b9cc01278f51281c68fb99cc4eb9d0c2429f63ef64dfa9e42427fff760",
+      "identity": "1f:d37762b9cc01278f51281c68fb99cc4eb9d0c2429f63ef64dfa9e42427fff760"
+    },
+    {
+      "from": "packages/access-rule/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/access-rule/packages/access-rule/entry-to-package-data-map.json",
+      "source_identity": "1f:bf6f07747863c249e117005b55908d61e43ae2b4b200e96448610fd9b07f2cb6",
+      "identity": "1f:bf6f07747863c249e117005b55908d61e43ae2b4b200e96448610fd9b07f2cb6"
+    },
+    {
+      "from": "packages/access-rule/package.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/access-rule/packages/access-rule/package.json",
+      "source_identity": "1f:56152fa1937704e403eed008b4eb2cdfecff24b35db519aa60db81ddc23ba90b",
+      "identity": "1f:56152fa1937704e403eed008b4eb2cdfecff24b35db519aa60db81ddc23ba90b"
+    },
+    {
+      "from": "packages/access-rule/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/access-rule/packages/access-rule/README.md",
+      "source_identity": "1f:2e3b7896d4db9f74fb5f30a96fc0ebaf13ededf22d5121a97a5041bc1422f85b",
+      "identity": "1f:151dd8a6bfb314d0d1f258701f31679cbe400303c8c5256fbd49c7e36ee2bd28",
+      "calls": [
+        "owner-home-folder"
+      ]
+    },
+    {
+      "from": "packages/access-rule/reference/2026-06-20-tribes-access-rule-evidence.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/access-rule/packages/access-rule/reference/2026-06-20-tribes-access-rule-evidence.md",
+      "source_identity": "1f:5bdca19552bce8495d083f0254b7424532911e348d41390fe1b32b779d91c7ff",
+      "identity": "1f:40e0995c07bdab375b4df40aa153afca7f3b08bf69c92aca5f73f5a83c1a556d",
+      "calls": [
+        "owner-home-folder"
+      ]
+    },
+    {
+      "from": "packages/access-rule/reference/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/access-rule/packages/access-rule/reference/README.md",
+      "source_identity": "1f:9c78d1df4ce9b751f4bcfc43b6fc3e4341c9636633da6233837f204cc1fd9168",
+      "identity": "1f:9c78d1df4ce9b751f4bcfc43b6fc3e4341c9636633da6233837f204cc1fd9168"
+    },
+    {
+      "from": "packages/access-rule/src/build-owner-action-request.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/access-rule/packages/access-rule/src/build-owner-action-request.ts",
+      "source_identity": "1f:ef5a992cfaa1cfde7079a8772438648c9126aca00aacb7b420756d04b0f3d2b8",
+      "identity": "1f:ef5a992cfaa1cfde7079a8772438648c9126aca00aacb7b420756d04b0f3d2b8"
+    },
+    {
+      "from": "packages/access-rule/src/evaluate.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/access-rule/packages/access-rule/src/evaluate.ts",
+      "source_identity": "1f:b374b41e4df333c831978f743a721d8aeb99bc37d36c3a95d1c577b89cbfbf03",
+      "identity": "1f:b374b41e4df333c831978f743a721d8aeb99bc37d36c3a95d1c577b89cbfbf03"
+    },
+    {
+      "from": "packages/access-rule/src/evaluation-fixtures.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/access-rule/packages/access-rule/src/evaluation-fixtures.ts",
+      "source_identity": "1f:500b46427ac1461b2a9b3143677c066767361312a07b7a0fa0f3e09f69c7b90c",
+      "identity": "1f:500b46427ac1461b2a9b3143677c066767361312a07b7a0fa0f3e09f69c7b90c"
+    },
+    {
+      "from": "packages/access-rule/src/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/access-rule/packages/access-rule/src/index.ts",
+      "source_identity": "1f:81d610146b79505fabb51cf62ae6b8eefe92364f5330beee13da706a511067b5",
+      "identity": "1f:81d610146b79505fabb51cf62ae6b8eefe92364f5330beee13da706a511067b5"
+    },
+    {
+      "from": "packages/access-rule/src/process-method.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/access-rule/packages/access-rule/src/process-method.ts",
+      "source_identity": "1f:c25724a7d07878b0c6b234913b9260c7fb96fd648739ccfa8451e03205601f76",
+      "identity": "1f:c25724a7d07878b0c6b234913b9260c7fb96fd648739ccfa8451e03205601f76"
+    },
+    {
+      "from": "packages/access-rule/src/read-evaluation-feed.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/access-rule/packages/access-rule/src/read-evaluation-feed.ts",
+      "source_identity": "1f:5a22d4680d084e23cca4fd14e7480a5375264cf1490c13e3e9d59ea5a4b17756",
+      "identity": "1f:5a22d4680d084e23cca4fd14e7480a5375264cf1490c13e3e9d59ea5a4b17756"
+    },
+    {
+      "from": "packages/access-rule/src/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/access-rule/packages/access-rule/src/README.md",
+      "source_identity": "1f:c23e382919810d800dc2f9f5742eed28f0849a130fd955a77343bdd60863c10f",
+      "identity": "1f:c23e382919810d800dc2f9f5742eed28f0849a130fd955a77343bdd60863c10f"
+    },
+    {
+      "from": "packages/access-rule/src/records.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/access-rule/packages/access-rule/src/records.ts",
+      "source_identity": "1f:191c361cf5456977b091ec2954b3fe8cc74a3858805c9ffc47b014cf8fc693a3",
+      "identity": "1f:191c361cf5456977b091ec2954b3fe8cc74a3858805c9ffc47b014cf8fc693a3"
+    },
+    {
+      "from": "packages/access-rule/src/validate-records.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/access-rule/packages/access-rule/src/validate-records.ts",
+      "source_identity": "1f:9c3f6a21d9b85066717a3048e591e60cb4407f13ccceae3a79fa4f35d65cc799",
+      "identity": "1f:9c3f6a21d9b85066717a3048e591e60cb4407f13ccceae3a79fa4f35d65cc799"
+    },
+    {
+      "from": "packages/access-rule/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/access-rule/packages/access-rule/things-to-store-and-run.json",
+      "source_identity": "1f:324f74738beea820157efc64d1ba07e682812533391ba0fa36c8d34ba191ef41",
+      "identity": "1f:324f74738beea820157efc64d1ba07e682812533391ba0fa36c8d34ba191ef41"
+    }
+  ]
+}

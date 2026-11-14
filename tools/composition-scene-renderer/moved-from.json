@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/composition-scene-renderer/show/mount-component.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/composition-scene-renderer/packages/composition-scene-renderer/show/mount-component.ts",
+      "source_identity": "1f:5caafc6730e3ed1d2460c935eb6a6af04f7a59239a245e69fc95b21d5b675360",
+      "identity": "1f:5caafc6730e3ed1d2460c935eb6a6af04f7a59239a245e69fc95b21d5b675360"
+    },
+    {
+      "from": "packages/composition-scene-renderer/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/composition-scene-renderer/packages/composition-scene-renderer/show/README.md",
+      "source_identity": "1f:7d8ddde32af8500f863da8f5e44f6c7e26af4f1e02d47d19d1e3d121c5b3ccac",
+      "identity": "1f:7d8ddde32af8500f863da8f5e44f6c7e26af4f1e02d47d19d1e3d121c5b3ccac"
+    },
+    {
+      "from": "packages/composition-scene-renderer/show/render-scene.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/composition-scene-renderer/packages/composition-scene-renderer/show/render-scene.ts",
+      "source_identity": "1f:6895ba3298fdbfce875cc94a57297b337549143e821287244369929d0ed42d4b",
+      "identity": "1f:6895ba3298fdbfce875cc94a57297b337549143e821287244369929d0ed42d4b"
+    },
+    {
+      "from": "packages/composition-scene-renderer/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/composition-scene-renderer/packages/composition-scene-renderer/things-to-store-and-run.json",
+      "source_identity": "1f:d9e69854946c6e3a0ca8244887b5e5c00e9e9b195f5267b2a892d6f0f68df5b1",
+      "identity": "1f:d9e69854946c6e3a0ca8244887b5e5c00e9e9b195f5267b2a892d6f0f68df5b1"
+    }
+  ]
+}

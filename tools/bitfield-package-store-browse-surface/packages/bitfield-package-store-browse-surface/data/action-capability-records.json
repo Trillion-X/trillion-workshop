@@ -1,0 +1,266 @@
+{
+  "schema": "bitfield.owner_action_capability_records.v1",
+  "credential_requirements": [
+    {
+      "requirement_ref": "credential-requirement:hosted-target-carrier-url",
+      "label": "Hosted action endpoint",
+      "detail": "Hosted actions need the target carrier endpoint before browser buttons can reach package targets.",
+      "owner_package": "hosted-public-app",
+      "provider_package": "public-target-carrier",
+      "credential_handle_ref": "deployment-env:BITFIELD_TARGET_CARRIER_URL",
+      "environment_variable": "BITFIELD_TARGET_CARRIER_URL",
+      "status_label": "checked by hosted action carrier",
+      "target_refs": [
+        "account-session.login-link",
+        "checkout.prepare",
+        "checkout.start",
+        "checkout.complete",
+        "package-purchase.prepare",
+        "package-purchase.start",
+        "package-purchase.complete",
+        "bitfield-package-store.request-accept-package-files",
+        "bitfield-package-store.request-install-package",
+        "bitfield-package-store.request-publish-package",
+        "bitfield-package-store.setup-offer"
+      ]
+    },
+    {
+      "requirement_ref": "credential-requirement:hosted-target-carrier-access-token",
+      "label": "Hosted action access token",
+      "detail": "The public Store cannot call package targets unless the carrier has its access token.",
+      "owner_package": "hosted-public-app",
+      "provider_package": "public-target-carrier",
+      "credential_handle_ref": "deployment-env:BITFIELD_TARGET_ACCESS_TOKEN",
+      "environment_variable": "BITFIELD_TARGET_ACCESS_TOKEN",
+      "status_label": "checked by hosted action carrier",
+      "target_refs": [
+        "account-session.login-link",
+        "checkout.prepare",
+        "checkout.start",
+        "checkout.complete",
+        "package-purchase.prepare",
+        "package-purchase.start",
+        "package-purchase.complete",
+        "bitfield-package-store.request-accept-package-files",
+        "bitfield-package-store.request-install-package",
+        "bitfield-package-store.request-publish-package",
+        "bitfield-package-store.setup-offer"
+      ]
+    },
+    {
+      "requirement_ref": "credential-requirement:login-proof-hmac",
+      "label": "Login proof signing handle",
+      "detail": "Account sign-in creates a short-lived login proof through the account-session credential descriptor.",
+      "owner_package": "account-session",
+      "provider_package": "credentials-vault",
+      "credential_handle_ref": "credential-key:bitfield-account-login-proof-hmac-key",
+      "credential_resolver_target": "slot::credentials-vault",
+      "credential_resolver_actor_id": "account-session",
+      "status_label": "checked by account session",
+      "target_refs": [
+        "account-session.login-link",
+        "account-session.complete-returning-login"
+      ]
+    },
+    {
+      "requirement_ref": "credential-requirement:resend-api-key",
+      "label": "Email sender handle",
+      "detail": "Login delivery asks the email sender package to inject its provider credential handle.",
+      "owner_package": "resend-email-sender",
+      "provider_package": "credentials-vault",
+      "credential_handle_ref": "credential-key:bitfield-resend-api-key",
+      "credential_resolver_target": "slot::credentials-vault",
+      "credential_resolver_actor_id": "slot::http-client",
+      "status_label": "checked by email sender",
+      "target_refs": [
+        "account-session.login-link",
+        "resend-email-sender.send-email"
+      ]
+    },
+    {
+      "requirement_ref": "credential-requirement:account-session-cookie-signer",
+      "label": "Account session signer",
+      "detail": "Returning sign-in completion signs the host-local browser session cookie for the Package Store origin.",
+      "owner_package": "account-session",
+      "provider_package": "hosted-public-app",
+      "credential_handle_ref": "deployment-env:BITFIELD_ACCOUNT_SESSION_SECRET_HEX",
+      "environment_variable": "BITFIELD_ACCOUNT_SESSION_SECRET_HEX",
+      "status_label": "checked by account session",
+      "target_refs": [
+        "account-session.complete-returning-login",
+        "account-session.browser-session"
+      ]
+    },
+    {
+      "requirement_ref": "credential-requirement:signed-event-author-seed",
+      "label": "Signed event author handle",
+      "detail": "Checkout and account actions sign event payloads through the signed-event-author package.",
+      "owner_package": "signed-event-author",
+      "provider_package": "credentials-vault",
+      "credential_handle_ref": "credential-key:bitfield-account-portal-signed-event-signing-seed",
+      "credential_resolver_target": "slot::credentials-vault",
+      "credential_resolver_actor_id": "signed-event-author",
+      "status_label": "checked by signed event author",
+      "target_refs": [
+        "checkout.start",
+        "checkout.complete",
+        "package-purchase.start",
+        "package-purchase.complete",
+        "bitfield-package-store.setup-offer",
+        "signed-event-author.sign-event"
+      ]
+    },
+    {
+      "requirement_ref": "credential-requirement:stripe-publishable-key",
+      "label": "Payment provider public key",
+      "detail": "Payment UI needs the provider public key material before a browser can start provider confirmation.",
+      "owner_package": "stripe-payment-provider",
+      "provider_package": "stripe-payment-provider",
+      "credential_handle_ref": "deployment-env:STRIPE_PUBLISHABLE_KEY",
+      "environment_variable": "STRIPE_PUBLISHABLE_KEY",
+      "status_label": "checked by payment provider",
+      "target_refs": [
+        "checkout.prepare",
+        "checkout.start",
+        "package-purchase.prepare",
+        "package-purchase.start",
+        "stripe-payment-provider.prepare-checkout",
+        "stripe-payment-provider.start-checkout"
+      ]
+    },
+    {
+      "requirement_ref": "credential-requirement:stripe-secret-key",
+      "label": "Payment provider server key",
+      "detail": "Provider session creation stays inside the Stripe provider package and requires its server credential handle.",
+      "owner_package": "stripe-payment-provider",
+      "provider_package": "stripe-payment-provider",
+      "credential_handle_ref": "deployment-env:STRIPE_SECRET_KEY",
+      "environment_variable": "STRIPE_SECRET_KEY",
+      "status_label": "checked by payment provider",
+      "target_refs": [
+        "checkout.start",
+        "checkout.complete",
+        "package-purchase.start",
+        "package-purchase.complete",
+        "stripe-payment-provider.start-checkout",
+        "stripe-payment-provider.read-subscription"
+      ]
+    },
+    {
+      "requirement_ref": "credential-requirement:account-contract-id",
+      "label": "Account contract handle",
+      "detail": "Account checkout completion needs the account contract ref that owns event admission.",
+      "owner_package": "checkout",
+      "provider_package": "checkout",
+      "credential_handle_ref": "deployment-env:BITFIELD_ACCOUNT_PORTAL_CONTRACT_ID",
+      "environment_variable": "BITFIELD_ACCOUNT_PORTAL_CONTRACT_ID",
+      "status_label": "checked by checkout owner",
+      "target_refs": [
+        "checkout.start",
+        "checkout.complete",
+        "package-purchase.start",
+        "package-purchase.complete"
+      ]
+    }
+  ],
+  "action_requirements": [
+    {
+      "action_ref": "action:store-install",
+      "label": "Install package",
+      "target_refs": [
+        "bitfield-package-store.request-accept-package-files",
+        "bitfield-package-store.request-install-package"
+      ],
+      "required_credential_refs": [
+        "credential-requirement:hosted-target-carrier-url",
+        "credential-requirement:hosted-target-carrier-access-token"
+      ]
+    },
+    {
+      "action_ref": "action:account-session",
+      "label": "Account session",
+      "target_refs": [
+        "account-session.browser-session"
+      ],
+      "required_credential_refs": [
+        "credential-requirement:hosted-target-carrier-url",
+        "credential-requirement:hosted-target-carrier-access-token",
+        "credential-requirement:account-session-cookie-signer"
+      ]
+    },
+    {
+      "action_ref": "action:creator-publish",
+      "label": "Publish package",
+      "target_refs": [
+        "bitfield-package-store.request-publish-package"
+      ],
+      "required_credential_refs": [
+        "credential-requirement:hosted-target-carrier-url",
+        "credential-requirement:hosted-target-carrier-access-token"
+      ]
+    },
+    {
+      "action_ref": "action:creator-offer-setup",
+      "label": "Set up offer",
+      "target_refs": [
+        "bitfield-package-store.setup-offer",
+        "signed-event-author.sign-event"
+      ],
+      "required_credential_refs": [
+        "credential-requirement:hosted-target-carrier-url",
+        "credential-requirement:hosted-target-carrier-access-token",
+        "credential-requirement:signed-event-author-seed"
+      ]
+    },
+    {
+      "action_ref": "action:account-sign-in",
+      "label": "Sign in",
+      "target_refs": [
+        "account-session.login-link",
+        "account-session.complete-returning-login"
+      ],
+      "required_credential_refs": [
+        "credential-requirement:hosted-target-carrier-url",
+        "credential-requirement:hosted-target-carrier-access-token",
+        "credential-requirement:login-proof-hmac",
+        "credential-requirement:resend-api-key",
+        "credential-requirement:account-session-cookie-signer"
+      ]
+    },
+    {
+      "action_ref": "action:checkout",
+      "label": "Checkout",
+      "target_refs": [
+        "checkout.prepare",
+        "checkout.start",
+        "checkout.complete"
+      ],
+      "required_credential_refs": [
+        "credential-requirement:hosted-target-carrier-url",
+        "credential-requirement:hosted-target-carrier-access-token",
+        "credential-requirement:signed-event-author-seed",
+        "credential-requirement:stripe-publishable-key",
+        "credential-requirement:stripe-secret-key",
+        "credential-requirement:account-contract-id"
+      ]
+    },
+    {
+      "action_ref": "action:package-purchase",
+      "label": "Purchase package",
+      "target_refs": [
+        "package-purchase.prepare",
+        "package-purchase.start",
+        "package-purchase.complete",
+        "owner-target:account-portal/package-purchase"
+      ],
+      "required_credential_refs": [
+        "credential-requirement:hosted-target-carrier-url",
+        "credential-requirement:hosted-target-carrier-access-token",
+        "credential-requirement:signed-event-author-seed",
+        "credential-requirement:stripe-publishable-key",
+        "credential-requirement:stripe-secret-key",
+        "credential-requirement:account-contract-id"
+      ]
+    }
+  ]
+}

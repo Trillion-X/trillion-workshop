@@ -1,0 +1,1840 @@
+{
+  "package": "calendar",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::calendar::checks",
+      "path": ["packages", "calendar", "checks"],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": ["show/__tests__/calendar-lane-width.test.tsx"]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "show-ios-jscore-readme",
+      "source_path": "show-ios-jscore/README.md"
+    },
+    {
+      "type": "record",
+      "address": "package::calendar::published-record::placeable-surface::calendar",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "CalendarDays",
+        "id": "calendar.calendar",
+        "kind": "placeable-surface",
+        "label": "Calendar",
+        "material_target": "component:calendar",
+        "order": 266,
+        "package_entry": {
+          "package_name": "calendar",
+          "entry_name": "calendar"
+        },
+        "things_to_put_on_screen": [
+          {
+            "required_capabilities": [
+              "can-put-thing-on-screen-using-screen-commands"
+            ],
+            "lifecycle_key": "component:calendar:jscore",
+            "props": {
+              "entry_function": "bitfieldMount"
+            }
+          }
+        ],
+        "surface_id": "calendar.calendar",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000266:calendar.calendar"
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::calendar::published-records",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "cell_table",
+        "columns": [
+          {
+            "column": 0,
+            "source": {
+              "path": [
+                "record",
+                "address"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "non_empty_text"
+            }
+          },
+          {
+            "column": 1,
+            "source": {
+              "path": [
+                "record",
+                "payload_json_text"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "json_text"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar::contract",
+      "path": [
+        "packages",
+        "calendar",
+        "contract"
+      ],
+      "payload": {
+        "kind": "bitfield-package-contract",
+        "package": "calendar",
+        "capability": "generic time-block surface and owner-action handoff",
+        "owns": [
+          "time-block lens records",
+          "calendar-facing time-block projection",
+          "calendar-facing queued-change projection",
+          "calendar-facing conflict projection",
+          "owner-action descriptor handoff records",
+          "calendar feed refresh workflow definition"
+        ],
+        "does_not_own": [
+          "account connection lifecycle",
+          "secret material",
+          "outbound network execution",
+          "public booking rules",
+          "task truth",
+          "audio-note task truth",
+          "multi-step action execution",
+          "raw provider transport execution"
+        ],
+        "reuses": [
+          "service-connections",
+          "credentials-vault",
+          "http-client",
+          "calendar-booker",
+          "tasks",
+          "audio-notes-to-tasks",
+          "workflow",
+          "find-current-items"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar::workflow-action::owner-action",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:calendar.owner-action",
+        "kind": "action",
+        "name": "calendar-owner-action",
+        "description": "Record one calendar owner-action handoff from the Calendar surface so provider sync and account owners can execute it.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "correlation_id",
+            "action_id"
+          ],
+          "properties": {
+            "correlation_id": {
+              "type": "string"
+            },
+            "action_id": {
+              "type": "string"
+            },
+            "command": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "write_owner_action",
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "correlation_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "calendar.queued-action::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "correlation_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "calendar",
+                    "owner-action"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "write_owner_action",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar::entry::calendar",
+      "path": [
+        "packages",
+        "calendar",
+        "entries"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "calendar",
+        "source_path": "show/mount-calendar.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-calendar"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar::native-screen-command-entry",
+      "path": [
+        "package-primitive",
+        "native-screen-command-entry"
+      ],
+      "payload": {
+        "kind": "bitfield-native-screen-command-entry",
+        "source_path": "show-ios-jscore/mount-calendar-jscore.js",
+        "readme_path": "show-ios-jscore/README.md"
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "built-show-ios-jscore-mount-calendar-jscore",
+      "build": {
+        "sequence": {
+          "inputs": [],
+          "input_trees": [],
+          "steps": [
+            {
+              "name": "build",
+              "process": {
+                "argv": [
+                  "node",
+                  "join-declared-sources"
+                ],
+                "cwd": ".",
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": ".bitfield-build-output"
+                  }
+                ],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              },
+              "workspace_bindings": {
+                "environment": [],
+                "arguments": [
+                  {
+                    "index": 1,
+                    "parts": [
+                      { "kind": "workspace_root" },
+                      { "kind": "literal", "value": "/packages/make-packages-match-their-source/do-work/join-declared-sources.mjs" }
+                    ]
+                  }
+                ]
+              },
+              "predecessor_outputs": []
+            }
+          ]
+        },
+        "output": {
+          "step": "build",
+          "mount_path": ".bitfield-build-output"
+        },
+        "request": {
+          "source_files": [
+            "show-ios-jscore/calendar-jscore-renderer.js",
+            "show-ios-jscore/mount-calendar-jscore.js"
+          ],
+          "source_kind": "application/javascript"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:calendar|prop:extension:things_to_put_on_screen|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:things_to_put_on_screen"
+      ],
+      "payload_template": {
+        "payload": {
+          "property_id": "prop:extension:things_to_put_on_screen",
+          "subject_id": "component:calendar",
+          "table": "attribute_fact",
+          "type_id": "type:extension",
+          "value_json": [
+            {
+              "artifact": {
+                "hash": ""
+              },
+              "required_capabilities": [
+                "can-put-thing-on-screen-using-screen-commands"
+              ],
+              "lifecycle_key": "component:calendar:screen-commands",
+              "props": {
+                "entry_function": "bitfieldMount"
+              },
+              "environment": {},
+              "dependencies": {}
+            }
+          ]
+        },
+        "replacements": [
+          {
+            "path": [
+              "value_json",
+              "0",
+              "artifact",
+              "hash"
+            ],
+            "value": {
+              "type": "stored_bytes_content_hash",
+              "name": "built-show-ios-jscore-mount-calendar-jscore",
+              "encoding": "string"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar::input::time-blocks",
+      "path": [
+        "packages",
+        "calendar",
+        "inputs"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "time-blocks",
+        "is_default": true,
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "calendar-time-block-owner-feed"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar::input::service-connections",
+      "path": [
+        "packages",
+        "calendar",
+        "inputs"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "service-connections",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "id",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "serviceName",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "serviceVendor",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 3,
+                "key": "credentialHandle",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 4,
+                "key": "status_ref",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 5,
+                "key": "scopes",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 6,
+                "key": "connectedAt",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 7,
+                "key": "credential_handle_refs",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 8,
+                "key": "proof_refs",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 9,
+                "key": "blocker_refs",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 10,
+                "key": "event_refs",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 11,
+                "key": "can_connect",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "byte_boolean"
+                  }
+                }
+              },
+              {
+                "column": 12,
+                "key": "can_send",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "byte_boolean"
+                  }
+                }
+              },
+              {
+                "column": 13,
+                "key": "can_retry",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "byte_boolean"
+                  }
+                }
+              },
+              {
+                "column": 14,
+                "key": "is_pending",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "byte_boolean"
+                  }
+                }
+              },
+              {
+                "column": 15,
+                "key": "legacy_status",
+                "transitional": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              }
+            ],
+            "op": "rows"
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "service-connections"
+      }
+    },
+    {
+      "type": "record",
+      "address": "calendar-time-block-owner-feed",
+      "address_mode": "label_hash",
+      "path": [
+        "packages",
+        "calendar",
+        "generated-values",
+        "time-block-owner-feed"
+      ],
+      "payload": {
+        "kind": "calendar.time-block-owner-feed",
+        "accounts": [],
+        "actions": [
+          {
+            "definition_id": "action:calendar.owner-action",
+            "id": "calendar.action.previous-range",
+            "include_output": false,
+            "input": {
+              "command": "previous-range",
+              "owner_ref": "calendar",
+              "requested_surface": "calendar.calendar"
+            },
+            "label": "Previous date",
+            "target": "slot::workflow"
+          },
+          {
+            "definition_id": "action:calendar.owner-action",
+            "id": "calendar.action.today",
+            "include_output": false,
+            "input": {
+              "command": "today",
+              "owner_ref": "calendar",
+              "requested_surface": "calendar.calendar"
+            },
+            "label": "Today",
+            "target": "slot::workflow"
+          },
+          {
+            "definition_id": "action:calendar.owner-action",
+            "id": "calendar.action.next-range",
+            "include_output": false,
+            "input": {
+              "command": "next-range",
+              "owner_ref": "calendar",
+              "requested_surface": "calendar.calendar"
+            },
+            "label": "Next date",
+            "target": "slot::workflow"
+          },
+          {
+            "definition_id": "action:calendar.owner-action",
+            "id": "calendar.action.search",
+            "include_output": false,
+            "input": {
+              "command": "search",
+              "owner_ref": "calendar",
+              "requested_surface": "calendar.calendar"
+            },
+            "label": "Search",
+            "target": "slot::workflow"
+          },
+          {
+            "definition_id": "action:calendar.owner-action",
+            "id": "calendar.action.create-booking-link",
+            "include_output": false,
+            "input": {
+              "command": "create-booking-link",
+              "owner_ref": "calendar",
+              "requested_surface": "calendar.calendar"
+            },
+            "label": "Create booking link",
+            "target": "slot::workflow"
+          },
+          {
+            "definition_id": "action:calendar.owner-action",
+            "id": "calendar.action.new-event",
+            "include_output": false,
+            "input": {
+              "command": "new-event",
+              "owner_ref": "calendar",
+              "requested_surface": "calendar.calendar"
+            },
+            "label": "New event",
+            "target": "slot::workflow"
+          },
+          {
+            "definition_id": "action:run-ai-records-production",
+            "id": "calendar.action.ai-draft-event",
+            "include_output": false,
+            "input": {
+              "intent": "Draft a calendar event from this text",
+              "owner_ref": "calendar",
+              "requested_surface": "calendar.calendar"
+            },
+            "label": "Draft event from text",
+            "target": "slot::workflow"
+          },
+          {
+            "definition_id": "action:run-ai-records-production",
+            "id": "calendar.action.ai-propose-reschedule",
+            "include_output": false,
+            "input": {
+              "intent": "Propose a better time for the selected event given the visible week",
+              "owner_ref": "calendar",
+              "requested_surface": "calendar.calendar"
+            },
+            "label": "Propose reschedule",
+            "target": "slot::workflow"
+          },
+          {
+            "definition_id": "action:run-ai-records-production",
+            "id": "calendar.action.ai-summarize-day",
+            "include_output": false,
+            "input": {
+              "intent": "Summarize today's schedule in plain language",
+              "owner_ref": "calendar",
+              "requested_surface": "calendar.calendar"
+            },
+            "label": "Summarize my day",
+            "target": "slot::workflow"
+          }
+        ],
+        "blocks": [],
+        "dateLabel": "Today",
+        "issues": [
+          {
+            "detail": "Calendar reads owner-fed time blocks after the service connection owner has an account.",
+            "id": "connect-calendar-account",
+            "label": "Connect a calendar account to create and sync events.",
+            "tone": "info"
+          }
+        ],
+        "rangeEnd": "2026-06-18T17:47:54.474Z",
+        "rangeStart": "2026-06-18T17:47:54.474Z",
+        "state": "empty-no-accounts",
+        "status": "empty-no-accounts",
+        "timezone": "Local time",
+        "title": "Calendar"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::calendar::lens::primary-time-blocks",
+      "path": [
+        "current-item",
+        "time-block-lens"
+      ],
+      "payload": {
+        "kind": "time-block-lens",
+        "lens_id": "primary-time-blocks",
+        "input_address": "calendar.owner-feed.time-blocks",
+        "owner_ref": "owner-feed",
+        "owner_label": "Calendar",
+        "selectors": {
+          "identity": "id",
+          "start": "starts_at",
+          "end": "ends_at",
+          "title": "label",
+          "all_day": "all_day",
+          "timezone": "timezone",
+          "color": "color",
+          "state": "state_ref",
+          "lane": "lane_ref"
+        },
+        "relations": {
+          "account": "account_ref",
+          "list": "list_ref",
+          "linkedRecord": "linked_record_refs",
+          "conflict": "conflict_refs"
+        },
+        "actions": [
+          {
+            "id": "calendar.owner-action.open",
+            "label": "Open",
+            "target": "slot::workflow",
+            "definition_id": "action:calendar.owner-action",
+            "input": {
+              "block_ref": "id",
+              "owner_ref": "owner_ref"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar::lens::queued-changes",
+      "path": [
+        "current-item",
+        "time-block-lens"
+      ],
+      "payload": {
+        "kind": "time-block-lens",
+        "lens_id": "queued-changes",
+        "input_address": "calendar.queued-changes",
+        "owner_ref": "calendar",
+        "selectors": {
+          "identity": "id",
+          "start": "proposed_start",
+          "end": "proposed_end",
+          "title": {
+            "path": "label",
+            "fallback": "Waiting to sync"
+          },
+          "state": {
+            "path": "queue_state",
+            "fallback": "waiting-to-sync"
+          }
+        },
+        "relations": {
+          "affectedBlock": "affected_block_ref"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar::lens::conflicts",
+      "path": [
+        "current-item",
+        "time-block-lens"
+      ],
+      "payload": {
+        "kind": "time-block-lens",
+        "lens_id": "conflicts",
+        "input_address": "calendar.conflicts",
+        "owner_ref": "calendar",
+        "selectors": {
+          "identity": "id",
+          "start": "proposed_start",
+          "end": "proposed_end",
+          "title": {
+            "path": "label",
+            "fallback": "Resolve conflict"
+          },
+          "state": {
+            "path": "conflict_state",
+            "fallback": "conflict"
+          }
+        },
+        "relations": {
+          "affectedBlock": "affected_block_ref",
+          "ownerMessage": "owner_message_ref"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar::view-descriptor::day",
+      "path": [
+        "current-item",
+        "calendar-view-descriptor"
+      ],
+      "payload": {
+        "kind": "calendar-view-descriptor",
+        "view_id": "day",
+        "label": "Day",
+        "layout": "time-grid",
+        "order": 10,
+        "day_count": 1,
+        "window_start_minute": 420,
+        "window_end_minute": 1260,
+        "hour_height_px": 60
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar::view-descriptor::week",
+      "path": [
+        "current-item",
+        "calendar-view-descriptor"
+      ],
+      "payload": {
+        "kind": "calendar-view-descriptor",
+        "view_id": "week",
+        "label": "Week",
+        "layout": "time-grid",
+        "order": 20,
+        "day_count": 7,
+        "window_start_minute": 420,
+        "window_end_minute": 1260,
+        "hour_height_px": 60
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar::view-descriptor::month",
+      "path": [
+        "current-item",
+        "calendar-view-descriptor"
+      ],
+      "payload": {
+        "kind": "calendar-view-descriptor",
+        "view_id": "month",
+        "label": "Month",
+        "layout": "month-grid",
+        "order": 30,
+        "max_chips_per_cell": 3
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar::view-descriptor::agenda",
+      "path": [
+        "current-item",
+        "calendar-view-descriptor"
+      ],
+      "payload": {
+        "kind": "calendar-view-descriptor",
+        "view_id": "agenda",
+        "label": "Agenda",
+        "layout": "agenda-list",
+        "order": 40
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar::workflow-action::sync-google-events",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:calendar.sync-google-events",
+        "kind": "action",
+        "name": "sync-google-calendar-events",
+        "description": "Refresh the Calendar feed from the connected Google Account by composing credentials-vault, http-client, and a package-owned normalizer.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "connection_id": {
+              "type": "string"
+            },
+            "range_start": {
+              "type": "string"
+            },
+            "range_end": {
+              "type": "string"
+            },
+            "max_results": {
+              "type": "number"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "prepare_request",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "python3",
+                  "-c",
+                  "import json,sys,datetime,urllib.parse\nout=sys.argv[1]\ntry: inp=json.loads(sys.argv[2] or '{}')\nexcept Exception: inp={}\nconnection_id=inp.get('connection_id') or 'service_connection:google-account'\nmax_results=int(inp.get('max_results') or 50)\nnow=datetime.datetime.now(datetime.timezone.utc)\ndef parse_dt(value, fallback):\n    if not value: return fallback\n    try: return datetime.datetime.fromisoformat(str(value).replace('Z','+00:00'))\n    except Exception: return fallback\nstart=parse_dt(inp.get('range_start'), now-datetime.timedelta(days=30))\nend=parse_dt(inp.get('range_end'), now+datetime.timedelta(days=365))\nhx=lambda s:''.join(format(b,'02x') for b in str(s).encode())\ndef field_secret(field_id): return 'service-connection-'+hx(connection_id)+'-field-'+hx(field_id)\nsecret_names={'oauth_client_id':field_secret('oauth_client_id'),'oauth_client_secret':field_secret('oauth_client_secret'),'refresh_token':field_secret('refresh_token')}\nauthorization={'kind':'oauth2_refresh_token','token_url':'https://oauth2.googleapis.com/token','required_scope_groups':[[\"https://www.googleapis.com/auth/calendar.events\",\"https://www.googleapis.com/auth/calendar.readonly\",\"https://www.googleapis.com/auth/calendar\"]],'placement':{\"kind\":\"header\",\"name\":\"Authorization\",\"prefix\":\"Bearer \",\"suffix\":\"\"}}\nparams=urllib.parse.urlencode({'singleEvents':'true','orderBy':'startTime','maxResults':max_results,'timeMin':start.isoformat().replace('+00:00','Z'),'timeMax':end.isoformat().replace('+00:00','Z')})\nplan={'url':'https://www.googleapis.com/calendar/v3/calendars/primary/events?'+params,'method':'GET','headers':{'accept':'application/json'},'body':None,'secret_names':secret_names,'authorization':authorization,'timeout_ms':30000,'connection_id':connection_id,'range_start':start.isoformat().replace('+00:00','Z'),'range_end':end.isoformat().replace('+00:00','Z'),'feed_address':'calendar-time-block-owner-feed'}\njson.dump(plan,open(out,'w'))\nprint(json.dumps(plan))",
+                  "calendar-google-request-plan.json",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": []
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "cwd": null,
+                "timeout_ms": 60000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "calendar-google-request-plan.json",
+                    "content_type": "application/json"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "mint_client_id_handle",
+            "kind": "ask",
+            "config": {
+              "name": "slot::credentials-vault",
+              "input": {
+                "operation": "read",
+                "key": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "path": "output.captured_fds.0.bytes.base64",
+                    "key": "prepare_request"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "secret_names"
+                      }
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "oauth_client_id"
+                      }
+                    }
+                  ]
+                },
+                "handle_ttl_seconds": 300,
+                "one_time": false
+              }
+            }
+          },
+          {
+            "id": "mint_client_secret_handle",
+            "kind": "ask",
+            "config": {
+              "name": "slot::credentials-vault",
+              "input": {
+                "operation": "read",
+                "key": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "path": "output.captured_fds.0.bytes.base64",
+                    "key": "prepare_request"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "secret_names"
+                      }
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "oauth_client_secret"
+                      }
+                    }
+                  ]
+                },
+                "handle_ttl_seconds": 300,
+                "one_time": false
+              }
+            }
+          },
+          {
+            "id": "mint_refresh_token_handle",
+            "kind": "ask",
+            "config": {
+              "name": "slot::credentials-vault",
+              "input": {
+                "operation": "read",
+                "key": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "path": "output.captured_fds.0.bytes.base64",
+                    "key": "prepare_request"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "secret_names"
+                      }
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "refresh_token"
+                      }
+                    }
+                  ]
+                },
+                "handle_ttl_seconds": 300,
+                "one_time": false
+              }
+            }
+          },
+          {
+            "id": "assemble_request",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "python3",
+                  "-c",
+                  "import json,sys\nout=sys.argv[1]\nplan=json.loads(sys.argv[2] or '{}')\ndef handle(raw,label):\n    try: data=json.loads(raw or '{}')\n    except Exception: data={}\n    value=data.get('handle') if isinstance(data,dict) else None\n    if not value: raise SystemExit('missing credential handle for '+label)\n    return value\nauth=dict(plan.get('authorization') or {})\nauth['client_id_handle']=handle(sys.argv[3],'oauth_client_id')\nauth['client_secret_handle']=handle(sys.argv[4],'oauth_client_secret')\nauth['refresh_token_handle']=handle(sys.argv[5],'refresh_token')\nreq={'url':plan['url'],'method':plan.get('method','GET'),'headers':plan.get('headers') or {},'body':plan.get('body'),'credential_injections':[],'authorization':auth,'timeout_ms':plan.get('timeout_ms',30000)}\njson.dump(req,open(out,'w'))\nprint(json.dumps(req))",
+                  "calendar-google-http-request.json",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "path": "output.captured_fds.0.bytes.base64",
+                      "key": "prepare_request"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "path": "output.text",
+                      "key": "mint_client_id_handle"
+                    }
+                  },
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "path": "output.text",
+                      "key": "mint_client_secret_handle"
+                    }
+                  },
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "path": "output.text",
+                      "key": "mint_refresh_token_handle"
+                    }
+                  }
+                ],
+                "cwd": null,
+                "timeout_ms": 60000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "calendar-google-http-request.json",
+                    "content_type": "application/json"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "fetch_events",
+            "kind": "ask",
+            "config": {
+              "name": "slot::http-client",
+              "input": {
+                "url": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "path": "output.captured_fds.0.bytes.base64",
+                    "key": "assemble_request"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "url"
+                      }
+                    }
+                  ]
+                },
+                "method": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "path": "output.captured_fds.0.bytes.base64",
+                    "key": "assemble_request"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "method"
+                      }
+                    }
+                  ]
+                },
+                "headers": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "path": "output.captured_fds.0.bytes.base64",
+                    "key": "assemble_request"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "headers"
+                      }
+                    }
+                  ]
+                },
+                "body": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "path": "output.captured_fds.0.bytes.base64",
+                    "key": "assemble_request"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "body"
+                      }
+                    }
+                  ]
+                },
+                "credential_injections": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "path": "output.captured_fds.0.bytes.base64",
+                    "key": "assemble_request"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "credential_injections"
+                      }
+                    }
+                  ]
+                },
+                "timeout_ms": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "path": "output.captured_fds.0.bytes.base64",
+                    "key": "assemble_request"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "timeout_ms"
+                      }
+                    }
+                  ]
+                },
+                "authorization": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "path": "output.captured_fds.0.bytes.base64",
+                    "key": "assemble_request"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "authorization"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": "normalize_events",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "python3",
+                  "-c",
+                  "import json,sys,datetime\nout=sys.argv[1]\ntry: resp=json.loads(sys.argv[2] or '{}')\nexcept Exception: resp={}\ntry: plan=json.loads(sys.argv[3] or '{}')\nexcept Exception: plan={}\ndef body_json(r):\n    body=r.get('body') if isinstance(r,dict) else None\n    if isinstance(body,list):\n        try: body=bytes(body).decode('utf-8')\n        except Exception: body=''\n    if isinstance(body,str):\n        try: return json.loads(body)\n        except Exception: return {'raw': body}\n    return body if isinstance(body,dict) else {}\ndata=body_json(resp)\nstatus_code=resp.get('status_code') if isinstance(resp,dict) else None\nitems=data.get('items') if isinstance(data,dict) else []\nblocks=[]\nconnection_id=plan.get('connection_id') or 'service_connection:google-account'\nfor item in items or []:\n    if not isinstance(item,dict): continue\n    start_obj=item.get('start') or {}\n    end_obj=item.get('end') or {}\n    start=start_obj.get('dateTime') or start_obj.get('date')\n    end=end_obj.get('dateTime') or end_obj.get('date') or start\n    event_id=item.get('id') or item.get('iCalUID') or item.get('htmlLink')\n    if not event_id or not start or not end: continue\n    all_day=bool(start_obj.get('date') and not start_obj.get('dateTime'))\n    title=item.get('summary') or '(No title)'\n    color='#4285f4'\n    html=item.get('htmlLink')\n    blocks.append({'id':'google-calendar:'+str(event_id),'source':{'lensId':'google-primary-events','inputAddress':'google-calendar.primary.events','ownerRef':'google-calendar','rowRef':str(event_id)},'interval':{'start':start,'end':end,'allDay':all_day,'timezone':start_obj.get('timeZone') or end_obj.get('timeZone') or 'local'},'display':{'title':title,'color':color,'ownerLabel':'Google Calendar'},'state':{'ref':'offline' if item.get('status')=='cancelled' else 'ready','lane':'google-calendar'},'relations':{'account':[connection_id],'list':['google-calendar:primary'],'linkedRecord':[html] if html else [],'conflict':[]},'actions':[{'id':'calendar.owner-action.open','label':'Open','target':'slot::workflow','definition_id':'action:calendar.owner-action','input':{'block_ref':str(event_id),'owner_ref':'google-calendar'}}]})\nissues=[]\nif not (200 <= int(status_code or 0) < 300):\n    err=data.get('error') if isinstance(data,dict) else {}\n    msg=err.get('message') if isinstance(err,dict) else None\n    issues.append({'id':'google-calendar-sync-error','tone':'error','label':'Calendar could not sync.','detail':msg or 'Google Calendar did not return events.'})\nelif not blocks:\n    issues.append({'id':'google-calendar-sync-empty','tone':'info','label':'No Google Calendar events found.','detail':'The connected account answered, but no events were returned for the synced range.'})\nfeed={'kind':'calendar.time-block-owner-feed','title':'Calendar','timezone':'Local time','dateLabel':'Google Calendar','rangeStart':plan.get('range_start'),'rangeEnd':plan.get('range_end'),'state':'dense' if len(blocks)>6 else ('sparse' if blocks else 'empty-connected'),'status':'synced' if blocks else 'empty-connected','accounts':[],'actions':\"[{\\\"id\\\":\\\"calendar.action.previous-range\\\",\\\"label\\\":\\\"Previous date\\\",\\\"target\\\":\\\"slot::workflow\\\",\\\"definition_id\\\":\\\"action:calendar.owner-action\\\",\\\"include_output\\\":false,\\\"input\\\":{\\\"command\\\":\\\"previous-range\\\",\\\"owner_ref\\\":\\\"calendar\\\",\\\"requested_surface\\\":\\\"calendar.calendar\\\"}},{\\\"id\\\":\\\"calendar.action.today\\\",\\\"label\\\":\\\"Today\\\",\\\"target\\\":\\\"slot::workflow\\\",\\\"definition_id\\\":\\\"action:calendar.owner-action\\\",\\\"include_output\\\":false,\\\"input\\\":{\\\"command\\\":\\\"today\\\",\\\"owner_ref\\\":\\\"calendar\\\",\\\"requested_surface\\\":\\\"calendar.calendar\\\"}},{\\\"id\\\":\\\"calendar.action.next-range\\\",\\\"label\\\":\\\"Next date\\\",\\\"target\\\":\\\"slot::workflow\\\",\\\"definition_id\\\":\\\"action:calendar.owner-action\\\",\\\"include_output\\\":false,\\\"input\\\":{\\\"command\\\":\\\"next-range\\\",\\\"owner_ref\\\":\\\"calendar\\\",\\\"requested_surface\\\":\\\"calendar.calendar\\\"}},{\\\"id\\\":\\\"calendar.action.search\\\",\\\"label\\\":\\\"Search\\\",\\\"target\\\":\\\"slot::workflow\\\",\\\"definition_id\\\":\\\"action:calendar.owner-action\\\",\\\"include_output\\\":false,\\\"input\\\":{\\\"command\\\":\\\"search\\\",\\\"owner_ref\\\":\\\"calendar\\\",\\\"requested_surface\\\":\\\"calendar.calendar\\\"}},{\\\"id\\\":\\\"calendar.action.create-booking-link\\\",\\\"label\\\":\\\"Create booking link\\\",\\\"target\\\":\\\"slot::workflow\\\",\\\"definition_id\\\":\\\"action:calendar.owner-action\\\",\\\"include_output\\\":false,\\\"input\\\":{\\\"command\\\":\\\"create-booking-link\\\",\\\"owner_ref\\\":\\\"calendar\\\",\\\"requested_surface\\\":\\\"calendar.calendar\\\"}},{\\\"id\\\":\\\"calendar.action.new-event\\\",\\\"label\\\":\\\"New event\\\",\\\"target\\\":\\\"slot::workflow\\\",\\\"definition_id\\\":\\\"action:calendar.owner-action\\\",\\\"include_output\\\":false,\\\"input\\\":{\\\"command\\\":\\\"new-event\\\",\\\"owner_ref\\\":\\\"calendar\\\",\\\"requested_surface\\\":\\\"calendar.calendar\\\"}}]\",'blocks':blocks,'issues':issues,'syncedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),'source':{'provider':'google-calendar','connection_id':connection_id,'http_status':status_code,'event_count':len(blocks)}}\nfeed['actions']=json.loads(feed['actions'])\njson.dump({'feed':feed,'status':feed['source']},open(out,'w'))\nprint(json.dumps({'feed':feed,'status':feed['source']}))",
+                  "calendar-google-feed.json",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "path": "output.text",
+                      "key": "fetch_events"
+                    }
+                  },
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "path": "output.captured_fds.0.bytes.base64",
+                      "key": "prepare_request"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "cwd": null,
+                "timeout_ms": 60000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "calendar-google-feed.json",
+                    "content_type": "application/json"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "write_feed",
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": "calendar-time-block-owner-feed",
+                  "path": [],
+                  "payload_bytes": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "path": "output.captured_fds.0.bytes.base64",
+                      "key": "normalize_events"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      },
+                      {
+                        "op": "op:core.json_parse"
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "feed"
+                        }
+                      },
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "path": "output.captured_fds.0.bytes.base64",
+                  "key": "normalize_events"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  },
+                  {
+                    "op": "op:core.lookup",
+                    "args": {
+                      "key": "status"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::calendar::lens::scheduled-actions",
+      "path": [
+        "current-item",
+        "time-block-lens"
+      ],
+      "payload": {
+        "kind": "time-block-lens",
+        "lens_id": "scheduled-actions",
+        "input_address": "calendar.scheduled-action-time-windows",
+        "owner_ref": "timed-action",
+        "owner_label": "Reminders",
+        "input": {
+          "target": "slot::find-current-items",
+          "payload": {
+            "operation": "find-current-items",
+            "in": "scheduled-action-time-window",
+            "include": [
+              "address",
+              "payload"
+            ]
+          },
+          "rows_path": "items"
+        },
+        "selectors": {
+          "identity": "time_window_id",
+          "start": "start",
+          "end": {
+            "path": "end",
+            "fallback_path": "start"
+          },
+          "title": {
+            "path": "title",
+            "fallback_path": "record_id"
+          },
+          "state": {
+            "path": "state_ref",
+            "fallback": "ready"
+          },
+          "lane": {
+            "path": "lane_ref",
+            "fallback": "scheduled"
+          }
+        },
+        "relations": {
+          "linkedRecord": "record_id"
+        },
+        "actions": [
+          {
+            "id": "calendar.owner-action.open-scheduled",
+            "label": "Open",
+            "target": "slot::workflow",
+            "definition_id": "action:calendar.owner-action",
+            "input": {
+              "block_ref": "time_window_id",
+              "owner_ref": "timed-action"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar::lens::bookings",
+      "path": [
+        "current-item",
+        "time-block-lens"
+      ],
+      "payload": {
+        "kind": "time-block-lens",
+        "lens_id": "bookings",
+        "input_address": "calendar.booker-events",
+        "owner_ref": "calendar-booker",
+        "owner_label": "Bookings",
+        "input": {
+          "target": "slot::find-current-items",
+          "payload": {
+            "operation": "find-current-items",
+            "where": {
+              "all": [
+                {
+                  "field": "kind",
+                  "in": [
+                    "calendar-booker.calendar-event"
+                  ]
+                }
+              ]
+            },
+            "include": [
+              "address",
+              "payload"
+            ]
+          },
+          "rows_path": "items"
+        },
+        "selectors": {
+          "identity": "id",
+          "start": "start_time",
+          "end": {
+            "path": "end_time",
+            "fallback_path": "start_time"
+          },
+          "title": "title",
+          "color": {
+            "path": "color",
+            "fallback": "#34a853"
+          },
+          "state": {
+            "path": "status",
+            "fallback": "ready"
+          },
+          "lane": {
+            "path": "event_type_id",
+            "fallback": "booking"
+          }
+        },
+        "relations": {
+          "linkedRecord": "source_id"
+        },
+        "actions": [
+          {
+            "id": "calendar.owner-action.open-booking",
+            "label": "Open booking",
+            "target": "slot::workflow",
+            "definition_id": "action:calendar.owner-action",
+            "input": {
+              "block_ref": "id",
+              "owner_ref": "calendar-booker"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar::surface-reachability::calendar",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "surface.reachability",
+        "surface_id": "calendar.calendar",
+        "entry": {
+          "from": "surface-picker",
+          "query": "calendar"
+        },
+        "vocabulary": [
+          "calendar",
+          "schedule",
+          "events",
+          "meetings",
+          "bookings"
+        ],
+        "must_see": [
+          "calendar-view",
+          "time-blocks"
+        ],
+        "must_act": [
+          "view-event",
+          "create-event"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|workflow:google-calendar-sync|prop:workflow:category|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:workflow:category"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOndvcmtmbG93OmNhdGVnb3J5IiwKICAic3ViamVjdF9pZCI6ICJ3b3JrZmxvdzpnb29nbGUtY2FsZW5kYXItc3luYyIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOnN0cmluZyIsCiAgInZhbHVlX2pzb24iOiAiXCJwcm9kdWN0aXZpdHlcIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|workflow:google-calendar-sync|prop:workflow:description|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:workflow:description"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOndvcmtmbG93OmRlc2NyaXB0aW9uIiwKICAic3ViamVjdF9pZCI6ICJ3b3JrZmxvdzpnb29nbGUtY2FsZW5kYXItc3luYyIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOnN0cmluZyIsCiAgInZhbHVlX2pzb24iOiAiXCJTeW5jcyBjYWxlbmRhciBldmVudHMgZm9yIG1lZXRpbmcgcHJlcCBhbmQgc2NoZWR1bGluZ1wiIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|workflow:google-calendar-sync|prop:workflow:is_active|type:boolean",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:workflow:is_active"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOndvcmtmbG93OmlzX2FjdGl2ZSIsCiAgInN1YmplY3RfaWQiOiAid29ya2Zsb3c6Z29vZ2xlLWNhbGVuZGFyLXN5bmMiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpib29sZWFuIiwKICAidmFsdWVfanNvbiI6ICJ0cnVlIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|workflow:google-calendar-sync|prop:workflow:name|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:workflow:name"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOndvcmtmbG93Om5hbWUiLAogICJzdWJqZWN0X2lkIjogIndvcmtmbG93Omdvb2dsZS1jYWxlbmRhci1zeW5jIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6c3RyaW5nIiwKICAidmFsdWVfanNvbiI6ICJcIkdvb2dsZSBDYWxlbmRhciBTeW5jXCIiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|workflow:google-calendar-sync|prop:workflow:trigger_type|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:workflow:trigger_type"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOndvcmtmbG93OnRyaWdnZXJfdHlwZSIsCiAgInN1YmplY3RfaWQiOiAid29ya2Zsb3c6Z29vZ2xlLWNhbGVuZGFyLXN5bmMiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpzdHJpbmciLAogICJ2YWx1ZV9qc29uIjogIlwic2NoZWR1bGVcIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|workflow:google-calendar-sync|type:workflow_definition",
+      "address_mode": "identity_text",
+      "path": [
+        "type:workflow_definition"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJlbnRpdHlfaWQiOiAid29ya2Zsb3c6Z29vZ2xlLWNhbGVuZGFyLXN5bmMiLAogICJ0YWJsZSI6ICJlbnRpdHlfdHlwZXMiLAogICJ0eXBlX2lkIjogInR5cGU6d29ya2Zsb3dfZGVmaW5pdGlvbiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|workflow:google-calendar-sync",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJpZCI6ICJ3b3JrZmxvdzpnb29nbGUtY2FsZW5kYXItc3luYyIsCiAgInRhYmxlIjogImVudGl0eSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|step:google-calendar-sync:0|prop:step:name|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:step:name"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnN0ZXA6bmFtZSIsCiAgInN1YmplY3RfaWQiOiAic3RlcDpnb29nbGUtY2FsZW5kYXItc3luYzowIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6c3RyaW5nIiwKICAidmFsdWVfanNvbiI6ICJcIlN5bmMgQ2FsZW5kYXJcIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|step:google-calendar-sync:0|prop:step:step_order|type:integer",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:step:step_order"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnN0ZXA6c3RlcF9vcmRlciIsCiAgInN1YmplY3RfaWQiOiAic3RlcDpnb29nbGUtY2FsZW5kYXItc3luYzowIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6aW50ZWdlciIsCiAgInZhbHVlX2pzb24iOiAiMCIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|step:google-calendar-sync:0|prop:step:step_type|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:step:step_type"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnN0ZXA6c3RlcF90eXBlIiwKICAic3ViamVjdF9pZCI6ICJzdGVwOmdvb2dsZS1jYWxlbmRhci1zeW5jOjAiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpzdHJpbmciLAogICJ2YWx1ZV9qc29uIjogIlwiYWN0aW9uXCIiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|step:google-calendar-sync:0|type:workflow_step",
+      "address_mode": "identity_text",
+      "path": [
+        "type:workflow_step"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJlbnRpdHlfaWQiOiAic3RlcDpnb29nbGUtY2FsZW5kYXItc3luYzowIiwKICAidGFibGUiOiAiZW50aXR5X3R5cGVzIiwKICAidHlwZV9pZCI6ICJ0eXBlOndvcmtmbG93X3N0ZXAiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|participation:step-of:google-calendar-sync:0",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJpZCI6ICJwYXJ0aWNpcGF0aW9uOnN0ZXAtb2Y6Z29vZ2xlLWNhbGVuZGFyLXN5bmM6MCIsCiAgInRhYmxlIjogImVudGl0eSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|step:google-calendar-sync:0",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJpZCI6ICJzdGVwOmdvb2dsZS1jYWxlbmRhci1zeW5jOjAiLAogICJ0YWJsZSI6ICJlbnRpdHkiCn0=",
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-calendar",
+      "source_path": "built-stored-bytes/entry-bytes-calendar",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-calendar.source-closure.json"
+    }
+  ]
+}

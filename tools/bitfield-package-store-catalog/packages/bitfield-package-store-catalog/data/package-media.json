@@ -1,0 +1,46 @@
+{
+  "schema": "bitfield.package-store.package-media.v1",
+  "schema_version": "1.0.0",
+  "generated_date": "2026-07-05",
+  "comment": "Package carousel media lists — SSOT for read-catalog-view.readMediaItems(). Each entry: identity + media_items array (kind: 'screenshot' | 'generated' | OPEN string). L117: NO fabricated placeholders. A package appears here ONLY once it has REAL media (an actual captured screenshot for UI packages, or real generated art produced by running a generation_descriptor below). Until then the package is absent from this array and readMediaItems falls back to the package's REAL preview_art (a single genuine image) — never a fake gray box. Real media is produced by dispatching the generation_descriptors (image-generation / composition-scene-renderer owners, by address) — a publish/generation step, not authored here.",
+  "package_media": [],
+  "generation_descriptors": {
+    "comment": "Process descriptors for generating images. Reuse image-generation and renderer owners by ADDRESS. Caller-supplied descriptors (L069 pattern): non-UI packages reference these; composition slots execute them via compute.process.",
+    "non_ui_package_screenshot": {
+      "kind": "compute.process",
+      "description": "Render a package screenshot for non-UI packages. Dispatches to composition-scene-renderer owner (by address: package::composition-engine::scene-renderer) to render a scene and capture the output.",
+      "process_descriptor": {
+        "command": "renderer-adapter",
+        "args": [
+          "--scene-definition=<scene-json>",
+          "--output-format=png",
+          "--width=600",
+          "--height=400"
+        ],
+        "env": {
+          "RENDERER_TARGET": "composition-scene-renderer"
+        }
+      },
+      "output_artifact_kind": "image/png",
+      "source_owner": "package::composition-engine::scene-renderer (renderer owner, generic)"
+    },
+    "appropriate_image_generation": {
+      "kind": "compute.process",
+      "description": "Generate an 'appropriate' image for a non-UI package. Dispatches to image-generation owner (by address: package::image-generation::generate-image) with the package context.",
+      "process_descriptor": {
+        "command": "image-generation-cli",
+        "args": [
+          "--package-identity=<identity>",
+          "--package-name=<display-name>",
+          "--style=product-screenshot",
+          "--format=png"
+        ],
+        "env": {
+          "GENERATOR_TARGET": "package::image-generation::generate-image"
+        }
+      },
+      "output_artifact_kind": "image/png",
+      "source_owner": "package::image-generation (image generation owner, generic, caller-supplied descriptor)"
+    }
+  }
+}

@@ -2,7 +2,20 @@
   "about": "Files moved here byte for byte from Trillion-X/trillion-apps web/parts/content-media-evidence at a89474c0211e2353c9ce96b8c21fc21ee9021f91 on the owner's order (Nov 13 2026, about 7:20 PM CST): every screen and screen part lives in the Workshop, not in the app. Each names its source path and commit and the identity of its bytes there and here; a file whose bytes here differ only in import paths names that.",
   "source": "Trillion-X/trillion-apps",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "owner-home-folder",
+      "find": "[/]Users[/]b[r]ianakhtar",
+      "replace": "/workspace/the-owner",
+      "means": "A person's home folder name in a path, swapped for a made-up one: a public tree holds made-up data only."
+    },
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    }
+  ],
   "files": [
     {
       "source": "Trillion-X/trillion-apps",
@@ -12,6 +25,97 @@
       "source_identity": "1f:3158e3e702c60215b0eba5451a0faef84cf2434068e0884e755d4a851537dea9",
       "identity": "1f:3158e3e702c60215b0eba5451a0faef84cf2434068e0884e755d4a851537dea9",
       "found_by": "byte copy"
+    },
+    {
+      "from": "packages/content-media-evidence/do-work/content-media-work-loop.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/content-media-evidence/packages/content-media-evidence/do-work/content-media-work-loop.ts",
+      "source_identity": "1f:fa4ba15f5ba827391fb3fe325b42943d88f964a1414c28efe70850a4c9b1207b",
+      "identity": "1f:fa4ba15f5ba827391fb3fe325b42943d88f964a1414c28efe70850a4c9b1207b"
+    },
+    {
+      "from": "packages/content-media-evidence/do-work/correct-understanding-graph.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/content-media-evidence/packages/content-media-evidence/do-work/correct-understanding-graph.ts",
+      "source_identity": "1f:ab05a9e638f8eb29bb2079c99fae59b196dba3a00a0cd416ada284c0804d220c",
+      "identity": "1f:ab05a9e638f8eb29bb2079c99fae59b196dba3a00a0cd416ada284c0804d220c"
+    },
+    {
+      "from": "packages/content-media-evidence/do-work/materialize-artifact-target.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/content-media-evidence/packages/content-media-evidence/do-work/materialize-artifact-target.ts",
+      "source_identity": "1f:2daa24d107bb7744f31305866e22cc3042fbda860edad535611626653d703a03",
+      "identity": "1f:84870944a684b5dd806561f0e6ecb3ed7a47775ba663a687c0dd1dba4565de87"
+    },
+    {
+      "from": "packages/content-media-evidence/do-work/read-guarded-artifact-target.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/content-media-evidence/packages/content-media-evidence/do-work/read-guarded-artifact-target.ts",
+      "source_identity": "1f:293f30ffcd3ace26e8c485874bb90768b5ac939f8281d1b59fd260cfa52f3ddf",
+      "identity": "1f:f8b70e615b0bbb73f0161e6888153c9fa59c0d78072ab0011e033c6c3251a893"
+    },
+    {
+      "from": "packages/content-media-evidence/do-work/read-guarded-artifact.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/content-media-evidence/packages/content-media-evidence/do-work/read-guarded-artifact.ts",
+      "source_identity": "1f:1b9ca8e32b51a9f9ef2c0fe1e2525b24787fbe8f0af468ef11295d354c3f20c5",
+      "identity": "1f:0451f494d43aa3d0ef8c914ae4e6153920dee20be5e8e701d2c25ba68f4212db"
+    },
+    {
+      "from": "packages/content-media-evidence/do-work/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/content-media-evidence/packages/content-media-evidence/do-work/README.md",
+      "source_identity": "1f:1e8dce0665c1118b1cf58222320ec13d353c741427554cacc3d4eb9721acb5e0",
+      "identity": "1f:1e8dce0665c1118b1cf58222320ec13d353c741427554cacc3d4eb9721acb5e0"
+    },
+    {
+      "from": "packages/content-media-evidence/do-work/record-relations-target.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/content-media-evidence/packages/content-media-evidence/do-work/record-relations-target.ts",
+      "source_identity": "1f:0780780f3d39cc365ad5fd3e0964891eab7ae250c3df05fc95f16c9bc6076aa1",
+      "identity": "1f:0780780f3d39cc365ad5fd3e0964891eab7ae250c3df05fc95f16c9bc6076aa1"
+    },
+    {
+      "from": "packages/content-media-evidence/do-work/verify-hosted-session-admission.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/content-media-evidence/packages/content-media-evidence/do-work/verify-hosted-session-admission.ts",
+      "source_identity": "1f:39cad71b2200090227519448084d6c4e0d6397bab07057bf800cb40411c2a63f",
+      "identity": "1f:39cad71b2200090227519448084d6c4e0d6397bab07057bf800cb40411c2a63f"
+    },
+    {
+      "from": "packages/content-media-evidence/do-work/verify-release-artifact-continuity-target.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/content-media-evidence/packages/content-media-evidence/do-work/verify-release-artifact-continuity-target.ts",
+      "source_identity": "1f:b20852be2e9ab8f102676f8e1aa8dbf6a36488dbd67ac6ef41750256f9ec35a4",
+      "identity": "1f:b20852be2e9ab8f102676f8e1aa8dbf6a36488dbd67ac6ef41750256f9ec35a4"
+    },
+    {
+      "from": "packages/content-media-evidence/read-data/exact-result-inventory.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/content-media-evidence/packages/content-media-evidence/read-data/exact-result-inventory.ts",
+      "source_identity": "1f:ad1b9a80a2416977f43e5baf63d9881bf447d939603af2e94bc3b6a945e4c295",
+      "identity": "1f:4d69af252b342e48ca24822d85f85b132e80d78d6f11387ed20360d1238081f9"
+    },
+    {
+      "from": "packages/content-media-evidence/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/content-media-evidence/packages/content-media-evidence/read-data/README.md",
+      "source_identity": "1f:a8ecad6a13cb4afba83edd29732e06c96ed6832a3577b5058c3c6104e65cc06b",
+      "identity": "1f:a8ecad6a13cb4afba83edd29732e06c96ed6832a3577b5058c3c6104e65cc06b"
+    },
+    {
+      "from": "packages/content-media-evidence/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/content-media-evidence/packages/content-media-evidence/README.md",
+      "source_identity": "1f:3761bca2c9b9e7e53031e804b630c2bc5a54998bd5d0611a8eae4d3f0ec0185e",
+      "identity": "1f:3761bca2c9b9e7e53031e804b630c2bc5a54998bd5d0611a8eae4d3f0ec0185e"
+    },
+    {
+      "from": "packages/content-media-evidence/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/content-media-evidence/packages/content-media-evidence/things-to-store-and-run.json",
+      "source_identity": "1f:a705a8e16cc322d46f5b84a1dcafddb229cce44f30ab482dc8b6e5ae34cfe532",
+      "identity": "1f:a705a8e16cc322d46f5b84a1dcafddb229cce44f30ab482dc8b6e5ae34cfe532"
     }
   ]
 }

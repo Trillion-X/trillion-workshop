@@ -1,0 +1,939 @@
+{
+  "package": "account-session",
+  "things": [
+    {"type": "record", "address": "package::account-session::target::revoke-desktop-session", "path": ["packages", "account-session", "targets", "revoke-desktop-session"],
+      "payload": {"kind": "package-target-descriptor", "target": "account-session.revoke-desktop-session", "entry_name": "revoke-desktop-session", "export_name": "revokeDesktopSessionTarget", "source_path": "do-work/verify-desktop-session-target.ts"}},
+    {"type": "record", "address": "package::account-session::entry::revoke-desktop-session", "path": ["packages", "account-session", "entries", "revoke-desktop-session"],
+      "payload": {"kind": "bitfield-package-entry", "entry_name": "revoke-desktop-session", "export_name": "revokeDesktopSessionTarget", "source_path": "do-work/verify-desktop-session-target.ts", "entry_bytes": {"stored_bytes": "entry-bytes-revoke-desktop-session"}}},
+    {"type": "stored_bytes", "name": "entry-bytes-revoke-desktop-session", "source_path": "built-stored-bytes/entry-bytes-revoke-desktop-session", "source_closure_receipt_path": "built-stored-bytes/entry-bytes-revoke-desktop-session.source-closure.json"},
+    {
+      "type": "record",
+      "address": "package::account-session::target::redeem-desktop-login",
+      "path": ["packages", "account-session", "targets", "redeem-desktop-login"],
+      "payload": {"kind": "package-target-descriptor", "target": "account-session.redeem-desktop-login", "entry_name": "redeem-desktop-login", "export_name": "redeemDesktopLoginHandoff", "source_path": "do-work/desktop-login-handoff.ts"}
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::entry::redeem-desktop-login",
+      "path": ["packages", "account-session", "entries", "redeem-desktop-login"],
+      "payload": {"kind": "bitfield-package-entry", "entry_name": "redeem-desktop-login", "export_name": "redeemDesktopLoginHandoff", "source_path": "do-work/desktop-login-handoff.ts", "entry_bytes": {"stored_bytes": "entry-bytes-redeem-desktop-login"}}
+    },
+    {"type": "stored_bytes", "name": "entry-bytes-redeem-desktop-login", "source_path": "built-stored-bytes/entry-bytes-redeem-desktop-login", "source_closure_receipt_path": "built-stored-bytes/entry-bytes-redeem-desktop-login.source-closure.json"},
+    {
+      "type": "record",
+      "address": "package::account-session::target::verify-desktop-session",
+      "path": ["packages", "account-session", "targets", "verify-desktop-session"],
+      "payload": {"kind": "package-target-descriptor", "target": "account-session.verify-desktop-session", "entry_name": "verify-desktop-session", "export_name": "verifyDesktopSessionTarget", "source_path": "do-work/verify-desktop-session-target.ts"}
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::entry::verify-desktop-session",
+      "path": ["packages", "account-session", "entries", "verify-desktop-session"],
+      "payload": {"kind": "bitfield-package-entry", "entry_name": "verify-desktop-session", "export_name": "verifyDesktopSessionTarget", "source_path": "do-work/verify-desktop-session-target.ts", "entry_bytes": {"stored_bytes": "entry-bytes-verify-desktop-session"}}
+    },
+    {"type": "stored_bytes", "name": "entry-bytes-verify-desktop-session", "source_path": "built-stored-bytes/entry-bytes-verify-desktop-session", "source_closure_receipt_path": "built-stored-bytes/entry-bytes-verify-desktop-session.source-closure.json"},
+    {
+      "type": "record",
+      "address": "package::account-session::checks",
+      "path": ["packages", "account-session", "checks"],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": ["do-work/browser-session-access-key.test.ts", "do-work/login-proof-token-crypto.test.ts", "do-work/send-login-link-target.test.ts", "do-work/recipient-transport.integration.test.ts", "do-work/desktop-login-handoff.test.ts", "do-work/desktop-login-proof.test.ts", "do-work/hosted-account-authority.test.ts", "do-work/desktop-authority-consumer.test.ts", "do-work/desktop-account-session.test.ts", "do-work/read-browser-session-state.test.ts", "do-work/read-browser-session-target.test.ts", "do-work/verify-desktop-session-target.test.ts", "read-data/choose-callback-origin.test.ts", "read-data/returning-login-callback-ownership.test.ts", "show/MagicLinkLoginSurface.test.tsx"]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::public-source::read-data-read-browser-session",
+      "path": ["packages", "account-session", "public-sources", "read-data-read-browser-session"],
+      "payload": { "kind": "bitfield-package-public-source", "source_path": "read-data/read-browser-session" },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::reaches-past-the-engine::environment",
+      "path": [
+        "current-item",
+        "reaches-past-the-engine"
+      ],
+      "payload": {
+        "kind": "reaches-past-the-engine",
+        "reach_class": "environment",
+        "why": "This package owns the browser session, so it owns where that session's cookie and its sign-in return origin are configured for the deployment it is running in: ACCOUNT_SESSION_COOKIE_SECURE, ACCOUNT_SESSION_COOKIE_NAME and ACCOUNT_SESSION_TTL_SECONDS shape the cookie itself, and ACCOUNT_PUBLIC_URL / NEXT_PUBLIC_ACCOUNT_URL are the public origin a sign-in link must return to. These are per-DEPLOYMENT facts, not per-package DATA: two deployments of the same package set legitimately differ, and a desktop shell legitimately has no public origin at all, which is why the origin is read lazily. Nothing else may set this app's session cookie, so nothing else needs these reads."
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::public-source::do-work-browser-session-browser-id",
+      "path": [
+        "packages",
+        "account-session",
+        "public-sources",
+        "do-work-browser-session-browser-id"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work/browser-session-browser-id"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::public-source::do-work-browser-session-access-key",
+      "path": [
+        "packages",
+        "account-session",
+        "public-sources",
+        "do-work-browser-session-access-key"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work/browser-session-access-key"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::public-source::read-data-read-session",
+      "path": [
+        "packages",
+        "account-session",
+        "public-sources",
+        "read-data-read-session"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "read-data/read-session"
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "index",
+      "source_path": "index.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "hosted-sign-in-island",
+      "source_path": "built-stored-bytes/hosted-sign-in-island",
+      "build": {
+        "sequence": {
+          "inputs": [],
+          "input_trees": [],
+          "steps": [{
+            "name": "build",
+            "process": {
+              "argv": ["node", "__PACKAGE_SET_ROOT__/packages/make-packages-match-their-source/do-work/build-browser-island-bytes.mjs"],
+              "cwd": ".",
+              "timeout_ms": 120000,
+              "termination_grace_ms": 1000,
+              "expected_termination": {"kind": "exited", "code": 0},
+              "env": {}, "inputs": [], "input_trees": [],
+              "outputs": [{"mount_path": ".bitfield-build-output"}],
+              "containment": {"kind": "descendant_effect_contained", "pipe_eof_timeout_ms": 1000, "publications": []},
+              "capture_fds": [1, 2], "collected_files": []
+            },
+            "workspace_bindings": {"environment": [], "arguments": []},
+            "predecessor_outputs": []
+          }]
+        },
+        "output": {"step": "build", "mount_path": ".bitfield-build-output"},
+        "request": {"source_file": "show/HostedSignInSurface.tsx", "source_kind": "text/typescript"}
+      },
+      "source_closure_receipt_path": "built-stored-bytes/hosted-sign-in-island.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::placeable-surface::magic-link-login",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "LogIn",
+        "id": "account-session.magic-link-login",
+        "kind": "placeable-surface",
+        "label": "Sign in",
+        "material_target": "component:magic-link-login",
+        "order": 500,
+        "surface_id": "account-session.magic-link-login",
+        "placement_labels": [
+          "main-workspace",
+          "onboarding"
+        ],
+        "placement_order_key": "000000500:account-session.magic-link-login",
+        "surface_input": {
+          "requestTarget": "account-session.login-link",
+          "redirectPath": "/app"
+        },
+        "package_entry": {
+          "package_name": "account-session",
+          "entry_name": "magic-link-login"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "complete-returning-login",
+      "source_path": "do-work/complete-returning-login.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "end-browser-session",
+      "source_path": "do-work/end-browser-session.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "request-login-link",
+      "source_path": "do-work/request-login-link.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "start-returning-login",
+      "source_path": "do-work/start-returning-login.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "write-browser-session",
+      "source_path": "do-work/write-browser-session.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "start-verified-browser-session",
+      "source_path": "do-work/start-verified-browser-session.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "login-proof-token-crypto",
+      "source_path": "do-work/login-proof-token-crypto.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "safe-account-id",
+      "source_path": "read-data/safe-account-id.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "account-authority-access-reader",
+      "source_path": "read-data/read-account-authority-access.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "browser-session-reader",
+      "source_path": "read-data/read-browser-session.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "session-reader",
+      "source_path": "read-data/read-session.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "login-panel",
+      "source_path": "show/LoginPanel.tsx"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "complete-returning-login-target",
+      "source_path": "do-work/complete-returning-login-target.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "end-browser-session-target",
+      "source_path": "do-work/end-browser-session-target.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "send-login-link-target",
+      "source_path": "do-work/send-login-link-target.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "read-browser-session-target",
+      "source_path": "do-work/read-browser-session-target.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "read-browser-session-state",
+      "source_path": "do-work/read-browser-session-state.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "browser-session-browser-id",
+      "source_path": "do-work/browser-session-browser-id.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "current-log-browser-session",
+      "source_path": "do-work/current-log-browser-session.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "session-token",
+      "source_path": "read-data/session-token.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "authorize-transient-session-target",
+      "source_path": "do-work/authorize-transient-session-target.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "login-proof-token",
+      "source_path": "read-data/login-proof-token.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "account-session-surface-client",
+      "source_path": "show/AccountSessionSurfaceClient.tsx"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "read-login-options",
+      "source_path": "read-data/read-login-options.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "end-session",
+      "source_path": "do-work/end-session.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "request-account-recovery",
+      "source_path": "do-work/request-account-recovery.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "start-enterprise-login",
+      "source_path": "do-work/start-enterprise-login.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "start-login",
+      "source_path": "do-work/start-login.ts"
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::contract",
+      "path": [
+        "packages",
+        "account-session"
+      ],
+      "payload": {
+        "component": "LoginPanel",
+        "does_not_store": [
+          "auth tokens",
+          "signed event keys",
+          "recovery codes",
+          "identity provider tokens",
+          "payment secrets"
+        ],
+        "package": "account-session",
+        "package_capabilities": {
+          "actions": [
+            "account-session.clear-browser-session",
+            "account-session.complete-returning-login",
+            "account-session.start-identity-provider-session",
+            "account-session.start-returning-login",
+            "account-session.request-recovery",
+            "account-session.end-session",
+            "account-session.authorize-transient-session"
+          ],
+          "reads": [
+            "account-session.browser-session",
+            "account-session.login-options"
+          ]
+        },
+        "signed_event_authority_operations": {
+          "actions": [
+            "signed-event-authority.admit-event"
+          ],
+          "reads": [
+            "signed-event-authority.list-effects"
+          ]
+        },
+        "source_path": "show/LoginPanel.tsx"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::descriptor::login-proof-signing",
+      "path": [
+        "published-records"
+      ],
+      "payload": {
+        "credential_key": "account-login-proof-hmac-key",
+        "credential_resolver_actor_id": "account-session",
+        "credential_resolver_target": "slot::credentials-vault",
+        "default_login_link_ttl_seconds": 900,
+        "handle_ttl_seconds": 60,
+        "kind": "account-session-login-proof-signing-descriptor"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::target::login-link",
+      "path": [
+        "packages",
+        "account-session",
+        "targets",
+        "login-link"
+      ],
+      "payload": {
+        "entry_name": "send-login-link-target",
+        "export_name": "sendLoginLinkTarget",
+        "kind": "package-target-descriptor",
+        "source_path": "do-work/send-login-link-target.ts",
+        "target": "account-session.login-link"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::target::complete-returning-login",
+      "path": [
+        "packages",
+        "account-session",
+        "targets",
+        "complete-returning-login"
+      ],
+      "payload": {
+        "entry_name": "complete-returning-login-target",
+        "export_name": "completeReturningLoginTarget",
+        "kind": "package-target-descriptor",
+        "source_path": "do-work/complete-returning-login-target.ts",
+        "target": "account-session.complete-returning-login"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::target::end-browser-session",
+      "path": [
+        "packages",
+        "account-session",
+        "targets",
+        "end-browser-session"
+      ],
+      "payload": {
+        "entry_name": "end-browser-session-target",
+        "export_name": "endBrowserSessionTarget",
+        "kind": "package-target-descriptor",
+        "source_path": "do-work/end-browser-session-target.ts",
+        "target": "account-session.end-browser-session"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::target::browser-session",
+      "path": [
+        "packages",
+        "account-session",
+        "targets",
+        "browser-session"
+      ],
+      "payload": {
+        "entry_name": "read-browser-session-target",
+        "export_name": "readBrowserSessionTarget",
+        "kind": "package-target-descriptor",
+        "source_path": "do-work/read-browser-session-target.ts",
+        "target": "account-session.browser-session"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::target::start-verified-browser-session",
+      "path": [
+        "packages",
+        "account-session",
+        "targets",
+        "start-verified-browser-session"
+      ],
+      "payload": {
+        "entry_name": "start-verified-browser-session",
+        "export_name": "startVerifiedBrowserSession",
+        "kind": "package-target-descriptor",
+        "source_path": "do-work/start-verified-browser-session.ts",
+        "target": "account-session.start-verified-browser-session"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::target::authorize-transient-session",
+      "path": [
+        "packages",
+        "account-session",
+        "targets",
+        "authorize-transient-session"
+      ],
+      "payload": {
+        "entry_name": "authorize-transient-session-target",
+        "export_name": "authorizeTransientSessionTarget",
+        "kind": "package-target-descriptor",
+        "source_path": "do-work/authorize-transient-session-target.ts",
+        "target": "account-session.authorize-transient-session"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::target::authorize-locally-issued-session",
+      "path": ["packages", "account-session", "targets", "authorize-locally-issued-session"],
+      "payload": {
+        "entry_name": "authorize-locally-issued-session",
+        "export_name": "authorizeLocallyIssuedTransientSession",
+        "kind": "package-target-descriptor",
+        "source_path": "do-work/authorize-transient-session-target.ts",
+        "target": "account-session.authorize-locally-issued-session"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::target::verify-session-revision",
+      "path": [
+        "packages",
+        "account-session",
+        "targets",
+        "verify-session-revision"
+      ],
+      "payload": {
+        "entry_name": "verify-session-revision-target",
+        "export_name": "verifySessionRevisionTarget",
+        "kind": "package-target-descriptor",
+        "source_path": "do-work/authorize-transient-session-target.ts",
+        "target": "account-session.verify-session-revision",
+        "exposure": "owner-to-owner-only"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::entry::account-session",
+      "path": [
+        "packages",
+        "account-session",
+        "entries",
+        "account-session"
+      ],
+      "payload": {
+        "entry_name": "account-session",
+        "export_name": "default",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/MagicLinkLoginSurface.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-account-session"
+        }
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::entry::account-session-surface",
+      "path": [
+        "packages",
+        "account-session",
+        "entries",
+        "account-session-surface"
+      ],
+      "payload": {
+        "entry_name": "account-session-surface",
+        "export_name": "default",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-account-session-surface.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-account-session-surface"
+        }
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::entry::complete-returning-login-target",
+      "path": [
+        "packages",
+        "account-session",
+        "entries",
+        "complete-returning-login-target"
+      ],
+      "payload": {
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-complete-returning-login-target"
+        },
+        "entry_name": "complete-returning-login-target",
+        "export_name": "completeReturningLoginTarget",
+        "kind": "bitfield-package-entry",
+        "source_path": "do-work/complete-returning-login-target.ts"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::entry::end-browser-session-target",
+      "path": [
+        "packages",
+        "account-session",
+        "entries",
+        "end-browser-session-target"
+      ],
+      "payload": {
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-end-browser-session-target"
+        },
+        "entry_name": "end-browser-session-target",
+        "export_name": "endBrowserSessionTarget",
+        "kind": "bitfield-package-entry",
+        "source_path": "do-work/end-browser-session-target.ts"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::entry::read-browser-session-target",
+      "path": [
+        "packages",
+        "account-session",
+        "entries",
+        "read-browser-session-target"
+      ],
+      "payload": {
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-read-browser-session-target"
+        },
+        "entry_name": "read-browser-session-target",
+        "export_name": "readBrowserSessionTarget",
+        "kind": "bitfield-package-entry",
+        "source_path": "do-work/read-browser-session-target.ts"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::entry::start-verified-browser-session",
+      "path": [
+        "packages",
+        "account-session",
+        "entries",
+        "start-verified-browser-session"
+      ],
+      "payload": {
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-start-verified-browser-session"
+        },
+        "entry_name": "start-verified-browser-session",
+        "export_name": "startVerifiedBrowserSession",
+        "kind": "bitfield-package-entry",
+        "source_path": "do-work/start-verified-browser-session.ts"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::entry::authorize-transient-session-target",
+      "path": [
+        "packages",
+        "account-session",
+        "entries",
+        "authorize-transient-session-target"
+      ],
+      "payload": {
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-authorize-transient-session-target"
+        },
+        "entry_name": "authorize-transient-session-target",
+        "export_name": "authorizeTransientSessionTarget",
+        "kind": "bitfield-package-entry",
+        "source_path": "do-work/authorize-transient-session-target.ts"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::entry::authorize-locally-issued-session",
+      "path": ["packages", "account-session", "entries", "authorize-locally-issued-session"],
+      "payload": {
+        "entry_bytes": { "stored_bytes": "entry-bytes-authorize-locally-issued-session" },
+        "entry_name": "authorize-locally-issued-session",
+        "export_name": "authorizeLocallyIssuedTransientSession",
+        "kind": "bitfield-package-entry",
+        "source_path": "do-work/authorize-transient-session-target.ts"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::entry::verify-session-revision-target",
+      "path": [
+        "packages",
+        "account-session",
+        "entries",
+        "verify-session-revision-target"
+      ],
+      "payload": {
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-verify-session-revision-target"
+        },
+        "entry_name": "verify-session-revision-target",
+        "export_name": "verifySessionRevisionTarget",
+        "kind": "bitfield-package-entry",
+        "source_path": "do-work/authorize-transient-session-target.ts",
+        "live_read_mode": "none"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::entry::send-login-link-target",
+      "path": [
+        "packages",
+        "account-session",
+        "entries",
+        "send-login-link-target"
+      ],
+      "payload": {
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-send-login-link-target"
+        },
+        "entry_name": "send-login-link-target",
+        "export_name": "sendLoginLinkTarget",
+        "kind": "bitfield-package-entry",
+        "source_path": "do-work/send-login-link-target.ts"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::entry::magic-link-login",
+      "path": [
+        "packages",
+        "account-session",
+        "entries",
+        "magic-link-login"
+      ],
+      "payload": {
+        "entry_name": "magic-link-login",
+        "export_name": "default",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/MagicLinkLoginSurface.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-magic-link-login"
+        }
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::input::provider-records",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "provider-records",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "package-set-records::wave-15-screen-records"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::input::published-records",
+      "path": [
+        "packages",
+        "account-session",
+        "inputs"
+      ],
+      "payload": {
+        "input_name": "published-records",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "address",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "path",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "payload",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ],
+            "op": "rows",
+            "shape": {
+              "column_count": 3,
+              "row_count": 2
+            }
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "package::account-session::value::published-records"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-session::value::published-records",
+      "path": [
+        "packages",
+        "account-session",
+        "projected-values",
+        "published-records"
+      ],
+      "payload": null,
+      "payload_base64": "UlRCTAAAAAACAAAAAwAAAAAAAAA5AAAAOQAAABUAAABOAAAAIQEAAG8BAABeAAAAzQEAABUAAADiAQAA/QAAAHBhY2thZ2U6OmFjY291bnQtc2Vzc2lvbjo6ZGVzY3JpcHRvcjo6bG9naW4tcHJvb2Ytc2lnbmluZ1sicHVibGlzaGVkLXJlY29yZHMiXXsiY3JlZGVudGlhbF9rZXkiOiJhY2NvdW50LWxvZ2luLXByb29mLWhtYWMta2V5IiwiY3JlZGVudGlhbF9yZXNvbHZlcl9hY3Rvcl9pZCI6ImFjY291bnQtc2Vzc2lvbiIsImNyZWRlbnRpYWxfcmVzb2x2ZXJfdGFyZ2V0IjoiY3JlZGVudGlhbHMtdmF1bHQuaG9zdGVkLWNyZWRlbnRpYWwtdGFyZ2V0IiwiZGVmYXVsdF9sb2dpbl9saW5rX3R0bF9zZWNvbmRzIjo5MDAsImhhbmRsZV90dGxfc2Vjb25kcyI6NjAsImtpbmQiOiJhY2NvdW50LXNlc3Npb24tbG9naW4tcHJvb2Ytc2lnbmluZy1kZXNjcmlwdG9yIn1wYWNrYWdlOjphY2NvdW50LXNlc3Npb246OnB1Ymxpc2hlZC1yZWNvcmQ6Omhvc3RlZC11cmwtcmV0dXJuLWFjdGlvbjo6Y29tcGxldGUtcmV0dXJuaW5nLWxvZ2luWyJwdWJsaXNoZWQtcmVjb3JkcyJdeyJjbGVhcl9xdWVyeV9wYXJhbXMiOlsiYWNjb3VudF9sb2dpbiIsInRva2VuIl0sImtpbmQiOiJob3N0ZWQtdXJsLXJldHVybi1hY3Rpb24iLCJtYXRjaF9xdWVyeSI6eyJhY2NvdW50X2xvZ2luIjoiY29tcGxldGUifSwicGF5bG9hZF9maWVsZHMiOnsidG9rZW4iOnsicXVlcnlfcGFyYW0iOiJ0b2tlbiJ9fSwicmVsb2FkX29uX3N1Y2Nlc3MiOnRydWUsInRhcmdldCI6ImFjY291bnQtc2Vzc2lvbi5jb21wbGV0ZS1yZXR1cm5pbmctbG9naW4ifQ==",
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-complete-returning-login-target",
+      "source_path": "built-stored-bytes/entry-bytes-complete-returning-login-target",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-complete-returning-login-target.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-end-browser-session-target",
+      "source_path": "built-stored-bytes/entry-bytes-end-browser-session-target",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-end-browser-session-target.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-read-browser-session-target",
+      "source_path": "built-stored-bytes/entry-bytes-read-browser-session-target",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-read-browser-session-target.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-start-verified-browser-session",
+      "source_path": "built-stored-bytes/entry-bytes-start-verified-browser-session",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-start-verified-browser-session.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-send-login-link-target",
+      "source_path": "built-stored-bytes/entry-bytes-send-login-link-target",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-send-login-link-target.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-authorize-transient-session-target",
+      "source_path": "built-stored-bytes/entry-bytes-authorize-transient-session-target",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-authorize-transient-session-target.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-authorize-locally-issued-session",
+      "source_path": "built-stored-bytes/entry-bytes-authorize-locally-issued-session",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-authorize-locally-issued-session.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-verify-session-revision-target",
+      "source_path": "built-stored-bytes/entry-bytes-verify-session-revision-target",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-verify-session-revision-target.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-account-session",
+      "source_path": "built-stored-bytes/entry-bytes-account-session",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-account-session.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-account-session-surface",
+      "source_path": "built-stored-bytes/entry-bytes-account-session-surface",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-account-session-surface.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-magic-link-login",
+      "source_path": "built-stored-bytes/entry-bytes-magic-link-login",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-magic-link-login.source-closure.json"
+    }
+  ]
+}

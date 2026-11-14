@@ -1,0 +1,106 @@
+{
+  "trigger": {
+    "id": "trigger:content-production:record-to-publish",
+    "topic": "data_state",
+    "trigger_type": "delta",
+    "is_active": false,
+    "_activation": "is_active:false until the user turns the automation on (Distribution/Settings); flipping it is a data write, zero code",
+    "match_condition": {
+      "conditions": [
+        {
+          "$kind": "binding",
+          "select": {
+            "from": "change",
+            "path": "properties.kind"
+          },
+          "transform": [
+            {
+              "op": "op:core.equals",
+              "args": {
+                "value": "recorded-file"
+              }
+            }
+          ]
+        },
+        {
+          "$kind": "binding",
+          "select": {
+            "from": "envelope",
+            "path": "is_retraction"
+          },
+          "transform": [
+            {
+              "op": "op:core.equals",
+              "args": {
+                "value": false
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "dispatch": {
+      "target": "slot::workflow",
+      "output_template": {
+        "operation": "execute_definition",
+        "definition_id": "action:pipeline-record-to-publish",
+        "include_steps": false,
+        "include_output": false,
+        "input": {
+          "recording_id": {
+            "$kind": "binding",
+            "select": {
+              "from": "change",
+              "path": "properties.recorded_file_id"
+            }
+          },
+          "shape": {
+            "audio": {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "properties.mode"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "audio"
+                  }
+                },
+                {
+                  "op": "op:core.if_null",
+                  "args": {
+                    "value": true
+                  }
+                }
+              ]
+            },
+            "video": {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "properties.mode"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "video"
+                  }
+                }
+              ]
+            }
+          },
+          "run_inputs": {
+            "$kind": "binding",
+            "select": {
+              "from": "change",
+              "path": "properties"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,375 @@
+{
+  "package": "resend-email-sender",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::resend-email-sender::checks",
+      "path": [
+        "packages",
+        "resend-email-sender",
+        "checks"
+      ],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "__tests__/render-email.test.ts",
+          "__tests__/onboarding-wiring.test.ts",
+          "do-work/send-resend-email.test.ts"
+        ]
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "index",
+      "source_path": "index.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "send-resend-email",
+      "source_path": "do-work/send-resend-email.ts"
+    },
+    {
+      "type": "record",
+      "address": "package::resend-email-sender::contract",
+      "path": [
+        "packages",
+        "resend-email-sender",
+        "contract"
+      ],
+      "payload": {
+        "does_not_own": [
+          "account session cookies",
+          "account lookup",
+          "login proof token creation",
+          "raw provider secret material",
+          "direct provider HTTP execution"
+        ],
+        "owns": [
+          "Resend email HTTP descriptor data",
+          "Resend credential key placement",
+          "generic sign-in email template"
+        ],
+        "package": "resend-email-sender"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::resend-email-sender::descriptor::login-link-email-http",
+      "path": [
+        "published-records"
+      ],
+      "payload": {
+        "credential_resolver_target": "slot::credentials-vault",
+        "handle_ttl_seconds": 60,
+        "http": {
+          "credential_injections": [
+            {
+              "credential_key": "resend-api-key",
+              "placement": {
+                "kind": "header",
+                "name": "authorization",
+                "prefix": "Bearer ",
+                "suffix": ""
+              }
+            }
+          ],
+          "headers": {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "user-agent": "Runtime-Kit-Account-Mailer/1.0"
+          },
+          "method": "POST",
+          "timeout_ms": 30000,
+          "url": "https://api.resend.com/emails"
+        },
+        "kind": "resend-email-http-descriptor",
+        "message": {
+          "html_template": [
+            "<p>Use this link to sign in to your account:</p>",
+            "<p><a href=\"{{link}}\">Sign in</a></p>",
+            "<p>If you did not request this, you can ignore this email.</p>"
+          ],
+          "subject": "Sign in",
+          "text_template": [
+            "Use this link to sign in to your account:",
+            "",
+            "{{link}}",
+            "",
+            "If you did not request this, you can ignore this email."
+          ]
+        },
+        "template_name": "account-login-link"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::resend-email-sender::descriptor::onboarding-email-http",
+      "path": [
+        "published-records"
+      ],
+      "payload": {
+        "credential_resolver_target": "slot::credentials-vault",
+        "handle_ttl_seconds": 60,
+        "http": {
+          "credential_injections": [
+            {
+              "credential_key": "resend-api-key",
+              "placement": {
+                "kind": "header",
+                "name": "authorization",
+                "prefix": "Bearer ",
+                "suffix": ""
+              }
+            }
+          ],
+          "headers": {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "user-agent": "Runtime-Kit-Account-Mailer/1.0"
+          },
+          "method": "POST",
+          "timeout_ms": 30000,
+          "url": "https://api.resend.com/emails"
+        },
+        "kind": "resend-email-http-descriptor",
+        "message": {
+          "html_template": [
+            "<p>Welcome aboard!</p>",
+            "<p>Your access is now active.</p>",
+            "<p><a href=\"{{loginUrl}}\">Open your account</a></p>",
+            "<p>If you have any questions, just reply to this email.</p>"
+          ],
+          "subject": "Welcome — your access is now active",
+          "text_template": [
+            "Welcome aboard!",
+            "",
+            "Your access is now active.",
+            "",
+            "Open your account: {{loginUrl}}",
+            "",
+            "If you have any questions, just reply to this email."
+          ]
+        },
+        "template_name": "account-onboarding"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::resend-email-sender::descriptor::feedback-request-email-http",
+      "remove": true,
+      "path": [
+        "published-records"
+      ],
+      "payload": null,
+      "payload_base64": null,
+      "payload_text": null
+    },
+    {
+      "type": "record",
+      "address": "package::resend-email-sender::target::send-email",
+      "path": [
+        "packages",
+        "resend-email-sender",
+        "targets",
+        "send-email"
+      ],
+      "payload": {
+        "entry_name": "send-resend-email",
+        "export_name": "sendResendEmail",
+        "kind": "package-target-descriptor",
+        "source_path": "do-work/send-resend-email.ts",
+        "target": "resend-email-sender.send-email"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::resend-email-sender::entry::send-resend-email",
+      "path": [
+        "packages",
+        "resend-email-sender",
+        "entries",
+        "send-resend-email"
+      ],
+      "payload": {
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-send-resend-email"
+        },
+        "entry_name": "send-resend-email",
+        "export_name": "sendResendEmail",
+        "kind": "bitfield-package-entry",
+        "source_path": "do-work/send-resend-email.ts"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::resend-email-sender::input::published-records",
+      "path": [
+        "packages",
+        "resend-email-sender",
+        "inputs"
+      ],
+      "payload": {
+        "input_name": "published-records",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "address",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "path",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "payload",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ],
+            "op": "rows",
+            "shape": {
+              "column_count": 3,
+              "row_count": 1
+            }
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "package::resend-email-sender::value::published-records"
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::resend-email-sender::value::published-records",
+      "path": [
+        "packages",
+        "resend-email-sender",
+        "projected-values",
+        "published-records"
+      ],
+      "payload": null,
+      "payload_base64": "UlRCTAAAAAABAAAAAwAAAAAAAAA/AAAAPwAAABUAAABUAAAA0AMAAHBhY2thZ2U6OnJlc2VuZC1lbWFpbC1zZW5kZXI6OmRlc2NyaXB0b3I6OmxvZ2luLWxpbmstZW1haWwtaHR0cFsicHVibGlzaGVkLXJlY29yZHMiXXsiY3JlZGVudGlhbF9yZXNvbHZlcl90YXJnZXQiOiJjcmVkZW50aWFscy12YXVsdC5ob3N0ZWQtY3JlZGVudGlhbC10YXJnZXQiLCJ3b3JrZmxvd190YXJnZXQiOiJ3b3JrZmxvdyIsImRlZmluaXRpb25faWQiOiJhY3Rpb246c2VuZC1yZXNlbmQtZW1haWwiLCJoYW5kbGVfdHRsX3NlY29uZHMiOjYwLCJodHRwIjp7ImNyZWRlbnRpYWxfaW5qZWN0aW9ucyI6W3siY3JlZGVudGlhbF9rZXkiOiJyZXNlbmQtYXBpLWtleSIsInBsYWNlbWVudCI6eyJraW5kIjoiaGVhZGVyIiwibmFtZSI6ImF1dGhvcml6YXRpb24iLCJwcmVmaXgiOiJCZWFyZXIgIiwic3VmZml4IjoiIn19XSwiaGVhZGVycyI6eyJhY2NlcHQiOiJhcHBsaWNhdGlvbi9qc29uIiwiY29udGVudC10eXBlIjoiYXBwbGljYXRpb24vanNvbiIsInVzZXItYWdlbnQiOiJSdW50aW1lLUtpdC1BY2NvdW50LU1haWxlci8xLjAifSwibWV0aG9kIjoiUE9TVCIsInRpbWVvdXRfbXMiOjMwMDAwLCJ1cmwiOiJodHRwczovL2FwaS5yZXNlbmQuY29tL2VtYWlscyJ9LCJraW5kIjoicmVzZW5kLWVtYWlsLWh0dHAtZGVzY3JpcHRvciIsIm1lc3NhZ2UiOnsiZnJvbSI6IkFjY291bnQgPGhlbGxvQGV4YW1wbGUuY29tPiIsImh0bWxfdGVtcGxhdGUiOlsiPHA+VXNlIHRoaXMgbGluayB0byBzaWduIGluIHRvIHlvdXIgYWNjb3VudDo8L3A+IiwiPHA+PGEgaHJlZj1cInt7bGlua319XCI+U2lnbiBpbjwvYT48L3A+IiwiPHA+SWYgeW91IGRpZCBub3QgcmVxdWVzdCB0aGlzLCB5b3UgY2FuIGlnbm9yZSB0aGlzIGVtYWlsLjwvcD4iXSwic3ViamVjdCI6IlNpZ24gaW4iLCJ0ZXh0X3RlbXBsYXRlIjpbIlVzZSB0aGlzIGxpbmsgdG8gc2lnbiBpbiB0byB5b3VyIGFjY291bnQ6IiwiIiwie3tsaW5rfX0iLCIiLCJJZiB5b3UgZGlkIG5vdCByZXF1ZXN0IHRoaXMsIHlvdSBjYW4gaWdub3JlIHRoaXMgZW1haWwuIl19LCJ0ZW1wbGF0ZV9uYW1lIjoiYWNjb3VudC1sb2dpbi1saW5rIn0=",
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::resend-email-sender::workflow-action::send-templated-email-from-bound-event",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:resend-email-sender.send-templated-email-from-bound-event",
+        "kind": "action",
+        "name": "resend-email-sender-send-templated-email-from-bound-event",
+        "description": "Generic email-on-event resolver: read an optional config record (input.config_address) then dispatch resend-email-sender.send-email with the caller-supplied input.request_template. Every email-on-event (onboarding, receipt, refund, reminder, password-reset) is a trigger-rule DATA row that calls this one action — zero per-email logic here. The trigger MUST pass request_template as a literal so its inner {from:steps,key:read_config} binding survives the trigger-engine's eager output_template resolution.",
+        "input_schema": {
+          "config_address": "string",
+          "request_template": "object",
+          "event": "object"
+        },
+        "steps": [
+          {
+            "id": "read_config",
+            "kind": "read",
+            "config": {
+              "from": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "config_address"
+                }
+              },
+              "fallback_output": {}
+            }
+          },
+          {
+            "id": "send_email",
+            "kind": "ask",
+            "config": {
+              "name": "resend-email-sender.send-email",
+              "input": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "request_template"
+                }
+              }
+            }
+          },
+          {
+            "id": "return_result",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "send_email",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-send-resend-email",
+      "source_path": "built-stored-bytes/entry-bytes-send-resend-email",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-send-resend-email.source-closure.json"
+    }
+  ]
+}

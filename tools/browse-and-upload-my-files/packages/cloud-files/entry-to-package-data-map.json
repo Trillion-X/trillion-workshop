@@ -1,0 +1,12 @@
+{
+  "kind": "bitfield-entry-to-package-data-map",
+  "package": "cloud-files",
+  "package_data_path": "things-to-store-and-run.json",
+  "entries": [
+    {
+      "entry_name": "cloud-files-browser",
+      "source_path": "show/mount-cloud-file-browser.tsx",
+      "package_data_path": "things-to-store-and-run.json"
+    }
+  ]
+}

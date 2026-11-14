@@ -24,6 +24,84 @@
       "to": "tools/guard-ai-spending/packages/agent-wallet/show/AgentWalletPanel.tsx",
       "source_identity": "1f:04484785e0c551c998cc9acc0a70cf5463912e2dcc8f85baf32ab82d5493c231",
       "identity": "1f:04484785e0c551c998cc9acc0a70cf5463912e2dcc8f85baf32ab82d5493c231"
+    },
+    {
+      "from": "packages/agent-wallet/do-work/record-spend.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/guard-ai-spending/do-work/record-spend.mjs",
+      "source_identity": "1f:ac23cc66585485add79cb6ef8534404c824370b49e03801a2539b91574e1ac06",
+      "identity": "1f:ac23cc66585485add79cb6ef8534404c824370b49e03801a2539b91574e1ac06",
+      "reused": true
+    },
+    {
+      "from": "packages/agent-wallet/do-work/build-eip712-digest.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/guard-ai-spending/packages/agent-wallet/do-work/build-eip712-digest.mjs",
+      "source_identity": "1f:48b8458e541692f45b5c981143672bbf1072ba17a691288eea3193dcb6e7653f",
+      "identity": "1f:48b8458e541692f45b5c981143672bbf1072ba17a691288eea3193dcb6e7653f"
+    },
+    {
+      "from": "packages/agent-wallet/do-work/decide-budget.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/guard-ai-spending/packages/agent-wallet/do-work/decide-budget.mjs",
+      "source_identity": "1f:95b5e5d9a74370aecb7d737dbaa7a325e246b5a6342af2b2f0a859eb16df502e",
+      "identity": "1f:95b5e5d9a74370aecb7d737dbaa7a325e246b5a6342af2b2f0a859eb16df502e"
+    },
+    {
+      "from": "packages/agent-wallet/do-work/decide-daily-reset.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/guard-ai-spending/packages/agent-wallet/do-work/decide-daily-reset.mjs",
+      "source_identity": "1f:8fe34f1f341a929a18427bcb8f9f17a2817f6fbc3d959961c5fa430edbb2d362",
+      "identity": "1f:8fe34f1f341a929a18427bcb8f9f17a2817f6fbc3d959961c5fa430edbb2d362"
+    },
+    {
+      "from": "packages/agent-wallet/do-work/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/guard-ai-spending/packages/agent-wallet/do-work/README.md",
+      "source_identity": "1f:7a4d5a46187c50335f97be91a361631d0e1cda0e6d5371498e7df38b97f40222",
+      "identity": "1f:7a4d5a46187c50335f97be91a361631d0e1cda0e6d5371498e7df38b97f40222"
+    },
+    {
+      "from": "packages/agent-wallet/read-data/read-agent-budget-authority.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/guard-ai-spending/packages/agent-wallet/read-data/read-agent-budget-authority.ts",
+      "source_identity": "1f:18fb9f5f7922de037d03dcd8e00ee753394b8f6892544944a18b5dd6227ddc05",
+      "identity": "1f:18fb9f5f7922de037d03dcd8e00ee753394b8f6892544944a18b5dd6227ddc05"
+    },
+    {
+      "from": "packages/agent-wallet/read-data/read-agent-wallet.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/guard-ai-spending/packages/agent-wallet/read-data/read-agent-wallet.ts",
+      "source_identity": "1f:f8134aa3f572cf1f5c51774368b2695910f51a3885a102db315351e4a8427ab6",
+      "identity": "1f:f8134aa3f572cf1f5c51774368b2695910f51a3885a102db315351e4a8427ab6"
+    },
+    {
+      "from": "packages/agent-wallet/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/guard-ai-spending/packages/agent-wallet/read-data/README.md",
+      "source_identity": "1f:30f4429faddfe05978891fe59b219c45f55f8dc37b8ea368eecec54243a1e3ea",
+      "identity": "1f:30f4429faddfe05978891fe59b219c45f55f8dc37b8ea368eecec54243a1e3ea"
+    },
+    {
+      "from": "packages/agent-wallet/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/guard-ai-spending/packages/agent-wallet/README.md",
+      "source_identity": "1f:f35eecf0da9b34d389d1d5c309a64a26ff49c7f16ff3bfd1273cfdf96bcea061",
+      "identity": "1f:f35eecf0da9b34d389d1d5c309a64a26ff49c7f16ff3bfd1273cfdf96bcea061"
+    },
+    {
+      "from": "packages/agent-wallet/reference-adaptation-contract.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/guard-ai-spending/packages/agent-wallet/reference-adaptation-contract.json",
+      "source_identity": "1f:143d1b7df9d0b89e16fa77159d991d25ee469449c23fe0ad27305df36f27f8aa",
+      "identity": "1f:143d1b7df9d0b89e16fa77159d991d25ee469449c23fe0ad27305df36f27f8aa"
+    },
+    {
+      "from": "packages/agent-wallet/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/guard-ai-spending/packages/agent-wallet/things-to-store-and-run.json",
+      "source_identity": "1f:11c6e0989e834b98187e5ca90a93b31a54f7cb5465476c613edd54739b2fe316",
+      "identity": "1f:11c6e0989e834b98187e5ca90a93b31a54f7cb5465476c613edd54739b2fe316"
     }
   ]
 }

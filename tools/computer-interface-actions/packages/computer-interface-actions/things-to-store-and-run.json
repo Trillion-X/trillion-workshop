@@ -1,0 +1,470 @@
+{
+  "package": "computer-interface-actions",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::computer-interface-actions::capability::perform-bounded-computer-interface-actions",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "bitfield-package-capability",
+        "id": "capability:perform-bounded-computer-interface-actions",
+        "package": "computer-interface-actions",
+        "label": "Perform bounded computer-interface actions",
+        "description": "Translate a bounded computer-interface intent into actions through a provider's documented interface, with sensitive-action approval and non-secret results.",
+        "owned_record_kinds": [],
+        "reuses": ["workflow", "stored_bytes", "process", "permission-lease"]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::computer-interface-actions::checks",
+      "path": ["packages", "computer-interface-actions", "checks"],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": ["tests/computer-interface-actions.test.mjs", "tests/authenticated-surface-bootstrap.test.mjs"]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::computer-interface-actions::rule::a-generic-package-may-not-define-paths-as-constants",
+      "path": ["current-item", "source-file-rule"],
+      "payload": {
+        "kind": "source-file-rule",
+        "id": "computer-interface-actions-a-generic-package-may-not-define-paths-as-constants",
+        "why": "A module-level constant holding a path is provider configuration welded into generic code. Provider locations belong in DATA or executable discovery, never generic code. The structural pattern catches the class without enumerating machine-specific path prefixes.",
+        "scope": {
+          "path_matches": "packages/computer-interface-actions/do-work/.*\\.mjs$",
+          "path_excludes": "/tests?/"
+        },
+        "violation": {
+          "forbidden": [
+            { "pattern": "const\\s+[A-Z_]+\\s*=\\s*['\"][^'\"]*/[^'\"]*['\"]" }
+          ]
+        },
+        "message": "a module-level constant holds a filesystem path; provider locations are DATA, not code — move it to the provider JSON file"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::computer-interface-actions::public-source::do-work",
+      "path": ["packages", "computer-interface-actions", "public-sources", "do-work"],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work",
+        "contract": "computer-interface-actions do-work owns bounded computer-interface intent validation, sensitive-action approval, provider DATA planning, task-surface proof gates, and canonical compute.process_session dispatch; provider executables are runtime aliases, never ambient PATH or host paths"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::computer-interface-actions::provider-table::current",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "computer-interface-provider-table",
+        "source_path": "computer-interface-providers.json",
+        "providers": ["aside", "macos-ui", "obscura"]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::computer-interface-actions::workflow-action::provider-status",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record", "workflow-definition"],
+      "payload": {
+        "id": "action:computer-interface-provider-status",
+        "kind": "action",
+        "name": "computer-interface-provider-status",
+        "description": "Check whether a browsing option is available for this task and whether it can keep its screen, pointer, and keyboard separate from your personal windows.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["provider_id", "operation"],
+          "properties": {
+            "provider_id": {"type": "string", "minLength": 1},
+            "operation": {"const": "provider.status"}
+          }
+        },
+        "steps": [
+          {"id": "read_script", "kind": "read", "config": {"from": "package::computer-interface-actions::stored-bytes::query-provider-status"}},
+          {"id": "read_providers", "kind": "read", "config": {"from": "package::computer-interface-actions::stored-bytes::computer-interface-provider-table"}},
+          {
+            "id": "status",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": ["node", "query-provider-status.mjs", "--input", "input.json", "--providers", "providers.json", "--output", "result.json", "--resolve-admission", "true"],
+                "cwd": null,
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {"mount_path": "query-provider-status.mjs", "content_type": "text/javascript", "source": {"kind": "blob_ref", "hash": {"$kind": "binding", "select": {"from": "steps", "key": "read_script", "path": "output.content_hash"}}}},
+                  {"mount_path": "providers.json", "content_type": "application/json", "source": {"kind": "blob_ref", "hash": {"$kind": "binding", "select": {"from": "steps", "key": "read_providers", "path": "output.content_hash"}}}},
+                  {"mount_path": "input.json", "content_type": "application/json", "source": {"kind": "inline", "bytes": {"$kind": "binding", "select": {"from": "input"}, "transform": [{"op": "op:core.stringify", "args": {"format": "json"}}, {"op": "op:core.encode", "args": {"encoding": "base64"}}]}}}
+                ],
+                "input_trees": [],
+                "outputs": [{"mount_path": "result.json", "content_type": "application/json"}],
+                "containment": {"kind": "leaf"},
+                "capture_fds": [1, 2],
+                "collected_files": []
+              }
+            }
+          },
+          {"id": "admission", "kind": "ask", "config": {"name": "compute.runtime-status", "input": {"runtime_alias": {"$kind": "binding", "select": {"from": "steps", "key": "status", "path": "output.outputs.0.bytes.base64"}, "transform": [{"op": "op:core.decode", "args": {"encoding": "base64"}}, {"op": "op:core.json_parse"}, {"op": "op:core.lookup", "args": {"key": "runtime_alias"}}]}}}},
+          {"id": "done", "kind": "return", "config": {"value": {"provider_id": {"$kind": "binding", "select": {"from": "input", "path": "provider_id"}}, "admission": {"$kind": "binding", "select": {"from": "steps", "key": "admission", "path": "output"}}, "isolated_surface_proven": false}}}
+        ],
+        "edges": [
+          {"from": "read_script", "to": "read_providers", "kind": "on_result"},
+          {"from": "read_providers", "to": "status", "kind": "on_result"},
+          {"from": "status", "to": "admission", "kind": "on_result"},
+          {"from": "admission", "to": "done", "kind": "on_result"}
+        ],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::computer-interface-actions::workflow-action::execute",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record", "workflow-definition"],
+      "payload": {
+        "id": "action:computer-interface-execute",
+        "kind": "action",
+        "name": "computer-interface-execute",
+        "description": "Open a public page without using personal browser windows.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["provider_id", "operation", "idempotency_key"],
+          "properties": {
+            "provider_id": {"type": "string", "minLength": 1},
+            "operation": {"enum": ["browser.fetch", "browser.screenshot"]},
+            "idempotency_key": {"type": "string", "minLength": 1, "maxLength": 512},
+            "command": {"type": "string", "minLength": 1, "maxLength": 16384},
+            "url": {"type": "string", "minLength": 1},
+            "dump": {"type": "string", "minLength": 1},
+            "output_path": {"type": "string", "minLength": 1},
+            "timeout_ms": {"type": "integer", "minimum": 1},
+            "approval": {"type": "object"}
+          }
+        },
+        "steps": [
+          {"id": "read_planner", "kind": "read", "config": {"from": "package::computer-interface-actions::stored-bytes::prepare-computer-interface-session"}},
+          {"id": "read_core", "kind": "read", "config": {"from": "package::computer-interface-actions::stored-bytes::computer-interface-actions-core"}},
+          {"id": "read_providers", "kind": "read", "config": {"from": "package::computer-interface-actions::stored-bytes::computer-interface-provider-table"}},
+          {
+            "id": "prepare",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": ["node", "prepare-computer-interface-session.mjs", "--input", "input.json", "--providers", "providers.json", "--output", "session-request.json"],
+                "cwd": null,
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {"mount_path": "prepare-computer-interface-session.mjs", "content_type": "text/javascript", "source": {"kind": "blob_ref", "hash": {"$kind": "binding", "select": {"from": "steps", "key": "read_planner", "path": "output.content_hash"}}}},
+                  {"mount_path": "computer-interface-actions.mjs", "content_type": "text/javascript", "source": {"kind": "blob_ref", "hash": {"$kind": "binding", "select": {"from": "steps", "key": "read_core", "path": "output.content_hash"}}}},
+                  {"mount_path": "providers.json", "content_type": "application/json", "source": {"kind": "blob_ref", "hash": {"$kind": "binding", "select": {"from": "steps", "key": "read_providers", "path": "output.content_hash"}}}},
+                  {"mount_path": "input.json", "content_type": "application/json", "source": {"kind": "inline", "bytes": {"$kind": "binding", "select": {"from": "input"}, "transform": [{"op": "op:core.stringify", "args": {"format": "json"}}, {"op": "op:core.encode", "args": {"encoding": "base64"}}]}}}
+                ],
+                "input_trees": [],
+                "outputs": [{"mount_path": "session-request.json", "content_type": "application/json"}],
+                "containment": {"kind": "leaf"},
+                "capture_fds": [1, 2],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "execute",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process_session",
+              "input": {
+                "$kind": "binding",
+                "select": {"from": "steps", "key": "prepare", "path": "output.outputs.0.bytes.base64"},
+                "transform": [{"op": "op:core.decode", "args": {"encoding": "base64"}}, {"op": "op:core.json_parse"}]
+              }
+            }
+          },
+          {"id": "done", "kind": "return", "config": {"value": {"provider_id": {"$kind": "binding", "select": {"from": "input", "path": "provider_id"}}, "operation": {"$kind": "binding", "select": {"from": "input", "path": "operation"}}, "session": {"$kind": "binding", "select": {"from": "steps", "key": "execute", "path": "output"}}}}}
+        ],
+        "edges": [
+          {"from": "read_planner", "to": "read_core", "kind": "on_result"},
+          {"from": "read_core", "to": "read_providers", "kind": "on_result"},
+          {"from": "read_providers", "to": "prepare", "kind": "on_result"},
+          {"from": "prepare", "to": "execute", "kind": "on_result"},
+          {"from": "execute", "to": "done", "kind": "on_result"}
+        ],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::computer-interface-actions::workflow-action::end-session",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record", "workflow-definition"],
+      "payload": {
+        "id": "action:computer-interface-end-session",
+        "kind": "action",
+        "name": "computer-interface-end-session",
+        "description": "Close the exact browsing session named in this request without touching any other session or window.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["session_id"],
+          "properties": {"session_id": {"type": "string", "minLength": 1}}
+        },
+        "steps": [
+          {"id": "end", "kind": "ask", "config": {"name": "compute.process_session", "input": {"operation": "append_session_command", "session_id": {"$kind": "binding", "select": {"from": "input", "path": "session_id"}}, "command": {"kind": "end_session"}}}},
+          {"id": "done", "kind": "return", "config": {"value": {"session_id": {"$kind": "binding", "select": {"from": "input", "path": "session_id"}}, "result": {"$kind": "binding", "select": {"from": "steps", "key": "end", "path": "output"}}}}}
+        ],
+        "edges": [
+          {"from": "end", "to": "done", "kind": "on_result"}
+        ],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::computer-interface-actions::workflow-action::establish-authenticated-surface",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record", "workflow-definition"],
+      "payload": {
+        "id": "action:computer-interface-establish-authenticated-surface",
+        "kind": "action",
+        "name": "computer-interface-establish-authenticated-surface",
+        "description": "Prepare a new blank signed-in browsing screen for this task without opening or reading a page.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["provider_id", "task_ref", "idempotency_key"],
+          "properties": {
+            "provider_id": {"type": "string", "minLength": 1},
+            "task_ref": {"type": "string", "minLength": 1, "maxLength": 512},
+            "idempotency_key": {"type": "string", "minLength": 1, "maxLength": 512}
+          }
+        },
+        "steps": [
+          {"id": "read_owner", "kind": "read", "config": {"from": "package::computer-interface-actions::stored-bytes::authenticated-surface-bootstrap"}},
+          {"id": "read_providers", "kind": "read", "config": {"from": "package::computer-interface-actions::stored-bytes::computer-interface-provider-table"}},
+          {
+            "id": "prepare",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": ["node", "authenticated-surface-bootstrap.mjs", "--mode", "prepare", "--input", "input.json", "--providers", "providers.json", "--output", "bootstrap.json"],
+                "cwd": null,
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {"mount_path": "authenticated-surface-bootstrap.mjs", "content_type": "text/javascript", "source": {"kind": "blob_ref", "hash": {"$kind": "binding", "select": {"from": "steps", "key": "read_owner", "path": "output.content_hash"}}}},
+                  {"mount_path": "providers.json", "content_type": "application/json", "source": {"kind": "blob_ref", "hash": {"$kind": "binding", "select": {"from": "steps", "key": "read_providers", "path": "output.content_hash"}}}},
+                  {"mount_path": "input.json", "content_type": "application/json", "source": {"kind": "inline", "bytes": {"$kind": "binding", "select": {"from": "input"}, "transform": [{"op": "op:core.stringify", "args": {"format": "json"}}, {"op": "op:core.encode", "args": {"encoding": "base64"}}]}}}
+                ],
+                "input_trees": [],
+                "outputs": [{"mount_path": "bootstrap.json", "content_type": "application/json"}],
+                "containment": {"kind": "leaf"},
+                "capture_fds": [1, 2],
+                "collected_files": []
+              }
+            }
+          },
+          {"id": "start", "kind": "ask", "config": {"name": "compute.process_session", "input": {"$kind": "binding", "select": {"from": "steps", "key": "prepare", "path": "output.outputs.0.bytes.base64"}, "transform": [{"op": "op:core.decode", "args": {"encoding": "base64"}}, {"op": "op:core.json_parse"}]}}},
+          {
+            "id": "save",
+            "kind": "write",
+            "config": {
+              "items": [{
+                "address": {"$kind": "binding", "select": {"from": "steps", "key": "prepare", "path": "output.outputs.0.bytes.base64"}, "transform": [{"op": "op:core.decode", "args": {"encoding": "base64"}}, {"op": "op:core.json_parse"}, {"op": "op:core.lookup", "args": {"key": "bootstrap_identity"}}, {"op": "op:core.concat", "args": {"values": ["package::computer-interface-actions::authenticated-surface-bootstrap::", {"$kind": "binding", "select": {"from": "steps", "key": "prepare", "path": "output.outputs.0.bytes.base64"}, "transform": [{"op": "op:core.decode", "args": {"encoding": "base64"}}, {"op": "op:core.json_parse"}, {"op": "op:core.lookup", "args": {"key": "bootstrap_identity"}}]}]}}]},
+                "path": ["current-item", "published-record"],
+                "payload": {"kind": "computer-interface.authenticated-surface-bootstrap-state", "bootstrap": {"$kind": "binding", "select": {"from": "steps", "key": "prepare", "path": "output.outputs.0.bytes.base64"}, "transform": [{"op": "op:core.decode", "args": {"encoding": "base64"}}, {"op": "op:core.json_parse"}]}, "process_session": {"$kind": "binding", "select": {"from": "steps", "key": "start", "path": "output"}}}
+              }]
+            }
+          },
+          {"id": "done", "kind": "return", "config": {"value": {"bootstrap_identity": {"$kind": "binding", "select": {"from": "steps", "key": "prepare", "path": "output.outputs.0.bytes.base64"}, "transform": [{"op": "op:core.decode", "args": {"encoding": "base64"}}, {"op": "op:core.json_parse"}, {"op": "op:core.lookup", "args": {"key": "bootstrap_identity"}}]}, "session": {"$kind": "binding", "select": {"from": "steps", "key": "start", "path": "output"}}}}}
+        ],
+        "edges": [
+          {"from": "read_owner", "to": "read_providers", "kind": "on_result"},
+          {"from": "read_providers", "to": "prepare", "kind": "on_result"},
+          {"from": "prepare", "to": "start", "kind": "on_result"},
+          {"from": "start", "to": "save", "kind": "on_result"},
+          {"from": "save", "to": "done", "kind": "on_result"}
+        ],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::computer-interface-actions::workflow-action::verify-authenticated-surface",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record", "workflow-definition"],
+      "payload": {
+        "id": "action:computer-interface-verify-authenticated-surface",
+        "kind": "action",
+        "name": "computer-interface-verify-authenticated-surface",
+        "description": "Confirm that the new signed-in browsing screen is separate and blank before it can be used.",
+        "input_schema": {"type": "object", "additionalProperties": false, "required": ["bootstrap_identity"], "properties": {"bootstrap_identity": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}},
+        "steps": [
+          {"id": "read_state", "kind": "read", "config": {"from": {"$kind": "binding", "select": {"from": "input", "path": "bootstrap_identity"}, "transform": [{"op": "op:core.concat", "args": {"values": ["package::computer-interface-actions::authenticated-surface-bootstrap::", {"$kind": "binding", "select": {"from": "input", "path": "bootstrap_identity"}}]}}]}}},
+          {"id": "read_current_session", "kind": "ask", "config": {"name": "compute.process_session", "input": {"operation": "read_session", "session_id": {"$kind": "binding", "select": {"from": "steps", "key": "read_state", "path": "output.payload.process_session.session_id"}}}}},
+          {"id": "read_owner", "kind": "read", "config": {"from": "package::computer-interface-actions::stored-bytes::authenticated-surface-bootstrap"}},
+          {
+            "id": "select_current",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": ["node", "authenticated-surface-bootstrap.mjs", "--mode", "select", "--state", "state.json", "--current-session", "current-session.json", "--output", "selected.json"],
+                "cwd": null,
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {"mount_path": "authenticated-surface-bootstrap.mjs", "content_type": "text/javascript", "source": {"kind": "blob_ref", "hash": {"$kind": "binding", "select": {"from": "steps", "key": "read_owner", "path": "output.content_hash"}}}},
+                  {"mount_path": "state.json", "content_type": "application/json", "source": {"kind": "inline", "bytes": {"$kind": "binding", "select": {"from": "steps", "key": "read_state", "path": "output.payload"}, "transform": [{"op": "op:core.stringify", "args": {"format": "json"}}, {"op": "op:core.encode", "args": {"encoding": "base64"}}]} }},
+                  {"mount_path": "current-session.json", "content_type": "application/json", "source": {"kind": "inline", "bytes": {"$kind": "binding", "select": {"from": "steps", "key": "read_current_session", "path": "output"}, "transform": [{"op": "op:core.stringify", "args": {"format": "json"}}, {"op": "op:core.encode", "args": {"encoding": "base64"}}]} }}
+                ],
+                "input_trees": [],
+                "outputs": [{"mount_path": "selected.json", "content_type": "application/json"}],
+                "containment": {"kind": "leaf"},
+                "capture_fds": [1, 2],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "read_terminal",
+            "kind": "read",
+            "config": {
+              "from": {
+                "$kind": "binding",
+                "select": {"from": "steps", "key": "select_current", "path": "output.outputs.0.bytes.base64"},
+                "transform": [{"op": "op:core.decode", "args": {"encoding": "base64"}}, {"op": "op:core.json_parse"}, {"op": "op:core.lookup", "args": {"key": "process_session"}}, {"op": "op:core.lookup", "args": {"key": "snapshot"}}, {"op": "op:core.lookup", "args": {"key": "terminal_output_address"}}]
+              }
+            }
+          },
+          {"id": "read_runtime_observation", "kind": "read", "config": {"from": {"$kind": "binding", "select": {"from": "steps", "key": "select_current", "path": "output.outputs.0.bytes.base64"}, "transform": [{"op": "op:core.decode", "args": {"encoding": "base64"}}, {"op": "op:core.json_parse"}, {"op": "op:core.lookup", "args": {"key": "current_binding"}}, {"op": "op:core.lookup", "args": {"key": "observation_ref"}}]}}},
+          {"id": "read_time", "kind": "ask", "config": {"name": "permission-lease.read-authorization-time", "input": {"request_ref": {"$kind": "binding", "select": {"from": "steps", "key": "read_state", "path": "output.payload.bootstrap.bootstrap_identity"}}}}},
+          {
+            "id": "verify",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": ["node", "authenticated-surface-bootstrap.mjs", "--mode", "verify", "--state", "state.json", "--terminal", "terminal.bin", "--terminal-address", {"$kind": "binding", "select": {"from": "steps", "key": "select_current", "path": "output.outputs.0.bytes.base64"}, "transform": [{"op": "op:core.decode", "args": {"encoding": "base64"}}, {"op": "op:core.json_parse"}, {"op": "op:core.lookup", "args": {"key": "process_session"}}, {"op": "op:core.lookup", "args": {"key": "snapshot"}}, {"op": "op:core.lookup", "args": {"key": "terminal_output_address"}}]}, "--terminal-hash", {"$kind": "binding", "select": {"from": "steps", "key": "read_terminal", "path": "output.content_hash"}}, "--surface-observation", "surface-observation.json", "--surface-observation-address", {"$kind": "binding", "select": {"from": "steps", "key": "select_current", "path": "output.outputs.0.bytes.base64"}, "transform": [{"op": "op:core.decode", "args": {"encoding": "base64"}}, {"op": "op:core.json_parse"}, {"op": "op:core.lookup", "args": {"key": "current_binding"}}, {"op": "op:core.lookup", "args": {"key": "observation_ref"}}]}, "--surface-observation-hash", {"$kind": "binding", "select": {"from": "steps", "key": "read_runtime_observation", "path": "output.content_hash"}}, "--authorization-time", "authorization-time.json", "--output", "proof.json"],
+                "cwd": null,
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {"mount_path": "authenticated-surface-bootstrap.mjs", "content_type": "text/javascript", "source": {"kind": "blob_ref", "hash": {"$kind": "binding", "select": {"from": "steps", "key": "read_owner", "path": "output.content_hash"}}}},
+                  {"mount_path": "terminal.bin", "content_type": "application/octet-stream", "source": {"kind": "blob_ref", "hash": {"$kind": "binding", "select": {"from": "steps", "key": "read_terminal", "path": "output.content_hash"}}}},
+                  {"mount_path": "surface-observation.json", "content_type": "application/json", "source": {"kind": "blob_ref", "hash": {"$kind": "binding", "select": {"from": "steps", "key": "read_runtime_observation", "path": "output.content_hash"}}}},
+                  {
+                    "mount_path": "state.json",
+                    "content_type": "application/json",
+                    "source": {"kind": "inline", "bytes": {"$kind": "binding", "select": {"from": "steps", "key": "select_current", "path": "output.outputs.0.bytes.base64"}}}
+                  },
+                  {
+                    "mount_path": "authorization-time.json",
+                    "content_type": "application/json",
+                    "source": {"kind": "inline", "bytes": {"$kind": "binding", "select": {"from": "steps", "key": "read_time", "path": "output"}, "transform": [{"op": "op:core.stringify", "args": {"format": "json"}}, {"op": "op:core.encode", "args": {"encoding": "base64"}}]}}
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [{"mount_path": "proof.json", "content_type": "application/json"}],
+                "containment": {"kind": "leaf"},
+                "capture_fds": [1, 2],
+                "collected_files": []
+              }
+            }
+          },
+          {"id": "done", "kind": "return", "config": {"value": {"proof": {"$kind": "binding", "select": {"from": "steps", "key": "verify", "path": "output.outputs.0.bytes.base64"}, "transform": [{"op": "op:core.decode", "args": {"encoding": "base64"}}, {"op": "op:core.json_parse"}]}}}}
+        ],
+        "edges": [
+          {"from": "read_state", "to": "read_current_session", "kind": "on_result"},
+          {"from": "read_current_session", "to": "read_owner", "kind": "on_result"},
+          {"from": "read_owner", "to": "select_current", "kind": "on_result"},
+          {"from": "select_current", "to": "read_terminal", "kind": "on_result"},
+          {"from": "read_terminal", "to": "read_runtime_observation", "kind": "on_result"},
+          {"from": "read_runtime_observation", "to": "read_time", "kind": "on_result"},
+          {"from": "read_time", "to": "verify", "kind": "on_result"},
+          {"from": "verify", "to": "done", "kind": "on_result"}
+        ],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "computer-interface-provider-table",
+      "source_path": "computer-interface-providers.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "query-provider-status",
+      "source_path": "do-work/query-provider-status.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "prepare-computer-interface-session",
+      "source_path": "do-work/prepare-computer-interface-session.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "run-computer-interface-action",
+      "source_path": "do-work/run-computer-interface-action.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "computer-interface-actions-core",
+      "source_path": "do-work/computer-interface-actions.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "computer-interface-provider-adapters",
+      "source_path": "do-work/computer-interface-providers.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "authenticated-surface-bootstrap",
+      "source_path": "do-work/authenticated-surface-bootstrap.mjs"
+    }
+  ]
+}

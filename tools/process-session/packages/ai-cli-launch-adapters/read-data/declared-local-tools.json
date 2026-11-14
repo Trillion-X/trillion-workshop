@@ -1,0 +1,24 @@
+{
+  "_why": "Locally installed tools the AI harnesses launch against, whose version is somebody else's fact changed on their own schedule with nothing here noticing. Sibling of model-catalog-sources.json: same L216 shape, one level down. That file keeps the harness's MODEL list current; this one keeps the harness's PROGRAMS current.",
+  "_how_to_add": "Copy a row. `version_from.argv` is a command that prints a version, with `capture` a regex holding one group around it. `install.argv` is whatever this machine already uses to install that tool, so a different package manager is a different argv rather than a code change. `restart.argv` is optional and runs only when the version actually moved.",
+  "_no_machine_literals": "argv[0] is a program NAME, never a path into somebody's home directory. A path typed here is one machine's fact frozen into shipped bytes: it is wrong for every other person, wrong for the same person after they move the tool, and the package compiler refuses it outright (BRTK3002_LOCAL_PATH_LEAK). Where the program lives is a question the machine answers, so name the program and, if it sits somewhere the PATH does not reach, say where with `program_search_paths`. Two machine facts may be named in any argument and the owner fills them in: `~` for the person's home directory, and `{current-user-id}` for their numeric user id.",
+  "_the_owner": "do-work/converge-declared-local-tools-to-their-served-version.mjs, which names no tool, no installer and no service. Pass --tools-file to point it at a different declaration.",
+  "tools": [
+    {
+      "id": "codex-lb",
+      "why": "Every ChatGPT-account request from Codex and the Desktop app goes through this proxy on port 2455, and it is what injects previous_response_id, so a stale copy is what kills a thread with 'Invalid previous_response_id' (upstream issue 395, closed fix-pending-release). Found on 1.22.0 on 2026-09-10, well behind the fix for the error it was producing.",
+      "program_search_paths": ["~/.local/bin"],
+      "version_from": {
+        "_note": "The CLI itself has no version flag, so the installer is asked instead. That is why the readback is DATA: what can answer 'which version is installed' differs per tool and per installer.",
+        "argv": ["uv", "tool", "list"],
+        "capture": "codex-lb v?([0-9]+\\.[0-9]+\\.[0-9]+)"
+      },
+      "install": {
+        "argv": ["uv", "tool", "upgrade", "codex-lb"]
+      },
+      "restart": {
+        "argv": ["/bin/launchctl", "kickstart", "-k", "gui/{current-user-id}/com.brianakhtar.codex-lb"]
+      }
+    }
+  ]
+}

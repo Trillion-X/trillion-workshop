@@ -1,0 +1,114 @@
+{
+  "package": "converge-installed-apps-to-their-current-handle",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::converge-installed-apps-to-their-current-handle::contract",
+      "path": ["packages", "converge-installed-apps-to-their-current-handle", "contract"],
+      "payload": {
+        "kind": "package-contract",
+        "package": "converge-installed-apps-to-their-current-handle",
+        "owns": [
+          "making one caller-named installed app match its own current open handle, since an advance APPENDS a handle and changes nothing already running",
+          "releasing one caller-named installed app's writer without opening anything, so a replacement bundle can be admitted while the old exclusive envelope writer is absent",
+          "the predicate that defines success: the opener's own status report re-observed as a live, current resident owner after the open, and a published address answering whenever one exists, never two commands exiting zero; an app with no HTTP shell is not invisible",
+          "confirming the close landed BEFORE opening, because a reopen issued too early no-ops as already-open and keeps the stale bundle resident while everything reports success",
+          "treating a not-running app as a legal starting state rather than an error",
+          "reporting a failed close or open alongside the address observations, so the caller can see what actually happened"
+        ],
+        "does_not_own": [
+          "arbitrary process execution: the argv is fixed in this package's source and the caller supplies only a validated app id",
+          "retrying, watching or scheduling; a loop here would be a second scheduler, which is the shape that already made the engine a second owner of scheduling once",
+          "deciding WHICH app to converge, or what changed in its handle, which it never learns",
+          "changing native bytes or current handles; this owner only reopens the current signed handle and reports the resulting live state",
+          "proving that whatever changed in the handle behaves correctly, which is the changed component's own tests"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::converge-installed-apps-to-their-current-handle::checks",
+      "path": ["packages", "converge-installed-apps-to-their-current-handle", "checks"],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": ["tests/converge-installed-apps-to-their-current-handle.test.mjs"]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "converge-installed-apps-to-their-current-handle-node-source",
+      "source_path": "do-work/converge-installed-apps-to-their-current-handle.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "run-converge-installed-apps-to-their-current-handle-node-source",
+      "source_path": "do-work/run-converge-installed-apps-to-their-current-handle.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "run-convergence-request-node-source",
+      "source_path": "do-work/run-convergence-request.mjs"
+    },
+    {
+      "type": "record",
+      "address": "package::converge-installed-apps-to-their-current-handle::workflow-action::converge-installed-apps-to-their-current-handle",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record", "workflow-definition"],
+      "payload": {
+        "id": "action:converge-installed-apps-to-their-current-handle",
+        "kind": "action",
+        "name": "converge-installed-apps-to-their-current-handle",
+        "version": 1,
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "description": "Converge only caller-named installed apps to their own current handles, then return the opener's fresh serving proof for every receiver.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "app_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+            "installation_ref": {"type": "string"},
+            "change_ref": {"type": "string"},
+            "application_id": {"type": "string"},
+            "timeout_ms": {"type": "number"}
+          },
+          "required": ["app_ids", "installation_ref", "change_ref", "application_id"]
+        },
+        "steps": [
+          {"id": "worker", "kind": "read", "config": {"from": "package::converge-installed-apps-to-their-current-handle::stored-bytes::converge-installed-apps-to-their-current-handle-node-source"}},
+          {"id": "runner", "kind": "read", "config": {"from": "package::converge-installed-apps-to-their-current-handle::stored-bytes::run-convergence-request-node-source"}},
+          {
+            "id": "converge",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": ["node", "do-work/run-convergence-request.mjs", "request.json", "result.json"],
+                "cwd": null,
+                "timeout_ms": 180000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [
+                  {"mount_path": "do-work/converge-installed-apps-to-their-current-handle.mjs", "content_type": "text/javascript", "source": {"kind": "blob_ref", "hash": {"$kind": "binding", "select": {"from": "steps", "key": "worker", "path": "output.content_hash"}}}},
+                  {"mount_path": "do-work/run-convergence-request.mjs", "content_type": "text/javascript", "source": {"kind": "blob_ref", "hash": {"$kind": "binding", "select": {"from": "steps", "key": "runner", "path": "output.content_hash"}}}},
+                  {"mount_path": "request.json", "content_type": "application/json", "source": {"kind": "inline", "bytes": {"$kind": "binding", "select": {"from": "input", "path": ""}, "transform": [{"op": "op:core.stringify", "args": {"format": "json"}}, {"op": "op:core.encode", "args": {"encoding": "base64"}}]}}}
+                ],
+                "input_trees": [],
+                "outputs": [{"mount_path": "result.json", "content_type": "application/json", "storage": "inline"}],
+                "containment": {"kind": "leaf"},
+                "capture_fds": [1, 2],
+                "collected_files": []
+              }
+            }
+          },
+          {"id": "return", "kind": "return", "config": {"value": {"$kind": "binding", "select": {"from": "steps", "key": "converge", "path": "output.outputs.0.bytes.base64"}, "transform": [{"op": "op:core.decode", "args": {"encoding": "base64"}}, {"op": "op:core.json_parse"}]}}}
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    }
+  ]
+}

@@ -1,0 +1,284 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "owner-first-name",
+      "find": "\\bB[r]ian\\b",
+      "replace": "The owner",
+      "means": "A real person's first name in a comment or a description, swapped for a made-up one: a public tree holds made-up data only."
+    },
+    {
+      "id": "maker-first-name",
+      "find": "\\bJ[i]bran\\b",
+      "replace": "The maker",
+      "means": "A real person's first name in a comment or a description, swapped for a made-up one: a public tree holds made-up data only."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/ai-instruction-blocks/do-work/materialize-harness-prompt.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/ai-instruction-blocks/do-work/materialize-harness-prompt.mjs",
+      "source_identity": "1f:b718cac776dc34436313e8098af5c7f07c07fa628f5630db419253d258374e6f",
+      "identity": "1f:b718cac776dc34436313e8098af5c7f07c07fa628f5630db419253d258374e6f"
+    },
+    {
+      "from": "packages/ai-instruction-blocks/do-work/materialize-harness-prompt.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/ai-instruction-blocks/do-work/materialize-harness-prompt.ts",
+      "source_identity": "1f:9dfed8006ab10cff092f7389372d86990518eef91aa98b479f999fe7a3898d52",
+      "identity": "1f:9dfed8006ab10cff092f7389372d86990518eef91aa98b479f999fe7a3898d52"
+    },
+    {
+      "from": "packages/ai-instruction-blocks/do-work/request-instruction-update.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/ai-instruction-blocks/do-work/request-instruction-update.ts",
+      "source_identity": "1f:b2dee480ff2a498a227768c58936c017f8da34a882d97946726bae8c4bbed2b3",
+      "identity": "1f:b2dee480ff2a498a227768c58936c017f8da34a882d97946726bae8c4bbed2b3"
+    },
+    {
+      "from": "packages/ai-instruction-blocks/entry-scope-bindings.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/ai-instruction-blocks/entry-scope-bindings.json",
+      "source_identity": "1f:e1d89fdf683a716f5b1472e1ebe479a2241d6704c7876e313c1e6e2284b4eb60",
+      "identity": "1f:e1d89fdf683a716f5b1472e1ebe479a2241d6704c7876e313c1e6e2284b4eb60"
+    },
+    {
+      "from": "packages/ai-instruction-blocks/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/ai-instruction-blocks/entry-to-package-data-map.json",
+      "source_identity": "1f:3930dbe22a5cceb0a928450234f3987ad5024de3c363218fd59164308e6ee399",
+      "identity": "1f:3930dbe22a5cceb0a928450234f3987ad5024de3c363218fd59164308e6ee399"
+    },
+    {
+      "from": "packages/ai-instruction-blocks/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/ai-instruction-blocks/index.ts",
+      "source_identity": "1f:a11549427364165d1c172ce6f2b2585530b0ccecdcb7169e392aab633d01997e",
+      "identity": "1f:a11549427364165d1c172ce6f2b2585530b0ccecdcb7169e392aab633d01997e"
+    },
+    {
+      "from": "packages/ai-instruction-blocks/read-data/read-ai-instruction-blocks.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/ai-instruction-blocks/read-data/read-ai-instruction-blocks.ts",
+      "source_identity": "1f:1bfba34c48a03e428d3225c93c2c4947a16f8e451bcb09e1a2362d84ac8a221b",
+      "identity": "1f:1bfba34c48a03e428d3225c93c2c4947a16f8e451bcb09e1a2362d84ac8a221b"
+    },
+    {
+      "from": "packages/ai-instruction-blocks/show/InstructionBlockList.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/ai-instruction-blocks/show/InstructionBlockList.tsx",
+      "source_identity": "1f:d701fa0adea9d6fe5d6109d4f61ffea74563fbfaf2c56abfa8d73e4fc2d2e3f8",
+      "identity": "1f:d701fa0adea9d6fe5d6109d4f61ffea74563fbfaf2c56abfa8d73e4fc2d2e3f8"
+    },
+    {
+      "from": "packages/ai-instruction-blocks/show/mount-ai-instruction-block-list.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/ai-instruction-blocks/show/mount-ai-instruction-block-list.tsx",
+      "source_identity": "1f:cb631974eaf18d02ffd8e3ef264414fd51f7b5f7c15131e20817b7b1b30bec82",
+      "identity": "1f:cb631974eaf18d02ffd8e3ef264414fd51f7b5f7c15131e20817b7b1b30bec82"
+    },
+    {
+      "from": "packages/ai-instruction-blocks/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/ai-instruction-blocks/things-to-store-and-run.json",
+      "source_identity": "1f:0ee726c41eabc969db3169417516ef438c551134a1bf62a116d102c40fc26823",
+      "identity": "1f:84752a5eee0c0dc1c59d0df9a2e93ca3ed72fe6d414c5bac95d58f0620506207",
+      "calls": [
+        "owner-first-name",
+        "maker-first-name"
+      ]
+    },
+    {
+      "from": "packages/content-actions/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-actions/README.md",
+      "source_identity": "1f:9927eaa8abc31db87c243f57093491739c97f79b4bb21208f901b29dc5f41abc",
+      "identity": "1f:9927eaa8abc31db87c243f57093491739c97f79b4bb21208f901b29dc5f41abc"
+    },
+    {
+      "from": "packages/content-generation/do-work/admit-question-work-item.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-generation/do-work/admit-question-work-item.mjs",
+      "source_identity": "1f:7aadca66ca7d2bcc1628d5b1401a899c2a9c4e410179b7282e6fe339f650c391",
+      "identity": "1f:7aadca66ca7d2bcc1628d5b1401a899c2a9c4e410179b7282e6fe339f650c391"
+    },
+    {
+      "from": "packages/content-generation/do-work/continue-verified-owner-delivery.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-generation/do-work/continue-verified-owner-delivery.ts",
+      "source_identity": "1f:6fcab9eff8e19ee3f1b46290326da8e14d5a722f9105037eff4b4e1b2d032029",
+      "identity": "1f:6fcab9eff8e19ee3f1b46290326da8e14d5a722f9105037eff4b4e1b2d032029"
+    },
+    {
+      "from": "packages/content-generation/do-work/inspect-owner-delivery.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-generation/do-work/inspect-owner-delivery.ts",
+      "source_identity": "1f:75c5f101081e3e8b0067bb1a6215f088d8baa1b2922ec238e6b2aa5eb6cb3f49",
+      "identity": "1f:75c5f101081e3e8b0067bb1a6215f088d8baa1b2922ec238e6b2aa5eb6cb3f49"
+    },
+    {
+      "from": "packages/content-generation/do-work/intake-observed-question.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-generation/do-work/intake-observed-question.mjs",
+      "source_identity": "1f:f75213dce040899d7bc6b7b112a5dd7ad26158bd8f8f5bb87e00f0f6f9ef5d69",
+      "identity": "1f:f75213dce040899d7bc6b7b112a5dd7ad26158bd8f8f5bb87e00f0f6f9ef5d69"
+    },
+    {
+      "from": "packages/content-generation/do-work/prepare-observed-question.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-generation/do-work/prepare-observed-question.mjs",
+      "source_identity": "1f:98e3b0b25d0cc5b6a114f13aa00887160448ebd5356468d6da018d0b8dde1ba7",
+      "identity": "1f:98e3b0b25d0cc5b6a114f13aa00887160448ebd5356468d6da018d0b8dde1ba7"
+    },
+    {
+      "from": "packages/content-generation/do-work/prepare-question-grounding-link.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-generation/do-work/prepare-question-grounding-link.mjs",
+      "source_identity": "1f:50bd21b204ec31f7a04e7a7a9be562133527720ef36c5c454a158eb8f8512bb3",
+      "identity": "1f:50bd21b204ec31f7a04e7a7a9be562133527720ef36c5c454a158eb8f8512bb3"
+    },
+    {
+      "from": "packages/content-generation/do-work/prepare-question-review.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-generation/do-work/prepare-question-review.mjs",
+      "source_identity": "1f:fe3aa52d937ce0ca5aa7239e502eb3f8fa307f41ef2ec9bdafd8708de1d4dd3d",
+      "identity": "1f:fe3aa52d937ce0ca5aa7239e502eb3f8fa307f41ef2ec9bdafd8708de1d4dd3d"
+    },
+    {
+      "from": "packages/content-generation/do-work/prepare-question-work-item.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-generation/do-work/prepare-question-work-item.mjs",
+      "source_identity": "1f:063f883a3a769acb844b94116a2f2bce81af4a4934c8bde5abf0ae773f0ae247",
+      "identity": "1f:063f883a3a769acb844b94116a2f2bce81af4a4934c8bde5abf0ae773f0ae247"
+    },
+    {
+      "from": "packages/content-generation/do-work/process-scripts/admit-question-work-item.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-generation/do-work/process-scripts/admit-question-work-item.mjs",
+      "source_identity": "1f:c09e873a7d9b6ea7830f435b38cf4f5dcbaacf8a3c5a967091a874a4c6a98794",
+      "identity": "1f:c09e873a7d9b6ea7830f435b38cf4f5dcbaacf8a3c5a967091a874a4c6a98794"
+    },
+    {
+      "from": "packages/content-generation/do-work/process-scripts/compose-run-request-lib.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-generation/do-work/process-scripts/compose-run-request-lib.mjs",
+      "source_identity": "1f:cfa2f7691ba3c9724a83a53f656c2ba8bb61481718e1f7336360bb8621301a16",
+      "identity": "1f:cfa2f7691ba3c9724a83a53f656c2ba8bb61481718e1f7336360bb8621301a16"
+    },
+    {
+      "from": "packages/content-generation/do-work/process-scripts/compose-run-request.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-generation/do-work/process-scripts/compose-run-request.mjs",
+      "source_identity": "1f:bfe05f244be8200b982dd5a727b83d44bf2a221a07c5885e7b9a64a5904bcc9a",
+      "identity": "1f:bfe05f244be8200b982dd5a727b83d44bf2a221a07c5885e7b9a64a5904bcc9a"
+    },
+    {
+      "from": "packages/content-generation/do-work/process-scripts/compose-run-request.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-generation/do-work/process-scripts/compose-run-request.py",
+      "source_identity": "1f:2b284930ff8cbc4f202b225968c74c5bce69f4d0fc83ace2a08fd13a234fea5f",
+      "identity": "1f:2b284930ff8cbc4f202b225968c74c5bce69f4d0fc83ace2a08fd13a234fea5f"
+    },
+    {
+      "from": "packages/content-generation/do-work/process-scripts/drain-next-work-item.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-generation/do-work/process-scripts/drain-next-work-item.mjs",
+      "source_identity": "1f:de7542f7aa723c5b2f45ec262d3041dd543dfb21943277e6c6c9c2c3fcc31f4e",
+      "identity": "1f:de7542f7aa723c5b2f45ec262d3041dd543dfb21943277e6c6c9c2c3fcc31f4e"
+    },
+    {
+      "from": "packages/content-generation/do-work/process-scripts/gate-and-build-owner-delivery-lib.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-generation/do-work/process-scripts/gate-and-build-owner-delivery-lib.mjs",
+      "source_identity": "1f:2d59b8b2a0766a5a46477db599676f7c704e14314360d1c4565dd3f1b3eb1abf",
+      "identity": "1f:2d59b8b2a0766a5a46477db599676f7c704e14314360d1c4565dd3f1b3eb1abf"
+    },
+    {
+      "from": "packages/content-generation/do-work/process-scripts/gate-and-build-owner-delivery.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-generation/do-work/process-scripts/gate-and-build-owner-delivery.mjs",
+      "source_identity": "1f:d9566799cabcdfade78494f70022f1c49d78ff8dffc9da7eb91da5e24a87360d",
+      "identity": "1f:d9566799cabcdfade78494f70022f1c49d78ff8dffc9da7eb91da5e24a87360d"
+    },
+    {
+      "from": "packages/content-generation/do-work/process-scripts/gate-and-build-owner-delivery.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-generation/do-work/process-scripts/gate-and-build-owner-delivery.py",
+      "source_identity": "1f:fb4c5447bee2de5febc9025b2a4f11373e9bc85e0fae5f3b94c647f929b0de28",
+      "identity": "1f:fb4c5447bee2de5febc9025b2a4f11373e9bc85e0fae5f3b94c647f929b0de28"
+    },
+    {
+      "from": "packages/content-generation/do-work/process-scripts/intake-observed-question.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-generation/do-work/process-scripts/intake-observed-question.mjs",
+      "source_identity": "1f:32f7dd8637781b4f4d2bfcf3e9463bfa4356d380681fd707f64801b3b6e69a99",
+      "identity": "1f:32f7dd8637781b4f4d2bfcf3e9463bfa4356d380681fd707f64801b3b6e69a99"
+    },
+    {
+      "from": "packages/content-generation/do-work/process-scripts/link-question-grounding.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-generation/do-work/process-scripts/link-question-grounding.mjs",
+      "source_identity": "1f:36ffe5aa2a070703795c7fd9b6eb5674861aa9e61586657ac2fdcba035110782",
+      "identity": "1f:36ffe5aa2a070703795c7fd9b6eb5674861aa9e61586657ac2fdcba035110782"
+    },
+    {
+      "from": "packages/content-generation/do-work/process-scripts/reconcile-dispatch-requests.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-generation/do-work/process-scripts/reconcile-dispatch-requests.mjs",
+      "source_identity": "1f:97e0ed86e1234f1a75dd09ec59e36cb81dd964bd821d5def270372f322f5119b",
+      "identity": "1f:97e0ed86e1234f1a75dd09ec59e36cb81dd964bd821d5def270372f322f5119b"
+    },
+    {
+      "from": "packages/content-generation/do-work/process-scripts/review-question.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-generation/do-work/process-scripts/review-question.mjs",
+      "source_identity": "1f:83a95e7d187f50103cd362d04f3e94ffb5fb94b2a96cbd5722f1836cee1756c7",
+      "identity": "1f:83a95e7d187f50103cd362d04f3e94ffb5fb94b2a96cbd5722f1836cee1756c7"
+    },
+    {
+      "from": "packages/content-generation/do-work/review-question.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-generation/do-work/review-question.mjs",
+      "source_identity": "1f:d808d2355f8c01761b1d3a4bbc1768b8c9867b22d46bd9ac5d12a7414f86a8e5",
+      "identity": "1f:d808d2355f8c01761b1d3a4bbc1768b8c9867b22d46bd9ac5d12a7414f86a8e5"
+    },
+    {
+      "from": "packages/content-generation/do-work/review-required-verdicts.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-generation/do-work/review-required-verdicts.mjs",
+      "source_identity": "1f:79dac2c4b71fd2e1c970dd206441fdc04f445431e86e8a8caf584b721cda5f93",
+      "identity": "1f:159cd71be23f76e3d72d974ce968d4f81cea492ca6089c3867522641057022b9"
+    },
+    {
+      "from": "packages/content-generation/do-work/run-grounded-content.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-generation/do-work/run-grounded-content.mjs",
+      "source_identity": "1f:c9a35a439657e0f2a6357a97b02aaca7b6cd6f93e8aeb4d71b2cacdd5581c582",
+      "identity": "1f:c9a35a439657e0f2a6357a97b02aaca7b6cd6f93e8aeb4d71b2cacdd5581c582"
+    },
+    {
+      "from": "packages/content-generation/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-generation/README.md",
+      "source_identity": "1f:bdbe00de6ceb7b98ac5a235042f5c29afc5493eae4a44e0e750191fb0f4a72d9",
+      "identity": "1f:bdbe00de6ceb7b98ac5a235042f5c29afc5493eae4a44e0e750191fb0f4a72d9"
+    },
+    {
+      "from": "packages/content-generation/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/content-generation/things-to-store-and-run.json",
+      "source_identity": "1f:dac59c5a5bdc15ba8c4a38f03508cffa842387f786c5201af4ff6b4737de057a",
+      "identity": "1f:dac59c5a5bdc15ba8c4a38f03508cffa842387f786c5201af4ff6b4737de057a"
+    },
+    {
+      "from": "packages/live-namespace/read-data/expected-current-from-content-hash.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-from-a-recipe/packages/live-namespace/read-data/expected-current-from-content-hash.mjs",
+      "source_identity": "1f:ad8edec470fe5d6c15014c94c4582bb28419d2fac34cda6bfa2384625fcd4664",
+      "identity": "1f:ad8edec470fe5d6c15014c94c4582bb28419d2fac34cda6bfa2384625fcd4664"
+    }
+  ]
+}

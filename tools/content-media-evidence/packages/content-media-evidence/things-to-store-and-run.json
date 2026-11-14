@@ -1,0 +1,2226 @@
+{
+  "package": "content-media-evidence",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::workflow-action::correct-understanding-graph",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:content-media-evidence:correct-understanding-graph",
+        "kind": "action",
+        "is_active": true,
+        "name": "correct-understanding-graph",
+        "description": "Apply a source correction to its saved graph without changing source text or permissions.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "graph_id",
+            "expected_graph_hash",
+            "correction"
+          ],
+          "properties": {
+            "graph_id": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]{0,159}$"
+            },
+            "expected_graph_hash": {
+              "type": "string",
+              "pattern": "^1f:[0-9a-f]{64}$"
+            },
+            "correction": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source_ref",
+                "prior_revision",
+                "next_revision",
+                "changed_claim_refs"
+              ],
+              "properties": {
+                "source_ref": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "prior_revision": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "next_revision": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "changed_claim_refs": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "correct",
+            "kind": "ask",
+            "config": {
+              "name": "content-media-evidence.correct-understanding-graph",
+              "input": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input"
+                }
+              }
+            }
+          },
+          {"id":"done","kind":"return","config":{"value":{"$kind":"binding","select":{"from":"steps","key":"correct","path":"output"}}}}
+        ],
+        "edges": [{"from":"correct","to":"done"}]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::target::correct-understanding-graph",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "content-media-evidence",
+        "targets",
+        "correct-understanding-graph"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "target": "content-media-evidence.correct-understanding-graph",
+        "entry_name": "correct-understanding-graph",
+        "export_name": "correctUnderstandingGraph",
+        "source_path": "do-work/correct-understanding-graph.ts",
+        "exposure": "owner-to-owner-only"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::entry::correct-understanding-graph",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "content-media-evidence",
+        "entries",
+        "correct-understanding-graph"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "correct-understanding-graph",
+        "export_name": "correctUnderstandingGraph",
+        "source_path": "do-work/correct-understanding-graph.ts",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-correct-understanding-graph"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-correct-understanding-graph",
+      "source_path": "built-stored-bytes/entry-bytes-correct-understanding-graph",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-correct-understanding-graph.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::checks",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "content-media-evidence",
+        "checks"
+      ],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "read-data/understanding-graph.test.ts",
+          "do-work/correct-understanding-graph.test.ts",
+          "tests/addressed-artifact-relation.test.ts",
+          "tests/artifact-chain.integration.test.ts",
+          "tests/finish-saved-local-media.test.mjs",
+          "tests/stage-local-path-identity.test.mjs"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::contract::understanding-graph",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "content-media-evidence.understanding-graph/v1",
+        "source_contract": "One user-scoped understanding graph supplied through current evidence-owner relations; personal source paths and content are never package DATA.",
+        "invariants": [
+          "every derived claim resolves to an exact source revision and span",
+          "facts observations inferences hypotheses counterexamples and test outcomes remain distinct",
+          "meaning series format channel duration audience reusable job and revision are independent refs",
+          "source corrections invalidate only exact dependents",
+          "applicable operations retain owner disposition and output refs",
+          "attention is a derived projection and never a second editable state store"
+        ],
+        "reader": "read-data/understanding-graph.ts"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::workflow-action::write-understanding-graph",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:content-media-evidence:write-understanding-graph",
+        "kind": "action",
+        "is_active": true,
+        "name": "write-understanding-graph",
+        "description": "Write one user-scoped Understanding graph under the evidence owner's fixed address family. Source identities, meanings, decisions, consumer contracts, outcomes, and corrections remain caller DATA; this action owns only their canonical record boundary.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "graph_id",
+            "revision",
+            "correlation_ref",
+            "graph"
+          ],
+          "properties": {
+            "graph_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "revision": {
+              "type": "string",
+              "minLength": 1
+            },
+            "correlation_ref": {
+              "type": "string",
+              "minLength": 1
+            },
+            "graph": {
+              "type": "object"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "write",
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "graph_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::content-media-evidence::understanding-graph::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "graph_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "address_mode": "identity_text",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "content-media-evidence.understanding-graph/v1",
+                    "revision": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "revision"
+                      }
+                    },
+                    "correlation_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "correlation_ref"
+                      }
+                    },
+                    "graph": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "graph"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "graph_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "graph_id"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.concat",
+                      "args": {
+                        "values": [
+                          "package::content-media-evidence::understanding-graph::",
+                          {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "graph_id"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "revision": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "revision"
+                  }
+                },
+                "correlation_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "correlation_ref"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::rule::an-artifact-source-may-not-name-a-retired-byte-identity",
+      "path": [
+        "current-item",
+        "source-file-rule"
+      ],
+      "payload": {
+        "kind": "source-file-rule",
+        "id": "an-artifact-source-may-not-name-a-retired-byte-identity",
+        "why": "artifact bytes are reached through the guarded reader, and the identities that came before it (`cas_address`, `multihash`, and direct imports of the local-files and cas-store packages) each name a route that no longer holds the access decision. A source that still spells one of them either takes that route or is about to. This rule replaces a hand-rolled directory walk in this package's own tests, which is the shape it had to take while the rule collector read a single manifest: a package could not declare a rule about its own source, so eighteen packages wrote the walk instead. Two lessons from that walk are kept here rather than rediscovered. Generated output is not source, and without excluding it the walk reported ten `built-stored-bytes/*.source-closure.json` build receipts as offenders, because a receipt legitimately records the multihash of what it built. And a token walk measures VOCABULARY rather than behaviour, so a file that holds these names behind an imported constant passes while doing exactly what the rule forbids; that is not hypothetical, it is how `migrate-artifact-reference-target.ts` passed this check while being the one file that actually recognized the legacy fields. Treat a clean run as evidence about spelling, and pair it with the reachability rules that judge routes.",
+        "scope": {
+          "path_matches": "^packages/(cas-store|content-media-evidence|file-content-renderer)/.*\\.(ts|tsx|js|mjs|json)$",
+          "path_excludes": "(^|/)(__tests__|tests)/|\\.test\\.|/built-stored-bytes/|/\\.bitfield-entry-scope/|/node_modules/"
+        },
+        "violation": {
+          "unit": {
+            "split": "\\n"
+          },
+          "forbidden": [
+            {
+              "pattern": "cas_address|multihash|@/packages/local-files/|@/packages/cas-store/"
+            }
+          ],
+          "exempt": [
+            {
+              "pattern": "\"(?:id|why|pattern|message)\"\\s*:"
+            }
+          ]
+        },
+        "message": "an active artifact source names a retired byte identity, which is a route that no longer carries the access decision"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::rule::the-relation-address-grammar-is-spelled-in-exactly-one-place",
+      "path": [
+        "current-item",
+        "source-file-rule"
+      ],
+      "payload": {
+        "kind": "source-file-rule",
+        "id": "the-relation-address-grammar-is-spelled-in-exactly-one-place",
+        "why": "a relation address is composed by the target that WRITES a row and recomposed by the target that READS one, to check a stored row sits at an address matching its own fields. Those two spellings must be the same string or the reader rejects rows the writer legitimately produced. They were separate copies until 2026-09-05 (`materialize-artifact-target.ts` composed, `read-guarded-artifact-target.ts` recomposed inline), so either could have been edited alone, and the split would have surfaced as a stored-row integrity error rather than as the code divergence it was. `relationAddress` in `read-data/content-media-evidence.ts` is now the only owner and is exempted BY PATH, because an exemption marker inside the text is something any file can grow. Tests are out of scope deliberately: a fixture that composes an address through the owner cannot detect the owner itself being wrong, and one suite must spell a hostile caller-chosen address literally to prove it is refused.",
+        "scope": {
+          "path_matches": "^packages/content-media-evidence/.*\\.(ts|tsx|js|mjs)$",
+          "path_excludes": "(^|/)(__tests__|tests|proof)/|\\.test\\.|/built-stored-bytes/|/\\.bitfield-entry-scope/|/node_modules/|read-data/content-media-evidence\\.ts$"
+        },
+        "violation": {
+          "unit": {
+            "split": "\\n"
+          },
+          "forbidden": [
+            {
+              "pattern": "package::content-media-evidence::relation::"
+            }
+          ]
+        },
+        "message": "this file spells the relation-address grammar instead of composing it through relationAddress, so the writer and the reader can drift apart silently"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::rule::a-browser-surface-may-not-reach-the-byte-store-directly",
+      "path": [
+        "current-item",
+        "source-file-rule"
+      ],
+      "payload": {
+        "kind": "source-file-rule",
+        "id": "a-browser-surface-may-not-reach-the-byte-store-directly",
+        "why": "a surface runs on the viewer's machine, so bytes it fetches are fetched with whatever authority that machine already has, and the access decision stays behind on the server unread. The guarded reader exists to carry the decision with the request, and a surface that calls the byte store directly bypasses it while looking like ordinary rendering code. The predecessor of this rule named EIGHT exact file paths, which is a list that goes stale the moment somebody adds a ninth surface and reports clean about it forever; the scope here is every `show/` directory instead, because `show/` IS the convention for what renders. Note the one file the enumeration named that this scope does not reach, `screen-arrangement/do-work/read-canonical-artifact-object-url.ts`: an object URL is a browser concept, so that file is a surface living in `do-work/`, and the honest repair is to move it rather than to write its path here and re-create the list this rule exists to delete.",
+        "scope": {
+          "path_matches": "^packages/[^/]+/show/.*\\.(ts|tsx|js|mjs)$",
+          "path_excludes": "(^|/)(__tests__|tests)/|\\.test\\.|/built-stored-bytes/|/\\.bitfield-entry-scope/|/node_modules/"
+        },
+        "violation": {
+          "forbidden": [
+            {
+              "pattern": "@/packages/cas-store/|cas-store\\.materialize-bytes|cas-store\\.read-addressed-bytes|storeBytesToCas"
+            }
+          ]
+        },
+        "message": "a rendering surface reaches the byte store directly, so the access decision never travels with the request"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::capability::content-media-evidence",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-package-capability",
+        "id": "capability:content-media-evidence",
+        "package": "content-media-evidence",
+        "label": "Content Media Evidence",
+        "description": "Shared evidence-pipeline projection helper for content and media packages. Package data declares roles; surfaces consume generic projections.",
+        "owned_record_kinds": [
+          "content-media.evidence-pipeline.config",
+          "content-media.evidence.blocker",
+          "content-media.relation.record",
+          "content-media-evidence.release-artifact-continuity-receipt",
+          "canonical-artifact-ref/v1",
+          "content-media.relation.role",
+          "content-media.relation.receipt",
+          "content-media.exact-result-inventory",
+          "content-media-evidence.understanding-graph/v1"
+        ],
+        "reuses": [
+          "workflow",
+          "journal",
+          "stored_bytes",
+          "process-session",
+          "http-client",
+          "credentials-vault"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::contract::exact-result-inventory",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "content-media.exact-result-inventory",
+        "required_fields": [
+          "kind",
+          "schemaVersion",
+          "packageName",
+          "results",
+          "summary"
+        ],
+        "relation_rule": "An inventory row is admitted only from the exact canonical materialized-relation shape: one canonical artifact source_ref, exact target_ref and role_ref values, owner context_ref, and one idempotency_ref. Receipt, state, error, semantic, path, and unknown relation fields are not materialized-result facts.",
+        "observable_rule": "A materialized result satisfies only its declared observable role_ref. Media type, display name, size, provenance, target identity, identical identity text, path, and semantic keys never widen that coverage.",
+        "original_byte_rule": "An inventory result never satisfies an immutable-bytes demand. Original-byte demands remain separate exact demands and must use the exact byte/range owners.",
+        "paging_rule": "A relation stream is evidence only as a complete cursor chain from first cursor null through each named continuation to final nextCursor null. A truncated chain cannot produce a smaller complete inventory.",
+        "package_rule": "Every admitted row names the requested package. Rows from another package are refused rather than borrowed.",
+        "conflict_rule": "relation_id is the relation identity. Exact duplicate rows merge; one relation identity with two different semantics refuses the entire inventory before any result is admitted."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::public-source::read-data",
+      "path": [
+        "packages",
+        "content-media-evidence",
+        "public-sources",
+        "read-data"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "read-data"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::public-source::do-work",
+      "path": [
+        "packages",
+        "content-media-evidence",
+        "public-sources",
+        "do-work"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::target::read-guarded-artifact",
+      "path": [
+        "packages",
+        "content-media-evidence",
+        "targets",
+        "read-guarded-artifact"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "target": "content-media-evidence.read-guarded-artifact",
+        "exposure": "hosted-session-admitted",
+        "admission": {
+          "target": "access-rule.evaluate",
+          "action_ref": "content-media-evidence.read-guarded-artifact",
+          "authorized_action_refs": [
+            "content-media-evidence.read-guarded-artifact"
+          ],
+          "constraints": {},
+          "predicate_ref": "predicate:authenticated-session",
+          "predicate_binding": {
+            "$kind": "binding",
+            "select": {
+              "from": "literal",
+              "value": true
+            }
+          },
+          "subject_binding": {
+            "$kind": "binding",
+            "select": {
+              "from": "context",
+              "path": "payload.relation_ref"
+            }
+          },
+          "resource_revision_binding": {
+            "$kind": "binding",
+            "select": {
+              "from": "context",
+              "path": "payload.relation_ref"
+            }
+          }
+        },
+        "entry_name": "read-guarded-artifact-target",
+        "export_name": "readGuardedArtifactTarget",
+        "source_path": "do-work/read-guarded-artifact-target.ts",
+        "fixed_owner_targets": [
+          "access-rule.verify-decision",
+          "engine.operation",
+          "cas-store.read-addressed-bytes"
+        ],
+        "input_contract": {
+          "relation_ref": "opaque-owner-relation-and-resource-revision",
+          "server_admission": "carrier-generated-durable-owner-verified-access-decision",
+          "authority_scope": "owner-derived-from-current-product-access-guard"
+        },
+        "output_contract": {
+          "bytes_base64": "bounded-base64",
+          "byte_length": "verified-safe-integer",
+          "integrity_hash": "verified-digest",
+          "media_type": "safe-untrusted-metadata",
+          "display_name": "safe-untrusted-metadata",
+          "decision_ref": "verified-owner-decision"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::entry::read-guarded-artifact-target",
+      "path": [
+        "packages",
+        "content-media-evidence",
+        "entries",
+        "read-guarded-artifact-target"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "read-guarded-artifact-target",
+        "export_name": "readGuardedArtifactTarget",
+        "source_path": "do-work/read-guarded-artifact-target.ts",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-read-guarded-artifact-target"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-read-guarded-artifact-target",
+      "source_path": "built-stored-bytes/entry-bytes-read-guarded-artifact-target",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-read-guarded-artifact-target.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::target::materialize-artifact",
+      "path": [
+        "packages",
+        "content-media-evidence",
+        "targets",
+        "materialize-artifact"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "target": "content-media-evidence.materialize-artifact",
+        "exposure": "hosted-session-admitted",
+        "admission": {
+          "target": "access-rule.evaluate",
+          "action_ref": "content-media-evidence.materialize-artifact",
+          "authorized_action_refs": [
+            "content-media-evidence.materialize-artifact"
+          ],
+          "constraints": {},
+          "predicate_ref": "predicate:authenticated-session",
+          "predicate_binding": {
+            "$kind": "binding",
+            "select": {
+              "from": "literal",
+              "value": true
+            }
+          },
+          "subject_binding": {
+            "$kind": "binding",
+            "select": {
+              "from": "context",
+              "path": "payload.idempotency_ref"
+            }
+          },
+          "resource_revision_binding": {
+            "$kind": "binding",
+            "select": {
+              "from": "context",
+              "path": "payload.idempotency_ref"
+            }
+          }
+        },
+        "entry_name": "materialize-artifact-target",
+        "export_name": "materializeArtifactTarget",
+        "source_path": "do-work/materialize-artifact-target.ts",
+        "fixed_owner_targets": [
+          "access-rule.verify-decision",
+          "engine.operation",
+          "cas-store.materialize-bytes",
+          "cas-store.read-addressed-bytes"
+        ],
+        "input_contract": {
+          "source": "bounded-json-safe-browser-bytes, or engine-staged bytes plus an equal verified single-address CAS identity, with metadata and provenance in request identity",
+          "idempotency_ref": "owner-recomputed relation identity for browser bytes; verified content hash for engine-staged bytes",
+          "server_admission": "carrier-generated-durable-owner-verified-access-decision",
+          "namespace": "owner-derived-only",
+          "relation_context": "owner-derived-current-product-authority-scope"
+        },
+        "output_contract": {
+          "kind": "content-media.materialized-relation/v1",
+          "relation_ref": "opaque-normalized-relation",
+          "metadata": "caller-ready-safe-artifact-metadata"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::entry::materialize-artifact-target",
+      "path": [
+        "packages",
+        "content-media-evidence",
+        "entries",
+        "materialize-artifact-target"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "materialize-artifact-target",
+        "export_name": "materializeArtifactTarget",
+        "source_path": "do-work/materialize-artifact-target.ts",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-materialize-artifact-target"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-materialize-artifact-target",
+      "source_path": "built-stored-bytes/entry-bytes-materialize-artifact-target",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-materialize-artifact-target.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::artifact-contract::canonical-v1",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "artifact-contract-descriptor",
+        "id": "canonical-artifact-ref/v1",
+        "required_fields": [
+          "payload_address",
+          "payload_address_mode",
+          "integrity_hash",
+          "byte_length",
+          "media_type",
+          "display_name",
+          "provenance"
+        ],
+        "payload_address_modes": [
+          "address_bytes",
+          "addressed_chunks"
+        ],
+        "guarded_read_target": "content-media-evidence.read-guarded-artifact",
+        "materializer_target": "content-media-evidence.materialize-artifact"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::target::migrate-artifact-reference",
+      "path": [
+        "packages",
+        "content-media-evidence",
+        "targets",
+        "migrate-artifact-reference"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": true
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::entry::migrate-artifact-reference-target",
+      "path": [
+        "packages",
+        "content-media-evidence",
+        "entries",
+        "migrate-artifact-reference-target"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": true
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::descriptor::relations",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "record-action-session-projection"
+      ],
+      "payload": {
+        "kind": "record-action-session-projection-descriptor",
+        "id": "record-action-session-projection:content-media-evidence:relations",
+        "descriptor_version": 1,
+        "owner_package": "content-media-evidence",
+        "record_family": {
+          "id": "content-media-relation",
+          "id_field": "relation_id",
+          "address_prefix": "package::content-media-evidence::relation::",
+          "row_kind": "content-media.relation.record"
+        },
+        "fields": [
+          {
+            "id": "source_ref",
+            "value_type": "object",
+            "required": true
+          },
+          {
+            "id": "target_ref",
+            "value_type": "object",
+            "required": true
+          },
+          {
+            "id": "role_ref",
+            "value_type": "object",
+            "required": true
+          },
+          {
+            "id": "context_ref",
+            "value_type": "object",
+            "optional": true
+          },
+          {
+            "id": "receipt_ref",
+            "value_type": "object",
+            "optional": true
+          },
+          {
+            "id": "state_ref",
+            "value_type": "object",
+            "optional": true
+          },
+          {
+            "id": "error_ref",
+            "value_type": "object",
+            "optional": true
+          },
+          {
+            "id": "idempotency_ref",
+            "value_type": "text",
+            "optional": true
+          }
+        ],
+        "actions": [
+          {
+            "id": "create-relation",
+            "definition_id": "action:content-media-evidence:create-relation",
+            "target": "slot::workflow"
+          }
+        ],
+        "projections": [
+          {
+            "id": "projection:content-media-evidence:relations-by-source",
+            "output_address_label": "content-media-evidence-relations-by-source",
+            "index_key": "source_ref"
+          },
+          {
+            "id": "projection:content-media-evidence:relations-by-target",
+            "output_address_label": "content-media-evidence-relations-by-target",
+            "index_key": "target_ref"
+          }
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::projection-descriptor::relations-by-source",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "record-projection-descriptor",
+        "id": "projection:content-media-evidence:relations-by-source",
+        "descriptor_ref": "package::content-media-evidence::descriptor::relations",
+        "source": {
+          "kind": "content-media.relation.record",
+          "owner_package": "content-media-evidence"
+        },
+        "index": {
+          "key": "source_ref",
+          "from": "source_ref"
+        },
+        "output_address_label": "content-media-evidence-relations-by-source"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::projection-descriptor::relations-by-target",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "record-projection-descriptor",
+        "id": "projection:content-media-evidence:relations-by-target",
+        "descriptor_ref": "package::content-media-evidence::descriptor::relations",
+        "source": {
+          "kind": "content-media.relation.record",
+          "owner_package": "content-media-evidence"
+        },
+        "index": {
+          "key": "target_ref",
+          "from": "target_ref"
+        },
+        "output_address_label": "content-media-evidence-relations-by-target"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::workflow-action::create-relation",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:content-media-evidence:create-relation",
+        "kind": "action",
+        "is_active": true,
+        "name": "content-media-evidence-create-relation",
+        "description": "Write one generic source-target-role relation record with opaque refs and owner-owned receipt/state/error refs.",
+        "input_schema": {
+          "required": [
+            "relation_id",
+            "source_ref",
+            "target_ref",
+            "role_ref"
+          ],
+          "properties": {
+            "relation_id": {
+              "type": "string"
+            },
+            "source_ref": {
+              "type": "object"
+            },
+            "target_ref": {
+              "type": "object"
+            },
+            "role_ref": {
+              "type": "object"
+            },
+            "context_ref": {
+              "type": "object"
+            },
+            "receipt_ref": {
+              "type": "object"
+            },
+            "state_ref": {
+              "type": "object"
+            },
+            "error_ref": {
+              "type": "object"
+            },
+            "idempotency_ref": {
+              "type": "string"
+            },
+            "action_descriptor_id": {
+              "type": "string"
+            },
+            "backend_descriptor_id": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "relation_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::content-media-evidence::relation::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "relation_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "address_mode": "identity_text",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "content-media.relation.record",
+                    "descriptor_ref": "package::content-media-evidence::descriptor::relations",
+                    "projection_descriptor_refs": [
+                      "package::content-media-evidence::projection-descriptor::relations-by-source",
+                      "package::content-media-evidence::projection-descriptor::relations-by-target"
+                    ],
+                    "relation_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "relation_id"
+                      }
+                    },
+                    "source_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "source_ref"
+                      }
+                    },
+                    "target_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "target_ref"
+                      }
+                    },
+                    "role_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "role_ref"
+                      }
+                    },
+                    "context_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "context_ref"
+                      }
+                    },
+                    "receipt_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "receipt_ref"
+                      }
+                    },
+                    "state_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "state_ref"
+                      }
+                    },
+                    "error_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "error_ref"
+                      }
+                    },
+                    "idempotency_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "idempotency_ref"
+                      }
+                    },
+                    "action_descriptor_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "action_descriptor_id"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "version": 1,
+        "extra": {},
+        "extra_properties": {
+          "backend_descriptor_ref": "package::content-media-evidence::descriptor::relations"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::retention-policy::media",
+      "path": [
+        "packages",
+        "content-media-evidence",
+        "retention-policies",
+        "media"
+      ],
+      "payload": {
+        "kind": "record-retention-policy",
+        "record_kind": "media",
+        "owner_package": "content-media-evidence",
+        "retention": {
+          "class": "durable",
+          "store_as": "binary-blob"
+        },
+        "justification": "User media content = truth (keep current). store_as:binary-blob directs the producer seam (WS3b C6) to store bytes as a binary CAS blob, NOT base64/hex TEXT in JSON (44GB studio, 1.33-2x text amplification)."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::workflow-action::stage-local-path",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "action",
+        "id": "action:content-media-evidence:stage-local-path",
+        "name": "stage-local-path",
+        "description": "Generic workflow-native staging: copy one stable, canonical regular host file (native_ref) into CAS single-chunk and return its integrity_hash as an artifact address. Workflow equivalent of the proven browser-side stageContentMediaLocalPath helper (content-media-work-loop.ts:192). Single-chunk 16MB (== max_addressed_chunk_bytes) so integrity_hash is a real CAS address (avoids the multi-chunk phantom-hash bug the 4MB helper hits for >4MB files). Fail-closed >16MB until the process-engine multi-chunk blob_ref fix lands.",
+        "local_path_identity_policy": {
+          "schema": "bitfield.local-path-input-identity/v1",
+          "path": "absolute canonical path with no symlink component",
+          "source": "non-empty regular file reached through a canonical path with no symlink component",
+          "stability": "device, inode, link count, byte length, modification time, change time, and mode remain exact across staging",
+          "readback": "held source bytes stream through engine-owned capture into one immutable seed that is the addressed output"
+        },
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "native_ref": {
+              "type": "string"
+            },
+            "media_type": {
+              "type": "string"
+            },
+            "display_name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "native_ref"
+          ]
+        },
+        "steps": [
+          {
+            "id": "stage",
+            "kind": "ask",
+            "config": {
+              "name": "local.files",
+              "output": {
+                "decode": "bytes"
+              },
+              "input": {
+                "operation": "read_stable_file_bytes",
+                "path": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "native_ref"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "materialize",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "python3",
+                  "-I",
+                  "-S",
+                  "-c",
+                  "pass"
+                ],
+                "cwd": null,
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "staged-media/source",
+                    "content_type": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "media_type"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.if_null",
+                          "args": {
+                            "value": "application/octet-stream"
+                          }
+                        }
+                      ]
+                    },
+                    "source": {
+                      "kind": "step_bytes",
+                      "step": "stage"
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "staged-media/source",
+                    "storage": "addressed_chunks",
+                    "content_type": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "media_type"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.if_null",
+                          "args": {
+                            "value": "application/octet-stream"
+                          }
+                        }
+                      ]
+                    },
+                    "chunk_size_bytes": 16777216
+                  }
+                ],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "bind_relation",
+            "kind": "ask",
+            "config": {
+              "name": "ui.invoke-local-content-media-materializer",
+              "input": {
+                "idempotency_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "materialize",
+                    "path": "output.outputs.0.integrity_hash"
+                  }
+                },
+                "source": {
+                  "source_mode": "verified-addressed-bytes",
+                  "bytes": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "stage",
+                      "path": "output"
+                    }
+                  },
+                  "artifact_address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "materialize",
+                      "path": "output.outputs.0.integrity_hash"
+                    }
+                  },
+                  "integrity_hash": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "materialize",
+                      "path": "output.outputs.0.integrity_hash"
+                    }
+                  },
+                  "byte_length": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "materialize",
+                      "path": "output.outputs.0.byte_len"
+                    }
+                  },
+                  "media_type": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "media_type"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "value": "application/octet-stream"
+                        }
+                      }
+                    ]
+                  },
+                  "display_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "display_name"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "value": "Saved media"
+                        }
+                      }
+                    ]
+                  },
+                  "provenance": {
+                    "source_kind": "stable-local-file",
+                    "content_hash": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "materialize",
+                        "path": "output.outputs.0.integrity_hash"
+                      }
+                    }
+                  }
+                },
+                "relation": {
+                  "role_ref": {
+                    "id": "stored-media"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "artifact_address": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "materialize",
+                    "path": "output.outputs.0.integrity_hash"
+                  }
+                },
+                "content_hash": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "materialize",
+                    "path": "output.outputs.0.integrity_hash"
+                  }
+                },
+                "byte_len": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "materialize",
+                    "path": "output.outputs.0.byte_len"
+                  }
+                },
+                "relation_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "bind_relation",
+                    "path": "output.relation_ref"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::workflow-action::read-local-guarded-artifact",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "action",
+        "id": "action:content-media-evidence:read-local-guarded-artifact",
+        "name": "read-local-guarded-artifact",
+        "description": "Open saved media through its current local permission and playback record.",
+        "is_active": true,
+        "trigger_type": "manual",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "relation_ref": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "relation_ref"
+          ]
+        },
+        "steps": [
+          {
+            "id": "read",
+            "kind": "ask",
+            "config": {
+              "name": "ui.invoke-local-guarded-media-reader",
+              "input": {
+                "relation_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "relation_ref"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "read",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "read",
+            "to": "done",
+            "kind": "on_result"
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::workflow-action::finish-saved-local-media",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "action",
+        "id": "action:content-media-evidence:finish-saved-local-media",
+        "name": "finish-saved-local-media",
+        "description": "Read the selected file again, confirm its bytes still match the saved content address, and create its playback record without saving a second copy.",
+        "is_active": true,
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "native_ref": {
+              "type": "string",
+              "minLength": 1
+            },
+            "content_hash": {
+              "type": "string",
+              "minLength": 1
+            },
+            "byte_length": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 16777216
+            },
+            "source_revision": {
+              "type": "string",
+              "minLength": 1
+            },
+            "media_type": {
+              "type": "string",
+              "minLength": 1
+            },
+            "display_name": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "native_ref",
+            "content_hash",
+            "byte_length",
+            "source_revision",
+            "media_type",
+            "display_name"
+          ]
+        },
+        "steps": [
+          {
+            "id": "identity_before",
+            "kind": "ask",
+            "config": {
+              "name": "local.files",
+              "input": {
+                "operation": "hash_file",
+                "path": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "native_ref"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "read_stable_bytes",
+            "kind": "ask",
+            "config": {
+              "name": "local.files",
+              "output": {
+                "decode": "bytes"
+              },
+              "input": {
+                "operation": "read_stable_file_bytes",
+                "path": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "native_ref"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "identity_after",
+            "kind": "ask",
+            "config": {
+              "name": "local.files",
+              "input": {
+                "operation": "hash_file",
+                "path": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "native_ref"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "verify_identity",
+            "kind": "ask",
+            "config": {
+              "name": "slot::formula-engine",
+              "input": {
+                "binding": {
+                  "$kind": "opaque-json",
+                  "value": {
+                    "$kind": "binding",
+                    "transform": [
+                      {
+                        "op": "op:core.and",
+                        "args": {
+                          "values": [
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "context",
+                                "path": "expected_revision"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.equals",
+                                  "args": {
+                                    "value": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "context",
+                                        "path": "before_revision_before"
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "context",
+                                "path": "expected_revision"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.equals",
+                                  "args": {
+                                    "value": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "context",
+                                        "path": "before_revision_after"
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "context",
+                                "path": "expected_revision"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.equals",
+                                  "args": {
+                                    "value": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "context",
+                                        "path": "after_revision_before"
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "context",
+                                "path": "expected_revision"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.equals",
+                                  "args": {
+                                    "value": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "context",
+                                        "path": "after_revision_after"
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "context",
+                                "path": "expected_content_hash"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.equals",
+                                  "args": {
+                                    "value": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "context",
+                                        "path": "before_content_hash"
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "context",
+                                "path": "expected_content_hash"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.equals",
+                                  "args": {
+                                    "value": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "context",
+                                        "path": "after_content_hash"
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "context",
+                                "path": "expected_byte_length"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.equals",
+                                  "args": {
+                                    "value": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "context",
+                                        "path": "before_byte_length"
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "context",
+                                "path": "expected_byte_length"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.equals",
+                                  "args": {
+                                    "value": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "context",
+                                        "path": "after_byte_length"
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                "context": {
+                  "expected_revision": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "source_revision"
+                    }
+                  },
+                  "expected_content_hash": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "content_hash"
+                    }
+                  },
+                  "expected_byte_length": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "byte_length"
+                    }
+                  },
+                  "before_revision_before": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "identity_before",
+                      "path": "output.revision_before"
+                    }
+                  },
+                  "before_revision_after": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "identity_before",
+                      "path": "output.revision_after"
+                    }
+                  },
+                  "after_revision_before": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "identity_after",
+                      "path": "output.revision_before"
+                    }
+                  },
+                  "after_revision_after": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "identity_after",
+                      "path": "output.revision_after"
+                    }
+                  },
+                  "before_content_hash": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "identity_before",
+                      "path": "output.content_hash"
+                    }
+                  },
+                  "after_content_hash": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "identity_after",
+                      "path": "output.content_hash"
+                    }
+                  },
+                  "before_byte_length": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "identity_before",
+                      "path": "output.byte_length"
+                    }
+                  },
+                  "after_byte_length": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "identity_after",
+                      "path": "output.byte_length"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "bind_relation",
+            "kind": "ask",
+            "config": {
+              "name": "ui.invoke-local-content-media-materializer",
+              "input": {
+                "idempotency_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "content_hash"
+                  }
+                },
+                "source": {
+                  "source_mode": "verified-addressed-bytes",
+                  "bytes": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "read_stable_bytes",
+                      "path": "output.bytes"
+                    }
+                  },
+                  "artifact_address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "content_hash"
+                    }
+                  },
+                  "integrity_hash": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "content_hash"
+                    }
+                  },
+                  "byte_length": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "byte_length"
+                    }
+                  },
+                  "media_type": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "media_type"
+                    }
+                  },
+                  "display_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "display_name"
+                    }
+                  },
+                  "provenance": {
+                    "source_kind": "stable-local-file",
+                    "content_hash": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "content_hash"
+                      }
+                    }
+                  }
+                },
+                "relation": {
+                  "role_ref": {
+                    "id": "stored-media"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "identity_mismatch",
+            "kind": "fail",
+            "config": {
+              "error": "The selected file changed after it was saved. Nothing was added."
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "content_hash": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "content_hash"
+                  }
+                },
+                "byte_length": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "byte_length"
+                  }
+                },
+                "source_identity_before": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "identity_before",
+                    "path": "output"
+                  }
+                },
+                "source_identity_after": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "identity_after",
+                    "path": "output"
+                  }
+                },
+                "relation_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "bind_relation",
+                    "path": "output.relation_ref"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "identity_before",
+            "to": "read_stable_bytes",
+            "kind": "on_result"
+          },
+          {
+            "from": "read_stable_bytes",
+            "to": "identity_after",
+            "kind": "on_result"
+          },
+          {
+            "from": "identity_after",
+            "to": "verify_identity",
+            "kind": "on_result"
+          },
+          {
+            "from": "verify_identity",
+            "to": "bind_relation",
+            "kind": "on_result",
+            "config": {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "output.result"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": true
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "from": "verify_identity",
+            "to": "identity_mismatch",
+            "kind": "on_result",
+            "config": {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "output.result"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "from": "bind_relation",
+            "to": "done",
+            "kind": "on_result"
+          }
+        ],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "version": 1,
+        "extra": {},
+        "extra_properties": {
+          "backend_descriptor_ref": "package::content-media-evidence::descriptor::relations"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::target::record-relations",
+      "path": [
+        "packages",
+        "content-media-evidence",
+        "targets",
+        "record-relations"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "target": "content-media-evidence.record-relations",
+        "entry_name": "record-relations-target",
+        "export_name": "recordRelationsTarget",
+        "source_path": "do-work/record-relations-target.ts",
+        "exposure": "owner-to-owner-only",
+        "input_contract": {
+          "required": [
+            "scope_ref",
+            "mutations"
+          ],
+          "server_admission": "ambient-revision-bound-access-decision"
+        },
+        "output_contract": {
+          "accepted": "relation-revision",
+          "conflict": "current-revision"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::entry::record-relations-target",
+      "path": [
+        "packages",
+        "content-media-evidence",
+        "entries",
+        "record-relations-target"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "record-relations-target",
+        "export_name": "recordRelationsTarget",
+        "source_path": "do-work/record-relations-target.ts",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-record-relations-target"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-record-relations-target",
+      "source_path": "built-stored-bytes/entry-bytes-record-relations-target",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-record-relations-target.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::target::read-relations",
+      "path": [
+        "packages",
+        "content-media-evidence",
+        "targets",
+        "read-relations"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "target": "content-media-evidence.read-relations",
+        "entry_name": "read-relations-target",
+        "export_name": "readRelationsTarget",
+        "source_path": "do-work/record-relations-target.ts",
+        "exposure": "owner-to-owner-only",
+        "input_contract": {
+          "required": [
+            "scope_ref",
+            "relations"
+          ],
+          "server_admission": "ambient-revision-bound-access-decision"
+        },
+        "output_contract": {
+          "accepted": "current-independent-relation-rows"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::entry::read-relations-target",
+      "path": [
+        "packages",
+        "content-media-evidence",
+        "entries",
+        "read-relations-target"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "read-relations-target",
+        "export_name": "readRelationsTarget",
+        "source_path": "do-work/record-relations-target.ts",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-read-relations-target"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-read-relations-target",
+      "source_path": "built-stored-bytes/entry-bytes-read-relations-target",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-read-relations-target.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::target::verify-release-artifact-continuity",
+      "path": [
+        "packages",
+        "content-media-evidence",
+        "targets",
+        "verify-release-artifact-continuity"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "target": "content-media-evidence.verify-release-artifact-continuity",
+        "entry_name": "verify-release-artifact-continuity-target",
+        "export_name": "verifyReleaseArtifactContinuityTarget",
+        "source_path": "do-work/verify-release-artifact-continuity-target.ts",
+        "exposure": "owner-to-owner-only",
+        "fixed_owner_targets": [
+          "package-loader.read-sealed-app-package-set",
+          "engine.operation"
+        ],
+        "input_contract": {
+          "schema": "content-media-evidence.release-artifact-continuity-request",
+          "artifact": "exact-path-filename-byte-count-sha256",
+          "package_set_ref": "opaque-package-set-ref",
+          "requested_target_refs": "unique-opaque-target-refs",
+          "requested_entry_refs": "unique-opaque-entry-refs",
+          "material_requirement": "at-least-one-requested-target-or-entry-ref"
+        },
+        "output_contract": {
+          "accepted": true,
+          "receipt_ref": "immutable-owner-address",
+          "payload_sha256": "exact-receipt-bytes-sha256",
+          "receipt_payload": "never-returned-to-caller"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-media-evidence::entry::verify-release-artifact-continuity-target",
+      "path": [
+        "packages",
+        "content-media-evidence",
+        "entries",
+        "verify-release-artifact-continuity-target"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "verify-release-artifact-continuity-target",
+        "export_name": "verifyReleaseArtifactContinuityTarget",
+        "source_path": "do-work/verify-release-artifact-continuity-target.ts",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-verify-release-artifact-continuity-target"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-verify-release-artifact-continuity-target",
+      "source_path": "built-stored-bytes/entry-bytes-verify-release-artifact-continuity-target",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-verify-release-artifact-continuity-target.source-closure.json"
+    }
+  ]
+}

@@ -2,7 +2,20 @@
   "about": "Files moved here from Trillion-X/trillion by #76 (a9ee2580). Each matched file names its source path and commit and the BLAKE3 identity of its source bytes and of its bytes here. not_matched lists files #76 adapted or renamed, so no source file holds their exact bytes; their sources are under the old capability row's owner paths in sources.",
   "source": "Trillion-X/trillion",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "owner-home-folder",
+      "find": "[/]Users[/]b[r]ianakhtar",
+      "replace": "/workspace/the-owner",
+      "means": "A person's home folder name in a path, swapped for a made-up one: a public tree holds made-up data only."
+    },
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    }
+  ],
   "sources": [],
   "files": [
     {
@@ -115,6 +128,90 @@
       "source_identity": "1f:b9530e41e54c9ea065092e6a3a8506b887d994bf956817e0577a1256ac3a39c2",
       "identity": "1f:b9530e41e54c9ea065092e6a3a8506b887d994bf956817e0577a1256ac3a39c2",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/ai-tool-catalog/do-work/derive-tool-rows-from-sources.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-tool-catalog/packages/ai-tool-catalog/do-work/derive-tool-rows-from-sources.mjs",
+      "source_identity": "1f:1d54a2a9a3c84094eef81cfaf021b52d960f6698ebc7a7e29294605e0b380481",
+      "identity": "1f:1d54a2a9a3c84094eef81cfaf021b52d960f6698ebc7a7e29294605e0b380481"
+    },
+    {
+      "from": "packages/ai-tool-catalog/do-work/parse-agent-tool-requests.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-tool-catalog/packages/ai-tool-catalog/do-work/parse-agent-tool-requests.ts",
+      "source_identity": "1f:d416ff814886262f3bb88cb866d7d1bc6056a2010e336562f12375bdc7ddec08",
+      "identity": "1f:d416ff814886262f3bb88cb866d7d1bc6056a2010e336562f12375bdc7ddec08"
+    },
+    {
+      "from": "packages/ai-tool-catalog/do-work/prepare-tool-result.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-tool-catalog/packages/ai-tool-catalog/do-work/prepare-tool-result.ts",
+      "source_identity": "1f:ec1c290f74521f84edc3e919048fa0bea3c2d296bbe6570e0737f92e88ad16f8",
+      "identity": "1f:ec1c290f74521f84edc3e919048fa0bea3c2d296bbe6570e0737f92e88ad16f8"
+    },
+    {
+      "from": "packages/ai-tool-catalog/do-work/probe-jobs-through-public-tools.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-tool-catalog/packages/ai-tool-catalog/do-work/probe-jobs-through-public-tools.mjs",
+      "source_identity": "1f:0e607b1d3fa9384b024e794288d0aea288d77de98902df9801039cf799d6fe1d",
+      "identity": "1f:0e607b1d3fa9384b024e794288d0aea288d77de98902df9801039cf799d6fe1d"
+    },
+    {
+      "from": "packages/ai-tool-catalog/do-work/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-tool-catalog/packages/ai-tool-catalog/do-work/README.md",
+      "source_identity": "1f:50bc1813b550eb875de8ae5b364629441b418cc9f5db4df4fc7c99a8ef02e484",
+      "identity": "1f:50bc1813b550eb875de8ae5b364629441b418cc9f5db4df4fc7c99a8ef02e484"
+    },
+    {
+      "from": "packages/ai-tool-catalog/do-work/request-tool-run.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-tool-catalog/packages/ai-tool-catalog/do-work/request-tool-run.ts",
+      "source_identity": "1f:474accd1b21ef4bcd9f36fb2c57df3a9860c377841c799056b6fb6b0602ce5c9",
+      "identity": "1f:474accd1b21ef4bcd9f36fb2c57df3a9860c377841c799056b6fb6b0602ce5c9"
+    },
+    {
+      "from": "packages/ai-tool-catalog/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-tool-catalog/packages/ai-tool-catalog/entry-to-package-data-map.json",
+      "source_identity": "1f:dcf5275adc89b20a2bfb17d1f6e7f9118cd22dddf06c5900f26d447360a253dc",
+      "identity": "1f:dcf5275adc89b20a2bfb17d1f6e7f9118cd22dddf06c5900f26d447360a253dc"
+    },
+    {
+      "from": "packages/ai-tool-catalog/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-tool-catalog/packages/ai-tool-catalog/index.ts",
+      "source_identity": "1f:b9677ebe8961a74eb3448df32562aebebedf927bca618db9d2dc7b6db6a6aeb4",
+      "identity": "1f:b9677ebe8961a74eb3448df32562aebebedf927bca618db9d2dc7b6db6a6aeb4"
+    },
+    {
+      "from": "packages/ai-tool-catalog/read-data/read-ai-tool-catalog.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-tool-catalog/packages/ai-tool-catalog/read-data/read-ai-tool-catalog.ts",
+      "source_identity": "1f:0cdbe85d59192ca2ea8e66335cdd8ed4c181c71ad91f86e9ddfd34fa0672077d",
+      "identity": "1f:3ab0b02f4a924c8f83cb017f2432f68d56a407895d7ec7e7cd21e6aecd882b92"
+    },
+    {
+      "from": "packages/ai-tool-catalog/show/mount-ai-tool-catalog-list.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-tool-catalog/packages/ai-tool-catalog/show/mount-ai-tool-catalog-list.tsx",
+      "source_identity": "1f:2762d4a292e38fcb035e38748e12cdfc7e762ed280756a0476554d6a1b143687",
+      "identity": "1f:2762d4a292e38fcb035e38748e12cdfc7e762ed280756a0476554d6a1b143687"
+    },
+    {
+      "from": "packages/ai-tool-catalog/show/ToolCatalogList.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-tool-catalog/packages/ai-tool-catalog/show/ToolCatalogList.tsx",
+      "source_identity": "1f:55736856f2683f91117f2b4101f0a3c599fba6a2c0350a8cee237c82abfd70e0",
+      "identity": "1f:55736856f2683f91117f2b4101f0a3c599fba6a2c0350a8cee237c82abfd70e0"
+    },
+    {
+      "from": "packages/ai-tool-catalog/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ai-tool-catalog/packages/ai-tool-catalog/things-to-store-and-run.json",
+      "source_identity": "1f:71d40c53ff2556d516677a1530c88c743bbf9100c402e97bbf650f4063a6f991",
+      "identity": "1f:71d40c53ff2556d516677a1530c88c743bbf9100c402e97bbf650f4063a6f991"
     }
   ],
   "not_matched": [

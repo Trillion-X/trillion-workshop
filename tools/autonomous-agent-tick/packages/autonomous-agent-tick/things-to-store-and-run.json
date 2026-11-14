@@ -1,0 +1,3203 @@
+{
+  "package": "autonomous-agent-tick",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::checks",
+      "path": ["packages", "autonomous-agent-tick", "checks"],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "processes/carrier-resolution.test.mjs",
+          "processes/descriptor-eligibility.test.mjs",
+          "processes/drain-work-queues-once.test.mjs",
+          "processes/enforce-retention-once.test.mjs",
+          "processes/lib/artifact-store.test.mjs",
+          "processes/lib/retention-enforcement.test.mjs",
+          "processes/lib/retention-policy.schema.test.mjs",
+          "processes/lib/template.test.mjs",
+          "processes/materialize-pending-once.test.mjs",
+          "processes/produce-grounded.test.mjs",
+          "processes/addressed-grounding.test.mjs",
+          "processes/reply-route.test.mjs",
+          "processes/send-poll.test.mjs",
+          "processes/spawn-check.test.mjs",
+          "processes/sweep-decisions-once.test.mjs",
+          "tests/assert-no-invented-route.test.mjs",
+          "tests/sweep-routes-run-to-index.test.mjs"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "surface-agent-decisions-mjs",
+      "source_path": "processes/surface-agent-decisions.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "sweep-decisions-once-mjs",
+      "source_path": "processes/sweep-decisions-once.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "produce-grounded-mjs",
+      "source_path": "processes/produce-grounded.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "materialize-pending-once-mjs",
+      "source_path": "processes/materialize-pending-once.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "spawn-check-mjs",
+      "source_path": "processes/spawn-check.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "reply-poll-mjs",
+      "source_path": "processes/reply-poll.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "send-poll-mjs",
+      "source_path": "processes/send-poll.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "send-reply-mjs",
+      "source_path": "processes/send-reply.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "template-mjs",
+      "source_path": "processes/lib/template.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "artifact-store-mjs",
+      "source_path": "processes/lib/artifact-store.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "carrier-mjs",
+      "source_path": "processes/lib/carrier.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "reply-route-mjs",
+      "source_path": "processes/lib/reply-route.mjs"
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::trigger-rule::produce-on-clock-tick-operator",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:autonomous-agent-tick:produce-on-clock-tick-operator",
+        "name": "autonomous-business-operator-real-ai-turn-each-clock-tick",
+        "description": "PER-APP ACTIVATION (do not blanket-deploy): this Config-B row is the ETHOS business-operator turn. On bitfield-chief-of-staff it MUST stay is_active:false — each ~5-6min AI turn on a 45s tick saturates the workflow lane 100% and starves the conversational reply/send chain (proven 2026-07-28). When deploying this package to a NON-ethos app, deactivate this row in that app's set-root copy first (the set-root divergence IS the per-app config layer). DURABLE autonomous wake (package-owned rule record, boot-loaded — the only mechanism the trigger-engine registers, proven live by chat.refresh-live-on-tick + timed-action.evaluate-due-on-tick). On each clock::tick envelope delta (written by the clock waiter in notice-when-something-shows-up), dispatch ai-records-producer's OWN action:run-ai-records-production CROSS-SLOT via trigger-engine -> slot::workflow. No god package (producer owns the AI turn), no deadlock (cross-slot), no launchd, no custom JS. Agent/instruction are DATA in dispatch.input -> ONE package configures every autonomous agent by adding a row (this row = Config B business operator; the coach row is deployed to the ethos set).",
+        "is_active": true,
+        "version": 0,
+        "trigger_type": "delta",
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "clock-tick"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "is_retraction"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:autonomous-agent-tick:produce-grounded",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "partition": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "properties.runtime_context.partition"
+                }
+              },
+              "agent_ref": "ai-agent-profile:autonomous-business-operator",
+              "memory_limit": "8",
+              "node_path": "node"
+            }
+          }
+        },
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::trigger-rule::reply-on-inbound-message",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:autonomous-agent-tick:reply-on-inbound-message",
+        "name": "reply-grounded-on-each-inbound-telegram-message",
+        "description": "ENGINE-NATIVE conversational reply wake. On each observed-content.content-atom write whose source_ref is the telegram source, dispatch ai-records-producer's OWN action:run-ai-records-production DIRECTLY CROSS-SLOT via trigger-engine -> slot::workflow (the PROVEN operator dispatch shape; the old reply-grounded/reply-producer compute.process wrapper stalled on a 5x30s history read before the produce dispatch and never fired on the busy Fly lane, and an external HTTP execute_definition POST is unreliable under lane load — only the trigger->slot::workflow path is reliable). instruction_text=atom.text, output_kind=message, target_group_ref=atom.thread_ref (chat id rides on the result). request_id=atom.id so the reply-poll backstop (same request_id) is idempotent. Producer owns the AI turn; content-distribution owns the consent-gated send (send-poll -> send-reply -> run-publish-intent). No god package, no god-script. Self-reply guard (speaker_ref!=self) is added when real telegram ingest lands on Fly; safe to arm now because no inbound ingest exists yet on Fly (only injected test atoms, which are consent-gated).",
+        "is_active": true,
+        "version": 0,
+        "trigger_type": "delta",
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "observed-content.content-atom"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "source_ref"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "source:telegram"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "is_retraction"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:run-ai-records-production",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "request_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "id"
+                }
+              },
+              "instruction_text": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "text"
+                }
+              },
+              "output_kind": "message",
+              "wrap_instruction_ref": "ai-instruction-block:chief-of-staff-conversational",
+              "model": "",
+              "agent_ref": "ai-agent-profile:autonomous-business-operator",
+              "target_group_ref": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "thread_ref"
+                }
+              },
+              "requested_at": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "id"
+                }
+              }
+            }
+          }
+        },
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::workflow-action::reply-grounded",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "remove": true,
+      "note": "RETIRED 2026-09-04 (L030/L100/L101). NOTHING DISPATCHED IT. The inbound trigger and reply-poll both dispatch action:run-ai-records-production directly, and reply-poll.mjs:99 proves it in code while the description at the reply-poll trigger still claimed it dispatched this action, which was the fourth false description found in this package in one pass. Killing it closed four things at once: the package's LAST inline mount (a frozen base64 copy of reply-producer.mjs that had already diverged from disk, carrying a two-link carrier chain and a HOME-derived vault path where disk carried an absolute /Users import), the last absolute host path, the last hardcoded api.telegram.org call in package code, and the block on renaming BITFIELD_REPLY_CHAT_ID / _MESSAGE / _WRAP_INSTRUCTION, which only this frozen copy read. L101 pairing: it held two real capabilities and both were ALREADY dead because nothing ran it. Writing the inbound user turn is now done live in reply-poll.mjs, so the conversation record stops being one side of a dialogue. Grounding the reply on recent history is NOT restored and is openly absent: reply-producer did it with a history read of up to 5x30s BEFORE its dispatch, which is the measured reason it stalled past the step timeout and never fired, so re-adding it in that shape would rebuild the failure. It needs a read that cannot block the dispatch, and the turns it would read are only now being recorded."
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::published-record::action-intent-owner-map",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "action-intent-owner-map",
+        "id": "action-intent-owner-map",
+        "description": "capability_owner_map (DECIDE-ACT primitive plan section 4): DATA rows mapping an action-intent capability prefix to the REAL dispatchable owner address (owner_target = live send, draft_target = safe no-credential queue). The receipt-gate resolveOwnerTarget does a prefix match (L090, no enum in code); an unmatched capability fail-closes to owner_resolved=false and stays a draft. Owners are file:line-verified: content-distribution run-publish-intent/submit-publish-intent/queue-publish/submit-message-egress, timed-action write-scheduled-action. Adding a capability owner = one row here, zero code change.",
+        "rows": [
+          {
+            "match_prefix": "publish.",
+            "owner_target": "action:run-publish-intent",
+            "draft_target": "action:publish-composer-materialize-draft",
+            "draft_payload_template": {
+              "body_text": "$artifact",
+              "content_type": "text/markdown"
+            },
+            "needs_credential": true,
+            "guard_limit_ref": "ai-guard-limit:outside-contact-execution"
+          },
+          {
+            "match_prefix": "post.",
+            "owner_target": "action:run-publish-intent",
+            "draft_target": "action:publish-composer-materialize-draft",
+            "draft_payload_template": {
+              "body_text": "$artifact",
+              "content_type": "text/markdown"
+            },
+            "needs_credential": true,
+            "guard_limit_ref": "ai-guard-limit:outside-contact-execution"
+          },
+          {
+            "match_prefix": "outreach.",
+            "owner_target": "action:submit-message-egress",
+            "draft_target": "action:publish-composer-materialize-draft",
+            "draft_payload_template": {
+              "body_text": "$artifact",
+              "content_type": "text/markdown"
+            },
+            "needs_credential": true,
+            "guard_limit_ref": "ai-guard-limit:outside-contact-execution"
+          },
+          {
+            "match_prefix": "message.",
+            "owner_target": "action:submit-message-egress",
+            "draft_target": "action:publish-composer-materialize-draft",
+            "draft_payload_template": {
+              "body_text": "$artifact",
+              "content_type": "text/markdown"
+            },
+            "needs_credential": true,
+            "guard_limit_ref": "ai-guard-limit:outside-contact-execution"
+          },
+          {
+            "match_prefix": "dm.",
+            "owner_target": "action:submit-message-egress",
+            "draft_target": "action:publish-composer-materialize-draft",
+            "draft_payload_template": {
+              "body_text": "$artifact",
+              "content_type": "text/markdown"
+            },
+            "needs_credential": true,
+            "guard_limit_ref": "ai-guard-limit:outside-contact-execution"
+          },
+          {
+            "match_prefix": "nurture.",
+            "owner_target": "action:timed-action.write-scheduled-action",
+            "draft_target": "action:publish-composer-materialize-draft",
+            "draft_payload_template": {
+              "body_text": "$artifact",
+              "content_type": "text/markdown"
+            },
+            "needs_credential": false,
+            "guard_limit_ref": "ai-guard-limit:outside-contact-execution"
+          },
+          {
+            "match_prefix": "schedule.",
+            "owner_target": "action:timed-action.write-scheduled-action",
+            "draft_target": "action:publish-composer-materialize-draft",
+            "draft_payload_template": {
+              "body_text": "$artifact",
+              "content_type": "text/markdown"
+            },
+            "needs_credential": false,
+            "guard_limit_ref": "ai-guard-limit:outside-contact-execution"
+          },
+          {
+            "match_prefix": "offer.",
+            "owner_target": null,
+            "draft_target": "action:publish-composer-materialize-draft",
+            "draft_payload_template": {
+              "body_text": "$artifact",
+              "content_type": "text/markdown"
+            },
+            "needs_credential": true,
+            "guard_limit_ref": "ai-guard-limit:outside-contact-execution",
+            "owner_gap_note": "no clean live-apply owner yet (Codex): the offer definition materializes as a safe draft; owner-approval + an offer/product store owner turn it live."
+          },
+          {
+            "match_prefix": "pricing.",
+            "owner_target": null,
+            "draft_target": "action:publish-composer-materialize-draft",
+            "draft_payload_template": {
+              "body_text": "$artifact",
+              "content_type": "text/markdown"
+            },
+            "needs_credential": true,
+            "guard_limit_ref": "ai-guard-limit:outside-contact-execution",
+            "owner_gap_note": "irreversible -> ALWAYS approval; materializes a pricing-proposal draft only."
+          },
+          {
+            "match_prefix": "email.",
+            "owner_target": "action:submit-message-egress",
+            "draft_target": "action:publish-composer-materialize-draft",
+            "draft_payload_template": {
+              "body_text": "$artifact",
+              "content_type": "text/markdown"
+            },
+            "needs_credential": true,
+            "guard_limit_ref": "ai-guard-limit:outside-contact-execution"
+          },
+          {
+            "match_prefix": "agent-lifecycle.",
+            "owner_target": "action:agent-lifecycle-apply",
+            "draft_target": "action:publish-composer-materialize-draft",
+            "draft_payload_template": {
+              "body_text": "$artifact",
+              "content_type": "text/plain"
+            },
+            "needs_credential": false,
+            "guard_limit_ref": "operator-spawn",
+            "send_payload_template": {
+              "artifact": "$artifact"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::published-record::work-descriptor::publish.",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "work-descriptor",
+        "id": "work-descriptor::publish.",
+        "match_prefix": "publish.",
+        "is_active": true,
+        "owner_target": "action:run-publish-intent",
+        "draft_target": "action:publish-composer-materialize-draft",
+        "draft_payload_template": {
+          "body_text": "$artifact",
+          "content_type": "text/markdown"
+        },
+        "needs_credential": true,
+        "guard_ref": "ai-guard-limit:outside-contact-execution",
+        "required_fields": [
+          "capability",
+          "owner_target",
+          "artifact",
+          "goal_ancestry",
+          "status"
+        ],
+        "dedup_key_fields": [
+          "capability",
+          "artifact"
+        ],
+        "producer_target": null,
+        "caps": {
+          "sweep": 6,
+          "retry": 4,
+          "materialize": 60,
+          "live_dispatch": 2,
+          "dispatch_timeout_ms": 54000,
+          "null_grace_ms": 900000
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::published-record::work-descriptor::post.",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "work-descriptor",
+        "id": "work-descriptor::post.",
+        "match_prefix": "post.",
+        "is_active": true,
+        "owner_target": "action:run-publish-intent",
+        "draft_target": "action:publish-composer-materialize-draft",
+        "draft_payload_template": {
+          "body_text": "$artifact",
+          "content_type": "text/markdown"
+        },
+        "needs_credential": true,
+        "guard_ref": "ai-guard-limit:outside-contact-execution",
+        "required_fields": [
+          "capability",
+          "owner_target",
+          "artifact",
+          "goal_ancestry",
+          "status"
+        ],
+        "dedup_key_fields": [
+          "capability",
+          "artifact"
+        ],
+        "producer_target": null,
+        "caps": {
+          "sweep": 6,
+          "retry": 4,
+          "materialize": 60,
+          "live_dispatch": 2,
+          "dispatch_timeout_ms": 54000,
+          "null_grace_ms": 900000
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::published-record::work-descriptor::outreach.",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "work-descriptor",
+        "id": "work-descriptor::outreach.",
+        "match_prefix": "outreach.",
+        "is_active": true,
+        "owner_target": "action:submit-message-egress",
+        "draft_target": "action:publish-composer-materialize-draft",
+        "draft_payload_template": {
+          "body_text": "$artifact",
+          "content_type": "text/markdown"
+        },
+        "needs_credential": true,
+        "guard_ref": "ai-guard-limit:outside-contact-execution",
+        "required_fields": [
+          "capability",
+          "owner_target",
+          "artifact",
+          "goal_ancestry",
+          "status"
+        ],
+        "dedup_key_fields": [
+          "capability",
+          "artifact"
+        ],
+        "producer_target": null,
+        "caps": {
+          "sweep": 6,
+          "retry": 4,
+          "materialize": 60,
+          "live_dispatch": 2,
+          "dispatch_timeout_ms": 54000,
+          "null_grace_ms": 900000
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::published-record::work-descriptor::message.",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "work-descriptor",
+        "id": "work-descriptor::message.",
+        "match_prefix": "message.",
+        "is_active": true,
+        "owner_target": "action:submit-message-egress",
+        "draft_target": "action:publish-composer-materialize-draft",
+        "draft_payload_template": {
+          "body_text": "$artifact",
+          "content_type": "text/markdown"
+        },
+        "needs_credential": true,
+        "guard_ref": "ai-guard-limit:outside-contact-execution",
+        "required_fields": [
+          "capability",
+          "owner_target",
+          "artifact",
+          "goal_ancestry",
+          "status"
+        ],
+        "dedup_key_fields": [
+          "capability",
+          "artifact"
+        ],
+        "producer_target": null,
+        "caps": {
+          "sweep": 6,
+          "retry": 4,
+          "materialize": 60,
+          "live_dispatch": 2,
+          "dispatch_timeout_ms": 54000,
+          "null_grace_ms": 900000
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::published-record::work-descriptor::dm.",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "work-descriptor",
+        "id": "work-descriptor::dm.",
+        "match_prefix": "dm.",
+        "is_active": true,
+        "owner_target": "action:submit-message-egress",
+        "draft_target": "action:publish-composer-materialize-draft",
+        "draft_payload_template": {
+          "body_text": "$artifact",
+          "content_type": "text/markdown"
+        },
+        "needs_credential": true,
+        "guard_ref": "ai-guard-limit:outside-contact-execution",
+        "required_fields": [
+          "capability",
+          "owner_target",
+          "artifact",
+          "goal_ancestry",
+          "status"
+        ],
+        "dedup_key_fields": [
+          "capability",
+          "artifact"
+        ],
+        "producer_target": null,
+        "caps": {
+          "sweep": 6,
+          "retry": 4,
+          "materialize": 60,
+          "live_dispatch": 2,
+          "dispatch_timeout_ms": 54000,
+          "null_grace_ms": 900000
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::published-record::work-descriptor::nurture.",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "work-descriptor",
+        "id": "work-descriptor::nurture.",
+        "match_prefix": "nurture.",
+        "is_active": true,
+        "owner_target": "action:timed-action.write-scheduled-action",
+        "draft_target": "action:publish-composer-materialize-draft",
+        "draft_payload_template": {
+          "body_text": "$artifact",
+          "content_type": "text/markdown"
+        },
+        "needs_credential": false,
+        "guard_ref": "ai-guard-limit:outside-contact-execution",
+        "required_fields": [
+          "capability",
+          "owner_target",
+          "artifact",
+          "goal_ancestry",
+          "status"
+        ],
+        "dedup_key_fields": [
+          "capability",
+          "artifact"
+        ],
+        "producer_target": null,
+        "caps": {
+          "sweep": 6,
+          "retry": 4,
+          "materialize": 60,
+          "live_dispatch": 2,
+          "dispatch_timeout_ms": 54000,
+          "null_grace_ms": 900000
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::published-record::work-descriptor::schedule.",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "work-descriptor",
+        "id": "work-descriptor::schedule.",
+        "match_prefix": "schedule.",
+        "is_active": true,
+        "owner_target": "action:timed-action.write-scheduled-action",
+        "draft_target": "action:publish-composer-materialize-draft",
+        "draft_payload_template": {
+          "body_text": "$artifact",
+          "content_type": "text/markdown"
+        },
+        "needs_credential": false,
+        "guard_ref": "ai-guard-limit:outside-contact-execution",
+        "required_fields": [
+          "capability",
+          "owner_target",
+          "artifact",
+          "goal_ancestry",
+          "status"
+        ],
+        "dedup_key_fields": [
+          "capability",
+          "artifact"
+        ],
+        "producer_target": null,
+        "caps": {
+          "sweep": 6,
+          "retry": 4,
+          "materialize": 60,
+          "live_dispatch": 2,
+          "dispatch_timeout_ms": 54000,
+          "null_grace_ms": 900000
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::published-record::work-descriptor::offer.",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "work-descriptor",
+        "id": "work-descriptor::offer.",
+        "match_prefix": "offer.",
+        "is_active": true,
+        "owner_target": null,
+        "draft_target": "action:publish-composer-materialize-draft",
+        "draft_payload_template": {
+          "body_text": "$artifact",
+          "content_type": "text/markdown"
+        },
+        "needs_credential": true,
+        "guard_ref": "ai-guard-limit:outside-contact-execution",
+        "required_fields": [
+          "capability",
+          "owner_target",
+          "artifact",
+          "goal_ancestry",
+          "status"
+        ],
+        "dedup_key_fields": [
+          "capability",
+          "artifact"
+        ],
+        "producer_target": null,
+        "caps": {
+          "sweep": 6,
+          "retry": 4,
+          "materialize": 60,
+          "live_dispatch": 2,
+          "dispatch_timeout_ms": 54000,
+          "null_grace_ms": 900000
+        },
+        "owner_gap_note": "no clean live-apply owner yet (Codex): the offer definition materializes as a safe draft; owner-approval + an offer/product store owner turn it live."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::published-record::work-descriptor::pricing.",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "work-descriptor",
+        "id": "work-descriptor::pricing.",
+        "match_prefix": "pricing.",
+        "is_active": true,
+        "owner_target": null,
+        "draft_target": "action:publish-composer-materialize-draft",
+        "draft_payload_template": {
+          "body_text": "$artifact",
+          "content_type": "text/markdown"
+        },
+        "needs_credential": true,
+        "guard_ref": "ai-guard-limit:outside-contact-execution",
+        "required_fields": [
+          "capability",
+          "owner_target",
+          "artifact",
+          "goal_ancestry",
+          "status"
+        ],
+        "dedup_key_fields": [
+          "capability",
+          "artifact"
+        ],
+        "producer_target": null,
+        "caps": {
+          "sweep": 6,
+          "retry": 4,
+          "materialize": 60,
+          "live_dispatch": 2,
+          "dispatch_timeout_ms": 54000,
+          "null_grace_ms": 900000
+        },
+        "owner_gap_note": "irreversible -> ALWAYS approval; materializes a pricing-proposal draft only."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::published-record::work-descriptor::email.",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "work-descriptor",
+        "id": "work-descriptor::email.",
+        "match_prefix": "email.",
+        "is_active": true,
+        "owner_target": "action:submit-message-egress",
+        "draft_target": "action:publish-composer-materialize-draft",
+        "draft_payload_template": {
+          "body_text": "$artifact",
+          "content_type": "text/markdown"
+        },
+        "needs_credential": true,
+        "guard_ref": "ai-guard-limit:outside-contact-execution",
+        "required_fields": [
+          "capability",
+          "owner_target",
+          "artifact",
+          "goal_ancestry",
+          "status"
+        ],
+        "dedup_key_fields": [
+          "capability",
+          "artifact"
+        ],
+        "producer_target": null,
+        "caps": {
+          "sweep": 6,
+          "retry": 4,
+          "materialize": 60,
+          "live_dispatch": 2,
+          "dispatch_timeout_ms": 54000,
+          "null_grace_ms": 900000
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::published-record::work-descriptor::agent-lifecycle.",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "work-descriptor",
+        "id": "work-descriptor::agent-lifecycle.",
+        "match_prefix": "agent-lifecycle.",
+        "is_active": true,
+        "owner_target": "action:agent-lifecycle-apply",
+        "draft_target": "action:publish-composer-materialize-draft",
+        "draft_payload_template": {
+          "body_text": "$artifact",
+          "content_type": "text/plain"
+        },
+        "needs_credential": false,
+        "guard_ref": "operator-spawn",
+        "required_fields": [
+          "capability",
+          "owner_target",
+          "artifact",
+          "goal_ancestry",
+          "status"
+        ],
+        "dedup_key_fields": [
+          "capability",
+          "artifact"
+        ],
+        "producer_target": null,
+        "caps": {
+          "sweep": 6,
+          "retry": 4,
+          "materialize": 60,
+          "live_dispatch": 2,
+          "dispatch_timeout_ms": 54000,
+          "null_grace_ms": 900000
+        },
+        "send_payload_template": {
+          "artifact": "$artifact"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::published-record::work-descriptor::article.",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "work-descriptor",
+        "id": "work-descriptor::article.",
+        "match_prefix": "article.",
+        "is_active": true,
+        "owner_target": "action:generate-one-ethos-article",
+        "draft_target": null,
+        "send_payload_template": {
+          "topic": {
+            "topic": "$keyword",
+            "query": "$keyword",
+            "slug": "$slug"
+          }
+        },
+        "needs_credential": false,
+        "guard_ref": "ai-guard-limit:outside-contact-execution",
+        "required_fields": [
+          "capability",
+          "keyword",
+          "slug"
+        ],
+        "dedup_key_fields": [
+          "capability",
+          "slug"
+        ],
+        "producer_target": null,
+        "caps": {
+          "sweep": 6,
+          "retry": 4,
+          "materialize": 60,
+          "live_dispatch": 2,
+          "dispatch_timeout_ms": 54000,
+          "null_grace_ms": 900000
+        },
+        "note": "MIGRATED from the reverted pump-articles-once.mjs instance-solve into DATA. newsletter./product./asset./reel. are identical additional rows, zero source."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::workflow-action::sweep-decisions-once",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:autonomous-agent-tick:sweep-decisions-once",
+        "kind": "action",
+        "is_active": true,
+        "name": "sweep decisions once (tick-driven surfacer)",
+        "description": "L063 DURABLE surfacer: ONE-SHOT compute.process (NOT a long-running process_session that can silently die) fired per clock::tick. Layers 2-4: read ai-records-producer label-hash results -> guard fail-closed (grounded + no-error) -> dedup (state reconstructed from the log's agent-decision records; idempotent identity_text writes) -> materialize findable agent-decision records. Durability tied to the durable clock (produce-on-clock-tick-operator). Thin ETL over the generic producer; no god package.",
+        "input_schema": {
+          "properties": {
+            "carrier_url": {
+              "type": "string"
+            },
+            "partition": {
+              "type": "string"
+            },
+            "interval_seconds": {
+              "type": "string"
+            }
+          },
+          "required": []
+        },
+        "steps": [
+          {
+            "id": "read_sweep_script",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-agent-tick::stored-bytes::sweep-decisions-once-mjs"
+            }
+          },
+          {
+            "id": "read_template_lib",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-agent-tick::stored-bytes::template-mjs"
+            }
+          },
+          {
+            "id": "read_carrier_lib",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-agent-tick::stored-bytes::carrier-mjs"
+            }
+          },
+          {
+            "id": "run",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "sweep-decisions-once.mjs"
+                ],
+                "cwd": null,
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {
+                  "BITFIELD_TARGET_CARRIER_URL": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "carrier_url"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  },
+                  "BITFIELD_DISPATCH_PARTITION": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "partition"
+                    }
+                  },
+                  "BITFIELD_DISPATCH_AGENT_REF": ""
+                },
+                "inputs": [
+                  {
+                    "mount_path": "sweep-decisions-once.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_sweep_script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "lib/template.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_template_lib",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "lib/carrier.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_carrier_lib",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::trigger-rule::surface-on-clock-tick",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:autonomous-agent-tick:surface-on-clock-tick",
+        "name": "surface-agent-decisions-each-clock-tick",
+        "description": "L063 DURABLE surfacer wake: on each clock::tick delta, dispatch the ONE-SHOT sweep (execute_definition action:autonomous-agent-tick:sweep-decisions-once) that guards + surfaces new ai-records-producer decisions into findable agent-decision records. Durability tied to the durable clock; mirrors the proven produce-on-clock-tick-operator match shape. Runs ALONGSIDE the process_session surfacer (start-decision-surfacer) which stays as a manual fallback.",
+        "is_active": true,
+        "version": 0,
+        "trigger_type": "delta",
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "clock-tick"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "is_retraction"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:autonomous-agent-tick:sweep-decisions-once",
+            "include_output": false,
+            "include_steps": false,
+            "input": {}
+          }
+        },
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::workflow-action::start-decision-surfacer",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:autonomous-agent-tick:start-decision-surfacer",
+        "kind": "action",
+        "is_active": true,
+        "name": "start decision-surfacer process",
+        "description": "Boot the surface-agent-decisions process (compute.process_session) — Layer 2-4: read the ai-records-producer label-hash decisions, guard (grounded+no-error, fail-closed), dedup, materialize findable agent-decision records a board/downstream-trigger consumes. Thin ETL over the generic producer; no god package.",
+        "input_schema": {
+          "properties": {
+            "carrier_url": {
+              "type": "string"
+            },
+            "partition": {
+              "type": "string"
+            },
+            "interval_seconds": {
+              "type": "string"
+            },
+            "idempotency_key": {
+              "type": "string"
+            }
+          },
+          "required": []
+        },
+        "steps": [
+          {
+            "id": "read_surfacer_script",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-agent-tick::stored-bytes::surface-agent-decisions-mjs"
+            }
+          },
+          {
+            "id": "read_artifact_store_script",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-agent-tick::stored-bytes::artifact-store-mjs"
+            }
+          },
+          {
+            "id": "read_carrier_lib",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-agent-tick::stored-bytes::carrier-mjs"
+            }
+          },
+          {
+            "kind": "ask",
+            "config": {
+              "name": "compute.process_session",
+              "input": {
+                "operation": "start_session",
+                "idempotency_key": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "idempotency_key"
+                  }
+                },
+                "descriptor": {
+                  "process": {
+                    "argv": [
+                      "node",
+                      "surface-agent-decisions.mjs"
+                    ],
+                    "cwd": null,
+                    "timeout_ms": 31536000000,
+                    "termination_grace_ms": 1000,
+                    "expected_termination": null,
+                    "env": {
+                          "BITFIELD_TARGET_CARRIER_URL": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "carrier_url"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.if_null",
+                            "args": {
+                              "fallback": ""
+                            }
+                          }
+                        ]
+                      },
+                      "BITFIELD_DISPATCH_PARTITION": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "partition"
+                        }
+                      },
+                      "BITFIELD_DISPATCH_INTERVAL_SECONDS": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "interval_seconds"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.if_null",
+                            "args": {
+                              "fallback": "60"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "inputs": [
+                      {
+                        "mount_path": "surface-agent-decisions.mjs",
+                        "content_type": "text/javascript",
+                        "source": {
+                          "kind": "blob_ref",
+                          "hash": {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "steps",
+                              "key": "read_surfacer_script",
+                              "path": "output.content_hash"
+                            }
+                          }
+                        }
+                      }
+                    ,
+                      {
+                        "mount_path": "lib/artifact-store.mjs",
+                        "content_type": "text/javascript",
+                        "source": {
+                          "kind": "blob_ref",
+                          "hash": {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "steps",
+                              "key": "read_artifact_store_script",
+                              "path": "output.content_hash"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "mount_path": "lib/carrier.mjs",
+                        "content_type": "text/javascript",
+                        "source": {
+                          "kind": "blob_ref",
+                          "hash": {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "steps",
+                              "key": "read_carrier_lib",
+                              "path": "output.content_hash"
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "input_trees": [],
+                    "outputs": [],
+                    "network_access": "allowed",
+                    "containment": {
+                      "kind": "descendant_effect_contained",
+                      "pipe_eof_timeout_ms": 1000,
+                      "publications": []
+                    },
+                    "capture_fds": [
+                      1,
+                      2
+                    ],
+                    "collected_files": []
+                  },
+                  "session_settings": {
+                    "text_grid": null
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::trigger-rule::start-surfacer-on-runtime-loaded",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "id": "trigger:autonomous-agent-tick:start-surfacer-on-runtime-loaded",
+        "topic": "runtime_loaded",
+        "trigger_type": "lifecycle",
+        "is_active": true,
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "properties.event_type"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "runtime_loaded"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:autonomous-agent-tick:start-decision-surfacer",
+            "input": {
+              "idempotency_key": "autonomous-agent-tick:decision-surfacer:runtime-loaded"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::workflow-action::produce-grounded",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:autonomous-agent-tick:produce-grounded",
+        "kind": "action",
+        "is_active": true,
+        "name": "produce grounded (memory-grounded AI turn, tick-driven)",
+        "description": "Layer 5 READ side: ONE-SHOT compute.process fired per clock::tick. Reads this agent recent ai-memory-record decisions, composes them INTO the instruction (do NOT repeat), writes a queryable produce-grounded-audit marker, then dispatches the SAME generic run-ai-records-production cross-slot. Producer still owns the AI turn (no god package); this only composes a richer DATA instruction from records ai-memory already stores (L090/L098). Replaces the STATIC-instruction produce path so the operator stops repeating itself.",
+        "input_schema": {
+          "properties": {},
+          "required": []
+        },
+        "steps": [
+          {
+            "id": "read_produce_script",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-agent-tick::stored-bytes::produce-grounded-mjs"
+            }
+          },
+          {
+            "id": "read_carrier_lib",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-agent-tick::stored-bytes::carrier-mjs"
+            }
+          },
+          {
+            "id": "run",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "produce-grounded.mjs"
+                ],
+                "cwd": null,
+                "timeout_ms": 180000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {
+                  "BITFIELD_TARGET_CARRIER_URL": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "carrier_url"
+                    }
+                  },
+                  "BITFIELD_DISPATCH_PARTITION": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "partition"
+                    }
+                  },
+                  "BITFIELD_DISPATCH_AGENT_REF": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "agent_ref"
+                    }
+                  },
+                  "BITFIELD_MEMORY_LIMIT": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "memory_limit"
+                    }
+                  }
+                },
+                "inputs": [
+                  {
+                    "mount_path": "produce-grounded.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_produce_script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "lib/carrier.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_carrier_lib",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::trigger-rule::produce-from-request",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:autonomous-agent-tick:produce-from-request",
+        "name": "produce-from-agent-production-request",
+        "description": "DECOUPLED grounded-produce consumer (boot-loaded). Mirrors the PROVEN apeak record-delta pattern (change.kind==X + is_retraction==false, published-record path, which FIRES). On each agent-production-request record write, dispatch run-ai-records-production cross-slot with instruction_text/agent_ref/request_id from the record. Non-nested (cont.117), no god package.",
+        "is_active": true,
+        "version": 0,
+        "trigger_type": "delta",
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "agent-production-request"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "is_retraction"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:run-ai-records-production",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "request_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "request_id"
+                }
+              },
+              "instruction_text": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "instruction_text"
+                }
+              },
+              "agent_ref": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "agent_ref"
+                }
+              },
+              "requested_at": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "requested_at"
+                }
+              },
+              "output_kind": "action-intent",
+              "model": "",
+              "wrap_instruction_ref": "",
+              "target_group_ref": ""
+            }
+          }
+        },
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::workflow-action::materialize-pending-once",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:autonomous-agent-tick:materialize-pending-once",
+        "kind": "action",
+        "is_active": true,
+        "name": "materialize pending receipts (throttled ACT pass) [RE-ENABLED cont363 — deadlock removed]",
+        "description": "L063 DECOUPLED ACT: ONE-SHOT compute.process fired per clock::tick. Reads the oldest action-intent-receipt records with dispatch_status pending/dispatch-retry and drains them. RE-ENABLED cont363: the cont228 in-engine deadlock is GONE — DRAFT dispatch (the entire operative workload; LIVE is human-gated) no longer calls execute_definition back into the held slot::workflow. The drafted artifact is ALREADY in rec.artifact, so draft mode marks draft-dispatched DIRECTLY via engine.operation.write-batch (no slot::workflow re-entry, no ~74s publish-composer subprocess) — instant, MATERIALIZE_CAP=60. Only LIVE dispatch (bounded LIVE_DISPATCH_CAP=2, The owner-gated) calls the owner; when The owner enables live, that path must run out-of-slot to avoid holding the workflow slot during its execute_definition (next unit, cont362 async decouple is proven safe). No god package — effect owners (publish-composer/content-distribution/timed-action) do the live work; this forwards the receipt's resolved plan via Envelope.",
+        "input_schema": {
+          "properties": {
+            "carrier_url": {
+              "type": "string"
+            }
+          },
+          "required": []
+        },
+        "steps": [
+          {
+            "id": "read_materialize_script",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-agent-tick::stored-bytes::materialize-pending-once-mjs"
+            }
+          },
+          {
+            "id": "read_template_lib",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-agent-tick::stored-bytes::template-mjs"
+            }
+          },
+          {
+            "id": "read_carrier_lib",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-agent-tick::stored-bytes::carrier-mjs"
+            }
+          },
+          {
+            "id": "run",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "materialize-pending-once.mjs"
+                ],
+                "cwd": null,
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {
+                  "BITFIELD_TARGET_CARRIER_URL": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "carrier_url"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  },
+                  "BITFIELD_DISPATCH_PARTITION": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "partition"
+                    }
+                  },
+                  "BITFIELD_DISPATCH_AGENT_REF": ""
+                },
+                "inputs": [
+                  {
+                    "mount_path": "materialize-pending-once.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_materialize_script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "lib/template.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_template_lib",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "lib/carrier.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_carrier_lib",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::trigger-rule::materialize-on-clock-tick",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:autonomous-agent-tick:materialize-on-clock-tick",
+        "name": "materialize-pending-each-clock-tick [RE-ENABLED cont363]",
+        "description": "RE-ENABLED cont363: the cont228 deadlock is REMOVED. The old materialize deadlocked because it dispatched execute_definition back into the held slot::workflow (publish-composer's ~74s draft subprocess) and held the slot ~108s/tick starving the sweep. cont363 fixed the ACT pass so DRAFT dispatch (the entire operative workload; LIVE is The owner-gated) marks draft-dispatched DIRECTLY via engine.operation.write-batch — no slot::workflow re-entry, no subprocess, instant (~seconds/tick, like the sweep). PROVEN cont363: 245 backlog drained, dispatched=60/run retry=0. So on each clock::tick the in-slot materialize now drains drafts autonomously with no deadlock and no slot starvation — the correct in-engine product driver (per LOCKED FACTS: the external harness is NOT product runtime). LIVE dispatch (bounded, human-gated) must move out-of-slot before The owner enables live (cont362 async decouple, next unit).",
+        "is_active": true,
+        "version": 0,
+        "trigger_type": "delta",
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "clock-tick"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "is_retraction"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:autonomous-agent-tick:materialize-pending-once",
+            "include_output": false,
+            "include_steps": false,
+            "input": {}
+          }
+        },
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "drain-work-queues-once-mjs",
+      "source_path": "processes/drain-work-queues-once.mjs"
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::workflow-action::drain-work-queues-once",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:autonomous-agent-tick:drain-work-queues-once",
+        "kind": "action",
+        "is_active": true,
+        "name": "drain work queues (generic, per clock::tick)",
+        "description": "GENERIC blind queue-drain: reads queue-drain-descriptor DATA rows and drains each configured queue by dispatching its DATA-named action via Envelope. Names no work type. Articles/newsletters/products = descriptor rows, zero source.",
+        "input_schema": {
+          "properties": {
+            "carrier_url": {
+              "type": "string"
+            },
+            "node_path": {
+              "type": "string"
+            },
+            "partition": {
+              "type": "string"
+            }
+          },
+          "required": []
+        },
+        "steps": [
+          {
+            "id": "read_drain_script",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-agent-tick::stored-bytes::drain-work-queues-once-mjs"
+            }
+          },
+          {
+            "id": "read_template_lib",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-agent-tick::stored-bytes::template-mjs"
+            }
+          },
+          {
+            "id": "read_carrier_lib",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-agent-tick::stored-bytes::carrier-mjs"
+            }
+          },
+          {
+            "id": "run",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "drain-work-queues-once.mjs"
+                ],
+                "cwd": null,
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {
+                  "BITFIELD_TARGET_CARRIER_URL": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "carrier_url"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  },
+                  "BITFIELD_DISPATCH_PARTITION": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "partition"
+                    }
+                  },
+                  "BITFIELD_DISPATCH_AGENT_REF": ""
+                },
+                "inputs": [
+                  {
+                    "mount_path": "drain-work-queues-once.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_drain_script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "lib/template.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_template_lib",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "lib/carrier.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_carrier_lib",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::trigger-rule::drain-work-queues-on-clock-tick",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:autonomous-agent-tick:drain-work-queues-on-clock-tick",
+        "name": "drain-work-queues-each-clock-tick",
+        "description": "On each clock::tick the worker drains all active queue-drain-descriptor queues (generic).",
+        "is_active": true,
+        "version": 0,
+        "trigger_type": "delta",
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "clock-tick"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "is_retraction"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:autonomous-agent-tick:drain-work-queues-once",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "node_path": "node",
+              "partition": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "properties.runtime_context.partition"
+                }
+              }
+            }
+          }
+        },
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::published-record::queue-drain-descriptor::seo-articles",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "queue-drain-descriptor",
+        "id": "queue-drain::seo-articles",
+        "is_active": true,
+        "queue_kind": "seo-keyword-target",
+        "pending_status": "pending",
+        "done_status": "published",
+        "in_progress_status": "generating",
+        "item_key_field": "id",
+        "item_address_kind": "seo-keyword-target",
+        "derive": {
+          "slug": {
+            "strip_prefix_from_id": "seo-kw-"
+          }
+        },
+        "dispatch_action": "action:generate-one-ethos-article",
+        "grounding": {
+          "corpus_kind": "knowledge-records.content-slice",
+          "corpus_ref": "corpus:tennis-athlete-brain",
+          "text_field": "text",
+          "query_from": [
+            "keyword"
+          ],
+          "topk": 6,
+          "excerpt_chars": 800,
+          "into": "grounding_json",
+          "min_excerpts": 3,
+          "insufficient_status": "insufficient-grounding"
+        },
+        "style": {
+          "style_kind": "style-guide",
+          "style_refs": [
+            "style-guide::ethos-voice",
+            "style-guide::storytelling-heros-journey"
+          ],
+          "text_field": "text",
+          "into": "style_guide"
+        },
+        "input_template": {
+          "topic": {
+            "topic": "$keyword",
+            "query": "$keyword",
+            "slug": "$slug"
+          },
+          "grounding_json": "$grounding_json",
+          "style_guide": "$style_guide"
+        },
+        "dedup": {
+          "against_kind": "public-document",
+          "item_key": "slug"
+        },
+        "cap_per_tick": 1,
+        "audit_kind": "queue-drain-audit",
+        "writeback_address_mode": "identity_text",
+        "reconcile_grace_seconds": 600
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::workflow-action::agent-lifecycle-apply",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "kind": "action",
+        "description": "Owner-map dispatch target: enacts an operator agent-lifecycle intent (SPAWN/ADAPT/RETIRE_SPECIALIST in input.artifact) via the generic spawn-check enact. Lets the sweep route lifecycle through its guard/receipt path (cont218 wrapper).",
+        "id": "action:agent-lifecycle-apply",
+        "input_schema": {
+          "properties": {
+            "artifact": {
+              "type": "string"
+            },
+            "partition": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "artifact",
+            "partition"
+          ]
+        },
+        "is_active": true,
+        "name": "agent-lifecycle-apply",
+        "steps": [
+          {
+            "id": "read_spawn_script",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-agent-tick::stored-bytes::spawn-check-mjs"
+            }
+          },
+          {
+            "id": "read_carrier_lib",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-agent-tick::stored-bytes::carrier-mjs"
+            }
+          },
+          {
+            "config": {
+              "input": {
+                "argv": [
+                  "bash",
+                  "-lc",
+                  "N=$(command -v node || echo node); exec \"$N\" spawn-check.mjs \"$1\"",
+                  "agent-lifecycle-apply",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "artifact"
+                    }
+                  }
+                ],
+                "cwd": null,
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {
+                  "BITFIELD_DISPATCH_PARTITION": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "partition"
+                    }
+                  },
+                  "BITFIELD_LIFECYCLE_PARENT": "ai-agent-profile:autonomous-business-operator",
+                  "BITFIELD_LIFECYCLE_VERB": "SPECIALIST",
+                  "BITFIELD_SPAWN_CAP_KEY": "operator-spawn"
+                },
+                "inputs": [
+                  {
+                    "content_type": "text/javascript",
+                    "mount_path": "spawn-check.mjs",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_spawn_script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "lib/carrier.mjs",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_carrier_lib",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              },
+              "name": "compute.process"
+            },
+            "id": "enact",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask"
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::confidence-threshold",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "confidence-threshold",
+        "id": "confidence-threshold",
+        "threshold": 0.5,
+        "note": "Live-send confidence floor read by sweep-decisions-once selectDispatch (item-2 gate). A decision auto-sends only if confidence >= threshold; below-floor falls to safe draft. Tunable DATA."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::retention-policy::agent-decision",
+      "path": [
+        "packages",
+        "autonomous-agent-tick",
+        "retention-policies",
+        "agent-decision"
+      ],
+      "payload": {
+        "kind": "record-retention-policy",
+        "record_kind": "agent-decision",
+        "owner_package": "autonomous-agent-tick",
+        "retention": {
+          "class": "expiring",
+          "ttl_ms": 2592000000
+        },
+        "justification": "Operator decision board record (identity = per-decision hash). Net-new decisions accumulate unbounded (14-48GB); boot-reclaim already bounds status-churn overwrites. decided_at is a real ISO ts, id===address, and agent-decision is NOT an idempotency gate (sweep-cursor + action-intent-receipt drive that) → expiring(30d) bounds the net-new accumulation while keeping a month of decisions for the board."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::retention-policy::action-intent-receipt",
+      "path": [
+        "packages",
+        "autonomous-agent-tick",
+        "retention-policies",
+        "action-intent-receipt"
+      ],
+      "payload": {
+        "kind": "record-retention-policy",
+        "record_kind": "action-intent-receipt",
+        "owner_package": "autonomous-agent-tick",
+        "retention": {
+          "class": "history",
+          "keep_generations": 1
+        },
+        "justification": "Receipt is a current-item state machine per identity; only the current version matters. Drop superseded status re-writes — the O(N^2) status-churn source (15-32GB)."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::retention-policy::produce-grounded-audit",
+      "path": [
+        "packages",
+        "autonomous-agent-tick",
+        "retention-policies",
+        "produce-grounded-audit"
+      ],
+      "payload": {
+        "kind": "record-retention-policy",
+        "record_kind": "produce-grounded-audit",
+        "owner_package": "autonomous-agent-tick",
+        "retention": {
+          "class": "expiring",
+          "ttl_ms": 604800000
+        },
+        "justification": "Per-tick grounding audit marker (provable by readback, then ephemeral). Reclaim after 7 days."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::retention-policy::artifact-blob",
+      "path": [
+        "packages",
+        "autonomous-agent-tick",
+        "retention-policies",
+        "artifact-blob"
+      ],
+      "payload": {
+        "kind": "record-retention-policy",
+        "record_kind": "artifact-blob",
+        "owner_package": "autonomous-agent-tick",
+        "retention": {
+          "class": "durable"
+        },
+        "justification": "The canonical single-copy artifact store (WS3b-T4 artifact-once-by-hash). This IS the one true copy every wrapper references; keep the current version. Duplicate mass now lives here once instead of 4x inline."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::retention-policy::knowledge-records.content-slice",
+      "path": [
+        "packages",
+        "autonomous-agent-tick",
+        "retention-policies",
+        "knowledge-records.content-slice"
+      ],
+      "payload": {
+        "kind": "record-retention-policy",
+        "record_kind": "knowledge-records.content-slice",
+        "owner_package": "autonomous-agent-tick",
+        "retention": {
+          "class": "durable"
+        },
+        "justification": "Grounding INPUT, not exhaust, despite living on an exhaust list-path. produce-grounded.mjs:184-201 reads these by corpus_ref to supply the cite-or-reject excerpts, and its own comment at :188 records what absence costs: reading a path that yielded no slices produced ZERO corpus excerpts and silently ungrounded production, with no error. Deleting a slice therefore degrades output quality invisibly, which is the failure mode retention classes exist to avoid choosing by accident. Durable rather than re-derivable because re-derivable requires a basis_ref_field naming an owner that can rebuild the slice, and no such re-derivation owner was found; corpus_ref identifies the corpus a slice BELONGS to, not a basis it can be regenerated from, so declaring it as one would promise a recovery path that does not exist. Durable rather than expiring because these slices have no natural expiry: a corpus stays valid grounding for as long as its subject does. The owning package knowledge-records was retired in 237bf11f2 and the KIND outlived it, still read by two live processes here, declared as corpus_kind at things-to-store-and-run.json:2086, and explicitly excluded by not_equals filters in current-summary and permission-lease. This policy places the orphaned kind with the package that actually reads it. If the growth this kind was convicted for becomes the binding problem, the correct next move is a re-derivation owner plus a re-derivable policy, never an expiry on grounding input."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::retention-policy::sweep-cursor",
+      "path": [
+        "packages",
+        "autonomous-agent-tick",
+        "retention-policies",
+        "sweep-cursor"
+      ],
+      "payload": {
+        "kind": "record-retention-policy",
+        "record_kind": "sweep-cursor",
+        "owner_package": "autonomous-agent-tick",
+        "retention": {
+          "class": "history",
+          "keep_generations": 1
+        },
+        "justification": "Single high-water bookmark (newest run.id processed); only the current cursor matters. history(1) kills the per-tick O(N^2) re-append that retracted the Fly workflow record (Codex-D 2026-07-23). Now written to sweep-cursor-index off the published-record aggregate."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::retention-policy::agent-produce-state",
+      "path": [
+        "packages",
+        "autonomous-agent-tick",
+        "retention-policies",
+        "agent-produce-state"
+      ],
+      "payload": {
+        "kind": "record-retention-policy",
+        "record_kind": "agent-produce-state",
+        "owner_package": "autonomous-agent-tick",
+        "retention": {
+          "class": "history",
+          "keep_generations": 1
+        },
+        "justification": "Per-agent rolling dedup projection (recent_excerpt_ids); only the current version per agent_ref matters. history(1) bounds the agent-produce-state-index feed so per-tick produce writes stay delta, not full-snapshot re-append (Codex-D 2026-07-23)."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::retention-policy::queue-drain-audit",
+      "path": [
+        "packages",
+        "autonomous-agent-tick",
+        "retention-policies",
+        "queue-drain-audit"
+      ],
+      "payload": {
+        "kind": "record-retention-policy",
+        "record_kind": "queue-drain-audit",
+        "owner_package": "autonomous-agent-tick",
+        "retention": {
+          "class": "expiring",
+          "ttl_ms": 604800000
+        },
+        "justification": "Per-item drain audit trail (id = descriptor::item, accumulates one row per drained item, write-only exhaust never read by the loop). Moved off published-record to queue-drain-audit-index; expiring(7d) reclaims the trail so the scoped feed stays bounded (Codex-D 2026-07-23)."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::workflow-action::send-reply",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "kind": "action",
+        "id": "action:autonomous-agent-tick:send-reply",
+        "is_active": true,
+        "name": "send-reply (engine-native reply SEND stage)",
+        "description": "compute.process spawning send-reply.mjs: reads ai-records-producer.result(request_id)->target_group_ref + items[0].text, then FIRE-AND-FORGETS content-distribution action:submit-message-egress. Second half of the produce/send split; content-distribution owns the send (no god package). It dispatches the FRONT DOOR, not the transport: submit-message-egress folds the durable egress-intent record, the fail-closed per-recipient consent gate, the destination lookup by destination_id, and the create-only CAS claim that makes a double-send structurally impossible. It previously dispatched action:run-publish-intent directly, which is the transport SSOT and deliberately carries NO consent gate, so replies to a real person skipped consent. The reply channel is DATA: destination_id and channel are inputs, so a reply on gmail, the Trillion mobile chat, whatsapp or anything added later is a different DATA value and never an edit to this action or its script. Neither is defaulted, because a defaulted channel sends a private reply to the wrong place.",
+        "input_schema": {
+          "properties": {
+            "request_id": {
+              "type": "string"
+            },
+            "destination_id": {
+              "type": "string"
+            },
+            "channel": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "read_send_reply_script",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-agent-tick::stored-bytes::send-reply-mjs"
+            }
+          },
+          {
+            "id": "read_carrier_lib",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-agent-tick::stored-bytes::carrier-mjs"
+            }
+          },
+          {
+            "id": "read_route_lib",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-agent-tick::stored-bytes::reply-route-mjs"
+            }
+          },
+          {
+            "id": "run",
+            "kind": "ask",
+            "join": "any",
+            "join_config": null,
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "bash",
+                  "-c",
+                  "exec node send-reply.mjs"
+                ],
+                "cwd": null,
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {
+                  "BITFIELD_DISPATCH_PARTITION": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "partition"
+                    }
+                  },
+                  "ANSWER_REQUEST_ID": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "request_id"
+                    }
+                  },
+                  "SEND_TO_DESTINATION_ID": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "destination_id"
+                    }
+                  },
+                  "SEND_ON_CHANNEL": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "channel"
+                    }
+                  }
+                },
+                "inputs": [
+                  {
+                    "mount_path": "send-reply.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_send_reply_script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "lib/carrier.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_carrier_lib",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "lib/reply-route.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_route_lib",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::trigger-rule::send-reply-on-chat-reply-result",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:autonomous-agent-tick:send-reply-on-chat-reply-result",
+        "name": "send-reply-on-chat-reply-result",
+        "version": 1,
+        "trigger_type": "delta",
+        "is_active": true,
+        "description": "On each completed ai-records-producer.result whose output_kind is message (the conversational-reply kind, raw assistant text special-cased in the producer), dispatch action:autonomous-agent-tick:send-reply(request_id, destination_id, channel) cross-slot -> slot::workflow. Recipient rides on the result itself (target_group_ref), so there is no side-channel mapping record. THE REPLY ROUTE LIVES HERE, IN DATA, and this is the only place in the package that names a channel: the send script and the action both take it as an input and name none. That is consistent rather than a leak, because the INGEST trigger this pairs with is itself channel-scoped (it matches source_ref == source:telegram), so a channel-scoped trigger carrying its own matching channel is the same fact stated once. Replying on gmail, the Trillion mobile chat, whatsapp or discord is therefore a NEW TRIGGER ROW with a different source_ref match and a different destination_id/channel, never an edit to any code. The two values bind from the result record first and fall back to the row's declared route, so the day ai-records-producer.result carries the originating source the per-row default stops being consulted and nothing here has to change. Codex-converged 2026-07-23; routed through the consent-gated egress front door 2026-09-04.",
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "ai-records-producer.result"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "output_kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "message"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "status"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "completed"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "is_retraction"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:autonomous-agent-tick:send-reply",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "request_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "request_id"
+                }
+              },
+              "destination_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "destination_id"
+                }
+              },
+              "channel": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "channel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::workflow-action::reply-poll",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "kind": "action",
+        "id": "action:autonomous-agent-tick:reply-poll",
+        "is_active": true,
+        "name": "reply-poll",
+        "description": "Clock-tick reliable reply poll: scan un-replied content-atoms from every source ANSWER_SOURCE_REFS names, dispatch action:run-ai-records-production (self-healing vs live-delta drops). CORRECTION 2026-09-04: this previously read 'scan un-replied telegram content-atoms, dispatch reply-grounded', and both halves had stopped being true. The source is no longer hardcoded, it is the ANSWER_SOURCE_REFS DATA list read through isAnswerableSource, so adding gmail is a value; and reply-grounded was RETIRED the same day because nothing dispatched it.",
+        "input_schema": {
+          "properties": {
+            "request_id": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "read_reply_poll_script",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-agent-tick::stored-bytes::reply-poll-mjs"
+            }
+          },
+          {
+            "id": "read_carrier_lib",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-agent-tick::stored-bytes::carrier-mjs"
+            }
+          },
+          {
+            "id": "read_route_lib",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-agent-tick::stored-bytes::reply-route-mjs"
+            }
+          },
+          {
+            "id": "run",
+            "kind": "ask",
+            "join": "any",
+            "join_config": null,
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "bash",
+                  "-c",
+                  "exec node reply-poll.mjs"
+                ],
+                "cwd": null,
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {
+                  "BITFIELD_DISPATCH_PARTITION": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "partition"
+                    }
+                  },
+                  "BITFIELD_DISPATCH_AGENT_REF": "ai-agent-profile:autonomous-business-operator",
+                  "ANSWER_SOURCE_REFS": "[\"source:telegram\"]"
+                },
+                "inputs": [
+                  {
+                    "mount_path": "reply-poll.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_reply_poll_script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "lib/carrier.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_carrier_lib",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "lib/reply-route.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_route_lib",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::trigger-rule::reply-poll-on-clock-tick",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:autonomous-agent-tick:reply-poll-on-clock-tick",
+        "name": "reply-poll-on-clock-tick",
+        "description": "Every clock-tick, run the reliable reply poll (scan un-replied atoms from the ANSWER_SOURCE_REFS sources, dispatch action:run-ai-records-production). CORRECTION 2026-09-04: previously named telegram and the retired reply-grounded action; neither is what it does.",
+        "is_active": true,
+        "version": 0,
+        "trigger_type": "delta",
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "clock-tick"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "is_retraction"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:autonomous-agent-tick:reply-poll",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "partition": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "properties.runtime_context.partition"
+                }
+              }
+            }
+          }
+        },
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::workflow-action::send-poll",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "kind": "action",
+        "id": "action:autonomous-agent-tick:send-poll",
+        "is_active": true,
+        "name": "send-poll",
+        "description": "Clock-tick reliable send poll: scan message-results lacking a reply-dispatch breadcrumb, dispatch send-reply (self-healing vs live-delta drops).",
+        "input_schema": {
+          "properties": {
+            "request_id": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "read_send_poll_script",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-agent-tick::stored-bytes::send-poll-mjs"
+            }
+          },
+          {
+            "id": "read_carrier_lib",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-agent-tick::stored-bytes::carrier-mjs"
+            }
+          },
+          {
+            "id": "read_route_lib",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::autonomous-agent-tick::stored-bytes::reply-route-mjs"
+            }
+          },
+          {
+            "id": "run",
+            "kind": "ask",
+            "join": "any",
+            "join_config": null,
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "bash",
+                  "-c",
+                  "exec node send-poll.mjs"
+                ],
+                "cwd": null,
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {
+                  "BITFIELD_DISPATCH_PARTITION": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "partition"
+                    }
+                  },
+                  "SEND_TO_DESTINATION_ID": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "destination_id"
+                    }
+                  },
+                  "SEND_ON_CHANNEL": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "channel"
+                    }
+                  }
+                },
+                "inputs": [
+                  {
+                    "mount_path": "send-poll.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_send_poll_script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "lib/carrier.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_carrier_lib",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "lib/reply-route.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_route_lib",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::autonomous-agent-tick::trigger-rule::send-poll-on-clock-tick",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:autonomous-agent-tick:send-poll-on-clock-tick",
+        "name": "send-poll-on-clock-tick",
+        "description": "Every clock-tick, run the reliable send poll (scan un-sent message-results -> send-reply).",
+        "is_active": true,
+        "version": 0,
+        "trigger_type": "delta",
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "clock-tick"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "is_retraction"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:autonomous-agent-tick:send-poll",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "partition": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "properties.runtime_context.partition"
+                }
+              }
+            }
+          }
+        },
+        "extra_properties": {}
+      }
+    }
+  ]
+}

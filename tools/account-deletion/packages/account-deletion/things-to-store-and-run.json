@@ -1,0 +1,117 @@
+{
+  "package": "account-deletion",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::account-deletion::checks",
+      "path": ["packages", "account-deletion", "checks"],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": ["tests/read-account-deletion-state.test.ts"]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "index",
+      "source_path": "index.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "read-account-deletion-state",
+      "source_path": "do-work/read-account-deletion-state.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "send-account-deletion-event",
+      "source_path": "do-work/send-account-deletion-event.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "account-deletion-portal-surface",
+      "source_path": "show/app-shell/AccountDeletionPortalSurface.tsx"
+    },
+    {
+      "type": "record",
+      "address": "package::account-deletion::contract",
+      "path": [
+        "packages",
+        "account-deletion",
+        "contract"
+      ],
+      "payload": {
+        "package": "account-deletion",
+        "components": [
+          "AccountDeletionPortalSurface"
+        ],
+        "source_paths": [
+          "packages/account-deletion/show/app-shell/AccountDeletionPortalSurface.tsx",
+          "packages/account-deletion/show/mount-account-deletion-portal.tsx",
+          "packages/account-deletion/do-work/read-account-deletion-state.ts",
+          "packages/account-deletion/do-work/send-account-deletion-event.ts"
+        ],
+        "owns": [
+          "deletion request lifecycle surface"
+        ],
+        "does_not_own": [
+          "account state",
+          "event signing",
+          "event admission",
+          "checkout policy"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::account-deletion::published-record::placeable-surface::deletion",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "description": "Request or cancel account deletion.",
+        "id": "deletion",
+        "kind": "placeable-surface",
+        "label": "Close account",
+        "material_target": "component:delete-account-panel",
+        "order": 90,
+        "package_entry": {
+          "entry_name": "account-deletion-portal",
+          "package_name": "account-deletion"
+        },
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000090:deletion",
+        "section_id": "portal",
+        "section_label": "Portal",
+        "show_in_navigation": false,
+        "surface_id": "deletion"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::account-deletion::entry::account-deletion-portal",
+      "build_source_path": "show/mount-account-deletion-portal.tsx",
+      "path": [
+        "packages",
+        "account-deletion",
+        "entries",
+        "account-deletion-portal"
+      ],
+      "payload": {
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-account-deletion-portal"
+        },
+        "entry_name": "account-deletion-portal",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-account-deletion-portal.tsx"
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-account-deletion-portal",
+      "source_path": "built-stored-bytes/entry-bytes-account-deletion-portal",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-account-deletion-portal.source-closure.json"
+    }
+  ]
+}

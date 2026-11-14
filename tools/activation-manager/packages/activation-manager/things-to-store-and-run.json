@@ -1,0 +1,1318 @@
+{
+  "package": "activation-manager",
+  "things": [
+    {
+      "type": "stored_bytes",
+      "name": "index",
+      "source_path": "index.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "capability-state-records",
+      "source_path": "read-data/capability-state-records.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "fold-capability-state",
+      "source_path": "read-data/fold-capability-state.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "activation-reader",
+      "source_path": "read-data/read-activations.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "gate-activation-reader",
+      "source_path": "read-data/read-gate-activations.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "invoke-capability-action",
+      "source_path": "do-work/invoke-capability-action.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "record-capability-attempt",
+      "source_path": "do-work/record-capability-attempt.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "build-owner-action-workflow",
+      "source_path": "do-work/build-owner-action-workflow.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "deliver-device-permission",
+      "source_path": "do-work/deliver-device-permission.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "resolve-caller-context",
+      "source_path": "do-work/resolve-caller-context.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "activation-manager-surface-state-reader",
+      "source_path": "do-work/read-activation-manager-surface-state.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "activation-manager",
+      "source_path": "show/ActivationManager.tsx"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "activation-manager-surface",
+      "source_path": "show/ActivationManagerSurface.tsx"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "authorize-device-grant-page",
+      "source_path": "show/AuthorizeDeviceGrantPage.tsx"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "show-ios-jscore-readme",
+      "source_path": "show-ios-jscore/README.md"
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::contract",
+      "path": [
+        "generic-capability-state",
+        "package",
+        "activation-manager"
+      ],
+      "payload": {
+        "kind": "package-boundary-contract",
+        "package": "activation-manager",
+        "owns": [
+          "generic capability-state evidence records",
+          "capability action descriptors",
+          "maintained capability-state projections",
+          "attempt and result evidence references"
+        ],
+        "does_not_own": [
+          "owner package authority",
+          "device material",
+          "external provider policy",
+          "local permission files",
+          "workflow internals",
+          "HTTP client internals",
+          "process/session internals",
+          "Runtime Kit routing"
+        ],
+        "package_capabilities": {
+          "actions": [
+            "activation-manager.invoke-capability-action",
+            "activation-manager.deliver-device-permission"
+          ],
+          "reads": [
+            "capability-state exact-address projections"
+          ]
+        },
+        "source_root": "packages/activation-manager"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::projection::main",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "capability-state-projection-record",
+        "id": "capability-state-projection:activation-manager.main",
+        "label": "Capability state",
+        "source_record_kind": "capability-state-evidence-record",
+        "reader_key": "browser",
+        "freshness": {
+          "label": "Current",
+          "stale": false,
+          "fields": {}
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::record::example-capability-state",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "capability-state-evidence-record",
+        "id": "capability-state-evidence:example",
+        "subject_ref": "subject:current-reader",
+        "capability_ref": "capability:package-use",
+        "state_descriptor": {
+          "key": "package-set-defined-state",
+          "label": "Ready to use",
+          "tone": "success",
+          "rank": 10,
+          "terminal": true,
+          "fields": {}
+        },
+        "evidence_refs": [
+          "evidence:package-set-current"
+        ],
+        "requirements": [],
+        "actions": [
+          {
+            "id": "action:activation-manager.open-package",
+            "label": "Open package",
+            "target": "slot::workflow",
+            "enabled": true,
+            "input": {
+              "capability_ref": "capability:package-use"
+            },
+            "metadata": {}
+          }
+        ],
+        "display": {
+          "title": "Example package",
+          "refs": {}
+        },
+        "fields": {},
+        "supersedes": []
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::action::deliver-device-permission",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "capability-action-descriptor-record",
+        "id": "action:activation-manager.deliver-device-permission",
+        "label": "Deliver permission",
+        "target": "slot::workflow",
+        "enabled": true,
+        "input": {},
+        "metadata": {},
+        "workflow": {
+          "target": "slot::workflow",
+          "operation": "execute_definition",
+          "definition_id": "action:deliver-device-permission",
+          "include_steps": false,
+          "include_output": true,
+          "input_template": {},
+          "result": {
+            "completed_values": [
+              "completed"
+            ]
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::workflow-action::deliver-device-permission",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "description": "Deliver caller-supplied capability evidence by asking the external HTTP slot with descriptor-supplied request data.",
+        "edges": [],
+        "extra": {},
+        "extra_properties": {},
+        "id": "action:deliver-device-permission",
+        "input_schema": {},
+        "is_active": true,
+        "kind": "action",
+        "name": "deliver-device-permission",
+        "steps": [
+          {
+            "config": {
+              "context": {
+                "grant": "activation-manager.local-callback",
+                "kind": "http-client-url-grant-context"
+              },
+              "input": {
+                "$kind": "binding",
+                "resolve_nested_bindings": false,
+                "select": {
+                  "from": "input",
+                  "path": "http"
+                }
+              },
+              "name": "slot::http-client"
+            },
+            "id": "external_http",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask"
+          },
+          {
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "external_http",
+                  "path": "output"
+                }
+              }
+            },
+            "id": "return_result",
+            "join": "any",
+            "join_config": null,
+            "kind": "return"
+          }
+        ],
+        "trigger_source": "",
+        "trigger_type": "manual",
+        "version": 0
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::target::invoke-capability-action",
+      "path": [
+        "packages",
+        "activation-manager",
+        "targets",
+        "invoke-capability-action"
+      ],
+      "payload": {
+        "entry_name": "invoke-capability-action",
+        "export_name": "invokeCapabilityActionTarget",
+        "kind": "package-target-descriptor",
+        "source_path": "do-work/invoke-capability-action.ts",
+        "target": "activation-manager.invoke-capability-action"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::target::deliver-device-permission",
+      "path": [
+        "packages",
+        "activation-manager",
+        "targets",
+        "deliver-device-permission"
+      ],
+      "payload": {
+        "entry_name": "deliver-device-permission",
+        "export_name": "deliverDevicePermission",
+        "kind": "package-target-descriptor",
+        "source_path": "do-work/deliver-device-permission.ts",
+        "target": "activation-manager.deliver-device-permission"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::published-record::placeable-surface::activations",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "description": "Manage active devices.",
+        "factflow_ref": "package::activation-manager::factflow::activations",
+        "id": "activations",
+        "kind": "placeable-surface",
+        "label": "Activations",
+        "material_target": "component:activation-manager",
+        "order": 30,
+        "package_entry": {
+          "entry_name": "activation-manager-portal",
+          "package_name": "activation-manager"
+        },
+        "things_to_put_on_screen": [
+          {
+            "source_path": "packages/activation-manager/show-ios-jscore/mount-activation-manager-jscore.js",
+            "required_capabilities": [
+              "can-put-thing-on-screen-using-screen-commands"
+            ],
+            "lifecycle_key": "component:activation-manager:jscore",
+            "props": {
+              "entry_function": "bitfieldMount"
+            }
+          }
+        ],
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000030:activations",
+        "section_id": "portal",
+        "section_label": "Portal",
+        "audience": "operator",
+        "surface_id": "activations"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::factflow::activations",
+      "path": [
+        "package-primitive",
+        "factflow"
+      ],
+      "payload": {
+        "blockers": [],
+        "evidence": [
+          {
+            "address": "package::activation-manager::projection::main"
+          }
+        ],
+        "fact_sources": [
+          {
+            "address": "package::activation-manager::record::example-capability-state"
+          }
+        ],
+        "genesis": [],
+        "interpreter_facts": {
+          "effects": [],
+          "facts": [],
+          "intents": [],
+          "materializations": [
+            {
+              "address_label": "activation-manager.capability.materialization"
+            }
+          ],
+          "permissions": [],
+          "projections": [
+            {
+              "address_label": "activation-manager.capability.projection"
+            }
+          ],
+          "validation": []
+        },
+        "journal": {
+          "address_label": "activation-manager.capability.journal"
+        },
+        "kind": "bitfield-eeaf-factflow"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::published-record::hosted-entry-export::authorize-device-grant::AuthorizeDeviceGrantPage",
+      "path": [
+        "published-records"
+      ],
+      "payload": {
+        "entry_name": "authorize-device-grant",
+        "export_alias": "AuthorizeDeviceGrantPage",
+        "export_name": "AuthorizeDeviceGrantPage",
+        "kind": "hosted-entry-export"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::entry::authorize-device-grant",
+      "build_source_path": "show/mount-authorize-device-grant.tsx",
+      "path": [
+        "packages",
+        "activation-manager",
+        "entries",
+        "authorize-device-grant"
+      ],
+      "payload": {
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-authorize-device-grant"
+        },
+        "entry_name": "authorize-device-grant",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-authorize-device-grant.tsx"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::entry::invoke-capability-action",
+      "path": [
+        "packages",
+        "activation-manager",
+        "entries",
+        "invoke-capability-action"
+      ],
+      "payload": {
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-invoke-capability-action"
+        },
+        "entry_name": "invoke-capability-action",
+        "export_name": "invokeCapabilityActionTarget",
+        "kind": "bitfield-package-entry",
+        "source_path": "do-work/invoke-capability-action.ts"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::entry::deliver-device-permission",
+      "path": [
+        "packages",
+        "activation-manager",
+        "entries",
+        "deliver-device-permission"
+      ],
+      "payload": {
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-deliver-device-permission"
+        },
+        "entry_name": "deliver-device-permission",
+        "export_name": "deliverDevicePermission",
+        "kind": "bitfield-package-entry",
+        "source_path": "do-work/deliver-device-permission.ts"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::entry::activation-manager-ios",
+      "path": [
+        "packages",
+        "activation-manager",
+        "entries",
+        "activation-manager-ios"
+      ],
+      "payload": {
+        "entry_name": "activation-manager-ios",
+        "kind": "bitfield-package-entry",
+        "source_path": "show-ios-jscore/mount-activation-manager-jscore.js",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-activation-manager-ios"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::native-screen-command-entry",
+      "path": [
+        "package-primitive",
+        "native-screen-command-entry"
+      ],
+      "payload": {
+        "kind": "bitfield-native-screen-command-entry",
+        "source_path": "show-ios-jscore/mount-activation-manager-jscore.js",
+        "readme_path": "show-ios-jscore/README.md"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::input::activation-state",
+      "path": [
+        "packages",
+        "activation-manager",
+        "inputs"
+      ],
+      "payload": {
+        "input_name": "activation-state",
+        "kind": "bitfield-input-descriptor",
+        "label": "Activation state",
+        "is_default": true,
+        "value": {
+          "source": "package::activation-manager::value::activation-state",
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "package::activation-manager::value::activation-state"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::input::published-records",
+      "path": [
+        "packages",
+        "activation-manager",
+        "inputs"
+      ],
+      "payload": {
+        "input_name": "published-records",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "address",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "path",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "payload",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ],
+            "op": "rows",
+            "shape": {
+              "column_count": 3,
+              "row_count": 1
+            }
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "package::activation-manager::value::published-records"
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-authorize-device-grant",
+      "source_path": "built-stored-bytes/entry-bytes-authorize-device-grant",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-authorize-device-grant.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-invoke-capability-action",
+      "source_path": "built-stored-bytes/entry-bytes-invoke-capability-action",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-invoke-capability-action.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-deliver-device-permission",
+      "source_path": "built-stored-bytes/entry-bytes-deliver-device-permission",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-deliver-device-permission.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::checks",
+      "path": ["packages", "activation-manager", "checks"],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "__tests__/advance-to-state-wiring.test.ts"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::state::lead-new",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "state-descriptor",
+        "key": "lead-new",
+        "label": "New — hasn't heard from us",
+        "tone": "caution",
+        "rank": 20,
+        "terminal": false,
+        "track": "lifecycle:relationship"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::state::paid-owes-welcome",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "state-descriptor",
+        "key": "paid-owes-welcome",
+        "label": "Just paid — send them a welcome",
+        "tone": "critical",
+        "rank": 10,
+        "terminal": false,
+        "track": "lifecycle:relationship"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::state::onboarded",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "state-descriptor",
+        "key": "onboarded",
+        "label": "Welcomed and set up",
+        "tone": "success",
+        "rank": 90,
+        "terminal": true,
+        "track": "lifecycle:relationship"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::state::going-quiet",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "state-descriptor",
+        "key": "going-quiet",
+        "label": "Slipping away — 14 days silent",
+        "tone": "critical",
+        "rank": 15,
+        "terminal": false,
+        "track": "lifecycle:relationship"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::workflow-action::advance-to-state",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "remove": false,
+      "payload": {
+        "id": "action:activation-manager.advance-to-state",
+        "kind": "action",
+        "name": "advance-to-state",
+        "description": "Generic lifecycle advance: on a step-taken event (payment / clock / local delta), move a person to a new next-step state and dispatch that state's next-step action to its owning machine. ONE blind action fed state_key + action_definition_id as DATA from N trigger-rules (zero code per stage). Accepts EITHER customer_email (payment deltas carry attributes.customer_email, not an id -> first step derives the one-way account id via account-identity.derive, exactly as checkout does) OR a pre-derived account_id (local deltas that already carry it). Keys the superseding next-step-state (capability-state-evidence-record) on the one-way account id (SSOT), copies label/tone/rank/terminal from the matching state-descriptor DATA row owned by move-records-through-declared-states (no code maps the key), supersedes the person's prior state, then dispatches action_definition_id by envelope to the owning machine (e.g. customer-follow-up.claim-welcome-for-contact). This machine never sends/books/charges itself.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "account_id": {
+              "type": "string",
+              "description": "a pre-derived one-way account id (local deltas that already carry it); takes precedence over the derived id"
+            },
+            "state_key": {
+              "type": "string",
+              "description": "the state-descriptor key to advance this person into (DATA, e.g. paid-owes-welcome, going-quiet)"
+            },
+            "since": {
+              "type": "string",
+              "description": "when the person entered this state (waiting-time)"
+            },
+            "silence_threshold_days": {
+              "type": "number",
+              "description": "optional churn window (DATA from the silence trigger-rule); the stale-person filter uses this, never a literal in step logic"
+            }
+          },
+          "required": [
+            "account_id",
+            "state_key",
+            "since"
+          ]
+        },
+        "steps": [
+          {
+            "id": "find-state",
+            "kind": "ask",
+            "join": "any",
+            "join_config": null,
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "published-record",
+                "include": [
+                  "address",
+                  "payload"
+                ],
+                "where": {
+                  "all": [
+                    {
+                      "field": "kind",
+                      "in": [
+                        "state-descriptor"
+                      ]
+                    },
+                    {
+                      "field": "key",
+                      "in": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "state_key"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "limit": 64
+              }
+            }
+          },
+          {
+            "id": "find-prior",
+            "kind": "ask",
+            "join": "any",
+            "join_config": null,
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "published-record",
+                "include": [
+                  "address",
+                  "payload"
+                ],
+                "where": {
+                  "all": [
+                    {
+                      "field": "kind",
+                      "in": [
+                        "capability-state-evidence-record"
+                      ]
+                    },
+                    {
+                      "field": "subject_ref",
+                      "in": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "account_id"
+                          },
+                          "transform": [
+                            {
+                              "op": "op:core.concat",
+                              "args": {
+                                "values": [
+                                  "person:",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "input",
+                                      "path": "account_id"
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "limit": 64
+              }
+            }
+          },
+          {
+            "id": "write-state",
+            "kind": "write",
+            "join": "any",
+            "join_config": null,
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "account_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::activation-manager::next-step-state::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "account_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "capability-state-evidence-record",
+                    "id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "account_id"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "next-step-state:",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "account_id"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "subject_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "account_id"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "person:",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "account_id"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "capability_ref": "lifecycle:relationship",
+                    "state_descriptor": {
+                      "key": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "state_key"
+                        }
+                      },
+                      "label": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "find-state",
+                          "path": "output.items.0.payload.label"
+                        }
+                      },
+                      "tone": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "find-state",
+                          "path": "output.items.0.payload.tone"
+                        }
+                      },
+                      "rank": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "find-state",
+                          "path": "output.items.0.payload.rank"
+                        }
+                      },
+                      "terminal": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "find-state",
+                          "path": "output.items.0.payload.terminal"
+                        }
+                      },
+                      "fields": {
+                        "since": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "since"
+                          }
+                        }
+                      }
+                    },
+                    "requirements": [],
+                    "actions": [
+                      {
+                        "id": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "action_definition_id"
+                          },
+                          "transform": [
+                            {
+                              "op": "op:core.concat",
+                              "args": {
+                                "values": [
+                                  "next-step:",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "input",
+                                      "path": "action_definition_id"
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        },
+                        "label": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "steps",
+                            "key": "find-state",
+                            "path": "output.items.0.payload.label"
+                          }
+                        },
+                        "target": "slot::workflow",
+                        "enabled": true,
+                        "input": {
+                          "definition_id": {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "action_definition_id"
+                            }
+                          },
+                          "account_id": {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "input",
+                              "path": "account_id"
+                            }
+                          }
+                        },
+                        "metadata": {}
+                      }
+                    ],
+                    "supersedes": [
+                      {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "find-prior",
+                          "path": "output.items.0.payload.id"
+                        }
+                      }
+                    ],
+                    "state_key": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "state_key"
+                      }
+                    },
+                    "account_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "account_id"
+                      }
+                    },
+                    "advanced_at": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "since"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "join": "any",
+            "join_config": null,
+            "config": {
+              "value": {
+                "advanced_to": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "state_key"
+                  }
+                },
+                "person": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "account_id"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "find-state",
+            "to": "find-prior",
+            "kind": "on_result",
+            "config": {}
+          },
+          {
+            "from": "find-prior",
+            "to": "write-state",
+            "kind": "on_result",
+            "config": {}
+          },
+          {
+            "from": "write-state",
+            "to": "done",
+            "kind": "on_result",
+            "config": {}
+          }
+        ],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::trigger-rule::advance-on-payment-confirmed",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:activation-manager.advance-on-payment-confirmed",
+        "topic": "data_state",
+        "trigger_type": "delta",
+        "is_active": true,
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "account-email-contact-point"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "source_ref"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "signup:paid"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "is_retraction"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:activation-manager.advance-to-state",
+            "input": {
+              "account_id": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "account_id"
+                }
+              },
+              "state_key": "paid-owes-welcome",
+              "since": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "updated_at"
+                }
+              }
+            },
+            "include_output": false,
+            "include_steps": false
+          }
+        }
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::trigger-rule::advance-on-14-day-silence",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:activation-manager.advance-on-14-day-silence",
+        "topic": "data_state",
+        "trigger_type": "delta",
+        "is_active": true,
+        "silence_threshold_days": 14,
+        "match_condition": {
+          "conditions": [
+            {
+              "$bind": {
+                "select": {
+                  "from": "envelope",
+                  "path": "address_text"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.starts_with",
+                    "args": {
+                      "value": "clock::tick"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:activation-manager.advance-to-state",
+            "input": {
+              "silence_threshold_days": {
+                "$kind": "binding",
+                "select": {
+                  "from": "context",
+                  "path": "trigger_rule.silence_threshold_days"
+                }
+              },
+              "state_key": "going-quiet",
+              "since": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "at"
+                }
+              }
+            },
+            "include_output": false,
+            "include_steps": false
+          }
+        }
+      },
+      "payload_base64": null,
+      "payload_text": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "read-portal-activations",
+      "source_path": "do-work/read-portal-activations.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "activation-manager-portal-surface",
+      "source_path": "show/app-shell/ActivationManagerPortalSurface.tsx"
+    },
+    {
+      "type": "record",
+      "address": "package::activation-manager::entry::activation-manager-portal",
+      "build_source_path": "show/mount-activation-manager-portal.tsx",
+      "path": [
+        "packages",
+        "activation-manager",
+        "entries",
+        "activation-manager-portal"
+      ],
+      "payload": {
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-activation-manager-portal"
+        },
+        "entry_name": "activation-manager-portal",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-activation-manager-portal.tsx"
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-activation-manager-ios",
+      "source_path": "built-stored-bytes/entry-bytes-activation-manager-ios",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-activation-manager-ios.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-activation-manager-portal",
+      "source_path": "built-stored-bytes/entry-bytes-activation-manager-portal",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-activation-manager-portal.source-closure.json"
+    }
+  ]
+}

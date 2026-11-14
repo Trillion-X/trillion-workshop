@@ -1,0 +1,140 @@
+{
+  "package": "content-gate",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::content-gate::checks",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "__tests__/evaluate-gate.test.ts",
+          "__tests__/standard-evaluators.test.ts",
+          "__tests__/provenance-and-capture.test.ts",
+          "__tests__/local-consumer.test.ts"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "gate-types",
+      "source_path": "read-data/gate-types.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "evaluator",
+      "source_path": "do-work/evaluator.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "evaluate-gate",
+      "source_path": "do-work/evaluate-gate.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "standard-evaluators",
+      "source_path": "do-work/standard-evaluators.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "provenance-and-capture-evaluators",
+      "source_path": "do-work/evaluators/provenance-and-capture.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "local-content-gate-consumer",
+      "source_path": "do-work/process-scripts/evaluate-gate.mjs"
+    },
+    {
+      "type": "record",
+      "address": "package::content-gate::contract",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "content-gate",
+        "contract"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "package-contract",
+        "package": "content-gate",
+        "owns": [
+          "generic block-structured content evaluation",
+          "DATA-driven gate spec execution",
+          "evaluator registry dispatch",
+          "weighted scoring and per-rule findings"
+        ],
+        "does_not_own": [
+          "gate spec authoring (caller DATA)",
+          "block kind definitions (caller DATA)",
+          "AI-quality evaluator (separate registered capability)",
+          "persistence of gate results"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null
+    },
+    {
+      "type": "record",
+      "address": "package::content-gate::record-contract::content-gate-spec",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "content-gate",
+        "record-contracts",
+        "content-gate-spec"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "content-gate-spec",
+        "required_fields": ["id", "rules"],
+        "data_owner": "package-set-records-or-imported-facts"
+      },
+      "payload_text": null,
+      "payload_base64": null
+    },
+    {
+      "type": "record",
+      "address": "package::content-gate::record-contract::content-gate-result",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "content-gate",
+        "record-contracts",
+        "content-gate-result"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "content-gate-result",
+        "required_fields": ["gate_id", "passed", "score", "rule_results", "findings"],
+        "data_owner": "content-gate.evaluate-capability"
+      },
+      "payload_text": null,
+      "payload_base64": null
+    },
+    {
+      "type": "record",
+      "address": "package::content-gate::target::evaluate",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "content-gate",
+        "targets",
+        "evaluate"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "evaluate",
+        "export_name": "evaluateGate",
+        "source_path": "do-work/evaluate-gate.ts",
+        "target": "content-gate.evaluate"
+      },
+      "payload_text": null,
+      "payload_base64": null
+    }
+  ]
+}

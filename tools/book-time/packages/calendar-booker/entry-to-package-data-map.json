@@ -1,0 +1,22 @@
+{
+  "kind": "bitfield-entry-to-package-data-map",
+  "package": "calendar-booker",
+  "package_data_path": "things-to-store-and-run.json",
+  "entries": [
+    {
+      "entry_name": "calendar-availability-setup",
+      "source_path": "show/mount-calendar-availability-setup.tsx",
+      "package_data_path": "things-to-store-and-run.json"
+    },
+    {
+      "entry_name": "calendar-booker",
+      "source_path": "show/mount-calendar-booker.tsx",
+      "package_data_path": "things-to-store-and-run.json"
+    },
+    {
+      "entry_name": "calendar-booker-ios",
+      "source_path": "show-ios-jscore/mount-calendar-booker-jscore.js",
+      "package_data_path": "things-to-store-and-run.json"
+    }
+  ]
+}

@@ -1,0 +1,196 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "owner-home-folder",
+      "find": "[/]Users[/]b[r]ianakhtar",
+      "replace": "/workspace/the-owner",
+      "means": "A person's home folder name in a path, swapped for a made-up one: a public tree holds made-up data only."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/activation-pricing/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-pricing/packages/activation-pricing/index.ts",
+      "source_identity": "1f:09bf57a7d0d1af26251560ae5766a331e32554f441df6ec3d5e8bde642c1517b",
+      "identity": "1f:09bf57a7d0d1af26251560ae5766a331e32554f441df6ec3d5e8bde642c1517b"
+    },
+    {
+      "from": "packages/activation-pricing/read-data/activation-pricing-config.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-pricing/packages/activation-pricing/read-data/activation-pricing-config.ts",
+      "source_identity": "1f:6992de948d3a52dfd634baeb6da00e3ddb5811f314909b2c2769b7fd5ff707ef",
+      "identity": "1f:6992de948d3a52dfd634baeb6da00e3ddb5811f314909b2c2769b7fd5ff707ef"
+    },
+    {
+      "from": "packages/activation-pricing/read-data/activation-pricing-model.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-pricing/packages/activation-pricing/read-data/activation-pricing-model.ts",
+      "source_identity": "1f:25974fc69c961011e62ef6e87e210ef457173e386ed37ee19a55f8a9d23c8f35",
+      "identity": "1f:25974fc69c961011e62ef6e87e210ef457173e386ed37ee19a55f8a9d23c8f35"
+    },
+    {
+      "from": "packages/activation-pricing/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-pricing/packages/activation-pricing/read-data/README.md",
+      "source_identity": "1f:a5e0a433dedaebc1ad145b76dad8b2f4eb33b254e69f51dcb895c6e892dadaec",
+      "identity": "1f:a5e0a433dedaebc1ad145b76dad8b2f4eb33b254e69f51dcb895c6e892dadaec"
+    },
+    {
+      "from": "packages/activation-pricing/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-pricing/packages/activation-pricing/README.md",
+      "source_identity": "1f:7eef252b3c8f82dcc0dcdfda04972fbf30758e42fec1ec2ca00056a6cb4d78bf",
+      "identity": "1f:a7cdc927924dd0196c540a8e7b2eff56d43e987ac69fdae3828072882d26db90",
+      "calls": [
+        "owner-home-folder"
+      ]
+    },
+    {
+      "from": "packages/activation-pricing/show/AnimatedPriceValue.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-pricing/packages/activation-pricing/show/AnimatedPriceValue.tsx",
+      "source_identity": "1f:65ef2d112ed7d6932ca26619ee7e21e94e29fbb0b4c46cd6c4e3e60cfa3b1266",
+      "identity": "1f:65ef2d112ed7d6932ca26619ee7e21e94e29fbb0b4c46cd6c4e3e60cfa3b1266"
+    },
+    {
+      "from": "packages/activation-pricing/show/PricingBillingToggle.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-pricing/packages/activation-pricing/show/PricingBillingToggle.tsx",
+      "source_identity": "1f:507ad42852cac21805a4690e01644dfb408a3d4182ec6cefb7a727c660dea3e6",
+      "identity": "1f:507ad42852cac21805a4690e01644dfb408a3d4182ec6cefb7a727c660dea3e6"
+    },
+    {
+      "from": "packages/activation-pricing/show/PricingPlanCard.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-pricing/packages/activation-pricing/show/PricingPlanCard.tsx",
+      "source_identity": "1f:80516d2925ade477b6363f17b44957c20c0c65afa5a4eb973e999e038f4485f5",
+      "identity": "1f:80516d2925ade477b6363f17b44957c20c0c65afa5a4eb973e999e038f4485f5"
+    },
+    {
+      "from": "packages/activation-pricing/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-pricing/packages/activation-pricing/show/README.md",
+      "source_identity": "1f:aae53ad9c50d20d2149aa1aefb343e3984d8e47ea191f6173f229c45040a4769",
+      "identity": "1f:aae53ad9c50d20d2149aa1aefb343e3984d8e47ea191f6173f229c45040a4769"
+    },
+    {
+      "from": "packages/activation-pricing/source-leaf/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-pricing/packages/activation-pricing/source-leaf/index.ts",
+      "source_identity": "1f:0e3dc734fc051c3bedf873cde564605d17cfd601c80a3409587a67262d681e23",
+      "identity": "1f:0e3dc734fc051c3bedf873cde564605d17cfd601c80a3409587a67262d681e23"
+    },
+    {
+      "from": "packages/activation-pricing/source-leaf/read-data/activation-pricing-config.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-pricing/packages/activation-pricing/source-leaf/read-data/activation-pricing-config.ts",
+      "source_identity": "1f:dba2199cb5f34b96a2ba0a8825e22e0cfa6a8105ef9229063c441bff98ed3a05",
+      "identity": "1f:dba2199cb5f34b96a2ba0a8825e22e0cfa6a8105ef9229063c441bff98ed3a05"
+    },
+    {
+      "from": "packages/activation-pricing/source-leaf/read-data/activation-pricing-model.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-pricing/packages/activation-pricing/source-leaf/read-data/activation-pricing-model.ts",
+      "source_identity": "1f:b40bf22f2597fd1d03574cc838b98eda02c2413ead75f7d18ebdbf36fd3efdd8",
+      "identity": "1f:b40bf22f2597fd1d03574cc838b98eda02c2413ead75f7d18ebdbf36fd3efdd8"
+    },
+    {
+      "from": "packages/activation-pricing/source-leaf/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-pricing/packages/activation-pricing/source-leaf/read-data/README.md",
+      "source_identity": "1f:9b2daa20fbd90fbb6beff92fd81006baff7a67ae2d5313e3f9c0489172247ae2",
+      "identity": "1f:9b2daa20fbd90fbb6beff92fd81006baff7a67ae2d5313e3f9c0489172247ae2"
+    },
+    {
+      "from": "packages/activation-pricing/source-leaf/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-pricing/packages/activation-pricing/source-leaf/README.md",
+      "source_identity": "1f:52331b24841e344f724da9064cad193d2a79390b48942bca3773b7fc1f71432e",
+      "identity": "1f:a34ffbcea4e60ec0d46e774f548209b8fcb8f6f560c10100a54f17393185c430",
+      "calls": [
+        "owner-home-folder"
+      ]
+    },
+    {
+      "from": "packages/activation-pricing/source-leaf/show-ios-jscore/mount-activation-pricing-jscore.js",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-pricing/packages/activation-pricing/source-leaf/show-ios-jscore/mount-activation-pricing-jscore.js",
+      "source_identity": "1f:067640f83bceaa0508d7e001c5af5c84260a55e3352af15cfce765a3a318b7d4",
+      "identity": "1f:067640f83bceaa0508d7e001c5af5c84260a55e3352af15cfce765a3a318b7d4"
+    },
+    {
+      "from": "packages/activation-pricing/source-leaf/show-ios-jscore/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-pricing/packages/activation-pricing/source-leaf/show-ios-jscore/README.md",
+      "source_identity": "1f:19e6a6d9a0b9ee3e0aac2e17b9191365674a15209fcdd70f3c2fcb74870f8395",
+      "identity": "1f:19e6a6d9a0b9ee3e0aac2e17b9191365674a15209fcdd70f3c2fcb74870f8395"
+    },
+    {
+      "from": "packages/activation-pricing/source-leaf/show-ios-jscore/render-kind-jscore.js",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-pricing/packages/activation-pricing/source-leaf/show-ios-jscore/render-kind-jscore.js",
+      "source_identity": "1f:e1825233858d2c27ee04776c1479f74f0fca48917793ffab4ad38f5581321699",
+      "identity": "1f:e1825233858d2c27ee04776c1479f74f0fca48917793ffab4ad38f5581321699"
+    },
+    {
+      "from": "packages/activation-pricing/source-leaf/show/AnimatedPriceValue.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-pricing/packages/activation-pricing/source-leaf/show/AnimatedPriceValue.tsx",
+      "source_identity": "1f:e0c4f031159fd9953be9a9704e14cd9131453ad62cd6fb9e5644d702c55ded42",
+      "identity": "1f:e0c4f031159fd9953be9a9704e14cd9131453ad62cd6fb9e5644d702c55ded42"
+    },
+    {
+      "from": "packages/activation-pricing/source-leaf/show/PricingBillingToggle.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-pricing/packages/activation-pricing/source-leaf/show/PricingBillingToggle.tsx",
+      "source_identity": "1f:0dbba4800623e14fbae24b7bfd77974328016af709b9fe1ba6c5b4662e6d7a46",
+      "identity": "1f:0dbba4800623e14fbae24b7bfd77974328016af709b9fe1ba6c5b4662e6d7a46"
+    },
+    {
+      "from": "packages/activation-pricing/source-leaf/show/PricingPlanCard.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-pricing/packages/activation-pricing/source-leaf/show/PricingPlanCard.tsx",
+      "source_identity": "1f:52a9e452a7efed6938bc732e962afe9021c7b0296d67d5200c3340956c84d3f4",
+      "identity": "1f:52a9e452a7efed6938bc732e962afe9021c7b0296d67d5200c3340956c84d3f4"
+    },
+    {
+      "from": "packages/activation-pricing/source-leaf/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-pricing/packages/activation-pricing/source-leaf/show/README.md",
+      "source_identity": "1f:3f64f1a421acf1e95bdf7c32420ea315f0a3272fae24f2f029fcd2567271a531",
+      "identity": "1f:3f64f1a421acf1e95bdf7c32420ea315f0a3272fae24f2f029fcd2567271a531"
+    },
+    {
+      "from": "packages/activation-pricing/source-leaf/view-model/build-view-section-model.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-pricing/packages/activation-pricing/source-leaf/view-model/build-view-section-model.ts",
+      "source_identity": "1f:86c7fd7c9f1a78e0f7bff64c90a4d54a86a51f52002a9f77845f952d63a977ec",
+      "identity": "1f:86c7fd7c9f1a78e0f7bff64c90a4d54a86a51f52002a9f77845f952d63a977ec"
+    },
+    {
+      "from": "packages/activation-pricing/source-leaf/view-model/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-pricing/packages/activation-pricing/source-leaf/view-model/README.md",
+      "source_identity": "1f:08ab470d0190c3a483364b9a5c105bbec2aae2a1aaa6fd3fe3e0066ec8c90b3a",
+      "identity": "1f:08ab470d0190c3a483364b9a5c105bbec2aae2a1aaa6fd3fe3e0066ec8c90b3a"
+    },
+    {
+      "from": "packages/activation-pricing/source-leaf/view-model/view-section-model.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-pricing/packages/activation-pricing/source-leaf/view-model/view-section-model.ts",
+      "source_identity": "1f:dd66c8b0d8366b556d89ecbacf0664af7c681dd29506511b95f6eb6ae7bc73c2",
+      "identity": "1f:dd66c8b0d8366b556d89ecbacf0664af7c681dd29506511b95f6eb6ae7bc73c2"
+    },
+    {
+      "from": "packages/activation-pricing/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/activation-pricing/packages/activation-pricing/things-to-store-and-run.json",
+      "source_identity": "1f:cdac630bf4464b1509af25f19bf43e654bb7dcb87dd5c258d00b91aa23530b43",
+      "identity": "1f:cdac630bf4464b1509af25f19bf43e654bb7dcb87dd5c258d00b91aa23530b43"
+    }
+  ]
+}

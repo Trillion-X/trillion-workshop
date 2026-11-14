@@ -1,0 +1,141 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/account-dashboard/data/account-surface-descriptors.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-dashboard/packages/account-dashboard/data/account-surface-descriptors.json",
+      "source_identity": "1f:d84e221fab78cb7797386dfefd15bd0ed721737355a1b3959d5acf040ea20e97",
+      "identity": "1f:d84e221fab78cb7797386dfefd15bd0ed721737355a1b3959d5acf040ea20e97"
+    },
+    {
+      "from": "packages/account-dashboard/data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-dashboard/packages/account-dashboard/data/README.md",
+      "source_identity": "1f:9210c76c90434039b8498979a00bce6de7e7ead9861148aaaac69cfd0fc89bd3",
+      "identity": "1f:9210c76c90434039b8498979a00bce6de7e7ead9861148aaaac69cfd0fc89bd3"
+    },
+    {
+      "from": "packages/account-dashboard/do-work/account-surface-actions.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-dashboard/packages/account-dashboard/do-work/account-surface-actions.ts",
+      "source_identity": "1f:ce04a7c6e2f1ae974e09643a6681f039b053f18d148b315085fc8b4b1bbabfd2",
+      "identity": "1f:ce04a7c6e2f1ae974e09643a6681f039b053f18d148b315085fc8b4b1bbabfd2"
+    },
+    {
+      "from": "packages/account-dashboard/do-work/consume-url-return-actions.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-dashboard/packages/account-dashboard/do-work/consume-url-return-actions.ts",
+      "source_identity": "1f:64a9bc20a944f134571e56c2d616a7b69801e55d6b3119f2f0b7cb4ca25b69f0",
+      "identity": "1f:64a9bc20a944f134571e56c2d616a7b69801e55d6b3119f2f0b7cb4ca25b69f0"
+    },
+    {
+      "from": "packages/account-dashboard/do-work/read-account-dashboard-surface-state.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-dashboard/packages/account-dashboard/do-work/read-account-dashboard-surface-state.ts",
+      "source_identity": "1f:a6a42c26141c92e391cdf92b2dd6dd54e12d1913d42e4d13b684c7f94f12a6b4",
+      "identity": "1f:ef93f4de3782b42a98fb4fc5184feb18e8ffd3fa55eedf8f08e088a3d2dc425b"
+    },
+    {
+      "from": "packages/account-dashboard/do-work/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-dashboard/packages/account-dashboard/do-work/README.md",
+      "source_identity": "1f:a785d8c5e739207c73cb36474991ca4e88e661a8b5944acb67386d99336b7a8c",
+      "identity": "1f:a785d8c5e739207c73cb36474991ca4e88e661a8b5944acb67386d99336b7a8c"
+    },
+    {
+      "from": "packages/account-dashboard/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-dashboard/packages/account-dashboard/index.ts",
+      "source_identity": "1f:2112ea50177c609232c7236844bb7261e60bfc97f55d832a5b44d2c9bdd78023",
+      "identity": "1f:2112ea50177c609232c7236844bb7261e60bfc97f55d832a5b44d2c9bdd78023"
+    },
+    {
+      "from": "packages/account-dashboard/read-data/account-surface-materializer.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-dashboard/packages/account-dashboard/read-data/account-surface-materializer.ts",
+      "source_identity": "1f:0e6ce050370ba3ec05c6ef6154c5c119f674602e6c97e53f01568f8d2c7f0d2c",
+      "identity": "1f:0e6ce050370ba3ec05c6ef6154c5c119f674602e6c97e53f01568f8d2c7f0d2c"
+    },
+    {
+      "from": "packages/account-dashboard/read-data/account-surface-model.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-dashboard/packages/account-dashboard/read-data/account-surface-model.ts",
+      "source_identity": "1f:665d4ac1f5017d876dc2703a01b717c089d8f20eee9f29c05742ce007e827262",
+      "identity": "1f:665d4ac1f5017d876dc2703a01b717c089d8f20eee9f29c05742ce007e827262"
+    },
+    {
+      "from": "packages/account-dashboard/read-data/read-account-state.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-dashboard/packages/account-dashboard/read-data/read-account-state.ts",
+      "source_identity": "1f:6daeae60dfdaadfdd4b833e5c8152795dc5f6437b072d36f18bd23635c91c2a4",
+      "identity": "1f:6daeae60dfdaadfdd4b833e5c8152795dc5f6437b072d36f18bd23635c91c2a4"
+    },
+    {
+      "from": "packages/account-dashboard/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-dashboard/packages/account-dashboard/read-data/README.md",
+      "source_identity": "1f:5d913ce53708f3bbeefb5c27019f956e0de131460a6d0b2787ef429f94a06414",
+      "identity": "1f:5d913ce53708f3bbeefb5c27019f956e0de131460a6d0b2787ef429f94a06414"
+    },
+    {
+      "from": "packages/account-dashboard/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-dashboard/packages/account-dashboard/README.md",
+      "source_identity": "1f:1ffd2e13bbe3706b55568af8d81886d807285b3306f3ceb83453c2d68f721149",
+      "identity": "1f:1ffd2e13bbe3706b55568af8d81886d807285b3306f3ceb83453c2d68f721149"
+    },
+    {
+      "from": "packages/account-dashboard/show-ios-jscore/account-dashboard-jscore.js",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-dashboard/packages/account-dashboard/show-ios-jscore/account-dashboard-jscore.js",
+      "source_identity": "1f:0b6a05cba65e1bcf90a5bfb207e988b3e02c0bb54756122f984395d0190384b4",
+      "identity": "1f:0b6a05cba65e1bcf90a5bfb207e988b3e02c0bb54756122f984395d0190384b4"
+    },
+    {
+      "from": "packages/account-dashboard/show-ios-jscore/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-dashboard/packages/account-dashboard/show-ios-jscore/README.md",
+      "source_identity": "1f:54368f458b51eed5e936b3c77b047a6b59ae0810e74e5bdecfc496eea21c4627",
+      "identity": "1f:54368f458b51eed5e936b3c77b047a6b59ae0810e74e5bdecfc496eea21c4627"
+    },
+    {
+      "from": "packages/account-dashboard/show/AccountDashboard.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-dashboard/packages/account-dashboard/show/AccountDashboard.tsx",
+      "source_identity": "1f:c2840b456a40b8c912ebcdff34500b8d7fd2168def4d542b32a620712e2b36a8",
+      "identity": "1f:41b7b8a052d4fc04599d82008977dabc191198ed99e9b0e4ab7b5f5b1da8bcd5"
+    },
+    {
+      "from": "packages/account-dashboard/show/AccountDashboardSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-dashboard/packages/account-dashboard/show/AccountDashboardSurface.tsx",
+      "source_identity": "1f:a7c9d46e8fcee7ac7d9ce7b6c80bd78229944289732d155b35716ac88028d6b9",
+      "identity": "1f:a7c9d46e8fcee7ac7d9ce7b6c80bd78229944289732d155b35716ac88028d6b9"
+    },
+    {
+      "from": "packages/account-dashboard/show/mount-account-dashboard.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-dashboard/packages/account-dashboard/show/mount-account-dashboard.tsx",
+      "source_identity": "1f:52ce9383a6a6917a4dda43c61c17868ef7c94a96dbf439dd0b08d7899bf54e5a",
+      "identity": "1f:52ce9383a6a6917a4dda43c61c17868ef7c94a96dbf439dd0b08d7899bf54e5a"
+    },
+    {
+      "from": "packages/account-dashboard/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-dashboard/packages/account-dashboard/show/README.md",
+      "source_identity": "1f:02c825236f57b66db646b3229634090ca0b69eaa6c4b2afb973ea6a4d6e21e4a",
+      "identity": "1f:02c825236f57b66db646b3229634090ca0b69eaa6c4b2afb973ea6a4d6e21e4a"
+    },
+    {
+      "from": "packages/account-dashboard/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-dashboard/packages/account-dashboard/things-to-store-and-run.json",
+      "source_identity": "1f:e1cafe5ed9093ef877626adec70ab04e4456e8e9d34ca24fe7289ca6ccebeb30",
+      "identity": "1f:e1cafe5ed9093ef877626adec70ab04e4456e8e9d34ca24fe7289ca6ccebeb30"
+    }
+  ]
+}

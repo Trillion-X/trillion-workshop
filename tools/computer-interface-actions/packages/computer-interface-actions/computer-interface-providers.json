@@ -1,0 +1,95 @@
+{
+  "table_identity": "current-computer-interface-providers",
+  "providers": [
+    {
+      "id": "aside",
+      "kind": "official_cli",
+      "intent_classes": ["authenticated_browser"],
+      "surface_class": "task_isolated_agent_screen",
+      "label": "Aside official CLI",
+      "description": "Uses only the documented aside exec command. Reports restricted when the CLI is not installed.",
+      "executable": "aside",
+      "install_path_hint": "Aside \u2192 Settings \u2192 Developers \u2192 Skill & MCP \u2192 Aside CLI \u2192 Install",
+      "run_timeout_ms": 300000,
+      "authenticated_surface_bootstrap": {
+        "version": 1,
+        "argv": [
+          "exec",
+          "--permission",
+          "guard",
+          "Create a new blank browsing task. Do not open, attach to, inspect, or change any page. Do not use any browser tool. Reply with READY only."
+        ],
+        "run_timeout_ms": 120000,
+        "network_access": "allowed",
+        "containment": {"kind": "descendant_effect_contained", "pipe_eof_timeout_ms": 1000, "publications": []},
+        "observation_kind": "computer-interface.authenticated-surface-observation",
+        "terminal_attestation": {
+          "session_id_pattern": "created new session: (ses_[A-Za-z0-9_-]+)",
+          "forbidden_patterns": ["(?:^|\\n)[^\\n]*(?:openTab|attachBrowserTab|attachActiveBrowserTab|snapshot|click|navigate|goto)\\s*\\("]
+        }
+      },
+      "execution": {
+        "cli.exec": {
+          "argv": ["exec", {"request": "command"}],
+          "network_access": "allowed",
+          "requires_surface_proof": true,
+          "containment": {"kind": "descendant_effect_contained", "pipe_eof_timeout_ms": 1000, "publications": []}
+        }
+      },
+      "operations": [
+        "provider.status",
+        "cli.exec"
+      ]
+    },
+    {
+      "id": "macos-ui",
+      "kind": "apple_script",
+      "intent_classes": ["host_visible_ui"],
+      "surface_class": "visible_personal_display",
+      "eligible_for_authenticated_browser": false,
+      "label": "macOS accessibility UI",
+      "description": "Uses AppleScript System Events for app activation and UI interaction.",
+      "operations": [
+        "provider.status",
+        "app.open",
+        "ui.status",
+        "shell.exec",
+        "ui.click",
+        "ui.type",
+        "ui.press_key"
+      ]
+    },
+    {
+      "id": "obscura",
+      "kind": "headless_browser",
+      "intent_classes": ["public_headless"],
+      "surface_class": "isolated_headless",
+      "label": "Obscura headless browser",
+      "description": "Isolated headless browsing context. Each instance is parallel, disposable, and never touches the physical display.",
+      "executable": "obscura",
+      "run_timeout_ms": 30000,
+      "execution": {
+        "browser.fetch": {
+          "argv": ["fetch", {"request": "url"}],
+          "optional_argv": [
+            {"when_request": "dump", "argv": ["--dump", {"request": "dump"}]}
+          ],
+          "network_access": "allowed",
+          "containment": {"kind": "leaf"}
+        },
+        "browser.screenshot": {
+          "argv": ["fetch", {"request": "url"}, "--screenshot", {"request": "output_path"}],
+          "output_request_field": "output_path",
+          "output_content_type": "image/png",
+          "network_access": "allowed",
+          "containment": {"kind": "leaf"}
+        }
+      },
+      "operations": [
+        "provider.status",
+        "browser.fetch",
+        "browser.screenshot"
+      ]
+    }
+  ]
+}

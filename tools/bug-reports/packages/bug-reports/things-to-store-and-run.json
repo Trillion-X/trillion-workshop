@@ -1,0 +1,980 @@
+{
+  "package": "bug-reports",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::bug-reports::placeable-surface::reports",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "Bug",
+        "id": "bug-reports.reports",
+        "kind": "placeable-surface",
+        "label": "Bug Reports",
+        "material_target": "component:bug-reports",
+        "order": 90,
+        "surface_id": "bug-reports.reports",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000090:bug-reports.reports",
+        "package_entry": {
+          "package_name": "bug-reports",
+          "entry_name": "bug-reports"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bug-reports::input::reports",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "reports",
+        "is_default": true,
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "id",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "title",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "description",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 3,
+                "key": "stepsToReproduce",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 4,
+                "key": "severity",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 5,
+                "key": "reportedAt",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              }
+            ],
+            "op": "rows"
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "bug-reports"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bug-reports::input::investigations",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "investigations",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "subject_id",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "property_id",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "value",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ],
+            "op": "rows"
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "investigations"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bug-reports::action-descriptor::create-quick-report",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "action_name": "create-quick-report",
+        "definition_id": "action:create-quick-bug-report",
+        "kind": "workflow-action-descriptor"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|action:publish-bug-reports|prop:action:description|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:action:description"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFjdGlvbjpkZXNjcmlwdGlvbiIsCiAgInN1YmplY3RfaWQiOiAiYWN0aW9uOnB1Ymxpc2gtYnVnLXJlcG9ydHMiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTphY3Rpb24iLAogICJ2YWx1ZV9qc29uIjogIlwiUmVhZCBjYW5vbmljYWwgYnVnLXJlcG9ydCBmYWN0cyBhbmQgcHVibGlzaCB0aGUgYnVnLXJlcG9ydHMgZmVlZC5cIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|action:publish-bug-reports|prop:action:is_active|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:action:is_active"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFjdGlvbjppc19hY3RpdmUiLAogICJzdWJqZWN0X2lkIjogImFjdGlvbjpwdWJsaXNoLWJ1Zy1yZXBvcnRzIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6YWN0aW9uIiwKICAidmFsdWVfanNvbiI6ICJ0cnVlIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|action:publish-bug-reports|prop:action:slug|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:action:slug"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFjdGlvbjpzbHVnIiwKICAic3ViamVjdF9pZCI6ICJhY3Rpb246cHVibGlzaC1idWctcmVwb3J0cyIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOmFjdGlvbiIsCiAgInZhbHVlX2pzb24iOiAiXCJwdWJsaXNoLWJ1Zy1yZXBvcnRzXCIiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|action:publish-bug-reports|prop:action:workflow_steps|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:action:workflow_steps"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFjdGlvbjp3b3JrZmxvd19zdGVwcyIsCiAgInN1YmplY3RfaWQiOiAiYWN0aW9uOnB1Ymxpc2gtYnVnLXJlcG9ydHMiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTphY3Rpb24iLAogICJ2YWx1ZV9qc29uIjogIltcbiAge1xuICAgIFwia2luZFwiOiBcImFza1wiLFxuICAgIFwiY29uZmlnXCI6IHtcbiAgICAgIFwibmFtZVwiOiBcInNsb3Q6OmZpbmQtY3VycmVudC1pdGVtc1wiLFxuICAgICAgXCJpbnB1dFwiOiB7XG4gICAgICAgIFwib3BlcmF0aW9uXCI6IFwiZmluZC1jdXJyZW50LWl0ZW1zXCIsXG4gICAgICAgIFwiaW5cIjogXCJhdHRyaWJ1dGVfZmFjdFwiLFxuICAgICAgICBcInNlbGVjdFwiOiBbXG4gICAgICAgICAgXCJzdWJqZWN0X2lkXCIsXG4gICAgICAgICAgXCJwcm9wZXJ0eV9pZFwiLFxuICAgICAgICAgIFwidmFsdWVfanNvblwiXG4gICAgICAgIF0sXG4gICAgICAgIFwid2hlcmVcIjoge1xuICAgICAgICAgIFwiYWxsXCI6IFtcbiAgICAgICAgICAgIHtcbiAgICAgICAgICAgICAgXCJmaWVsZFwiOiBcInByb3BlcnR5X2lkXCIsXG4gICAgICAgICAgICAgIFwiaW5cIjogW1xuICAgICAgICAgICAgICAgIFwicHJvcDpidWdfcmVwb3J0OnRpdGxlXCIsXG4gICAgICAgICAgICAgICAgXCJwcm9wOmJ1Z19yZXBvcnQ6ZGVzY3JpcHRpb25cIixcbiAgICAgICAgICAgICAgICBcInByb3A6YnVnX3JlcG9ydDpzdGVwc190b19yZXByb2R1Y2VcIixcbiAgICAgICAgICAgICAgICBcInByb3A6YnVnX3JlcG9ydDpzZXZlcml0eVwiLFxuICAgICAgICAgICAgICAgIFwicHJvcDpidWdfcmVwb3J0OnJlcG9ydGVkX2F0XCJcbiAgICAgICAgICAgICAgXVxuICAgICAgICAgICAgfVxuICAgICAgICAgIF1cbiAgICAgICAgfVxuICAgICAgfVxuICAgIH1cbiAgfSxcbiAge1xuICAgIFwia2luZFwiOiBcIndyaXRlXCIsXG4gICAgXCJjb25maWdcIjoge1xuICAgICAgXCJpdGVtc1wiOiBbXG4gICAgICAgIHtcbiAgICAgICAgICBcImFkZHJlc3NcIjogXCJidWctcmVwb3J0c1wiLFxuICAgICAgICAgIFwicGF0aFwiOiBbXSxcbiAgICAgICAgICBcInBheWxvYWRfYnl0ZXNcIjoge1xuICAgICAgICAgICAgXCJyb3dzXCI6IHtcbiAgICAgICAgICAgICAgXCIka2luZFwiOiBcImJpbmRpbmdcIixcbiAgICAgICAgICAgICAgXCJzZWxlY3RcIjoge1xuICAgICAgICAgICAgICAgIFwiZnJvbVwiOiBcInN0ZXBzXCIsXG4gICAgICAgICAgICAgICAgXCJrZXlcIjogXCJzdGVwXzBcIixcbiAgICAgICAgICAgICAgICBcInBhdGhcIjogXCJvdXRwdXQuaXRlbXNcIlxuICAgICAgICAgICAgICB9XG4gICAgICAgICAgICB9LFxuICAgICAgICAgICAgXCJncm91cF9ieVwiOiB7XG4gICAgICAgICAgICAgIFwicGF0aFwiOiBbXG4gICAgICAgICAgICAgICAgXCJzdWJqZWN0X2lkXCJcbiAgICAgICAgICAgICAgXVxuICAgICAgICAgICAgfSxcbiAgICAgICAgICAgIFwiY29sdW1uc1wiOiBbXG4gICAgICAgICAgICAgIHtcbiAgICAgICAgICAgICAgICBcImNvbHVtblwiOiAwLFxuICAgICAgICAgICAgICAgIFwic291cmNlXCI6IHtcbiAgICAgICAgICAgICAgICAgIFwicGF0aFwiOiBbXG4gICAgICAgICAgICAgICAgICAgIFwic3ViamVjdF9pZFwiXG4gICAgICAgICAgICAgICAgICBdXG4gICAgICAgICAgICAgICAgfSxcbiAgICAgICAgICAgICAgICBcInZhbHVlXCI6IHtcbiAgICAgICAgICAgICAgICAgIFwidmFsdWVfdG9fYnl0ZXNcIjogXCJub25fZW1wdHlfdGV4dFwiXG4gICAgICAgICAgICAgICAgfVxuICAgICAgICAgICAgICB9LFxuICAgICAgICAgICAgICB7XG4gICAgICAgICAgICAgICAgXCJjb2x1bW5cIjogMSxcbiAgICAgICAgICAgICAgICBcIm1hdGNoXCI6IFtcbiAgICAgICAgICAgICAgICAgIHtcbiAgICAgICAgICAgICAgICAgICAgXCJwYXRoXCI6IFtcbiAgICAgICAgICAgICAgICAgICAgICBcInByb3BlcnR5X2lkXCJcbiAgICAgICAgICAgICAgICAgICAgXSxcbiAgICAgICAgICAgICAgICAgICAgXCJlcXVhbHNcIjogXCJwcm9wOmJ1Z19yZXBvcnQ6dGl0bGVcIlxuICAgICAgICAgICAgICAgICAgfVxuICAgICAgICAgICAgICAgIF0sXG4gICAgICAgICAgICAgICAgXCJzb3VyY2VcIjoge1xuICAgICAgICAgICAgICAgICAgXCJwYXRoXCI6IFtcbiAgICAgICAgICAgICAgICAgICAgXCJ2YWx1ZV9qc29uXCJcbiAgICAgICAgICAgICAgICAgIF1cbiAgICAgICAgICAgICAgICB9LFxuICAgICAgICAgICAgICAgIFwidmFsdWVcIjoge1xuICAgICAgICAgICAgICAgICAgXCJ2YWx1ZV90b19ieXRlc1wiOiBcInRleHRcIlxuICAgICAgICAgICAgICAgIH1cbiAgICAgICAgICAgICAgfSxcbiAgICAgICAgICAgICAge1xuICAgICAgICAgICAgICAgIFwiY29sdW1uXCI6IDIsXG4gICAgICAgICAgICAgICAgXCJtYXRjaFwiOiBbXG4gICAgICAgICAgICAgICAgICB7XG4gICAgICAgICAgICAgICAgICAgIFwicGF0aFwiOiBbXG4gICAgICAgICAgICAgICAgICAgICAgXCJwcm9wZXJ0eV9pZFwiXG4gICAgICAgICAgICAgICAgICAgIF0sXG4gICAgICAgICAgICAgICAgICAgIFwiZXF1YWxzXCI6IFwicHJvcDpidWdfcmVwb3J0OmRlc2NyaXB0aW9uXCJcbiAgICAgICAgICAgICAgICAgIH1cbiAgICAgICAgICAgICAgICBdLFxuICAgICAgICAgICAgICAgIFwic291cmNlXCI6IHtcbiAgICAgICAgICAgICAgICAgIFwicGF0aFwiOiBbXG4gICAgICAgICAgICAgICAgICAgIFwidmFsdWVfanNvblwiXG4gICAgICAgICAgICAgICAgICBdXG4gICAgICAgICAgICAgICAgfSxcbiAgICAgICAgICAgICAgICBcInZhbHVlXCI6IHtcbiAgICAgICAgICAgICAgICAgIFwidmFsdWVfdG9fYnl0ZXNcIjogXCJ0ZXh0XCJcbiAgICAgICAgICAgICAgICB9XG4gICAgICAgICAgICAgIH0sXG4gICAgICAgICAgICAgIHtcbiAgICAgICAgICAgICAgICBcImNvbHVtblwiOiAzLFxuICAgICAgICAgICAgICAgIFwibWF0Y2hcIjogW1xuICAgICAgICAgICAgICAgICAge1xuICAgICAgICAgICAgICAgICAgICBcInBhdGhcIjogW1xuICAgICAgICAgICAgICAgICAgICAgIFwicHJvcGVydHlfaWRcIlxuICAgICAgICAgICAgICAgICAgICBdLFxuICAgICAgICAgICAgICAgICAgICBcImVxdWFsc1wiOiBcInByb3A6YnVnX3JlcG9ydDpzdGVwc190b19yZXByb2R1Y2VcIlxuICAgICAgICAgICAgICAgICAgfVxuICAgICAgICAgICAgICAgIF0sXG4gICAgICAgICAgICAgICAgXCJzb3VyY2VcIjoge1xuICAgICAgICAgICAgICAgICAgXCJwYXRoXCI6IFtcbiAgICAgICAgICAgICAgICAgICAgXCJ2YWx1ZV9qc29uXCJcbiAgICAgICAgICAgICAgICAgIF1cbiAgICAgICAgICAgICAgICB9LFxuICAgICAgICAgICAgICAgIFwidmFsdWVcIjoge1xuICAgICAgICAgICAgICAgICAgXCJ2YWx1ZV90b19ieXRlc1wiOiBcInRleHRcIlxuICAgICAgICAgICAgICAgIH1cbiAgICAgICAgICAgICAgfSxcbiAgICAgICAgICAgICAge1xuICAgICAgICAgICAgICAgIFwiY29sdW1uXCI6IDQsXG4gICAgICAgICAgICAgICAgXCJtYXRjaFwiOiBbXG4gICAgICAgICAgICAgICAgICB7XG4gICAgICAgICAgICAgICAgICAgIFwicGF0aFwiOiBbXG4gICAgICAgICAgICAgICAgICAgICAgXCJwcm9wZXJ0eV9pZFwiXG4gICAgICAgICAgICAgICAgICAgIF0sXG4gICAgICAgICAgICAgICAgICAgIFwiZXF1YWxzXCI6IFwicHJvcDpidWdfcmVwb3J0OnNldmVyaXR5XCJcbiAgICAgICAgICAgICAgICAgIH1cbiAgICAgICAgICAgICAgICBdLFxuICAgICAgICAgICAgICAgIFwic291cmNlXCI6IHtcbiAgICAgICAgICAgICAgICAgIFwicGF0aFwiOiBbXG4gICAgICAgICAgICAgICAgICAgIFwidmFsdWVfanNvblwiXG4gICAgICAgICAgICAgICAgICBdXG4gICAgICAgICAgICAgICAgfSxcbiAgICAgICAgICAgICAgICBcInZhbHVlXCI6IHtcbiAgICAgICAgICAgICAgICAgIFwidmFsdWVfdG9fYnl0ZXNcIjogXCJ0ZXh0XCJcbiAgICAgICAgICAgICAgICB9XG4gICAgICAgICAgICAgIH0sXG4gICAgICAgICAgICAgIHtcbiAgICAgICAgICAgICAgICBcImNvbHVtblwiOiA1LFxuICAgICAgICAgICAgICAgIFwibWF0Y2hcIjogW1xuICAgICAgICAgICAgICAgICAge1xuICAgICAgICAgICAgICAgICAgICBcInBhdGhcIjogW1xuICAgICAgICAgICAgICAgICAgICAgIFwicHJvcGVydHlfaWRcIlxuICAgICAgICAgICAgICAgICAgICBdLFxuICAgICAgICAgICAgICAgICAgICBcImVxdWFsc1wiOiBcInByb3A6YnVnX3JlcG9ydDpyZXBvcnRlZF9hdFwiXG4gICAgICAgICAgICAgICAgICB9XG4gICAgICAgICAgICAgICAgXSxcbiAgICAgICAgICAgICAgICBcInNvdXJjZVwiOiB7XG4gICAgICAgICAgICAgICAgICBcInBhdGhcIjogW1xuICAgICAgICAgICAgICAgICAgICBcInZhbHVlX2pzb25cIlxuICAgICAgICAgICAgICAgICAgXVxuICAgICAgICAgICAgICAgIH0sXG4gICAgICAgICAgICAgICAgXCJ2YWx1ZVwiOiB7XG4gICAgICAgICAgICAgICAgICBcInZhbHVlX3RvX2J5dGVzXCI6IFwidGV4dFwiXG4gICAgICAgICAgICAgICAgfVxuICAgICAgICAgICAgICB9XG4gICAgICAgICAgICBdLFxuICAgICAgICAgICAgXCJ2YWx1ZV90b19ieXRlc1wiOiBcImNlbGxfdGFibGVcIlxuICAgICAgICAgIH1cbiAgICAgICAgfVxuICAgICAgXVxuICAgIH1cbiAgfVxuXSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:bug-reports|prop:extension:instance_props|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:instance_props"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmV4dGVuc2lvbjppbnN0YW5jZV9wcm9wcyIsCiAgInN1YmplY3RfaWQiOiAiY29tcG9uZW50OmJ1Zy1yZXBvcnRzIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6ZXh0ZW5zaW9uIiwKICAidmFsdWVfanNvbiI6ICJ7XG4gIFwiZmxvYXRpbmdfZnJhbWVcIjoge1xuICAgIFwibW9kZVwiOiBcImlubGluZVwiXG4gIH1cbn0iCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:bug-reports|prop:extension:name|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:name"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmV4dGVuc2lvbjpuYW1lIiwKICAic3ViamVjdF9pZCI6ICJjb21wb25lbnQ6YnVnLXJlcG9ydHMiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpleHRlbnNpb24iLAogICJ2YWx1ZV9qc29uIjogIlwiQnVnUmVwb3J0c1wiIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:bug-reports|prop:extension:source_path|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:source_path"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmV4dGVuc2lvbjpzb3VyY2VfcGF0aCIsCiAgInN1YmplY3RfaWQiOiAiY29tcG9uZW50OmJ1Zy1yZXBvcnRzIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6ZXh0ZW5zaW9uIiwKICAidmFsdWVfanNvbiI6ICJcInBhY2thZ2VzL2J1Zy1yZXBvcnRzL3Nob3cvbW91bnQtYnVnLXJlcG9ydHMudHN4XCIiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:bug-reports|prop:extension:status|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:status"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmV4dGVuc2lvbjpzdGF0dXMiLAogICJzdWJqZWN0X2lkIjogImNvbXBvbmVudDpidWctcmVwb3J0cyIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOmV4dGVuc2lvbiIsCiAgInZhbHVlX2pzb24iOiAiXCJhY3RpdmVcIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:bug-reports|prop:extension:version|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:version"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmV4dGVuc2lvbjp2ZXJzaW9uIiwKICAic3ViamVjdF9pZCI6ICJjb21wb25lbnQ6YnVnLXJlcG9ydHMiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpleHRlbnNpb24iLAogICJ2YWx1ZV9qc29uIjogIlwiMS4wLjBcIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:bug-reports|prop:resource:compiler_config|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:resource:compiler_config"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6cmVzb3VyY2U6Y29tcGlsZXJfY29uZmlnIiwic3ViamVjdF9pZCI6ImNvbXBvbmVudDpidWctcmVwb3J0cyIsInRhYmxlIjoiYXR0cmlidXRlX2ZhY3QiLCJ0eXBlX2lkIjoidHlwZTpleHRlbnNpb24iLCJ2YWx1ZV9qc29uIjoie1wiYXJndlwiOltcIi4vdG9vbFwiLFwiX19TT1VSQ0VfUEFUSF9fXCIsXCItLWJ1bmRsZVwiLFwiLS1mb3JtYXQ9Y2pzXCIsXCItLW91dGZpbGU9X19PVVRQVVRfMF9fXCIsXCItLXBsYXRmb3JtPWJyb3dzZXJcIixcIi0tdGFyZ2V0PWVzMjAyMFwiLFwiLS1qc3g9YXV0b21hdGljXCIsXCItLWxvYWRlcjoudHN4PXRzeFwiLFwiLS1sb2FkZXI6LnRzPXRzXCIsXCItLXJlc29sdmUtZXh0ZW5zaW9ucz0udHMsLnRzeCwuanMsLmpzeFwiLFwiLS1hbGlhczpAPS5cIixcIi0tYWxpYXM6QGJpdGZpZWxkL3J1bnRpbWUta2l0L3JlYWN0PS4vcGFja2FnZXMvYnVnLXJlcG9ydHMvLmJpdGZpZWxkLWVudHJ5LXNjb3BlL2VudHJ5LTYyNzU2NzJkNzI2NTcwNmY3Mjc0NzMvcnVudGltZS1raXQtcmVhY3QudHNcIixcIi0tcHJlc2VydmUtc3ltbGlua3NcIixcIi0tZXh0ZXJuYWw6cmVhY3RcIixcIi0tZXh0ZXJuYWw6cmVhY3QtZG9tXCIsXCItLWV4dGVybmFsOnJlYWN0LWRvbS9jbGllbnRcIixcIi0tZXh0ZXJuYWw6cmVhY3QvanN4LXJ1bnRpbWVcIixcIi0tZXh0ZXJuYWw6cmVhY3QvanN4LWRldi1ydW50aW1lXCIsXCItLWV4dGVybmFsOnNjaGVkdWxlclwiXSxcImN3ZFwiOlwiLlwiLFwidGltZW91dF9tc1wiOjEyMDAwMCxcInRlcm1pbmF0aW9uX2dyYWNlX21zXCI6MTAwMCxcImV4cGVjdGVkX3Rlcm1pbmF0aW9uXCI6bnVsbCxcImVudlwiOnt9LFwiaW5wdXRzXCI6W10sXCJpbnB1dF90cmVlc1wiOltdLFwib3V0cHV0c1wiOlt7XCJjb250ZW50X3R5cGVcIjpcImFwcGxpY2F0aW9uL2phdmFzY3JpcHRcIixcIm1vdW50X3BhdGhcIjpcIm91dHB1dC5qc1wifV0sXCJjb250YWlubWVudFwiOntcImtpbmRcIjpcImRlc2NlbmRhbnRfZWZmZWN0X2NvbnRhaW5lZFwiLFwicGlwZV9lb2ZfdGltZW91dF9tc1wiOjEwMDAsXCJwdWJsaWNhdGlvbnNcIjpbXX0sXCJjYXB0dXJlX2Zkc1wiOlsxLDJdLFwiY29sbGVjdGVkX2ZpbGVzXCI6W10sXCJvdXRwdXRfbWFwcGluZ1wiOlt7XCJjb250ZW50X3R5cGVcIjpcImFwcGxpY2F0aW9uL2phdmFzY3JpcHRcIixcImhhc2hfcHJvcGVydHlfaWRcIjpcInByb3A6ZXh0ZW5zaW9uOmludGVncml0eV9oYXNoXCIsXCJvdXRwdXRfcGF0aFwiOlwib3V0cHV0LmpzXCIsXCJwcm9wZXJ0eV9pZFwiOlwicHJvcDpleHRlbnNpb246YnVuZGxlXCIsXCJ0eXBlX2lkXCI6XCJ0eXBlOmV4dGVuc2lvblwifV19In0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:bug-reports|prop:resource:compiler_resource|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:resource:compiler_resource"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnJlc291cmNlOmNvbXBpbGVyX3Jlc291cmNlIiwKICAic3ViamVjdF9pZCI6ICJjb21wb25lbnQ6YnVnLXJlcG9ydHMiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpleHRlbnNpb24iLAogICJ2YWx1ZV9qc29uIjogIlwicmVzb3VyY2U6ZXNidWlsZFwiIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:publish-bug-reports-on-change|prop:trigger:dispatch_target|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:dispatch_target"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6ZGlzcGF0Y2hfdGFyZ2V0IiwKICAic3ViamVjdF9pZCI6ICJ0cmlnZ2VyOnB1Ymxpc2gtYnVnLXJlcG9ydHMtb24tY2hhbmdlIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6dHJpZ2dlciIsCiAgInZhbHVlX2pzb24iOiAiXCJzbG90Ojp3b3JrZmxvd1wiIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:publish-bug-reports-on-change|prop:trigger:is_active|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:is_active"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6aXNfYWN0aXZlIiwKICAic3ViamVjdF9pZCI6ICJ0cmlnZ2VyOnB1Ymxpc2gtYnVnLXJlcG9ydHMtb24tY2hhbmdlIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6dHJpZ2dlciIsCiAgInZhbHVlX2pzb24iOiAidHJ1ZSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:publish-bug-reports-on-change|prop:trigger:match_condition|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:match_condition"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6bWF0Y2hfY29uZGl0aW9uIiwKICAic3ViamVjdF9pZCI6ICJ0cmlnZ2VyOnB1Ymxpc2gtYnVnLXJlcG9ydHMtb24tY2hhbmdlIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6dHJpZ2dlciIsCiAgInZhbHVlX2pzb24iOiAie1xuICBcImNvbmRpdGlvbnNcIjogW1xuICAgIHtcbiAgICAgIFwiJGJpbmRcIjoge1xuICAgICAgICBcInNlbGVjdFwiOiB7XG4gICAgICAgICAgXCJmcm9tXCI6IFwiY2hhbmdlXCIsXG4gICAgICAgICAgXCJwYXRoXCI6IFwicHJvcGVydHlfaWRcIlxuICAgICAgICB9LFxuICAgICAgICBcInRyYW5zZm9ybVwiOiBbXG4gICAgICAgICAge1xuICAgICAgICAgICAgXCJvcFwiOiBcIm9wOmNvcmUuaW5fbGlzdFwiLFxuICAgICAgICAgICAgXCJhcmdzXCI6IHtcbiAgICAgICAgICAgICAgXCJ2YWx1ZXNcIjogW1xuICAgICAgICAgICAgICAgIFwicHJvcDpidWdfcmVwb3J0OnRpdGxlXCIsXG4gICAgICAgICAgICAgICAgXCJwcm9wOmJ1Z19yZXBvcnQ6ZGVzY3JpcHRpb25cIixcbiAgICAgICAgICAgICAgICBcInByb3A6YnVnX3JlcG9ydDpzdGVwc190b19yZXByb2R1Y2VcIixcbiAgICAgICAgICAgICAgICBcInByb3A6YnVnX3JlcG9ydDpzZXZlcml0eVwiLFxuICAgICAgICAgICAgICAgIFwicHJvcDpidWdfcmVwb3J0OnJlcG9ydGVkX2F0XCJcbiAgICAgICAgICAgICAgXVxuICAgICAgICAgICAgfVxuICAgICAgICAgIH1cbiAgICAgICAgXVxuICAgICAgfVxuICAgIH1cbiAgXVxufSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:publish-bug-reports-on-change|prop:trigger:name|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:name"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6bmFtZSIsCiAgInN1YmplY3RfaWQiOiAidHJpZ2dlcjpwdWJsaXNoLWJ1Zy1yZXBvcnRzLW9uLWNoYW5nZSIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOnRyaWdnZXIiLAogICJ2YWx1ZV9qc29uIjogIlwicHVibGlzaC1idWctcmVwb3J0cy1vbi1jaGFuZ2VcIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:publish-bug-reports-on-change|prop:trigger:output_template|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:output_template"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6b3V0cHV0X3RlbXBsYXRlIiwKICAic3ViamVjdF9pZCI6ICJ0cmlnZ2VyOnB1Ymxpc2gtYnVnLXJlcG9ydHMtb24tY2hhbmdlIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6dHJpZ2dlciIsCiAgInZhbHVlX2pzb24iOiAie1xuICBcIm9wZXJhdGlvblwiOiBcImV4ZWN1dGVfZGVmaW5pdGlvblwiLFxuICBcImRlZmluaXRpb25faWRcIjogXCJhY3Rpb246cHVibGlzaC1idWctcmVwb3J0c1wiLFxuICBcImluY2x1ZGVfc3RlcHNcIjogZmFsc2UsXG4gIFwiaW5jbHVkZV9vdXRwdXRcIjogZmFsc2UsXG4gIFwiaW5wdXRcIjoge1xuICAgIFwiY2hhbmdlXCI6IHtcbiAgICAgIFwiJGtpbmRcIjogXCJiaW5kaW5nXCIsXG4gICAgICBcInNlbGVjdFwiOiB7XG4gICAgICAgIFwiZnJvbVwiOiBcImNoYW5nZVwiLFxuICAgICAgICBcInBhdGhcIjogXCJcIlxuICAgICAgfVxuICAgIH0sXG4gICAgXCJlbnZlbG9wZVwiOiB7XG4gICAgICBcIiRraW5kXCI6IFwiYmluZGluZ1wiLFxuICAgICAgXCJzZWxlY3RcIjoge1xuICAgICAgICBcImZyb21cIjogXCJlbnZlbG9wZVwiLFxuICAgICAgICBcInBhdGhcIjogXCJcIlxuICAgICAgfVxuICAgIH1cbiAgfVxufSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:publish-bug-reports-on-change|prop:trigger:topic|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:topic"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6dG9waWMiLAogICJzdWJqZWN0X2lkIjogInRyaWdnZXI6cHVibGlzaC1idWctcmVwb3J0cy1vbi1jaGFuZ2UiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTp0cmlnZ2VyIiwKICAidmFsdWVfanNvbiI6ICJcImF0dHJpYnV0ZV9jaGFuZ2VkXCIiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:publish-bug-reports-on-workspace-loaded|prop:trigger:dispatch_target|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:dispatch_target"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6ZGlzcGF0Y2hfdGFyZ2V0IiwKICAic3ViamVjdF9pZCI6ICJ0cmlnZ2VyOnB1Ymxpc2gtYnVnLXJlcG9ydHMtb24td29ya3NwYWNlLWxvYWRlZCIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOnRyaWdnZXIiLAogICJ2YWx1ZV9qc29uIjogIlwic2xvdDo6d29ya2Zsb3dcIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:publish-bug-reports-on-workspace-loaded|prop:trigger:is_active|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:is_active"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6aXNfYWN0aXZlIiwKICAic3ViamVjdF9pZCI6ICJ0cmlnZ2VyOnB1Ymxpc2gtYnVnLXJlcG9ydHMtb24td29ya3NwYWNlLWxvYWRlZCIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOnRyaWdnZXIiLAogICJ2YWx1ZV9qc29uIjogInRydWUiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:publish-bug-reports-on-workspace-loaded|prop:trigger:match_condition|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:match_condition"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6bWF0Y2hfY29uZGl0aW9uIiwKICAic3ViamVjdF9pZCI6ICJ0cmlnZ2VyOnB1Ymxpc2gtYnVnLXJlcG9ydHMtb24td29ya3NwYWNlLWxvYWRlZCIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOnRyaWdnZXIiLAogICJ2YWx1ZV9qc29uIjogIntcbiAgXCJjb25kaXRpb25zXCI6IFtcbiAgICB7XG4gICAgICBcIiRiaW5kXCI6IHtcbiAgICAgICAgXCJzZWxlY3RcIjoge1xuICAgICAgICAgIFwiZnJvbVwiOiBcImNoYW5nZVwiLFxuICAgICAgICAgIFwicGF0aFwiOiBcInByb3BlcnRpZXMuZXZlbnRfdHlwZVwiXG4gICAgICAgIH0sXG4gICAgICAgIFwidHJhbnNmb3JtXCI6IFtcbiAgICAgICAgICB7XG4gICAgICAgICAgICBcIm9wXCI6IFwib3A6Y29yZS5lcXVhbHNcIixcbiAgICAgICAgICAgIFwiYXJnc1wiOiB7XG4gICAgICAgICAgICAgIFwidmFsdWVcIjogXCJ3b3Jrc3BhY2VfbG9hZGVkXCJcbiAgICAgICAgICAgIH1cbiAgICAgICAgICB9XG4gICAgICAgIF1cbiAgICAgIH1cbiAgICB9XG4gIF1cbn0iCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:publish-bug-reports-on-workspace-loaded|prop:trigger:name|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:name"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6bmFtZSIsCiAgInN1YmplY3RfaWQiOiAidHJpZ2dlcjpwdWJsaXNoLWJ1Zy1yZXBvcnRzLW9uLXdvcmtzcGFjZS1sb2FkZWQiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTp0cmlnZ2VyIiwKICAidmFsdWVfanNvbiI6ICJcInB1Ymxpc2gtYnVnLXJlcG9ydHMtb24td29ya3NwYWNlLWxvYWRlZFwiIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:publish-bug-reports-on-workspace-loaded|prop:trigger:output_template|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:output_template"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6b3V0cHV0X3RlbXBsYXRlIiwKICAic3ViamVjdF9pZCI6ICJ0cmlnZ2VyOnB1Ymxpc2gtYnVnLXJlcG9ydHMtb24td29ya3NwYWNlLWxvYWRlZCIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOnRyaWdnZXIiLAogICJ2YWx1ZV9qc29uIjogIntcbiAgXCJvcGVyYXRpb25cIjogXCJleGVjdXRlX2RlZmluaXRpb25cIixcbiAgXCJkZWZpbml0aW9uX2lkXCI6IFwiYWN0aW9uOnB1Ymxpc2gtYnVnLXJlcG9ydHNcIixcbiAgXCJpbmNsdWRlX3N0ZXBzXCI6IGZhbHNlLFxuICBcImluY2x1ZGVfb3V0cHV0XCI6IGZhbHNlLFxuICBcImlucHV0XCI6IHtcbiAgICBcImNoYW5nZVwiOiB7XG4gICAgICBcIiRraW5kXCI6IFwiYmluZGluZ1wiLFxuICAgICAgXCJzZWxlY3RcIjoge1xuICAgICAgICBcImZyb21cIjogXCJjaGFuZ2VcIixcbiAgICAgICAgXCJwYXRoXCI6IFwiXCJcbiAgICAgIH1cbiAgICB9LFxuICAgIFwiZW52ZWxvcGVcIjoge1xuICAgICAgXCIka2luZFwiOiBcImJpbmRpbmdcIixcbiAgICAgIFwic2VsZWN0XCI6IHtcbiAgICAgICAgXCJmcm9tXCI6IFwiZW52ZWxvcGVcIixcbiAgICAgICAgXCJwYXRoXCI6IFwiXCJcbiAgICAgIH1cbiAgICB9XG4gIH1cbn0iCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:publish-bug-reports-on-workspace-loaded|prop:trigger:topic|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:topic"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6dG9waWMiLAogICJzdWJqZWN0X2lkIjogInRyaWdnZXI6cHVibGlzaC1idWctcmVwb3J0cy1vbi13b3Jrc3BhY2UtbG9hZGVkIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6dHJpZ2dlciIsCiAgInZhbHVlX2pzb24iOiAiXCJ3b3Jrc3BhY2VfbG9hZGVkXCIiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|action:publish-bug-reports|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "type:action"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJlbnRpdHlfaWQiOiAiYWN0aW9uOnB1Ymxpc2gtYnVnLXJlcG9ydHMiLAogICJ0YWJsZSI6ICJlbnRpdHlfdHlwZXMiLAogICJ0eXBlX2lkIjogInR5cGU6YWN0aW9uIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|component:bug-reports|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "type:extension"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJlbnRpdHlfaWQiOiAiY29tcG9uZW50OmJ1Zy1yZXBvcnRzIiwKICAidGFibGUiOiAiZW50aXR5X3R5cGVzIiwKICAidHlwZV9pZCI6ICJ0eXBlOmV4dGVuc2lvbiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|trigger:publish-bug-reports-on-change|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "type:trigger"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJlbnRpdHlfaWQiOiAidHJpZ2dlcjpwdWJsaXNoLWJ1Zy1yZXBvcnRzLW9uLWNoYW5nZSIsCiAgInRhYmxlIjogImVudGl0eV90eXBlcyIsCiAgInR5cGVfaWQiOiAidHlwZTp0cmlnZ2VyIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|trigger:publish-bug-reports-on-workspace-loaded|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "type:trigger"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJlbnRpdHlfaWQiOiAidHJpZ2dlcjpwdWJsaXNoLWJ1Zy1yZXBvcnRzLW9uLXdvcmtzcGFjZS1sb2FkZWQiLAogICJ0YWJsZSI6ICJlbnRpdHlfdHlwZXMiLAogICJ0eXBlX2lkIjogInR5cGU6dHJpZ2dlciIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|action:publish-bug-reports",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJpZCI6ICJhY3Rpb246cHVibGlzaC1idWctcmVwb3J0cyIsCiAgInRhYmxlIjogImVudGl0eSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|component:bug-reports",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJpZCI6ICJjb21wb25lbnQ6YnVnLXJlcG9ydHMiLAogICJ0YWJsZSI6ICJlbnRpdHkiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|trigger:publish-bug-reports-on-change",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJpZCI6ICJ0cmlnZ2VyOnB1Ymxpc2gtYnVnLXJlcG9ydHMtb24tY2hhbmdlIiwKICAidGFibGUiOiAiZW50aXR5Igp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|trigger:publish-bug-reports-on-workspace-loaded",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJpZCI6ICJ0cmlnZ2VyOnB1Ymxpc2gtYnVnLXJlcG9ydHMtb24td29ya3NwYWNlLWxvYWRlZCIsCiAgInRhYmxlIjogImVudGl0eSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bug-reports::entry::bug-reports",
+      "path": [
+        "packages",
+        "bug-reports",
+        "entries",
+        "bug-reports"
+      ],
+      "payload": {
+        "entry_name": "bug-reports",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-bug-reports.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-bug-reports"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bug-reports::workflow-action::create-quick-report",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": true
+    },
+    {
+      "type": "record",
+      "address": "package::bug-reports::workflow-action::create-quick-bug-report",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:create-quick-bug-report",
+        "kind": "action",
+        "name": "create-quick-bug-report",
+        "description": "Create a canonical bug_report from the quick-report modal fields.",
+        "input_schema": {},
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "report_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "entity|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "report_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [],
+                  "payload": {
+                    "id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "report_id"
+                      }
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "report_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "entity_types|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "report_id"
+                              }
+                            },
+                            "|type:bug_report"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [],
+                  "payload": {
+                    "entity_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "report_id"
+                      }
+                    },
+                    "type_id": "type:bug_report"
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "report_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "report_id"
+                              }
+                            },
+                            "|prop:bug_report:title|type:string"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [],
+                  "payload": {
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "report_id"
+                      }
+                    },
+                    "property_id": "prop:bug_report:title",
+                    "type_id": "type:string",
+                    "value_json": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "title"
+                      }
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "report_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "report_id"
+                              }
+                            },
+                            "|prop:bug_report:description|type:string"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [],
+                  "payload": {
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "report_id"
+                      }
+                    },
+                    "property_id": "prop:bug_report:description",
+                    "type_id": "type:string",
+                    "value_json": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "description"
+                      }
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "report_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "report_id"
+                              }
+                            },
+                            "|prop:bug_report:steps_to_reproduce|type:string"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [],
+                  "payload": {
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "report_id"
+                      }
+                    },
+                    "property_id": "prop:bug_report:steps_to_reproduce",
+                    "type_id": "type:string",
+                    "value_json": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "steps_to_reproduce"
+                      }
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "report_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "report_id"
+                              }
+                            },
+                            "|prop:bug_report:severity|type:string"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [],
+                  "payload": {
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "report_id"
+                      }
+                    },
+                    "property_id": "prop:bug_report:severity",
+                    "type_id": "type:string",
+                    "value_json": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "severity"
+                      }
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "report_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "report_id"
+                              }
+                            },
+                            "|prop:bug_report:reported_at|type:string"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [],
+                  "payload": {
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "report_id"
+                      }
+                    },
+                    "property_id": "prop:bug_report:reported_at",
+                    "type_id": "type:string",
+                    "value_json": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "reported_at"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:bug_report|prop:bug_report:description",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmJ1Z19yZXBvcnQ6ZGVzY3JpcHRpb24iLAogICJ0YWJsZSI6ICJ0eXBlX3Byb3BlcnRpZXMiLAogICJ0eXBlX2lkIjogInR5cGU6YnVnX3JlcG9ydCIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:bug_report|prop:bug_report:reported_at",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmJ1Z19yZXBvcnQ6cmVwb3J0ZWRfYXQiLAogICJ0YWJsZSI6ICJ0eXBlX3Byb3BlcnRpZXMiLAogICJ0eXBlX2lkIjogInR5cGU6YnVnX3JlcG9ydCIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:bug_report|prop:bug_report:severity",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmJ1Z19yZXBvcnQ6c2V2ZXJpdHkiLAogICJ0YWJsZSI6ICJ0eXBlX3Byb3BlcnRpZXMiLAogICJ0eXBlX2lkIjogInR5cGU6YnVnX3JlcG9ydCIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:bug_report|prop:bug_report:steps_to_reproduce",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmJ1Z19yZXBvcnQ6c3RlcHNfdG9fcmVwcm9kdWNlIiwKICAidGFibGUiOiAidHlwZV9wcm9wZXJ0aWVzIiwKICAidHlwZV9pZCI6ICJ0eXBlOmJ1Z19yZXBvcnQiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:bug_report|prop:bug_report:title",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmJ1Z19yZXBvcnQ6dGl0bGUiLAogICJ0YWJsZSI6ICJ0eXBlX3Byb3BlcnRpZXMiLAogICJ0eXBlX2lkIjogInR5cGU6YnVnX3JlcG9ydCIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-bug-reports",
+      "source_path": "built-stored-bytes/entry-bytes-bug-reports",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-bug-reports.source-closure.json"
+    }
+  ]
+}

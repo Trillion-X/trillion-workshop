@@ -1,0 +1,70 @@
+{
+  "package": "course-lesson",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::course-lesson::contract",
+      "path": [
+        "packages",
+        "course-lesson",
+        "contract"
+      ],
+      "payload": {
+        "kind": "package-contract",
+        "package": "course-lesson",
+        "owns": [
+          "semantic lesson presentation",
+          "course resource preview and download presentation"
+        ],
+        "does_not_own": [
+          "course entitlement",
+          "learning path order",
+          "progress truth",
+          "artifact storage",
+          "package-set-specific lesson content"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::course-lesson::entry::course-lesson",
+      "path": [
+        "packages",
+        "course-lesson",
+        "entries",
+        "course-lesson"
+      ],
+      "build_source_path": "show/mount-course-lesson.tsx",
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "course-lesson",
+        "source_path": "show/mount-course-lesson.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-course-lesson"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::course-lesson::reaches-past-the-engine::network",
+      "path": [
+        "current-item",
+        "reaches-past-the-engine"
+      ],
+      "payload": {
+        "kind": "reaches-past-the-engine",
+        "reach_class": "network",
+        "why": "presenting a lesson's own declared resource to the learner who opened it is this package's job: every address fetched arrives as published CourseResource DATA on the surface input rather than a hardcoded host, and it is an outside author-written address rather than a content hash the engine holds, so the shared ui /cas/ reader cannot resolve it and any sibling doing it instead would be taking on a reach that is not its job."
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-course-lesson",
+      "source_path": "built-stored-bytes/entry-bytes-course-lesson",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-course-lesson.source-closure.json"
+    }
+  ]
+}

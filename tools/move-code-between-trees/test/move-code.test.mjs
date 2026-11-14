@@ -599,3 +599,30 @@ test('settle makes a receipt say what its file is now: the commit that held the 
   assert.deepEqual(settleReceipts({ folder }).settled, [], 'settling twice changes nothing');
   rmSync(folder, { recursive: true, force: true });
 });
+
+test('a call row swaps a made-up name for a real one in a data or prose file too, and check proves the file against its source once swapped', () => {
+  const source = repository({
+    'package.json': json({ name: 'old-app', type: 'module' }),
+    'src/pour.mjs': 'export const pour = () => 1;\n',
+    'src/README.md': 'Pour the tea. Ask Dana at /srv/dana/tea before you pour.\n',
+    'src/tea.json': json({ note: 'Dana prefers green tea' }),
+    'src/logo.bin': Buffer.from([0, 1, 2, 68, 97, 110, 97]).toString('latin1'),
+  });
+  const destination = repository(destinationFiles());
+  const calls = [
+    { id: 'person-name', find: '\\bDana\\b', replace: 'The maker', means: 'A real first name swapped for a made-up one.' },
+    { id: 'home-folder', find: '/srv/dana', replace: '/srv/the-maker', means: 'A real home folder swapped for a made-up one.' },
+  ];
+  const swapRow = { source: { name: 'old-app', test_folders: [] }, destination: { name: 'tool-box', package: 'tool-box', shared_folder: 'tools/shared-code' }, calls, groups: [{ id: 'pour-tea', owner: ['src/pour.mjs', 'src/README.md', 'src/tea.json', 'src/logo.bin'], to: 'tools/pour-tea', capability: 'pour the tea' }] };
+  try {
+    const plan = moveCode({ step: 'plan', row: swapRow, source_folder: source, destination_folder: destination });
+    assert.deepEqual(plan.files.find(file => file.from === 'src/README.md').swaps.map(hit => hit.id), ['person-name', 'home-folder']);
+    assert.equal(plan.files.find(file => file.from === 'src/logo.bin').swaps, undefined, 'a file with a zero byte is not read as text');
+    moveCode({ step: 'apply', row: swapRow, source_folder: source, destination_folder: destination });
+    assert.equal(readFileSync(join(destination, 'tools/pour-tea/src/README.md'), 'utf8'), 'Pour the tea. Ask The maker at /srv/the-maker/tea before you pour.\n');
+    assert.equal(JSON.parse(readFileSync(join(destination, 'tools/pour-tea/src/tea.json'), 'utf8')).note, 'The maker prefers green tea');
+    git(destination, 'add', '-A'); git(destination, 'commit', '-q', '-m', 'moved');
+    const proof = moveCode({ step: 'check', row: swapRow, source_folder: source, destination_folder: destination, run: false });
+    assert.equal(proof.ok, true, JSON.stringify(proof.folders));
+  } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
+});

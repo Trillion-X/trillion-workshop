@@ -2,8 +2,43 @@
   "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
   "source": "trillion",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "owner-home-folder",
+      "find": "[/]Users[/]b[r]ianakhtar",
+      "replace": "/workspace/the-owner",
+      "means": "A person's home folder name in a path, swapped for a made-up one: a public tree holds made-up data only."
+    },
+    {
+      "id": "owner-first-name",
+      "find": "\\bB[r]ian\\b",
+      "replace": "The owner",
+      "means": "A real person's first name in a comment or a description, swapped for a made-up one: a public tree holds made-up data only."
+    },
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    }
+  ],
   "files": [
+    {
+      "from": "packages/access-scoped-content/data/sidebar-config.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/data/sidebar-config.json",
+      "source_identity": "1f:2d756495db7c68752068d0e26a7fd652f7eb083af6cfc15423472a23744ac692",
+      "identity": "1f:2d756495db7c68752068d0e26a7fd652f7eb083af6cfc15423472a23744ac692",
+      "reused": true
+    },
+    {
+      "from": "packages/documents/data/sidebar-config.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/data/sidebar-config.json",
+      "source_identity": "1f:2d756495db7c68752068d0e26a7fd652f7eb083af6cfc15423472a23744ac692",
+      "identity": "1f:2d756495db7c68752068d0e26a7fd652f7eb083af6cfc15423472a23744ac692",
+      "reused": true
+    },
     {
       "from": "parts/documents/do-work/append-scene-roots-target.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
@@ -12,6 +47,14 @@
       "source_identity": "1f:fcf0dcd9b67279b202f325e7f03cab0a5527a56641b6e9d82401d14da68d2066",
       "identity": "1f:fcf0dcd9b67279b202f325e7f03cab0a5527a56641b6e9d82401d14da68d2066",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/documents/do-work/append-scene-roots-target.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/do-work/append-scene-roots-target.ts",
+      "source_identity": "1f:9f3ebaaf07062e6f36c339a7dd1134862426079208a193b4cb2db75142cf35ab",
+      "identity": "1f:fcf0dcd9b67279b202f325e7f03cab0a5527a56641b6e9d82401d14da68d2066",
+      "reused": true
     },
     {
       "from": "parts/documents/do-work/apply-scene-patch.ts",
@@ -32,6 +75,14 @@
       "found_by": "same bytes"
     },
     {
+      "from": "packages/documents/do-work/apply-scene-patches.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/do-work/apply-scene-patches.ts",
+      "source_identity": "1f:f1e9597436ab2df81460a53830ce405af89ab1b3d44dc2211103e3de280ea5cd",
+      "identity": "1f:f1e9597436ab2df81460a53830ce405af89ab1b3d44dc2211103e3de280ea5cd",
+      "reused": true
+    },
+    {
       "from": "parts/documents/do-work/build-composition-action-record.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
@@ -39,6 +90,14 @@
       "source_identity": "1f:785645df7fb34af691a48b3cf66e0edec48f0375a48a833ccdc526c18743a0f6",
       "identity": "1f:785645df7fb34af691a48b3cf66e0edec48f0375a48a833ccdc526c18743a0f6",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/documents/do-work/build-composition-action-record.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/do-work/build-composition-action-record.ts",
+      "source_identity": "1f:fc9fc7f10565e63b419481b1cce857fcdb3381d98915f70899acac9334a83ec0",
+      "identity": "1f:785645df7fb34af691a48b3cf66e0edec48f0375a48a833ccdc526c18743a0f6",
+      "reused": true
     },
     {
       "from": "parts/documents/do-work/build-create-component-transaction.ts",
@@ -50,6 +109,14 @@
       "found_by": "same bytes"
     },
     {
+      "from": "packages/documents/do-work/build-create-component-transaction.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/do-work/build-create-component-transaction.ts",
+      "source_identity": "1f:0b301d0bdd797b3227b41151cf4813a653f3e176b58b3a9f127ad32e38773935",
+      "identity": "1f:0b301d0bdd797b3227b41151cf4813a653f3e176b58b3a9f127ad32e38773935",
+      "reused": true
+    },
+    {
       "from": "parts/documents/do-work/build-float-transaction.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
@@ -57,6 +124,14 @@
       "source_identity": "1f:f69b9a0f70612a0819bb250a644de35a5daa391e51e395d729326aea4af968bb",
       "identity": "1f:f69b9a0f70612a0819bb250a644de35a5daa391e51e395d729326aea4af968bb",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/documents/do-work/build-float-transaction.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/do-work/build-float-transaction.ts",
+      "source_identity": "1f:06650bfe661680127d59b7c4b49189c9b6df9dd8e5f6567bbc51f00fcd26c7b6",
+      "identity": "1f:f69b9a0f70612a0819bb250a644de35a5daa391e51e395d729326aea4af968bb",
+      "reused": true
     },
     {
       "from": "parts/documents/do-work/build-panel-group-transaction.ts",
@@ -68,6 +143,14 @@
       "found_by": "same bytes"
     },
     {
+      "from": "packages/documents/do-work/build-panel-group-transaction.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/do-work/build-panel-group-transaction.ts",
+      "source_identity": "1f:988c5eba64fd40ef3d296c873f63065ab551fe25f41a15d4070faf5834aa3ee1",
+      "identity": "1f:97a2688c4a3f22171e39692be2c2214b26b41437183379b082ffcc40ec2eeca7",
+      "reused": true
+    },
+    {
       "from": "parts/documents/do-work/build-resize-transaction.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -77,6 +160,14 @@
       "found_by": "same bytes"
     },
     {
+      "from": "packages/documents/do-work/build-resize-transaction.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/do-work/build-resize-transaction.ts",
+      "source_identity": "1f:7bb3f08d5d43e0eb35b363055dfd19f45f71de6d57f594129f5ccc030e7a6c98",
+      "identity": "1f:5ac5b4498c180680d2668e1424b4734279bd59058bd10a98b06533b0b024a7cc",
+      "reused": true
+    },
+    {
       "from": "parts/documents/do-work/build-split-transaction.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
@@ -84,6 +175,14 @@
       "source_identity": "1f:d5c7f6debc54ea53f300cbf39c9dbdd0344631dd91d8b3c31554f66a5bf77c7b",
       "identity": "1f:d5c7f6debc54ea53f300cbf39c9dbdd0344631dd91d8b3c31554f66a5bf77c7b",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/documents/do-work/build-split-transaction.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/do-work/build-split-transaction.ts",
+      "source_identity": "1f:3faea6fe91ff6d14e8a39174829d4ec72c7c13ec54feb8d1accb31687df8d8de",
+      "identity": "1f:d5c7f6debc54ea53f300cbf39c9dbdd0344631dd91d8b3c31554f66a5bf77c7b",
+      "reused": true
     },
     {
       "from": "parts/documents/do-work/build-table-transaction.ts",
@@ -104,6 +203,14 @@
       "found_by": "same bytes"
     },
     {
+      "from": "packages/documents/do-work/build-task-attachment-append.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/do-work/build-task-attachment-append.ts",
+      "source_identity": "1f:cab860c1c536836788463230504971619c1910b954a8987dfe0e9af24ac6142a",
+      "identity": "1f:cab860c1c536836788463230504971619c1910b954a8987dfe0e9af24ac6142a",
+      "reused": true
+    },
+    {
       "from": "parts/documents/do-work/build-visibility-binding.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
@@ -111,6 +218,14 @@
       "source_identity": "1f:4141868545f6738a599ea5bc8d6608b3a1c2b7c7feddbcd503fb401123170ee1",
       "identity": "1f:4141868545f6738a599ea5bc8d6608b3a1c2b7c7feddbcd503fb401123170ee1",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/documents/do-work/build-visibility-binding.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/do-work/build-visibility-binding.ts",
+      "source_identity": "1f:778b27c3316370f6ea4ddf1287ddf319d527a4a260af77a0131330ff9030529e",
+      "identity": "1f:4141868545f6738a599ea5bc8d6608b3a1c2b7c7feddbcd503fb401123170ee1",
+      "reused": true
     },
     {
       "from": "parts/documents/do-work/composer-config.ts",
@@ -140,6 +255,14 @@
       "found_by": "same bytes"
     },
     {
+      "from": "packages/documents/do-work/materialize-authored-composition-intent.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/do-work/materialize-authored-composition-intent.ts",
+      "source_identity": "1f:de2c022705c73e87d5680769d97b378aa2978a633946c66ef257c13838b33c31",
+      "identity": "1f:526ffcb03640d9e959b2130112f5b7b6f8d300c5616c160388929532c2c58dd0",
+      "reused": true
+    },
+    {
       "from": "parts/documents/do-work/materialize-selection-target.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -147,6 +270,14 @@
       "source_identity": "1f:89b97232bd86c0f8a73274be11e7db422659e6946121e00fbc2e7b2d1b3a24f8",
       "identity": "1f:89b97232bd86c0f8a73274be11e7db422659e6946121e00fbc2e7b2d1b3a24f8",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/documents/do-work/materialize-selection-target.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/do-work/materialize-selection-target.ts",
+      "source_identity": "1f:699b92c2fb101f6d72db3139037d3b89fd230238fbf0b4d50d535c4babbb5d4c",
+      "identity": "1f:89b97232bd86c0f8a73274be11e7db422659e6946121e00fbc2e7b2d1b3a24f8",
+      "reused": true
     },
     {
       "from": "parts/documents/do-work/process-scripts/import-content-document.mjs",
@@ -167,6 +298,14 @@
       "found_by": "same bytes"
     },
     {
+      "from": "packages/documents/do-work/process-scripts/validate-documents-document-ref.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/do-work/process-scripts/validate-documents-document-ref.mjs",
+      "source_identity": "1f:9d1f0baa768ff1477527e99a3410232d3e7c2ef7c53cd4f4ac738c59b0edbad7",
+      "identity": "1f:9d1f0baa768ff1477527e99a3410232d3e7c2ef7c53cd4f4ac738c59b0edbad7",
+      "reused": true
+    },
+    {
       "from": "parts/documents/do-work/project-scene-to-file-request.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -174,6 +313,14 @@
       "source_identity": "1f:226832b43993102b78e4c09dd898ed1d52629744331add53912ecb695ec1d19a",
       "identity": "1f:226832b43993102b78e4c09dd898ed1d52629744331add53912ecb695ec1d19a",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/documents/do-work/project-scene-to-file-request.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/do-work/project-scene-to-file-request.ts",
+      "source_identity": "1f:743d6633eb0d7a37020de39aa9b0d8e282ca9f2a8fd8fbc01ce46c72a7f882d8",
+      "identity": "1f:226832b43993102b78e4c09dd898ed1d52629744331add53912ecb695ec1d19a",
+      "reused": true
     },
     {
       "from": "parts/documents/do-work/projection-runners-pack.ts",
@@ -194,6 +341,14 @@
       "found_by": "same bytes"
     },
     {
+      "from": "packages/documents/do-work/publish-authored-thing.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/do-work/publish-authored-thing.ts",
+      "source_identity": "1f:38bfb6886d40408a343e34c669cd2e1cc76bcb01dafdee7bea7297a4db73704a",
+      "identity": "1f:012a495a235ca6be3dc0a498dae15d0916903cbba918bfa686f082eac5c9800a",
+      "reused": true
+    },
+    {
       "from": "parts/documents/do-work/read-scene-target.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -201,6 +356,22 @@
       "source_identity": "1f:b9965cc199ccca97975dc402fdfde0a3a869634a694f9032090cf3e1504725ea",
       "identity": "1f:b9965cc199ccca97975dc402fdfde0a3a869634a694f9032090cf3e1504725ea",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/documents/do-work/read-scene-target.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/do-work/read-scene-target.ts",
+      "source_identity": "1f:f39247e46be9ac2276f9db145e62978d6599cdcff376cc799e7091a9e4ef61dd",
+      "identity": "1f:b9965cc199ccca97975dc402fdfde0a3a869634a694f9032090cf3e1504725ea",
+      "reused": true
+    },
+    {
+      "from": "packages/documents/do-work/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/do-work/README.md",
+      "source_identity": "1f:f7b0542336c912c0b2d35099a3fe6adf83c928118ff9e8c13f9abd5a3ddc2094",
+      "identity": "1f:f7b0542336c912c0b2d35099a3fe6adf83c928118ff9e8c13f9abd5a3ddc2094",
+      "reused": true
     },
     {
       "from": "parts/documents/do-work/run-action-affordance.ts",
@@ -230,6 +401,14 @@
       "found_by": "same bytes"
     },
     {
+      "from": "packages/documents/do-work/scene-target-runtime.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/do-work/scene-target-runtime.ts",
+      "source_identity": "1f:773dd2179d4abe79fbdd6690ccf61c99cc6993a63fdecf717ffb13ce779a7a7e",
+      "identity": "1f:6862dbd1af749d7d7b1f1681fe87c0f341946ae0823e8aee14428f6e1d13fc37",
+      "reused": true
+    },
+    {
       "from": "parts/documents/do-work/send-composition-transaction.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
@@ -257,6 +436,14 @@
       "found_by": "same bytes"
     },
     {
+      "from": "packages/documents/do-work/serialize-selection-context.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/do-work/serialize-selection-context.ts",
+      "source_identity": "1f:70a69a58d387c67cacfadcfd75714f2a00682e9322bd6fe210e7022381fecdc0",
+      "identity": "1f:923438eac9815817010e1f53849897c206344cc544de052e571078e83df1dcf1",
+      "reused": true
+    },
+    {
       "from": "parts/documents/do-work/write-composition-documents.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -264,6 +451,30 @@
       "source_identity": "1f:102601173aaf63070aa7bf20055346fca8d77f7b0bc10ed5a7a530c74657ab25",
       "identity": "1f:102601173aaf63070aa7bf20055346fca8d77f7b0bc10ed5a7a530c74657ab25",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/documents/entry-read-scope-packages.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/entry-read-scope-packages.json",
+      "source_identity": "1f:1737677ad3162ae36010415f8efae5b11b35a39e424fe9eb9daf54449819fc19",
+      "identity": "1f:1737677ad3162ae36010415f8efae5b11b35a39e424fe9eb9daf54449819fc19",
+      "reused": true
+    },
+    {
+      "from": "packages/documents/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/entry-to-package-data-map.json",
+      "source_identity": "1f:b4835ede7f42b3ca32b212482f8cb6ef6636d0dcf65c04fcf18f88d4b2535d83",
+      "identity": "1f:b4835ede7f42b3ca32b212482f8cb6ef6636d0dcf65c04fcf18f88d4b2535d83",
+      "reused": true
+    },
+    {
+      "from": "packages/documents/import-document-result.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/import-document-result.json",
+      "source_identity": "1f:40f058724d64d7d836098f85db4c62b2beac857af5dbda86a6cc0415b59a6fa2",
+      "identity": "1f:40f058724d64d7d836098f85db4c62b2beac857af5dbda86a6cc0415b59a6fa2",
+      "reused": true
     },
     {
       "from": "parts/documents/index.ts",
@@ -275,6 +486,225 @@
       "found_by": "same bytes"
     },
     {
+      "from": "packages/documents/do-work/apply-scene-patch.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/do-work/apply-scene-patch.ts",
+      "source_identity": "1f:8b515b6ac64cadb304cbfdfd518048319281db31220bc4226ccab5650449bacd",
+      "identity": "1f:8b515b6ac64cadb304cbfdfd518048319281db31220bc4226ccab5650449bacd"
+    },
+    {
+      "from": "packages/documents/do-work/build-table-transaction.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/do-work/build-table-transaction.ts",
+      "source_identity": "1f:d31fc9a3a28a2397ca7ad5392757297b9343d0721049475a9d4817bbd9b27b69",
+      "identity": "1f:d31fc9a3a28a2397ca7ad5392757297b9343d0721049475a9d4817bbd9b27b69"
+    },
+    {
+      "from": "packages/documents/do-work/composer-config.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/do-work/composer-config.ts",
+      "source_identity": "1f:148d629f678090f390c1c9575ce54503621f0356895bd608fc927d211ae3bb11",
+      "identity": "1f:148d629f678090f390c1c9575ce54503621f0356895bd608fc927d211ae3bb11"
+    },
+    {
+      "from": "packages/documents/do-work/hydrate-composition-scene.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/do-work/hydrate-composition-scene.ts",
+      "source_identity": "1f:9e9a0b54245fbf73e6c8af22b142fb625ceb620864d8c22597f2b69ac9b337b7",
+      "identity": "1f:9e9a0b54245fbf73e6c8af22b142fb625ceb620864d8c22597f2b69ac9b337b7"
+    },
+    {
+      "from": "packages/documents/do-work/imported-document.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/do-work/imported-document.mjs",
+      "source_identity": "1f:469f6738e8a43f2416de3fd5f8787e472719d7ba19dbb0fd12205e313344045b",
+      "identity": "1f:469f6738e8a43f2416de3fd5f8787e472719d7ba19dbb0fd12205e313344045b"
+    },
+    {
+      "from": "packages/documents/do-work/process-scripts/import-content-document.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/do-work/process-scripts/import-content-document.mjs",
+      "source_identity": "1f:627b20d9ccc58e55bb7c638f71fb40d908d3e9a1b9d666de5af2ba3284fff83a",
+      "identity": "1f:627b20d9ccc58e55bb7c638f71fb40d908d3e9a1b9d666de5af2ba3284fff83a"
+    },
+    {
+      "from": "packages/documents/do-work/process-scripts/read-document-publication-snapshot.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/do-work/process-scripts/read-document-publication-snapshot.mjs",
+      "source_identity": "1f:6566adf463a5b96b03f3a6aaac1396fe4cf8baaa1a7147ddf7fa6d740f222828",
+      "identity": "1f:6566adf463a5b96b03f3a6aaac1396fe4cf8baaa1a7147ddf7fa6d740f222828"
+    },
+    {
+      "from": "packages/documents/do-work/projection-runners-pack.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/do-work/projection-runners-pack.ts",
+      "source_identity": "1f:b2b946941e7b865f36878ec3ef94044ef405dbdc3be86a86e9839308d69adceb",
+      "identity": "1f:b2b946941e7b865f36878ec3ef94044ef405dbdc3be86a86e9839308d69adceb"
+    },
+    {
+      "from": "packages/documents/do-work/resolve-streaming-launch.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/do-work/resolve-streaming-launch.ts",
+      "source_identity": "1f:4903a9b5b2cc05a1408322236f60d537f075bdb1df99515546970c393708f3c5",
+      "identity": "1f:4903a9b5b2cc05a1408322236f60d537f075bdb1df99515546970c393708f3c5"
+    },
+    {
+      "from": "packages/documents/do-work/run-action-affordance.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/do-work/run-action-affordance.ts",
+      "source_identity": "1f:8a7cd42a8c1747a202e9762145b46b5987825555e2a98a654040b00c7a15bfc5",
+      "identity": "1f:8a7cd42a8c1747a202e9762145b46b5987825555e2a98a654040b00c7a15bfc5"
+    },
+    {
+      "from": "packages/documents/do-work/scene-serializers.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/do-work/scene-serializers.ts",
+      "source_identity": "1f:e760f567e8f4c3f2459029f0ea063377a7a64bc154aead9ed0bdab5f79c068a9",
+      "identity": "1f:e760f567e8f4c3f2459029f0ea063377a7a64bc154aead9ed0bdab5f79c068a9"
+    },
+    {
+      "from": "packages/documents/do-work/send-composition-transaction.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/do-work/send-composition-transaction.ts",
+      "source_identity": "1f:8515081b073f9987d8396155b52b89e69b9c5e8dc63d15fdf0c678d68840525b",
+      "identity": "1f:8515081b073f9987d8396155b52b89e69b9c5e8dc63d15fdf0c678d68840525b"
+    },
+    {
+      "from": "packages/documents/do-work/serialize-scene-target.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/do-work/serialize-scene-target.ts",
+      "source_identity": "1f:2e4415744d2d532c0e403c37d39b780c09a1466d124fd3e67632af8bc4042931",
+      "identity": "1f:2e4415744d2d532c0e403c37d39b780c09a1466d124fd3e67632af8bc4042931"
+    },
+    {
+      "from": "packages/documents/do-work/write-composition-documents.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/do-work/write-composition-documents.ts",
+      "source_identity": "1f:a13979ad1b07a4428b0958c0708fdacb49b76d660c0f198348afead89eebac6e",
+      "identity": "1f:a13979ad1b07a4428b0958c0708fdacb49b76d660c0f198348afead89eebac6e"
+    },
+    {
+      "from": "packages/documents/read-data/default-structural-materials.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/read-data/default-structural-materials.ts",
+      "source_identity": "1f:d92c30a333eba7e3246ce11584adeac29bd33ad00be7b171851e988dd96eb6cc",
+      "identity": "1f:d92c30a333eba7e3246ce11584adeac29bd33ad00be7b171851e988dd96eb6cc"
+    },
+    {
+      "from": "packages/documents/read-data/document-sections.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/read-data/document-sections.ts",
+      "source_identity": "1f:46b8439f0a6e137a99bd02908fbc0b6fd6b88064eccd0c461d6483dae9f3360f",
+      "identity": "1f:46b8439f0a6e137a99bd02908fbc0b6fd6b88064eccd0c461d6483dae9f3360f"
+    },
+    {
+      "from": "packages/documents/read-data/documents.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/read-data/documents.ts",
+      "source_identity": "1f:61ef79b841aa74c93cc688d268181162ca037043efec4baaaa9f2c4f0dbefbb2",
+      "identity": "1f:f0ebda816261663c3702b5a4f6bf9202c19b99e813f3d35face952e0140b05ec",
+      "calls": [
+        "owner-first-name"
+      ]
+    },
+    {
+      "from": "packages/documents/read-data/inline-chip-dom.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/read-data/inline-chip-dom.ts",
+      "source_identity": "1f:3487ac234eff35fc313cb460d9304ce707a1458f65a2a30eeee7dd4affc76166",
+      "identity": "1f:3487ac234eff35fc313cb460d9304ce707a1458f65a2a30eeee7dd4affc76166"
+    },
+    {
+      "from": "packages/documents/read-data/inline-tokens.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/read-data/inline-tokens.ts",
+      "source_identity": "1f:fd098268cebaecee27ee1d5acb942298c4bbcbb4b4b96fa12e25d887cdfa2f1d",
+      "identity": "1f:fd098268cebaecee27ee1d5acb942298c4bbcbb4b4b96fa12e25d887cdfa2f1d"
+    },
+    {
+      "from": "packages/documents/read-data/page-references.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/read-data/page-references.ts",
+      "source_identity": "1f:08a94c1da3303fda71b17aba9629e6a1c913092f17ccdabb4bb7d2ab2fd28dc7",
+      "identity": "1f:08a94c1da3303fda71b17aba9629e6a1c913092f17ccdabb4bb7d2ab2fd28dc7"
+    },
+    {
+      "from": "packages/documents/read-data/what-enter-does-in-this-block.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/read-data/what-enter-does-in-this-block.ts",
+      "source_identity": "1f:6d13bbd93cf84a7c7f606bf81aff279e04befd6aa402549c8186074b1baf987d",
+      "identity": "1f:6d13bbd93cf84a7c7f606bf81aff279e04befd6aa402549c8186074b1baf987d"
+    },
+    {
+      "from": "packages/documents/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/README.md",
+      "source_identity": "1f:e368b02db8ff2c01ff107f67e7ac9ff2f37f73b8ae07a93b968ab9e65f7fee56",
+      "identity": "1f:e368b02db8ff2c01ff107f67e7ac9ff2f37f73b8ae07a93b968ab9e65f7fee56"
+    },
+    {
+      "from": "packages/documents/show/AuthoredNoteEntry.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/show/AuthoredNoteEntry.tsx",
+      "source_identity": "1f:f697c37ebe254202935be0b501b44d7264140214b54bfc214870ad61ae939586",
+      "identity": "1f:f697c37ebe254202935be0b501b44d7264140214b54bfc214870ad61ae939586"
+    },
+    {
+      "from": "packages/documents/show/DocumentConflictComparison.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/show/DocumentConflictComparison.tsx",
+      "source_identity": "1f:a6f06e08dda4b142eea98aa2871ae71001e2c28fdc59382b39cd15c4397e3e85",
+      "identity": "1f:a6f06e08dda4b142eea98aa2871ae71001e2c28fdc59382b39cd15c4397e3e85"
+    },
+    {
+      "from": "packages/documents/show/DocumentImportDialog.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/show/DocumentImportDialog.tsx",
+      "source_identity": "1f:a8cd841a7e203507c17aaec5d8dcd3c97acdbe0f6250b89ee42904cbb76326b3",
+      "identity": "1f:a8cd841a7e203507c17aaec5d8dcd3c97acdbe0f6250b89ee42904cbb76326b3"
+    },
+    {
+      "from": "packages/documents/show/documents-page-sidebar.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/show/documents-page-sidebar.ts",
+      "source_identity": "1f:5224cd9c924319adcffc31bae4d9c056d35490e3d0eb389da2a1e07c6546886e",
+      "identity": "1f:133084afb91708443b10a3862755a80d8d83892abb8fa871b6ac72f20fded1e2",
+      "calls": [
+        "owner-first-name"
+      ]
+    },
+    {
+      "from": "packages/documents/show/DocumentsSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/show/DocumentsSurface.tsx",
+      "source_identity": "1f:ae5fdcb25bb825a2a805f51a1347b141e6a888d6a143db597b8d03240f897046",
+      "identity": "1f:5bbf99f9842eb5ce6331fce1ed434ad04688881d6ff7fcfcf0da30b409cc3c48",
+      "calls": [
+        "owner-first-name"
+      ]
+    },
+    {
+      "from": "packages/documents/show/mount-documents.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/show/mount-documents.tsx",
+      "source_identity": "1f:71e6ae51f91bad055b7e227dc8dd78f94a960bfdaa60f23982ca6ddb28c96b80",
+      "identity": "1f:71e6ae51f91bad055b7e227dc8dd78f94a960bfdaa60f23982ca6ddb28c96b80"
+    },
+    {
+      "from": "packages/documents/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/show/README.md",
+      "source_identity": "1f:c84f2a2f00fd27e8c866f4d72e40e4bd3deaa6b6d6900b35389433e82235cbc0",
+      "identity": "1f:c84f2a2f00fd27e8c866f4d72e40e4bd3deaa6b6d6900b35389433e82235cbc0"
+    },
+    {
+      "from": "packages/documents/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/packages/documents/things-to-store-and-run.json",
+      "source_identity": "1f:1c6cfe6f1c3f63e637ce07129916600123e3c84037feaac4934d6f1136af3c86",
+      "identity": "1f:1c6cfe6f1c3f63e637ce07129916600123e3c84037feaac4934d6f1136af3c86"
+    },
+    {
       "from": "parts/documents/read-data/action-result-readback.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -282,6 +712,14 @@
       "source_identity": "1f:3aafab65eb7cb6f151d28696eb260ceeb1af937a490fe4e84f426b8ab74e7048",
       "identity": "1f:3aafab65eb7cb6f151d28696eb260ceeb1af937a490fe4e84f426b8ab74e7048",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/documents/read-data/action-result-readback.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/read-data/action-result-readback.ts",
+      "source_identity": "1f:c7d63448eadc99f1327b672242fa2b7451af196eda83d0c987c86d42c6ed7b1f",
+      "identity": "1f:3aafab65eb7cb6f151d28696eb260ceeb1af937a490fe4e84f426b8ab74e7048",
+      "reused": true
     },
     {
       "from": "parts/documents/read-data/affordance-materials.ts",
@@ -293,6 +731,14 @@
       "found_by": "same bytes"
     },
     {
+      "from": "packages/documents/read-data/affordance-materials.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/read-data/affordance-materials.ts",
+      "source_identity": "1f:45cdbd40d624fcc47bba9b32a35380b6081b9c579e8574abfa8a3ca8612c61d0",
+      "identity": "1f:c4217c41c093c3aa43a811987e10f6c185b86e35707aace76ed58e7163126c13",
+      "reused": true
+    },
+    {
       "from": "parts/documents/read-data/authored-thing-refs.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -300,6 +746,14 @@
       "source_identity": "1f:d941650ae262c73ab2e9b2e8f15946aab01283f51c4406fca896806f9d7c4652",
       "identity": "1f:d941650ae262c73ab2e9b2e8f15946aab01283f51c4406fca896806f9d7c4652",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/documents/read-data/authored-thing-refs.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/read-data/authored-thing-refs.ts",
+      "source_identity": "1f:36a284caa987326fa77b457fcba85fd9472e921c4833c3c5efca79556fbf7aed",
+      "identity": "1f:d941650ae262c73ab2e9b2e8f15946aab01283f51c4406fca896806f9d7c4652",
+      "reused": true
     },
     {
       "from": "parts/documents/read-data/check-page-references.ts",
@@ -311,6 +765,14 @@
       "found_by": "same bytes"
     },
     {
+      "from": "packages/documents/read-data/check-page-references.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/read-data/check-page-references.ts",
+      "source_identity": "1f:e9ac34eeba611c3c10d5d9afdb49b8601773c8a2e1dfe9f1d6b2c24aeca321bf",
+      "identity": "1f:e9ac34eeba611c3c10d5d9afdb49b8601773c8a2e1dfe9f1d6b2c24aeca321bf",
+      "reused": true
+    },
+    {
       "from": "parts/documents/read-data/composer-key-action.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
@@ -318,6 +780,14 @@
       "source_identity": "1f:023ef2cd2784d8e92f30933290df767130e898840f7307e26214392500032e20",
       "identity": "1f:023ef2cd2784d8e92f30933290df767130e898840f7307e26214392500032e20",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/documents/read-data/composer-key-action.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/read-data/composer-key-action.ts",
+      "source_identity": "1f:023ef2cd2784d8e92f30933290df767130e898840f7307e26214392500032e20",
+      "identity": "1f:023ef2cd2784d8e92f30933290df767130e898840f7307e26214392500032e20",
+      "reused": true
     },
     {
       "from": "parts/documents/read-data/composition-scene-input.ts",
@@ -329,6 +799,14 @@
       "found_by": "same bytes"
     },
     {
+      "from": "packages/documents/read-data/composition-scene-input.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/read-data/composition-scene-input.ts",
+      "source_identity": "1f:144fdb2fec39307918caeac6f2ed3904ab403febe0fa7fa1555721b106d8496f",
+      "identity": "1f:144fdb2fec39307918caeac6f2ed3904ab403febe0fa7fa1555721b106d8496f",
+      "reused": true
+    },
+    {
       "from": "parts/documents/read-data/containment-scope.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
@@ -336,6 +814,14 @@
       "source_identity": "1f:c1a1590e6aa9652158f6971331bd6dc3cd4aeb54bdf62f97ef61e38d571dadc5",
       "identity": "1f:c1a1590e6aa9652158f6971331bd6dc3cd4aeb54bdf62f97ef61e38d571dadc5",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/documents/read-data/containment-scope.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/read-data/containment-scope.ts",
+      "source_identity": "1f:c1a1590e6aa9652158f6971331bd6dc3cd4aeb54bdf62f97ef61e38d571dadc5",
+      "identity": "1f:c1a1590e6aa9652158f6971331bd6dc3cd4aeb54bdf62f97ef61e38d571dadc5",
+      "reused": true
     },
     {
       "from": "parts/documents/read-data/content-view-projection.ts",
@@ -347,6 +833,14 @@
       "found_by": "same bytes"
     },
     {
+      "from": "packages/documents/read-data/content-view-projection.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/read-data/content-view-projection.ts",
+      "source_identity": "1f:d4bce33b23fe6071d79a4cd031f71dfc0a8c7c73919199d0fa05a641ee94f567",
+      "identity": "1f:d4bce33b23fe6071d79a4cd031f71dfc0a8c7c73919199d0fa05a641ee94f567",
+      "reused": true
+    },
+    {
       "from": "parts/documents/read-data/cursor-commands.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -356,6 +850,14 @@
       "found_by": "same bytes"
     },
     {
+      "from": "packages/documents/read-data/cursor-commands.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/read-data/cursor-commands.ts",
+      "source_identity": "1f:ba9e54a7913b51cb93c4f2a641133d36871338560c90a9fd2d97bb9f2680be0a",
+      "identity": "1f:5c78bc9471cb20ad4157da8e42a0b9d70274bc305d069dae3efb048dd52a99c3",
+      "reused": true
+    },
+    {
       "from": "parts/documents/read-data/cursor-nav.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -363,6 +865,14 @@
       "source_identity": "1f:322a1ca6c0207cfc2971e18dc4c5050779c46dd0ac4b4267d633d29730a4a0d1",
       "identity": "1f:322a1ca6c0207cfc2971e18dc4c5050779c46dd0ac4b4267d633d29730a4a0d1",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/documents/read-data/cursor-nav.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/read-data/cursor-nav.ts",
+      "source_identity": "1f:322a1ca6c0207cfc2971e18dc4c5050779c46dd0ac4b4267d633d29730a4a0d1",
+      "identity": "1f:322a1ca6c0207cfc2971e18dc4c5050779c46dd0ac4b4267d633d29730a4a0d1",
+      "reused": true
     },
     {
       "from": "parts/documents/read-data/default-structural-materials.ts",
@@ -383,6 +893,14 @@
       "found_by": "same bytes"
     },
     {
+      "from": "packages/documents/read-data/delivery-placement.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/read-data/delivery-placement.ts",
+      "source_identity": "1f:0dd79b3e0e3994e8408c38946a6ff403af2e8a1d82ce2c1e813037586f94c504",
+      "identity": "1f:0dd79b3e0e3994e8408c38946a6ff403af2e8a1d82ce2c1e813037586f94c504",
+      "reused": true
+    },
+    {
       "from": "parts/documents/read-data/document-index.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -390,6 +908,14 @@
       "source_identity": "1f:4b7850fc232448cd48524a08e676ee9cc31dea85b75689fb987ec643ad5d9b79",
       "identity": "1f:4b7850fc232448cd48524a08e676ee9cc31dea85b75689fb987ec643ad5d9b79",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/documents/read-data/document-index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/read-data/document-index.ts",
+      "source_identity": "1f:4b7850fc232448cd48524a08e676ee9cc31dea85b75689fb987ec643ad5d9b79",
+      "identity": "1f:4b7850fc232448cd48524a08e676ee9cc31dea85b75689fb987ec643ad5d9b79",
+      "reused": true
     },
     {
       "from": "parts/documents/read-data/document-sections.ts",
@@ -428,6 +954,14 @@
       "found_by": "same bytes"
     },
     {
+      "from": "packages/documents/read-data/feed-rows.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/read-data/feed-rows.ts",
+      "source_identity": "1f:463ade744e14bab8a3b157c52a17d0d742e7e5ad3fbecf7de7dcd97db00146ed",
+      "identity": "1f:463ade744e14bab8a3b157c52a17d0d742e7e5ad3fbecf7de7dcd97db00146ed",
+      "reused": true
+    },
+    {
       "from": "parts/documents/read-data/inline-chip-dom.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -455,6 +989,14 @@
       "found_by": "same bytes"
     },
     {
+      "from": "packages/documents/read-data/normalize-authored-document.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/read-data/normalize-authored-document.ts",
+      "source_identity": "1f:722dab0b851c755cef119347ce55a70ac95077f73600ff022ef0bf961726e6dd",
+      "identity": "1f:c87d2e0767bb99b170248fce7d29004885ff64202cf28bd390ad8d823dd05220",
+      "reused": true
+    },
+    {
       "from": "parts/documents/read-data/normalize-feed-rows.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
@@ -462,6 +1004,14 @@
       "source_identity": "1f:2c5ee32291ef59140c393a033d323747c12a79d6cdeab2b27199cc660ba3303e",
       "identity": "1f:2c5ee32291ef59140c393a033d323747c12a79d6cdeab2b27199cc660ba3303e",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/documents/read-data/normalize-feed-rows.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/read-data/normalize-feed-rows.ts",
+      "source_identity": "1f:2c5ee32291ef59140c393a033d323747c12a79d6cdeab2b27199cc660ba3303e",
+      "identity": "1f:2c5ee32291ef59140c393a033d323747c12a79d6cdeab2b27199cc660ba3303e",
+      "reused": true
     },
     {
       "from": "parts/documents/read-data/page-references.ts",
@@ -482,6 +1032,22 @@
       "found_by": "same bytes"
     },
     {
+      "from": "packages/documents/read-data/projection-actions.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/read-data/projection-actions.ts",
+      "source_identity": "1f:19727aa81e74496e71dcf5c02a2512f9cf28acae80bc9aeb160fe27025d8489f",
+      "identity": "1f:843109b3effeaa6b7111fda17e1562e3cb2f6ff31ab14db585ebea901f190958",
+      "reused": true
+    },
+    {
+      "from": "packages/documents/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/read-data/README.md",
+      "source_identity": "1f:19deba4df057a0057a6f339b92698de853c991f57fcaf31cf3218044d7dea2ce",
+      "identity": "1f:19deba4df057a0057a6f339b92698de853c991f57fcaf31cf3218044d7dea2ce",
+      "reused": true
+    },
+    {
       "from": "parts/documents/read-data/resolve-component-instances.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
@@ -489,6 +1055,14 @@
       "source_identity": "1f:b841928d78137834720a483e804a9a9a0bfac8fc1a6447f6cd5a3ffea7bf1cd3",
       "identity": "1f:b841928d78137834720a483e804a9a9a0bfac8fc1a6447f6cd5a3ffea7bf1cd3",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/documents/read-data/resolve-component-instances.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/read-data/resolve-component-instances.ts",
+      "source_identity": "1f:b841928d78137834720a483e804a9a9a0bfac8fc1a6447f6cd5a3ffea7bf1cd3",
+      "identity": "1f:b841928d78137834720a483e804a9a9a0bfac8fc1a6447f6cd5a3ffea7bf1cd3",
+      "reused": true
     },
     {
       "from": "parts/documents/read-data/scene-views.ts",
@@ -500,6 +1074,14 @@
       "found_by": "same bytes"
     },
     {
+      "from": "packages/documents/read-data/scene-views.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/read-data/scene-views.ts",
+      "source_identity": "1f:f41a3ec9abbb8312c2ae73587de4ddcc35f96e48db2471d3f2b4ad5532e5b9c7",
+      "identity": "1f:95e6b4afef40cf3d0a9430f3c8af25c125fb83faa5d1a36ca61b94fd42fcb671",
+      "reused": true
+    },
+    {
       "from": "parts/documents/read-data/selection-ops.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -509,6 +1091,14 @@
       "found_by": "same bytes"
     },
     {
+      "from": "packages/documents/read-data/selection-ops.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/read-data/selection-ops.ts",
+      "source_identity": "1f:3dea280ecc49053ca5e72bf0ff1a12e7fa62f9cad8d1a69af9875f50e13acf7d",
+      "identity": "1f:2831c092a5836c5315fdf78f760c4869cd3fdc6025b606f69ee90e06c5530214",
+      "reused": true
+    },
+    {
       "from": "parts/documents/read-data/visibility-operators.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
@@ -516,6 +1106,14 @@
       "source_identity": "1f:8fc49cd3a01960594ffde4abafb0132ac2695b9ed5e546ca9e536d22cd8dc26a",
       "identity": "1f:8fc49cd3a01960594ffde4abafb0132ac2695b9ed5e546ca9e536d22cd8dc26a",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/documents/read-data/visibility-operators.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/read-data/visibility-operators.ts",
+      "source_identity": "1f:8fc49cd3a01960594ffde4abafb0132ac2695b9ed5e546ca9e536d22cd8dc26a",
+      "identity": "1f:8fc49cd3a01960594ffde4abafb0132ac2695b9ed5e546ca9e536d22cd8dc26a",
+      "reused": true
     },
     {
       "from": "parts/documents/read-data/what-enter-does-in-this-block.ts",
@@ -543,6 +1141,14 @@
       "source_identity": "1f:c622fafe0771dd379a10b6255e75ad22aa5a8fff9d637f86667be0d379578be4",
       "identity": "1f:c622fafe0771dd379a10b6255e75ad22aa5a8fff9d637f86667be0d379578be4",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/documents/show/CompositionSurfaceContent.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/show/CompositionSurfaceContent.tsx",
+      "source_identity": "1f:e8c94bc1fe0a01d4365d7d7fda300a16c28484eee2368ab4af2e15bcf83362e1",
+      "identity": "1f:c622fafe0771dd379a10b6255e75ad22aa5a8fff9d637f86667be0d379578be4",
+      "reused": true
     },
     {
       "from": "parts/documents/show/DocumentConflictComparison.tsx",
@@ -599,6 +1205,14 @@
       "found_by": "same bytes"
     },
     {
+      "from": "packages/documents/show/mount-composition-scene.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/show/mount-composition-scene.tsx",
+      "source_identity": "1f:15c6a59a182aac3cf67892df8f408c4894f2550bb0b19576810debec6bb890f0",
+      "identity": "1f:80553943d415ae8cc0bd3f57b0d0d6de0e40f30f6d7fca5dbc44b92d35bec48f",
+      "reused": true
+    },
+    {
       "from": "parts/documents/show/mount-documents.tsx",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -617,6 +1231,14 @@
       "found_by": "same bytes"
     },
     {
+      "from": "packages/documents/show/mount-selected-composition.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/show/mount-selected-composition.tsx",
+      "source_identity": "1f:977074496aa6472c4ed93079670c50f51cf95160658e35e79362287fc73bd487",
+      "identity": "1f:bf0780f5cf90cc91549f06c18d5970db19ef6b53abb3a160b0242f9ce19350e4",
+      "reused": true
+    },
+    {
       "from": "parts/documents/show/persisting-transaction-queue.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
@@ -624,6 +1246,14 @@
       "source_identity": "1f:bf69f82972b14a57ac8652fb812cf1cee7c66f7cd28bde03e99923e5518ee94f",
       "identity": "1f:bf69f82972b14a57ac8652fb812cf1cee7c66f7cd28bde03e99923e5518ee94f",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/documents/show/persisting-transaction-queue.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/show/persisting-transaction-queue.ts",
+      "source_identity": "1f:bf69f82972b14a57ac8652fb812cf1cee7c66f7cd28bde03e99923e5518ee94f",
+      "identity": "1f:bf69f82972b14a57ac8652fb812cf1cee7c66f7cd28bde03e99923e5518ee94f",
+      "reused": true
     },
     {
       "from": "parts/documents/show/write-screen.tsx",

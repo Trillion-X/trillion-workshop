@@ -1,0 +1,46 @@
+{
+  "schema": "ai-orchestra.reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-ACTION-GUARD-CONSOLIDATION",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "For valuable work, inspect the actual behavior and integrate the final correct implementation into the default branch using ordinary commits.",
+    "message_sha256": "cce66acd2fc5f90f85208e7ee9d5c9099c91015cfed5263ff398626125969c38"
+  },
+  "mode": "BEHAVIORAL_PORT",
+  "sources": [
+    {
+      "path": "packages/ai-action-guard/things-to-store-and-run.json",
+      "sha256": "a3e2db7d8a85e05c1e9e747650415ab6110252da3be0536c114c3b4953aa5528",
+      "ownership": "repository-owned"
+    }
+  ],
+  "targets": [
+    {
+      "path": "packages/ai-action-guard/show/ActionGuardPanel.tsx"
+    },
+    {
+      "path": "packages/ai-action-guard/show/mount-ai-action-guard-panel.tsx"
+    }
+  ],
+  "preserve": [
+    "Current shared UI components and explicit allowed boolean; historical decisions never grant permission."
+  ],
+  "allowed_deltas": [
+    "Retain decision history and consumed usage from the A1 branch through the current owner feeds and panel."
+  ],
+  "banned_substitutions": [
+    "No running-app change or deployment.",
+    "No fabricated owner approval or implicit permission from history."
+  ],
+  "baseline": {
+    "copied_before_adaptation": false,
+    "note": "Existing source behavior comparison; no external visual reference or appearance change."
+  },
+  "proof": {
+    "test_refs": [
+      "packages/ai-action-guard/show/ActionGuardPanel.test.tsx",
+      "packages/ai-action-guard/read-data/read-ai-action-guards.test.ts"
+    ],
+    "note": "Source integration and local component checks only; no live appearance claim."
+  }
+}

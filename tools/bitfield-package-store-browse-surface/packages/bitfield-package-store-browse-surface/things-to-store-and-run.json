@@ -1,0 +1,543 @@
+{
+  "package": "bitfield-package-store-browse-surface",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-browse-surface::checks",
+      "path": [
+        "packages",
+        "bitfield-package-store-browse-surface",
+        "checks"
+      ],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "__tests__/generic-projection-consumption.test.mjs",
+          "read-data/read-catalog-view.test.ts",
+          "show/AICurationPanelComponent.test.tsx",
+          "show/BitfieldPackageStoreBrowseSurface.test.tsx",
+          "show/pointillistPackedFrame.test.ts",
+          "show/SearchModeRow.test.tsx",
+          "show/packageDownloadUrl.test.tsx"
+        ]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "package-preview-art",
+      "source_path": "package-preview.pfat.gz",
+      "media_type": "application/vnd.bitfield.pointillist-target-animation+gzip"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "catalog-view-reader",
+      "source_path": "read-data/read-catalog-view.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "jscore-package-store-view-reader",
+      "source_path": "read-data/read-jscore-package-store-view.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "browse-surface-config",
+      "source_path": "data/browse-surface-config.json",
+      "media_type": "application/json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "install-destinations",
+      "source_path": "data/install-destinations.json",
+      "media_type": "application/json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "action-capability-records",
+      "source_path": "data/action-capability-records.json",
+      "media_type": "application/json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "action-capability-reader",
+      "source_path": "read-data/read-action-capabilities.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "production-action-capability-preflight",
+      "source_path": "do-work/prove-production-action-capabilities.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "browse-surface",
+      "source_path": "show/BitfieldPackageStoreBrowseSurface.tsx"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "pointillist-preview-canvas",
+      "source_path": "show/PointillistPackagePreviewCanvas.tsx"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "pointillist-packed-frame-reader",
+      "source_path": "show/pointillistPackedFrame.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-package-store-browse-surface-mount",
+      "build": {
+        "sequence": {
+          "inputs": [],
+          "input_trees": [],
+          "steps": [
+            {
+              "name": "build",
+              "process": {
+                "argv": [
+                  "node",
+                  "bitfield-package-entry-builder"
+                ],
+                "cwd": ".",
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": ".bitfield-build-output"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              },
+              "workspace_bindings": {
+                "environment": [],
+                "arguments": [
+                  {
+                    "index": 1,
+                    "parts": [
+                      {
+                        "kind": "workspace_root"
+                      },
+                      {
+                        "kind": "literal",
+                        "value": "/packages/make-packages-match-their-source/do-work/build-package-entry-byte.mjs"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "predecessor_outputs": []
+            }
+          ]
+        },
+        "output": {
+          "step": "build",
+          "mount_path": ".bitfield-build-output"
+        },
+        "request": {
+          "entry_name": "package-store-browse-surface-mount"
+        }
+      },
+      "source_path": "built-stored-bytes/entry-bytes-package-store-browse-surface-mount",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-package-store-browse-surface-mount.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-browse-surface::input::catalog",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "catalog",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "package::bitfield-package-store-catalog::stored-bytes::catalog-data"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-browse-surface::input::browse-config",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "browse-config",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "package::bitfield-package-store-browse-surface::stored-bytes::browse-surface-config"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-browse-surface::input::action-capabilities",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "action-capabilities",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "package::bitfield-package-store-browse-surface::stored-bytes::action-capability-records"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-browse-surface::input::package-store-reviews-summary",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "package-store-reviews-summary",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "package::package-store-reviews::reader-output::browse-summary",
+        "boundary_rule": "Browse consumes the finished package-store-reviews reader output and does not compute review meaning from source records."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-browse-surface::input::install-destinations",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "install-destinations",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "package::bitfield-package-store-browse-surface::stored-bytes::install-destinations"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-browse-surface::contract",
+      "path": [
+        "bitfield-package-store",
+        "package",
+        "browse-surface"
+      ],
+      "payload": {
+        "package": "bitfield-package-store-browse-surface",
+        "reuses": [
+          "screen-arrangement",
+          "screen-look",
+          "sidebar",
+          "ui",
+          "browser-shell",
+          "generic record/action projection data"
+        ],
+        "owns": [
+          "catalog browse surface records"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-browse-surface::published-record::placeable-surface::package-store-browse",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "description": "Browse packages, slots, and package sets.",
+        "icon": "Package",
+        "id": "package-store-browse",
+        "kind": "placeable-surface",
+        "label": "Package Store",
+        "material_target": "component:bitfield-package-store-browse",
+        "order": 10,
+        "package_entry": {
+          "package_name": "bitfield-package-store-browse-surface",
+          "entry_name": "package-store-browse-surface-mount"
+        },
+        "section_id": "package-store",
+        "section_label": "Package Store",
+        "wrap_material": false,
+        "surface_id": "package-store-browse",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000010:package-store-browse"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-browse-surface::published-record::hosted-module-map-entry::package-store-material::browse",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "entry_name": "package-store-browse-surface",
+        "export_name": "BitfieldPackageStoreBrowseSurface",
+        "kind": "hosted-module-map-entry",
+        "map_key": "component:bitfield-package-store-browse",
+        "map_name": "package-store-material",
+        "source_path": "show/BitfieldPackageStoreBrowseSurface.tsx"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-browse-surface::entry::package-store-browse-surface",
+      "path": [
+        "packages",
+        "bitfield-package-store-browse-surface",
+        "entries",
+        "package-store-browse-surface"
+      ],
+      "payload": {
+        "entry_name": "package-store-browse-surface",
+        "export_name": "default",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-package-store-browse-surface.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-package-store-browse-surface"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::bitfield-package-store-browse-surface::entry::package-store-browse-surface-mount",
+      "path": [
+        "packages",
+        "bitfield-package-store-browse-surface",
+        "entries",
+        "package-store-browse-surface-mount"
+      ],
+      "payload": {
+        "entry_name": "package-store-browse-surface-mount",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-package-store-browse-surface.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-package-store-browse-surface-mount"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:bitfield-package-store-browse|prop:extension:integrity_hash|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:integrity_hash"
+      ],
+      "payload_template": {
+        "payload": {
+          "property_id": "prop:extension:integrity_hash",
+          "subject_id": "component:bitfield-package-store-browse",
+          "table": "attribute_fact",
+          "type_id": "type:extension",
+          "value_json": ""
+        },
+        "replacements": [
+          {
+            "path": [
+              "value_json"
+            ],
+            "value": {
+              "type": "stored_bytes_content_hash",
+              "name": "entry-bytes-package-store-browse-surface-mount",
+              "encoding": "json_string"
+            }
+          }
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:bitfield-package-store-browse|prop:extension:things_to_put_on_screen|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:things_to_put_on_screen"
+      ],
+      "payload": {
+        "property_id": "prop:extension:things_to_put_on_screen",
+        "subject_id": "component:bitfield-package-store-browse",
+        "table": "attribute_fact",
+        "type_id": "type:extension",
+        "value_json": [
+          {
+            "source_bytes": {
+              "address_label": "package::bitfield-package-store-browse-surface::entry-bytes::package-store-browse-surface-mount"
+            },
+            "source_key": "package::bitfield-package-store-browse-surface::entry-bytes::package-store-browse-surface-mount",
+            "required_capabilities": [
+              "can-put-thing-on-screen-using-screen-element"
+            ],
+            "lifecycle_key": "component:bitfield-package-store-browse:live-entry-bytes"
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:bitfield-package-store-browse|prop:extension:name|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:name"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOm5hbWUiLCJzdWJqZWN0X2lkIjoiY29tcG9uZW50OmJpdGZpZWxkLXBhY2thZ2Utc3RvcmUtYnJvd3NlIiwidGFibGUiOiJhdHRyaWJ1dGVfZmFjdCIsInR5cGVfaWQiOiJ0eXBlOmV4dGVuc2lvbiIsInZhbHVlX2pzb24iOiJcIlBhY2thZ2VTdG9yZUJyb3dzZVJvb3RcIiJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:bitfield-package-store-browse|prop:extension:source_path|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:source_path"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOnNvdXJjZV9wYXRoIiwic3ViamVjdF9pZCI6ImNvbXBvbmVudDpiaXRmaWVsZC1wYWNrYWdlLXN0b3JlLWJyb3dzZSIsInRhYmxlIjoiYXR0cmlidXRlX2ZhY3QiLCJ0eXBlX2lkIjoidHlwZTpleHRlbnNpb24iLCJ2YWx1ZV9qc29uIjoiXCJwYWNrYWdlcy9iaXRmaWVsZC1wYWNrYWdlLXN0b3JlLWJyb3dzZS1zdXJmYWNlL3Nob3cvbW91bnQtcGFja2FnZS1zdG9yZS1icm93c2Utc3VyZmFjZS50c3hcIiJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:bitfield-package-store-browse|prop:extension:status|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:status"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOnN0YXR1cyIsInN1YmplY3RfaWQiOiJjb21wb25lbnQ6Yml0ZmllbGQtcGFja2FnZS1zdG9yZS1icm93c2UiLCJ0YWJsZSI6ImF0dHJpYnV0ZV9mYWN0IiwidHlwZV9pZCI6InR5cGU6ZXh0ZW5zaW9uIiwidmFsdWVfanNvbiI6IlwiYWN0aXZlXCIifQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:bitfield-package-store-browse|prop:extension:version|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:version"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOnZlcnNpb24iLCJzdWJqZWN0X2lkIjoiY29tcG9uZW50OmJpdGZpZWxkLXBhY2thZ2Utc3RvcmUtYnJvd3NlIiwidGFibGUiOiJhdHRyaWJ1dGVfZmFjdCIsInR5cGVfaWQiOiJ0eXBlOmV4dGVuc2lvbiIsInZhbHVlX2pzb24iOiJcIjEuMC4wXCIifQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:bitfield-package-store-browse|prop:resource:compiler_config|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:resource:compiler_config"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6cmVzb3VyY2U6Y29tcGlsZXJfY29uZmlnIiwic3ViamVjdF9pZCI6ImNvbXBvbmVudDpiaXRmaWVsZC1wYWNrYWdlLXN0b3JlLWJyb3dzZSIsInRhYmxlIjoiYXR0cmlidXRlX2ZhY3QiLCJ0eXBlX2lkIjoidHlwZTpleHRlbnNpb24iLCJ2YWx1ZV9qc29uIjoie1wiYXJndlwiOltcIi4vdG9vbFwiLFwiX19TT1VSQ0VfUEFUSF9fXCIsXCItLWJ1bmRsZVwiLFwiLS1mb3JtYXQ9ZXNtXCIsXCItLW91dGZpbGU9X19PVVRQVVRfMF9fXCIsXCItLXBsYXRmb3JtPWJyb3dzZXJcIixcIi0tdGFyZ2V0PWVzMjAyMFwiLFwiLS1qc3g9YXV0b21hdGljXCIsXCItLWxvYWRlcjoudHN4PXRzeFwiLFwiLS1sb2FkZXI6LnRzPXRzXCIsXCItLXJlc29sdmUtZXh0ZW5zaW9ucz0udHMsLnRzeCwuanMsLmpzeFwiLFwiLS1hbGlhczpAPS5cIixcIi0tYWxpYXM6QGJpdGZpZWxkL3J1bnRpbWUta2l0L3JlYWN0PS4vcGFja2FnZXMvYml0ZmllbGQtcGFja2FnZS1zdG9yZS1icm93c2Utc3VyZmFjZS8uYml0ZmllbGQtZW50cnktc2NvcGUvcGFja2FnZS1zdG9yZS1icm93c2Utc3VyZmFjZS1tb3VudC9ydW50aW1lLWtpdC1yZWFjdC50c1wiLFwiLS1hbGlhczpAYml0ZmllbGQvcnVudGltZS1raXQvaW50ZXJuYWwvb3duZXItc3VyZmFjZT0uL25vZGVfbW9kdWxlcy9AYml0ZmllbGQvcnVudGltZS1raXQvc3JjL2ludGVybmFsL293bmVyLXN1cmZhY2UudHNcIixcIi0tYWxpYXM6cmVhY3Q9Li9ub2RlX21vZHVsZXMvcmVhY3RcIixcIi0tYWxpYXM6cmVhY3QtZG9tPS4vbm9kZV9tb2R1bGVzL3JlYWN0LWRvbVwiLFwiLS1hbGlhczpyZWFjdC1kb20vY2xpZW50PS4vbm9kZV9tb2R1bGVzL3JlYWN0LWRvbS9jbGllbnRcIixcIi0tYWxpYXM6cmVhY3QvanN4LXJ1bnRpbWU9Li9ub2RlX21vZHVsZXMvcmVhY3QvanN4LXJ1bnRpbWVcIixcIi0tYWxpYXM6cmVhY3QvanN4LWRldi1ydW50aW1lPS4vbm9kZV9tb2R1bGVzL3JlYWN0L2pzeC1kZXYtcnVudGltZVwiLFwiLS1wcmVzZXJ2ZS1zeW1saW5rc1wiXSxcImN3ZFwiOlwiLlwiLFwidGltZW91dF9tc1wiOjEyMDAwMCxcInRlcm1pbmF0aW9uX2dyYWNlX21zXCI6MTAwMCxcImV4cGVjdGVkX3Rlcm1pbmF0aW9uXCI6bnVsbCxcImVudlwiOnt9LFwiaW5wdXRzXCI6W10sXCJpbnB1dF90cmVlc1wiOltdLFwib3V0cHV0c1wiOlt7XCJjb250ZW50X3R5cGVcIjpcImFwcGxpY2F0aW9uL2phdmFzY3JpcHRcIixcIm1vdW50X3BhdGhcIjpcIm91dHB1dC5qc1wifV0sXCJjb250YWlubWVudFwiOntcImtpbmRcIjpcImRlc2NlbmRhbnRfZWZmZWN0X2NvbnRhaW5lZFwiLFwicGlwZV9lb2ZfdGltZW91dF9tc1wiOjEwMDAsXCJwdWJsaWNhdGlvbnNcIjpbXX0sXCJjYXB0dXJlX2Zkc1wiOlsxLDJdLFwiY29sbGVjdGVkX2ZpbGVzXCI6W10sXCJvdXRwdXRfbWFwcGluZ1wiOlt7XCJjb250ZW50X3R5cGVcIjpcImFwcGxpY2F0aW9uL2phdmFzY3JpcHRcIixcImhhc2hfcHJvcGVydHlfaWRcIjpcInByb3A6ZXh0ZW5zaW9uOmludGVncml0eV9oYXNoXCIsXCJvdXRwdXRfcGF0aFwiOlwib3V0cHV0LmpzXCIsXCJwcm9wZXJ0eV9pZFwiOlwicHJvcDpleHRlbnNpb246YnVuZGxlXCIsXCJ0eXBlX2lkXCI6XCJ0eXBlOmV4dGVuc2lvblwifV19In0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:bitfield-package-store-browse|prop:resource:compiler_resource|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:resource:compiler_resource"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6cmVzb3VyY2U6Y29tcGlsZXJfcmVzb3VyY2UiLCJzdWJqZWN0X2lkIjoiY29tcG9uZW50OmJpdGZpZWxkLXBhY2thZ2Utc3RvcmUtYnJvd3NlIiwidGFibGUiOiJhdHRyaWJ1dGVfZmFjdCIsInR5cGVfaWQiOiJ0eXBlOmV4dGVuc2lvbiIsInZhbHVlX2pzb24iOiJcInJlc291cmNlOmVzYnVpbGRcIiJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|component:bitfield-package-store-browse|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "type:extension"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJlbnRpdHlfaWQiOiJjb21wb25lbnQ6Yml0ZmllbGQtcGFja2FnZS1zdG9yZS1icm93c2UiLCJ0YWJsZSI6ImVudGl0eV90eXBlcyIsInR5cGVfaWQiOiJ0eXBlOmV4dGVuc2lvbiJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|component:bitfield-package-store-browse",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJpZCI6ImNvbXBvbmVudDpiaXRmaWVsZC1wYWNrYWdlLXN0b3JlLWJyb3dzZSIsInRhYmxlIjoiZW50aXR5In0=",
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-package-store-browse-surface",
+      "source_path": "built-stored-bytes/entry-bytes-package-store-browse-surface",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-package-store-browse-surface.source-closure.json"
+    }
+  ]
+}

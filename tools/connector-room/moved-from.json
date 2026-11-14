@@ -1,0 +1,78 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/connector-room/entry-read-scope-packages.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connector-room/packages/connector-room/entry-read-scope-packages.json",
+      "source_identity": "1f:84d4a66860aac622fcc91f1d80f82acf692c549d029105361a1f78df142a57b6",
+      "identity": "1f:84d4a66860aac622fcc91f1d80f82acf692c549d029105361a1f78df142a57b6"
+    },
+    {
+      "from": "packages/connector-room/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connector-room/packages/connector-room/entry-to-package-data-map.json",
+      "source_identity": "1f:bf0f5294a1631760ca82baf5b16e57e2cd87aa812a351b3c322e14a216291845",
+      "identity": "1f:bf0f5294a1631760ca82baf5b16e57e2cd87aa812a351b3c322e14a216291845"
+    },
+    {
+      "from": "packages/connector-room/read-data/connector-room-surface.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connector-room/packages/connector-room/read-data/connector-room-surface.ts",
+      "source_identity": "1f:8921682812167cd51e29cf6967676313b06de8fa8262d9e9e18caa8bee85c7b1",
+      "identity": "1f:8921682812167cd51e29cf6967676313b06de8fa8262d9e9e18caa8bee85c7b1"
+    },
+    {
+      "from": "packages/connector-room/read-data/read-connections-workspace-layout-state.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connector-room/packages/connector-room/read-data/read-connections-workspace-layout-state.ts",
+      "source_identity": "1f:9390eaf54521f78483dadc7edc2263931d13fe4406342ead6947d13322e47046",
+      "identity": "1f:9390eaf54521f78483dadc7edc2263931d13fe4406342ead6947d13322e47046"
+    },
+    {
+      "from": "packages/connector-room/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connector-room/packages/connector-room/read-data/README.md",
+      "source_identity": "1f:d726fc2671e254c4c8b662259f7ed48b8abfde6e2c9cff77a23b1b6a00397a2d",
+      "identity": "1f:d726fc2671e254c4c8b662259f7ed48b8abfde6e2c9cff77a23b1b6a00397a2d"
+    },
+    {
+      "from": "packages/connector-room/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connector-room/packages/connector-room/README.md",
+      "source_identity": "1f:6d554ce631d4e30381eafd5f7e85fe4ffd8a8a1a9f12e6d350a6698575fdbd98",
+      "identity": "1f:6d554ce631d4e30381eafd5f7e85fe4ffd8a8a1a9f12e6d350a6698575fdbd98"
+    },
+    {
+      "from": "packages/connector-room/show/ConnectorRoomPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connector-room/packages/connector-room/show/ConnectorRoomPanel.tsx",
+      "source_identity": "1f:18c5dd1a9f72f0c881bd43faa23166d520aa38ba90cfc52c9ad6e51a845451f7",
+      "identity": "1f:18c5dd1a9f72f0c881bd43faa23166d520aa38ba90cfc52c9ad6e51a845451f7"
+    },
+    {
+      "from": "packages/connector-room/show/mount-connector-room.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connector-room/packages/connector-room/show/mount-connector-room.tsx",
+      "source_identity": "1f:8f28f0a8ddf21a4805fe011c8b35fac798fb0ba450be00cb84af5d95d98e7c28",
+      "identity": "1f:8f28f0a8ddf21a4805fe011c8b35fac798fb0ba450be00cb84af5d95d98e7c28"
+    },
+    {
+      "from": "packages/connector-room/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connector-room/packages/connector-room/show/README.md",
+      "source_identity": "1f:36392e6ac22178cd9a2e39c1aef39e7a99f2bf8d87571eaec7902a27aa3984f2",
+      "identity": "1f:36392e6ac22178cd9a2e39c1aef39e7a99f2bf8d87571eaec7902a27aa3984f2"
+    },
+    {
+      "from": "packages/connector-room/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connector-room/packages/connector-room/things-to-store-and-run.json",
+      "source_identity": "1f:ee6751ba9fe5e34c21eef0969aeee593f9bf507fc0a917fb5758d0f0b45d7ba3",
+      "identity": "1f:ee6751ba9fe5e34c21eef0969aeee593f9bf507fc0a917fb5758d0f0b45d7ba3"
+    }
+  ]
+}

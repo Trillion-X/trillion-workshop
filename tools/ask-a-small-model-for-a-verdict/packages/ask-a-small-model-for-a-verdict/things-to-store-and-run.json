@@ -1,0 +1,160 @@
+{
+  "package": "ask-a-small-model-for-a-verdict",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::ask-a-small-model-for-a-verdict::capability::ask-for-a-verdict",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-package-capability",
+        "id": "capability:ask-for-a-verdict",
+        "package": "ask-a-small-model-for-a-verdict",
+        "label": "Ask A Small Model For A Verdict",
+        "description": "Answer one declared question about some content with a small locally served model, and choose which model answers by held-out calibration rather than by its name or its size. A rubric is DATA: the question, the fields the answer must carry, and the calibration cases with the verdict each one must receive. Two refusals make the result worth anything. A rubric carrying no calibration cases is refused, because a judge nobody scored agrees with everything and manufactures confidence instead of supplying it. A rubric whose cases all expect the same verdict is refused too, because a model that always answers that way passes every one of them, so the cases must include at least one that must fail and one that must pass. When no served model passes, the answer is a refusal carrying the scoreboard, never a fallback to whichever model was there. A model that times out or returns unparseable output is counted as an error and reported apart from a model that answered wrongly, because those two facts have opposite remedies. This capability knows nothing about what it is judging: endpoint, rubric, calibration and content are all inputs, and no model name appears in its source.",
+        "owned_record_kinds": [],
+        "reuses": []
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ask-a-small-model-for-a-verdict::public-source::do-work",
+      "path": [
+        "packages",
+        "ask-a-small-model-for-a-verdict",
+        "public-sources",
+        "do-work"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ask-a-small-model-for-a-verdict::checks",
+      "path": [
+        "packages",
+        "ask-a-small-model-for-a-verdict",
+        "checks"
+      ],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "tests/ask-for-a-verdict.test.mjs",
+          "tests/brief-before-the-work-starts.test.mjs",
+          "tests/model-response-adapter.test.mjs",
+          "tests/native-tool-judge.test.mjs",
+          "tests/judges-ready-out-of-band.test.mjs"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ask-a-small-model-for-a-verdict::target::judge-content",
+      "path": [
+        "packages",
+        "ask-a-small-model-for-a-verdict",
+        "targets",
+        "judge-content"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "judge-content",
+        "export_name": "run",
+        "source_path": "do-work/judge-content.mjs",
+        "target": "ask-a-small-model-for-a-verdict.judge-content",
+        "trusted_input_keys": [
+          "rubric",
+          "content",
+          "content_parts",
+          "providers",
+          "passes",
+          "sureAt"
+        ]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "judge-content",
+      "source_path": "built-stored-bytes/judge-content",
+      "source_closure_receipt_path": "built-stored-bytes/judge-content.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::ask-a-small-model-for-a-verdict::reaches-past-the-engine::environment",
+      "path": [
+        "current-item",
+        "reaches-past-the-engine"
+      ],
+      "payload": {
+        "kind": "reaches-past-the-engine",
+        "reach_class": "environment",
+        "why": "The classifier adapter reads its configured endpoint/model and an owner-injected credential when reaching a declared classifier."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ask-a-small-model-for-a-verdict::reaches-past-the-engine::network",
+      "path": [
+        "current-item",
+        "reaches-past-the-engine"
+      ],
+      "payload": {
+        "kind": "reaches-past-the-engine",
+        "reach_class": "network",
+        "why": "The classifier adapter asks the configured model endpoint to score calibration cases and proposed content."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ask-a-small-model-for-a-verdict::reaches-past-the-engine::clock",
+      "path": [
+        "current-item",
+        "reaches-past-the-engine"
+      ],
+      "payload": {
+        "kind": "reaches-past-the-engine",
+        "reach_class": "clock",
+        "why": "The calibrated verdict record timestamps the model answer so a later audit can distinguish current from stale results."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ask-a-small-model-for-a-verdict::reaches-past-the-engine::file-io",
+      "path": [
+        "current-item",
+        "reaches-past-the-engine"
+      ],
+      "payload": {
+        "kind": "reaches-past-the-engine",
+        "reach_class": "file-io",
+        "why": "The calibrated verdict owner can read its optional calibration cache and CLI input; model credentials are held by the vault owner."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ask-a-small-model-for-a-verdict::entry::judge-content",
+      "path": [
+        "packages",
+        "ask-a-small-model-for-a-verdict",
+        "entries",
+        "judge-content"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "judge-content",
+        "export_name": "run",
+        "source_path": "do-work/judge-content.mjs",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "judge-content"
+        }
+      }
+    }
+  ]
+}

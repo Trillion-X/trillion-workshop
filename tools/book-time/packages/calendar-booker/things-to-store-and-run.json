@@ -1,0 +1,5337 @@
+{
+  "package": "calendar-booker",
+  "things": [
+    {
+      "type": "stored_bytes",
+      "name": "show-ios-jscore-readme",
+      "source_path": "show-ios-jscore/README.md"
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::contract",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "contract"
+      ],
+      "payload": {
+        "kind": "bitfield-package-contract",
+        "package": "calendar-booker",
+        "capability": "generic scheduling and booking",
+        "does_not_own": [
+          "account/session authentication",
+          "payment checkout",
+          "external calendar credentials",
+          "live external calendar free-busy feed polling",
+          "renderer layout"
+        ],
+        "owns": [
+          "availability-window record contracts",
+          "booking-request record contract",
+          "booking-confirmation record contract",
+          "booking-status transition contract",
+          "calendar-event record contract",
+          "workflow action definitions over those records"
+        ],
+        "reuses": [
+          "workflow",
+          "find-current-items",
+          "credentials-vault",
+          "http-client",
+          "process-session"
+        ],
+        "blocked_by": [
+          "CPD-10F",
+          "Account Portal",
+          "package-store publication"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::l093-reuse-decision",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "architecture"
+      ],
+      "payload": {
+        "kind": "l093-reuse-decision",
+        "new_slot_required": false,
+        "workflow_actions": "reuse slot::workflow for booking state transitions and command orchestration",
+        "reads": "reuse slot::find-current-items for availability, bookings, booking types, and calendar events",
+        "identity": "opaque account/session target supplied by package-set composition",
+        "calendar_sync": "CPD-10F-gated maintained-feed work; reuse credentials-vault, http-client, and process-session when admitted",
+        "rejected_duplicate_families": [
+          "calendar-booker slot",
+          "local Supabase client",
+          "package-local auth",
+          "package-local Google Calendar worker",
+          "tennis-specific booking package"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::source-lineage",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "source-lineage"
+      ],
+      "payload": {
+        "kind": "source-lineage",
+        "mined_from": [
+          "source:esot.schema-sql.booking-and-calendar-tables",
+          "source:esot.generated-database-types.booking-and-calendar-rows",
+          "source:esot.database-extensions.attendee-and-booking-relations",
+          "source:esot.booking-actions.availability-request-confirm-cancel",
+          "source:esot.calendar-event-actions.event-and-booking-detail-reads",
+          "source:esot.booking-components.availability-confirmation-dashboard",
+          "source:esot.calendar-components.event-types-and-management",
+          "source:esot.booking-system-plan.hypergraph-multi-host-timezone",
+          "source:esot.calendar-main.renderer-reference"
+        ],
+        "normalization": "Product-specific tennis copy, Supabase client usage, Next.js actions, Google API worker code, and renderer layout were not copied into package truth."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::schema::availability-template",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "schemas"
+      ],
+      "payload": {
+        "kind": "record-schema",
+        "schema_id": "calendar-booker.availability-template",
+        "source_table": "availability_templates",
+        "description": "Recurring host availability definition used to derive bookable windows.",
+        "required_fields": [
+          "id",
+          "user_id",
+          "name",
+          "timezone",
+          "recurrence_rule",
+          "duration_minutes"
+        ],
+        "optional_fields": [
+          "buffer_minutes_before",
+          "buffer_minutes_after",
+          "booking_window_days",
+          "min_notice_hours",
+          "is_active",
+          "metadata",
+          "created_at",
+          "updated_at",
+          "check_calendars"
+        ],
+        "defaults": {
+          "timezone": "America/Los_Angeles",
+          "duration_minutes": 30,
+          "buffer_minutes_before": 0,
+          "buffer_minutes_after": 15,
+          "booking_window_days": 30,
+          "min_notice_hours": 24,
+          "is_active": true,
+          "metadata": {},
+          "check_calendars": [
+            "primary"
+          ]
+        },
+        "field_contracts": {
+          "user_id": "opaque account/session participant target",
+          "recurrence_rule": "opaque recurrence JSON, preserving ESOT RRule-derived shape",
+          "check_calendars": "external calendar ids consumed only by sync/connectors"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::input::published-records",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "input_name": "published-records",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "package::calendar-booker::booker-feed",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::schema::availability-slot",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "schemas"
+      ],
+      "payload": {
+        "kind": "record-schema",
+        "schema_id": "calendar-booker.availability-slot",
+        "source_table": "availability_slots",
+        "description": "Concrete bookable time interval, either generated from a template or added directly.",
+        "required_fields": [
+          "id",
+          "user_id",
+          "start_time",
+          "end_time"
+        ],
+        "optional_fields": [
+          "template_id",
+          "booking_type_id",
+          "is_available",
+          "is_recurring",
+          "metadata",
+          "created_at",
+          "updated_at"
+        ],
+        "defaults": {
+          "is_available": true,
+          "is_recurring": false,
+          "metadata": {}
+        },
+        "relationships": [
+          {
+            "field": "template_id",
+            "target_schema": "calendar-booker.availability-template"
+          },
+          {
+            "field": "booking_type_id",
+            "target_schema": "calendar-booker.booking-type"
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::schema::availability-override",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "schemas"
+      ],
+      "payload": {
+        "kind": "record-schema",
+        "schema_id": "calendar-booker.availability-override",
+        "source_table": "availability_overrides",
+        "description": "Host-level exception that blocks or adds availability for one or more booking types.",
+        "required_fields": [
+          "id",
+          "user_id",
+          "override_type",
+          "start_time",
+          "end_time"
+        ],
+        "optional_fields": [
+          "reason",
+          "booking_type_ids",
+          "created_at",
+          "updated_at"
+        ],
+        "allowed_values": {
+          "override_type": [
+            "block",
+            "add"
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::schema::booking-type",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "schemas"
+      ],
+      "payload": {
+        "kind": "record-schema",
+        "schema_id": "calendar-booker.booking-type",
+        "source_table": "booking_types",
+        "description": "Bookable appointment category and its policy pointers.",
+        "required_fields": [
+          "id",
+          "slug",
+          "name",
+          "duration_minutes"
+        ],
+        "optional_fields": [
+          "description",
+          "confirmation_required",
+          "reminder_config",
+          "intake_form_id",
+          "post_call_form_id",
+          "payment_or_access_target_id",
+          "metadata",
+          "created_at",
+          "updated_at"
+        ],
+        "defaults": {
+          "duration_minutes": 30,
+          "confirmation_required": true,
+          "reminder_config": {
+            "email": true,
+            "hours_before": [
+              24,
+              1
+            ]
+          },
+          "metadata": {}
+        },
+        "external_targets": {
+          "payment_or_access_target_id": "opaque Account Portal or payment package target; this package does not own checkout"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::schema::booking",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "schemas"
+      ],
+      "payload": {
+        "kind": "record-schema",
+        "schema_id": "calendar-booker.booking",
+        "source_table": "bookings",
+        "description": "Booking state record linked to a generic interaction/participant graph.",
+        "required_fields": [
+          "id",
+          "interaction_id",
+          "booking_type_id",
+          "status",
+          "scheduled_start",
+          "scheduled_end"
+        ],
+        "optional_fields": [
+          "slot_id",
+          "actual_start",
+          "actual_end",
+          "cancellation_reason",
+          "cancelled_at",
+          "meeting_url",
+          "meeting_password",
+          "metadata",
+          "created_at",
+          "updated_at",
+          "external_calendar_event_id"
+        ],
+        "relationships": [
+          {
+            "field": "interaction_id",
+            "target_schema": "generic interaction graph"
+          },
+          {
+            "field": "slot_id",
+            "target_schema": "calendar-booker.availability-slot"
+          },
+          {
+            "field": "booking_type_id",
+            "target_schema": "calendar-booker.booking-type"
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::schema::booking-request",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "schemas"
+      ],
+      "payload": {
+        "kind": "record-schema",
+        "schema_id": "calendar-booker.booking-request",
+        "description": "Command input contract for requesting a booking.",
+        "required_fields": [
+          "host_ids",
+          "attendees",
+          "booking_type_slug",
+          "start_time",
+          "end_time"
+        ],
+        "optional_fields": [
+          "intake_submission_id",
+          "requester_timezone",
+          "idempotency_key"
+        ],
+        "field_contracts": {
+          "host_ids": "array of opaque account/session participant targets",
+          "attendees": "array of attendee objects with userId, name, email, optional notes",
+          "booking_type_slug": "stable package data key resolved to a booking-type record"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::schema::booking-confirmation",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "schemas"
+      ],
+      "payload": {
+        "kind": "record-schema",
+        "schema_id": "calendar-booker.booking-confirmation",
+        "description": "Result contract for booking attempts.",
+        "required_fields": [
+          "success",
+          "requires_payment"
+        ],
+        "optional_fields": [
+          "booking_id",
+          "interaction_id",
+          "error_message",
+          "payment_amount",
+          "checkout_url",
+          "meeting_url",
+          "calendar_event_id"
+        ],
+        "source_rpc": "request_booking"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::schema::calendar-event",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "schemas"
+      ],
+      "payload": {
+        "kind": "record-schema",
+        "schema_id": "calendar-booker.calendar-event",
+        "source_table": "events",
+        "description": "Calendar event projection with optional source link to a booking.",
+        "required_fields": [
+          "id",
+          "user_id",
+          "title",
+          "start_time"
+        ],
+        "optional_fields": [
+          "description",
+          "end_time",
+          "event_type_id",
+          "color",
+          "source_table",
+          "source_id",
+          "metadata",
+          "created_at",
+          "updated_at"
+        ],
+        "source_link_contract": {
+          "source_table": "bookings",
+          "source_id": "calendar-booker.booking.id"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::schema::booking-status",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "schemas"
+      ],
+      "payload": {
+        "kind": "state-contract",
+        "schema_id": "calendar-booker.booking-status",
+        "initial": "pending",
+        "allowed_values": [
+          "pending",
+          "confirmed",
+          "cancelled",
+          "completed",
+          "no_show",
+          "pending_payment",
+          "pending_confirmation"
+        ],
+        "transitions": [
+          {
+            "from": "pending",
+            "to": "pending_payment"
+          },
+          {
+            "from": "pending",
+            "to": "pending_confirmation"
+          },
+          {
+            "from": "pending",
+            "to": "confirmed"
+          },
+          {
+            "from": "pending_payment",
+            "to": "confirmed"
+          },
+          {
+            "from": "pending_confirmation",
+            "to": "confirmed"
+          },
+          {
+            "from": "confirmed",
+            "to": "completed"
+          },
+          {
+            "from": "confirmed",
+            "to": "no_show"
+          },
+          {
+            "from": "pending",
+            "to": "cancelled"
+          },
+          {
+            "from": "pending_payment",
+            "to": "cancelled"
+          },
+          {
+            "from": "pending_confirmation",
+            "to": "cancelled"
+          },
+          {
+            "from": "confirmed",
+            "to": "cancelled"
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::workflow-action::find-availability",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:calendar-booker.find-availability",
+        "kind": "action",
+        "is_active": true,
+        "name": "calendar-booker.find-availability",
+        "description": "Read booking type, active availability templates, overrides, and existing slots for host targets and a requested date range. Live external free-busy filtering is CPD-10F-gated.",
+        "input_schema": {
+          "required": [
+            "host_ids",
+            "booking_type_slug",
+            "start_time",
+            "end_time"
+          ],
+          "optional": [
+            "requester_timezone"
+          ]
+        },
+        "steps": [
+          {
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "booking-types",
+                "select": [
+                  "id",
+                  "slug",
+                  "duration_minutes",
+                  "confirmation_required",
+                  "payment_or_access_target_id",
+                  "metadata"
+                ],
+                "where": {
+                  "field": "slug",
+                  "eq": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "booking_type_slug"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "availability-templates",
+                "select": [
+                  "id",
+                  "user_id",
+                  "timezone",
+                  "recurrence_rule",
+                  "duration_minutes",
+                  "buffer_minutes_before",
+                  "buffer_minutes_after",
+                  "booking_window_days",
+                  "min_notice_hours",
+                  "check_calendars"
+                ],
+                "where": {
+                  "all": [
+                    {
+                      "field": "user_id",
+                      "in": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "host_ids"
+                        }
+                      }
+                    },
+                    {
+                      "field": "is_active",
+                      "eq": true
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "availability-overrides",
+                "select": [
+                  "id",
+                  "user_id",
+                  "override_type",
+                  "start_time",
+                  "end_time",
+                  "booking_type_ids",
+                  "reason"
+                ],
+                "where": {
+                  "all": [
+                    {
+                      "field": "user_id",
+                      "in": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "host_ids"
+                        }
+                      }
+                    },
+                    {
+                      "field": "end_time",
+                      "gte": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "start_time"
+                        }
+                      }
+                    },
+                    {
+                      "field": "start_time",
+                      "lte": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "end_time"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "blocked_follow_up": {
+          "blocker": "CPD-10F",
+          "reason": "External calendar free-busy sync and maintained no-op availability refresh must use feed correctness substrate."
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::workflow-action::request-booking",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:calendar-booker.request-booking",
+        "kind": "action",
+        "is_active": true,
+        "name": "calendar-booker.request-booking",
+        "description": "Create a generic booking request record and hand state progression to workflow/account/payment targets.",
+        "input_schema": {
+          "schema_id": "calendar-booker.booking-request"
+        },
+        "steps": [
+          {
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "booking-types",
+                "select": [
+                  "id",
+                  "slug",
+                  "duration_minutes",
+                  "confirmation_required",
+                  "payment_or_access_target_id"
+                ],
+                "where": {
+                  "field": "slug",
+                  "eq": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "booking_type_slug"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "idempotency_key"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::calendar-booker::booking-request::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "idempotency_key"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "calendar-booker",
+                    "booking-requests"
+                  ],
+                  "payload": {
+                    "kind": "calendar-booker.booking-request",
+                    "host_ids": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "host_ids"
+                      }
+                    },
+                    "attendees": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "attendees"
+                      }
+                    },
+                    "booking_type_slug": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "booking_type_slug"
+                      }
+                    },
+                    "start_time": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "start_time"
+                      }
+                    },
+                    "end_time": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "end_time"
+                      }
+                    },
+                    "intake_submission_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "intake_submission_id"
+                      }
+                    },
+                    "status": "pending"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "external_targets": [
+          "account/session identity target",
+          "optional payment/access target"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::workflow-action::confirm-booking",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:calendar-booker.confirm-booking",
+        "kind": "action",
+        "is_active": true,
+        "name": "calendar-booker.confirm-booking",
+        "description": "Write confirmed booking state and package-local calendar event projection after account/payment gates admit confirmation.",
+        "input_schema": {
+          "required": [
+            "booking_id",
+            "interaction_id",
+            "booking_type_id",
+            "scheduled_start",
+            "scheduled_end",
+            "calendar_event_owner_id",
+            "title"
+          ],
+          "optional": [
+            "slot_id",
+            "meeting_url",
+            "meeting_password",
+            "external_calendar_event_id",
+            "metadata"
+          ]
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "booking_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::calendar-booker::booking::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "booking_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "calendar-booker",
+                    "bookings"
+                  ],
+                  "payload": {
+                    "kind": "calendar-booker.booking",
+                    "status": "confirmed",
+                    "interaction_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "interaction_id"
+                      }
+                    },
+                    "slot_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "slot_id"
+                      }
+                    },
+                    "booking_type_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "booking_type_id"
+                      }
+                    },
+                    "scheduled_start": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "scheduled_start"
+                      }
+                    },
+                    "scheduled_end": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "scheduled_end"
+                      }
+                    },
+                    "meeting_url": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "meeting_url"
+                      }
+                    },
+                    "external_calendar_event_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "external_calendar_event_id"
+                      }
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "booking_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::calendar-booker::calendar-event::booking::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "booking_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "calendar-booker",
+                    "calendar-events"
+                  ],
+                  "payload": {
+                    "kind": "calendar-booker.calendar-event",
+                    "user_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "calendar_event_owner_id"
+                      }
+                    },
+                    "title": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "title"
+                      }
+                    },
+                    "start_time": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "scheduled_start"
+                      }
+                    },
+                    "end_time": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "scheduled_end"
+                      }
+                    },
+                    "source_table": "bookings",
+                    "source_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "booking_id"
+                      }
+                    },
+                    "metadata": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "metadata"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::workflow-action::cancel-booking",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:calendar-booker.cancel-booking",
+        "kind": "action",
+        "is_active": true,
+        "name": "calendar-booker.cancel-booking",
+        "description": "Mark a booking cancelled and free the package-local slot record. External calendar deletion is CPD-10F-gated sync work.",
+        "input_schema": {
+          "required": [
+            "booking_id",
+            "cancelled_at"
+          ],
+          "optional": [
+            "slot_id",
+            "cancellation_reason"
+          ]
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "booking_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::calendar-booker::booking-status::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "booking_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "calendar-booker",
+                    "booking-status"
+                  ],
+                  "payload": {
+                    "kind": "calendar-booker.booking-status-change",
+                    "booking_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "booking_id"
+                      }
+                    },
+                    "status": "cancelled",
+                    "cancelled_at": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "cancelled_at"
+                      }
+                    },
+                    "cancellation_reason": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "cancellation_reason"
+                      }
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "slot_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::calendar-booker::availability-slot-availability::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "slot_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "calendar-booker",
+                    "availability-slots"
+                  ],
+                  "payload": {
+                    "kind": "calendar-booker.availability-slot-availability",
+                    "slot_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "slot_id"
+                      }
+                    },
+                    "is_available": true
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "blocked_follow_up": {
+          "blocker": "CPD-10F",
+          "reason": "External calendar event deletion and retry/no-op outbox handling are maintained-feed sync work."
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::workflow-action::list-bookings",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:calendar-booker.list-bookings",
+        "kind": "action",
+        "is_active": true,
+        "name": "calendar-booker.list-bookings",
+        "description": "Read bookings by participant target and optional participant role.",
+        "input_schema": {
+          "required": [
+            "participant_id"
+          ],
+          "optional": [
+            "role",
+            "include_past"
+          ]
+        },
+        "steps": [
+          {
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "bookings",
+                "select": [
+                  "id",
+                  "interaction_id",
+                  "slot_id",
+                  "booking_type_id",
+                  "status",
+                  "scheduled_start",
+                  "scheduled_end",
+                  "meeting_url",
+                  "metadata"
+                ],
+                "where": {
+                  "field": "interaction_participants.participant_id",
+                  "eq": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "participant_id"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::workflow-action::list-calendar-events",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:calendar-booker.list-calendar-events",
+        "kind": "action",
+        "is_active": true,
+        "name": "calendar-booker.list-calendar-events",
+        "description": "Read calendar event records for one owner target.",
+        "input_schema": {
+          "required": [
+            "user_id"
+          ],
+          "optional": [
+            "start_time",
+            "end_time"
+          ]
+        },
+        "steps": [
+          {
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "calendar-events",
+                "select": [
+                  "id",
+                  "title",
+                  "description",
+                  "start_time",
+                  "end_time",
+                  "event_type_id",
+                  "color",
+                  "source_table",
+                  "source_id",
+                  "metadata"
+                ],
+                "where": {
+                  "field": "user_id",
+                  "eq": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "user_id"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::workflow-action::generate-availability-slots",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:calendar-booker.generate-availability-slots",
+        "kind": "action",
+        "is_active": true,
+        "name": "calendar-booker.generate-availability-slots",
+        "description": "Declare the package-level slot-generation command over availability-template records. Recurrence expansion is pure workflow/process work; live external calendar filtering is CPD-10F-gated.",
+        "input_schema": {
+          "required": [
+            "user_id"
+          ],
+          "optional": [
+            "days_ahead",
+            "start_time",
+            "end_time"
+          ]
+        },
+        "steps": [
+          {
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "availability-templates",
+                "select": [
+                  "id",
+                  "user_id",
+                  "timezone",
+                  "recurrence_rule",
+                  "duration_minutes",
+                  "buffer_minutes_before",
+                  "buffer_minutes_after",
+                  "booking_window_days",
+                  "min_notice_hours",
+                  "is_active"
+                ],
+                "where": {
+                  "all": [
+                    {
+                      "field": "user_id",
+                      "eq": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "user_id"
+                        }
+                      }
+                    },
+                    {
+                      "field": "is_active",
+                      "eq": true
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "output_schema": {
+          "required": [
+            "slots_created",
+            "slots_skipped",
+            "errors"
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::owner-action-surface::booking-links",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "owner-action-surface"
+      ],
+      "payload": {
+        "kind": "owner-action-surface",
+        "surface_id": "calendar-booker.booking-links",
+        "owner_ref": "package::calendar-booker",
+        "entry_ref": "package::calendar-booker::published-record::placeable-surface::calendar-booker",
+        "record_descriptors": [
+          "package::calendar-booker::schema::booking-type",
+          "package::calendar-booker::schema::availability-slot",
+          "package::calendar-booker::schema::booking-request",
+          "package::calendar-booker::schema::booking-confirmation",
+          "package::calendar-booker::schema::calendar-event"
+        ],
+        "action_descriptors": [
+          "package::calendar-booker::owner-action::find-availability",
+          "package::calendar-booker::owner-action::request-booking",
+          "package::calendar-booker::owner-action::confirm-booking",
+          "package::calendar-booker::owner-action::cancel-booking"
+        ],
+        "relationship_descriptors": [
+          {
+            "from": "calendar-booker.booking-request",
+            "to": "calendar-booker.booking-confirmation",
+            "role": "request-result"
+          },
+          {
+            "from": "calendar-booker.booking",
+            "to": "calendar-booker.calendar-event",
+            "role": "event-projection"
+          }
+        ],
+        "rule_descriptors": [
+          "package::calendar-booker::rule::booking-links-readiness",
+          "package::calendar-booker::rule::booking-links-action-availability"
+        ],
+        "projection_descriptors": [
+          "package::calendar-booker::projection::booking-links-setup",
+          "package::calendar-booker::projection::booking-links-public-entry",
+          "package::calendar-booker::projection::booking-links-result",
+          "package::calendar-booker::projection::booking-links-owner-follow-up"
+        ],
+        "data_to_human_translation_owner": "package::calendar-booker",
+        "reused_owners": [
+          "slot::workflow",
+          "slot::find-current-items",
+          "service-connections",
+          "http-client",
+          "process-session",
+          "hosted-public-app"
+        ],
+        "blocked_duplicate_owners": [
+          "booking-links package root",
+          "booking-links slot",
+          "booking-specific provider worker",
+          "booking-specific public host"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::owner-action-surface::availability-setup",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "owner-action-surface"
+      ],
+      "payload": {
+        "kind": "owner-action-surface",
+        "surface_id": "calendar-booker.availability-setup",
+        "owner_ref": "package::calendar-booker",
+        "entry_ref": "package::calendar-booker::published-record::placeable-surface::calendar-availability-setup",
+        "record_descriptors": [
+          "package::calendar-booker::schema::availability-template",
+          "package::calendar-booker::schema::availability-slot",
+          "package::calendar-booker::schema::availability-override",
+          "package::calendar-booker::schema::booking-type"
+        ],
+        "action_descriptors": [
+          "package::calendar-booker::owner-action::publish-availability-policy"
+        ],
+        "projection_descriptors": [
+          "package::calendar-booker::projection::availability-setup"
+        ],
+        "data_to_human_translation_owner": "package::calendar-booker",
+        "reused_owners": [
+          "slot::workflow",
+          "slot::find-current-items",
+          "process-session",
+          "http-client"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::owner-action::publish-availability-policy",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "owner-action-descriptor"
+      ],
+      "payload": {
+        "kind": "owner-action-descriptor",
+        "action_ref": "action:calendar-booker.generate-availability-slots",
+        "target": "slot::workflow",
+        "input_schema_ref": "package::calendar-booker::schema::availability-template",
+        "idempotency_scope": [
+          "owner_target",
+          "policy_id"
+        ],
+        "projection_targets": [
+          "package::calendar-booker::projection::availability-setup"
+        ],
+        "write_authority": "slot::workflow"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::presentation-profile::availability-setup::member-practice",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "presentation-profile"
+      ],
+      "payload": {
+        "kind": "calendar-booker.presentation-profile",
+        "profile_id": "calendar-booker.availability-setup.member-practice",
+        "surface_id": "calendar-booker.availability-setup",
+        "audience": "member",
+        "intent": "Member declares recurring court windows the AI coach can use to plan practice.",
+        "copy_map": {
+          "section_label": "When can you practice?",
+          "section_help": "Set the days and times you're on court. Your AI coach uses these windows to plan your practice sessions.",
+          "empty_help": "No practice windows yet. Save the times you can usually get on court.",
+          "publish_action_label": "Save my practice windows",
+          "saved_badge": "Practice windows saved",
+          "saved_button_label": "Practice windows saved",
+          "day_label": "Days on court",
+          "days_aria_label": "Days you can practice",
+          "all_days_label": "Every day",
+          "from_label": "From",
+          "to_label": "To",
+          "duration_label": "Practice length",
+          "save_error": "That didn't save. Try again.",
+          "template_name": "My practice windows"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::owner-action::find-availability",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "owner-action-descriptor"
+      ],
+      "payload": {
+        "kind": "owner-action-descriptor",
+        "action_ref": "action:calendar-booker.find-availability",
+        "target": "slot::workflow",
+        "input_schema": {
+          "required": [
+            "host_ids",
+            "booking_type_slug",
+            "start_time",
+            "end_time"
+          ],
+          "optional": [
+            "requester_timezone"
+          ]
+        },
+        "projection_targets": [
+          "package::calendar-booker::projection::booking-links-public-entry"
+        ],
+        "write_authority": "slot::workflow"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::owner-action::request-booking",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "owner-action-descriptor"
+      ],
+      "payload": {
+        "kind": "owner-action-descriptor",
+        "action_ref": "action:calendar-booker.request-booking",
+        "target": "slot::workflow",
+        "input_schema_ref": "package::calendar-booker::schema::booking-request",
+        "idempotency_scope": [
+          "host_ids",
+          "booking_type_slug",
+          "start_time",
+          "end_time",
+          "attendees"
+        ],
+        "projection_targets": [
+          "package::calendar-booker::projection::booking-links-result",
+          "package::calendar-booker::projection::booking-links-owner-follow-up"
+        ],
+        "write_authority": "slot::workflow"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::owner-action::confirm-booking",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "owner-action-descriptor"
+      ],
+      "payload": {
+        "kind": "owner-action-descriptor",
+        "action_ref": "action:calendar-booker.confirm-booking",
+        "target": "slot::workflow",
+        "input_schema_ref": "package::calendar-booker::schema::booking-confirmation",
+        "projection_targets": [
+          "package::calendar-booker::projection::booking-links-result",
+          "package::calendar-booker::projection::booking-links-owner-follow-up"
+        ],
+        "write_authority": "slot::workflow"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::owner-action::cancel-booking",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "owner-action-descriptor"
+      ],
+      "payload": {
+        "kind": "owner-action-descriptor",
+        "action_ref": "action:calendar-booker.cancel-booking",
+        "target": "slot::workflow",
+        "input_schema": {
+          "required": [
+            "booking_id",
+            "cancelled_at"
+          ],
+          "optional": [
+            "slot_id",
+            "cancellation_reason"
+          ]
+        },
+        "projection_targets": [
+          "package::calendar-booker::projection::booking-links-owner-follow-up"
+        ],
+        "write_authority": "slot::workflow"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::rule::booking-links-readiness",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "rule-descriptor"
+      ],
+      "payload": {
+        "kind": "rule-descriptor",
+        "rule_id": "calendar-booker.booking-links.readiness",
+        "owner_ref": "package::calendar-booker",
+        "inputs": [
+          "package::calendar-booker::schema::booking-type",
+          "package::calendar-booker::schema::availability-template",
+          "service-connections"
+        ],
+        "outputs": [
+          {
+            "field": "status",
+            "value_source": "owner-translated-data"
+          },
+          {
+            "field": "repair_action_ref",
+            "value_source": "owner-action-descriptor"
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::rule::booking-links-action-availability",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "rule-descriptor"
+      ],
+      "payload": {
+        "kind": "rule-descriptor",
+        "rule_id": "calendar-booker.booking-links.action-availability",
+        "owner_ref": "package::calendar-booker",
+        "inputs": [
+          "package::calendar-booker::schema::availability-slot",
+          "package::calendar-booker::schema::booking-status"
+        ],
+        "outputs": [
+          {
+            "field": "disabled_reason",
+            "value_source": "owner-translated-data"
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::projection::availability-setup",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "projection-descriptor"
+      ],
+      "payload": {
+        "kind": "projection-descriptor",
+        "projection_id": "calendar-booker.availability-setup",
+        "read_address": "package::calendar-booker::projection::availability-setup::current",
+        "owner_ref": "package::calendar-booker",
+        "shape": "owner-translated-view-descriptor-list",
+        "sources": [
+          "package::calendar-booker::schema::availability-template",
+          "package::calendar-booker::schema::availability-override",
+          "package::calendar-booker::schema::booking-type"
+        ],
+        "actions": [
+          "package::calendar-booker::owner-action::publish-availability-policy"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::projection::booking-links-setup",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "projection-descriptor"
+      ],
+      "payload": {
+        "kind": "projection-descriptor",
+        "projection_id": "calendar-booker.booking-links.setup",
+        "read_address": "package::calendar-booker::projection::booking-links-setup::current",
+        "owner_ref": "package::calendar-booker",
+        "shape": "owner-translated-view-descriptor-list",
+        "sources": [
+          "package::calendar-booker::schema::booking-type",
+          "package::calendar-booker::schema::availability-template",
+          "package::calendar-booker::rule::booking-links-readiness"
+        ],
+        "actions": [
+          "package::calendar-booker::owner-action::publish-availability-policy"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::projection::booking-links-public-entry",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "projection-descriptor"
+      ],
+      "payload": {
+        "kind": "projection-descriptor",
+        "projection_id": "calendar-booker.booking-links.public-entry",
+        "read_address": "package::calendar-booker::projection::booking-links-public-entry::current",
+        "owner_ref": "package::calendar-booker",
+        "shape": "owner-translated-view-descriptor-list",
+        "sources": [
+          "package::calendar-booker::schema::availability-slot",
+          "package::calendar-booker::schema::booking-type",
+          "package::calendar-booker::rule::booking-links-action-availability"
+        ],
+        "actions": [
+          "package::calendar-booker::owner-action::find-availability",
+          "package::calendar-booker::owner-action::request-booking"
+        ],
+        "public_entry_owner": "hosted-public-app"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::projection::booking-links-result",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "projection-descriptor"
+      ],
+      "payload": {
+        "kind": "projection-descriptor",
+        "projection_id": "calendar-booker.booking-links.result",
+        "read_address": "package::calendar-booker::projection::booking-links-result::current",
+        "owner_ref": "package::calendar-booker",
+        "shape": "owner-translated-view-descriptor-list",
+        "sources": [
+          "package::calendar-booker::schema::booking-request",
+          "package::calendar-booker::schema::booking-confirmation",
+          "package::calendar-booker::schema::calendar-event"
+        ],
+        "actions": [
+          "package::calendar-booker::owner-action::request-booking",
+          "package::calendar-booker::owner-action::confirm-booking"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::projection::booking-links-owner-follow-up",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "projection-descriptor"
+      ],
+      "payload": {
+        "kind": "projection-descriptor",
+        "projection_id": "calendar-booker.booking-links.owner-follow-up",
+        "read_address": "package::calendar-booker::projection::booking-links-owner-follow-up::current",
+        "owner_ref": "package::calendar-booker",
+        "shape": "owner-translated-view-descriptor-list",
+        "sources": [
+          "package::calendar-booker::schema::booking",
+          "package::calendar-booker::schema::booking-status",
+          "package::calendar-booker::schema::calendar-event"
+        ],
+        "actions": [
+          "package::calendar-booker::owner-action::confirm-booking",
+          "package::calendar-booker::owner-action::cancel-booking"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::published-record::placeable-surface::calendar-booker",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "description": "Book appointments, confirm attendees, and inspect booking-backed calendar events.",
+        "icon": "CalendarDays",
+        "id": "calendar-booker",
+        "kind": "placeable-surface",
+        "label": "Calendar Booker",
+        "material_target": "calendar-booker",
+        "order": 42,
+        "section_id": "business",
+        "section_label": "Business",
+        "wrap_material": false,
+        "factflow_ref": "package::calendar-booker::factflow::calendar-booker",
+        "surface_id": "calendar-booker",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000042:calendar-booker",
+        "package_entry": {
+          "package_name": "calendar-booker",
+          "entry_name": "calendar-booker"
+        },
+        "things_to_put_on_screen": [
+          {
+            "source_path": "show-ios-jscore/mount-calendar-booker-jscore.js",
+            "required_capabilities": [
+              "can-put-thing-on-screen-using-screen-commands"
+            ],
+            "lifecycle_key": "component:calendar-booker:jscore",
+            "props": {
+              "entry_function": "bitfieldMount"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::factflow::calendar-booker",
+      "path": [
+        "package-primitive",
+        "factflow"
+      ],
+      "payload": {
+        "kind": "bitfield-eeaf-factflow",
+        "version": 1,
+        "package": "calendar-booker",
+        "journal": {
+          "address_label": "calendar-booker.surface.factflow.journal"
+        },
+        "fact_sources": [
+          {
+            "address": "package::calendar-booker::published-record::placeable-surface::calendar-booker",
+            "role": "surface publication fact source"
+          },
+          {
+            "address": "package::calendar-booker::entry::calendar-booker",
+            "role": "package entry fact source"
+          }
+        ],
+        "genesis": [
+          {
+            "address": "package::calendar-booker::published-record::placeable-surface::calendar-booker",
+            "policy": "surface declaration is admitted as provenance; live state arrives through declared factflow inputs or routed targets"
+          }
+        ],
+        "blockers": [],
+        "evidence": [
+          {
+            "address": "package::calendar-booker::published-record::placeable-surface::calendar-booker",
+            "proves": "active placeable surface declaration"
+          },
+          {
+            "address": "package::calendar-booker::entry::calendar-booker",
+            "proves": "surface materializes from declared package entry"
+          },
+          {
+            "address": "package::calendar-booker::entry-bytes::calendar-booker",
+            "proves": "browser-readable package entry output bytes"
+          }
+        ],
+        "interpreter_facts": {
+          "facts": [
+            {
+              "address": "package::calendar-booker::published-record::placeable-surface::calendar-booker",
+              "descriptor": "placeable_surface_record"
+            }
+          ],
+          "intents": [],
+          "effects": [],
+          "validation": [
+            {
+              "rule": "surface must remain a package data declaration, not a package-name branch in runtime code"
+            },
+            {
+              "rule": "material_target surfaces must resolve through package entry output bytes"
+            }
+          ],
+          "permissions": [
+            {
+              "rule": "screen-arrangement owns placement; this package owns only its surface declaration and entry output"
+            }
+          ],
+          "projections": [
+            {
+              "address_label": "published-records",
+              "source_path": [
+                "current-item",
+                "published-record"
+              ]
+            }
+          ],
+          "materializations": [
+            {
+              "entry_name": "calendar-booker",
+              "address": "package::calendar-booker::entry-bytes::calendar-booker",
+              "role": "placeable package entry output bytes"
+            }
+          ]
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::entry::calendar-booker",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "entries",
+        "calendar-booker"
+      ],
+      "payload": {
+        "entry_name": "calendar-booker",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-calendar-booker.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-calendar-booker"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::entry::calendar-booker-ios",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "entries",
+        "calendar-booker-ios"
+      ],
+      "payload": {
+        "entry_name": "calendar-booker-ios",
+        "kind": "bitfield-package-entry",
+        "source_path": "show-ios-jscore/mount-calendar-booker-jscore.js",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-calendar-booker-ios"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::native-screen-command-entry",
+      "path": [
+        "package-primitive",
+        "native-screen-command-entry"
+      ],
+      "payload": {
+        "kind": "bitfield-native-screen-command-entry",
+        "readme_path": "show-ios-jscore/README.md",
+        "source_path": "show-ios-jscore/mount-calendar-booker-jscore.js"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::published-record::placeable-surface::calendar-availability-setup",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "description": "Configure booking types, recurring availability windows, one-off overrides, and slot projection policy.",
+        "icon": "CalendarCog",
+        "id": "calendar-availability-setup",
+        "kind": "placeable-surface",
+        "label": "Calendar Availability Setup",
+        "material_target": "calendar-availability-setup",
+        "order": 43,
+        "section_id": "business",
+        "section_label": "Business",
+        "wrap_material": false,
+        "factflow_ref": "package::calendar-booker::factflow::calendar-availability-setup",
+        "audience": "operator",
+        "surface_id": "calendar-availability-setup",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000043:calendar-availability-setup",
+        "package_entry": {
+          "package_name": "calendar-booker",
+          "entry_name": "calendar-availability-setup"
+        },
+        "things_to_put_on_screen": [
+          {
+            "source_path": "show-ios-jscore/mount-calendar-booker-jscore.js",
+            "required_capabilities": [
+              "can-put-thing-on-screen-using-screen-commands"
+            ],
+            "lifecycle_key": "component:calendar-availability-setup:jscore",
+            "props": {
+              "entry_function": "bitfieldMount"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::factflow::calendar-availability-setup",
+      "path": [
+        "package-primitive",
+        "factflow"
+      ],
+      "payload": {
+        "kind": "bitfield-eeaf-factflow",
+        "version": 1,
+        "package": "calendar-booker",
+        "journal": {
+          "address_label": "calendar-availability-setup.surface.factflow.journal"
+        },
+        "fact_sources": [
+          {
+            "address": "package::calendar-booker::published-record::placeable-surface::calendar-availability-setup",
+            "role": "availability setup surface publication fact source"
+          },
+          {
+            "address": "package::calendar-booker::entry::calendar-availability-setup",
+            "role": "availability setup package entry fact source"
+          }
+        ],
+        "genesis": [
+          {
+            "address": "package::calendar-booker::published-record::placeable-surface::calendar-availability-setup",
+            "policy": "surface declaration is admitted as provenance; live availability policy state arrives through declared factflow inputs or routed targets"
+          }
+        ],
+        "blockers": [],
+        "evidence": [
+          {
+            "address": "package::calendar-booker::published-record::placeable-surface::calendar-availability-setup",
+            "proves": "active placeable availability setup surface declaration"
+          },
+          {
+            "address": "package::calendar-booker::entry::calendar-availability-setup",
+            "proves": "availability setup surface materializes from declared package entry"
+          },
+          {
+            "address": "package::calendar-booker::entry-bytes::calendar-availability-setup",
+            "proves": "browser-readable availability setup package entry output bytes"
+          }
+        ],
+        "interpreter_facts": {
+          "facts": [
+            {
+              "address": "package::calendar-booker::published-record::placeable-surface::calendar-availability-setup",
+              "descriptor": "placeable_surface_record"
+            }
+          ],
+          "intents": [],
+          "effects": [],
+          "validation": [
+            {
+              "rule": "surface must remain a package data declaration, not a package-name branch in runtime code"
+            },
+            {
+              "rule": "material_target surfaces must resolve through package entry output bytes"
+            },
+            {
+              "rule": "availability setup writes provider-free package contracts and routes slot projection through workflow"
+            }
+          ],
+          "permissions": [
+            {
+              "rule": "screen-arrangement owns placement; this package owns only its surface declaration and entry output"
+            },
+            {
+              "rule": "calendar-booker owns availability policy shape; connector packages own external calendar sync"
+            }
+          ],
+          "projections": [
+            {
+              "address_label": "published-records",
+              "source_path": [
+                "current-item",
+                "published-record"
+              ]
+            }
+          ],
+          "materializations": [
+            {
+              "entry_name": "calendar-availability-setup",
+              "address": "package::calendar-booker::entry-bytes::calendar-availability-setup",
+              "role": "placeable availability setup package entry output bytes"
+            }
+          ]
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::entry::calendar-availability-setup",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "entries",
+        "calendar-availability-setup"
+      ],
+      "payload": {
+        "entry_name": "calendar-availability-setup",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-calendar-availability-setup.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-calendar-availability-setup"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::record::availability-template",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "records"
+      ],
+      "payload": {
+        "kind": "record_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:record:availability-template",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-template",
+        "record_kind": "calendar-booker.availability-template",
+        "required_field_refs": [
+          "id",
+          "user_id",
+          "name",
+          "timezone",
+          "recurrence_rule",
+          "duration_minutes"
+        ],
+        "optional_field_refs": [
+          "buffer_minutes_before",
+          "buffer_minutes_after",
+          "booking_window_days",
+          "min_notice_hours",
+          "is_active",
+          "metadata",
+          "created_at",
+          "updated_at",
+          "check_calendars"
+        ],
+        "proof_label": "Recurring host availability definition used to derive bookable windows."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-template::id",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-template:id",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-template",
+        "field_key": "id",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-template",
+        "required": true,
+        "order": 0,
+        "proof_label": "id field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-template::user_id",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-template:user_id",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-template",
+        "field_key": "user_id",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-template",
+        "required": true,
+        "order": 1,
+        "proof_label": "user_id field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-template::name",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-template:name",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-template",
+        "field_key": "name",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-template",
+        "required": true,
+        "order": 2,
+        "proof_label": "name field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-template::timezone",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-template:timezone",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-template",
+        "field_key": "timezone",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-template",
+        "required": true,
+        "order": 3,
+        "proof_label": "timezone field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-template::recurrence_rule",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-template:recurrence_rule",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-template",
+        "field_key": "recurrence_rule",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-template",
+        "required": true,
+        "order": 4,
+        "proof_label": "recurrence_rule field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-template::duration_minutes",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-template:duration_minutes",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-template",
+        "field_key": "duration_minutes",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-template",
+        "required": true,
+        "order": 5,
+        "proof_label": "duration_minutes field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-template::buffer_minutes_before",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-template:buffer_minutes_before",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-template",
+        "field_key": "buffer_minutes_before",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-template",
+        "required": false,
+        "order": 6,
+        "proof_label": "buffer_minutes_before field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-template::buffer_minutes_after",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-template:buffer_minutes_after",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-template",
+        "field_key": "buffer_minutes_after",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-template",
+        "required": false,
+        "order": 7,
+        "proof_label": "buffer_minutes_after field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-template::booking_window_days",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-template:booking_window_days",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-template",
+        "field_key": "booking_window_days",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-template",
+        "required": false,
+        "order": 8,
+        "proof_label": "booking_window_days field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-template::min_notice_hours",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-template:min_notice_hours",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-template",
+        "field_key": "min_notice_hours",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-template",
+        "required": false,
+        "order": 9,
+        "proof_label": "min_notice_hours field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-template::is_active",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-template:is_active",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-template",
+        "field_key": "is_active",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-template",
+        "required": false,
+        "order": 10,
+        "proof_label": "is_active field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-template::metadata",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-template:metadata",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-template",
+        "field_key": "metadata",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-template",
+        "required": false,
+        "order": 11,
+        "proof_label": "metadata field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-template::created_at",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-template:created_at",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-template",
+        "field_key": "created_at",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-template",
+        "required": false,
+        "order": 12,
+        "proof_label": "created_at field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-template::updated_at",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-template:updated_at",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-template",
+        "field_key": "updated_at",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-template",
+        "required": false,
+        "order": 13,
+        "proof_label": "updated_at field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-template::check_calendars",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-template:check_calendars",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-template",
+        "field_key": "check_calendars",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-template",
+        "required": false,
+        "order": 14,
+        "proof_label": "check_calendars field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::record::availability-slot",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "records"
+      ],
+      "payload": {
+        "kind": "record_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:record:availability-slot",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-slot",
+        "record_kind": "calendar-booker.availability-slot",
+        "required_field_refs": [
+          "id",
+          "user_id",
+          "start_time",
+          "end_time"
+        ],
+        "optional_field_refs": [
+          "template_id",
+          "booking_type_id",
+          "is_available",
+          "is_recurring",
+          "metadata",
+          "created_at",
+          "updated_at"
+        ],
+        "proof_label": "Concrete bookable time interval, either generated from a template or added directly."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-slot::id",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-slot:id",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-slot",
+        "field_key": "id",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-slot",
+        "required": true,
+        "order": 0,
+        "proof_label": "id field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-slot::user_id",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-slot:user_id",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-slot",
+        "field_key": "user_id",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-slot",
+        "required": true,
+        "order": 1,
+        "proof_label": "user_id field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-slot::start_time",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-slot:start_time",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-slot",
+        "field_key": "start_time",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-slot",
+        "required": true,
+        "order": 2,
+        "proof_label": "start_time field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-slot::end_time",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-slot:end_time",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-slot",
+        "field_key": "end_time",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-slot",
+        "required": true,
+        "order": 3,
+        "proof_label": "end_time field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-slot::template_id",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-slot:template_id",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-slot",
+        "field_key": "template_id",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-slot",
+        "required": false,
+        "order": 4,
+        "proof_label": "template_id field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-slot::booking_type_id",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-slot:booking_type_id",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-slot",
+        "field_key": "booking_type_id",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-slot",
+        "required": false,
+        "order": 5,
+        "proof_label": "booking_type_id field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-slot::is_available",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-slot:is_available",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-slot",
+        "field_key": "is_available",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-slot",
+        "required": false,
+        "order": 6,
+        "proof_label": "is_available field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-slot::is_recurring",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-slot:is_recurring",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-slot",
+        "field_key": "is_recurring",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-slot",
+        "required": false,
+        "order": 7,
+        "proof_label": "is_recurring field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-slot::metadata",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-slot:metadata",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-slot",
+        "field_key": "metadata",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-slot",
+        "required": false,
+        "order": 8,
+        "proof_label": "metadata field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-slot::created_at",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-slot:created_at",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-slot",
+        "field_key": "created_at",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-slot",
+        "required": false,
+        "order": 9,
+        "proof_label": "created_at field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-slot::updated_at",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-slot:updated_at",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-slot",
+        "field_key": "updated_at",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-slot",
+        "required": false,
+        "order": 10,
+        "proof_label": "updated_at field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::record::availability-override",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "records"
+      ],
+      "payload": {
+        "kind": "record_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:record:availability-override",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-override",
+        "record_kind": "calendar-booker.availability-override",
+        "required_field_refs": [
+          "id",
+          "user_id",
+          "override_type",
+          "start_time",
+          "end_time"
+        ],
+        "optional_field_refs": [
+          "reason",
+          "booking_type_ids",
+          "created_at",
+          "updated_at"
+        ],
+        "proof_label": "Host-level exception that blocks or adds availability for one or more booking types."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-override::id",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-override:id",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-override",
+        "field_key": "id",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-override",
+        "required": true,
+        "order": 0,
+        "proof_label": "id field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-override::user_id",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-override:user_id",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-override",
+        "field_key": "user_id",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-override",
+        "required": true,
+        "order": 1,
+        "proof_label": "user_id field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-override::override_type",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-override:override_type",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-override",
+        "field_key": "override_type",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-override",
+        "required": true,
+        "order": 2,
+        "proof_label": "override_type field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-override::start_time",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-override:start_time",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-override",
+        "field_key": "start_time",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-override",
+        "required": true,
+        "order": 3,
+        "proof_label": "start_time field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-override::end_time",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-override:end_time",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-override",
+        "field_key": "end_time",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-override",
+        "required": true,
+        "order": 4,
+        "proof_label": "end_time field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-override::reason",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-override:reason",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-override",
+        "field_key": "reason",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-override",
+        "required": false,
+        "order": 5,
+        "proof_label": "reason field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-override::booking_type_ids",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-override:booking_type_ids",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-override",
+        "field_key": "booking_type_ids",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-override",
+        "required": false,
+        "order": 6,
+        "proof_label": "booking_type_ids field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-override::created_at",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-override:created_at",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-override",
+        "field_key": "created_at",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-override",
+        "required": false,
+        "order": 7,
+        "proof_label": "created_at field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::availability-override::updated_at",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:availability-override:updated_at",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::availability-override",
+        "field_key": "updated_at",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:availability-override",
+        "required": false,
+        "order": 8,
+        "proof_label": "updated_at field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::record::booking-type",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "records"
+      ],
+      "payload": {
+        "kind": "record_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:record:booking-type",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-type",
+        "record_kind": "calendar-booker.booking-type",
+        "required_field_refs": [
+          "id",
+          "slug",
+          "name",
+          "duration_minutes"
+        ],
+        "optional_field_refs": [
+          "description",
+          "confirmation_required",
+          "reminder_config",
+          "intake_form_id",
+          "post_call_form_id",
+          "payment_or_access_target_id",
+          "metadata",
+          "created_at",
+          "updated_at"
+        ],
+        "proof_label": "Bookable appointment category and its policy pointers."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-type::id",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-type:id",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-type",
+        "field_key": "id",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-type",
+        "required": true,
+        "order": 0,
+        "proof_label": "id field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-type::slug",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-type:slug",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-type",
+        "field_key": "slug",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-type",
+        "required": true,
+        "order": 1,
+        "proof_label": "slug field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-type::name",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-type:name",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-type",
+        "field_key": "name",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-type",
+        "required": true,
+        "order": 2,
+        "proof_label": "name field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-type::duration_minutes",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-type:duration_minutes",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-type",
+        "field_key": "duration_minutes",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-type",
+        "required": true,
+        "order": 3,
+        "proof_label": "duration_minutes field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-type::description",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-type:description",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-type",
+        "field_key": "description",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-type",
+        "required": false,
+        "order": 4,
+        "proof_label": "description field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-type::confirmation_required",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-type:confirmation_required",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-type",
+        "field_key": "confirmation_required",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-type",
+        "required": false,
+        "order": 5,
+        "proof_label": "confirmation_required field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-type::reminder_config",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-type:reminder_config",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-type",
+        "field_key": "reminder_config",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-type",
+        "required": false,
+        "order": 6,
+        "proof_label": "reminder_config field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-type::intake_form_id",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-type:intake_form_id",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-type",
+        "field_key": "intake_form_id",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-type",
+        "required": false,
+        "order": 7,
+        "proof_label": "intake_form_id field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-type::post_call_form_id",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-type:post_call_form_id",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-type",
+        "field_key": "post_call_form_id",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-type",
+        "required": false,
+        "order": 8,
+        "proof_label": "post_call_form_id field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-type::payment_or_access_target_id",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-type:payment_or_access_target_id",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-type",
+        "field_key": "payment_or_access_target_id",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-type",
+        "required": false,
+        "order": 9,
+        "proof_label": "payment_or_access_target_id field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-type::metadata",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-type:metadata",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-type",
+        "field_key": "metadata",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-type",
+        "required": false,
+        "order": 10,
+        "proof_label": "metadata field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-type::created_at",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-type:created_at",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-type",
+        "field_key": "created_at",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-type",
+        "required": false,
+        "order": 11,
+        "proof_label": "created_at field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-type::updated_at",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-type:updated_at",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-type",
+        "field_key": "updated_at",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-type",
+        "required": false,
+        "order": 12,
+        "proof_label": "updated_at field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::record::booking",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "records"
+      ],
+      "payload": {
+        "kind": "record_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:record:booking",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking",
+        "record_kind": "calendar-booker.booking",
+        "required_field_refs": [
+          "id",
+          "interaction_id",
+          "booking_type_id",
+          "status",
+          "scheduled_start",
+          "scheduled_end"
+        ],
+        "optional_field_refs": [
+          "slot_id",
+          "actual_start",
+          "actual_end",
+          "cancellation_reason",
+          "cancelled_at",
+          "meeting_url",
+          "meeting_password",
+          "metadata",
+          "created_at",
+          "updated_at",
+          "external_calendar_event_id"
+        ],
+        "proof_label": "Booking state record linked to a generic interaction/participant graph."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking::id",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking:id",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking",
+        "field_key": "id",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking",
+        "required": true,
+        "order": 0,
+        "proof_label": "id field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking::interaction_id",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking:interaction_id",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking",
+        "field_key": "interaction_id",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking",
+        "required": true,
+        "order": 1,
+        "proof_label": "interaction_id field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking::booking_type_id",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking:booking_type_id",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking",
+        "field_key": "booking_type_id",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking",
+        "required": true,
+        "order": 2,
+        "proof_label": "booking_type_id field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking::status",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking:status",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking",
+        "field_key": "status",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking",
+        "required": true,
+        "order": 3,
+        "proof_label": "status field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking::scheduled_start",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking:scheduled_start",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking",
+        "field_key": "scheduled_start",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking",
+        "required": true,
+        "order": 4,
+        "proof_label": "scheduled_start field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking::scheduled_end",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking:scheduled_end",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking",
+        "field_key": "scheduled_end",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking",
+        "required": true,
+        "order": 5,
+        "proof_label": "scheduled_end field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking::slot_id",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking:slot_id",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking",
+        "field_key": "slot_id",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking",
+        "required": false,
+        "order": 6,
+        "proof_label": "slot_id field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking::actual_start",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking:actual_start",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking",
+        "field_key": "actual_start",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking",
+        "required": false,
+        "order": 7,
+        "proof_label": "actual_start field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking::actual_end",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking:actual_end",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking",
+        "field_key": "actual_end",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking",
+        "required": false,
+        "order": 8,
+        "proof_label": "actual_end field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking::cancellation_reason",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking:cancellation_reason",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking",
+        "field_key": "cancellation_reason",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking",
+        "required": false,
+        "order": 9,
+        "proof_label": "cancellation_reason field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking::cancelled_at",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking:cancelled_at",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking",
+        "field_key": "cancelled_at",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking",
+        "required": false,
+        "order": 10,
+        "proof_label": "cancelled_at field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking::meeting_url",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking:meeting_url",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking",
+        "field_key": "meeting_url",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking",
+        "required": false,
+        "order": 11,
+        "proof_label": "meeting_url field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking::meeting_password",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking:meeting_password",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking",
+        "field_key": "meeting_password",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking",
+        "required": false,
+        "order": 12,
+        "proof_label": "meeting_password field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking::metadata",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking:metadata",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking",
+        "field_key": "metadata",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking",
+        "required": false,
+        "order": 13,
+        "proof_label": "metadata field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking::created_at",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking:created_at",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking",
+        "field_key": "created_at",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking",
+        "required": false,
+        "order": 14,
+        "proof_label": "created_at field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking::updated_at",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking:updated_at",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking",
+        "field_key": "updated_at",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking",
+        "required": false,
+        "order": 15,
+        "proof_label": "updated_at field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking::external_calendar_event_id",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking:external_calendar_event_id",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking",
+        "field_key": "external_calendar_event_id",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking",
+        "required": false,
+        "order": 16,
+        "proof_label": "external_calendar_event_id field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::record::booking-request",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "records"
+      ],
+      "payload": {
+        "kind": "record_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:record:booking-request",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-request",
+        "record_kind": "calendar-booker.booking-request",
+        "required_field_refs": [
+          "host_ids",
+          "attendees",
+          "booking_type_slug",
+          "start_time",
+          "end_time"
+        ],
+        "optional_field_refs": [
+          "intake_submission_id",
+          "requester_timezone",
+          "idempotency_key"
+        ],
+        "proof_label": "Command input contract for requesting a booking."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-request::host_ids",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-request:host_ids",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-request",
+        "field_key": "host_ids",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-request",
+        "required": true,
+        "order": 0,
+        "proof_label": "host_ids field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-request::attendees",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-request:attendees",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-request",
+        "field_key": "attendees",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-request",
+        "required": true,
+        "order": 1,
+        "proof_label": "attendees field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-request::booking_type_slug",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-request:booking_type_slug",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-request",
+        "field_key": "booking_type_slug",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-request",
+        "required": true,
+        "order": 2,
+        "proof_label": "booking_type_slug field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-request::start_time",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-request:start_time",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-request",
+        "field_key": "start_time",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-request",
+        "required": true,
+        "order": 3,
+        "proof_label": "start_time field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-request::end_time",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-request:end_time",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-request",
+        "field_key": "end_time",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-request",
+        "required": true,
+        "order": 4,
+        "proof_label": "end_time field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-request::intake_submission_id",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-request:intake_submission_id",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-request",
+        "field_key": "intake_submission_id",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-request",
+        "required": false,
+        "order": 5,
+        "proof_label": "intake_submission_id field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-request::requester_timezone",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-request:requester_timezone",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-request",
+        "field_key": "requester_timezone",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-request",
+        "required": false,
+        "order": 6,
+        "proof_label": "requester_timezone field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-request::idempotency_key",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-request:idempotency_key",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-request",
+        "field_key": "idempotency_key",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-request",
+        "required": false,
+        "order": 7,
+        "proof_label": "idempotency_key field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::record::booking-confirmation",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "records"
+      ],
+      "payload": {
+        "kind": "record_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:record:booking-confirmation",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-confirmation",
+        "record_kind": "calendar-booker.booking-confirmation",
+        "required_field_refs": [
+          "success",
+          "requires_payment"
+        ],
+        "optional_field_refs": [
+          "booking_id",
+          "interaction_id",
+          "error_message",
+          "payment_amount",
+          "checkout_url",
+          "meeting_url",
+          "calendar_event_id"
+        ],
+        "proof_label": "Result contract for booking attempts."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-confirmation::success",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-confirmation:success",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-confirmation",
+        "field_key": "success",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-confirmation",
+        "required": true,
+        "order": 0,
+        "proof_label": "success field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-confirmation::requires_payment",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-confirmation:requires_payment",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-confirmation",
+        "field_key": "requires_payment",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-confirmation",
+        "required": true,
+        "order": 1,
+        "proof_label": "requires_payment field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-confirmation::booking_id",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-confirmation:booking_id",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-confirmation",
+        "field_key": "booking_id",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-confirmation",
+        "required": false,
+        "order": 2,
+        "proof_label": "booking_id field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-confirmation::interaction_id",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-confirmation:interaction_id",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-confirmation",
+        "field_key": "interaction_id",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-confirmation",
+        "required": false,
+        "order": 3,
+        "proof_label": "interaction_id field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-confirmation::error_message",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-confirmation:error_message",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-confirmation",
+        "field_key": "error_message",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-confirmation",
+        "required": false,
+        "order": 4,
+        "proof_label": "error_message field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-confirmation::payment_amount",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-confirmation:payment_amount",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-confirmation",
+        "field_key": "payment_amount",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-confirmation",
+        "required": false,
+        "order": 5,
+        "proof_label": "payment_amount field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-confirmation::checkout_url",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-confirmation:checkout_url",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-confirmation",
+        "field_key": "checkout_url",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-confirmation",
+        "required": false,
+        "order": 6,
+        "proof_label": "checkout_url field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-confirmation::meeting_url",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-confirmation:meeting_url",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-confirmation",
+        "field_key": "meeting_url",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-confirmation",
+        "required": false,
+        "order": 7,
+        "proof_label": "meeting_url field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::booking-confirmation::calendar_event_id",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:booking-confirmation:calendar_event_id",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-confirmation",
+        "field_key": "calendar_event_id",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:booking-confirmation",
+        "required": false,
+        "order": 8,
+        "proof_label": "calendar_event_id field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::record::calendar-event",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "records"
+      ],
+      "payload": {
+        "kind": "record_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:record:calendar-event",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::calendar-event",
+        "record_kind": "calendar-booker.calendar-event",
+        "required_field_refs": [
+          "id",
+          "user_id",
+          "title",
+          "start_time"
+        ],
+        "optional_field_refs": [
+          "description",
+          "end_time",
+          "event_type_id",
+          "color",
+          "source_table",
+          "source_id",
+          "metadata",
+          "created_at",
+          "updated_at"
+        ],
+        "proof_label": "Calendar event projection with optional source link to a booking."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::calendar-event::id",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:calendar-event:id",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::calendar-event",
+        "field_key": "id",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:calendar-event",
+        "required": true,
+        "order": 0,
+        "proof_label": "id field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::calendar-event::user_id",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:calendar-event:user_id",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::calendar-event",
+        "field_key": "user_id",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:calendar-event",
+        "required": true,
+        "order": 1,
+        "proof_label": "user_id field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::calendar-event::title",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:calendar-event:title",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::calendar-event",
+        "field_key": "title",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:calendar-event",
+        "required": true,
+        "order": 2,
+        "proof_label": "title field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::calendar-event::start_time",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:calendar-event:start_time",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::calendar-event",
+        "field_key": "start_time",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:calendar-event",
+        "required": true,
+        "order": 3,
+        "proof_label": "start_time field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::calendar-event::description",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:calendar-event:description",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::calendar-event",
+        "field_key": "description",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:calendar-event",
+        "required": false,
+        "order": 4,
+        "proof_label": "description field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::calendar-event::end_time",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:calendar-event:end_time",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::calendar-event",
+        "field_key": "end_time",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:calendar-event",
+        "required": false,
+        "order": 5,
+        "proof_label": "end_time field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::calendar-event::event_type_id",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:calendar-event:event_type_id",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::calendar-event",
+        "field_key": "event_type_id",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:calendar-event",
+        "required": false,
+        "order": 6,
+        "proof_label": "event_type_id field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::calendar-event::color",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:calendar-event:color",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::calendar-event",
+        "field_key": "color",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:calendar-event",
+        "required": false,
+        "order": 7,
+        "proof_label": "color field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::calendar-event::source_table",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:calendar-event:source_table",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::calendar-event",
+        "field_key": "source_table",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:calendar-event",
+        "required": false,
+        "order": 8,
+        "proof_label": "source_table field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::calendar-event::source_id",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:calendar-event:source_id",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::calendar-event",
+        "field_key": "source_id",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:calendar-event",
+        "required": false,
+        "order": 9,
+        "proof_label": "source_id field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::calendar-event::metadata",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:calendar-event:metadata",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::calendar-event",
+        "field_key": "metadata",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:calendar-event",
+        "required": false,
+        "order": 10,
+        "proof_label": "metadata field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::calendar-event::created_at",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:calendar-event:created_at",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::calendar-event",
+        "field_key": "created_at",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:calendar-event",
+        "required": false,
+        "order": 11,
+        "proof_label": "created_at field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::field::calendar-event::updated_at",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "fields"
+      ],
+      "payload": {
+        "kind": "field_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:field:calendar-event:updated_at",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::calendar-event",
+        "field_key": "updated_at",
+        "record_descriptor_ref": "descriptor:calendar-booker:record:calendar-event",
+        "required": false,
+        "order": 12,
+        "proof_label": "updated_at field"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::state::booking-status",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "states"
+      ],
+      "payload": {
+        "kind": "state_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:state:booking-status",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-status",
+        "state_contract_ref": "calendar-booker.booking-status",
+        "initial_ref": "pending",
+        "allowed_value_refs": [
+          "pending",
+          "confirmed",
+          "cancelled",
+          "completed",
+          "no_show",
+          "pending_payment",
+          "pending_confirmation"
+        ],
+        "transition_refs": [
+          {
+            "from": "pending",
+            "to": "pending_payment"
+          },
+          {
+            "from": "pending",
+            "to": "pending_confirmation"
+          },
+          {
+            "from": "pending",
+            "to": "confirmed"
+          },
+          {
+            "from": "pending_payment",
+            "to": "confirmed"
+          },
+          {
+            "from": "pending_confirmation",
+            "to": "confirmed"
+          },
+          {
+            "from": "confirmed",
+            "to": "completed"
+          },
+          {
+            "from": "confirmed",
+            "to": "no_show"
+          },
+          {
+            "from": "pending",
+            "to": "cancelled"
+          },
+          {
+            "from": "pending_payment",
+            "to": "cancelled"
+          },
+          {
+            "from": "pending_confirmation",
+            "to": "cancelled"
+          },
+          {
+            "from": "confirmed",
+            "to": "cancelled"
+          }
+        ],
+        "proof_label": "calendar-booker.booking-status state contract"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::display-label::state::pending",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "display-labels"
+      ],
+      "payload": {
+        "kind": "display_label_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:display-label:state:pending",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-status",
+        "applies_to_ref": "pending",
+        "label_text": "pending",
+        "tone_ref": "attention",
+        "order": 0,
+        "proof_label": "pending display label"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::display-label::state::confirmed",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "display-labels"
+      ],
+      "payload": {
+        "kind": "display_label_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:display-label:state:confirmed",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-status",
+        "applies_to_ref": "confirmed",
+        "label_text": "confirmed",
+        "tone_ref": "positive",
+        "order": 1,
+        "proof_label": "confirmed display label"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::display-label::state::cancelled",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "display-labels"
+      ],
+      "payload": {
+        "kind": "display_label_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:display-label:state:cancelled",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-status",
+        "applies_to_ref": "cancelled",
+        "label_text": "cancelled",
+        "tone_ref": "danger",
+        "order": 2,
+        "proof_label": "cancelled display label"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::display-label::state::completed",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "display-labels"
+      ],
+      "payload": {
+        "kind": "display_label_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:display-label:state:completed",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-status",
+        "applies_to_ref": "completed",
+        "label_text": "completed",
+        "tone_ref": "positive",
+        "order": 3,
+        "proof_label": "completed display label"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::display-label::state::no_show",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "display-labels"
+      ],
+      "payload": {
+        "kind": "display_label_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:display-label:state:no_show",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-status",
+        "applies_to_ref": "no_show",
+        "label_text": "no show",
+        "tone_ref": "danger",
+        "order": 4,
+        "proof_label": "no_show display label"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::display-label::state::pending_payment",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "display-labels"
+      ],
+      "payload": {
+        "kind": "display_label_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:display-label:state:pending_payment",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-status",
+        "applies_to_ref": "pending_payment",
+        "label_text": "pending payment",
+        "tone_ref": "attention",
+        "order": 5,
+        "proof_label": "pending_payment display label"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::display-label::state::pending_confirmation",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "display-labels"
+      ],
+      "payload": {
+        "kind": "display_label_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:display-label:state:pending_confirmation",
+        "owner_package": "calendar-booker",
+        "source_record_ref": "package::calendar-booker::schema::booking-status",
+        "applies_to_ref": "pending_confirmation",
+        "label_text": "pending confirmation",
+        "tone_ref": "attention",
+        "order": 6,
+        "proof_label": "pending_confirmation display label"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::projection-view::invitee-flow",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "projection-views"
+      ],
+      "payload": {
+        "kind": "projection_view_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:projection-view:invitee-flow",
+        "owner_package": "calendar-booker",
+        "source_record_kinds": [
+          "calendar-booker.availability-slot",
+          "calendar-booker.booking-type",
+          "calendar-booker.booking-request",
+          "calendar-booker.booking-confirmation"
+        ],
+        "public_field_policy": "descriptor-selected-fields-only",
+        "proof_fields": [
+          "descriptor_id",
+          "source_record_refs",
+          "source_record_count"
+        ],
+        "proof_label": "invitee-flow projection view"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::projection-view::host-setup",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "projection-views"
+      ],
+      "payload": {
+        "kind": "projection_view_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:projection-view:host-setup",
+        "owner_package": "calendar-booker",
+        "source_record_kinds": [
+          "calendar-booker.availability-template",
+          "calendar-booker.availability-override",
+          "calendar-booker.booking-type"
+        ],
+        "public_field_policy": "descriptor-selected-fields-only",
+        "proof_fields": [
+          "descriptor_id",
+          "source_record_refs",
+          "source_record_count"
+        ],
+        "proof_label": "host-setup projection view"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::projection-view::booking-status",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "projection-views"
+      ],
+      "payload": {
+        "kind": "projection_view_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:projection-view:booking-status",
+        "owner_package": "calendar-booker",
+        "source_record_kinds": [
+          "calendar-booker.booking",
+          "calendar-booker.booking-confirmation",
+          "calendar-booker.calendar-event"
+        ],
+        "public_field_policy": "descriptor-selected-fields-only",
+        "proof_fields": [
+          "descriptor_id",
+          "source_record_refs",
+          "source_record_count"
+        ],
+        "proof_label": "booking-status projection view"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::projection-view::proof-and-freshness",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "projection-views"
+      ],
+      "payload": {
+        "kind": "projection_view_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:projection-view:proof-and-freshness",
+        "owner_package": "calendar-booker",
+        "source_record_kinds": [
+          "calendar-booker.availability-template",
+          "calendar-booker.availability-slot",
+          "calendar-booker.availability-override",
+          "calendar-booker.booking-type",
+          "calendar-booker.booking",
+          "calendar-booker.booking-request",
+          "calendar-booker.booking-confirmation",
+          "calendar-booker.calendar-event"
+        ],
+        "public_field_policy": "descriptor-selected-fields-only",
+        "proof_fields": [
+          "descriptor_id",
+          "source_record_refs",
+          "source_record_count"
+        ],
+        "proof_label": "proof-and-freshness projection view"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::owner-action::find-availability",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "owner-actions"
+      ],
+      "payload": {
+        "kind": "owner_action_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:owner-action:find-availability",
+        "owner_package": "calendar-booker",
+        "label_text": "Find times",
+        "action_ref": "action:calendar-booker.find-availability",
+        "target": "slot::workflow",
+        "include_steps": false,
+        "include_output": false,
+        "source_record_ref": "package::calendar-booker::workflow-action::find-availability",
+        "input_schema_ref": {
+          "required": [
+            "host_ids",
+            "booking_type_slug",
+            "start_time",
+            "end_time"
+          ],
+          "optional": [
+            "requester_timezone"
+          ]
+        },
+        "proof_label": "Read booking type, active availability templates, overrides, and existing slots for host targets and a requested date range. Live external free-busy filtering is CPD-10F-gated."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::owner-action::request-booking",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "owner-actions"
+      ],
+      "payload": {
+        "kind": "owner_action_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:owner-action:request-booking",
+        "owner_package": "calendar-booker",
+        "label_text": "Request time",
+        "action_ref": "action:calendar-booker.request-booking",
+        "target": "slot::workflow",
+        "include_steps": false,
+        "include_output": false,
+        "source_record_ref": "package::calendar-booker::workflow-action::request-booking",
+        "input_schema_ref": {
+          "schema_id": "calendar-booker.booking-request"
+        },
+        "proof_label": "Create a generic booking request record and hand state progression to workflow/account/payment targets."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::owner-action::confirm-booking",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "owner-actions"
+      ],
+      "payload": {
+        "kind": "owner_action_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:owner-action:confirm-booking",
+        "owner_package": "calendar-booker",
+        "label_text": "Confirm",
+        "action_ref": "action:calendar-booker.confirm-booking",
+        "target": "slot::workflow",
+        "include_steps": false,
+        "include_output": false,
+        "source_record_ref": "package::calendar-booker::workflow-action::confirm-booking",
+        "input_schema_ref": {
+          "required": [
+            "booking_id",
+            "interaction_id",
+            "booking_type_id",
+            "scheduled_start",
+            "scheduled_end",
+            "calendar_event_owner_id",
+            "title"
+          ],
+          "optional": [
+            "slot_id",
+            "meeting_url",
+            "meeting_password",
+            "external_calendar_event_id",
+            "metadata"
+          ]
+        },
+        "proof_label": "Write confirmed booking state and package-local calendar event projection after account/payment gates admit confirmation."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::owner-action::cancel-booking",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "owner-actions"
+      ],
+      "payload": {
+        "kind": "owner_action_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:owner-action:cancel-booking",
+        "owner_package": "calendar-booker",
+        "label_text": "Cancel",
+        "action_ref": "action:calendar-booker.cancel-booking",
+        "target": "slot::workflow",
+        "include_steps": false,
+        "include_output": false,
+        "source_record_ref": "package::calendar-booker::workflow-action::cancel-booking",
+        "input_schema_ref": {
+          "required": [
+            "booking_id",
+            "cancelled_at"
+          ],
+          "optional": [
+            "slot_id",
+            "cancellation_reason"
+          ]
+        },
+        "proof_label": "Mark a booking cancelled and free the package-local slot record. External calendar deletion is CPD-10F-gated sync work."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::owner-action::list-bookings",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "owner-actions"
+      ],
+      "payload": {
+        "kind": "owner_action_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:owner-action:list-bookings",
+        "owner_package": "calendar-booker",
+        "label_text": "Show requests",
+        "action_ref": "action:calendar-booker.list-bookings",
+        "target": "slot::workflow",
+        "include_steps": false,
+        "include_output": false,
+        "source_record_ref": "package::calendar-booker::workflow-action::list-bookings",
+        "input_schema_ref": {
+          "required": [
+            "participant_id"
+          ],
+          "optional": [
+            "role",
+            "include_past"
+          ]
+        },
+        "proof_label": "Read bookings by participant target and optional participant role."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::owner-action::list-calendar-events",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "owner-actions"
+      ],
+      "payload": {
+        "kind": "owner_action_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:owner-action:list-calendar-events",
+        "owner_package": "calendar-booker",
+        "label_text": "Show calendar",
+        "action_ref": "action:calendar-booker.list-calendar-events",
+        "target": "slot::workflow",
+        "include_steps": false,
+        "include_output": false,
+        "source_record_ref": "package::calendar-booker::workflow-action::list-calendar-events",
+        "input_schema_ref": {
+          "required": [
+            "user_id"
+          ],
+          "optional": [
+            "start_time",
+            "end_time"
+          ]
+        },
+        "proof_label": "Read calendar event records for one owner target."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::owner-action::generate-availability-slots",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "owner-actions"
+      ],
+      "payload": {
+        "kind": "owner_action_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:owner-action:generate-availability-slots",
+        "owner_package": "calendar-booker",
+        "label_text": "Build time choices",
+        "action_ref": "action:calendar-booker.generate-availability-slots",
+        "target": "slot::workflow",
+        "include_steps": false,
+        "include_output": false,
+        "source_record_ref": "package::calendar-booker::workflow-action::generate-availability-slots",
+        "product_action_refs": [
+          "package::calendar-booker::owner-action::publish-availability-policy"
+        ],
+        "input_schema_ref": {
+          "required": [
+            "user_id"
+          ],
+          "optional": [
+            "days_ahead",
+            "start_time",
+            "end_time"
+          ]
+        },
+        "proof_label": "Declare the package-level slot-generation command over availability-template records. Recurrence expansion is pure workflow/process work; live external calendar filtering is CPD-10F-gated."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::relationship::adjacent-owner-receipts",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "relationships"
+      ],
+      "payload": {
+        "kind": "relationship_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:relationship:adjacent-owner-receipts",
+        "owner_package": "calendar-booker",
+        "from_record_kinds": [
+          "calendar-booker.booking",
+          "calendar-booker.availability-slot",
+          "calendar-booker.booking-request"
+        ],
+        "to_owner_refs": [
+          "service-connections",
+          "credentials-vault",
+          "http-client",
+          "process-session",
+          "payment-adapter",
+          "calendar"
+        ],
+        "relationship_role_refs": [
+          "readiness",
+          "freshness",
+          "side-effect-receipt",
+          "payment-access",
+          "calendar-event-ref"
+        ],
+        "proof_label": "Adjacent owner receipt relationships"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::validation-rule::descriptor-selected-required-fields",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "validation-rules"
+      ],
+      "payload": {
+        "kind": "validation_rule_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:validation:descriptor-selected-required-fields",
+        "owner_package": "calendar-booker",
+        "applies_to_record_descriptor_refs": [
+          "descriptor:calendar-booker:record:availability-template",
+          "descriptor:calendar-booker:record:availability-slot",
+          "descriptor:calendar-booker:record:availability-override",
+          "descriptor:calendar-booker:record:booking-type",
+          "descriptor:calendar-booker:record:booking",
+          "descriptor:calendar-booker:record:booking-request",
+          "descriptor:calendar-booker:record:booking-confirmation",
+          "descriptor:calendar-booker:record:calendar-event"
+        ],
+        "rule_ref": "required-fields-present-before-owner-action",
+        "proof_label": "Required fields are descriptor data"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::process-receipt::external-freshness",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "process-receipts"
+      ],
+      "payload": {
+        "kind": "process_receipt_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:process-receipt:external-freshness",
+        "owner_package": "calendar-booker",
+        "source_owner_refs": [
+          "process-session",
+          "http-client",
+          "service-connections"
+        ],
+        "result_state_refs": [
+          "fresh",
+          "stale",
+          "error",
+          "not-connected",
+          "not-requested"
+        ],
+        "proof_label": "External freshness comes from adjacent owner receipts"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::freshness-rule::calendar-source",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "freshness-rules"
+      ],
+      "payload": {
+        "kind": "freshness_rule_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:freshness-rule:calendar-source",
+        "owner_package": "calendar-booker",
+        "receipt_descriptor_ref": "descriptor:calendar-booker:process-receipt:external-freshness",
+        "checked_at_field_ref": "checked_at",
+        "state_field_ref": "result_state",
+        "proof_label": "Freshness rule is receipt data, not provider code"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::descriptor::readiness::service-connection",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "descriptors",
+        "readiness"
+      ],
+      "payload": {
+        "kind": "readiness_descriptor",
+        "descriptor_id": "descriptor:calendar-booker:readiness:service-connection",
+        "owner_package": "calendar-booker",
+        "source_owner_refs": [
+          "service-connections",
+          "credentials-vault"
+        ],
+        "ready_state_refs": [
+          "ready",
+          "needs-connection",
+          "needs-credential",
+          "error"
+        ],
+        "proof_label": "Service readiness is adjacent owner data"
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::calendar-booker::booker-feed",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "in": [
+                "availability-template",
+                "calendar-booker.booking"
+              ]
+            },
+            {
+              "path": [
+                "payload"
+              ],
+              "not_equals": "__bitfield_never__"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-calendar-booker",
+      "source_path": "built-stored-bytes/entry-bytes-calendar-booker",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-calendar-booker.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-calendar-booker-ios",
+      "source_path": "built-stored-bytes/entry-bytes-calendar-booker-ios",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-calendar-booker-ios.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-calendar-availability-setup",
+      "source_path": "built-stored-bytes/entry-bytes-calendar-availability-setup",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-calendar-availability-setup.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::public-source::derive-open-slots",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "public-sources",
+        "derive-open-slots"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work/derive-open-slots.ts"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::public-source::create-external-calendar-event",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "public-sources",
+        "create-external-calendar-event"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work/create-external-calendar-event.ts"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::public-source::external-calendar-busy-and-changes",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "public-sources",
+        "external-calendar-busy-and-changes"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work/external-calendar-busy-and-changes.ts"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::calendar-booker::public-source::calendar-invite-file",
+      "path": [
+        "packages",
+        "calendar-booker",
+        "public-sources",
+        "calendar-invite-file"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work/calendar-invite-file.ts"
+      },
+      "remove": false
+    }
+  ]
+}

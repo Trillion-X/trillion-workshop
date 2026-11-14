@@ -1,0 +1,3645 @@
+{
+  "package": "content-generation",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::content-generation::action-affordance::review-observed-question",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "action-affordance",
+        "version": 1,
+        "id": "action-affordance:content-generation:review-observed-question",
+        "is_active": true,
+        "label": "Review question",
+        "priority": 30,
+        "accepts": {"conditions": [
+          {"path": "selection.current.payload.kind", "equals": "content-generation.question-candidate"}
+        ]},
+        "triggers": [{
+          "id": "review-selected-question",
+          "channel": "visual-database.selection-actions",
+          "event": "invoke",
+          "ask": {
+            "title": "Review question",
+            "submit_label": "Save review",
+            "fields": [
+              {"id": "verdict", "control": "select", "label": "Decision", "required": true,
+                "options": [{"value": "accepted", "label": "Accept"}, {"value": "rejected", "label": "Reject"}]},
+              {"id": "reason", "control": "text", "label": "Reason", "required": true}
+            ]
+          },
+          "input_template": {
+            "candidate_id": {"$kind": "binding", "select": {"from": "selection", "path": "current.payload.id"}},
+            "partition_label": {"$kind": "binding", "select": {"from": "selection", "path": "current.payload.partition_label"}},
+            "venture_ref": {"$kind": "binding", "select": {"from": "selection", "path": "current.payload.venture_ref"}},
+            "verdict": {"$kind": "binding", "select": {"from": "answers", "path": "verdict"}},
+            "reason": {"$kind": "binding", "select": {"from": "answers", "path": "reason"}}
+          }
+        }],
+        "dispatch": {
+          "target": "slot::workflow",
+          "payload_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:content-generation.review-question",
+            "input": {"$kind": "binding", "select": {"from": "trigger", "path": "input"}}
+          }
+        }
+      },
+      "remove": false
+    },
+    {"type":"record","address":"package::content-generation::action-affordance::link-question-grounding","address_mode":"identity_text","path":["current-item","published-record"],"payload":{"kind":"action-affordance","version":1,"id":"action-affordance:content-generation:link-question-grounding","is_active":true,"label":"Link answer evidence","priority":29,"accepts":{"conditions":[{"path":"selection.current.payload.kind","equals":"content-generation.question-candidate"}]},"triggers":[{"id":"link-selected-question-grounding","channel":"visual-database.selection-actions","event":"invoke","ask":{"title":"Link answer evidence","submit_label":"Link evidence","fields":[{"id":"evidence_id","control":"text","label":"Cleared answer evidence ID","required":true}]},"input_template":{"candidate_id":{"$kind":"binding","select":{"from":"selection","path":"current.payload.id"}},"partition_label":{"$kind":"binding","select":{"from":"selection","path":"current.payload.partition_label"}},"venture_ref":{"$kind":"binding","select":{"from":"selection","path":"current.payload.venture_ref"}},"evidence_id":{"$kind":"binding","select":{"from":"answers","path":"evidence_id"}}}}],"dispatch":{"target":"slot::workflow","payload_template":{"operation":"execute_definition","definition_id":"action:content-generation.link-question-grounding","input":{"$kind":"binding","select":{"from":"trigger","path":"input"}}}}},"remove":false},
+    {
+      "type": "stored_bytes",
+      "name": "intake-observed-question-script",
+      "source_path": "built-stored-bytes/intake-observed-question-script",
+      "build": {
+        "sequence": {
+          "inputs": [],
+          "input_trees": [],
+          "steps": [
+            {
+              "name": "build",
+              "process": {
+                "argv": [
+                  "node",
+                  "__PACKAGE_SET_ROOT__/packages/make-packages-match-their-source/do-work/build-node-process-bytes.mjs"
+                ],
+                "cwd": ".",
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": ".bitfield-build-output"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              },
+              "workspace_bindings": {
+                "environment": [],
+                "arguments": []
+              },
+              "predecessor_outputs": []
+            }
+          ]
+        },
+        "output": {
+          "step": "build",
+          "mount_path": ".bitfield-build-output"
+        },
+        "request": {
+          "source_file": "do-work/process-scripts/intake-observed-question.mjs"
+        }
+      },
+      "source_closure_receipt_path": "built-stored-bytes/intake-observed-question-script.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::content-generation::workflow-action::intake-observed-question",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:content-generation.intake-observed-question",
+        "kind": "action",
+        "is_active": true,
+        "name": "Add observed audience question",
+        "description": "Create reviewable venture-scoped candidate and evidence only from a current observed-content atom whose text contains the exact question. Never queue or publish.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "source_atom_ref",
+            "route_id",
+            "question"
+          ],
+          "properties": {
+            "source_atom_ref": {
+              "type": "string",
+              "minLength": 1
+            },
+            "route_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "question": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            }
+          },
+          "additionalProperties": false
+        },
+        "steps": [
+          {
+            "id": "script",
+            "kind": "read",
+            "config": {
+              "from": "package::content-generation::stored-bytes::intake-observed-question-script"
+            }
+          },
+          {
+            "id": "observation",
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "published-record",
+                "limit": 2,
+                "where": {
+                  "all": [
+                    {
+                      "field": "kind",
+                      "eq": "observed-content.content-atom"
+                    },
+                    {
+                      "field": "atom_ref",
+                      "eq": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "source_atom_ref"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": "route",
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "published-record",
+                "limit": 2,
+                "where": {
+                  "all": [
+                    {
+                      "field": "kind",
+                      "eq": "content-generation.question-source-route"
+                    },
+                    {
+                      "field": "id",
+                      "eq": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "route_id"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+          "id": "candidates",
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "published-record",
+              "limit": 512,
+              "where": {
+                "all": [
+                  {
+                    "field": "kind",
+                    "eq": "content-generation.question-candidate"
+                  },
+                  {
+                    "field": "source_observation_ref",
+                    "eq": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "source_atom_ref"
+                      }
+                    }
+                  }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": "prepare",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "packages/content-generation/do-work/process-scripts/intake-observed-question.mjs",
+                  "--native",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "source_atom_ref"
+                    }
+                  },
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "route_id"
+                    }
+                  },
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "question"
+                    }
+                  },
+                  "observation.json",
+                  "route.json",
+                  "candidates.json"
+                ],
+                "cwd": null,
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "packages/content-generation/do-work/process-scripts/intake-observed-question.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "observation.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "observation",
+                          "path": "output.items"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "route.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "route",
+                          "path": "output.items"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "candidates.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "candidates",
+                          "path": "output.items"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "decision",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {"from": "steps", "key": "prepare", "path": "output.captured_fds.0.bytes.base64"},
+                "transform": [
+                  {"op": "op:core.decode", "args": {"encoding": "base64"}},
+                  {"op": "op:core.json_parse"}
+                ]
+              }
+            }
+          },
+          {
+            "id": "write",
+            "kind": "ask",
+            "config": {
+              "name": "engine.operation.label-addressed",
+              "input": {
+                "operation_label": "engine.operation.write-batch",
+                "partition_label": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "prepare",
+                    "path": "output.captured_fds.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "candidate"
+                      }
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "partition_label"
+                      }
+                    }
+                  ]
+                },
+                "writes": [
+                  {
+                    "partition_label": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "prepare",
+                        "path": "output.captured_fds.0.bytes.base64"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.decode",
+                          "args": {
+                            "encoding": "base64"
+                          }
+                        },
+                        {
+                          "op": "op:core.json_parse"
+                        },
+                        {
+                          "op": "op:core.lookup",
+                          "args": {
+                            "key": "evidence"
+                          }
+                        },
+                        {
+                          "op": "op:core.lookup",
+                          "args": {
+                            "key": "partition_label"
+                          }
+                        }
+                      ]
+                    },
+                    "address_label": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "prepare",
+                        "path": "output.captured_fds.0.bytes.base64"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.decode",
+                          "args": {
+                            "encoding": "base64"
+                          }
+                        },
+                        {
+                          "op": "op:core.json_parse"
+                        },
+                        {
+                          "op": "op:core.lookup",
+                          "args": {
+                            "key": "evidence"
+                          }
+                        },
+                        {
+                          "op": "op:core.lookup",
+                          "args": {
+                            "key": "id"
+                          }
+                        }
+                      ]
+                    },
+                    "address_mode": "identity_text",
+                    "path_labels": [
+                      "current-item",
+                      "published-record"
+                    ],
+                    "payload": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "prepare",
+                        "path": "output.captured_fds.0.bytes.base64"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.decode",
+                          "args": {
+                            "encoding": "base64"
+                          }
+                        },
+                        {
+                          "op": "op:core.json_parse"
+                        },
+                        {
+                          "op": "op:core.lookup",
+                          "args": {
+                            "key": "evidence"
+                          }
+                        }
+                      ]
+                    },
+                    "expected_current": {
+                      "payload_hash_base64": null
+                    }
+                  },
+                  {
+                    "partition_label": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "prepare",
+                        "path": "output.captured_fds.0.bytes.base64"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.decode",
+                          "args": {
+                            "encoding": "base64"
+                          }
+                        },
+                        {
+                          "op": "op:core.json_parse"
+                        },
+                        {
+                          "op": "op:core.lookup",
+                          "args": {
+                            "key": "candidate"
+                          }
+                        },
+                        {
+                          "op": "op:core.lookup",
+                          "args": {
+                            "key": "partition_label"
+                          }
+                        }
+                      ]
+                    },
+                    "address_label": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "prepare",
+                        "path": "output.captured_fds.0.bytes.base64"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.decode",
+                          "args": {
+                            "encoding": "base64"
+                          }
+                        },
+                        {
+                          "op": "op:core.json_parse"
+                        },
+                        {
+                          "op": "op:core.lookup",
+                          "args": {
+                            "key": "candidate"
+                          }
+                        },
+                        {
+                          "op": "op:core.lookup",
+                          "args": {
+                            "key": "id"
+                          }
+                        }
+                      ]
+                    },
+                    "address_mode": "identity_text",
+                    "path_labels": [
+                      "current-item",
+                      "published-record"
+                    ],
+                    "payload": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "prepare",
+                        "path": "output.captured_fds.0.bytes.base64"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.decode",
+                          "args": {
+                            "encoding": "base64"
+                          }
+                        },
+                        {
+                          "op": "op:core.json_parse"
+                        },
+                        {
+                          "op": "op:core.lookup",
+                          "args": {
+                            "key": "candidate"
+                          }
+                        }
+                      ]
+                    },
+                    "expected_current": {
+                      "payload_hash_base64": null
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "rejected",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "prepare",
+                  "path": "output.captured_fds.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "evidence_readback",
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "published-record",
+                "limit": 2,
+                "where": {
+                  "all": [
+                    {
+                      "field": "kind",
+                      "eq": "content-generation.question-evidence"
+                    },
+                    {
+                      "field": "id",
+                      "eq": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "prepare",
+                          "path": "output.captured_fds.0.bytes.base64"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.decode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          },
+                          {
+                            "op": "op:core.json_parse"
+                          },
+                          {
+                            "op": "op:core.lookup",
+                            "args": {
+                              "key": "evidence"
+                            }
+                          },
+                          {
+                            "op": "op:core.lookup",
+                            "args": {
+                              "key": "id"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": "candidate_readback",
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "published-record",
+                "limit": 2,
+                "where": {
+                  "all": [
+                    {
+                      "field": "kind",
+                      "eq": "content-generation.question-candidate"
+                    },
+                    {
+                      "field": "id",
+                      "eq": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "prepare",
+                          "path": "output.captured_fds.0.bytes.base64"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.decode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          },
+                          {
+                            "op": "op:core.json_parse"
+                          },
+                          {
+                            "op": "op:core.lookup",
+                            "args": {
+                              "key": "candidate"
+                            }
+                          },
+                          {
+                            "op": "op:core.lookup",
+                            "args": {
+                              "key": "id"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": "verify",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "packages/content-generation/do-work/process-scripts/intake-observed-question.mjs",
+                  "--verify",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "prepare",
+                      "path": "output.captured_fds.0.bytes.base64"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      },
+                      {
+                        "op": "op:core.json_parse"
+                      },
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  },
+                  "evidence.json",
+                  "candidate.json"
+                ],
+                "cwd": null,
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "packages/content-generation/do-work/process-scripts/intake-observed-question.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "evidence.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "evidence_readback",
+                          "path": "output.items"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "candidate.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "candidate_readback",
+                          "path": "output.items"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "done",
+            "join": "any",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "verify",
+                  "path": "output.captured_fds.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  },
+                  {
+                    "op": "op:core.if_null",
+                    "args": {"fallback": {"$kind": "binding",
+                      "select": {"from": "steps", "key": "rejected", "path": "output"}}}
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "script",
+            "to": "observation",
+            "kind": "on_result"
+          },
+          {
+            "from": "observation",
+            "to": "route",
+            "kind": "on_result"
+          },
+          {
+            "from": "route",
+            "to": "candidates",
+            "kind": "on_result"
+          },
+          {
+            "from": "candidates",
+            "to": "prepare",
+            "kind": "on_result"
+          },
+          {
+            "from": "write",
+            "to": "evidence_readback",
+            "kind": "on_result"
+          },
+          {
+            "from": "evidence_readback",
+            "to": "candidate_readback",
+            "kind": "on_result"
+          },
+          {
+            "from": "candidate_readback",
+            "to": "verify",
+            "kind": "on_result"
+          },
+          {
+            "from": "verify",
+            "to": "done",
+            "kind": "on_result"
+          },
+          {
+            "from": "rejected",
+            "to": "done",
+            "kind": "on_result"
+          },
+          {
+            "from": "prepare",
+            "to": "decision",
+            "kind": "on_result"
+          },
+          {
+            "from": "decision",
+            "to": "write",
+            "kind": "on_result",
+            "config": {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "output.accepted"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": true
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "from": "decision",
+            "to": "rejected",
+            "kind": "on_result",
+            "config": {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "output.accepted"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {"type":"stored_bytes","name":"continue-verified-owner-delivery","source_path":"built-stored-bytes/continue-verified-owner-delivery","source_closure_receipt_path":"built-stored-bytes/continue-verified-owner-delivery.source-closure.json"},
+    {"type":"record","address":"package::content-generation::target::continue-verified-owner-delivery","path":["packages","content-generation","targets","continue-verified-owner-delivery"],"payload":{
+      "kind":"package-target-descriptor","entry_name":"continue-verified-owner-delivery","export_name":"continueVerifiedOwnerDelivery","source_path":"do-work/continue-verified-owner-delivery.ts","target":"content-generation.continue-verified-owner-delivery","trusted_input_keys":["request_ref","dispatch_outcome_ref"]}},
+    {"type":"record","address":"package::content-generation::entry::continue-verified-owner-delivery","path":["packages","content-generation","entries","continue-verified-owner-delivery"],"payload":{
+      "kind":"bitfield-package-entry","entry_name":"continue-verified-owner-delivery","export_name":"continueVerifiedOwnerDelivery","source_path":"do-work/continue-verified-owner-delivery.ts","live_read_mode":"none","entry_bytes":{"stored_bytes":"continue-verified-owner-delivery"}}},
+    {"type":"stored_bytes","name":"continue-from-terminal","source_path":"built-stored-bytes/continue-from-terminal","source_closure_receipt_path":"built-stored-bytes/continue-from-terminal.source-closure.json"},
+    {"type":"record","address":"package::content-generation::target::continue-from-terminal","path":["packages","content-generation","targets","continue-from-terminal"],"payload":{
+      "kind":"package-target-descriptor","entry_name":"continue-from-terminal","export_name":"continueFromTerminal","source_path":"do-work/continue-verified-owner-delivery.ts","target":"content-generation.continue-from-terminal","trusted_input_keys":["request_hash"]}},
+    {"type":"record","address":"package::content-generation::entry::continue-from-terminal","path":["packages","content-generation","entries","continue-from-terminal"],"payload":{
+      "kind":"bitfield-package-entry","entry_name":"continue-from-terminal","export_name":"continueFromTerminal","source_path":"do-work/continue-verified-owner-delivery.ts","live_read_mode":"none","entry_bytes":{"stored_bytes":"continue-from-terminal"}}},
+    {"type":"record","address":"package::content-generation::workflow-action::continue-from-terminal","address_mode":"identity_text","path":["current-item","published-record","workflow-definition"],"payload":{
+      "id":"action:content-generation.continue-from-terminal","kind":"action","name":"Continue after checking the saved result","is_active":true,
+      "input_schema":{"type":"object","additionalProperties":false,"required":["request_hash"],"properties":{"request_hash":{"type":"string"}}},
+      "steps":[{"id":"continue","kind":"ask","config":{"name":"content-generation.continue-from-terminal","input":{"request_hash":{"$kind":"binding","select":{"from":"input","path":"request_hash"}}}}},
+        {"id":"return","kind":"return","config":{"value":{"$kind":"binding","select":{"from":"steps","key":"continue","path":"output"}}}}],
+      "edges":[{"from":"continue","to":"return","kind":"on_result"}],"trigger_type":"manual","trigger_source":"","version":1,"extra":{},"extra_properties":{}}},
+    {"type":"record","address":"package::content-generation::trigger-rule::continue-from-terminal","path":["current-item","published-record","trigger-rule"],"payload":{
+      "kind":"trigger-rule","id":"trigger:content-generation:continue-from-terminal","name":"Check saved work when execution finishes","is_active":true,"version":1,"trigger_type":"delta",
+      "match_condition":{"conditions":[{"$kind":"binding","select":{"from":"change","path":"kind"},"transform":[{"op":"op:core.equals","args":{"value":"send-later-outcome"}}]},
+        {"$kind":"binding","select":{"from":"envelope","path":"is_retraction"},"transform":[{"op":"op:core.equals","args":{"value":false}}]}]},
+      "dispatch":{"target":"slot::workflow","max_attempts":1,"output_template":{"operation":"execute_definition","definition_id":"action:content-generation.continue-from-terminal","include_steps":false,"include_output":false,
+        "input":{"request_hash":{"$kind":"binding","select":{"from":"change","path":"request_hash"}}}}}}},
+    {"type":"record","address":"package::content-generation::trigger-rule::continue-from-dispatch-receipt","path":["current-item","published-record","trigger-rule"],"payload":{
+      "kind":"trigger-rule","id":"trigger:content-generation:continue-from-dispatch-receipt","name":"Check saved work when its execution reference arrives","is_active":true,"version":1,"trigger_type":"delta",
+      "match_condition":{"conditions":[
+        {"$kind":"binding","select":{"from":"change","path":"kind"},"transform":[{"op":"op:core.equals","args":{"value":"trigger-dispatch-outcome"}}]},
+        {"$kind":"binding","select":{"from":"change","path":"rule_id"},"transform":[{"op":"op:core.equals","args":{"value":"trigger:content-generation:dispatch-durable-request"}}]},
+        {"$kind":"binding","select":{"from":"change","path":"status"},"transform":[{"op":"op:core.equals","args":{"value":"accepted"}}]},
+        {"$kind":"binding","select":{"from":"change","path":"delivery_receipt.kind"},"transform":[{"op":"op:core.equals","args":{"value":"send-later-request"}}]},
+        {"$kind":"binding","select":{"from":"envelope","path":"is_retraction"},"transform":[{"op":"op:core.equals","args":{"value":false}}]}]},
+      "dispatch":{"target":"slot::workflow","max_attempts":1,"output_template":{"operation":"execute_definition","definition_id":"action:content-generation.continue-from-terminal","include_steps":false,"include_output":false,
+        "input":{"request_hash":{"$kind":"binding","select":{"from":"change","path":"delivery_receipt.request_hash"}}}}}}},
+    {
+      "type": "record",
+      "address": "package::content-generation::workflow-action::verify-saved-document-delivery",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record", "workflow-definition"],
+      "payload": {
+        "id": "action:content-generation.verify-saved-document-delivery",
+        "kind": "action",
+        "name": "Check the saved draft",
+        "description": "Match the execution to the original work, then check the saved document. Queued or interrupted work remains open.",
+        "is_active": true,
+        "input_schema": {
+          "type": "object", "additionalProperties": false,
+          "required": ["request_ref", "dispatch_outcome_ref", "document_ref"],
+          "properties": {"request_ref": {"type": "string"}, "dispatch_outcome_ref": {"type": "string"}, "document_ref": {"type": "string"}}
+        },
+        "steps": [
+          {"id": "execution", "kind": "ask", "config": {
+            "name": "content-generation.inspect-owner-delivery",
+            "input": {
+              "request_ref": {"$kind": "binding", "select": {"from": "input", "path": "request_ref"}},
+              "dispatch_outcome_ref": {"$kind": "binding", "select": {"from": "input", "path": "dispatch_outcome_ref"}},
+              "expected_definition_id": "action:composition.import-document"
+            }
+          }},
+          {"id": "verify_saved", "kind": "ask", "config": {
+            "name": "documents.read-scene",
+            "input": {
+              "document_ref": {"$kind": "binding", "select": {"from": "input", "path": "document_ref"}},
+              "expected_import": {"$kind": "binding", "select": {"from": "steps", "key": "execution", "path": "output.delivery.input"}}
+            }
+          }},
+          {"id": "return_verified", "kind": "return", "config": {"value": {
+            "outcome_complete": false,
+            "request_ref": {"$kind": "binding", "select": {"from": "input", "path": "request_ref"}},
+            "execution_evidence_refs": {"$kind": "binding", "select": {"from": "steps", "key": "execution", "path": "output.evidence_refs"}},
+            "saved_result": {"$kind": "binding", "select": {"from": "steps", "key": "verify_saved", "path": "output"}}
+          }}},
+          {"id": "return_open", "kind": "return", "config": {"value": {"$kind": "binding", "select": {"from": "steps", "key": "execution", "path": "output"}}}}
+        ],
+        "edges": [
+          {"from": "execution", "to": "verify_saved", "kind": "on_result", "config": {"$kind": "binding", "select": {"from": "steps", "key": "execution", "path": "output.status"}, "transform": [{"op": "op:core.equals", "args": {"value": "executed"}}]}},
+          {"from": "execution", "to": "return_open", "kind": "on_result", "config": {"$kind": "binding", "select": {"from": "steps", "key": "execution", "path": "output.status"}, "transform": [{"op": "op:core.equals", "args": {"value": "pending"}}]}},
+          {"from": "execution", "to": "return_open", "kind": "on_result", "config": {"$kind": "binding", "select": {"from": "steps", "key": "execution", "path": "output.status"}, "transform": [{"op": "op:core.equals", "args": {"value": "interrupted"}}]}},
+          {"from": "verify_saved", "to": "return_verified", "kind": "on_result"}
+        ],
+        "trigger_type": "manual", "trigger_source": "", "version": 1, "extra": {}, "extra_properties": {}
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "inspect-owner-delivery",
+      "source_path": "built-stored-bytes/inspect-owner-delivery",
+      "source_closure_receipt_path": "built-stored-bytes/inspect-owner-delivery.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::content-generation::target::inspect-owner-delivery",
+      "path": ["packages", "content-generation", "targets", "inspect-owner-delivery"],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "inspect-owner-delivery",
+        "export_name": "inspectOwnerDelivery",
+        "source_path": "do-work/inspect-owner-delivery.ts",
+        "target": "content-generation.inspect-owner-delivery",
+        "trusted_input_keys": ["request_ref", "dispatch_outcome_ref", "expected_definition_id"]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-generation::entry::inspect-owner-delivery",
+      "path": ["packages", "content-generation", "entries", "inspect-owner-delivery"],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "inspect-owner-delivery",
+        "export_name": "inspectOwnerDelivery",
+        "source_path": "do-work/inspect-owner-delivery.ts",
+        "live_read_mode": "none",
+        "entry_bytes": {"stored_bytes": "inspect-owner-delivery"}
+      }
+    },
+    {"type":"stored_bytes","name":"review-required-verdicts","source_path":"built-stored-bytes/review-required-verdicts","source_closure_receipt_path":"built-stored-bytes/review-required-verdicts.source-closure.json"},
+    {"type":"record","address":"package::content-generation::target::review-required-verdicts","path":["packages","content-generation","targets","review-required-verdicts"],"payload":{"kind":"package-target-descriptor","entry_name":"review-required-verdicts","export_name":"run","source_path":"do-work/review-required-verdicts.mjs","target":"content-generation.review-required-verdicts","trusted_input_keys":["required_verdicts","produced_item","grounding","providers","passes"]}},
+    {"type":"record","address":"package::content-generation::entry::review-required-verdicts","path":["packages","content-generation","entries","review-required-verdicts"],"payload":{"kind":"bitfield-package-entry","entry_name":"review-required-verdicts","export_name":"run","source_path":"do-work/review-required-verdicts.mjs","live_read_mode":"none","entry_bytes":{"stored_bytes":"review-required-verdicts"}}},
+    {"type":"stored_bytes","name":"run-grounded-content","source_path":"built-stored-bytes/run-grounded-content","source_closure_receipt_path":"built-stored-bytes/run-grounded-content.source-closure.json"},
+    {"type":"record","address":"package::content-generation::target::run-grounded-content","path":["packages","content-generation","targets","run-grounded-content"],"payload":{"kind":"package-target-descriptor","entry_name":"run-grounded-content","export_name":"run","source_path":"do-work/run-grounded-content.mjs","target":"content-generation.run-grounded-content","trusted_input_keys":["recipe","work_item","grounding","request_id","agent_ref","model","context"]}},
+    {"type":"record","address":"package::content-generation::entry::run-grounded-content","path":["packages","content-generation","entries","run-grounded-content"],"payload":{"kind":"bitfield-package-entry","entry_name":"run-grounded-content","export_name":"run","source_path":"do-work/run-grounded-content.mjs","live_read_mode":"none","entry_bytes":{"stored_bytes":"run-grounded-content"}}},
+    {
+      "type": "record",
+      "address": "package::content-generation::checks",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "do-work/continue-verified-owner-delivery.test.ts",
+          "do-work/inspect-owner-delivery.test.ts",
+          "tests/review-required-verdicts.test.mjs",
+          "tests/run-grounded-content.test.mjs",
+          "tests/citation-element-refusal.test.mjs",
+          "tests/addressed-input-composition.test.mjs",
+          "tests/drain-next-work-item.test.mjs",
+          "tests/bundled-pump.test.mjs",
+          "do-work/process-scripts/reconcile-dispatch-requests.test.mjs",
+          "tests/compose-and-gate-runtime.test.mjs",
+          "tests/test_content_generation.py",
+          "tests/gated-owner-delivery.test.mjs",
+          "tests/durable-owner-delivery.test.mjs",
+          "tests/workflow-input-output-contract.test.mjs",
+          "tests/prepare-question-work-item.test.mjs",
+          "tests/prepare-question-review.test.mjs",
+          "tests/review-question.test.mjs",
+          "tests/review-question-action.test.mjs",
+          "tests/prepare-question-grounding-link.test.mjs",
+          "tests/link-question-grounding.test.mjs",
+          "tests/question-grounding-chain.test.mjs",
+          "tests/question-review-affordance.test.mjs",
+          "tests/intake-observed-question.test.mjs",
+          "tests/intake-observed-question-action.test.mjs",
+          "tests/admit-question-work-item.test.mjs",
+          "tests/question-admission-action.test.mjs"
+          ,"tests/admit-question-entry.test.mjs"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::content-generation::recipe-binding-descriptor::source-to-recipe-run",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "content-generation.recipe-binding-descriptor",
+        "descriptor_id": "content-generation.source-to-recipe-run",
+        "dispatch": {
+          "target": "slot::workflow",
+          "definition_id": "action:content-generation.run"
+        },
+        "input_schema_ref": "action:content-generation.run#input_schema",
+        "input_binding": {
+          "mode": "pass-through"
+        },
+        "result_schema": {
+          "type": "object",
+          "required": [
+            "delivery"
+          ],
+          "properties": {
+            "delivery": {
+              "type": "object"
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-generation::contract",
+      "path": [
+        "packages",
+        "content-generation",
+        "contract"
+      ],
+      "payload": {
+        "kind": "package-contract",
+        "package": "content-generation",
+        "owns": [
+          "blind content-generation.recipe interpreter (compose -> produce -> gate -> owner delivery)",
+          "content-generation run ledger + drain cursor",
+          "generic instruction assembly from recipe DATA",
+          "generic fail-closed gate + caller-declared owner delivery from recipe DATA"
+        ],
+        "does_not_own": [
+          "AI provider/model/CLI invocation (dispatched to ai-records-producer)",
+          "prompt/persona/style text (DATA in ai-instruction-blocks)",
+          "corpus / retrieval / indexing (dispatched to knowledge-records + meaning-search)",
+          "any product domain vocabulary, output shape, or output address (all recipe DATA)",
+          "public site rendering"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-generation::record-contract::recipe",
+      "path": [
+        "packages",
+        "content-generation",
+        "record-contracts",
+        "recipe"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "content-generation.recipe",
+        "required_fields": [
+          "id",
+          "instruction_plan",
+          "ai_producer_target",
+          "output_contract",
+          "delivery_target"
+        ],
+        "optional_fields": [
+          "capabilities",
+          "work_selector",
+          "context_retrieval",
+          "gate_policy",
+          "state_transition",
+          "verified_continuation"
+        ],
+        "data_owner": "package-set-records-or-imported-facts",
+        "field_docs": {
+          "work_selector": "which topics/keywords/items to produce next (a DATA content-topic-set)",
+          "context_retrieval": "corpus + retrieval descriptor (dispatched to knowledge-records/meaning-search) or provided grounding",
+          "instruction_plan": "{prompt_template:[segments]} rendered by compose-run-request.py; segments reference ai-instruction-blocks + slots",
+          "ai_producer_target": "{output_kind,[model],[agent_ref],[parameters]} dispatched to ai-records-producer run-ai-records-production",
+          "output_contract": "{schema} the output shape the model must return (DATA)",
+          "delivery_target": "{definition_id,input,summary_from?,body_render?} where accepted output is delivered; definition_id is the caller-declared destination owner action and input maps only item/work_item/context/derived values",
+          "gate_policy": "{grounded,min_excerpts,cite_or_reject,grounding_id_field,citation_specs,checks:[{kind,params}]} fail-closed gates; DATA can require per-element supplied-only grounding and trusted-labelled normalized forbidden prose fragments before owner delivery",
+          "state_transition": "{from,to} the pending -> done cursor advance"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-generation::record-contract::run-ledger",
+      "path": [
+        "packages",
+        "content-generation",
+        "record-contracts",
+        "run-ledger"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "content-generation.run",
+        "required_fields": [
+          "id"
+        ],
+        "data_owner": "engine-run-truth",
+        "note": "One run-ledger record per (recipe, work item) run: state cursor + outcome. Engine truth."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-generation::record-contract::dispatch-request",
+      "path": [
+        "packages",
+        "content-generation",
+        "record-contracts",
+        "dispatch-request"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "content-generation.dispatch-request",
+        "required_fields": [
+          "id",
+          "request_id",
+          "definition_id",
+          "input"
+        ],
+        "data_owner": "content-generation",
+        "note": "Durable create-only cross-slot handoff. Lifecycle is derived from this immutable pending request plus the correlated terminal trigger-dispatch-outcome fact; bounded retries are trigger-rule DATA, so no second mutable lifecycle owner exists. Trigger delivery is decoupled from the originating Workflow acknowledgement, eliminating the circular wait without claiming a false happens-after ordering."
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-generation::workflow-action::run",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:content-generation.run",
+        "kind": "action",
+        "is_active": true,
+        "name": "run content generation",
+        "description": "Blind recipe interpreter: resolve instruction blocks -> compose instruction from recipe DATA -> dispatch ai-records-producer -> gate (fail-closed) -> deliver accepted output to the caller-declared owner action. Owns no domain, no prompt, no model call, and never writes another owner's body.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "recipe": {
+              "type": "object"
+            },
+            "work_item": {
+              "type": "object"
+            },
+            "grounding": {},
+            "request_id": {
+              "type": "string"
+            },
+            "context": {
+              "type": "object"
+            },
+            "agent_ref": {
+              "type": "string"
+            },
+            "model": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "recipe",
+            "work_item"
+          ],
+          "additionalProperties": true
+        },
+        "steps": [
+          {
+            "id": "instruction_blocks",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "published-record",
+                "where": {
+                  "all": [
+                    {
+                      "field": "kind",
+                      "in": [
+                        "ai-instruction-block"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": "compose_script",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::content-generation::stored-bytes::compose-run-request-node-script"
+            }
+          },
+          {
+            "id": "compose_run",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "packages/content-generation/do-work/process-scripts/compose-run-request.mjs",
+                  "--recipe-json",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "recipe"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  },
+                  "--work-item-json",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "work_item"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  },
+                  "--instruction-blocks-json",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "instruction_blocks",
+                      "path": "output.items"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  },
+                  "--grounding-json",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "grounding"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": []
+                        }
+                      },
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  },
+                  "--request-id",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "request_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "cwd": null,
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "packages/content-generation/do-work/process-scripts/compose-run-request.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "compose_script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "produce",
+            "join": "any",
+            "join_config": null,
+            "kind": "action",
+            "config": {
+              "definition_id": "action:run-ai-records-production",
+              "inputs": {
+                "instruction_text": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "compose_run",
+                    "path": "output.captured_fds.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "instruction_text"
+                      }
+                    }
+                  ]
+                },
+                "output_kind": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "compose_run",
+                    "path": "output.captured_fds.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "output_kind"
+                      }
+                    }
+                  ]
+                },
+                "request_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "compose_run",
+                    "path": "output.captured_fds.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "request_id"
+                      }
+                    }
+                  ]
+                },
+                "input_refs": {
+                  "$kind": "binding",
+                  "select": {"from": "steps", "key": "compose_run", "path": "output.captured_fds.0.bytes.base64"},
+                  "transform": [
+                    {"op": "op:core.decode", "args": {"encoding": "base64"}},
+                    {"op": "op:core.json_parse"},
+                    {"op": "op:core.lookup", "args": {"key": "input_refs"}}
+                  ]
+                },
+                "agent_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "agent_ref"
+                  }
+                },
+                "model": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "model"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "semantic_review",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "content-generation.review-required-verdicts",
+              "input": {
+                "required_verdicts": {"$kind":"binding","select":{"from":"input","path":"recipe.gate_policy.required_verdicts"},"transform":[{"op":"op:core.if_null","args":{"fallback":[]}}]},
+                "produced_item": {"$kind":"binding","select":{"from":"steps","key":"produce","path":"output.items.0"}},
+                "grounding": {"$kind":"binding","select":{"from":"input","path":"grounding"},"transform":[{"op":"op:core.if_null","args":{"fallback":[]}}]},
+                "providers": {"$kind":"binding","select":{"from":"input","path":"recipe.gate_policy.verdict_providers"}}
+              }
+            }
+          },
+          {
+            "id": "gate_script",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::content-generation::stored-bytes::gate-and-build-owner-delivery-node-script"
+            }
+          },
+          {
+            "id": "gate",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "packages/content-generation/do-work/process-scripts/gate-and-build-owner-delivery.mjs",
+                  "--recipe-json",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "recipe"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  },
+                  "--produced-item-json",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "produce",
+                      "path": "output.items.0"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  },
+                  "--grounding-json",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "grounding"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": []
+                        }
+                      },
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  },
+                  "--work-item-json",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "work_item"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  },
+                  "--context-json",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "context"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": {}
+                        }
+                      },
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  },
+                  "--semantic-review-json",
+                  {"$kind":"binding","select":{"from":"steps","key":"semantic_review","path":"output"},"transform":[{"op":"op:core.stringify","args":{"format":"json"}}]},
+                  "--dispatch-request-id",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "compose_run",
+                      "path": "output.captured_fds.0.bytes.base64"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      },
+                      {
+                        "op": "op:core.json_parse"
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "request_id"
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "cwd": null,
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "packages/content-generation/do-work/process-scripts/gate-and-build-owner-delivery.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "gate_script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "queue_owner_delivery",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "engine.operation.label-addressed",
+              "input": {
+                "operation_label": "engine.operation.write-batch",
+                "writes": [
+                  {
+                    "address_label": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "gate",
+                        "path": "output.captured_fds.0.bytes.base64"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.decode",
+                          "args": {
+                            "encoding": "base64"
+                          }
+                        },
+                        {
+                          "op": "op:core.json_parse"
+                        },
+                        {
+                          "op": "op:core.lookup",
+                          "args": {
+                            "key": "dispatch_address"
+                          }
+                        }
+                      ]
+                    },
+                    "address_mode": "identity_text",
+                    "path_labels": [
+                      "current-item",
+                      "published-record"
+                    ],
+                    "payload": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "gate",
+                        "path": "output.captured_fds.0.bytes.base64"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.decode",
+                          "args": {
+                            "encoding": "base64"
+                          }
+                        },
+                        {
+                          "op": "op:core.json_parse"
+                        },
+                        {
+                          "op": "op:core.lookup",
+                          "args": {
+                            "key": "dispatch_request"
+                          }
+                        }
+                      ]
+                    },
+                    "expected_current": {
+                      "payload_hash_base64": null
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "done",
+            "join": "any",
+            "join_config": null,
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "gate",
+                  "path": "output.captured_fds.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "version": 0,
+        "extra": {
+          "reuse": {
+            "ai_invocation": "package::ai-records-producer::workflow-action::run-ai-records-production",
+            "prompt_blocks": "package::ai-instruction-blocks",
+            "retrieval": "package::meaning-search::workflow-action::find-similar + package::knowledge-records"
+          },
+          "isolation": "names only Envelope addresses; holds no prompt/model/domain; all product config is content-generation.recipe DATA"
+        },
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-generation::trigger-rule::dispatch-durable-request",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:content-generation:dispatch-durable-request",
+        "name": "dispatch durable content-generation request",
+        "description": "Submit the selected work without blocking other triggers. Submission means queued, not finished; the later execution outcome and saved result must be checked separately.",
+        "is_active": true,
+        "version": 0,
+        "trigger_type": "delta",
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "content-generation.dispatch-request"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "is_retraction"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "delivery": "later_with_durable_outcome",
+          "max_attempts": 3,
+          "outcome_correlation_template": {
+            "$kind": "binding",
+            "select": {
+              "from": "change",
+              "path": "request_id"
+            }
+          },
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "definition_id"
+              }
+            },
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "input"
+              }
+            }
+          }
+        },
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::content-generation::workflow-action::drain-next",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:content-generation.drain-next",
+        "kind": "action",
+        "is_active": true,
+        "name": "drain next content work item",
+        "description": "Pop the next pending work item from the recipe's work-item queue and atomically create its deterministic owner-action request. The request address has a create-only expected-current claim, so concurrent pumps converge on one record and the losing batch changes nothing. Trigger delivery is decoupled from the pump acknowledgement, removing the Workflow->process->Workflow circular wait. Queue kind, status field, run definition id, and recipe ref are DATA. Owns no domain or destination-body identity.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "carrier_url": {
+              "type": "string"
+            },
+            "partition_label": {
+              "type": "string"
+            },
+            "work_item_kind": {
+              "type": "string"
+            },
+            "status_field": {
+              "type": "string"
+            },
+            "pending_status": {
+              "type": "string"
+            },
+            "done_status": {
+              "type": "string"
+            },
+            "run_definition_id": {
+              "type": "string"
+            },
+            "recipe_ref": {
+              "type": "string"
+            },
+            "agent_ref": {
+              "type": "string"
+            },
+            "model": {
+              "type": "string"
+            },
+            "grounding_field": {
+              "type": "string"
+            },
+            "work_item_field": {
+              "type": "string"
+            },
+            "max_in_flight": {
+              "type": "number"
+            },
+            "max_assets_per_day": {
+              "type": "number"
+            },
+            "max_resource_units_per_day": {
+              "type": "number"
+            },
+            "max_cost_minor_per_day": {
+              "type": "number"
+            }
+          },
+          "required": []
+        },
+        "steps": [
+          {
+            "id": "drain_script",
+            "join": "any",
+            "join_config": null,
+            "kind": "read",
+            "config": {
+              "from": "package::content-generation::stored-bytes::drain-next-work-item-script"
+            }
+          },
+          {
+            "id": "read_running_app_requests",
+            "kind": "read",
+            "join": "any",
+            "join_config": null,
+            "config": {
+              "from": "package::send-requests-to-an-engine::stored-bytes::find-and-send-node-source"
+            }
+          },
+          {
+            "id": "drain",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "packages/content-generation/do-work/process-scripts/drain-next-work-item.mjs"
+                ],
+                "cwd": null,
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {
+                  "BITFIELD_TARGET_CARRIER_URL": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "carrier_url"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  },
+                  "BITFIELD_DISPATCH_PARTITION": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "partition_label"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  },
+                  "CONTENT_WORK_ITEM_KIND": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "work_item_kind"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  },
+                  "CONTENT_STATUS_FIELD": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "status_field"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": "status"
+                        }
+                      }
+                    ]
+                  },
+                  "CONTENT_PENDING_STATUS": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "pending_status"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": "pending"
+                        }
+                      }
+                    ]
+                  },
+                  "CONTENT_DONE_STATUS": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "done_status"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": "queued"
+                        }
+                      }
+                    ]
+                  },
+                  "CONTENT_RUN_DEFINITION_ID": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "run_definition_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": "action:content-generation.run"
+                        }
+                      }
+                    ]
+                  },
+                  "CONTENT_DISPATCH_REQUEST_KIND": "content-generation.dispatch-request",
+                  "CONTENT_DISPATCH_REQUEST_ADDRESS_TEMPLATE": "content-generation.dispatch-request::{request_id}",
+                  "CONTENT_RECIPE_REF": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "recipe_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  },
+                  "CONTENT_AGENT_REF": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "agent_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  },
+                  "CONTENT_MODEL": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "model"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  },
+                  "CONTENT_WORK_ITEM_FIELD": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "work_item_field"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": "work_item"
+                        }
+                      }
+                    ]
+                  },
+                  "CONTENT_GROUNDING_FIELD": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "grounding_field"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": "grounding"
+                        }
+                      }
+                    ]
+                  },
+                  "CONTENT_MAX_IN_FLIGHT": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "max_in_flight"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  },
+                  "CONTENT_MAX_ASSETS_PER_DAY": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "max_assets_per_day"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  },
+                  "CONTENT_MAX_RESOURCE_UNITS_PER_DAY": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "max_resource_units_per_day"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  },
+                  "CONTENT_MAX_COST_MINOR_PER_DAY": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "max_cost_minor_per_day"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  }
+                },
+                "inputs": [
+                  {
+                    "mount_path": "packages/content-generation/do-work/process-scripts/drain-next-work-item.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "drain_script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "packages/content-generation/do-work/process-scripts/send-requests-to-running-app.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_running_app_requests",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {"type":"stored_bytes","name":"review-question-script","source_path":"built-stored-bytes/review-question-script","build":{"sequence":{"inputs":[],"input_trees":[],"steps":[{"name":"build","process":{"argv":["node","__PACKAGE_SET_ROOT__/packages/make-packages-match-their-source/do-work/build-node-process-bytes.mjs"],"cwd":".","timeout_ms":120000,"termination_grace_ms":1000,"expected_termination":{"kind":"exited","code":0},"env":{},"inputs":[],"input_trees":[],"outputs":[{"mount_path":".bitfield-build-output"}],"containment":{"kind":"descendant_effect_contained","pipe_eof_timeout_ms":1000,"publications":[]},"capture_fds":[1,2],"collected_files":[]},"workspace_bindings":{"environment":[],"arguments":[]},"predecessor_outputs":[]}]},"output":{"step":"build","mount_path":".bitfield-build-output"},"request":{"source_file":"do-work/process-scripts/review-question.mjs"}},"source_closure_receipt_path":"built-stored-bytes/review-question-script.source-closure.json"},
+    {"type":"record","address":"package::content-generation::workflow-action::review-question","address_mode":"identity_text","path":["current-item","published-record","workflow-definition"],"payload":{"id":"action:content-generation.review-question","kind":"action","is_active":true,"name":"Review audience question","description":"Review one current venture-scoped audience question against current evidence, known answers and pending work. Create an accepted or rejected decision and verify readback; never publish content.","input_schema":{"type":"object","required":["partition_label","venture_ref","candidate_id","verdict","reason"],"properties":{"partition_label":{"type":"string"},"venture_ref":{"type":"string"},"candidate_id":{"type":"string"},"verdict":{"type":"string","enum":["accepted","rejected"]},"reason":{"type":"string","minLength":1,"maxLength":2000}},"additionalProperties":false},"steps":[{"id":"review_script","kind":"read","config":{"from":"package::content-generation::stored-bytes::review-question-script"}},{"id":"candidate","kind":"ask","config":{"name":"slot::find-current-items","input":{"operation":"find-current-items","in":"published-record","limit":2,"where":{"all":[{"field":"kind","eq":"content-generation.question-candidate"},{"field":"id","eq":{"$kind":"binding","select":{"from":"input","path":"candidate_id"}}}]}}}},{"id":"reviews","kind":"ask","config":{"name":"slot::find-current-items","input":{"operation":"find-current-items","in":"published-record","limit":512,"where":{"all":[{"field":"kind","eq":"content-generation.question-review"},{"field":"candidate_ref","eq":{"$kind":"binding","select":{"from":"input","path":"candidate_id"}}}]}}}},{"id":"evidence","kind":"ask","config":{"name":"slot::find-current-items","input":{"operation":"find-current-items","in":"published-record","limit":512,"where":{"all":[{"field":"kind","eq":"content-generation.question-evidence"},{"field":"venture_ref","eq":{"$kind":"binding","select":{"from":"input","path":"venture_ref"}}}]}}}},{"id":"recipes","kind":"ask","config":{"name":"slot::find-current-items","input":{"operation":"find-current-items","in":"published-record","limit":512,"where":{"all":[{"field":"kind","eq":"content-generation.recipe"}]}}}},{"id":"answers","kind":"ask","config":{"name":"slot::find-current-items","input":{"operation":"find-current-items","in":"published-record","limit":512,"where":{"all":[{"field":"venture_ref","eq":{"$kind":"binding","select":{"from":"input","path":"venture_ref"}}}]}}}},{"id":"work","kind":"ask","config":{"name":"slot::find-current-items","input":{"operation":"find-current-items","in":"published-record","limit":512,"where":{"all":[{"field":"kind","eq":"content-generation.question-work-item"},{"field":"venture_ref","eq":{"$kind":"binding","select":{"from":"input","path":"venture_ref"}}}]}}}},{"id":"prepare","kind":"ask","config":{"name":"compute.process","input":{"argv":["node","packages/content-generation/do-work/process-scripts/review-question.mjs","--native",{"$kind":"binding","select":{"from":"input","path":"candidate_id"}},{"$kind":"binding","select":{"from":"input","path":"partition_label"}},{"$kind":"binding","select":{"from":"input","path":"venture_ref"}},{"$kind":"binding","select":{"from":"input","path":"verdict"}},{"$kind":"binding","select":{"from":"input","path":"reason"}},"candidate.json","review.json","evidence.json","recipes.json","answers.json","work.json"],"cwd":null,"timeout_ms":120000,"termination_grace_ms":1000,"expected_termination":{"kind":"exited","code":0},"env":{},"inputs":[{"mount_path":"packages/content-generation/do-work/process-scripts/review-question.mjs","content_type":"text/javascript","source":{"kind":"blob_ref","hash":{"$kind":"binding","select":{"from":"steps","key":"review_script","path":"output.content_hash"}}}},{"mount_path":"candidate.json","content_type":"application/json","source":{"kind":"inline","bytes":{"$kind":"binding","select":{"from":"steps","key":"candidate","path":"output.items"},"transform":[{"op":"op:core.stringify","args":{"format":"json"}},{"op":"op:core.encode","args":{"encoding":"base64"}}]}}},{"mount_path":"review.json","content_type":"application/json","source":{"kind":"inline","bytes":{"$kind":"binding","select":{"from":"steps","key":"reviews","path":"output.items"},"transform":[{"op":"op:core.stringify","args":{"format":"json"}},{"op":"op:core.encode","args":{"encoding":"base64"}}]}}},{"mount_path":"evidence.json","content_type":"application/json","source":{"kind":"inline","bytes":{"$kind":"binding","select":{"from":"steps","key":"evidence","path":"output.items"},"transform":[{"op":"op:core.stringify","args":{"format":"json"}},{"op":"op:core.encode","args":{"encoding":"base64"}}]}}},{"mount_path":"recipes.json","content_type":"application/json","source":{"kind":"inline","bytes":{"$kind":"binding","select":{"from":"steps","key":"recipes","path":"output.items"},"transform":[{"op":"op:core.stringify","args":{"format":"json"}},{"op":"op:core.encode","args":{"encoding":"base64"}}]}}},{"mount_path":"answers.json","content_type":"application/json","source":{"kind":"inline","bytes":{"$kind":"binding","select":{"from":"steps","key":"answers","path":"output.items"},"transform":[{"op":"op:core.stringify","args":{"format":"json"}},{"op":"op:core.encode","args":{"encoding":"base64"}}]}}},{"mount_path":"work.json","content_type":"application/json","source":{"kind":"inline","bytes":{"$kind":"binding","select":{"from":"steps","key":"work","path":"output.items"},"transform":[{"op":"op:core.stringify","args":{"format":"json"}},{"op":"op:core.encode","args":{"encoding":"base64"}}]}}}],"input_trees":[],"outputs":[],"containment":{"kind":"leaf"},"capture_fds":[1,2],"collected_files":[]}}},{"id":"decision","kind":"return","config":{"value":{"$kind":"binding","select":{"from":"steps","key":"prepare","path":"output.captured_fds.0.bytes.base64"},"transform":[{"op":"op:core.decode","args":{"encoding":"base64"}},{"op":"op:core.json_parse"}]}}},{"id":"write","kind":"ask","config":{"name":"engine.operation.label-addressed","input":{"operation_label":"engine.operation.write-batch","partition_label":{"$kind":"binding","select":{"from":"input","path":"partition_label"}},"writes":[{"partition_label":{"$kind":"binding","select":{"from":"input","path":"partition_label"}},"address_label":{"$kind":"binding","select":{"from":"steps","key":"prepare","path":"output.captured_fds.0.bytes.base64"},"transform":[{"op":"op:core.decode","args":{"encoding":"base64"}},{"op":"op:core.json_parse"},{"op":"op:core.lookup","args":{"key":"review"}},{"op":"op:core.lookup","args":{"key":"id"}}]},"address_mode":"identity_text","path_labels":["current-item","published-record"],"payload":{"$kind":"binding","select":{"from":"steps","key":"prepare","path":"output.captured_fds.0.bytes.base64"},"transform":[{"op":"op:core.decode","args":{"encoding":"base64"}},{"op":"op:core.json_parse"},{"op":"op:core.lookup","args":{"key":"review"}}]},"expected_current":{"payload_hash_base64":null}}]}}},{"id":"rejected","kind":"return","config":{"value":{"$kind":"binding","select":{"from":"steps","key":"prepare","path":"output.captured_fds.0.bytes.base64"},"transform":[{"op":"op:core.decode","args":{"encoding":"base64"}},{"op":"op:core.json_parse"}]}}},{"id":"readback","kind":"ask","config":{"name":"slot::find-current-items","input":{"operation":"find-current-items","in":"published-record","limit":2,"where":{"all":[{"field":"kind","eq":"content-generation.question-review"},{"field":"id","eq":{"$kind":"binding","select":{"from":"steps","key":"prepare","path":"output.captured_fds.0.bytes.base64"},"transform":[{"op":"op:core.decode","args":{"encoding":"base64"}},{"op":"op:core.json_parse"},{"op":"op:core.lookup","args":{"key":"review"}},{"op":"op:core.lookup","args":{"key":"id"}}]}}]}}}},{"id":"verify","kind":"ask","config":{"name":"compute.process","input":{"argv":["node","packages/content-generation/do-work/process-scripts/review-question.mjs","--verify",{"$kind":"binding","select":{"from":"steps","key":"prepare","path":"output.captured_fds.0.bytes.base64"},"transform":[{"op":"op:core.decode","args":{"encoding":"base64"}},{"op":"op:core.json_parse"},{"op":"op:core.lookup","args":{"key":"review"}},{"op":"op:core.stringify","args":{"format":"json"}}]},"readback.json"],"cwd":null,"timeout_ms":120000,"termination_grace_ms":1000,"expected_termination":{"kind":"exited","code":0},"env":{},"inputs":[{"mount_path":"packages/content-generation/do-work/process-scripts/review-question.mjs","content_type":"text/javascript","source":{"kind":"blob_ref","hash":{"$kind":"binding","select":{"from":"steps","key":"review_script","path":"output.content_hash"}}}},{"mount_path":"readback.json","content_type":"application/json","source":{"kind":"inline","bytes":{"$kind":"binding","select":{"from":"steps","key":"readback","path":"output.items"},"transform":[{"op":"op:core.stringify","args":{"format":"json"}},{"op":"op:core.encode","args":{"encoding":"base64"}}]}}}],"input_trees":[],"outputs":[],"containment":{"kind":"leaf"},"capture_fds":[1,2],"collected_files":[]}}},{"id":"done","kind":"return","config":{"value":{"$kind":"binding","select":{"from":"steps","key":"verify","path":"output.captured_fds.0.bytes.base64"},"transform":[{"op":"op:core.decode","args":{"encoding":"base64"}},{"op":"op:core.json_parse"},{"op":"op:core.if_null","args":{"fallback":{"$kind":"binding","select":{"from":"steps","key":"rejected","path":"output"}}}}]}},"join":"any","join_config":null}],"edges":[{"from":"review_script","to":"candidate","kind":"on_result"},{"from":"candidate","to":"reviews","kind":"on_result"},{"from":"reviews","to":"evidence","kind":"on_result"},{"from":"evidence","to":"recipes","kind":"on_result"},{"from":"recipes","to":"answers","kind":"on_result"},{"from":"answers","to":"work","kind":"on_result"},{"from":"work","to":"prepare","kind":"on_result"},{"from":"write","to":"readback","kind":"on_result"},{"from":"readback","to":"verify","kind":"on_result"},{"from":"verify","to":"done","kind":"on_result"},{"from":"prepare","to":"decision","kind":"on_result"},{"from":"decision","to":"write","kind":"on_result","config":{"$kind":"binding","select":{"from":"input","path":"output.accepted"},"transform":[{"op":"op:core.equals","args":{"value":true}}]}},{"from":"decision","to":"rejected","kind":"on_result","config":{"$kind":"binding","select":{"from":"input","path":"output.accepted"},"transform":[{"op":"op:core.equals","args":{"value":false}}]}},{"from":"rejected","to":"done","kind":"on_result"}],"trigger_type":"manual","trigger_source":"","version":1,"extra":{},"extra_properties":{}},"payload_text":null,"payload_base64":null,"remove":false},
+    {
+      "type": "record",
+      "address": "package::content-generation::workflow-action::admit-question-work-item",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:content-generation.admit-question-work-item",
+        "kind": "action",
+        "is_active": true,
+        "name": "admit reviewed audience question",
+        "description": "Read a current candidate, accepted review and source evidence, reject duplicates, create one pending venture-scoped work item, and verify readback. Does not generate or publish content.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "partition_label",
+            "venture_ref",
+            "candidate_id"
+          ],
+          "properties": {
+            "partition_label": {
+              "type": "string"
+            },
+            "venture_ref": {
+              "type": "string"
+            },
+            "candidate_id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "steps": [
+          {
+            "id": "admission_script",
+            "kind": "read",
+            "config": {
+              "from": "package::content-generation::stored-bytes::admit-question-work-item-script"
+            }
+          },
+          {
+            "id": "candidate",
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "published-record",
+                "limit": 2,
+                "where": {
+                  "all": [
+                    {
+                      "field": "kind",
+                      "eq": "content-generation.question-candidate"
+                    },
+                    {
+                      "field": "id",
+                      "eq": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "candidate_id"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": "reviews",
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "published-record",
+                "limit": 512,
+                "where": {
+                  "all": [
+                    {
+                      "field": "kind",
+                      "eq": "content-generation.question-review"
+                    },
+                    {
+                      "field": "candidate_ref",
+                      "eq": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "candidate_id"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": "evidence",
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "published-record",
+                "limit": 512,
+                "where": {
+                  "all": [
+                    {
+                      "field": "kind",
+                      "eq": "content-generation.question-evidence"
+                    },
+                    {
+                      "field": "venture_ref",
+                      "eq": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "venture_ref"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": "recipes",
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "published-record",
+                "limit": 512,
+                "where": { "all": [{ "field": "kind", "eq": "content-generation.recipe" }] }
+              }
+            }
+          },
+          {
+            "id": "answers",
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "published-record",
+                "limit": 512,
+                "where": {
+                  "all": [
+                    {
+                      "field": "venture_ref",
+                      "eq": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "venture_ref"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": "work",
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "published-record",
+                "limit": 512,
+                "where": {
+                  "all": [
+                    {
+                      "field": "kind",
+                      "eq": "content-generation.question-work-item"
+                    },
+                    {
+                      "field": "venture_ref",
+                      "eq": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "venture_ref"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": "prepare",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "packages/content-generation/do-work/process-scripts/admit-question-work-item.mjs",
+                  "--native",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "candidate_id"
+                    }
+                  },
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "partition_label"
+                    }
+                  },
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "venture_ref"
+                    }
+                  },
+                  "candidate.json",
+                  "review.json",
+                  "evidence.json",
+                  "recipes.json",
+                  "answers.json",
+                  "work.json"
+                ],
+                "cwd": null,
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "packages/content-generation/do-work/process-scripts/admit-question-work-item.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "admission_script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "candidate.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "candidate",
+                          "path": "output.items"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "review.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "reviews",
+                          "path": "output.items"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "evidence.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "evidence",
+                          "path": "output.items"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "recipes.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": { "from": "steps", "key": "recipes", "path": "output.items" },
+                        "transform": [
+                          { "op": "op:core.stringify", "args": { "format": "json" } },
+                          { "op": "op:core.encode", "args": { "encoding": "base64" } }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "answers.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "answers",
+                          "path": "output.items"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "work.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "work",
+                          "path": "output.items"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "decision",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {"from": "steps", "key": "prepare", "path": "output.captured_fds.0.bytes.base64"},
+                "transform": [
+                  {"op": "op:core.decode", "args": {"encoding": "base64"}},
+                  {"op": "op:core.json_parse"}
+                ]
+              }
+            }
+          },
+          {
+            "id": "write",
+            "kind": "ask",
+            "config": {
+              "name": "engine.operation.label-addressed",
+              "input": {
+                "operation_label": "engine.operation.write-batch",
+                "partition_label": {
+                  "$kind": "binding",
+                  "select": { "from": "input", "path": "partition_label" }
+                },
+                "writes": [
+                  {
+                    "partition_label": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "partition_label"
+                      }
+                    },
+                    "address_label": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "prepare",
+                        "path": "output.captured_fds.0.bytes.base64"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.decode",
+                          "args": {
+                            "encoding": "base64"
+                          }
+                        },
+                        {
+                          "op": "op:core.json_parse"
+                        },
+                        {
+                          "op": "op:core.lookup",
+                          "args": {
+                            "key": "workItem"
+                          }
+                        },
+                        {
+                          "op": "op:core.lookup",
+                          "args": {
+                            "key": "id"
+                          }
+                        }
+                      ]
+                    },
+                    "address_mode": "identity_text",
+                    "path_labels": [
+                      "current-item",
+                      "published-record"
+                    ],
+                    "payload": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "prepare",
+                        "path": "output.captured_fds.0.bytes.base64"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.decode",
+                          "args": {
+                            "encoding": "base64"
+                          }
+                        },
+                        {
+                          "op": "op:core.json_parse"
+                        },
+                        {
+                          "op": "op:core.lookup",
+                          "args": {
+                            "key": "workItem"
+                          }
+                        }
+                      ]
+                    },
+                    "expected_current": {
+                      "payload_hash_base64": null
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "rejected",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "prepare",
+                  "path": "output.captured_fds.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "readback",
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "published-record",
+                "limit": 2,
+                "where": {
+                  "all": [
+                    {
+                      "field": "kind",
+                      "eq": "content-generation.question-work-item"
+                    },
+                    {
+                      "field": "id",
+                      "eq": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "prepare",
+                          "path": "output.captured_fds.0.bytes.base64"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.decode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          },
+                          {
+                            "op": "op:core.json_parse"
+                          },
+                          {
+                            "op": "op:core.lookup",
+                            "args": {
+                              "key": "workItem"
+                            }
+                          },
+                          {
+                            "op": "op:core.lookup",
+                            "args": {
+                              "key": "id"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": "verify",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "packages/content-generation/do-work/process-scripts/admit-question-work-item.mjs",
+                  "--verify",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "prepare",
+                      "path": "output.captured_fds.0.bytes.base64"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      },
+                      {
+                        "op": "op:core.json_parse"
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "workItem"
+                        }
+                      },
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  },
+                  "readback.json"
+                ],
+                "cwd": null,
+                "timeout_ms": 120000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [
+                  {
+                    "mount_path": "packages/content-generation/do-work/process-scripts/admit-question-work-item.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "admission_script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "readback.json",
+                    "content_type": "application/json",
+                    "source": {
+                      "kind": "inline",
+                      "bytes": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "readback",
+                          "path": "output.items"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          },
+                          {
+                            "op": "op:core.encode",
+                            "args": {
+                              "encoding": "base64"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "done",
+            "join": "any",
+            "join_config": null,
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "verify",
+                  "path": "output.captured_fds.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  },
+                  {
+                    "op": "op:core.if_null",
+                    "args": {"fallback": {"$kind": "binding", "select": {"from": "steps", "key": "rejected", "path": "output"}}}
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "admission_script",
+            "to": "candidate",
+            "kind": "on_result"
+          },
+          {
+            "from": "candidate",
+            "to": "reviews",
+            "kind": "on_result"
+          },
+          {
+            "from": "reviews",
+            "to": "evidence",
+            "kind": "on_result"
+          },
+          {
+            "from": "evidence",
+            "to": "recipes",
+            "kind": "on_result"
+          },
+          {
+            "from": "recipes",
+            "to": "answers",
+            "kind": "on_result"
+          },
+          {
+            "from": "answers",
+            "to": "work",
+            "kind": "on_result"
+          },
+          {
+            "from": "work",
+            "to": "prepare",
+            "kind": "on_result"
+          },
+          {
+            "from": "prepare",
+            "to": "decision",
+            "kind": "on_result"
+          },
+          {
+            "from": "decision",
+            "to": "write",
+            "kind": "on_result",
+            "config": {
+              "$kind": "binding",
+              "select": {"from": "input", "path": "output.accepted"},
+              "transform": [{"op": "op:core.equals", "args": {"value": true}}]
+            }
+          },
+          {
+            "from": "decision",
+            "to": "rejected",
+            "kind": "on_result",
+            "config": {
+              "$kind": "binding",
+              "select": {"from": "input", "path": "output.accepted"},
+              "transform": [{"op": "op:core.equals", "args": {"value": false}}]
+            }
+          },
+          {
+            "from": "write",
+            "to": "readback",
+            "kind": "on_result"
+          },
+          {
+            "from": "readback",
+            "to": "verify",
+            "kind": "on_result"
+          },
+          {
+            "from": "verify",
+            "to": "done",
+            "kind": "on_result"
+          },
+          {
+            "from": "rejected",
+            "to": "done",
+            "kind": "on_result"
+          }
+        ],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "admit-question-work-item-script",
+      "source_path": "built-stored-bytes/admit-question-work-item-script",
+      "build": {"sequence":{"inputs":[],"input_trees":[],"steps":[{"name":"build","process":{"argv":["node","__PACKAGE_SET_ROOT__/packages/make-packages-match-their-source/do-work/build-node-process-bytes.mjs"],"cwd":".","timeout_ms":120000,"termination_grace_ms":1000,"expected_termination":{"kind":"exited","code":0},"env":{},"inputs":[],"input_trees":[],"outputs":[{"mount_path":".bitfield-build-output"}],"containment":{"kind":"descendant_effect_contained","pipe_eof_timeout_ms":1000,"publications":[]},"capture_fds":[1,2],"collected_files":[]},"workspace_bindings":{"environment":[],"arguments":[]},"predecessor_outputs":[]}]} ,"output":{"step":"build","mount_path":".bitfield-build-output"},"request":{"source_file":"do-work/process-scripts/admit-question-work-item.mjs"}},
+      "source_closure_receipt_path": "built-stored-bytes/admit-question-work-item-script.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "compose-run-request-script",
+      "source_path": "do-work/process-scripts/compose-run-request.py"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "gate-and-build-owner-delivery-script",
+      "source_path": "do-work/process-scripts/gate-and-build-owner-delivery.py"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "drain-next-work-item-script",
+      "source_path": "built-stored-bytes/drain-next-work-item-script",
+      "build": {"sequence":{"inputs":[],"input_trees":[],"steps":[{"name":"build","process":{"argv":["node","__PACKAGE_SET_ROOT__/packages/make-packages-match-their-source/do-work/build-node-process-bytes.mjs"],"cwd":".","timeout_ms":120000,"termination_grace_ms":1000,"expected_termination":{"kind":"exited","code":0},"env":{},"inputs":[],"input_trees":[],"outputs":[{"mount_path":".bitfield-build-output"}],"containment":{"kind":"descendant_effect_contained","pipe_eof_timeout_ms":1000,"publications":[]},"capture_fds":[1,2],"collected_files":[]},"workspace_bindings":{"environment":[],"arguments":[]},"predecessor_outputs":[]}]},"output":{"step":"build","mount_path":".bitfield-build-output"},"request":{"source_file":"do-work/process-scripts/drain-next-work-item.mjs"}},
+      "source_closure_receipt_path": "built-stored-bytes/drain-next-work-item-script.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::content-generation::workflow-action::reconcile-dispatch-requests",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:content-generation.reconcile-dispatch-requests",
+        "kind": "action",
+        "is_active": true,
+        "name": "reconcile dispatch requests",
+        "description": "Re-dispatch at most one caller-selected request record lacking a correlated completion record. Request kind, completion kind, correlation fields, app URL, partition, and timeout are input DATA.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "carrier_url",
+            "partition_label",
+            "request_kind",
+            "completion_kind"
+          ],
+          "properties": {
+            "carrier_url": {
+              "type": "string"
+            },
+            "partition_label": {
+              "type": "string"
+            },
+            "request_kind": {
+              "type": "string"
+            },
+            "completion_kind": {
+              "type": "string"
+            },
+            "request_correlation_field": {
+              "type": "string"
+            },
+            "completion_correlation_field": {
+              "type": "string"
+            },
+            "run_timeout_ms": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "steps": [
+          {
+            "id": "reconcile_script",
+            "kind": "read",
+            "config": {
+              "from": "package::content-generation::stored-bytes::reconcile-dispatch-requests-script"
+            }
+          },
+          {
+            "id": "read_running_app_requests",
+            "kind": "read",
+            "config": {
+              "from": "package::send-requests-to-an-engine::stored-bytes::find-and-send-node-source"
+            }
+          },
+          {
+            "id": "reconcile",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "node",
+                  "packages/content-generation/do-work/process-scripts/reconcile-dispatch-requests.mjs"
+                ],
+                "cwd": null,
+                "timeout_ms": 600000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {
+                  "BITFIELD_TARGET_CARRIER_URL": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "carrier_url"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  },
+                  "BITFIELD_DISPATCH_PARTITION": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "partition_label"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  },
+                  "RECONCILE_REQUEST_KIND": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "request_kind"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  },
+                  "RECONCILE_COMPLETION_KIND": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "completion_kind"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": ""
+                        }
+                      }
+                    ]
+                  },
+                  "RECONCILE_REQUEST_CORRELATION_FIELD": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "request_correlation_field"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": "request_id"
+                        }
+                      }
+                    ]
+                  },
+                  "RECONCILE_COMPLETION_CORRELATION_FIELD": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "completion_correlation_field"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": "request_id"
+                        }
+                      }
+                    ]
+                  },
+                  "RECONCILE_RUN_TIMEOUT_MS": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "run_timeout_ms"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": 600000
+                        }
+                      }
+                    ]
+                  }
+                },
+                "inputs": [
+                  {
+                    "mount_path": "packages/content-generation/do-work/process-scripts/reconcile-dispatch-requests.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "reconcile_script",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "mount_path": "packages/content-generation/do-work/process-scripts/send-requests-to-running-app.mjs",
+                    "content_type": "text/javascript",
+                    "source": {
+                      "kind": "blob_ref",
+                      "hash": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read_running_app_requests",
+                          "path": "output.content_hash"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "input_trees": [],
+                "outputs": [],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "reconcile-dispatch-requests-script",
+      "source_path": "do-work/process-scripts/reconcile-dispatch-requests.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "compose-run-request-node-script",
+      "source_path": "do-work/process-scripts/compose-run-request.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "gate-and-build-owner-delivery-node-script",
+      "source_path": "do-work/process-scripts/gate-and-build-owner-delivery.mjs"
+    },
+    {"type":"stored_bytes","name":"link-question-grounding-script","source_path":"built-stored-bytes/link-question-grounding-script","build":{"sequence":{"inputs":[],"input_trees":[],"steps":[{"name":"build","process":{"argv":["node","__PACKAGE_SET_ROOT__/packages/make-packages-match-their-source/do-work/build-node-process-bytes.mjs"],"cwd":".","timeout_ms":120000,"termination_grace_ms":1000,"expected_termination":{"kind":"exited","code":0},"env":{},"inputs":[],"input_trees":[],"outputs":[{"mount_path":".bitfield-build-output"}],"containment":{"kind":"descendant_effect_contained","pipe_eof_timeout_ms":1000,"publications":[]},"capture_fds":[1,2],"collected_files":[]},"workspace_bindings":{"environment":[],"arguments":[]},"predecessor_outputs":[]}]},"output":{"step":"build","mount_path":".bitfield-build-output"},"request":{"source_file":"do-work/process-scripts/link-question-grounding.mjs"}},"source_closure_receipt_path":"built-stored-bytes/link-question-grounding-script.source-closure.json"},
+    {"type":"record","address":"package::content-generation::workflow-action::link-question-grounding","address_mode":"identity_text","path":["current-item","published-record","workflow-definition"],"payload":{"id":"action:content-generation.link-question-grounding","kind":"action","is_active":true,"name":"Link answer evidence","description":"Link one independently cleared current answer source to a venture question using the current candidate basis, then verify readback. Does not clear rights, review, or publish.","input_schema":{"type":"object","required":["partition_label","venture_ref","candidate_id","evidence_id"],"properties":{"partition_label":{"type":"string"},"venture_ref":{"type":"string"},"candidate_id":{"type":"string"},"evidence_id":{"type":"string"}},"additionalProperties":false},"steps":[{"id":"grounding_script","kind":"read","config":{"from":"package::content-generation::stored-bytes::link-question-grounding-script"}},{"id":"candidate","kind":"ask","config":{"name":"slot::find-current-items","input":{"operation":"find-current-items","in":"published-record","limit":2,"where":{"all":[{"field":"kind","eq":"content-generation.question-candidate"},{"field":"id","eq":{"$kind":"binding","select":{"from":"input","path":"candidate_id"}}}]},"include":["content_hash","payload"]}}},{"id":"evidence","kind":"ask","config":{"name":"slot::find-current-items","input":{"operation":"find-current-items","in":"published-record","limit":2,"where":{"all":[{"field":"kind","eq":"content-generation.question-evidence"},{"field":"id","eq":{"$kind":"binding","select":{"from":"input","path":"evidence_id"}}}]}}}},{"id":"prepare","kind":"ask","config":{"name":"compute.process","input":{"argv":["node","packages/content-generation/do-work/process-scripts/link-question-grounding.mjs","--native",{"$kind":"binding","select":{"from":"input","path":"candidate_id"}},{"$kind":"binding","select":{"from":"input","path":"partition_label"}},{"$kind":"binding","select":{"from":"input","path":"venture_ref"}},{"$kind":"binding","select":{"from":"input","path":"evidence_id"}},"candidate.json","evidence.json"],"cwd":null,"timeout_ms":120000,"termination_grace_ms":1000,"expected_termination":{"kind":"exited","code":0},"env":{},"inputs":[{"mount_path":"packages/content-generation/do-work/process-scripts/link-question-grounding.mjs","content_type":"text/javascript","source":{"kind":"blob_ref","hash":{"$kind":"binding","select":{"from":"steps","key":"grounding_script","path":"output.content_hash"}}}},{"mount_path":"candidate.json","content_type":"application/json","source":{"kind":"inline","bytes":{"$kind":"binding","select":{"from":"steps","key":"candidate","path":"output.items"},"transform":[{"op":"op:core.stringify","args":{"format":"json"}},{"op":"op:core.encode","args":{"encoding":"base64"}}]}}},{"mount_path":"evidence.json","content_type":"application/json","source":{"kind":"inline","bytes":{"$kind":"binding","select":{"from":"steps","key":"evidence","path":"output.items"},"transform":[{"op":"op:core.stringify","args":{"format":"json"}},{"op":"op:core.encode","args":{"encoding":"base64"}}]}}}],"input_trees":[],"outputs":[],"containment":{"kind":"leaf"},"capture_fds":[1,2],"collected_files":[]}}},{"id":"decision","kind":"return","config":{"value":{"$kind":"binding","select":{"from":"steps","key":"prepare","path":"output.captured_fds.0.bytes.base64"},"transform":[{"op":"op:core.decode","args":{"encoding":"base64"}},{"op":"op:core.json_parse"}]}}},{"id":"write","kind":"ask","config":{"name":"engine.operation.label-addressed","input":{"operation_label":"engine.operation.write-batch","partition_label":{"$kind":"binding","select":{"from":"input","path":"partition_label"}},"writes":[{"partition_label":{"$kind":"binding","select":{"from":"input","path":"partition_label"}},"address_label":{"$kind":"binding","select":{"from":"steps","key":"prepare","path":"output.captured_fds.0.bytes.base64"},"transform":[{"op":"op:core.decode","args":{"encoding":"base64"}},{"op":"op:core.json_parse"},{"op":"op:core.lookup","args":{"key":"candidate"}},{"op":"op:core.lookup","args":{"key":"id"}}]},"address_mode":"identity_text","path_labels":["current-item","published-record"],"payload":{"$kind":"binding","select":{"from":"steps","key":"prepare","path":"output.captured_fds.0.bytes.base64"},"transform":[{"op":"op:core.decode","args":{"encoding":"base64"}},{"op":"op:core.json_parse"},{"op":"op:core.lookup","args":{"key":"candidate"}}]},"expected_current":{"payload_hash_base64":{"$kind":"binding","select":{"from":"steps","key":"prepare","path":"output.captured_fds.0.bytes.base64"},"transform":[{"op":"op:core.decode","args":{"encoding":"base64"}},{"op":"op:core.json_parse"},{"op":"op:core.lookup","args":{"key":"write"}},{"op":"op:core.lookup","args":{"key":"expected_current"}},{"op":"op:core.lookup","args":{"key":"payload_hash_base64"}}]}}}]}}},{"id":"rejected","kind":"return","config":{"value":{"$kind":"binding","select":{"from":"steps","key":"prepare","path":"output.captured_fds.0.bytes.base64"},"transform":[{"op":"op:core.decode","args":{"encoding":"base64"}},{"op":"op:core.json_parse"}]}}},{"id":"readback","kind":"ask","config":{"name":"slot::find-current-items","input":{"operation":"find-current-items","in":"published-record","limit":2,"where":{"all":[{"field":"kind","eq":"content-generation.question-candidate"},{"field":"id","eq":{"$kind":"binding","select":{"from":"steps","key":"prepare","path":"output.captured_fds.0.bytes.base64"},"transform":[{"op":"op:core.decode","args":{"encoding":"base64"}},{"op":"op:core.json_parse"},{"op":"op:core.lookup","args":{"key":"candidate"}},{"op":"op:core.lookup","args":{"key":"id"}}]}}]}}}},{"id":"verify","kind":"ask","config":{"name":"compute.process","input":{"argv":["node","packages/content-generation/do-work/process-scripts/link-question-grounding.mjs","--verify",{"$kind":"binding","select":{"from":"steps","key":"prepare","path":"output.captured_fds.0.bytes.base64"},"transform":[{"op":"op:core.decode","args":{"encoding":"base64"}},{"op":"op:core.json_parse"},{"op":"op:core.lookup","args":{"key":"candidate"}},{"op":"op:core.stringify","args":{"format":"json"}}]},"readback.json"],"cwd":null,"timeout_ms":120000,"termination_grace_ms":1000,"expected_termination":{"kind":"exited","code":0},"env":{},"inputs":[{"mount_path":"packages/content-generation/do-work/process-scripts/link-question-grounding.mjs","content_type":"text/javascript","source":{"kind":"blob_ref","hash":{"$kind":"binding","select":{"from":"steps","key":"grounding_script","path":"output.content_hash"}}}},{"mount_path":"readback.json","content_type":"application/json","source":{"kind":"inline","bytes":{"$kind":"binding","select":{"from":"steps","key":"readback","path":"output.items"},"transform":[{"op":"op:core.stringify","args":{"format":"json"}},{"op":"op:core.encode","args":{"encoding":"base64"}}]}}}],"input_trees":[],"outputs":[],"containment":{"kind":"leaf"},"capture_fds":[1,2],"collected_files":[]}}},{"id":"done","kind":"return","config":{"value":{"$kind":"binding","select":{"from":"steps","key":"verify","path":"output.captured_fds.0.bytes.base64"},"transform":[{"op":"op:core.decode","args":{"encoding":"base64"}},{"op":"op:core.json_parse"},{"op":"op:core.if_null","args":{"fallback":{"$kind":"binding","select":{"from":"steps","key":"rejected","path":"output"}}}}]}},"join":"any","join_config":null}],"edges":[{"from":"grounding_script","to":"candidate","kind":"on_result"},{"from":"candidate","to":"evidence","kind":"on_result"},{"from":"evidence","to":"prepare","kind":"on_result"},{"from":"prepare","to":"decision","kind":"on_result"},{"from":"decision","to":"write","kind":"on_result","config":{"$kind":"binding","select":{"from":"input","path":"output.accepted"},"transform":[{"op":"op:core.equals","args":{"value":true}}]}},{"from":"decision","to":"rejected","kind":"on_result","config":{"$kind":"binding","select":{"from":"input","path":"output.accepted"},"transform":[{"op":"op:core.equals","args":{"value":false}}]}},{"from":"write","to":"readback","kind":"on_result"},{"from":"readback","to":"verify","kind":"on_result"},{"from":"verify","to":"done","kind":"on_result"},{"from":"rejected","to":"done","kind":"on_result"}],"trigger_type":"manual","trigger_source":"","version":1,"extra":{},"extra_properties":{}},"payload_text":null,"payload_base64":null,"remove":false}
+  ]
+}

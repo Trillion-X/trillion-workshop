@@ -1,0 +1,57 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/audit/slots/audit",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/audit/packages/audit/slots/audit",
+      "source_identity": "1f:a3fceeef8e3ba4dfb7112286d26415effa276fe75880906a81c449c1372df89b",
+      "identity": "1f:a3fceeef8e3ba4dfb7112286d26415effa276fe75880906a81c449c1372df89b"
+    },
+    {
+      "from": "packages/audit/source/Cargo.toml",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/audit/packages/audit/source/Cargo.toml",
+      "source_identity": "1f:4de605a32ad5562db3ca1d978933219d5ca6d8da7c0857aeeef58921fde94dc4",
+      "identity": "1f:4de605a32ad5562db3ca1d978933219d5ca6d8da7c0857aeeef58921fde94dc4"
+    },
+    {
+      "from": "packages/audit/source/src/envelope_handler.rs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/audit/packages/audit/source/src/envelope_handler.rs",
+      "source_identity": "1f:33f4ec59b1766e05916eb13d85c51c479fee19eadcdbe3af85deb51052b3236e",
+      "identity": "1f:33f4ec59b1766e05916eb13d85c51c479fee19eadcdbe3af85deb51052b3236e"
+    },
+    {
+      "from": "packages/audit/source/src/lib.rs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/audit/packages/audit/source/src/lib.rs",
+      "source_identity": "1f:de6ad2084da9c43904f33472aa9edc2461b04b7c88268cbdfae8cefd82fc34d1",
+      "identity": "1f:de6ad2084da9c43904f33472aa9edc2461b04b7c88268cbdfae8cefd82fc34d1"
+    },
+    {
+      "from": "packages/audit/source/src/signing.rs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/audit/packages/audit/source/src/signing.rs",
+      "source_identity": "1f:dd8d738d0d8b4becd11f9d0710aba444a97b39b70154a7883ce160b7d72ef6cb",
+      "identity": "1f:dd8d738d0d8b4becd11f9d0710aba444a97b39b70154a7883ce160b7d72ef6cb"
+    },
+    {
+      "from": "packages/audit/source/src/sink.rs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/audit/packages/audit/source/src/sink.rs",
+      "source_identity": "1f:2d4d42d8c423694f209e3684811dc27c4c696eaa82ddf2c38b5de727793f1bf2",
+      "identity": "1f:2d4d42d8c423694f209e3684811dc27c4c696eaa82ddf2c38b5de727793f1bf2"
+    },
+    {
+      "from": "packages/audit/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/audit/packages/audit/things-to-store-and-run.json",
+      "source_identity": "1f:65bcf7b84f9a582e908f34a97a6348c16bf4744b03fb5d875cd9d512f4bf9c88",
+      "identity": "1f:65bcf7b84f9a582e908f34a97a6348c16bf4744b03fb5d875cd9d512f4bf9c88"
+    }
+  ]
+}

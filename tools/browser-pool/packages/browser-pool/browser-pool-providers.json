@@ -1,0 +1,84 @@
+{
+  "table_identity": "current-browser-pool-providers",
+  "default_provider": "obscura-local",
+  "providers": [
+    {
+      "id": "obscura-local",
+      "kind": "headless_browser_cli",
+      "executable_under_home": {
+        "entry_relative_path": "dev/architect-societies/codebases-to-take-from/obscura - rust-based browser for ai agents and web scraping/target/release/obscura"
+      },
+      "fetch_args": ["fetch", "{url}", "--dump", "{dump}"],
+      "timeout_ms": 30000,
+      "missing_capabilities": ["websocket"],
+      "missing_capabilities_note": "Its JS runtime registers no WebSocket client; the only WebSocket code in the tree is its own CDP debug server. A page that opens a socket in order to render shows its own failure screen here, and that failure looks exactly like the page being broken."
+    },
+    {
+      "id": "chromium-local",
+      "kind": "headless_browser_cli",
+      "executable_under_home": {
+        "directory": "Library/Caches/ms-playwright",
+        "child_prefix": "chromium-",
+        "choose": "highest-sorting-child-that-has-an-entry",
+        "entry_relative_paths": [
+          "chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+          "chrome-mac/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+          "chrome-mac-arm64/Chromium.app/Contents/MacOS/Chromium",
+          "chrome-mac/Chromium.app/Contents/MacOS/Chromium"
+        ]
+      },
+      "fetch_args": [
+        "--headless=new",
+        "--disable-gpu",
+        "--virtual-time-budget=40000",
+        "--dump-dom",
+        "{url}"
+      ],
+      "timeout_ms": 90000
+    },
+    {
+      "id": "chromium-local-screenshot",
+      "kind": "headless_browser_cli",
+      "dump_is_output_path": true,
+      "executable_under_home": {
+        "directory": "Library/Caches/ms-playwright",
+        "child_prefix": "chromium-",
+        "choose": "highest-sorting-child-that-has-an-entry",
+        "entry_relative_paths": [
+          "chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+          "chrome-mac/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+          "chrome-mac-arm64/Chromium.app/Contents/MacOS/Chromium",
+          "chrome-mac/Chromium.app/Contents/MacOS/Chromium"
+        ]
+      },
+      "fetch_args": [
+        "--headless=new",
+        "--disable-gpu",
+        "--hide-scrollbars",
+        "--window-size=1440,900",
+        "--virtual-time-budget=40000",
+        "--screenshot={dump}",
+        "{url}"
+      ],
+      "timeout_ms": 90000
+    },
+    {
+      "id": "chromium-walkthrough-screenshot",
+      "kind": "scripted_browser",
+      "dump_is_output_path": true,
+      "viewport": { "width": 1440, "height": 900 },
+      "executable_under_home": {
+        "directory": "Library/Caches/ms-playwright",
+        "child_prefix": "chromium-",
+        "choose": "highest-sorting-child-that-has-an-entry",
+        "entry_relative_paths": [
+          "chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+          "chrome-mac/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+          "chrome-mac-arm64/Chromium.app/Contents/MacOS/Chromium",
+          "chrome-mac/Chromium.app/Contents/MacOS/Chromium"
+        ]
+      },
+      "timeout_ms": 90000
+    }
+  ]
+}

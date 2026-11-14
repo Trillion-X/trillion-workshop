@@ -1,0 +1,508 @@
+{
+  "package": "account-contact-points",
+  "things": [
+    {
+      "type": "stored_bytes",
+      "name": "import-contact-points",
+      "source_path": "do-work/import-contact-points.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "import-contact-points-target",
+      "source_path": "do-work/import-contact-points-target.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-import-contact-points-target",
+      "source_path": "built-stored-bytes/entry-bytes-import-contact-points-target",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-import-contact-points-target.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::account-contact-points::workflow-action::upsert-email-contact-point",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "action",
+        "id": "action:upsert-email-contact-point",
+        "name": "upsert-email-contact-point",
+        "description": "Capture/replace the controlled email delivery address for an account (SP7 PII authority, kept OUT of the signed event log). Latest-wins at a per-account address.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "account_id": {
+              "type": "string",
+              "description": "email-derived one-way account identity"
+            },
+            "address": {
+              "type": "string",
+              "description": "the raw email delivery address (user input at signup)"
+            },
+            "source_ref": {
+              "type": "string",
+              "description": "provenance of this capture (e.g. signup:free)"
+            },
+            "at": {
+              "type": "string",
+              "description": "capture timestamp ISO"
+            }
+          },
+          "required": [
+            "account_id",
+            "address"
+          ]
+        },
+        "steps": [
+          {
+            "id": "write_contact",
+            "join": "any",
+            "join_config": null,
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "account_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::account-contact-points::contact-point::email::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "account_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "account-email-contact-point",
+                    "account_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "account_id"
+                      }
+                    },
+                    "channel": "email",
+                    "address": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "address"
+                      }
+                    },
+                    "verified_state": "unverified",
+                    "source_ref": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "source_ref"
+                      }
+                    },
+                    "updated_at": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "at"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "done",
+            "join": "any",
+            "join_config": null,
+            "kind": "return",
+            "config": {
+              "value": {
+                "ok": true,
+                "account_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "account_id"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "write_contact",
+            "to": "done"
+          }
+        ],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::account-contact-points::workflow-action::resolve-email-contact-point",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "action",
+        "id": "action:resolve-email-contact-point",
+        "name": "resolve-email-contact-point",
+        "description": "Resolve an account's controlled email delivery address by account_id. Returns address:\"\" when no contact point exists (fail-closed). L098: caller never sees the internal record/address scheme.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "account_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "account_id"
+          ]
+        },
+        "steps": [
+          {
+            "id": "find_contact",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "published-record",
+                "where": {
+                  "all": [
+                    {
+                      "field": "kind",
+                      "in": [
+                        "account-email-contact-point"
+                      ]
+                    },
+                    {
+                      "field": "account_id",
+                      "in": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "account_id"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": "done",
+            "join": "any",
+            "join_config": null,
+            "kind": "return",
+            "config": {
+              "value": {
+                "account_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "account_id"
+                  }
+                },
+                "address": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "find_contact",
+                    "path": "output.items.0.payload.address"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.if_null",
+                      "args": {
+                        "fallback": ""
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::account-contact-points::workflow-action::claim-delivery-once",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "action",
+        "id": "action:claim-delivery-once",
+        "name": "claim-delivery-once",
+        "description": "Idempotency barrier for exactly-once lifecycle delivery. CAS-creates account-delivery-claim::<idempotency_key> via engine.operation.label-addressed with expected_current.payload_hash_base64:null (create-only — an existing claim rejects with ExpectedCurrentMismatch, verified engine-side incl a concurrent one-success-one-mismatch test). ONLY the first (winning) create writes the record → emits the delta a downstream send trigger reacts to; replay/concurrent grants write nothing → no delta → no double-send. Generic: the caller controls the idempotency_key grain and the template/purpose DATA; no lifecycle/welcome policy here.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "partition_label": {
+              "type": "string"
+            },
+            "idempotency_key": {
+              "type": "string",
+              "description": "the exactly-once grain, e.g. <account_id>:welcome:<capability_ref>"
+            },
+            "account_id": {
+              "type": "string"
+            },
+            "template": {
+              "type": "string",
+              "description": "the delivery template id (DATA, caller-owned)"
+            },
+            "purpose": {
+              "type": "string",
+              "description": "delivery purpose (DATA, caller-owned)"
+            },
+            "at": {
+              "type": "string",
+              "description": "claim timestamp ISO"
+            }
+          },
+          "required": [
+            "partition_label",
+            "idempotency_key",
+            "account_id",
+            "at"
+          ]
+        },
+        "steps": [
+          {
+            "id": "claim",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "engine.operation.label-addressed",
+              "input": {
+                "operation_label": "engine.operation.write-batch",
+                "partition_label": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "partition_label"
+                  }
+                },
+                "writes": [
+                  {
+                    "address_label": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "idempotency_key"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.concat",
+                          "args": {
+                            "values": [
+                              "package::account-contact-points::delivery-claim::",
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "input",
+                                  "path": "idempotency_key"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "address_mode": "identity_text",
+                    "path_labels": [
+                      "current-item",
+                      "published-record"
+                    ],
+                    "payload": {
+                      "kind": "account-delivery-claim",
+                      "account_id": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "account_id"
+                        }
+                      },
+                      "template": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "template"
+                        }
+                      },
+                      "purpose": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "purpose"
+                        }
+                      },
+                      "idempotency_key": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "idempotency_key"
+                        }
+                      },
+                      "status": "claimed",
+                      "claimed_at": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "at"
+                        }
+                      }
+                    },
+                    "remove": false,
+                    "expected_current": {
+                      "payload_hash_base64": null
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "done",
+            "join": "any",
+            "join_config": null,
+            "kind": "return",
+            "config": {
+              "value": {
+                "idempotency_key": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "idempotency_key"
+                  }
+                },
+                "account_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "account_id"
+                  }
+                },
+                "claim_result": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "claim",
+                    "path": "output"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "claim",
+            "to": "done"
+          }
+        ],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::account-contact-points::target::import-contact-points",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "account-contact-points",
+        "targets",
+        "import-contact-points"
+      ],
+      "payload": {
+        "entry_name": "import-contact-points-target",
+        "export_name": "importContactPointsTarget",
+        "kind": "package-target-descriptor",
+        "source_path": "do-work/import-contact-points-target.ts",
+        "target": "account-contact-points.import"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::account-contact-points::entry::import-contact-points-target",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "account-contact-points",
+        "entries",
+        "import-contact-points-target"
+      ],
+      "payload": {
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-import-contact-points-target"
+        },
+        "entry_name": "import-contact-points-target",
+        "export_name": "importContactPointsTarget",
+        "kind": "bitfield-package-entry",
+        "source_path": "do-work/import-contact-points-target.ts"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    }
+  ]
+}

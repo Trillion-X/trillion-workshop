@@ -1,0 +1,16 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/calendar-booker/do-work/external-calendar-busy-and-changes.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/booking-slots-and-invitations/do-work/external-calendar-busy-and-changes.ts",
+      "source_identity": "1f:4f88feb74b04ae37987d427c2f91d85245cd054e66049c51ce212b205b17a107",
+      "identity": "1f:4f88feb74b04ae37987d427c2f91d85245cd054e66049c51ce212b205b17a107",
+      "reused": true
+    }
+  ]
+}

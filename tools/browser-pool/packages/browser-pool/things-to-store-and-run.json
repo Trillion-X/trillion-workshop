@@ -1,0 +1,69 @@
+{
+  "package": "browser-pool",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::browser-pool::capability::keep-browsers-running-and-share-results",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "bitfield-package-capability",
+        "id": "capability:keep-browsers-running-and-share-results",
+        "package": "browser-pool",
+        "label": "Keep browsers running and share results",
+        "description": "Persistent browser server pool with content-addressed caching and parallel dispatch.",
+        "owned_record_kinds": [],
+        "reuses": ["workflow", "stored_bytes", "process"]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::browser-pool::checks",
+      "path": ["packages", "browser-pool", "checks"],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": ["tests/browser-pool.test.mjs"]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::browser-pool::rule::a-generic-package-may-not-define-paths-as-constants",
+      "path": ["current-item", "source-file-rule"],
+      "payload": {
+        "kind": "source-file-rule",
+        "id": "browser-pool-a-generic-package-may-not-define-paths-as-constants",
+        "why": "A module-level constant holding a path is provider configuration welded into generic code. Any path — /Users, /opt, /usr, /Applications, a future install root nobody has named yet — is the same violation: the provider's location is DATA, not code. This catches the CLASS structurally, without enumerating path prefixes that go stale the moment a new browser is installed somewhere new.",
+        "scope": {
+          "path_matches": "packages/browser-pool/do-work/.*\\.mjs$",
+          "path_excludes": "/tests?/"
+        },
+        "violation": {
+          "forbidden": [
+            { "pattern": "const\\s+[A-Z_]+\\s*=\\s*['\"][^'\"]*/[^'\"]*['\"]" }
+          ]
+        },
+        "message": "a module-level constant holds a filesystem path; provider locations are DATA, not code — move it to the provider JSON file"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::browser-pool::public-source::do-work",
+      "path": ["packages", "browser-pool", "public-sources", "do-work"],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work",
+        "contract": "browser-pool do-work owns persistent browser lifecycle, context reuse, content-addressed caching, and parallel request dispatch"
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "run-browser-pool-request",
+      "source_path": "do-work/run-browser-pool-request.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "browser-pool-core",
+      "source_path": "do-work/browser-pool.mjs"
+    }
+  ]
+}

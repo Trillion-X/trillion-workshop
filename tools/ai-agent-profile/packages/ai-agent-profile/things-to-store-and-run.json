@@ -1,0 +1,2269 @@
+{
+  "package": "ai-agent-profile",
+  "things": [
+    {
+      "type": "stored_bytes",
+      "name": "index",
+      "source_path": "index.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "instruction-role-profiles",
+      "source_path": "data/instruction-role-profiles.json",
+      "media_type": "application/json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "read-ai-agent-profiles",
+      "source_path": "read-data/read-ai-agent-profiles.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "request-ai-agent-profile-update",
+      "source_path": "do-work/request-ai-agent-profile-update.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "validate-ai-agent-profile",
+      "source_path": "do-work/validate-ai-agent-profile.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "ai-agent-profile-list",
+      "source_path": "show/AgentProfileList.tsx"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "mount-ai-agent-profile-list",
+      "source_path": "show/mount-ai-agent-profile-list.tsx"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "agent-card-model",
+      "source_path": "read-data/agent-card-model.ts"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "agent-card",
+      "source_path": "show/AgentCard.tsx"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "mount-agent-card",
+      "source_path": "show/mount-agent-card.tsx"
+    },
+    {
+      "type": "record",
+      "address": "package::ai-agent-profile::contract",
+      "path": [
+        "packages",
+        "ai-agent-profile",
+        "contract"
+      ],
+      "payload": {
+        "kind": "package-contract",
+        "package": "ai-agent-profile",
+        "owns": [
+          "generic agent profile reading",
+          "generic agent profile update request forwarding",
+          "generic agent profile rendering"
+        ],
+        "does_not_own": [
+          "model catalog data",
+          "tool descriptors",
+          "instruction content",
+          "provider SDK calls",
+          "package-set-specific copy"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-agent-profile::record-contract::ai-agent-profile",
+      "path": [
+        "packages",
+        "ai-agent-profile",
+        "record-contracts",
+        "ai-agent-profile"
+      ],
+      "payload": {
+        "kind": "package-record-contract",
+        "record_kind": "ai-agent-profile",
+        "required_fields": [
+          "id"
+        ],
+        "optional_fields": [
+          "runtime_adapter_ref"
+        ],
+        "data_owner": "package-set-records-or-imported-facts"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-agent-profile::entry::ai-agent-profile-list",
+      "path": [
+        "packages",
+        "ai-agent-profile",
+        "entries",
+        "ai-agent-profile-list"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "ai-agent-profile-list",
+        "export_name": "default",
+        "source_path": "show/mount-ai-agent-profile-list.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-ai-agent-profile-list"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false,
+      "build_source_path": "show/mount-ai-agent-profile-list.tsx"
+    },
+    {
+      "type": "record",
+      "address": "package::ai-agent-profile::entry::agent-card",
+      "path": [
+        "packages",
+        "ai-agent-profile",
+        "entries",
+        "agent-card"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "agent-card",
+        "source_path": "show/mount-agent-card.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-agent-card"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false,
+      "build_source_path": "show/mount-agent-card.tsx"
+    },
+    {
+      "type": "record",
+      "address": "package::ai-agent-profile::published-record::placeable-surface::agent-card",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "placeable-surface",
+        "id": "ai-agent-profile.agent-card",
+        "surface_id": "ai-agent-profile.agent-card",
+        "label": "Agent card",
+        "icon": "Bot",
+        "material_target": "component:ai-agent-profile.agent-card",
+        "order": 0,
+        "package_entry": {
+          "package_name": "ai-agent-profile",
+          "entry_name": "agent-card"
+        },
+        "placement_labels": [
+          "embedded-card"
+        ],
+        "placement_order_key": "000000000:ai-agent-profile.agent-card"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-agent-profile::target::request-ai-agent-profile-update",
+      "path": [
+        "packages",
+        "ai-agent-profile",
+        "targets",
+        "request-ai-agent-profile-update"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "request-ai-agent-profile-update",
+        "export_name": "requestAgentProfileUpdate",
+        "source_path": "do-work/request-ai-agent-profile-update.ts",
+        "target": "ai-agent-profile.request-ai-agent-profile-update"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-agent-profile::agent::writer",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-agent-profile",
+        "id": "ai-agent-profile:writer",
+        "label": "Writer",
+        "description": "Drafts posts, scripts, and long-form copy in your voice.",
+        "status": "available",
+        "model_refs": [
+          "ai-model-descriptor:claude-sonnet-4-6"
+        ],
+        "tool_refs": [],
+        "instruction_refs": [
+          "ai-instruction-block:lead-with-the-result",
+          "ai-instruction-block:write-complete-spoken-sentences",
+          "ai-instruction-block:use-concrete-specifics",
+          "ai-instruction-block:state-the-positive-thing-directly",
+          "ai-instruction-block:speak-as-a-person",
+          "ai-instruction-block:remove-ai-writing-tells",
+          "ai-instruction-block:keep-operations-off-sales-pages",
+          "ai-instruction-block:make-the-invitation-specific",
+          "ai-instruction-block:ground-every-claim",
+          "ai-instruction-block:make-every-line-earn-its-place",
+          "ai-instruction-block:stay-on-task"
+        ],
+        "memory_refs": []
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-agent-profile::agent::risk-analyst",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-agent-profile",
+        "id": "ai-agent-profile:risk-analyst",
+        "label": "Risk Analyst",
+        "description": "Investigate policies, transaction monitoring, and control evidence.",
+        "status": "available",
+        "model_refs": [
+          "ai-model-descriptor:gpt-5.5"
+        ],
+        "tool_refs": [
+          "tool:browser-navigate",
+          "tool:browser-click"
+        ],
+        "instruction_refs": [],
+        "memory_refs": [],
+        "runtime_adapter_ref": "cli:ag-ui-langgraph"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-agent-profile::agent::researcher",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-agent-profile",
+        "id": "ai-agent-profile:researcher",
+        "label": "Researcher",
+        "description": "Digs through sources and returns cited, verbatim findings.",
+        "status": "available",
+        "model_refs": [
+          "ai-model-descriptor:gpt-5.5"
+        ],
+        "tool_refs": [
+          "tool:public-web-search",
+          "tool:browser-observe"
+        ],
+        "instruction_refs": [
+          "ai-instruction-block:cite-sources",
+          "ai-instruction-block:show-your-work"
+        ],
+        "memory_refs": []
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-agent-profile::agent::coder",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-agent-profile",
+        "id": "ai-agent-profile:coder",
+        "label": "Coder",
+        "description": "Builds and fixes code, runs tests, and reports results.",
+        "status": "available",
+        "model_refs": [
+          "ai-model-descriptor:claude-opus-4-8"
+        ],
+        "tool_refs": [
+          "tool:start-assigned-work-session"
+        ],
+        "instruction_refs": [
+          "ai-instruction-block:show-your-work",
+          "ai-instruction-block:complete-safe-work-without-founder-labor"
+        ],
+        "memory_refs": [],
+        "model_provider_refs": [
+          "ai_provider:ollama"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-agent-profile::agent::autonomous-safe-operator",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-agent-profile",
+        "id": "ai-agent-profile:autonomous-safe-operator",
+        "label": "Autonomous safe operator",
+        "description": "Executes bounded reversible assigned work to its evidence-based stopping condition without handing routine work back to The owner.",
+        "status": "available",
+        "model_refs": [
+          "ai-model-descriptor:claude-opus-4-8"
+        ],
+        "tool_refs": [
+          "tool:start-assigned-work-session"
+        ],
+        "instruction_refs": [
+          "ai-instruction-block:show-your-work",
+          "ai-instruction-block:stay-on-task",
+          "ai-instruction-block:ground-every-claim"
+        ],
+        "execution_contract": "Complete the assignment through its observable acceptance criteria under The owner's complete standing approval. Approval is not limited by action class, scope, size, criticality, reversibility, target, or effect. Never ask The owner for another approval; use the existing effect owner, execute the required effect, and report the real outcome while preserving truth, privacy, security, and other people's rights.",
+        "process_launch": {
+          "argv": [
+            "claude",
+            "-p",
+            "--model",
+            "claude-opus-4-8",
+            "--effort",
+            "high",
+            "--permission-mode",
+            "acceptEdits",
+            "--allowedTools",
+            "Read,Glob,Grep,Edit,Write",
+            "--max-budget-usd",
+            "5",
+            "{{source.prompt}}"
+          ],
+          "cwd": {
+            "kind": "owner-resolved",
+            "value": ".",
+            "policyHandle": "process-session.assigned-source-workspace"
+          },
+          "timeoutMs": 900000,
+          "model_binding": {
+            "argv_index": 3,
+            "executable": "claude"
+          }
+        },
+        "memory_refs": []
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-agent-profile::agent::owner-routed-operator",
+      "address_mode": "label_hash",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-agent-profile",
+        "id": "ai-agent-profile:owner-routed-operator",
+        "label": "Owner-routed operator",
+        "description": "Completes assigned founder work through declared effect owners and checks real outcomes.",
+        "status": "available",
+        "model_refs": ["ai-model-descriptor:gpt-6-sol"],
+        "tool_refs": ["tool:start-assigned-work-session"],
+        "instruction_refs": ["ai-instruction-block:stay-on-task", "ai-instruction-block:ground-every-claim"],
+        "execution_contract": "Complete the assigned task through its acceptance criteria. Use declared owner actions for external effects; verify exact targets and read back results. Preserve privacy, security, recoverability, and other people's independent rights. Do not report a Task record or a session start as the outcome.",
+        "process_launch": {
+          "argv": ["codex", "exec", "--approve-for-me", "--skip-git-repo-check", "-m", "gpt-6-sol", "-c", "model_reasoning_effort=\"medium\"", "--json", "--", "{{source.prompt}}"],
+          "cwd": {"kind": "owner-resolved", "value": ".", "policyHandle": "process-session.assigned-source-workspace"},
+          "timeoutMs": 900000,
+          "model_binding": {"argv_index": 5, "executable": "codex"}
+        },
+        "memory_refs": []
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-agent-profile::agent::summarizer",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-agent-profile",
+        "id": "ai-agent-profile:summarizer",
+        "label": "Summarizer",
+        "description": "Turns long documents and meetings into short briefs.",
+        "status": "available",
+        "model_refs": [
+          "ai-model-descriptor:claude-haiku-4-5"
+        ],
+        "tool_refs": [],
+        "instruction_refs": [
+          "ai-instruction-block:plain-language"
+        ],
+        "memory_refs": []
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-agent-profile::agent::local-drafter",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-agent-profile",
+        "id": "ai-agent-profile:local-drafter",
+        "label": "Local drafter",
+        "description": "Private drafting that never leaves this computer.",
+        "status": "available",
+        "model_refs": [
+          "ai-model-descriptor:llama3.1"
+        ],
+        "tool_refs": [],
+        "instruction_refs": [
+          "ai-instruction-block:plain-language",
+          "ai-instruction-block:complete-safe-work-without-founder-labor"
+        ],
+        "memory_refs": []
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-agent-profile::agent::media-reviewer",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-agent-profile",
+        "id": "ai-agent-profile:media-reviewer",
+        "label": "Media reviewer",
+        "description": "Watches and listens to media, then describes what matters.",
+        "status": "available",
+        "model_refs": [
+          "ai-model-descriptor:gemini-2.5-pro"
+        ],
+        "tool_refs": [],
+        "instruction_refs": [
+          "ai-instruction-block:show-your-work"
+        ],
+        "memory_refs": []
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-agent-profile::agent::founder-operator",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-agent-profile",
+        "id": "ai-agent-profile:founder-operator",
+        "label": "Founder operator",
+        "description": "Turns a founder thought into governed action, verified reality contact, learning, and the next evidence-ranked move.",
+        "status": "available",
+        "revision": "founder-operator-completes-safe-work",
+        "model_refs": [
+          "ai-model-descriptor:claude-opus-4-8",
+          "backend-pool"
+        ],
+        "tool_refs": [
+          "tool:start-assigned-work-session"
+        ],
+        "instruction_refs": [
+          "ai-instruction-block:founder-operating-system",
+          "ai-instruction-block:complete-safe-work-without-founder-labor",
+          "ai-instruction-block:plain-language",
+          "ai-instruction-block:stay-on-task",
+          "ai-instruction-block:ground-every-claim",
+          "ai-instruction-block:make-every-line-earn-its-place"
+        ],
+        "instruction_selection": {
+          "kind": "ai-agent-profile.instruction-selection/v1",
+          "revision": "founder-operating-baseline-completes-safe-work",
+          "source_set_ref": "harness-source-set:founder-operating-system-current",
+          "max_total_bytes": 32768,
+          "candidates": [
+            {
+              "instruction_ref": "ai-instruction-block:founder-operating-system",
+              "disposition": "include",
+              "reason_ref": "reason:always-on-founder-baseline"
+            },
+            {
+              "instruction_ref": "ai-instruction-block:complete-safe-work-without-founder-labor",
+              "disposition": "include",
+              "reason_ref": "reason:always-on-founder-baseline"
+            },
+            {
+              "instruction_ref": "ai-instruction-block:plain-language",
+              "disposition": "include",
+              "reason_ref": "reason:always-on-founder-baseline"
+            },
+            {
+              "instruction_ref": "ai-instruction-block:stay-on-task",
+              "disposition": "include",
+              "reason_ref": "reason:always-on-founder-baseline"
+            },
+            {
+              "instruction_ref": "ai-instruction-block:ground-every-claim",
+              "disposition": "include",
+              "reason_ref": "reason:always-on-founder-baseline"
+            },
+            {
+              "instruction_ref": "ai-instruction-block:make-every-line-earn-its-place",
+              "disposition": "include",
+              "reason_ref": "reason:always-on-founder-baseline"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-00-must-follow-this-mandate-perfection-rigor-md:50282a528ba7269875dbca8f0a73c01676a2f888bc6f12557f91da09b741294c",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-1000000000x-capability-acquisition-and-job-completion-md:cbd0c679387c9d1dddb5a3f109651fd12c132de5c995a87ef198fe7cc9b091ae",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-1000000000x-e2e-full-production-app-from-start-md:1476de58745aaea5b1e20cc2cb92a187822c7b5787722a0ff9bd914ada2b04a6",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-1000000000x-failure-machine-autonomous-business-execution-md:b80ad3a44bf345b64c490c70481f64cdc5e728c1090f17c45d8d7153d206e8a3",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-1000000000x-founder-business-operating-system-from-ambiguity-to-execution-md:dc4b21d89340abf46ea07e494178cb2569476e4d83a27530077000713253e582",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-1000000000x-rescue-stalled-agent-from-local-blocker-md:cd997f1dcf83be9798c85039ae5ee29560b03f587b4ab8b7c30a71180b39a403",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-1000000000x-ui-ux-design-production-app-from-start-md:515e12574d1103df5561c9092fb0c33c86106177711e6c5dcd79994a0b7ee7ad",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-1000x-harder-on-ourselves-md:91e6a1880d5f70acda2160d91b6fbd8a29952a0385054cecde3496dad73c48ab",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-1000x-perfection-md:1cef1b1978e2442e395e4606b6afb54266b6b2833d900e653e9f294c62b8b0dd",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-1000x-plan-architecture-reference-md:04fc86b8bfc97bb8d1bb3ed77a387b93e0bef4cdc7052ffc40f07fcc42704460",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-1000x-testing-rigor-md:95bc34e4fbb50baeb5d0deb86e0b45b1372bbc9a65f7ae0c8f1427b17d771d44",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-l78-research-plus-first-principles-gauntlet-create-plan-fully-execute-e2e-md:b417e73b8c25bb6aa368b0131a6f5bf1050bc15ae8f964f865759dba12e28cc6",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-readme-md:672db0ff57f88de7496680fa377e8b959806b4a87e1f3f4289fa9edfcf1d5519",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-adversarial-1000x-compliance-gate-md:e7dfc5c89ab9867bb0cbac94ff7356f57233bd48efbea875251ac808f1fe13e7",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-decouple-eeaf-and-architect-understanding-md:9959eb743d28bbf018f46141c6882d67c1cdf00b34238c7f32c899156eb41820",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-dumb-and-blind-md:4d924b8f02387b0d6d89eec0e23c7c48cc19e552a425a7633806a8f6f60c715a",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-evidence-backed-stability-report-md:238f3d21a64248b554a5fcb885723084b0f298debc69fa98a94cfc7b7c4194e5",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-generic-naming-md:541cdf3db3539ffea9b8658fe4c747b303ebcbb5cd933534a5eabba8203cf23f",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-lessons-learned-md:37732c558aa8335ef7ef18b7ddd9ca10eac92ef18df98c0a3784e4f62ae88579",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-loss-function-perpetual-motion-system-md:dca223c3609225728cae05386840bcb321204711d3244f3d650af1eb7ff474bd",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-mentality-md:7866f0a8290370801d676bd8babae56b9558390639e7506bd0e3c18ae140a201",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-model-effort-and-orchestration-allocation-history-md:9e07a8de0a70243681a08a23e2df2e074c022a0fc310cc4fb6fc8182c568744a",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-model-effort-and-orchestration-allocation-md:3dbe0f4ff4daf075f6a754b42fb92f1ff3144e4c38d4ab5d145f71956a5ca6b8",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-plan-file-template-md:56c81896a8755c81797e378714a1df2d288287096d5acda26951ea66f1f7a051",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-reversible-live-surface-replacement-md:1e33b9e6a297260d84192f07d8561a880fbd4bf12de13e8f2b7c954c90d62cec",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-system-has-the-answer-stick-md:0864c0b7be94a94b02b74892834d96765a9cf59a244132a74ce955a6b65249a2",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-three-year-billion-user-production-grade-md:516564d6e4b84552718ff261f15335841c4092fe80fbded065bfad2ac32562b5",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:ai-orchestra-prompts-turn-repeated-instructions-into-systems-md:fa52ebf9257f8883a44f1fb830e66750132949bfafb04d1520cc3bd6cc1fc290",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:claude-claude-md:317ae893ef4add3af4928b72cae8408ac42a97cd487729dcf157d6ed0dbe44d2",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            },
+            {
+              "instruction_ref": "harness-text:agents-md:a54ff182c7e8acf56acfd6e4b9c3ff41e2c41a31c9b211b2deb9df75d9a478f9",
+              "disposition": "exclude",
+              "reason_ref": "reason:distilled-into-founder-operating-system"
+            }
+          ],
+          "selection_hash": "sha256:b1fb35b505eded47604123bbaefe0e37e517ab8d196fe85fdb37285367a60d3b"
+        },
+        "memory_refs": [],
+        "model_provider_refs": [
+          "ai_provider:ollama"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-agent-profile::input::published-records",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "published-records",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "package::ai-agent-profile::agent-profiles-feed",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:auditor|prop:agent_role:badge_variant|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:badge_variant"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6YmFkZ2VfdmFyaWFudCIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6YXVkaXRvciIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOnN0cmluZyIsCiAgInZhbHVlX2pzb24iOiAiXCJpbmZvXCIiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:auditor|prop:agent_role:description|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:description"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6ZGVzY3JpcHRpb24iLAogICJzdWJqZWN0X2lkIjogImFnZW50OmF1ZGl0b3IiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpzdHJpbmciLAogICJ2YWx1ZV9qc29uIjogIlwiQXVkaXRzIGNvbXBsaWFuY2UgYWdhaW5zdCAxMDAweCBzdGFuZGFyZHMgKHJlYWQtb25seSkgLSB2ZXJpZmllcyBjb2RlIHF1YWxpdHlcIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:auditor|prop:agent_role:instance_count|type:number",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:instance_count"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6aW5zdGFuY2VfY291bnQiLAogICJzdWJqZWN0X2lkIjogImFnZW50OmF1ZGl0b3IiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpudW1iZXIiLAogICJ2YWx1ZV9qc29uIjogIjAiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:auditor|prop:agent_role:is_active|type:boolean",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:is_active"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6aXNfYWN0aXZlIiwKICAic3ViamVjdF9pZCI6ICJhZ2VudDphdWRpdG9yIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6Ym9vbGVhbiIsCiAgInZhbHVlX2pzb24iOiAiZmFsc2UiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:auditor|prop:agent_role:name|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:name"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6bmFtZSIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6YXVkaXRvciIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOnN0cmluZyIsCiAgInZhbHVlX2pzb24iOiAiXCJBdWRpdG9yXCIiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:auditor|prop:agent_role:type|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:type"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6dHlwZSIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6YXVkaXRvciIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOnN0cmluZyIsCiAgInZhbHVlX2pzb24iOiAiXCJhdWRpdG9yXCIiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:builder|prop:agent_role:badge_variant|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:badge_variant"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6YmFkZ2VfdmFyaWFudCIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6YnVpbGRlciIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOnN0cmluZyIsCiAgInZhbHVlX2pzb24iOiAiXCJzdWNjZXNzXCIiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:builder|prop:agent_role:capabilities|type:json",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:capabilities"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6Y2FwYWJpbGl0aWVzIiwKICAic3ViamVjdF9pZCI6ICJhZ2VudDpidWlsZGVyIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6anNvbiIsCiAgInZhbHVlX2pzb24iOiAiW1xuICBcImNvZGUtaW1wbGVtZW50YXRpb25cIixcbiAgXCJ0ZXN0LXdyaXRpbmdcIixcbiAgXCJjb21wbGlhbmNlLWNoZWNraW5nXCIsXG4gIFwiY29kZS1yZXZpZXdcIlxuXSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:builder|prop:agent_role:instance_count|type:number",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:instance_count"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6aW5zdGFuY2VfY291bnQiLAogICJzdWJqZWN0X2lkIjogImFnZW50OmJ1aWxkZXIiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpudW1iZXIiLAogICJ2YWx1ZV9qc29uIjogIjAiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:builder|prop:agent_role:is_active|type:boolean",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:is_active"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6aXNfYWN0aXZlIiwKICAic3ViamVjdF9pZCI6ICJhZ2VudDpidWlsZGVyIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6Ym9vbGVhbiIsCiAgInZhbHVlX2pzb24iOiAiZmFsc2UiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:builder|prop:agent_role:name|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:name"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6bmFtZSIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6YnVpbGRlciIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOnN0cmluZyIsCiAgInZhbHVlX2pzb24iOiAiXCJCdWlsZGVyXCIiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:builder|prop:agent_role:type|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:type"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6dHlwZSIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6YnVpbGRlciIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOnN0cmluZyIsCiAgInZhbHVlX2pzb24iOiAiXCJidWlsZGVyXCIiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:convergence-agent|prop:agent_role:badge_variant|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:badge_variant"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6YmFkZ2VfdmFyaWFudCIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6Y29udmVyZ2VuY2UtYWdlbnQiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpzdHJpbmciLAogICJ2YWx1ZV9qc29uIjogIlwiYWNjZW50XCIiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:convergence-agent|prop:agent_role:capabilities|type:json",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:capabilities"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6Y2FwYWJpbGl0aWVzIiwKICAic3ViamVjdF9pZCI6ICJhZ2VudDpjb252ZXJnZW5jZS1hZ2VudCIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOmpzb24iLAogICJ2YWx1ZV9qc29uIjogIltcbiAgXCJjb252ZXJnZW5jZS1wcm90b2NvbFwiLFxuICBcIm11bHRpLW1vZGVsLW9yY2hlc3RyYXRpb25cIixcbiAgXCJjb25zZW5zdXMtc3ludGhlc2lzXCIsXG4gIFwic29sdXRpb24tcmVmaW5lbWVudFwiXG5dIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:convergence-agent|prop:agent_role:description|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:description"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6ZGVzY3JpcHRpb24iLAogICJzdWJqZWN0X2lkIjogImFnZW50OmNvbnZlcmdlbmNlLWFnZW50IiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6c3RyaW5nIiwKICAidmFsdWVfanNvbiI6ICJcIlJ1bnMgbXVsdGktbW9kZWwgY29uc2Vuc3VzIHByb3RvY29sIC0gc3ludGhlc2l6ZXMgc29sdXRpb25zIGZyb20gbXVsdGlwbGUgbW9kZWxzXCIiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:convergence-agent|prop:agent_role:instance_count|type:number",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:instance_count"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6aW5zdGFuY2VfY291bnQiLAogICJzdWJqZWN0X2lkIjogImFnZW50OmNvbnZlcmdlbmNlLWFnZW50IiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6bnVtYmVyIiwKICAidmFsdWVfanNvbiI6ICIwIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:convergence-agent|prop:agent_role:is_active|type:boolean",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:is_active"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6aXNfYWN0aXZlIiwKICAic3ViamVjdF9pZCI6ICJhZ2VudDpjb252ZXJnZW5jZS1hZ2VudCIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOmJvb2xlYW4iLAogICJ2YWx1ZV9qc29uIjogImZhbHNlIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:convergence-agent|prop:agent_role:name|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:name"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6bmFtZSIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6Y29udmVyZ2VuY2UtYWdlbnQiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpzdHJpbmciLAogICJ2YWx1ZV9qc29uIjogIlwiQ29udmVyZ2VuY2UgQWdlbnRcIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:convergence-agent|prop:agent_role:type|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:type"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6dHlwZSIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6Y29udmVyZ2VuY2UtYWdlbnQiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpzdHJpbmciLAogICJ2YWx1ZV9qc29uIjogIlwiY29udmVyZ2VuY2UtYWdlbnRcIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:explorer|prop:agent_role:badge_variant|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:badge_variant"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6YmFkZ2VfdmFyaWFudCIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6ZXhwbG9yZXIiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpzdHJpbmciLAogICJ2YWx1ZV9qc29uIjogIlwibmV1dHJhbFwiIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:explorer|prop:agent_role:capabilities|type:json",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:capabilities"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6Y2FwYWJpbGl0aWVzIiwKICAic3ViamVjdF9pZCI6ICJhZ2VudDpleHBsb3JlciIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOmpzb24iLAogICJ2YWx1ZV9qc29uIjogIltcbiAgXCJjb2RlYmFzZS1zZWFyY2hcIixcbiAgXCJwYXR0ZXJuLWRldGVjdGlvblwiLFxuICBcImZpbGUtZGlzY292ZXJ5XCIsXG4gIFwiZGVwZW5kZW5jeS1hbmFseXNpc1wiXG5dIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:explorer|prop:agent_role:instance_count|type:number",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:instance_count"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6aW5zdGFuY2VfY291bnQiLAogICJzdWJqZWN0X2lkIjogImFnZW50OmV4cGxvcmVyIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6bnVtYmVyIiwKICAidmFsdWVfanNvbiI6ICIwIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:explorer|prop:agent_role:is_active|type:boolean",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:is_active"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6aXNfYWN0aXZlIiwKICAic3ViamVjdF9pZCI6ICJhZ2VudDpleHBsb3JlciIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOmJvb2xlYW4iLAogICJ2YWx1ZV9qc29uIjogImZhbHNlIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:explorer|prop:agent_role:name|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:name"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6bmFtZSIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6ZXhwbG9yZXIiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpzdHJpbmciLAogICJ2YWx1ZV9qc29uIjogIlwiRXhwbG9yZXJcIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:explorer|prop:agent_role:type|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:type"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6dHlwZSIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6ZXhwbG9yZXIiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpzdHJpbmciLAogICJ2YWx1ZV9qc29uIjogIlwiZXhwbG9yZXJcIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:investigator|prop:agent_role:badge_variant|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:badge_variant"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6YmFkZ2VfdmFyaWFudCIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6aW52ZXN0aWdhdG9yIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6c3RyaW5nIiwKICAidmFsdWVfanNvbiI6ICJcImluZm9cIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:investigator|prop:agent_role:capabilities|type:json",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:capabilities"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6Y2FwYWJpbGl0aWVzIiwKICAic3ViamVjdF9pZCI6ICJhZ2VudDppbnZlc3RpZ2F0b3IiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpqc29uIiwKICAidmFsdWVfanNvbiI6ICJbXG4gIFwicm9vdC1jYXVzZS1hbmFseXNpc1wiLFxuICBcImNhdXNhbC10cmFjaW5nXCIsXG4gIFwicHJvYmxlbS1kaWFnbm9zaXNcIixcbiAgXCJoeXBvdGhlc2lzLXRlc3RpbmdcIlxuXSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:investigator|prop:agent_role:description|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:description"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6ZGVzY3JpcHRpb24iLAogICJzdWJqZWN0X2lkIjogImFnZW50OmludmVzdGlnYXRvciIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOnN0cmluZyIsCiAgInZhbHVlX2pzb24iOiAiXCJGaW5kcyByb290IGNhdXNlcyB0aHJvdWdoIGNhdXNhbCBjaGFpbnMgKEwwNTUpIC0gdHJhY2VzIGRlZXBlc3QgcHJvYmxlbXNcIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:investigator|prop:agent_role:instance_count|type:number",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:instance_count"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6aW5zdGFuY2VfY291bnQiLAogICJzdWJqZWN0X2lkIjogImFnZW50OmludmVzdGlnYXRvciIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOm51bWJlciIsCiAgInZhbHVlX2pzb24iOiAiMCIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:investigator|prop:agent_role:is_active|type:boolean",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:is_active"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6aXNfYWN0aXZlIiwKICAic3ViamVjdF9pZCI6ICJhZ2VudDppbnZlc3RpZ2F0b3IiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpib29sZWFuIiwKICAidmFsdWVfanNvbiI6ICJmYWxzZSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:investigator|prop:agent_role:name|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:name"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6bmFtZSIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6aW52ZXN0aWdhdG9yIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6c3RyaW5nIiwKICAidmFsdWVfanNvbiI6ICJcIkludmVzdGlnYXRvclwiIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:investigator|prop:agent_role:type|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:type"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6dHlwZSIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6aW52ZXN0aWdhdG9yIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6c3RyaW5nIiwKICAidmFsdWVfanNvbiI6ICJcImludmVzdGlnYXRvclwiIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:orchestrator|prop:agent_role:badge_variant|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:badge_variant"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6YmFkZ2VfdmFyaWFudCIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6b3JjaGVzdHJhdG9yIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6c3RyaW5nIiwKICAidmFsdWVfanNvbiI6ICJcImFjY2VudFwiIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:orchestrator|prop:agent_role:capabilities|type:json",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:capabilities"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6Y2FwYWJpbGl0aWVzIiwKICAic3ViamVjdF9pZCI6ICJhZ2VudDpvcmNoZXN0cmF0b3IiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpqc29uIiwKICAidmFsdWVfanNvbiI6ICJbXG4gIFwiZGVsZWdhdGUtd29ya1wiLFxuICBcInNwYXduLXRlYW1zXCIsXG4gIFwiZ2l0LW9wc1wiLFxuICBcInRhc2stY29vcmRpbmF0aW9uXCIsXG4gIFwiZ2F0ZS1lbmZvcmNlbWVudFwiXG5dIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:orchestrator|prop:agent_role:description|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:description"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6ZGVzY3JpcHRpb24iLAogICJzdWJqZWN0X2lkIjogImFnZW50Om9yY2hlc3RyYXRvciIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOnN0cmluZyIsCiAgInZhbHVlX2pzb24iOiAiXCJUZWFtIGxlYWQgLSBkZWxlZ2F0ZXMgd29yaywgbWFuYWdlcyBnaXQgb3BlcmF0aW9ucywgdHJhY2tzIGRlcGVuZGVuY2llc1wiIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:orchestrator|prop:agent_role:instance_count|type:number",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:instance_count"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6aW5zdGFuY2VfY291bnQiLAogICJzdWJqZWN0X2lkIjogImFnZW50Om9yY2hlc3RyYXRvciIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOm51bWJlciIsCiAgInZhbHVlX2pzb24iOiAiMCIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:orchestrator|prop:agent_role:is_active|type:boolean",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:is_active"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6aXNfYWN0aXZlIiwKICAic3ViamVjdF9pZCI6ICJhZ2VudDpvcmNoZXN0cmF0b3IiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpib29sZWFuIiwKICAidmFsdWVfanNvbiI6ICJmYWxzZSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:orchestrator|prop:agent_role:name|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:name"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6bmFtZSIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6b3JjaGVzdHJhdG9yIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6c3RyaW5nIiwKICAidmFsdWVfanNvbiI6ICJcIk9yY2hlc3RyYXRvclwiIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:orchestrator|prop:agent_role:type|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:type"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6dHlwZSIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6b3JjaGVzdHJhdG9yIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6c3RyaW5nIiwKICAidmFsdWVfanNvbiI6ICJcIm9yY2hlc3RyYXRvclwiIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:society-auditor|prop:agent_role:badge_variant|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:badge_variant"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6YmFkZ2VfdmFyaWFudCIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6c29jaWV0eS1hdWRpdG9yIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6c3RyaW5nIiwKICAidmFsdWVfanNvbiI6ICJcImluZm9cIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:society-auditor|prop:agent_role:description|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:description"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6ZGVzY3JpcHRpb24iLAogICJzdWJqZWN0X2lkIjogImFnZW50OnNvY2lldHktYXVkaXRvciIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOnN0cmluZyIsCiAgInZhbHVlX2pzb24iOiAiXCJBdWRpdHMgUGh5c2ljcyB2cyBTb2NpZXR5IHZpb2xhdGlvbnMgLSBlbnN1cmVzIGNsZWFuIGFyY2hpdGVjdHVyZVwiIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:society-auditor|prop:agent_role:instance_count|type:number",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:instance_count"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6aW5zdGFuY2VfY291bnQiLAogICJzdWJqZWN0X2lkIjogImFnZW50OnNvY2lldHktYXVkaXRvciIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOm51bWJlciIsCiAgInZhbHVlX2pzb24iOiAiMCIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:society-auditor|prop:agent_role:is_active|type:boolean",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:is_active"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6aXNfYWN0aXZlIiwKICAic3ViamVjdF9pZCI6ICJhZ2VudDpzb2NpZXR5LWF1ZGl0b3IiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpib29sZWFuIiwKICAidmFsdWVfanNvbiI6ICJmYWxzZSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:society-auditor|prop:agent_role:name|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:name"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6bmFtZSIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6c29jaWV0eS1hdWRpdG9yIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6c3RyaW5nIiwKICAidmFsdWVfanNvbiI6ICJcIlNvY2lldHkgQXVkaXRvclwiIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:society-auditor|prop:agent_role:type|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:type"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6dHlwZSIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6c29jaWV0eS1hdWRpdG9yIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6c3RyaW5nIiwKICAidmFsdWVfanNvbiI6ICJcInNvY2lldHktYXVkaXRvclwiIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:system-upgrader|prop:agent_role:badge_variant|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:badge_variant"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6YmFkZ2VfdmFyaWFudCIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6c3lzdGVtLXVwZ3JhZGVyIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6c3RyaW5nIiwKICAidmFsdWVfanNvbiI6ICJcIm5ldXRyYWxcIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:system-upgrader|prop:agent_role:capabilities|type:json",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:capabilities"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6Y2FwYWJpbGl0aWVzIiwKICAic3ViamVjdF9pZCI6ICJhZ2VudDpzeXN0ZW0tdXBncmFkZXIiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpqc29uIiwKICAidmFsdWVfanNvbiI6ICJbXG4gIFwiaW5mcmFzdHJ1Y3R1cmUtdXBncmFkZVwiLFxuICBcImhvb2stbWFpbnRlbmFuY2VcIixcbiAgXCJjb25maWctbWFuYWdlbWVudFwiLFxuICBcInN5c3RlbS1pbXByb3ZlbWVudFwiXG5dIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:system-upgrader|prop:agent_role:description|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:description"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6ZGVzY3JpcHRpb24iLAogICJzdWJqZWN0X2lkIjogImFnZW50OnN5c3RlbS11cGdyYWRlciIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOnN0cmluZyIsCiAgInZhbHVlX2pzb24iOiAiXCJVcGdyYWRlcyBzeXN0ZW0gaW5mcmFzdHJ1Y3R1cmUgLSBtYWludGFpbnMgaG9va3MsIGNvbmZpZ3MsIG9yY2hlc3RyYXRpb25cIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:system-upgrader|prop:agent_role:instance_count|type:number",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:instance_count"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6aW5zdGFuY2VfY291bnQiLAogICJzdWJqZWN0X2lkIjogImFnZW50OnN5c3RlbS11cGdyYWRlciIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOm51bWJlciIsCiAgInZhbHVlX2pzb24iOiAiMCIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:system-upgrader|prop:agent_role:is_active|type:boolean",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:is_active"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6aXNfYWN0aXZlIiwKICAic3ViamVjdF9pZCI6ICJhZ2VudDpzeXN0ZW0tdXBncmFkZXIiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpib29sZWFuIiwKICAidmFsdWVfanNvbiI6ICJmYWxzZSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:system-upgrader|prop:agent_role:name|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:name"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6bmFtZSIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6c3lzdGVtLXVwZ3JhZGVyIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6c3RyaW5nIiwKICAidmFsdWVfanNvbiI6ICJcIlN5c3RlbSBVcGdyYWRlclwiIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:system-upgrader|prop:agent_role:type|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:type"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6dHlwZSIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6c3lzdGVtLXVwZ3JhZGVyIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6c3RyaW5nIiwKICAidmFsdWVfanNvbiI6ICJcInN5c3RlbS11cGdyYWRlclwiIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:web-researcher|prop:agent_role:badge_variant|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:badge_variant"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6YmFkZ2VfdmFyaWFudCIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6d2ViLXJlc2VhcmNoZXIiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpzdHJpbmciLAogICJ2YWx1ZV9qc29uIjogIlwibmV1dHJhbFwiIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:web-researcher|prop:agent_role:capabilities|type:json",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:capabilities"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6Y2FwYWJpbGl0aWVzIiwKICAic3ViamVjdF9pZCI6ICJhZ2VudDp3ZWItcmVzZWFyY2hlciIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOmpzb24iLAogICJ2YWx1ZV9qc29uIjogIltcbiAgXCJ3ZWItc2VhcmNoXCIsXG4gIFwiZGF0YS1nYXRoZXJpbmdcIixcbiAgXCJpbmZvcm1hdGlvbi1hZ2dyZWdhdGlvblwiLFxuICBcInJlc2VhcmNoLXN5bnRoZXNpc1wiXG5dIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:web-researcher|prop:agent_role:description|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:description"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6ZGVzY3JpcHRpb24iLAogICJzdWJqZWN0X2lkIjogImFnZW50OndlYi1yZXNlYXJjaGVyIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6c3RyaW5nIiwKICAidmFsdWVfanNvbiI6ICJcIldlYiByZXNlYXJjaCBhbmQgZGF0YSBnYXRoZXJpbmcgLSBzZWFyY2hlcyBpbnRlcm5ldCwgYWdncmVnYXRlcyBpbmZvcm1hdGlvblwiIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:web-researcher|prop:agent_role:instance_count|type:number",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:instance_count"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6aW5zdGFuY2VfY291bnQiLAogICJzdWJqZWN0X2lkIjogImFnZW50OndlYi1yZXNlYXJjaGVyIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6bnVtYmVyIiwKICAidmFsdWVfanNvbiI6ICIwIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:web-researcher|prop:agent_role:is_active|type:boolean",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:is_active"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6aXNfYWN0aXZlIiwKICAic3ViamVjdF9pZCI6ICJhZ2VudDp3ZWItcmVzZWFyY2hlciIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOmJvb2xlYW4iLAogICJ2YWx1ZV9qc29uIjogImZhbHNlIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:web-researcher|prop:agent_role:name|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:name"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6bmFtZSIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6d2ViLXJlc2VhcmNoZXIiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpzdHJpbmciLAogICJ2YWx1ZV9qc29uIjogIlwiV2ViIFJlc2VhcmNoZXJcIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:web-researcher|prop:agent_role:type|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:type"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6dHlwZSIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6d2ViLXJlc2VhcmNoZXIiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpzdHJpbmciLAogICJ2YWx1ZV9qc29uIjogIlwid2ViLXJlc2VhcmNoZXJcIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:wirer|prop:agent_role:badge_variant|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:badge_variant"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6YmFkZ2VfdmFyaWFudCIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6d2lyZXIiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpzdHJpbmciLAogICJ2YWx1ZV9qc29uIjogIlwic3VjY2Vzc1wiIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:wirer|prop:agent_role:capabilities|type:json",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:capabilities"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6Y2FwYWJpbGl0aWVzIiwKICAic3ViamVjdF9pZCI6ICJhZ2VudDp3aXJlciIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOmpzb24iLAogICJ2YWx1ZV9qc29uIjogIltcbiAgXCJjb21wb25lbnQtaW50ZWdyYXRpb25cIixcbiAgXCJlbmQtdG8tZW5kLXRlc3RpbmdcIixcbiAgXCJ3aXJpbmctdmVyaWZpY2F0aW9uXCIsXG4gIFwiY3Jvc3Mtc3lzdGVtLXZhbGlkYXRpb25cIlxuXSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:wirer|prop:agent_role:description|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:description"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6ZGVzY3JpcHRpb24iLAogICJzdWJqZWN0X2lkIjogImFnZW50OndpcmVyIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6c3RyaW5nIiwKICAidmFsdWVfanNvbiI6ICJcIkludGVncmF0ZXMgY29tcG9uZW50cywgdmVyaWZpZXMgZW5kLXRvLWVuZCB3aXJpbmcgLSBjb25uZWN0cyBzeXN0ZW1zXCIiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:wirer|prop:agent_role:instance_count|type:number",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:instance_count"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6aW5zdGFuY2VfY291bnQiLAogICJzdWJqZWN0X2lkIjogImFnZW50OndpcmVyIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6bnVtYmVyIiwKICAidmFsdWVfanNvbiI6ICIwIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:wirer|prop:agent_role:is_active|type:boolean",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:is_active"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6aXNfYWN0aXZlIiwKICAic3ViamVjdF9pZCI6ICJhZ2VudDp3aXJlciIsCiAgInRhYmxlIjogImF0dHJpYnV0ZV9mYWN0IiwKICAidHlwZV9pZCI6ICJ0eXBlOmJvb2xlYW4iLAogICJ2YWx1ZV9qc29uIjogImZhbHNlIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:wirer|prop:agent_role:name|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:name"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6bmFtZSIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6d2lyZXIiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpzdHJpbmciLAogICJ2YWx1ZV9qc29uIjogIlwiV2lyZXJcIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|agent:wirer|prop:agent_role:type|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:agent_role:type"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6dHlwZSIsCiAgInN1YmplY3RfaWQiOiAiYWdlbnQ6d2lyZXIiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpzdHJpbmciLAogICJ2YWx1ZV9qc29uIjogIlwid2lyZXJcIiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|type:agent_role_definition|prop:type:name|type:string",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:type:name"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnR5cGU6bmFtZSIsCiAgInN1YmplY3RfaWQiOiAidHlwZTphZ2VudF9yb2xlX2RlZmluaXRpb24iLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTpzdHJpbmciLAogICJ2YWx1ZV9qc29uIjogIlwiQWdlbnQgUm9sZSBEZWZpbml0aW9uXCIiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|agent:auditor|type:agent_role_definition",
+      "address_mode": "identity_text",
+      "path": [
+        "type:agent_role_definition"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJlbnRpdHlfaWQiOiAiYWdlbnQ6YXVkaXRvciIsCiAgInRhYmxlIjogImVudGl0eV90eXBlcyIsCiAgInR5cGVfaWQiOiAidHlwZTphZ2VudF9yb2xlX2RlZmluaXRpb24iCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|agent:builder|type:agent_role_definition",
+      "address_mode": "identity_text",
+      "path": [
+        "type:agent_role_definition"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJlbnRpdHlfaWQiOiAiYWdlbnQ6YnVpbGRlciIsCiAgInRhYmxlIjogImVudGl0eV90eXBlcyIsCiAgInR5cGVfaWQiOiAidHlwZTphZ2VudF9yb2xlX2RlZmluaXRpb24iCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|agent:convergence-agent|type:agent_role_definition",
+      "address_mode": "identity_text",
+      "path": [
+        "type:agent_role_definition"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJlbnRpdHlfaWQiOiAiYWdlbnQ6Y29udmVyZ2VuY2UtYWdlbnQiLAogICJ0YWJsZSI6ICJlbnRpdHlfdHlwZXMiLAogICJ0eXBlX2lkIjogInR5cGU6YWdlbnRfcm9sZV9kZWZpbml0aW9uIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|agent:explorer|type:agent_role_definition",
+      "address_mode": "identity_text",
+      "path": [
+        "type:agent_role_definition"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJlbnRpdHlfaWQiOiAiYWdlbnQ6ZXhwbG9yZXIiLAogICJ0YWJsZSI6ICJlbnRpdHlfdHlwZXMiLAogICJ0eXBlX2lkIjogInR5cGU6YWdlbnRfcm9sZV9kZWZpbml0aW9uIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|agent:investigator|type:agent_role_definition",
+      "address_mode": "identity_text",
+      "path": [
+        "type:agent_role_definition"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJlbnRpdHlfaWQiOiAiYWdlbnQ6aW52ZXN0aWdhdG9yIiwKICAidGFibGUiOiAiZW50aXR5X3R5cGVzIiwKICAidHlwZV9pZCI6ICJ0eXBlOmFnZW50X3JvbGVfZGVmaW5pdGlvbiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|agent:orchestrator|type:agent_role_definition",
+      "address_mode": "identity_text",
+      "path": [
+        "type:agent_role_definition"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJlbnRpdHlfaWQiOiAiYWdlbnQ6b3JjaGVzdHJhdG9yIiwKICAidGFibGUiOiAiZW50aXR5X3R5cGVzIiwKICAidHlwZV9pZCI6ICJ0eXBlOmFnZW50X3JvbGVfZGVmaW5pdGlvbiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|agent:society-auditor|type:agent_role_definition",
+      "address_mode": "identity_text",
+      "path": [
+        "type:agent_role_definition"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJlbnRpdHlfaWQiOiAiYWdlbnQ6c29jaWV0eS1hdWRpdG9yIiwKICAidGFibGUiOiAiZW50aXR5X3R5cGVzIiwKICAidHlwZV9pZCI6ICJ0eXBlOmFnZW50X3JvbGVfZGVmaW5pdGlvbiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|agent:system-upgrader|type:agent_role_definition",
+      "address_mode": "identity_text",
+      "path": [
+        "type:agent_role_definition"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJlbnRpdHlfaWQiOiAiYWdlbnQ6c3lzdGVtLXVwZ3JhZGVyIiwKICAidGFibGUiOiAiZW50aXR5X3R5cGVzIiwKICAidHlwZV9pZCI6ICJ0eXBlOmFnZW50X3JvbGVfZGVmaW5pdGlvbiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|agent:web-researcher|type:agent_role_definition",
+      "address_mode": "identity_text",
+      "path": [
+        "type:agent_role_definition"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJlbnRpdHlfaWQiOiAiYWdlbnQ6d2ViLXJlc2VhcmNoZXIiLAogICJ0YWJsZSI6ICJlbnRpdHlfdHlwZXMiLAogICJ0eXBlX2lkIjogInR5cGU6YWdlbnRfcm9sZV9kZWZpbml0aW9uIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|agent:wirer|type:agent_role_definition",
+      "address_mode": "identity_text",
+      "path": [
+        "type:agent_role_definition"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJlbnRpdHlfaWQiOiAiYWdlbnQ6d2lyZXIiLAogICJ0YWJsZSI6ICJlbnRpdHlfdHlwZXMiLAogICJ0eXBlX2lkIjogInR5cGU6YWdlbnRfcm9sZV9kZWZpbml0aW9uIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|type:agent_role_definition|type:type",
+      "address_mode": "identity_text",
+      "path": [
+        "type:type"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJlbnRpdHlfaWQiOiAidHlwZTphZ2VudF9yb2xlX2RlZmluaXRpb24iLAogICJ0YWJsZSI6ICJlbnRpdHlfdHlwZXMiLAogICJ0eXBlX2lkIjogInR5cGU6dHlwZSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|prop:agent_role:badge_variant",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJpZCI6ICJwcm9wOmFnZW50X3JvbGU6YmFkZ2VfdmFyaWFudCIsCiAgInRhYmxlIjogImVudGl0eSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|prop:agent_role:capabilities",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJpZCI6ICJwcm9wOmFnZW50X3JvbGU6Y2FwYWJpbGl0aWVzIiwKICAidGFibGUiOiAiZW50aXR5Igp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|prop:agent_role:description",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJpZCI6ICJwcm9wOmFnZW50X3JvbGU6ZGVzY3JpcHRpb24iLAogICJ0YWJsZSI6ICJlbnRpdHkiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|prop:agent_role:instance_count",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJpZCI6ICJwcm9wOmFnZW50X3JvbGU6aW5zdGFuY2VfY291bnQiLAogICJ0YWJsZSI6ICJlbnRpdHkiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|prop:agent_role:is_active",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJpZCI6ICJwcm9wOmFnZW50X3JvbGU6aXNfYWN0aXZlIiwKICAidGFibGUiOiAiZW50aXR5Igp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|prop:agent_role:name",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJpZCI6ICJwcm9wOmFnZW50X3JvbGU6bmFtZSIsCiAgInRhYmxlIjogImVudGl0eSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|prop:agent_role:type",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJpZCI6ICJwcm9wOmFnZW50X3JvbGU6dHlwZSIsCiAgInRhYmxlIjogImVudGl0eSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|type:agent_role_definition",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJpZCI6ICJ0eXBlOmFnZW50X3JvbGVfZGVmaW5pdGlvbiIsCiAgInRhYmxlIjogImVudGl0eSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:agent_role_definition|prop:agent_role:badge_variant",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6YmFkZ2VfdmFyaWFudCIsCiAgInRhYmxlIjogInR5cGVfcHJvcGVydGllcyIsCiAgInR5cGVfaWQiOiAidHlwZTphZ2VudF9yb2xlX2RlZmluaXRpb24iCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:agent_role_definition|prop:agent_role:capabilities",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6Y2FwYWJpbGl0aWVzIiwKICAidGFibGUiOiAidHlwZV9wcm9wZXJ0aWVzIiwKICAidHlwZV9pZCI6ICJ0eXBlOmFnZW50X3JvbGVfZGVmaW5pdGlvbiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:agent_role_definition|prop:agent_role:description",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6ZGVzY3JpcHRpb24iLAogICJ0YWJsZSI6ICJ0eXBlX3Byb3BlcnRpZXMiLAogICJ0eXBlX2lkIjogInR5cGU6YWdlbnRfcm9sZV9kZWZpbml0aW9uIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:agent_role_definition|prop:agent_role:instance_count",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6aW5zdGFuY2VfY291bnQiLAogICJ0YWJsZSI6ICJ0eXBlX3Byb3BlcnRpZXMiLAogICJ0eXBlX2lkIjogInR5cGU6YWdlbnRfcm9sZV9kZWZpbml0aW9uIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:agent_role_definition|prop:agent_role:is_active",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6aXNfYWN0aXZlIiwKICAidGFibGUiOiAidHlwZV9wcm9wZXJ0aWVzIiwKICAidHlwZV9pZCI6ICJ0eXBlOmFnZW50X3JvbGVfZGVmaW5pdGlvbiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:agent_role_definition|prop:agent_role:name",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6bmFtZSIsCiAgInRhYmxlIjogInR5cGVfcHJvcGVydGllcyIsCiAgInR5cGVfaWQiOiAidHlwZTphZ2VudF9yb2xlX2RlZmluaXRpb24iCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:agent_role_definition|prop:agent_role:type",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFnZW50X3JvbGU6dHlwZSIsCiAgInRhYmxlIjogInR5cGVfcHJvcGVydGllcyIsCiAgInR5cGVfaWQiOiAidHlwZTphZ2VudF9yb2xlX2RlZmluaXRpb24iCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-agent-profile::workflow-action::publish-agent-role-catalog",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:publish-agent-role-catalog",
+        "kind": "action",
+        "name": "publish-agent-role-catalog",
+        "description": "Read canonical agent role and skill definition facts and publish the addressed agent-role-catalog payload.",
+        "input_schema": {},
+        "steps": [
+          {
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "attribute_fact",
+                "select": [
+                  "subject_id",
+                  "property_id",
+                  "value_json"
+                ],
+                "where": {
+                  "all": [
+                    {
+                      "field": "property_id",
+                      "in": [
+                        "prop:agent_role:name",
+                        "prop:agent_role:type",
+                        "prop:agent_role:description",
+                        "prop:agent_role:capabilities",
+                        "prop:agent_role:is_active",
+                        "prop:agent_role:instance_count",
+                        "prop:agent_role:badge_variant",
+                        "prop:skill_definition:name",
+                        "prop:skill_definition:description"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": "agent-role-catalog",
+                  "path": [],
+                  "payload_bytes": {
+                    "rows": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "step_0",
+                        "path": "output.items"
+                      }
+                    },
+                    "columns": [
+                      {
+                        "column": 0,
+                        "source": {
+                          "path": [
+                            "subject_id"
+                          ]
+                        },
+                        "value": {
+                          "value_to_bytes": "non_empty_text"
+                        }
+                      },
+                      {
+                        "column": 1,
+                        "source": {
+                          "path": [
+                            "property_id"
+                          ]
+                        },
+                        "value": {
+                          "value_to_bytes": "non_empty_text"
+                        }
+                      },
+                      {
+                        "column": 2,
+                        "source": {
+                          "path": [
+                            "value_json"
+                          ],
+                          "parse": {
+                            "format": "json"
+                          }
+                        },
+                        "value": {
+                          "value_to_bytes": "json"
+                        }
+                      }
+                    ],
+                    "value_to_bytes": "cell_table"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-agent-profile::trigger-rule::publish-addressed-way-on-profile-change",
+      "address_mode": "identity_text",
+      "path": [
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:publish-addressed-way-on-profile-change",
+        "topic": "data_state",
+        "trigger_type": "delta",
+        "is_active": true,
+        "match_condition": {
+          "conditions": [
+            {
+              "$bind": {
+                "select": {
+                  "from": "change",
+                  "path": "kind"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.equals",
+                    "args": {
+                      "value": "ai-agent-profile"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "$bind": {
+                "select": {
+                  "from": "change",
+                  "path": "status"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.not_equals",
+                    "args": {
+                      "value": "deleted"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "$bind": {
+                "select": {
+                  "from": "envelope",
+                  "path": "is_retraction"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.equals",
+                    "args": {
+                      "value": false
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:upsert-addressed-exchange-participant",
+            "include_steps": false,
+            "include_output": false,
+            "input": {
+              "participant_ref": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "id"
+                }
+              },
+              "label": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "label"
+                },
+                "default": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "change",
+                    "path": "id"
+                  }
+                }
+              },
+              "way_ref": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": "id"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.concat",
+                    "args": {
+                      "values": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "change",
+                            "path": "id"
+                          }
+                        },
+                        "-way"
+                      ]
+                    }
+                  }
+                ]
+              },
+              "adapter_json": "{\"kind\":\"ai-records-producer\",\"ownerTargetRef\":\"slot::workflow\",\"requiresAuth\":false}"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-agent-profile::trigger-rule::publish-agent-role-catalog-on-change",
+      "address_mode": "identity_text",
+      "path": [
+        "trigger-rule"
+      ],
+      "payload": {
+        "id": "trigger:publish-agent-role-catalog-on-change",
+        "match_condition": {
+          "conditions": [
+            {
+              "$bind": {
+                "select": {
+                  "from": "change",
+                  "path": "property_id"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.in_list",
+                    "args": {
+                      "values": [
+                        "prop:agent_role:name",
+                        "prop:agent_role:type",
+                        "prop:agent_role:description",
+                        "prop:agent_role:capabilities",
+                        "prop:agent_role:is_active",
+                        "prop:agent_role:instance_count",
+                        "prop:agent_role:badge_variant",
+                        "prop:skill_definition:name",
+                        "prop:skill_definition:description"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:publish-agent-role-catalog",
+            "include_steps": false,
+            "include_output": false,
+            "input": {
+              "change": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": ""
+                }
+              },
+              "envelope": {
+                "$kind": "binding",
+                "select": {
+                  "from": "envelope",
+                  "path": ""
+                }
+              }
+            }
+          }
+        },
+        "is_active": true,
+        "topic": "fact_changed"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-agent-profile::trigger-rule::publish-agent-role-catalog-on-runtime-loaded",
+      "address_mode": "identity_text",
+      "path": [
+        "trigger-rule"
+      ],
+      "payload": {
+        "id": "trigger:publish-agent-role-catalog-on-runtime-loaded",
+        "match_condition": {
+          "conditions": [
+            {
+              "$bind": {
+                "select": {
+                  "from": "change",
+                  "path": "properties.event_type"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.equals",
+                    "args": {
+                      "value": "runtime_loaded"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:publish-agent-role-catalog",
+            "include_steps": false,
+            "include_output": false,
+            "input": {
+              "change": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": ""
+                }
+              },
+              "envelope": {
+                "$kind": "binding",
+                "select": {
+                  "from": "envelope",
+                  "path": ""
+                }
+              }
+            }
+          }
+        },
+        "is_active": true,
+        "topic": "runtime_loaded"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::ai-agent-profile::agent-profiles-feed",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "ai-agent-profile"
+            },
+            {
+              "path": [
+                "payload"
+              ],
+              "not_equals": "__bitfield_never__"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-ai-agent-profile-list",
+      "source_path": "built-stored-bytes/entry-bytes-ai-agent-profile-list",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-ai-agent-profile-list.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-agent-card",
+      "source_path": "built-stored-bytes/entry-bytes-agent-card",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-agent-card.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::ai-agent-profile::checks",
+      "path": ["packages", "ai-agent-profile", "checks"],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "tests/addressed-profile-route-trigger.test.ts",
+          "tests/every-instruction-a-profile-names-exists.test.mjs",
+          "tests/founder-operating-profile-data.test.mjs",
+          "tests/instruction-role-profile-data.test.mjs",
+          "tests/published-records-scoped-feed.test.ts"
+        ]
+      }
+    }
+  ]
+}
