@@ -852,7 +852,7 @@ const HELP = `trillion: see your AIs and their work, and run your Trillion's too
   trillion who [--all]                                   your AIs seen lately (--all: every one): ready or away
   trillion publish [--dry-run]                           write this AI's own record: its facts and that it was seen now
   trillion tools | call TOOL JSON|-                      your Workshop tools, and run one by its id
-  trillion op ADDRESS METHOD JSON|-                      any engine operation (run_resource_operation)
+  trillion op ADDRESS METHOD JSON|-                      any engine operation (run_resource_operation); op --dry-run shows the request and sends nothing
   --timeout SECONDS  wait this long for one try of a call (default ${settings.retry.attempt_seconds}); a try with no answer is asked again, up to ${settings.retry.count} more times, under the same request key
   trillion update                                        who updates this command (it never updates itself)
   ${basename(settings.install.link)} records replay-from-transcripts --since TIME            list the rows this computer's AIs wrote (writes nothing)
@@ -1072,6 +1072,17 @@ export async function main(argv, seams = {}) {
   if (command === 'update') return updateWords();
   if (command === 'serve') return serve(context);
   if (!WORK_COMMANDS.has(command) && !['whoami', 'tools', 'call', 'op', 'who', 'events', 'publish'].includes(command)) throw new TrillionError(`Unknown command ${command}. Run trillion help.`, { status: 2 });
+  if (command === 'call' || command === 'op') {
+    const known = settings.direct_calls.flags[command];
+    const unknown = Object.keys(flags).find(name => !known.includes(name));
+    if (unknown !== undefined) throw new TrillionError(fill(settings.words.unknown_flag, { command, flag: unknown, known: known.map(name => `--${name}`).join(', ') }), { status: 2 });
+    if (flags['dry-run'] === true) {
+      const request = { address: need(words[0], 'Name the address: trillion op ADDRESS METHOD JSON.'), method: need(words[1], 'Name the method: trillion op ADDRESS METHOD JSON.'),
+        request_key: flags['request-key'] ?? randomUUID(), input: await readJson(words[2], '{"id": "..."}') };
+      if (settings.direct_calls.dry_run_refuses.includes(request.method)) throw new TrillionError(fill(settings.words.dry_run_refused, { method: request.method, request: JSON.stringify(request, null, 2) }), { status: 2 });
+      return JSON.stringify(request, null, 2);
+    }
+  }
   // A work command's words are checked before anything is sent.
   const call = WORK_COMMANDS.has(command) ? argumentsFor(command, { words, flags }, { me: context.me, held: context.state.held() }) : null;
   const client = await signedInClient(context);

@@ -45,6 +45,14 @@
     "attempt_seconds": 120,
     "codes": ["workshop_run_in_progress"]
   },
+  "direct_calls": {
+    "_what": "The flags `trillion op` and `trillion call` take, per command; any other flag is refused before anything is sent (parseArgs makes every unknown --flag a true, so an unchecked one was silently dropped: `op ... records:write --dry-run` removed a record on 2026-11-13). `--dry-run` is op only: it sends nothing and prints the request it would have sent {address, method, request_key, input}; a method in dry_run_refuses is refused instead, with that request in the refusal, because the engine has no dry run for it.",
+    "flags": {
+      "op": ["request-key", "timeout", "origin", "json", "help", "dry-run"],
+      "call": ["request-key", "timeout", "origin", "json", "help"]
+    },
+    "dry_run_refuses": ["records:write"]
+  },
   "install": {
     "folder": "~/.trillion/cli/program",
     "files": [
@@ -297,6 +305,8 @@
   },
   "work_list_limit": 20,
   "words": {
+    "unknown_flag": "trillion {command} does not take --{flag}; it takes {known}. Nothing was sent.",
+    "dry_run_refused": "trillion op --dry-run cannot preview {method}: the engine has no dry run for it, so nothing was sent. The request it would have sent:\n{request}",
     "no_credential": "This computer has no Trillion key or sign-in. Run trillion login (or trillion setup) first.",
     "sign_in_ended": "This computer's sign-in to Trillion has ended. Run trillion login to sign in again.",
     "refused": "{door} refused this computer's credential.",
