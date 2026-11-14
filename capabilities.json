@@ -18,6 +18,16 @@
   ],
   "capabilities": [
     {
+      "capability": "move one list's rows out of the account's primary store into the list's own store, a page at a time, verified row for row before the primary lets them go",
+      "owner": ["tools/keep-a-lists-rows-in-one-of-the-accounts-databases-while/"],
+      "entry": "tools/keep-a-lists-rows-in-one-of-the-accounts-databases-while/do-work/move-a-list-into-its-own-store.mjs",
+      "evidence": "old trillion src/placed-lists.mjs invariant 4 (move, continueMoves), moved here byte for byte; the new engine keeps a list's own store as a record domain (trillion-rust src/storage/record_store_resources/domains.rs), reached by `scope` on the records door",
+      "distinct_from": [
+        {"job": "apply one of the person's keep rules from their own schedule", "why": "a keep rule destroys expired records; this keeps every row and only changes which store holds it"},
+        {"job": "keep what a list says true", "why": "that reviews whether a row's words are still right; this moves the rows unchanged into the list's own store file"}
+      ]
+    },
+    {
       "capability": "apply one of the person's keep rules from their own schedule: ask the engine to destroy, through its restorable erasure, the records of a kind that the rule's row says have expired",
       "owner": [
         "tools/keep-records-as-long-as-their-keep-rule-says/"
