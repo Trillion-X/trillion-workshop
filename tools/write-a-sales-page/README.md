@@ -1,6 +1,6 @@
-# parts/public-sales-page/
+# tools/write-a-sales-page/
 
-Sales and landing pages as one row of DATA each, written as a whole HTML page by the shared page writer in the sales look, as the Workshop tool `tool:write-a-sales-page`, whose page is kept in the person's files. The port of bitfield-packages `packages/public-sales-page` and `packages/adaptive-program-landing`: their hero, story, method steps, offers with checkout links, proof, closing call and fine print are sections of the writer's one section shape named by an emphasis word, so no page kind is code.
+Sales and landing pages as one row of DATA each, written as a whole static HTML page by the shared page writer in the sales look, as the Workshop tool `tool:write-a-sales-page`, whose page is kept in the person's files. This follows bitfield-packages `packages/public-sales-page`'s static row-to-page shape and reuses section content concepts from `packages/adaptive-program-landing`. It does not port the latter's interactive checkout, enrollment consent, email course or article behavior; cards and actions here are static page content and links. A hero, story, method steps, offer, proof, closing call and fine print use the same section shape named by an emphasis word, so no static page kind is code.
 
 ## Files
 
@@ -21,6 +21,8 @@ Sales and landing pages as one row of DATA each, written as a whole HTML page by
 
 ## Dependencies
 
-**Depends on:** `parts/ui/show/server-rendered-page/page-sections-html.mjs`, `parts/screen-look/show/sales-page.css`, `@noble/hashes`, Node in the tool container.
+**Depends on:** `parts/ui/show/server-rendered-page/page-sections-html.mjs`, the mounted `parts/screen-look/show/sales-page.css` DATA file, `@noble/hashes`, Node in the tool container. The static CLI reads that stylesheet from the path in its row; direct library calls retain the package-resolved default.
+
+**Scope:** this writes section content and links into static HTML. It does not provide the interactive checkout, enrollment consent, email course or article behavior from `packages/adaptive-program-landing`.
 
 **Depended on by:** `records/workshop-page-tool-records.json`, `scripts/tool-bundles.mjs` at deploy, `test/workflow-funnel-page-screens.test.mjs`.
