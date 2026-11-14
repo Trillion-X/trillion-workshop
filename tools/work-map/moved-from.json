@@ -1,0 +1,17 @@
+{
+  "about": "Files moved here byte for byte from Trillion-X/trillion-apps web/parts/work-map at a89474c0211e2353c9ce96b8c21fc21ee9021f91 on the owner's order (Nov 13 2026, about 7:20 PM CST): every screen and screen part lives in the Workshop, not in the app. Each names its source path and commit and the identity of its bytes there and here; a file whose bytes here differ only in import paths names that.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/work-map/show/work-map-screen.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/work-map/show/work-map-screen.tsx",
+      "source_identity": "1f:e8aac6e41d7f4893186e2ada8fa62669045f1aceae8459a63b54c16de01a1565",
+      "identity": "1f:e8aac6e41d7f4893186e2ada8fa62669045f1aceae8459a63b54c16de01a1565",
+      "found_by": "byte copy"
+    }
+  ]
+}

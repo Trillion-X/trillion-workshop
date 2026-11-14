@@ -1,0 +1,46 @@
+{
+  "_what": "The controls the sidebar part draws that a show rule can hide (subject `control`, parts/ui/show/show-rules show-of.ts controlShown). Each id is a dotted path; a rule about any path it sits in hides it too. The frame's own controls are `<controls>.<capability>` (`sidebar.<capability>` for the window's sidebar, DesktopSidebar.tsx allows). A screen's row is the control its screen DATA names (surface `control`, records/workshop-screen-tool-records.json), which AppSidebar.tsx asks before it draws the row; `screens.<screen>` names them.",
+  "controls": [
+    { "id": "sidebar.folders", "label": "Folders in the sidebar", "drawn_at": "show/AppSidebar.tsx (every list section the person's lists and folders make)" },
+    { "id": "cards.hover.sidebar", "label": "Preview cards on sidebar rows", "drawn_at": "show/SidebarContent.tsx (a row's SurfacePreviewCard; sidebar.row-preview hides the same card)" },
+    { "id": "cards.hover.tabs", "label": "Preview cards on pane tabs", "drawn_at": "show/SidebarContent.tsx TabRow (arrangement.header.tabs.row-preview hides the same card)" },
+    { "id": "devices.active", "label": "The icon showing your active devices", "drawn_at": "show/AppSidebar.tsx (a screen row whose surface DATA names it as its `control`: Your devices, records/workshop-screen-tool-records.json trillion.catch-up)" },
+    { "id": "sidebar.position", "label": "Where the sidebar sits (the compass)", "drawn_at": "show/DesktopSidebar.tsx windowControls and barControls PositionCompass (allows('position'))" },
+    { "id": "sidebar.move", "label": "The handle that moves the sidebar anywhere", "drawn_at": "show/DesktopSidebar.tsx the open list's grip (SidebarMoveGrip), the thin bar's grip (SidebarBar onGripPointerDown) and the floating panel's drag grip" },
+    { "id": "sidebar.undock", "label": "Dock and undock the sidebar (the pin)", "drawn_at": "show/DesktopSidebar.tsx windowControls Dock / Undock and barControls Undock (allows('undock'))" },
+    { "id": "sidebar.hide", "label": "Hide the sidebar off its edge", "drawn_at": "show/DesktopSidebar.tsx Auto-hide (allows('hide')); screen-arrangement show/ContainerHeader.tsx Hide sidebar row" },
+    { "id": "sidebar.list.pin", "label": "Pin a list to the sidebar", "drawn_at": "show/SidebarContent.tsx a list's Pin to sidebar row" },
+    { "id": "sidebar.list.unpin", "label": "Unpin a list from the sidebar", "drawn_at": "show/SidebarContent.tsx a list's Unpin row" },
+    { "id": "sidebar.list.auto-hide", "label": "A list hiding itself until pointed at", "drawn_at": "show/SidebarContent.tsx" },
+    { "id": "sidebar.list.create", "label": "Add a list (making a new sidebar list)", "drawn_at": "show/AppSidebar.tsx buildSidebarSections collection-manager (show/CollectionManagerRow.tsx)" },
+    { "id": "sidebar.content.focus-editor", "label": "What the workspace is about (the focus at the top of the sidebar)", "drawn_at": "show/mount-sidebar.tsx HeaderContentHost (src/workspace/surfaces.json sidebar_header_content_host)" },
+    { "id": "sidebar.list.add", "label": "Add a screen to a list", "drawn_at": "show/AppSidebar.tsx, show/SidebarContent.tsx" },
+    { "id": "sidebar.row.actions", "label": "A row's ⋯ actions", "drawn_at": "show/SidebarContent.tsx" },
+    { "id": "sidebar.row.move", "label": "Dragging a row to move it", "drawn_at": "show/SidebarContent.tsx" },
+    { "id": "sidebar.row-preview", "label": "A row's preview card", "drawn_at": "show/SidebarContent.tsx" },
+    { "id": "screens.waiting", "label": "Waiting on you, in the sidebar (Waiting for you is its alias: /waiting-for-you opens it)", "drawn_at": "show/AppSidebar.tsx, row trillion.waiting" },
+    { "id": "screens.home", "label": "Home, in the sidebar", "drawn_at": "show/AppSidebar.tsx, row trillion.home" },
+    { "id": "screens.tray", "label": "Your tray, in the sidebar", "drawn_at": "show/AppSidebar.tsx, row trillion.tray" },
+    { "id": "screens.get-started", "label": "Get started, in the sidebar", "drawn_at": "show/AppSidebar.tsx, row trillion.get-started" },
+    { "id": "screens.tours", "label": "Tours (the guided tours), in the sidebar", "drawn_at": "show/AppSidebar.tsx, row trillion.tours" },
+    { "id": "screens.message-box", "label": "Message your AIs, in the sidebar", "drawn_at": "show/AppSidebar.tsx, row trillion.message-box" },
+    { "id": "screens.write", "label": "Write, in the sidebar", "drawn_at": "show/AppSidebar.tsx, row trillion.write" },
+    { "id": "screens.record", "label": "Record, the one recording screen in the sidebar (Record audio is its alias: it has no row of its own, and opens as the meeting recorder from Settings and Calendar)", "drawn_at": "show/AppSidebar.tsx, row trillion.record" },
+    { "id": "screens.record-video", "label": "Record video, in the sidebar", "drawn_at": "show/AppSidebar.tsx, row trillion.record-video" },
+    { "id": "screens.always-recording", "label": "Always recording, in the sidebar", "drawn_at": "show/AppSidebar.tsx, row trillion.always-recording" },
+    { "id": "screens.draw", "label": "Draw, in the sidebar", "drawn_at": "show/AppSidebar.tsx, row trillion.board" },
+    { "id": "screens.progress", "label": "Progress, in the sidebar", "drawn_at": "show/AppSidebar.tsx, row trillion.progress" },
+    { "id": "screens.formats", "label": "Formats, in the sidebar", "drawn_at": "show/AppSidebar.tsx, row trillion.formats" },
+    { "id": "screens.ai", "label": "Use Trillion in your AI, kept at the foot of the sidebar", "drawn_at": "show/AppSidebar.tsx footerItems (sidebar_place bottom), row trillion.ai" },
+    { "id": "screens.notifications", "label": "Notifications, among the sidebar's own controls", "drawn_at": "show/AppSidebar.tsx controlItems (sidebar_place controls), row trillion.notifications" }
+  ],
+  "position_choices": {
+    "_what": "Where the sidebar may sit. A rule of the frame's own subject (its `controls` path, `sidebar` for the window's sidebar) with effect `change` sets `position_choices` to a list of these; with one choice left the position control is not drawn.",
+    "every": [
+      "left",
+      "right",
+      "top",
+      "bottom"
+    ]
+  }
+}

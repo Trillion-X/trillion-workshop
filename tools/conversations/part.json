@@ -15,6 +15,13 @@
     "read-data/choose_source.py",
     "read-data/for_recording.py",
     "read-data/snapshot_fold.py",
-    "read-data/sources.json"
+    "read-data/sources.json",
+    "do-work/addressed-exchange-owner-actions.ts",
+    "read-data/build-conversation-projections.ts",
+    "read-data/record-projection.ts",
+    "read-data/use-conversation-projections.ts"
+  ],
+  "imported_by": [
+    "Trillion-X/trillion-apps"
   ]
 }

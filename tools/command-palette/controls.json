@@ -1,0 +1,6 @@
+{
+  "_what": "The controls Find anything draws that a show rule can hide (subject `control`, parts/ui/show/show-rules show-of.ts controlShown), beyond its sources and actions (palette.source.<id>, palette.action.<id>).",
+  "controls": [
+    { "id": "cards.hover.palette", "label": "Preview cards on Find anything results", "drawn_at": "src/workspace/command-palette.tsx (a result's SurfacePreviewCard)" }
+  ]
+}

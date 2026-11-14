@@ -122,6 +122,42 @@
       "source_identity": "1f:7a741a5824e07472e0b2fbbd89466f0e0c2e961a9165a4cbf4100fc56822ad69",
       "identity": "1f:bced585c2d47918064eb5be54c357ade86aba7eb79d48146eef1e7ca367303a3",
       "note": "Its made-up chat and assertions moved onto the Workshop tool (the namespace finder and the import over the records door) instead of the Worker's PersonStore, Network and Namespace routes; the space tests stay behind with the Worker's space owner."
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/conversations/do-work/addressed-exchange-owner-actions.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/conversations/do-work/addressed-exchange-owner-actions.ts",
+      "source_identity": "1f:cea5f1bc7e6949f4055565cd567288b25131d3b4fb4cc95ca6e3550332e7d4dc",
+      "identity": "1f:cea5f1bc7e6949f4055565cd567288b25131d3b4fb4cc95ca6e3550332e7d4dc",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/conversations/read-data/build-conversation-projections.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/conversations/read-data/build-conversation-projections.ts",
+      "source_identity": "1f:4657be0a81755f1f2ceb031c440846ef6c52a6daa57101ae56b3858ea26e0c48",
+      "identity": "1f:4657be0a81755f1f2ceb031c440846ef6c52a6daa57101ae56b3858ea26e0c48",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/conversations/read-data/record-projection.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/conversations/read-data/record-projection.ts",
+      "source_identity": "1f:54aeb9dcd4a0bc7d9d408f56dba132c236b824dd2e6429663018cb036dbd5573",
+      "identity": "1f:54aeb9dcd4a0bc7d9d408f56dba132c236b824dd2e6429663018cb036dbd5573",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/conversations/read-data/use-conversation-projections.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/conversations/read-data/use-conversation-projections.ts",
+      "source_identity": "1f:a49c51d352e5d36055a42115d715e67eb3ee821eefa8cb3096b2251311340a2c",
+      "identity": "1f:a49c51d352e5d36055a42115d715e67eb3ee821eefa8cb3096b2251311340a2c",
+      "found_by": "byte copy"
     }
   ]
 }

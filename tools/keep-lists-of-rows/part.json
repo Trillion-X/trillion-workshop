@@ -61,6 +61,11 @@
     "source-data/published-for-every-consumer.json",
     "source-data/views-offered-to-every-list.json",
     "read-data/schedule-bars.ts",
-    "source-data/schedule-zoom-levels.json"
+    "source-data/schedule-zoom-levels.json",
+    "show/VisualDatabaseSurface.tsx",
+    "show/offer-views-to-every-list.tsx"
+  ],
+  "imported_by": [
+    "Trillion-X/trillion-apps"
   ]
 }

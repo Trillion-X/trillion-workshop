@@ -1,0 +1,279 @@
+{
+  "about": "Files moved here byte for byte from Trillion-X/trillion-apps web/parts/record-video at a89474c0211e2353c9ce96b8c21fc21ee9021f91 on the owner's order (Nov 13 2026, about 7:20 PM CST): every screen and screen part lives in the Workshop, not in the app. Each names its source path and commit and the identity of its bytes there and here; a file whose bytes here differ only in import paths names that.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    }
+  ],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/README.md",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/README.md",
+      "source_identity": "1f:41d2a9f01bbb5b302ba859e372947ece7dec9351c2d812298735314c59bc996a",
+      "identity": "1f:f36d5335909db6090406491da5d2beabde81682903d5e42df4d35b146aaf3a58",
+      "found_by": "byte copy, then the listed calls",
+      "calls": [
+        "private-notes-path"
+      ]
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/do-work/build-recording-session-from-presentation-plan.mjs",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/do-work/build-recording-session-from-presentation-plan.mjs",
+      "source_identity": "1f:9078c066104ddd52a2df95de5d3fadfdf65c6aa3856dc39f7c4d06a824b018af",
+      "identity": "1f:9078c066104ddd52a2df95de5d3fadfdf65c6aa3856dc39f7c4d06a824b018af",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/do-work/record-video-requests.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/do-work/record-video-requests.ts",
+      "source_identity": "1f:bea5f95362cd9c8f9ac3314b4171763ddc5514a51a42e4c036af4f7bbcf7e532",
+      "identity": "1f:bea5f95362cd9c8f9ac3314b4171763ddc5514a51a42e4c036af4f7bbcf7e532",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/do-work/recorded-file-artifact.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/do-work/recorded-file-artifact.ts",
+      "source_identity": "1f:278bcce15f46e0bd66afb4c2bff20b7f5d5abc196a5dacb2e60c0abab3f2ae64",
+      "identity": "1f:278bcce15f46e0bd66afb4c2bff20b7f5d5abc196a5dacb2e60c0abab3f2ae64",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/do-work/recorded-file-store.test.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/do-work/recorded-file-store.test.ts",
+      "source_identity": "1f:40b30b81cf7cc9410e90aa4af882abaafb11e7d0d9bb07d00c0df644c8551e89",
+      "identity": "1f:40b30b81cf7cc9410e90aa4af882abaafb11e7d0d9bb07d00c0df644c8551e89",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/do-work/recorded-file-store.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/do-work/recorded-file-store.ts",
+      "source_identity": "1f:8fb9b33213cda900fe1b6a44904aecf13f33be097cad1c797f3a4a1246f58ef0",
+      "identity": "1f:8fb9b33213cda900fe1b6a44904aecf13f33be097cad1c797f3a4a1246f58ef0",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/do-work/recording-session-from-presentation-plan.mjs",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/do-work/recording-session-from-presentation-plan.mjs",
+      "source_identity": "1f:b1aa25cc939d0886cd9c605c3cc066e3e5fcfd2341782244f37bd0418592f492",
+      "identity": "1f:b1aa25cc939d0886cd9c605c3cc066e3e5fcfd2341782244f37bd0418592f492",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/read-data/capture-policy.test.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/read-data/capture-policy.test.ts",
+      "source_identity": "1f:f9d13a73b9c48919e1aec704a07a690c9bc88a9d1b1ed10690d7d31cb133f36f",
+      "identity": "1f:f9d13a73b9c48919e1aec704a07a690c9bc88a9d1b1ed10690d7d31cb133f36f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/read-data/recording-enrichment.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/read-data/recording-enrichment.ts",
+      "source_identity": "1f:17a36fe0dc6cf4e44392ff4293b0abfaafe6e6e809caab17b5fa7cc0a4cdd778",
+      "identity": "1f:17a36fe0dc6cf4e44392ff4293b0abfaafe6e6e809caab17b5fa7cc0a4cdd778",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/read-data/recording-page-arrangement.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/read-data/recording-page-arrangement.ts",
+      "source_identity": "1f:0a62277f615165027d93d5003f6cf5c6216eebc8f40663cee92b62146cbee79a",
+      "identity": "1f:0a62277f615165027d93d5003f6cf5c6216eebc8f40663cee92b62146cbee79a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/read-data/recording-session.test.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/read-data/recording-session.test.ts",
+      "source_identity": "1f:2d35f0d641d2f331b3ecc988c7ba6a4e04aa63e864ffa4871e82427a5ef5762b",
+      "identity": "1f:2d35f0d641d2f331b3ecc988c7ba6a4e04aa63e864ffa4871e82427a5ef5762b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/read-data/recording-session.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/read-data/recording-session.ts",
+      "source_identity": "1f:5134a3c4977a461c39b82c90b67b414bbba29d048a6c759ed18ddfcd1e5a6b74",
+      "identity": "1f:5134a3c4977a461c39b82c90b67b414bbba29d048a6c759ed18ddfcd1e5a6b74",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/show/RecordVideoPanel.test.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/show/RecordVideoPanel.test.tsx",
+      "source_identity": "1f:73c11150bfdcf56da1721bbc4849043d21757e4da99fcff64a9595585b33e6b5",
+      "identity": "1f:73c11150bfdcf56da1721bbc4849043d21757e4da99fcff64a9595585b33e6b5",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/show/RecordVideoPanel.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/show/RecordVideoPanel.tsx",
+      "source_identity": "1f:70eb3f67d24d46f18e524d25fdb8d197720bbf950c03edc0cf0263543a3626d4",
+      "identity": "1f:70eb3f67d24d46f18e524d25fdb8d197720bbf950c03edc0cf0263543a3626d4",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/show/RecordingEnrichmentPanel.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/show/RecordingEnrichmentPanel.tsx",
+      "source_identity": "1f:082a549d99d8fe97ba5bedb2d0b863bd8f2191b69c19eb89562b18a92d285ed4",
+      "identity": "1f:082a549d99d8fe97ba5bedb2d0b863bd8f2191b69c19eb89562b18a92d285ed4",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/show/browser-media-capture.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/show/browser-media-capture.ts",
+      "source_identity": "1f:0c5edfdfc4a788f1e977abdb20d2bcc181cc1f3c9e365353cd10090052ea4e6b",
+      "identity": "1f:0c5edfdfc4a788f1e977abdb20d2bcc181cc1f3c9e365353cd10090052ea4e6b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/show/live-recording.test.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/show/live-recording.test.ts",
+      "source_identity": "1f:da203c797082278cad7f67f18ecd3bc240756ad87814e43c390bdad4db690c59",
+      "identity": "1f:da203c797082278cad7f67f18ecd3bc240756ad87814e43c390bdad4db690c59",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/show/live-recording.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/show/live-recording.ts",
+      "source_identity": "1f:bf9c39dcb3749bb8f3abc92c93918a8c3d939854197f2cd6be5116b4d22401bf",
+      "identity": "1f:bf9c39dcb3749bb8f3abc92c93918a8c3d939854197f2cd6be5116b4d22401bf",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/show/mount-record-video.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/show/mount-record-video.tsx",
+      "source_identity": "1f:07c235f368d36d8437372aa07c16def713223569f944cbd2bd45248dc795d854",
+      "identity": "1f:07c235f368d36d8437372aa07c16def713223569f944cbd2bd45248dc795d854",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/show/plain-language-capture.test.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/show/plain-language-capture.test.ts",
+      "source_identity": "1f:b0570b8b40d08313c971b0034afb41a43c9e90f1e4edfb7f606d8868c012f383",
+      "identity": "1f:b0570b8b40d08313c971b0034afb41a43c9e90f1e4edfb7f606d8868c012f383",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/show/recording-lifecycle.test.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/show/recording-lifecycle.test.ts",
+      "source_identity": "1f:85d8327e27291a5b94dc04c0097db1b94b84d32bb0eedfb031669962ce2566f1",
+      "identity": "1f:85d8327e27291a5b94dc04c0097db1b94b84d32bb0eedfb031669962ce2566f1",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/show/recording-lifecycle.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/show/recording-lifecycle.ts",
+      "source_identity": "1f:7718716c77737f8bfb93ffcc651669c8fe632589076e86f2e55ee32e30bc89eb",
+      "identity": "1f:7718716c77737f8bfb93ffcc651669c8fe632589076e86f2e55ee32e30bc89eb",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/show/setup-observer.test.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/show/setup-observer.test.ts",
+      "source_identity": "1f:2d088704a574e3fbed0c841fe0c498e68c41acd38a823987b8a5de88c8231933",
+      "identity": "1f:2d088704a574e3fbed0c841fe0c498e68c41acd38a823987b8a5de88c8231933",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/show/setup-observer.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/show/setup-observer.ts",
+      "source_identity": "1f:7a0dd3333888ebbf33b2abc70d83c0f78aae45e03babc108946ffbfd423b0434",
+      "identity": "1f:7a0dd3333888ebbf33b2abc70d83c0f78aae45e03babc108946ffbfd423b0434",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/show/silence-stop.test.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/show/silence-stop.test.ts",
+      "source_identity": "1f:9aba670593fbfb043088af6de539454f064aa8a8612f7db2289dba2a28a21670",
+      "identity": "1f:9aba670593fbfb043088af6de539454f064aa8a8612f7db2289dba2a28a21670",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/show/silence-stop.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/show/silence-stop.ts",
+      "source_identity": "1f:51b6e9e07221ff50938ed22210d3c2c98f7a9027cf91e2b5e8e4ce923bbd0938",
+      "identity": "1f:51b6e9e07221ff50938ed22210d3c2c98f7a9027cf91e2b5e8e4ce923bbd0938",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/tests/build-recording-session-from-presentation-plan.test.mjs",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/tests/build-recording-session-from-presentation-plan.test.mjs",
+      "source_identity": "1f:c0058c880e344415a4b29a380e0c48d3414faed3d36613a26cb740da3b0a8a6d",
+      "identity": "1f:c0058c880e344415a4b29a380e0c48d3414faed3d36613a26cb740da3b0a8a6d",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/tests/record-video-backend-proof.test.mjs",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/tests/record-video-backend-proof.test.mjs",
+      "source_identity": "1f:24c73e53c17b25bf40f09ce904e41c74b6ac34a098895d83c870bbe5ce5157d4",
+      "identity": "1f:24c73e53c17b25bf40f09ce904e41c74b6ac34a098895d83c870bbe5ce5157d4",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/record-video/things-to-store-and-run.json",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/record-video/things-to-store-and-run.json",
+      "source_identity": "1f:c4495a39b437bb0afeba7e07914a17d05e9eb57951fffb99ff9bcf9d09b3c20b",
+      "identity": "1f:c4495a39b437bb0afeba7e07914a17d05e9eb57951fffb99ff9bcf9d09b3c20b",
+      "found_by": "byte copy"
+    }
+  ]
+}

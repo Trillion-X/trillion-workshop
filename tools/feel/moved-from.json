@@ -1,0 +1,26 @@
+{
+  "about": "Files moved here byte for byte from Trillion-X/trillion-apps web/parts/feel at a89474c0211e2353c9ce96b8c21fc21ee9021f91 on the owner's order (Nov 13 2026, about 7:20 PM CST): every screen and screen part lives in the Workshop, not in the app. Each names its source path and commit and the identity of its bytes there and here; a file whose bytes here differ only in import paths names that.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/feel/show/FeelSettings.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/feel/show/FeelSettings.tsx",
+      "source_identity": "1f:320ee74d963415d2a4d2dcfaf9552a8412b28b708a6b1bd43efe729359eb4530",
+      "identity": "1f:320ee74d963415d2a4d2dcfaf9552a8412b28b708a6b1bd43efe729359eb4530",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/feel/show/mount-feel.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/feel/show/mount-feel.ts",
+      "source_identity": "1f:62539a1df9026d37dc802f080de5ac2c181ee87d6b0818c96e71393ef66847ce",
+      "identity": "1f:62539a1df9026d37dc802f080de5ac2c181ee87d6b0818c96e71393ef66847ce",
+      "found_by": "byte copy"
+    }
+  ]
+}

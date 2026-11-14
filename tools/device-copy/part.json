@@ -1,0 +1,10 @@
+{
+  "imported_by": [
+    "Trillion-X/trillion-apps"
+  ],
+  "public": [
+    "do-work/device-copy-worker.mjs",
+    "do-work/device-copy.mjs",
+    "do-work/wasm-sqlite-host.mjs"
+  ]
+}

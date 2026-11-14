@@ -1,5 +1,8 @@
 {
   "public": [
     "do-work/set-selected-agent.ts"
+  ],
+  "imported_by": [
+    "Trillion-X/trillion-apps"
   ]
 }

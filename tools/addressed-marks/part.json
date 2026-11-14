@@ -1,0 +1,16 @@
+{
+  "imported_by": [
+    "Trillion-X/trillion-apps"
+  ],
+  "public": [
+    "read-data/addressed-marks.ts",
+    "read-data/ink-fade.ts",
+    "show/AddressedMarkOverlay.tsx",
+    "show/MarkInputLayer.tsx",
+    "show/MarkSessionContext.tsx",
+    "show/MarkToolbar.tsx",
+    "show/keep-marks.ts",
+    "show/shown-marks.ts",
+    "show/use-board-ink-svg.ts"
+  ]
+}

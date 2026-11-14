@@ -4,5 +4,8 @@
     "show/TranscriptReaderSurface.tsx",
     "read-data/edit-transcript.ts",
     "show/transcript-tools.json"
+  ],
+  "imported_by": [
+    "Trillion-X/trillion-apps"
   ]
 }

@@ -1,6 +1,7 @@
 {
   "imported_by": [
-    "tools/arrange-screens-in-panes"
+    "tools/arrange-screens-in-panes",
+    "Trillion-X/trillion-apps"
   ],
   "public": [
     "do-work/browser-session-browser-id.ts",

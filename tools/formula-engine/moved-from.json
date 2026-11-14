@@ -56,6 +56,15 @@
       "source_identity": "1f:c39b0a878216df5295b51e68460d356315a3b605502b0bd9e0b7f54ebe5ef182",
       "identity": "1f:4f413b13db6f42b44ec16197a839fcd2323a8027af61bd02deb4a4851f6edb85",
       "adapted": "the two formula tests over this folder's shipped evaluator, unchanged; the two stored-workflow tests are left for trillion-rust crates/workflow-core, whose built module this repository does not hold"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/formula-engine/rules/filter-records.mjs",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/formula-engine/rules/filter-records.mjs",
+      "source_identity": "1f:2d9863f3513b5ba6eb968535c72717b974021278893cbef4c550fbc52c41f84e",
+      "identity": "1f:293261ab3e768557997c35859714f0cb72c2835bf71daf3d1e6c0e8f8b0846d0",
+      "found_by": "same bytes once import paths are set aside"
     }
   ]
 }

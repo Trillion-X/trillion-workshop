@@ -1,0 +1,44 @@
+{
+  "about": "Files moved here byte for byte from Trillion-X/trillion-apps web/parts/local-files at a89474c0211e2353c9ce96b8c21fc21ee9021f91 on the owner's order (Nov 13 2026, about 7:20 PM CST): every screen and screen part lives in the Workshop, not in the app. Each names its source path and commit and the identity of its bytes there and here; a file whose bytes here differ only in import paths names that.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/local-files/do-work/choose-local-files.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/local-files/do-work/choose-local-files.ts",
+      "source_identity": "1f:ad02f85e9a90d97d1d29be1ac90c2b67d2a90c1968e047a56e6e965ff8322217",
+      "identity": "1f:ad02f85e9a90d97d1d29be1ac90c2b67d2a90c1968e047a56e6e965ff8322217",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/local-files/do-work/save-local-file-copy.test.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/local-files/do-work/save-local-file-copy.test.ts",
+      "source_identity": "1f:b4328d301f11ea5c72e364e038afe2ad180cd4176f0ee447fbe9674e4ffed723",
+      "identity": "1f:b4328d301f11ea5c72e364e038afe2ad180cd4176f0ee447fbe9674e4ffed723",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/local-files/do-work/save-local-file-copy.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/local-files/do-work/save-local-file-copy.ts",
+      "source_identity": "1f:e98ff819adcba9c0facbe1879386c3c80bd154c0bfb566570e16706027a1d626",
+      "identity": "1f:e98ff819adcba9c0facbe1879386c3c80bd154c0bfb566570e16706027a1d626",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/local-files/read-data/invoke-local-files-target.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/local-files/read-data/invoke-local-files-target.ts",
+      "source_identity": "1f:534777d740404b7a875107b8adeb63cd6acf131505f8ccd271d6f9c2f22ae214",
+      "identity": "1f:534777d740404b7a875107b8adeb63cd6acf131505f8ccd271d6f9c2f22ae214",
+      "found_by": "byte copy"
+    }
+  ]
+}

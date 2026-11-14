@@ -17,5 +17,8 @@
     "rules/filter-rows-by-rules.mjs",
     "rules/evaluate-over-rows.mjs",
     "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm"
+  ],
+  "imported_by": [
+    "Trillion-X/trillion-apps"
   ]
 }

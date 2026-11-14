@@ -1,0 +1,25 @@
+/* parts/screen-look/show/nesting-guide.css
+ * NO PRIOR: searched ~/dev/bitfield-packages/packages (indent-guide, nesting-guide, tree-guide) and 21st.dev (sidebar
+ *   nested list indent guide line: #29954 Tree Nav rail); reference: AirOps sidebar on Mobbin
+ *   (https://mobbin.com/screens/f550b9a4-26e8-418f-9c00-513a70f7a7fe), a guide beside an open list's rows.
+ * How the guide beside an open list's rows looks (ui/show/nesting-guide/NestingGuide.tsx): a soft pill, 3px, rounded at
+ * both ends and inset from them, so the pills of two lists one after the other stay apart (the owner 2026-09-30: thicker,
+ * like a pill, the tips not so close that they read as one line). A neutral guide for nesting, never a coloured bar.
+ * The host is positioned and places it: --nesting-guide-left is the first guide's left edge, --nesting-guide-step the
+ * distance between levels (a tree's indent). */
+:root{
+  --nesting-guide-width:3px;
+  --nesting-guide-inset:5px;
+  --nesting-guide-color:color-mix(in srgb,var(--text-primary,var(--color-foreground,currentColor)) 13%,transparent);
+}
+.nesting-guide{
+  position:absolute;
+  top:0;
+  bottom:0;
+  left:calc(var(--nesting-guide-left,0px) + var(--guide-level,0) * var(--nesting-guide-step,0px));
+  width:var(--nesting-guide-width);
+  background:var(--nesting-guide-color);
+  pointer-events:none;
+}
+.nesting-guide[data-nesting-guide-start]{top:var(--nesting-guide-inset);border-top-left-radius:999px;border-top-right-radius:999px}
+.nesting-guide[data-nesting-guide-end]{bottom:var(--nesting-guide-inset);border-bottom-left-radius:999px;border-bottom-right-radius:999px}

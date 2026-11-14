@@ -1,0 +1,35 @@
+{
+  "about": "Files moved here byte for byte from Trillion-X/trillion-apps web/parts/live-namespace at a89474c0211e2353c9ce96b8c21fc21ee9021f91 on the owner's order (Nov 13 2026, about 7:20 PM CST): every screen and screen part lives in the Workshop, not in the app. Each names its source path and commit and the identity of its bytes there and here; a file whose bytes here differ only in import paths names that.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/live-namespace/do-work/blake3.mjs",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/live-namespace/do-work/blake3.mjs",
+      "source_identity": "1f:040e093b61e7aa894eee20862369ce50148e2f4f0ef21febb3363cb3d01eddf1",
+      "identity": "1f:040e093b61e7aa894eee20862369ce50148e2f4f0ef21febb3363cb3d01eddf1",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/live-namespace/do-work/content-chunks-browser.mjs",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/live-namespace/do-work/content-chunks-browser.mjs",
+      "source_identity": "1f:f63664d7547352bffc622dd937735f91cddb4de07a0dce48a2af0bbdfba834da",
+      "identity": "1f:f63664d7547352bffc622dd937735f91cddb4de07a0dce48a2af0bbdfba834da",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/live-namespace/do-work/send-a-file-to-namespace-browser.mjs",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/live-namespace/do-work/send-a-file-to-namespace-browser.mjs",
+      "source_identity": "1f:f103bbee7de66b0f094ab373b759bff8a289bd4769c2faee943bdb243036ec92",
+      "identity": "1f:f103bbee7de66b0f094ab373b759bff8a289bd4769c2faee943bdb243036ec92",
+      "found_by": "byte copy"
+    }
+  ]
+}

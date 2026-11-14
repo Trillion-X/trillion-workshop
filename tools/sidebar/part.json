@@ -1,0 +1,20 @@
+{
+  "imported_by": [
+    "Trillion-X/trillion-apps"
+  ],
+  "public": [
+    "do-work/edit-surface-collections.ts",
+    "read-data/activation-routing.ts",
+    "read-data/docked-list-fit.ts",
+    "read-data/live-graph.ts",
+    "read-data/sidebar-badge-marks.ts",
+    "read-data/sidebar-settings-by-width.json",
+    "read-data/sidebar-settings.ts",
+    "show/AppSidebar.tsx",
+    "show/DesktopSidebar.tsx",
+    "show/SidebarContent.tsx",
+    "show/content-host.ts",
+    "show/mount-sidebar.tsx",
+    "show/use-surface-collections.ts"
+  ]
+}

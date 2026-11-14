@@ -1,0 +1,9 @@
+{
+  "imported_by": [
+    "Trillion-X/trillion-apps"
+  ],
+  "public": [
+    "read-data/capability-permission.ts",
+    "show/CapabilityPermissionPrompt.tsx"
+  ]
+}

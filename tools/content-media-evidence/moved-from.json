@@ -1,0 +1,17 @@
+{
+  "about": "Files moved here byte for byte from Trillion-X/trillion-apps web/parts/content-media-evidence at a89474c0211e2353c9ce96b8c21fc21ee9021f91 on the owner's order (Nov 13 2026, about 7:20 PM CST): every screen and screen part lives in the Workshop, not in the app. Each names its source path and commit and the identity of its bytes there and here; a file whose bytes here differ only in import paths names that.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/content-media-evidence/do-work/content-media-work-loop.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/content-media-evidence/do-work/content-media-work-loop.ts",
+      "source_identity": "1f:3158e3e702c60215b0eba5451a0faef84cf2434068e0884e755d4a851537dea9",
+      "identity": "1f:3158e3e702c60215b0eba5451a0faef84cf2434068e0884e755d4a851537dea9",
+      "found_by": "byte copy"
+    }
+  ]
+}

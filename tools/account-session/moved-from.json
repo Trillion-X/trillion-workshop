@@ -37,7 +37,9 @@
       "commit": "5cd0dc3103e4f54b30b1784f0d77a67de0147064",
       "to": "tools/account-session/part.json",
       "source_identity": "1f:a34f2288bad2d1417f5b9e73a3a77481097e249c3b182d29b877a2de2ab8ea1e",
-      "identity": "1f:7af471198ffe65ade00c3e2f4af0d3446b6a95b5382bc87dd91d8f881f07a4b6"
+      "identity_at_move": "1f:7af471198ffe65ade00c3e2f4af0d3446b6a95b5382bc87dd91d8f881f07a4b6",
+      "byte_copy_commit": "7fcb3afbe082fefc81ebc1bfb6cd0fd447be4b05",
+      "changed": "imported_by (Trillion-X/trillion-apps) added; the app imports this part from this package."
     },
     {
       "from": "parts/account-session/read-data/README.md",
@@ -52,6 +54,33 @@
       "to": "tools/account-session/read-data/read-browser-session.ts",
       "source_identity": "1f:ec7e6efa3d86ce78d7729e5d8a55299ccc5baad2b8fb1f369d3ed9b1f2df32dc",
       "identity": "1f:ec7e6efa3d86ce78d7729e5d8a55299ccc5baad2b8fb1f369d3ed9b1f2df32dc"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/account-session/do-work/browser-session-browser-id.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/account-session/do-work/browser-session-browser-id.ts",
+      "source_identity": "1f:6dbb586002bae7b197b6a9a86c68d7dc5c962757f292166b80f063c597b2fc66",
+      "identity": "1f:6dbb586002bae7b197b6a9a86c68d7dc5c962757f292166b80f063c597b2fc66",
+      "found_by": "same bytes"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/account-session/do-work/read-current-browser-session.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/account-session/do-work/read-current-browser-session.ts",
+      "source_identity": "1f:b7bfacc5f120b32d1bbbc211fff98006ea5215633c09a8a425abf6d47f120f28",
+      "identity": "1f:b7bfacc5f120b32d1bbbc211fff98006ea5215633c09a8a425abf6d47f120f28",
+      "found_by": "same bytes"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/account-session/read-data/read-browser-session.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/account-session/read-data/read-browser-session.ts",
+      "source_identity": "1f:ec7e6efa3d86ce78d7729e5d8a55299ccc5baad2b8fb1f369d3ed9b1f2df32dc",
+      "identity": "1f:ec7e6efa3d86ce78d7729e5d8a55299ccc5baad2b8fb1f369d3ed9b1f2df32dc",
+      "found_by": "same bytes"
     }
   ]
 }

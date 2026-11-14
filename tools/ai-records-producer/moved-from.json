@@ -10,12 +10,23 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/ai-records-producer/part.json",
       "source_identity": "1f:74e931036392db1544c789811d866d7bbefc3ce3b54defbc4bbd044aef04c808",
-      "identity": "1f:9b6460cfc83c785df52ca9aa7f87da129aeb026f4f134f652583106dacea7620"
+      "identity_at_move": "1f:9b6460cfc83c785df52ca9aa7f87da129aeb026f4f134f652583106dacea7620",
+      "byte_copy_commit": "7fcb3afbe082fefc81ebc1bfb6cd0fd447be4b05",
+      "changed": "imported_by (Trillion-X/trillion-apps) added; the app imports this part from this package."
     },
     {
       "from": "parts/ai-records-producer/do-work/build-agent-turn-continuation.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/ai-records-producer/do-work/build-agent-turn-continuation.ts",
+      "source_identity": "1f:43aa7a6daa7464e6a8067ab759fb52428e47f40d5d95636660712cb157e7004e",
+      "identity": "1f:43aa7a6daa7464e6a8067ab759fb52428e47f40d5d95636660712cb157e7004e",
+      "found_by": "same bytes"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/ai-records-producer/do-work/build-agent-turn-continuation.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
       "to": "tools/ai-records-producer/do-work/build-agent-turn-continuation.ts",
       "source_identity": "1f:43aa7a6daa7464e6a8067ab759fb52428e47f40d5d95636660712cb157e7004e",
       "identity": "1f:43aa7a6daa7464e6a8067ab759fb52428e47f40d5d95636660712cb157e7004e",

@@ -1,0 +1,297 @@
+{
+  "about": "Files moved here byte for byte from Trillion-X/trillion-apps web/parts/guided-overlay at a89474c0211e2353c9ce96b8c21fc21ee9021f91 on the owner's order (Nov 13 2026, about 7:20 PM CST): every screen and screen part lives in the Workshop, not in the app. Each names its source path and commit and the identity of its bytes there and here; a file whose bytes here differ only in import paths names that.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/README.md",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/README.md",
+      "source_identity": "1f:d0abcf85cb6c35ac901e8b86e31933a47db430d70d98a05ce034356166f8376c",
+      "identity": "1f:d0abcf85cb6c35ac901e8b86e31933a47db430d70d98a05ce034356166f8376c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/do-work/act-on-target.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/do-work/act-on-target.ts",
+      "source_identity": "1f:a2381f5c573c054ab5b6ac684b5e4342fb19d67cf3ce343898db956f6531e86d",
+      "identity": "1f:a2381f5c573c054ab5b6ac684b5e4342fb19d67cf3ce343898db956f6531e86d",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/do-work/dispatch-step-perform.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/do-work/dispatch-step-perform.ts",
+      "source_identity": "1f:db79dc2fe75721b4a1ebc3d3124478a04de4ebb94026bd355ddbfe7960171447",
+      "identity": "1f:db79dc2fe75721b4a1ebc3d3124478a04de4ebb94026bd355ddbfe7960171447",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/do-work/walkthrough-progress.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/do-work/walkthrough-progress.ts",
+      "source_identity": "1f:704ac117e8908a1bc6da4f9fca65ddd9b1296e732e19a34237afb341c54f9b76",
+      "identity": "1f:704ac117e8908a1bc6da4f9fca65ddd9b1296e732e19a34237afb341c54f9b76",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/engine/advance-evaluator.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/engine/advance-evaluator.ts",
+      "source_identity": "1f:d600ec774ff63186d9aa0ef93823c3b6ebc5bfcfa408fa72e620c31841d4e941",
+      "identity": "1f:d600ec774ff63186d9aa0ef93823c3b6ebc5bfcfa408fa72e620c31841d4e941",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/engine/branch-resolver.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/engine/branch-resolver.ts",
+      "source_identity": "1f:4c0d37477558b7441d386198bc4ec93ea9121dd659f9b6f3ba79996629b50072",
+      "identity": "1f:4c0d37477558b7441d386198bc4ec93ea9121dd659f9b6f3ba79996629b50072",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/engine/cursor-machine.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/engine/cursor-machine.ts",
+      "source_identity": "1f:54446b525197086db9cffe20df37eed576d0fd35f1eb0a96bf0bd1bbca4727ce",
+      "identity": "1f:54446b525197086db9cffe20df37eed576d0fd35f1eb0a96bf0bd1bbca4727ce",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/engine/trigger-intake.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/engine/trigger-intake.ts",
+      "source_identity": "1f:b368eddcc30acd9f3c325b70dc74624a872be553bc9dd5031e4b2a13b19e5005",
+      "identity": "1f:b368eddcc30acd9f3c325b70dc74624a872be553bc9dd5031e4b2a13b19e5005",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/engine/walkthrough-cursor-queue.test.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/engine/walkthrough-cursor-queue.test.ts",
+      "source_identity": "1f:fb6193753126304e1f13fff4e219a94fe078147fede504b335ef4ea8e59b9344",
+      "identity": "1f:fb6193753126304e1f13fff4e219a94fe078147fede504b335ef4ea8e59b9344",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/engine/walkthrough-cursor-queue.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/engine/walkthrough-cursor-queue.ts",
+      "source_identity": "1f:90be64acf5ebc8e2ca1fb048a28543eb16fff8320257186a7a48346c640ecced",
+      "identity": "1f:90be64acf5ebc8e2ca1fb048a28543eb16fff8320257186a7a48346c640ecced",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/guided-overlay-defaults.json",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/guided-overlay-defaults.json",
+      "source_identity": "1f:0bb3f0750498f4456682621227e1f20cee053aaca30f0f9b6909162ef2e9a159",
+      "identity": "1f:0bb3f0750498f4456682621227e1f20cee053aaca30f0f9b6909162ef2e9a159",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/part.json",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/part.json",
+      "source_identity": "1f:b40cae4e0ba7efd2f8c5b02d01311c9e58666f4de4c250a4b08fcc9d31566b30",
+      "identity": "1f:d064a0330248b7da3f449c1ce05d0397ff967bdc9dbc060fea783ded65b233e7",
+      "adapted": "imported_by (Trillion-X/trillion-apps) was added to the app's part.json so the Workshop knows which tree imports this part; its public list is the app's, unchanged.",
+      "found_by": "byte copy, then imported_by added"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/read-data/tour-library.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/read-data/tour-library.ts",
+      "source_identity": "1f:1d135450f5f508b008382ed98a90ac86ccde91f8e9793bd23443ef65ab56f502",
+      "identity": "1f:1d135450f5f508b008382ed98a90ac86ccde91f8e9793bd23443ef65ab56f502",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/read-data/walkthrough-eeaf.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/read-data/walkthrough-eeaf.ts",
+      "source_identity": "1f:1fdefc0d83b1bdada326d033bab12eee69e665ac691d867aa92e65690af2fe82",
+      "identity": "1f:1fdefc0d83b1bdada326d033bab12eee69e665ac691d867aa92e65690af2fe82",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/show/NavButtons.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/show/NavButtons.tsx",
+      "source_identity": "1f:acb4b34050b8fa06fba6037d003fdd3f2671e2b77ddaea25cf304908bb34766d",
+      "identity": "1f:acb4b34050b8fa06fba6037d003fdd3f2671e2b77ddaea25cf304908bb34766d",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/show/StepCardBody.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/show/StepCardBody.tsx",
+      "source_identity": "1f:47f3ae176cd254854c076bf858014f6c5670390fed64fb889126becc8d8a2737",
+      "identity": "1f:47f3ae176cd254854c076bf858014f6c5670390fed64fb889126becc8d8a2737",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/show/TargetHighlight.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/show/TargetHighlight.tsx",
+      "source_identity": "1f:80b032cfc5802198c85d1dab62cb0e0ff68bd1d987c4718c48312025fecf5e07",
+      "identity": "1f:80b032cfc5802198c85d1dab62cb0e0ff68bd1d987c4718c48312025fecf5e07",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/show/WalkthroughHost.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/show/WalkthroughHost.tsx",
+      "source_identity": "1f:bb362078217406ba9d44692bf9738dbc4ca53ea868323990a697ed2921c787ad",
+      "identity": "1f:bb362078217406ba9d44692bf9738dbc4ca53ea868323990a697ed2921c787ad",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/show/WalkthroughSurface.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/show/WalkthroughSurface.tsx",
+      "source_identity": "1f:69767809d4fd98ed7bd87e408ca927e143800eb0e0569a248c1f840b3a342b8c",
+      "identity": "1f:69767809d4fd98ed7bd87e408ca927e143800eb0e0569a248c1f840b3a342b8c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/show/changed-tour.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/show/changed-tour.ts",
+      "source_identity": "1f:bcb642673c35311abdbd1291cd886d8d5b0d67fe7cdb8cd62f55c82537107c38",
+      "identity": "1f:bcb642673c35311abdbd1291cd886d8d5b0d67fe7cdb8cd62f55c82537107c38",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/show/default-content-renderers.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/show/default-content-renderers.tsx",
+      "source_identity": "1f:2fa462c7b2fef0a1f92b567de3fe8617e8012297ae5b5a8d16f9f03d391be86a",
+      "identity": "1f:2fa462c7b2fef0a1f92b567de3fe8617e8012297ae5b5a8d16f9f03d391be86a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/show/default-progress-visuals.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/show/default-progress-visuals.tsx",
+      "source_identity": "1f:326f34c7c046b717a8e75a40e070c3abacc5537b3c82b32c8187c469ad2ad207",
+      "identity": "1f:326f34c7c046b717a8e75a40e070c3abacc5537b3c82b32c8187c469ad2ad207",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/show/glance-content.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/show/glance-content.tsx",
+      "source_identity": "1f:7cc96e916f14e9611cbfc6ac0ddbb381d3eb2d5b66b6f3a65b07474924ed5467",
+      "identity": "1f:7cc96e916f14e9611cbfc6ac0ddbb381d3eb2d5b66b6f3a65b07474924ed5467",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/show/mount-walkthrough-host.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/show/mount-walkthrough-host.tsx",
+      "source_identity": "1f:20418979d758888f7f64b55108da44f625dacb6c6992a36b103cafbb7b62c4cd",
+      "identity": "1f:20418979d758888f7f64b55108da44f625dacb6c6992a36b103cafbb7b62c4cd",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/show/package-onboarding.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/show/package-onboarding.ts",
+      "source_identity": "1f:9938a59d501ae05211f1052fb175ccf0def4dc1b20887ab9b8962d9f4f59a709",
+      "identity": "1f:9938a59d501ae05211f1052fb175ccf0def4dc1b20887ab9b8962d9f4f59a709",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/show/presentation-registry.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/show/presentation-registry.ts",
+      "source_identity": "1f:62f98073a5f28a74a0cde56fc43a9a6d905dba491554032991dc75e12d376e1a",
+      "identity": "1f:62f98073a5f28a74a0cde56fc43a9a6d905dba491554032991dc75e12d376e1a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/show/step-card.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/show/step-card.ts",
+      "source_identity": "1f:0049cb91a7ba9017ad2631e60c2f5d45e23297eb5da590176b088b5ca100c940",
+      "identity": "1f:0049cb91a7ba9017ad2631e60c2f5d45e23297eb5da590176b088b5ca100c940",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/show/target-resolution.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/show/target-resolution.ts",
+      "source_identity": "1f:a64b5e00f99ba9d221db820e5d0e7d87d6003b1966e4960afa017475eb7c88d1",
+      "identity": "1f:a64b5e00f99ba9d221db820e5d0e7d87d6003b1966e4960afa017475eb7c88d1",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/show/walkthrough-events.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/show/walkthrough-events.ts",
+      "source_identity": "1f:460dc572b73d829884be14296f31cf0498491d60530579479b5a0ad9e4fe650c",
+      "identity": "1f:460dc572b73d829884be14296f31cf0498491d60530579479b5a0ad9e4fe650c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/show/walkthrough-presentation.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/show/walkthrough-presentation.ts",
+      "source_identity": "1f:8c77b6e5be54430489c64c78159878f1368e56288ef2eebe69357d175f2da9f4",
+      "identity": "1f:8c77b6e5be54430489c64c78159878f1368e56288ef2eebe69357d175f2da9f4",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/show/walkthroughs.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/show/walkthroughs.ts",
+      "source_identity": "1f:dab9816dfc01e7ff5877143870f172789bcb2fc42361a38376b2b3fe1bfb2a29",
+      "identity": "1f:dab9816dfc01e7ff5877143870f172789bcb2fc42361a38376b2b3fe1bfb2a29",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/guided-overlay/tour-library.json",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/guided-overlay/tour-library.json",
+      "source_identity": "1f:5c3984c9d13e76e409a2e6186290bf26bd181629995b60f90a547e5d1e25bcef",
+      "identity": "1f:5c3984c9d13e76e409a2e6186290bf26bd181629995b60f90a547e5d1e25bcef",
+      "found_by": "byte copy"
+    }
+  ]
+}

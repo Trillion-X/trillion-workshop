@@ -1,0 +1,152 @@
+{
+  "about": "Files moved here byte for byte from Trillion-X/trillion-apps web/parts/command-palette at a89474c0211e2353c9ce96b8c21fc21ee9021f91 on the owner's order (Nov 13 2026, about 7:20 PM CST): every screen and screen part lives in the Workshop, not in the app. Each names its source path and commit and the identity of its bytes there and here; a file whose bytes here differ only in import paths names that.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/command-palette/controls.json",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/command-palette/controls.json",
+      "source_identity": "1f:ff07600e911676df28a9f7ee253416be3cce01ee015bc3880e9d6e43a8326cc4",
+      "identity": "1f:ff07600e911676df28a9f7ee253416be3cce01ee015bc3880e9d6e43a8326cc4",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/command-palette/do-work/ask-current-items-for-blank-palette.test.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/command-palette/do-work/ask-current-items-for-blank-palette.test.ts",
+      "source_identity": "1f:0e0a461c33b152dcf3d7c465dfb01b4520a2004e68a86d051289e309b705eca4",
+      "identity": "1f:0e0a461c33b152dcf3d7c465dfb01b4520a2004e68a86d051289e309b705eca4",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/command-palette/do-work/ask-current-items-ranked-by-text.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/command-palette/do-work/ask-current-items-ranked-by-text.ts",
+      "source_identity": "1f:a02f01d2618fb137ac8e9ea63b24bf89b881908ff4758659509df62d7b55df1f",
+      "identity": "1f:a02f01d2618fb137ac8e9ea63b24bf89b881908ff4758659509df62d7b55df1f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/command-palette/do-work/ask-palette-bulk-actions-by-descriptor.test.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/command-palette/do-work/ask-palette-bulk-actions-by-descriptor.test.ts",
+      "source_identity": "1f:26f32bc1eeb92782bf0e453f4b3d9c03060d8c495461b00c1163515ccd0023f7",
+      "identity": "1f:26f32bc1eeb92782bf0e453f4b3d9c03060d8c495461b00c1163515ccd0023f7",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/command-palette/do-work/ask-palette-bulk-actions-by-descriptor.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/command-palette/do-work/ask-palette-bulk-actions-by-descriptor.ts",
+      "source_identity": "1f:34e41d5aafceaa7120bb18a06862a27bc769151514316569270b05a02d093697",
+      "identity": "1f:34e41d5aafceaa7120bb18a06862a27bc769151514316569270b05a02d093697",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/command-palette/do-work/ask-palette-sources-by-text.test.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/command-palette/do-work/ask-palette-sources-by-text.test.ts",
+      "source_identity": "1f:b7c8e6c14bd6cfd679250bbc4a0782a1dc9c6ad2ba4394b4007fd47d011ecbce",
+      "identity": "1f:b7c8e6c14bd6cfd679250bbc4a0782a1dc9c6ad2ba4394b4007fd47d011ecbce",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/command-palette/do-work/ask-palette-sources-by-text.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/command-palette/do-work/ask-palette-sources-by-text.ts",
+      "source_identity": "1f:2b2bd03a006c17bc7c6a868717d0dd6406fb9f5dc5f137999867ed9bc248e94d",
+      "identity": "1f:2b2bd03a006c17bc7c6a868717d0dd6406fb9f5dc5f137999867ed9bc248e94d",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/command-palette/do-work/run-selected-palette-result.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/command-palette/do-work/run-selected-palette-result.ts",
+      "source_identity": "1f:029910842937a4ed0434156a3ebee1cf3f5c06b6866f02edc5521e11e27b5560",
+      "identity": "1f:029910842937a4ed0434156a3ebee1cf3f5c06b6866f02edc5521e11e27b5560",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/command-palette/show/CommandPalette.test.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/command-palette/show/CommandPalette.test.tsx",
+      "source_identity": "1f:37a3d9a8fdd0a2da31fa853ed2d4951b860ebfa86b9623f32385a4b073f5d2a5",
+      "identity": "1f:37a3d9a8fdd0a2da31fa853ed2d4951b860ebfa86b9623f32385a4b073f5d2a5",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/command-palette/show/CommandPalette.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/command-palette/show/CommandPalette.tsx",
+      "source_identity": "1f:2077ad795aaa977f5486319ef6e1c11745f4da93f9f463c5e45ef72f2f26d545",
+      "identity": "1f:2077ad795aaa977f5486319ef6e1c11745f4da93f9f463c5e45ef72f2f26d545",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/command-palette/show/CommandPaletteGate.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/command-palette/show/CommandPaletteGate.tsx",
+      "source_identity": "1f:92778c2bf0976564004a4d8f1022f8c6ae18bc1be9beb45499977703a60f98c5",
+      "identity": "1f:92778c2bf0976564004a4d8f1022f8c6ae18bc1be9beb45499977703a60f98c5",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/command-palette/show/command-palette-render.test.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/command-palette/show/command-palette-render.test.tsx",
+      "source_identity": "1f:b740ab1ffff034c015f9adf2af956f3d0123670c08b64fda06d9ab1568c7ffa5",
+      "identity": "1f:b740ab1ffff034c015f9adf2af956f3d0123670c08b64fda06d9ab1568c7ffa5",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/command-palette/show/match-ranges.test.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/command-palette/show/match-ranges.test.ts",
+      "source_identity": "1f:5cd5722441f4f4d46b2c9006b1279d5f5b4945437409f39b5b1f4d44184cd4e0",
+      "identity": "1f:5cd5722441f4f4d46b2c9006b1279d5f5b4945437409f39b5b1f4d44184cd4e0",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/command-palette/show/match-ranges.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/command-palette/show/match-ranges.ts",
+      "source_identity": "1f:843186811c314a550c54d85d91d998d457194f9407f828b6927a24bcd8ab453a",
+      "identity": "1f:843186811c314a550c54d85d91d998d457194f9407f828b6927a24bcd8ab453a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/command-palette/show/mount-command-palette.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/command-palette/show/mount-command-palette.tsx",
+      "source_identity": "1f:fcd490b6ce34b3cae46f06c3a53123b47ee833ac02cdaef97476d4692c66fa47",
+      "identity": "1f:fcd490b6ce34b3cae46f06c3a53123b47ee833ac02cdaef97476d4692c66fa47",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/command-palette/show/read-palette-results.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/command-palette/show/read-palette-results.ts",
+      "source_identity": "1f:294e99d0df071814e1346815e18518aeb83decd65dbf37577c1255a6cc4b2b9b",
+      "identity": "1f:294e99d0df071814e1346815e18518aeb83decd65dbf37577c1255a6cc4b2b9b",
+      "found_by": "byte copy"
+    }
+  ]
+}

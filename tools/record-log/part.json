@@ -20,6 +20,10 @@
     "do-work/record-intents.mjs",
     "do-work/record-stamps.mjs",
     "do-work/record-model.mjs",
-    "do-work/erasable.mjs"
+    "do-work/erasable.mjs",
+    "do-work/record-log-store.mjs"
+  ],
+  "imported_by": [
+    "Trillion-X/trillion-apps"
   ]
 }

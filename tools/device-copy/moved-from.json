@@ -1,0 +1,44 @@
+{
+  "about": "Files moved here byte for byte from Trillion-X/trillion-apps web/parts/device-copy at a89474c0211e2353c9ce96b8c21fc21ee9021f91 on the owner's order (Nov 13 2026, about 7:20 PM CST): every screen and screen part lives in the Workshop, not in the app. Each names its source path and commit and the identity of its bytes there and here; a file whose bytes here differ only in import paths names that.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/device-copy/do-work/device-copy-worker.mjs",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/device-copy/do-work/device-copy-worker.mjs",
+      "source_identity": "1f:5a6090831eea7b4e412e990fc385de6c01b1fbdc03186e9f3d201fd527ee6df0",
+      "identity": "1f:5a6090831eea7b4e412e990fc385de6c01b1fbdc03186e9f3d201fd527ee6df0",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/device-copy/do-work/device-copy.mjs",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/device-copy/do-work/device-copy.mjs",
+      "source_identity": "1f:289b6f23c965070a99aeef455039548904f2412aa8c8f0e6a2124b15049ad6de",
+      "identity": "1f:289b6f23c965070a99aeef455039548904f2412aa8c8f0e6a2124b15049ad6de",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/device-copy/do-work/frame-compression.mjs",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/device-copy/do-work/frame-compression.mjs",
+      "source_identity": "1f:9b9f2b12fda1baefefb0a34be9cefac45594087d510ed4be3a11f306d0f38c4a",
+      "identity": "1f:9b9f2b12fda1baefefb0a34be9cefac45594087d510ed4be3a11f306d0f38c4a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/device-copy/do-work/wasm-sqlite-host.mjs",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/device-copy/do-work/wasm-sqlite-host.mjs",
+      "source_identity": "1f:c8882b4e832b93e61d161dc09233000e51c6584705a426d3be5114fe7e82edc8",
+      "identity": "1f:c8882b4e832b93e61d161dc09233000e51c6584705a426d3be5114fe7e82edc8",
+      "found_by": "byte copy"
+    }
+  ]
+}

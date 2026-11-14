@@ -1,7 +1,8 @@
 {
   "imported_by": [
     "tools/show-any-file-as-itself",
-    "tools/transcript-reader"
+    "tools/transcript-reader",
+    "Trillion-X/trillion-apps"
   ],
   "public": [
     "read-data/read-screen-ready-records.ts"

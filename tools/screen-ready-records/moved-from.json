@@ -17,12 +17,23 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/screen-ready-records/part.json",
       "source_identity": "1f:c5c1b3b1a03334cee403c2c9da9b4813a93f672173c629ea209709cf706923d0",
-      "identity": "1f:f73b12f56e10781c36129c94a88e2db2aa2a458f035f764cb8f61a2b97c7f404"
+      "identity_at_move": "1f:f73b12f56e10781c36129c94a88e2db2aa2a458f035f764cb8f61a2b97c7f404",
+      "byte_copy_commit": "7fcb3afbe082fefc81ebc1bfb6cd0fd447be4b05",
+      "changed": "imported_by (Trillion-X/trillion-apps) added; the app imports this part from this package."
     },
     {
       "from": "parts/screen-ready-records/read-data/read-screen-ready-records.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/screen-ready-records/read-data/read-screen-ready-records.ts",
+      "source_identity": "1f:91dd9eb375ab00fd00d5c4ae83519bd8a9cc81ba77664a20ec3797e24cb211b9",
+      "identity": "1f:91dd9eb375ab00fd00d5c4ae83519bd8a9cc81ba77664a20ec3797e24cb211b9",
+      "found_by": "same bytes"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/screen-ready-records/read-data/read-screen-ready-records.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
       "to": "tools/screen-ready-records/read-data/read-screen-ready-records.ts",
       "source_identity": "1f:91dd9eb375ab00fd00d5c4ae83519bd8a9cc81ba77664a20ec3797e24cb211b9",
       "identity": "1f:91dd9eb375ab00fd00d5c4ae83519bd8a9cc81ba77664a20ec3797e24cb211b9",

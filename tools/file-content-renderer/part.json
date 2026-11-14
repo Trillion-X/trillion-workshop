@@ -1,0 +1,9 @@
+{
+  "imported_by": [
+    "Trillion-X/trillion-apps"
+  ],
+  "public": [
+    "show/FileContentRenderer.tsx",
+    "show/classify-file-content.ts"
+  ]
+}

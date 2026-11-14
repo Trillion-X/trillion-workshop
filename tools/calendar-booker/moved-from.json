@@ -1,0 +1,53 @@
+{
+  "about": "Files moved here byte for byte from Trillion-X/trillion-apps web/parts/calendar-booker at a89474c0211e2353c9ce96b8c21fc21ee9021f91 on the owner's order (Nov 13 2026, about 7:20 PM CST): every screen and screen part lives in the Workshop, not in the app. Each names its source path and commit and the identity of its bytes there and here; a file whose bytes here differ only in import paths names that.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/calendar-booker/read-data/availability-link-screen.json",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/calendar-booker/read-data/availability-link-screen.json",
+      "source_identity": "1f:ea5f513194e6aa5560d9785c71037d451cdf76e3523500c032d4b165ddd5889f",
+      "identity": "1f:ea5f513194e6aa5560d9785c71037d451cdf76e3523500c032d4b165ddd5889f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/calendar-booker/read-data/slot-sharing.json",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/calendar-booker/read-data/slot-sharing.json",
+      "source_identity": "1f:12113f8b06dc5cbc221cf7ab807db85c8fe40c3dab6fc72f75d52ce63c43eb22",
+      "identity": "1f:12113f8b06dc5cbc221cf7ab807db85c8fe40c3dab6fc72f75d52ce63c43eb22",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/calendar-booker/show/AvailabilityLinks.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/calendar-booker/show/AvailabilityLinks.tsx",
+      "source_identity": "1f:7398231f456f73e56885f243c84f3fa781f43fbe31e0db1cbf3cfde02c3be028",
+      "identity": "1f:7398231f456f73e56885f243c84f3fa781f43fbe31e0db1cbf3cfde02c3be028",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/calendar-booker/show/SlotSharing.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/calendar-booker/show/SlotSharing.tsx",
+      "source_identity": "1f:d48fa9490e41df6fe5d76711038f5c338aaba54f32964ff11fafb230fc9f295b",
+      "identity": "1f:d48fa9490e41df6fe5d76711038f5c338aaba54f32964ff11fafb230fc9f295b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/calendar-booker/show/slot-ranges.mjs",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/calendar-booker/show/slot-ranges.mjs",
+      "source_identity": "1f:ce54e1e9a5463cbbdaae4c5cf25f528a3fff41ba79508b29067f96807ece9461",
+      "identity": "1f:ce54e1e9a5463cbbdaae4c5cf25f528a3fff41ba79508b29067f96807ece9461",
+      "found_by": "byte copy"
+    }
+  ]
+}

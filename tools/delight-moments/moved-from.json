@@ -1,0 +1,17 @@
+{
+  "about": "Files moved here byte for byte from Trillion-X/trillion-apps web/parts/delight-moments at a89474c0211e2353c9ce96b8c21fc21ee9021f91 on the owner's order (Nov 13 2026, about 7:20 PM CST): every screen and screen part lives in the Workshop, not in the app. Each names its source path and commit and the identity of its bytes there and here; a file whose bytes here differ only in import paths names that.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/delight-moments/show/mount-delight-moments.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/delight-moments/show/mount-delight-moments.tsx",
+      "source_identity": "1f:3726a367806b80006ed76fbbb882075c9f5746781c6d9527dd2cc933fc62c03d",
+      "identity": "1f:3726a367806b80006ed76fbbb882075c9f5746781c6d9527dd2cc933fc62c03d",
+      "found_by": "byte copy"
+    }
+  ]
+}

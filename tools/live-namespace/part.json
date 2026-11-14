@@ -1,0 +1,10 @@
+{
+  "imported_by": [
+    "Trillion-X/trillion-apps"
+  ],
+  "public": [
+    "do-work/blake3.mjs",
+    "do-work/content-chunks-browser.mjs",
+    "do-work/send-a-file-to-namespace-browser.mjs"
+  ]
+}

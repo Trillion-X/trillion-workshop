@@ -1,0 +1,53 @@
+{
+  "about": "Files moved here byte for byte from Trillion-X/trillion-apps web/parts/screen-recording at a89474c0211e2353c9ce96b8c21fc21ee9021f91 on the owner's order (Nov 13 2026, about 7:20 PM CST): every screen and screen part lives in the Workshop, not in the app. Each names its source path and commit and the identity of its bytes there and here; a file whose bytes here differ only in import paths names that.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/screen-recording/do-work/browser-screen-capture.test.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/screen-recording/do-work/browser-screen-capture.test.ts",
+      "source_identity": "1f:0a8e0247ad6ea53d87756ff6c519082ec04f98bb1519af0cbb240789c41ae834",
+      "identity": "1f:0a8e0247ad6ea53d87756ff6c519082ec04f98bb1519af0cbb240789c41ae834",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/screen-recording/do-work/browser-screen-capture.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/screen-recording/do-work/browser-screen-capture.ts",
+      "source_identity": "1f:833c5afdf3bae970b6d2c83d172a4a12c1cb739313f26c46cf9c8c7736c7c7fb",
+      "identity": "1f:833c5afdf3bae970b6d2c83d172a4a12c1cb739313f26c46cf9c8c7736c7c7fb",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/screen-recording/do-work/recorded-file-artifact.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/screen-recording/do-work/recorded-file-artifact.ts",
+      "source_identity": "1f:b6e8591fb490d6a44860488af4ad1d1534228ab2df6c006d71eea8578499d05b",
+      "identity": "1f:b6e8591fb490d6a44860488af4ad1d1534228ab2df6c006d71eea8578499d05b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/screen-recording/show/ScreenRecordingPanel.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/screen-recording/show/ScreenRecordingPanel.tsx",
+      "source_identity": "1f:7d481b438966d58acbb4033138cae146580444a80aa9ce071635ea2a02cf1c61",
+      "identity": "1f:7d481b438966d58acbb4033138cae146580444a80aa9ce071635ea2a02cf1c61",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/screen-recording/show/mount-screen-recording.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/screen-recording/show/mount-screen-recording.tsx",
+      "source_identity": "1f:28ac73610ba1056bc6f0c382a98d527839eda2feaec33f933a26f2873399178c",
+      "identity": "1f:28ac73610ba1056bc6f0c382a98d527839eda2feaec33f933a26f2873399178c",
+      "found_by": "byte copy"
+    }
+  ]
+}

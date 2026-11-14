@@ -21,6 +21,52 @@
       "source_identity": "1f:bdb4b5858aa446a8bdd68e01d2cb1c4bf84e79cbb9ded6f4da76ee4e3a5b4748",
       "identity": "1f:bdb4b5858aa446a8bdd68e01d2cb1c4bf84e79cbb9ded6f4da76ee4e3a5b4748",
       "found_by": "same bytes"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/transcript-reader/read-data/edit-transcript.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/transcript-reader/read-data/edit-transcript.ts",
+      "source_identity": "1f:d86a1c06ad6fc1f2e0b3e16b01e6e51bda7799b1fb2360151a8d20dc5d50d565",
+      "identity": "1f:d86a1c06ad6fc1f2e0b3e16b01e6e51bda7799b1fb2360151a8d20dc5d50d565",
+      "found_by": "same bytes"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/transcript-reader/read-data/read-transcript-records.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/transcript-reader/read-data/read-transcript-records.ts",
+      "source_identity": "1f:7c2113b2dd808aed096e17c143990211a2eb9c3bd41788fbf2d80eb071bc2fb5",
+      "identity": "1f:7c2113b2dd808aed096e17c143990211a2eb9c3bd41788fbf2d80eb071bc2fb5",
+      "found_by": "same bytes"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/transcript-reader/show/TranscriptReaderSurface.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/transcript-reader/show/TranscriptReaderSurface.tsx",
+      "source_identity": "1f:2a03d58a277a8820c55846793da0af6ce31c885fdd08e43912f998e728bca822",
+      "identity": "1f:bdb4b5858aa446a8bdd68e01d2cb1c4bf84e79cbb9ded6f4da76ee4e3a5b4748",
+      "found_by": "the Workshop already holds this file",
+      "adapted": "One click handler differs: the app copy (Nov 8) writes `return tools.onCopyMoment?.(...)`, the Workshop copy `void tools.onCopyMoment?.(...)`; a click handler drops the value either way, so the two behave the same."
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/transcript-reader/show/transcript-languages.json",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/transcript-reader/show/transcript-languages.json",
+      "source_identity": "1f:11714d8d778278d7069efa92450a4af0faa69cc50224156bf61aa381320f0ed1",
+      "identity": "1f:11714d8d778278d7069efa92450a4af0faa69cc50224156bf61aa381320f0ed1",
+      "found_by": "same bytes"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/transcript-reader/show/transcript-tools.json",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/transcript-reader/show/transcript-tools.json",
+      "source_identity": "1f:f3abd69c4ad869a361fecee21b262be5d6d8aacb5d70bcccbb4a8a49454e9c72",
+      "identity": "1f:f3abd69c4ad869a361fecee21b262be5d6d8aacb5d70bcccbb4a8a49454e9c72",
+      "found_by": "same bytes"
     }
   ]
 }

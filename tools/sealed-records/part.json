@@ -1,0 +1,9 @@
+{
+  "imported_by": [
+    "Trillion-X/trillion-apps"
+  ],
+  "public": [
+    "do-work/sealed-copy.mjs",
+    "do-work/sealed-records.mjs"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "about": "Files moved here byte for byte from Trillion-X/trillion-apps web/parts/funnel-offer-graph at a89474c0211e2353c9ce96b8c21fc21ee9021f91 on the owner's order (Nov 13 2026, about 7:20 PM CST): every screen and screen part lives in the Workshop, not in the app. Each names its source path and commit and the identity of its bytes there and here; a file whose bytes here differ only in import paths names that.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/funnel-offer-graph/show/FunnelCanvas.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/funnel-offer-graph/show/FunnelCanvas.tsx",
+      "source_identity": "1f:184168f24f56b837a7534ae77a322fba1522f2136a5c2ab2c05c596d52a96f52",
+      "identity": "1f:184168f24f56b837a7534ae77a322fba1522f2136a5c2ab2c05c596d52a96f52",
+      "found_by": "byte copy"
+    }
+  ]
+}

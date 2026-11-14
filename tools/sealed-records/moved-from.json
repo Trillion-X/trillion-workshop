@@ -1,0 +1,26 @@
+{
+  "about": "Files moved here byte for byte from Trillion-X/trillion-apps web/parts/sealed-records at a89474c0211e2353c9ce96b8c21fc21ee9021f91 on the owner's order (Nov 13 2026, about 7:20 PM CST): every screen and screen part lives in the Workshop, not in the app. Each names its source path and commit and the identity of its bytes there and here; a file whose bytes here differ only in import paths names that.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/sealed-records/do-work/sealed-copy.mjs",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/sealed-records/do-work/sealed-copy.mjs",
+      "source_identity": "1f:dd83f9f3db23690ec3b542637d320c222a0d8154e831cd44c031e065f8286657",
+      "identity": "1f:dd83f9f3db23690ec3b542637d320c222a0d8154e831cd44c031e065f8286657",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/sealed-records/do-work/sealed-records.mjs",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/sealed-records/do-work/sealed-records.mjs",
+      "source_identity": "1f:3b8ad4a056ff018e2336eec2fa5e6f26a741dce3083fc6c1349edc625f1bc7ed",
+      "identity": "1f:3b8ad4a056ff018e2336eec2fa5e6f26a741dce3083fc6c1349edc625f1bc7ed",
+      "found_by": "byte copy"
+    }
+  ]
+}

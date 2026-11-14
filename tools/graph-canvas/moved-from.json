@@ -1,0 +1,44 @@
+{
+  "about": "Files moved here byte for byte from Trillion-X/trillion-apps web/parts/graph-canvas at a89474c0211e2353c9ce96b8c21fc21ee9021f91 on the owner's order (Nov 13 2026, about 7:20 PM CST): every screen and screen part lives in the Workshop, not in the app. Each names its source path and commit and the identity of its bytes there and here; a file whose bytes here differ only in import paths names that.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/graph-canvas/show/CanvasView.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/graph-canvas/show/CanvasView.tsx",
+      "source_identity": "1f:f3c7705b72b038e3c35d8c394a66d78313e4a59344c1f61d36e90c004c27ea8c",
+      "identity": "1f:f3c7705b72b038e3c35d8c394a66d78313e4a59344c1f61d36e90c004c27ea8c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/graph-canvas/show/DefaultEdge.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/graph-canvas/show/DefaultEdge.tsx",
+      "source_identity": "1f:2633d3e280bf1986008a8f36b33d8e11a95ee052f45a49ed00cf7c4f6337ffa4",
+      "identity": "1f:2633d3e280bf1986008a8f36b33d8e11a95ee052f45a49ed00cf7c4f6337ffa4",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/graph-canvas/show/GraphCanvas.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/graph-canvas/show/GraphCanvas.tsx",
+      "source_identity": "1f:22b5fb38cfbcffa38beaac47c32eecc5bf850e2bb8b8f81e5561d5225eeb02b9",
+      "identity": "1f:22b5fb38cfbcffa38beaac47c32eecc5bf850e2bb8b8f81e5561d5225eeb02b9",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/graph-canvas/show/use-graph-canvas.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/graph-canvas/show/use-graph-canvas.ts",
+      "source_identity": "1f:ec97f7cedf635a489fbcbe0dd3a6f5aa8b20c900b9d5d5f324f4bf85d10d4923",
+      "identity": "1f:ec97f7cedf635a489fbcbe0dd3a6f5aa8b20c900b9d5d5f324f4bf85d10d4923",
+      "found_by": "byte copy"
+    }
+  ]
+}

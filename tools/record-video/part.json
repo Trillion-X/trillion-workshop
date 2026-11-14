@@ -1,0 +1,11 @@
+{
+  "imported_by": [
+    "Trillion-X/trillion-apps"
+  ],
+  "public": [
+    "do-work/recording-session-from-presentation-plan.mjs",
+    "show/browser-media-capture.ts",
+    "show/live-recording.ts",
+    "show/silence-stop.ts"
+  ]
+}

@@ -1,0 +1,91 @@
+/* packages/screen-look/show/card-layouts.css
+ *
+ * The look of the shared CardLayouts (packages/ui/show/card-layouts). A layout
+ * row names a flow; this file is the only place a flow's look lives, so a new
+ * flow is one more `[data-flow=...]` rule here and zero component changes.
+ *
+ * Anatomy, taken from real screens:
+ *   Sections: the 21st.dev home page (the owner's captures, 2026-09-27): a bold
+ *     title with a quiet count, one muted line under it, View all at the far
+ *     right, then a sideways row of about four large rounded pictures with the
+ *     name under each. Dark row rhythm checked against Higgsfield
+ *     (https://mobbin.com/screens/084ea6ae-141e-4913-856a-0f812a28f00e) and
+ *     SchoolAI's View all (https://mobbin.com/screens/f1c4ed4f-7ba1-4c9a-91b5-8652a01a1c18).
+ *   Wall: Pinterest home (https://mobbin.com/screens/eb0ad4dd-1cc1-4287-9819-38cbe7028c63)
+ *     and Curater (https://mobbin.com/screens/570811a7-d458-4a3b-ae87-ecb4cdeb5fac):
+ *     column-balanced cards that keep their picture's own shape, CSS columns
+ *     with break-inside avoid (the approach of 21st.dev component 7844).
+ *   Row stepping: 21st.dev Scroller (component 3929): edges fade while more
+ *     lies past them, a round step button at each end.
+ *
+ * Colours come from the page's own surface, line, text and muted custom
+ * properties, so the part sits on any theme.
+ */
+.card-layouts-host{display:block;min-width:0;container-type:inline-size;container-name:card-layouts}
+.card-layouts{--card-gap:16px;--card-radius:14px;--card-row-width:clamp(220px,calc((100cqw - 3 * var(--card-gap)) / 4),420px);display:flex;flex-direction:column;gap:44px;min-width:0;padding-bottom:32px}
+.card-layouts-bar{display:flex;justify-content:flex-end;margin-bottom:-24px}
+
+/* Section header: title and count, one quiet line, tools at the far right. */
+.card-layouts-section{display:flex;flex-direction:column;gap:18px;min-width:0}
+.card-layouts-section-header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;min-width:0}
+.card-layouts-heading{display:flex;flex-direction:column;gap:4px;min-width:0}
+.card-layouts-section-title{display:flex;align-items:baseline;gap:10px;margin:0;font-size:20px;line-height:26px;font-weight:650;letter-spacing:-.01em;color:var(--text,#111)}
+.card-layouts-count{font-size:13px;font-weight:500;color:var(--muted,#777);font-variant-numeric:tabular-nums}
+.card-layouts-subtitle{margin:0;font-size:14px;line-height:20px;color:var(--muted,#777);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-layouts-section-tools{display:flex;align-items:center;gap:6px;flex:none}
+.card-layouts-section-tools [data-slot=button]{color:var(--muted,#777)}
+.card-layouts-section-tools [data-slot=button]:hover{color:var(--text,#111)}
+
+/* One card: a large rounded picture, the name under it, one quiet line. */
+.card-layouts-card{display:flex;flex-direction:column;gap:10px;min-width:0}
+.card-layouts-picture{position:relative;display:block;width:100%;aspect-ratio:var(--card-aspect,16/10);padding:0;border:1px solid color-mix(in srgb,var(--line,#e9e7e4) 70%,transparent);border-radius:var(--card-radius);overflow:hidden;background:color-mix(in srgb,var(--surface,#fff) 88%,var(--text,#111));cursor:pointer;transition:transform var(--motion-base) var(--ease-snap),box-shadow var(--motion-base),border-color var(--motion-base)}
+.card-layouts-picture>*{position:absolute;inset:0;width:100%;height:100%}
+.card-layouts-picture img{object-fit:cover}
+.card-layouts-card:hover .card-layouts-picture,.card-layouts-picture:focus-visible{transform:translateY(-2px);border-color:color-mix(in srgb,var(--text,#111) 22%,transparent);box-shadow:0 18px 40px -22px #000c}
+.card-layouts-picture:focus-visible{outline:2px solid var(--accent,#5b8def);outline-offset:2px}
+.card-layouts-meta{display:flex;flex-direction:column;gap:2px;min-width:0;padding:0 2px}
+.card-layouts-title{font-size:14px;line-height:20px;font-weight:550;color:var(--text,#111);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-layouts-detail{font-size:12px;line-height:16px;color:var(--muted,#777);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Flow: row. One sideways row of about four cards, stepped by the end buttons. */
+.card-layouts-cards-frame{position:relative;min-width:0}
+.card-layouts-cards[data-flow=row]{display:grid;grid-auto-flow:column;grid-auto-columns:var(--card-row-width);gap:var(--card-gap);overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;scrollbar-width:none;padding:4px 2px 6px;margin:-4px -2px -6px}
+.card-layouts-cards[data-flow=row]::-webkit-scrollbar{display:none}
+.card-layouts-cards[data-flow=row]>.card-layouts-item{scroll-snap-align:start;min-width:0}
+.card-layouts-cards[data-flow=row] .card-layouts-picture{--card-aspect:16/10}
+.card-layouts-step{position:absolute;top:calc(var(--card-row-width) * 10 / 32);z-index:1;transform:translateY(-50%);opacity:0;pointer-events:none;transition:opacity .18s}
+.card-layouts-step[data-edge=start]{left:-6px}
+.card-layouts-step[data-edge=end]{right:-6px}
+.card-layouts-step [data-slot=button]{border-radius:999px;background:var(--surface,#fff);box-shadow:0 8px 22px -10px #000a}
+.card-layouts-cards-frame[data-flow=row]:hover:has(.card-layouts-cards[data-scroll-fade~=left]) .card-layouts-step[data-edge=start],
+.card-layouts-cards-frame[data-flow=row]:hover:has(.card-layouts-cards[data-scroll-fade~=right]) .card-layouts-step[data-edge=end]{opacity:1;pointer-events:auto}
+.card-layouts-cards-frame:not([data-flow=row]) .card-layouts-step{display:none}
+
+/* Flow: wall. Column-balanced cards that keep their picture's own shape. */
+.card-layouts-cards[data-flow=wall]{column-width:230px;column-gap:var(--card-gap)}
+.card-layouts-cards[data-flow=wall]>.card-layouts-item{break-inside:avoid;margin-bottom:22px}
+
+/* Flow: grid. Even rows of equal cards. */
+.card-layouts-cards[data-flow=grid]{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:26px var(--card-gap)}
+.card-layouts-cards[data-flow=grid] .card-layouts-picture{--card-aspect:16/10}
+
+/* Hover card: what the card holds, its name, its actions. */
+.card-layouts-hover{display:flex;flex-direction:column;gap:10px;width:min(360px,calc(100vw - 24px));padding:10px;border:1px solid color-mix(in srgb,var(--line,#e9e7e4) 85%,transparent);border-radius:18px;background:color-mix(in srgb,var(--surface,#fff) 96%,transparent);box-shadow:0 24px 60px -24px #000d;-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);transform-origin:var(--transform-origin);transition:opacity .16s,transform .16s}
+.card-layouts-hover[data-starting-style],.card-layouts-hover[data-ending-style]{opacity:0;transform:scale(.97)}
+.card-layouts-hover-media{border-radius:12px;overflow:hidden;background:#000;aspect-ratio:16/9}
+.card-layouts-hover-media:empty{display:none}
+.card-layouts-hover-body{display:flex;flex-direction:column;gap:2px;min-width:0;padding:0 4px}
+.card-layouts-hover-title{font-size:14px;line-height:20px;font-weight:600;color:var(--text,#111)}
+.card-layouts-summary{margin:2px 0 0;font-size:12.5px;line-height:18px;color:var(--muted,#777);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.card-layouts-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+/* States: reading, failed, empty. */
+.card-layouts-pending{height:calc(var(--card-row-width) * 10 / 16 + 32px);border-radius:var(--card-radius);background:linear-gradient(90deg,color-mix(in srgb,var(--text,#111) 4%,transparent),color-mix(in srgb,var(--text,#111) 9%,transparent),color-mix(in srgb,var(--text,#111) 4%,transparent));background-size:200% 100%;animation:card-layouts-shimmer 1.4s linear infinite}
+@keyframes card-layouts-shimmer{to{background-position:-200% 0}}
+.card-layouts-note{margin:0;font-size:13px;color:var(--muted,#777)}
+.card-layouts-empty{display:flex;flex-direction:column;gap:6px;padding:64px 0;text-align:center;color:var(--muted,#777)}
+.card-layouts-empty strong{font-size:16px;color:var(--text,#111)}
+.card-layouts-empty p{margin:0;font-size:13px}
+
+@container card-layouts (max-width:640px){.card-layouts{--card-row-width:72cqw;gap:32px}.card-layouts-section-title{font-size:18px}.card-layouts-cards[data-flow=wall]{column-width:160px}}
+@media (prefers-reduced-motion:reduce){.card-layouts-picture,.card-layouts-hover,.card-layouts-step{transition:none}.card-layouts-pending{animation:none}.card-layouts-card:hover .card-layouts-picture{transform:none}}

@@ -1,0 +1,98 @@
+{
+  "about": "Files moved here byte for byte from Trillion-X/trillion-apps web/parts/media-playback at a89474c0211e2353c9ce96b8c21fc21ee9021f91 on the owner's order (Nov 13 2026, about 7:20 PM CST): every screen and screen part lives in the Workshop, not in the app. Each names its source path and commit and the identity of its bytes there and here; a file whose bytes here differ only in import paths names that.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/media-playback/read-data/kept-timed-text.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/media-playback/read-data/kept-timed-text.ts",
+      "source_identity": "1f:918661fd933904087396ddcd13e19b6b73a27db37b14a8d73853a03fdb13d489",
+      "identity": "1f:918661fd933904087396ddcd13e19b6b73a27db37b14a8d73853a03fdb13d489",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/media-playback/read-data/measure-media-length.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/media-playback/read-data/measure-media-length.ts",
+      "source_identity": "1f:c7d1c5b838e48279bf94ce81c29a1d45e6e7a3e0cb37d3ec20974f8436fdc253",
+      "identity": "1f:c7d1c5b838e48279bf94ce81c29a1d45e6e7a3e0cb37d3ec20974f8436fdc253",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/media-playback/read-data/private-object-request.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/media-playback/read-data/private-object-request.ts",
+      "source_identity": "1f:757af39d94e214a77be82b5e15a78b6678814ba120e81ca501636432769bbe52",
+      "identity": "1f:757af39d94e214a77be82b5e15a78b6678814ba120e81ca501636432769bbe52",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/media-playback/read-data/read-media-playback.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/media-playback/read-data/read-media-playback.ts",
+      "source_identity": "1f:4f0eca9ba5c9e8e758b2c832cfa821cd90d0eb46666ce03b5c08b8d526986af9",
+      "identity": "1f:4f0eca9ba5c9e8e758b2c832cfa821cd90d0eb46666ce03b5c08b8d526986af9",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/media-playback/read-data/timed-text-index.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/media-playback/read-data/timed-text-index.ts",
+      "source_identity": "1f:2cbacbb6cae5e2794f77a82005ad23aafea71f97db4f71ccaeeb574593460f19",
+      "identity": "1f:2cbacbb6cae5e2794f77a82005ad23aafea71f97db4f71ccaeeb574593460f19",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/media-playback/show/MediaFrame.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/media-playback/show/MediaFrame.tsx",
+      "source_identity": "1f:b372bfba3a8062833c210f9a330959138908bec2e7d1203ed852140e8c27da4c",
+      "identity": "1f:b372bfba3a8062833c210f9a330959138908bec2e7d1203ed852140e8c27da4c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/media-playback/show/MediaPlaybackSurface.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/media-playback/show/MediaPlaybackSurface.tsx",
+      "source_identity": "1f:4a1218d439dbc7d04151bec6f4ccc34364b34f1ecc6ced76f2ea9b17ca368c2b",
+      "identity": "1f:4a1218d439dbc7d04151bec6f4ccc34364b34f1ecc6ced76f2ea9b17ca368c2b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/media-playback/show/PlaybackControls.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/media-playback/show/PlaybackControls.tsx",
+      "source_identity": "1f:8190a0fcbb68868de68d8b6325b1eddb23e492972df7d0aff0d27a0344a57ebb",
+      "identity": "1f:8190a0fcbb68868de68d8b6325b1eddb23e492972df7d0aff0d27a0344a57ebb",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/media-playback/show/class-names.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/media-playback/show/class-names.ts",
+      "source_identity": "1f:4e2449e71e9f1fb660f264b0e63a12e4177ca8b578f1e5fe9fa4086af90b6ebb",
+      "identity": "1f:4e2449e71e9f1fb660f264b0e63a12e4177ca8b578f1e5fe9fa4086af90b6ebb",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/media-playback/show/lazy-playback-surface.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/media-playback/show/lazy-playback-surface.ts",
+      "source_identity": "1f:17c4776622ae0de948f0ce953aaff5f1781728ef84741ddd229e852481208446",
+      "identity": "1f:17c4776622ae0de948f0ce953aaff5f1781728ef84741ddd229e852481208446",
+      "found_by": "byte copy"
+    }
+  ]
+}

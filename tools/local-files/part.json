@@ -1,0 +1,10 @@
+{
+  "imported_by": [
+    "Trillion-X/trillion-apps"
+  ],
+  "public": [
+    "do-work/choose-local-files.ts",
+    "do-work/save-local-file-copy.ts",
+    "read-data/invoke-local-files-target.ts"
+  ]
+}

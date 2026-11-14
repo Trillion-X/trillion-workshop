@@ -1,0 +1,126 @@
+{
+  "about": "Files moved here byte for byte from Trillion-X/trillion-apps web/parts/file-content-renderer at a89474c0211e2353c9ce96b8c21fc21ee9021f91 on the owner's order (Nov 13 2026, about 7:20 PM CST): every screen and screen part lives in the Workshop, not in the app. Each names its source path and commit and the identity of its bytes there and here; a file whose bytes here differ only in import paths names that.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "example-home-folder",
+      "find": "/Users/[a-z]+/dev/bitfield-studio/",
+      "replace": "/srv/project/",
+      "means": "An example file path naming a real home folder, swapped for a made-up path."
+    }
+  ],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/file-content-renderer/show/CodeRenderer.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/file-content-renderer/show/CodeRenderer.tsx",
+      "source_identity": "1f:ad446936cbdc1c130c60c33747ac1fed5cae9abbadce3a7857a7b9fc66e83cad",
+      "identity": "1f:ad446936cbdc1c130c60c33747ac1fed5cae9abbadce3a7857a7b9fc66e83cad",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/file-content-renderer/show/DiffRenderer.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/file-content-renderer/show/DiffRenderer.tsx",
+      "source_identity": "1f:248503132017f0ae7432a3de06dbaa2a3e6a1e338a5de814fe85ff420a6073c0",
+      "identity": "1f:248503132017f0ae7432a3de06dbaa2a3e6a1e338a5de814fe85ff420a6073c0",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/file-content-renderer/show/FileActions.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/file-content-renderer/show/FileActions.tsx",
+      "source_identity": "1f:cbd93a381cbf83cc08b1074c931f2b9056be97ae5a5a2bcb7fd5ff429e6c27e6",
+      "identity": "1f:cbd93a381cbf83cc08b1074c931f2b9056be97ae5a5a2bcb7fd5ff429e6c27e6",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/file-content-renderer/show/FileContentRenderer.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/file-content-renderer/show/FileContentRenderer.tsx",
+      "source_identity": "1f:7f1ecc1c170cbcbfa67b99cc1d833130d48a1a21538493bc4fff4701fc670216",
+      "identity": "1f:7f1ecc1c170cbcbfa67b99cc1d833130d48a1a21538493bc4fff4701fc670216",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/file-content-renderer/show/FileHeader.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/file-content-renderer/show/FileHeader.tsx",
+      "source_identity": "1f:7a0414739d3ff237ce0bda48943c2f7c86fad8b116d7c3ef5380f75a6915d9a9",
+      "identity": "1f:9498ddd5545467f8ce3a4446cac2c55d1e3a4f073ed70fd20fc5be28880e04e0",
+      "found_by": "byte copy, then the listed calls",
+      "calls": [
+        "example-home-folder"
+      ]
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/file-content-renderer/show/GuardedArtifactFileContent.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/file-content-renderer/show/GuardedArtifactFileContent.tsx",
+      "source_identity": "1f:1e0e06fe7cab5e712be126b9db6ddb70c6f439f04dbf4fbd500f3d5ed98e6b6e",
+      "identity": "1f:1e0e06fe7cab5e712be126b9db6ddb70c6f439f04dbf4fbd500f3d5ed98e6b6e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/file-content-renderer/show/ImageRenderer.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/file-content-renderer/show/ImageRenderer.tsx",
+      "source_identity": "1f:219dfbdeda3c5efeea34d0fa5cb87cdc3e3625033783de71919ecad8b6139493",
+      "identity": "1f:219dfbdeda3c5efeea34d0fa5cb87cdc3e3625033783de71919ecad8b6139493",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/file-content-renderer/show/MarkdownRenderer.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/file-content-renderer/show/MarkdownRenderer.tsx",
+      "source_identity": "1f:335d6c97081f30b0c0d7374e8b7e99ce86f5428dde851a935237aaf55cb46054",
+      "identity": "1f:335d6c97081f30b0c0d7374e8b7e99ce86f5428dde851a935237aaf55cb46054",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/file-content-renderer/show/RawRenderer.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/file-content-renderer/show/RawRenderer.tsx",
+      "source_identity": "1f:5d7a8c52a9e45749d365731adcf9f514e8115da9747f13811f89e687c6a32ab8",
+      "identity": "1f:5d7a8c52a9e45749d365731adcf9f514e8115da9747f13811f89e687c6a32ab8",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/file-content-renderer/show/classify-file-content.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/file-content-renderer/show/classify-file-content.ts",
+      "source_identity": "1f:e7c61ba19d19412f62d7dff518312244a088ad3cf8286b90c03deba498ef4bf0",
+      "identity": "1f:e7c61ba19d19412f62d7dff518312244a088ad3cf8286b90c03deba498ef4bf0",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/file-content-renderer/show/highlight-code-html.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/file-content-renderer/show/highlight-code-html.ts",
+      "source_identity": "1f:5607d4844bc098ac62a13d466d39129c3d2d1f5065df260a2bbf31123b874b4a",
+      "identity": "1f:5607d4844bc098ac62a13d466d39129c3d2d1f5065df260a2bbf31123b874b4a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/file-content-renderer/show/render-markdown-html.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/file-content-renderer/show/render-markdown-html.ts",
+      "source_identity": "1f:3d5b645e8d9b406e27ee068eb8c321a3be11af254e19d051e679caff9a48f3d5",
+      "identity": "1f:3d5b645e8d9b406e27ee068eb8c321a3be11af254e19d051e679caff9a48f3d5",
+      "found_by": "byte copy"
+    }
+  ]
+}

@@ -43,6 +43,12 @@
     "read-data/caption-styles.json",
     "read-data/looks.mjs",
     "read-data/edit-command-log.mjs",
-    "read-data/edit-command-log.json"
+    "read-data/edit-command-log.json",
+    "do-work/cut-and-caption.mjs",
+    "read-data/position-track.mjs",
+    "read-data/preview-grade.mjs"
+  ],
+  "imported_by": [
+    "Trillion-X/trillion-apps"
   ]
 }

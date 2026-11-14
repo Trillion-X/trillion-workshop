@@ -1,6 +1,7 @@
 {
   "imported_by": [
-    "tools/messages-screen"
+    "tools/messages-screen",
+    "Trillion-X/trillion-apps"
   ],
   "public": [
     "do-work/build-agent-turn-continuation.ts"

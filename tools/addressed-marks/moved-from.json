@@ -1,0 +1,152 @@
+{
+  "about": "Files moved here byte for byte from Trillion-X/trillion-apps web/parts/addressed-marks at a89474c0211e2353c9ce96b8c21fc21ee9021f91 on the owner's order (Nov 13 2026, about 7:20 PM CST): every screen and screen part lives in the Workshop, not in the app. Each names its source path and commit and the identity of its bytes there and here; a file whose bytes here differ only in import paths names that.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/addressed-marks/do-work/record-mark-operation.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/addressed-marks/do-work/record-mark-operation.ts",
+      "source_identity": "1f:bffc54554cf416a43191bd8e596518cf706356dde98504eb59b437b141b0bb27",
+      "identity": "1f:bffc54554cf416a43191bd8e596518cf706356dde98504eb59b437b141b0bb27",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/addressed-marks/do-work/record-mark-style.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/addressed-marks/do-work/record-mark-style.ts",
+      "source_identity": "1f:0f240a4bcebd52613359483f5daf5ea6b1a693a34a70c4f2ae66c7242154dea4",
+      "identity": "1f:0f240a4bcebd52613359483f5daf5ea6b1a693a34a70c4f2ae66c7242154dea4",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/addressed-marks/do-work/record-mark-tool.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/addressed-marks/do-work/record-mark-tool.ts",
+      "source_identity": "1f:9a518c40274626f2a990293a030bae7cd1064ed0f9b5d0057549c5eadc4b7698",
+      "identity": "1f:9a518c40274626f2a990293a030bae7cd1064ed0f9b5d0057549c5eadc4b7698",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/addressed-marks/read-data/addressed-marks.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/addressed-marks/read-data/addressed-marks.ts",
+      "source_identity": "1f:6d2d690b8ffbec4c09286748df46a5c894bbd1840d5c4b0f1aeeae9eccdf51e5",
+      "identity": "1f:6d2d690b8ffbec4c09286748df46a5c894bbd1840d5c4b0f1aeeae9eccdf51e5",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/addressed-marks/read-data/board-ink-svg.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/addressed-marks/read-data/board-ink-svg.ts",
+      "source_identity": "1f:4f431a7f59c2944d485e0a15809a7f3d271ff01b2531e48e0b0fd3cb037421b7",
+      "identity": "1f:4f431a7f59c2944d485e0a15809a7f3d271ff01b2531e48e0b0fd3cb037421b7",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/addressed-marks/read-data/ink-fade.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/addressed-marks/read-data/ink-fade.ts",
+      "source_identity": "1f:170f220dcd42fdc39a232001ad46f19f96aeb9699f5ecf27b0ace2ffff991620",
+      "identity": "1f:170f220dcd42fdc39a232001ad46f19f96aeb9699f5ecf27b0ace2ffff991620",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/addressed-marks/show/AddressedMarkLayer.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/addressed-marks/show/AddressedMarkLayer.tsx",
+      "source_identity": "1f:20e30aa2fb57d071da34a5395e601c22dcf804b4c831fe0a75497a9e3d263603",
+      "identity": "1f:20e30aa2fb57d071da34a5395e601c22dcf804b4c831fe0a75497a9e3d263603",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/addressed-marks/show/AddressedMarkOverlay.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/addressed-marks/show/AddressedMarkOverlay.tsx",
+      "source_identity": "1f:fb09603655804a1ff7561cab96890241e26b95b80a4f80d8f7ee0f343db68941",
+      "identity": "1f:fb09603655804a1ff7561cab96890241e26b95b80a4f80d8f7ee0f343db68941",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/addressed-marks/show/MarkInputLayer.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/addressed-marks/show/MarkInputLayer.tsx",
+      "source_identity": "1f:cf895090d5e2a0837ca47c81933b394afedf26d526810bb4a5303f0f11c21088",
+      "identity": "1f:cf895090d5e2a0837ca47c81933b394afedf26d526810bb4a5303f0f11c21088",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/addressed-marks/show/MarkSessionContext.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/addressed-marks/show/MarkSessionContext.tsx",
+      "source_identity": "1f:2e8e39590e0f28323584f8795ca6da476640356725ed6cc8351ad323e7055b9d",
+      "identity": "1f:2e8e39590e0f28323584f8795ca6da476640356725ed6cc8351ad323e7055b9d",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/addressed-marks/show/MarkToolbar.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/addressed-marks/show/MarkToolbar.tsx",
+      "source_identity": "1f:c69b967c59c9490dd209335e49fb150d8e2eb72dfe2744f9a32d47910ba91c85",
+      "identity": "1f:c69b967c59c9490dd209335e49fb150d8e2eb72dfe2744f9a32d47910ba91c85",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/addressed-marks/show/keep-marks.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/addressed-marks/show/keep-marks.ts",
+      "source_identity": "1f:82b7a912b677e7dc880a4786b28b4fc6b373df3d48d53f374841cebbe09cc0eb",
+      "identity": "1f:82b7a912b677e7dc880a4786b28b4fc6b373df3d48d53f374841cebbe09cc0eb",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/addressed-marks/show/shown-marks.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/addressed-marks/show/shown-marks.ts",
+      "source_identity": "1f:7036d11d1f38e26b8288706cb2f18f280cc41cf1230f2b75de9ad0a327f55d3a",
+      "identity": "1f:7036d11d1f38e26b8288706cb2f18f280cc41cf1230f2b75de9ad0a327f55d3a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/addressed-marks/show/use-board-ink-svg.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/addressed-marks/show/use-board-ink-svg.ts",
+      "source_identity": "1f:f96a9bf6c5bbfb79c602c0046e9123b0671ff42e9bba4238ca2a005107344af6",
+      "identity": "1f:f96a9bf6c5bbfb79c602c0046e9123b0671ff42e9bba4238ca2a005107344af6",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/addressed-marks/show/use-mark-data.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/addressed-marks/show/use-mark-data.ts",
+      "source_identity": "1f:85d142963448f600113af6ade77a1ebd2a028b175ac3d1d979579f67db8ef06a",
+      "identity": "1f:85d142963448f600113af6ade77a1ebd2a028b175ac3d1d979579f67db8ef06a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/addressed-marks/starting-marks.json",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/addressed-marks/starting-marks.json",
+      "source_identity": "1f:ebba3a63999b4d69a2d97bc256e71ad891da5326c6400f19cedd4f58238892a8",
+      "identity": "1f:ebba3a63999b4d69a2d97bc256e71ad891da5326c6400f19cedd4f58238892a8",
+      "found_by": "byte copy"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "about": "Files moved here byte for byte from Trillion-X/trillion-apps web/parts/ambience at a89474c0211e2353c9ce96b8c21fc21ee9021f91 on the owner's order (Nov 13 2026, about 7:20 PM CST): every screen and screen part lives in the Workshop, not in the app. Each names its source path and commit and the identity of its bytes there and here; a file whose bytes here differ only in import paths names that.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/ambience/read-data/sound-followers.json",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/ambience/read-data/sound-followers.json",
+      "source_identity": "1f:e822286143dc7ba2d5a248f33821b41b79284a971392ccd3a9fd39391130d189",
+      "identity": "1f:e822286143dc7ba2d5a248f33821b41b79284a971392ccd3a9fd39391130d189",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/ambience/show/ambience-screen.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/ambience/show/ambience-screen.tsx",
+      "source_identity": "1f:620e6b9e945e6bc20311d671367ae51f9b0d4c85bae5c7ec7f66089a0fbae4c1",
+      "identity": "1f:620e6b9e945e6bc20311d671367ae51f9b0d4c85bae5c7ec7f66089a0fbae4c1",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/ambience/show/sound-followers.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/ambience/show/sound-followers.ts",
+      "source_identity": "1f:d01d2e9cf465b8651933f67771321b0d4b9a9079c3ffbf0d070494adc9a5cdc6",
+      "identity": "1f:d01d2e9cf465b8651933f67771321b0d4b9a9079c3ffbf0d070494adc9a5cdc6",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/ambience/show/voices-panel.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/ambience/show/voices-panel.tsx",
+      "source_identity": "1f:47c2e1b7696dfc482b849db6e108462aef856fdfeea1f295b7f1ae5b528f2d05",
+      "identity": "1f:47c2e1b7696dfc482b849db6e108462aef856fdfeea1f295b7f1ae5b528f2d05",
+      "found_by": "byte copy"
+    }
+  ]
+}

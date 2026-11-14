@@ -764,6 +764,117 @@
       "homes": {
         "records/workshop-tool-records.json": "tools/connect-a-service-and-seal-its-key/from-old-trillion/records/workshop-tool-records.json"
       }
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/media-composition/do-work/cut-and-caption.mjs",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/media-composition/do-work/cut-and-caption.mjs",
+      "source_identity": "1f:d9dfadded4f9d006f165c4d603b287290c480a104a70d7bafd89bd2551023c8d",
+      "identity": "1f:d9dfadded4f9d006f165c4d603b287290c480a104a70d7bafd89bd2551023c8d",
+      "found_by": "same bytes"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/media-composition/do-work/grade-a-video.mjs",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/media-composition/do-work/grade-a-video.mjs",
+      "source_identity": "1f:da2075caffcfbc258dc8f115e99f54446c9cd017668a4175e59f7fe8c56d3815",
+      "identity": "1f:b12e4238e5203e72b2e9d4e494a6e88ae308973dde9c79ed5670fed08664dcd0",
+      "found_by": "the Workshop already holds this file",
+      "adapted": "Only its header comment differs: it names the file by its Workshop path (tools/...) instead of the app path (parts/...)."
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/media-composition/do-work/make-pictures-and-sounds.json",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/media-composition/do-work/make-pictures-and-sounds.json",
+      "source_identity": "1f:f12871c56dffe66677f761428a0732f19f93d4b4026f5c6761ffc8f921206d67",
+      "identity": "1f:92e2956bd42990b76ae57ad864f2814cb913509906bd5216c6ef03d00dafa4a7",
+      "found_by": "the Workshop already holds this file",
+      "adapted": "The Workshop copy is the newer one (Nov 5 against the app copy of Nov 3): it adds makes_all makers such as earshot forge and the per-computer settings words; the app copy has nothing the Workshop copy lacks."
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/media-composition/read-data/adjustment-layers.mjs",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/media-composition/read-data/adjustment-layers.mjs",
+      "source_identity": "1f:7cbf9ab33629527566e4ca91ffdd34e10511c7d82b4c0cc78b164ad1e86f2fc5",
+      "identity": "1f:7cbf9ab33629527566e4ca91ffdd34e10511c7d82b4c0cc78b164ad1e86f2fc5",
+      "found_by": "same bytes"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/media-composition/read-data/caption-lines.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/media-composition/read-data/caption-lines.ts",
+      "source_identity": "1f:b2315647d8268597ca5830997e7ea3e7391d31c1aaeeb80478e0a07e6da74c3e",
+      "identity": "1f:b2315647d8268597ca5830997e7ea3e7391d31c1aaeeb80478e0a07e6da74c3e",
+      "found_by": "same bytes"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/media-composition/read-data/highlight-scorer.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/media-composition/read-data/highlight-scorer.ts",
+      "source_identity": "1f:4534fe68077a12408743ac8d55e92b84372a470f017b2a3fc0b5c73af7cdd0bb",
+      "identity": "1f:4534fe68077a12408743ac8d55e92b84372a470f017b2a3fc0b5c73af7cdd0bb",
+      "found_by": "same bytes"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/media-composition/read-data/looks.json",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/media-composition/read-data/looks.json",
+      "source_identity": "1f:253571c579afa4edd6dff2369577ffb7ec7f445a46d259d09576e0da7e5f2a8f",
+      "identity": "1f:253571c579afa4edd6dff2369577ffb7ec7f445a46d259d09576e0da7e5f2a8f",
+      "found_by": "same bytes"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/media-composition/read-data/looks.mjs",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/media-composition/read-data/looks.mjs",
+      "source_identity": "1f:1e66f1b2a9c582ac7f9e321f6bf58937252e637f352c299205082e40052494a4",
+      "identity": "1f:13057344348e0c7dc0db741df794e971d4f4c02ed1e69a32484cd5b753d35919",
+      "found_by": "the Workshop already holds this file",
+      "adapted": "Only its first comment line differs: it names the file by its Workshop path (tools/...) instead of the app path (parts/...)."
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/media-composition/read-data/position-track.mjs",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/media-composition/read-data/position-track.mjs",
+      "source_identity": "1f:722042fe8b473f430689029daef22e2aac5ebf1c0fcc40e384750e437f72c573",
+      "identity": "1f:722042fe8b473f430689029daef22e2aac5ebf1c0fcc40e384750e437f72c573",
+      "found_by": "same bytes"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/media-composition/read-data/preview-grade.mjs",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/media-composition/read-data/preview-grade.mjs",
+      "source_identity": "1f:5ffae46ad1d9fbc8a0a8a77640f722bf331ff7cb04efc9280cb2fcc69b724142",
+      "identity": "1f:5ffae46ad1d9fbc8a0a8a77640f722bf331ff7cb04efc9280cb2fcc69b724142",
+      "found_by": "same bytes"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/media-composition/read-data/range-complement.mjs",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/media-composition/read-data/range-complement.mjs",
+      "source_identity": "1f:c0c4b87bc38d3ad5c25f3c428f8bd00ba31a34e3b89eaf01345a7b759f62c8cd",
+      "identity": "1f:c0c4b87bc38d3ad5c25f3c428f8bd00ba31a34e3b89eaf01345a7b759f62c8cd",
+      "found_by": "same bytes"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/media-composition/show/components/EditTrackLanes.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/media-composition/show/components/EditTrackLanes.tsx",
+      "source_identity": "1f:c24a0a59a7bef2fbdded783c841c670b8fc50247312adf29712bb65d5c06596e",
+      "identity": "1f:c24a0a59a7bef2fbdded783c841c670b8fc50247312adf29712bb65d5c06596e",
+      "found_by": "same bytes"
     }
   ],
   "values": [
