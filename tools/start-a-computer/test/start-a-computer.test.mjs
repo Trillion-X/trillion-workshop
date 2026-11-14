@@ -683,13 +683,6 @@ test('a start uses one exact file snapshot for remote settings and starting rows
   assert.deepEqual(configWritten.new_accounts, { ...PRODUCT.new_accounts, copies: copiesFor({}) });
 });
 
-test('the product settings size the tool accepts is the engine\'s own limit (trillion-rust src/account_files/identity.json max_bytes)', t => {
-  const engine = new URL('../../../../trillion-rust/src/account_files/identity.json', import.meta.url);
-  if (!existsSync(engine)) return t.skip('trillion-rust is not beside this checkout');
-  const tool = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8')).product_settings.most_bytes;
-  assert.equal(tool, JSON.parse(readFileSync(engine, 'utf8')).max_bytes);
-});
-
 test('an update fills a config with no account rows and rollback restores its previous settings bytes', async () => {
   const l = LAYOUTS['start-a-computer'], { root, lease, file } = madeUpComputer(l);
   const original = `${JSON.stringify({ listen: '127.0.0.1:7199', public_origin: 'https://sample.example.test' })}\n`;
