@@ -65,6 +65,8 @@ export type CommercialChargeDimension = {
 
 export type VoluntaryAmountPolicy = {
   allow_custom: boolean;
+  /** False when a buyer may not pick 0: the amount is at least the minimum. Absent means free may be picked. */
+  allow_free?: false;
   currency: string;
   highlighted_cents?: number;
   highlight_label?: string;
@@ -398,6 +400,9 @@ function readVoluntaryAmountPolicy(
   if (!allowCustom && suggestedCents.length === 0) {
     throw new Error('voluntary_amount_policy must expose a selectable amount: allow_custom or a shown suggested amount.');
   }
+  if (value.allow_free !== undefined && typeof value.allow_free !== 'boolean') {
+    throw new Error('voluntary_amount_policy.allow_free must be boolean.');
+  }
   const hasHighlightedCents = Object.prototype.hasOwnProperty.call(value, 'highlighted_cents');
   const hasHighlightLabel = Object.prototype.hasOwnProperty.call(value, 'highlight_label');
   if (hasHighlightedCents !== hasHighlightLabel) {
@@ -416,6 +421,7 @@ function readVoluntaryAmountPolicy(
   const currency = readPolicyCurrency(value.currency, optionCurrency);
   return {
     allow_custom: allowCustom,
+    ...(value.allow_free === false ? { allow_free: false as const } : {}),
     currency,
     ...(highlightedCents == null ? {} : { highlighted_cents: highlightedCents }),
     ...(highlightLabel ? { highlight_label: highlightLabel } : {}),

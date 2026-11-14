@@ -46,6 +46,7 @@ A person's sales funnels, read from their own records: the offers in order, the 
 - A stage with several price options shows the option it names; with none named it shows no price. A position in a list is never a price.
 - A winner of a price experiment decides a price only through a variant record that carries `amount_cents`. The package also read a bare winner key such as "47" as dollars; that guess is not carried.
 - Only a settled (graduated, settled, concluded) experiment can decide a live price.
+- A buyer may pick 0 (free) in a voluntary amount unless the policy states `allow_free: false`; then the amount is at least `min_cents`.
 - A discovered price never goes above `ceiling_cents`; with `floor_cents` equal to it the price is fixed whatever sells. A suggestion row with `shown` false is kept but never offered.
 - `suggestion_rows` names a list whose rows are read by `tools/take-payments` (`suggestionListsOf`, the one place a list is read) and handed to this reader as `suggestionLists`, keyed by `suggestionKey(offer id, list)`; the reader reads no records itself. A run's records right is a kind its row names, so the rows are always the records of one type, `record:offer-amount-choice` (a list with row type `offer-amount-choice`), and `offer_field` names the row field holding the offer a row belongs to; one list holds the choices of every offer.
 - Growing a funnel keeps every field of the person's record, including ones this tool does not read.

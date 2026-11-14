@@ -168,8 +168,8 @@ export function validateVoluntaryAmountSelection(
   if (!policy.allow_custom && policy.suggested_cents.length === 0) {
     throw new Error('The published contribution policy has no selectable amounts.');
   }
-  if (amount !== 0 && amount < policy.min_cents) {
-    throw new Error(`Enter 0 for free, or at least ${policy.min_cents} ${optionCurrency}.`);
+  if ((amount !== 0 || policy.allow_free === false) && amount < policy.min_cents) {
+    throw new Error(policy.allow_free === false ? `Enter at least ${policy.min_cents} ${optionCurrency}.` : `Enter 0 for free, or at least ${policy.min_cents} ${optionCurrency}.`);
   }
   if (policy.max_cents != null && amount > policy.max_cents) {
     throw new Error(`Enter an amount no greater than ${policy.max_cents} ${optionCurrency}.`);
