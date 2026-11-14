@@ -1,0 +1,4 @@
+{
+  "editor": "parts/ui/show/public-app-editor/VisualHtmlEditor.tsx",
+  "engine": "node_modules/grapesjs/dist/grapes.mjs"
+}

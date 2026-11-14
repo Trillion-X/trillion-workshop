@@ -1,0 +1,75 @@
+{
+  "version": 2,
+  "about": "Shared UI is drawn in parts/ui and styled in parts/screen-look. Existing private drawings are frozen by exact file and source line; deleting one is allowed, adding or changing one is refused. A lucide import passed to the shared Icon and a shared Spinner use are consumers, not private drawings. Client examples and generated iOS opening cover are not authored Trillion UI. A legitimate exception must be reviewed as a data row rather than silently growing the baseline.",
+  "roots": [
+    "src",
+    "extension",
+    "parts",
+    "ios",
+    "macos",
+    "native-apps",
+    "records"
+  ],
+  "extensions": [
+    ".css",
+    ".html",
+    ".js",
+    ".mjs",
+    ".ts",
+    ".tsx",
+    ".swift"
+  ],
+  "skip": [
+    "node_modules",
+    "dist",
+    "build",
+    "proof",
+    "test",
+    "tests",
+    "vendor",
+    "third_party",
+    "parts/ui",
+    "parts/screen-look",
+    "ios/App/thread-cover.html",
+    "records/client-examples"
+  ],
+  "skip_file_pattern": "\\.(?:test|spec)\\.[cm]?[jt]sx?$",
+  "kinds": [
+    {
+      "id": "button",
+      "pattern": "<button\\b|createElement\\(['\\\"]button['\\\"]",
+      "owner": "parts/ui/show/button"
+    },
+    {
+      "id": "icon",
+      "direct_component_import": "lucide-react",
+      "owner": "parts/ui/show/icon"
+    },
+    {
+      "id": "font",
+      "pattern": "font-family\\s*:\\s*(?!var\\(--|inherit\\b|\\$\\{)|fontFamily\\s*:\\s*['\\\"](?!var\\(--|inherit\\b)",
+      "owner": "parts/screen-look"
+    },
+    {
+      "id": "card",
+      "pattern": "class(?:Name)?\\s*=\\s*(?:\"[^\"\\r\\n]*(?:card|Card)[^\"\\r\\n]*\"|'[^'\\r\\n]*(?:card|Card)[^'\\r\\n]*'|\\{[^}\\r\\n]*(?:card|Card)[^}\\r\\n]*\\})|\\.[a-zA-Z0-9_-]*card\\s*\\{",
+      "owner": "parts/ui/show/card"
+    },
+    {
+      "id": "popover",
+      "pattern": "class(?:Name)?\\s*=\\s*(?:\"[^\"\\r\\n]*(?:popover|Popover)[^\"\\r\\n]*\"|'[^'\\r\\n]*(?:popover|Popover)[^'\\r\\n]*'|\\{[^}\\r\\n]*(?:popover|Popover)[^}\\r\\n]*\\})|\\.[a-zA-Z0-9_-]*popover\\s*\\{",
+      "owner": "parts/ui/show/anchored-overlay"
+    },
+    {
+      "id": "screen-state",
+      "pattern": "class(?:Name)?\\s*=\\s*(?:\"[^\"\\r\\n]*(?:empty-state|error-state|loading-state)[^\"\\r\\n]*\"|'[^'\\r\\n]*(?:empty-state|error-state|loading-state)[^'\\r\\n]*'|\\{[^}\\r\\n]*(?:empty-state|error-state|loading-state)[^}\\r\\n]*\\})",
+      "owner": "parts/ui/show/screen-state"
+    },
+    {
+      "id": "plan",
+      "pattern": "class(?:Name)?\\s*=\\s*(?:\"[^\"\\r\\n]*(?:plan-card|pricing-card)[^\"\\r\\n]*\"|'[^'\\r\\n]*(?:plan-card|pricing-card)[^'\\r\\n]*'|\\{[^}\\r\\n]*(?:plan-card|pricing-card)[^}\\r\\n]*\\})|\\.[a-zA-Z0-9_-]*(?:plan-card|pricing-card)\\s*\\{",
+      "owner": "parts/ui/show/plan-card"
+    }
+  ],
+  "exceptions": []
+}

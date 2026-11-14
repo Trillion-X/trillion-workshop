@@ -1,0 +1,15 @@
+{
+  "rail": 44,
+  "canvas_minimum": 300,
+  "keyboard_step": 12,
+  "panels": {
+    "library": { "initial": 208, "minimum": 200, "maximum": 400, "label": "Page tools width" },
+    "inspector": { "initial": 280, "minimum": 264, "maximum": 400, "label": "Properties width" }
+  },
+  "tabs": [
+    { "id": "layers", "label": "Layers", "icon": "Layers" },
+    { "id": "library", "label": "Add", "icon": "Plus" },
+    { "id": "sources", "label": "References", "icon": "BookOpen" }
+  ],
+  "properties_search": { "label": "Search properties", "placeholder": "Search properties", "empty": "No properties match. Try another word." }
+}

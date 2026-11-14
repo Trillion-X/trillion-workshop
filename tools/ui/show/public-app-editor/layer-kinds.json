@@ -1,0 +1,24 @@
+{
+  "about": "How the page editor's layers name and mark each element. A row whose tags hold the element's tag gives its icon and the word used when the element has nothing better to be called; named_by says what names it, the first that has words winning: its own words (text), its picture description (alt), its hint (placeholder) its first heading (heading) or its class. An element whose name, id or aria-label is set is called that first. text_inside means the element is edited as one piece of words, so the layers do not list what is inside it.",
+  "kinds": [
+    {"tags": ["header"], "label": "Header", "icon": "PanelTop", "named_by": "class"},
+    {"tags": ["nav"], "label": "Navigation", "icon": "Menu", "named_by": "class"},
+    {"tags": ["footer"], "label": "Footer", "icon": "PanelBottom", "named_by": "class"},
+    {"tags": ["main"], "label": "Page content", "icon": "LayoutTemplate", "named_by": "class"},
+    {"tags": ["section", "aside"], "label": "Section", "icon": "Rows3", "named_by": ["class", "heading"]},
+    {"tags": ["article"], "label": "Card", "icon": "SquareStack", "named_by": ["heading", "class"]},
+    {"tags": ["h1", "h2", "h3", "h4", "h5", "h6"], "label": "Heading", "icon": "Heading", "named_by": "text", "text_inside": true},
+    {"tags": ["p", "span", "strong", "em", "small", "blockquote", "label", "figcaption", "b"], "label": "Text", "icon": "Type", "named_by": "text", "text_inside": true},
+    {"tags": ["a"], "label": "Link", "icon": "Link", "named_by": "text"},
+    {"tags": ["button"], "label": "Button", "icon": "MousePointerClick", "named_by": "text", "text_inside": true},
+    {"tags": ["img", "picture"], "label": "Image", "icon": "Image", "named_by": "alt"},
+    {"tags": ["video", "iframe"], "label": "Video", "icon": "Video", "named_by": "title"},
+    {"tags": ["form"], "label": "Form", "icon": "ClipboardList", "named_by": "class"},
+    {"tags": ["input", "textarea", "select"], "label": "Field", "icon": "TextCursorInput", "named_by": "placeholder"},
+    {"tags": ["ul", "ol"], "label": "List", "icon": "List", "named_by": "class"},
+    {"tags": ["li"], "label": "List item", "icon": "Dot", "named_by": "text"},
+    {"tags": ["svg", "i"], "label": "Icon", "icon": "Shapes", "named_by": "text"}
+  ],
+  "otherwise": {"label": "Group", "icon": "Square", "named_by": "class"},
+  "longest_name": 42
+}

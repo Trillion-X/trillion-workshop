@@ -1,0 +1,73 @@
+{
+  "what_this_is": "The style of the selected part of a page, drawn by the shared inspector (TuningPanel) in the visual editor. Each row is one CSS property (its key), read from and written as CSS text by its widget's CSS form (settingFromCss / settingToCss); adding a property is a row here.",
+  "sections": [
+    {
+      "id": "type",
+      "title": "Type",
+      "settings": [
+        { "key": "color", "label": "Text", "widget": "color" },
+        { "key": "font-family", "label": "Font", "widget": "choices", "options_drawn_with": "font-family", "options": [
+          { "value": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", system-ui, sans-serif", "label": "System" },
+          { "value": "Inter, system-ui, sans-serif", "label": "Inter" },
+          { "value": "Georgia, serif", "label": "Georgia" },
+          { "value": "ui-monospace, Menlo, monospace", "label": "Mono" }
+        ] },
+        { "key": "font-size", "label": "Size", "widget": "number", "prefix": "Aa", "min": 6, "max": 200, "unit": "px" },
+        { "key": "font-weight", "label": "Weight", "widget": "select", "default_value": "400", "options": [
+          { "value": "300", "label": "Light" },
+          { "value": "400", "label": "Regular" },
+          { "value": "500", "label": "Medium" },
+          { "value": "600", "label": "Semibold" },
+          { "value": "700", "label": "Bold" },
+          { "value": "800", "label": "Heavy" }
+        ] },
+        { "key": "spacing", "label": "Spacing", "widget": "number", "settings": [
+          { "key": "line-height", "label": "Line height", "widget": "number", "prefix": "Line", "min": 0, "max": 300, "unit": "px" },
+          { "key": "letter-spacing", "label": "Letter spacing", "widget": "number", "prefix": "Letter", "min": -10, "max": 40, "step": 0.1, "unit": "px" }
+        ] },
+        { "key": "text-align", "label": "Align", "widget": "segmented", "options": [
+          { "value": "left", "label": "Left" },
+          { "value": "center", "label": "Centre" },
+          { "value": "right", "label": "Right" }
+        ] }
+      ]
+    },
+    {
+      "id": "fill",
+      "title": "Fill",
+      "settings": [
+        { "key": "background-color", "label": "Background", "widget": "color" },
+        { "key": "opacity", "label": "Opacity", "widget": "number", "min": 0, "max": 1, "step": 0.05 }
+      ]
+    },
+    {
+      "id": "shape",
+      "title": "Size and shape",
+      "settings": [
+        { "key": "padding", "label": "Space inside", "widget": "number", "min": 0, "max": 400, "unit": "px" },
+        { "key": "border-radius", "label": "Corners", "widget": "number", "min": 0, "max": 400, "unit": "px" }
+      ]
+    },
+    {
+      "id": "shadow",
+      "title": "Shadow",
+      "settings": [
+        { "key": "box-shadow", "label": "Shadow", "widget": "shadow", "unit": "px" }
+      ]
+    },
+    {
+      "id": "motion",
+      "title": "Motion",
+      "settings": [
+        { "key": "transition-duration", "label": "Duration", "widget": "number", "min": 0, "max": 5, "step": 0.05, "unit": "s" },
+        { "key": "transition-timing-function", "label": "Curve", "widget": "curve", "default_value": [0.25, 0.1, 0.25, 1], "options": [
+          { "value": "0.25,0.1,0.25,1", "label": "Ease" },
+          { "value": "0,0,0.58,1", "label": "Ease out" },
+          { "value": "0.42,0,0.58,1", "label": "Ease in and out" },
+          { "value": "0.34,1.56,0.64,1", "label": "Spring" },
+          { "value": "0,0,1,1", "label": "Linear" }
+        ] }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,254 @@
+[
+  {
+    "path": "parts/addressed-marks/show/MarkToolbar.tsx",
+    "kind": "button",
+    "line": "<button",
+    "count": 14
+  },
+  {
+    "path": "parts/chat/show/ParticipantBrowser.tsx",
+    "kind": "icon",
+    "line": "icon={<Search />}",
+    "count": 1
+  },
+  {
+    "path": "parts/docs-site/do-work/build-docs-site.mjs",
+    "kind": "font",
+    "line": "...fontFaces.map(face => `@font-face {\\n  font-family: ${quote(face.family)};\\n  src: url(${quote(face.source)}) format(${quote(face.format ?? 'woff2')});\\n  font-style: normal;\\n  font-weight: ${face.weight};\\n  font-display: swap;\\n}`),",
+    "count": 1
+  },
+  {
+    "path": "parts/documents/show/DocumentsSurface.tsx",
+    "kind": "button",
+    "line": "<button",
+    "count": 15
+  },
+  {
+    "path": "parts/documents/show/DocumentsSurface.tsx",
+    "kind": "font",
+    "line": "font-family: inherit;",
+    "count": 1
+  },
+  {
+    "path": "parts/documents/show/DocumentsSurface.tsx",
+    "kind": "icon",
+    "line": "<ChevronRight size={14} />",
+    "count": 1
+  },
+  {
+    "path": "parts/feel/show/FeelSettings.tsx",
+    "kind": "icon",
+    "line": "<Play className=\"h-4 w-4\" aria-hidden=\"true\" />",
+    "count": 1
+  },
+  {
+    "path": "parts/group/show/appearance-preset-catalog.ts",
+    "kind": "font",
+    "line": "fontFamily: \"'Comic Sans MS', 'Comic Neue', 'Chalkboard SE', 'Patrick Hand', cursive\",",
+    "count": 1
+  },
+  {
+    "path": "parts/media-composition/show/components/EditTrackLanes.tsx",
+    "kind": "icon",
+    "line": "<Button size=\"icon-sm\" variant=\"ghost\" aria-label=\"Snap to clips\" aria-pressed={snapping} title=\"Snap to clips · hold Option to bypass\" onClick={()=>setSnapping(value=>!value)}><Magnet size={14}/></Button>",
+    "count": 1
+  },
+  {
+    "path": "parts/media-playback/show/MediaFrame.tsx",
+    "kind": "button",
+    "line": "<button",
+    "count": 1
+  },
+  {
+    "path": "parts/media-playback/show/MediaPlaybackSurface.tsx",
+    "kind": "button",
+    "line": "{sidePanel ? <button",
+    "count": 1
+  },
+  {
+    "path": "parts/media-playback/show/MediaPlaybackSurface.tsx",
+    "kind": "button",
+    "line": "<button",
+    "count": 12
+  },
+  {
+    "path": "parts/media-playback/show/MediaPlaybackSurface.tsx",
+    "kind": "card",
+    "line": "className=\"relative flex min-h-0 w-full flex-col gap-4 rounded-2xl border border-input bg-card p-4 text-foreground shadow-xs sm:p-5\"",
+    "count": 1
+  },
+  {
+    "path": "parts/media-playback/show/MediaPlaybackSurface.tsx",
+    "kind": "icon",
+    "line": "{side === 'right' ? <PanelLeftClose className=\"h-4 w-4\" /> : <PanelRightClose className=\"h-4 w-4\" />}",
+    "count": 1
+  },
+  {
+    "path": "parts/media-playback/show/MediaPlaybackSurface.tsx",
+    "kind": "icon",
+    "line": "<RotateCcw className=\"h-4 w-4\" aria-hidden=\"true\" />",
+    "count": 1
+  },
+  {
+    "path": "parts/media-playback/show/MediaPlaybackSurface.tsx",
+    "kind": "icon",
+    "line": "<X className=\"h-4 w-4\" aria-hidden=\"true\" />",
+    "count": 1
+  },
+  {
+    "path": "parts/media-playback/show/MediaPlaybackSurface.tsx",
+    "kind": "icon",
+    "line": "return <Play aria-hidden=\"true\" className=\"pointer-events-none size-16 rounded-full [corner-shape:round] border border-white/20 bg-black/45 py-[18px] pl-[21px] pr-[15px] text-white shadow-[0_8px_30px_rgba(0,0,0,0.35)] backdrop-blur-md\" fill=\"currentColor\" />;",
+    "count": 1
+  },
+  {
+    "path": "parts/media-playback/show/PlaybackControls.tsx",
+    "kind": "button",
+    "line": "<button",
+    "count": 7
+  },
+  {
+    "path": "parts/media-playback/show/PlaybackControls.tsx",
+    "kind": "icon",
+    "line": "{soundFace ? `${playbackSpeed}×` : <FastForward className={look.icon} aria-hidden=\"true\" />}",
+    "count": 1
+  },
+  {
+    "path": "parts/media-playback/show/PlaybackControls.tsx",
+    "kind": "icon",
+    "line": "<Captions className={look.icon} aria-hidden=\"true\" />",
+    "count": 1
+  },
+  {
+    "path": "parts/media-playback/show/PlaybackControls.tsx",
+    "kind": "icon",
+    "line": "<Maximize2 className={look.icon} aria-hidden=\"true\" />",
+    "count": 1
+  },
+  {
+    "path": "parts/media-playback/show/PlaybackControls.tsx",
+    "kind": "icon",
+    "line": "<MessageSquare className={look.icon} aria-hidden=\"true\" />",
+    "count": 1
+  },
+  {
+    "path": "parts/media-playback/show/PlaybackControls.tsx",
+    "kind": "icon",
+    "line": "<Minimize2 className={look.icon} aria-hidden=\"true\" />",
+    "count": 1
+  },
+  {
+    "path": "parts/media-playback/show/PlaybackControls.tsx",
+    "kind": "icon",
+    "line": "<Pause className={soundFace ? 'h-5 w-5 fill-current' : look.icon} aria-hidden=\"true\" />",
+    "count": 1
+  },
+  {
+    "path": "parts/media-playback/show/PlaybackControls.tsx",
+    "kind": "icon",
+    "line": "<Play className={soundFace ? 'h-5 w-5 translate-x-px fill-current' : look.icon} aria-hidden=\"true\" />",
+    "count": 1
+  },
+  {
+    "path": "parts/media-playback/show/PlaybackControls.tsx",
+    "kind": "icon",
+    "line": "<Volume1 className={look.icon} aria-hidden=\"true\" />",
+    "count": 1
+  },
+  {
+    "path": "parts/media-playback/show/PlaybackControls.tsx",
+    "kind": "icon",
+    "line": "<Volume2 className={look.icon} aria-hidden=\"true\" />",
+    "count": 1
+  },
+  {
+    "path": "parts/media-playback/show/PlaybackControls.tsx",
+    "kind": "icon",
+    "line": "<VolumeX className={look.icon} aria-hidden=\"true\" />",
+    "count": 1
+  },
+  {
+    "path": "parts/screen-arrangement/show/ContainerHeader.tsx",
+    "kind": "icon",
+    "line": "<MoreHorizontal className=\"h-4 w-4\" />",
+    "count": 1
+  },
+  {
+    "path": "parts/screen-arrangement/show/ContainerHeader.tsx",
+    "kind": "popover",
+    "line": "<PopoverPopup className=\"sidebar-list-popover w-64 max-h-[80vh] overflow-hidden p-0\" side=\"bottom\" align=\"end\" portalProps={{ className: 'coss-ui' }}>",
+    "count": 1
+  },
+  {
+    "path": "parts/sidebar/show/CollectionManagerRow.tsx",
+    "kind": "popover",
+    "line": "<PopoverPopup className=\"sidebar-list-popover\" side=\"right\" align=\"end\" portalProps={{ className: 'coss-ui' }}>",
+    "count": 1
+  },
+  {
+    "path": "parts/sidebar/show/DesktopSidebar.tsx",
+    "kind": "button",
+    "line": "<button type=\"button\" aria-label={`Show ${thing}`}",
+    "count": 1
+  },
+  {
+    "path": "parts/sidebar/show/SidebarBar.tsx",
+    "kind": "popover",
+    "line": "<PopoverPopup className=\"sidebar-list-popover w-72 max-h-[80vh] overflow-hidden p-0\" side={vertical ? 'right' : 'bottom'} align=\"end\" portalProps={{ className: 'coss-ui' }}>",
+    "count": 1
+  },
+  {
+    "path": "parts/sidebar/show/SidebarContent.tsx",
+    "kind": "button",
+    "line": "<button",
+    "count": 1
+  },
+  {
+    "path": "parts/sidebar/show/SidebarContent.tsx",
+    "kind": "popover",
+    "line": "<Container className=\"px-3\"><AddToListPopover section={section} onCollectionsChanged={onCollectionsChanged} /></Container>",
+    "count": 1
+  },
+  {
+    "path": "parts/transcript-reader/show/TranscriptReaderSurface.tsx",
+    "kind": "button",
+    "line": "<button",
+    "count": 3
+  },
+  {
+    "path": "parts/transcript-reader/show/TranscriptReaderSurface.tsx",
+    "kind": "icon",
+    "line": "<X className=\"h-4 w-4\" aria-hidden=\"true\" />",
+    "count": 1
+  },
+  {
+    "path": "src/workspace/file-screen.tsx",
+    "kind": "card",
+    "line": "card.className = 'trillion-file-card';",
+    "count": 1
+  },
+  {
+    "path": "src/workspace/point-at-anything.tsx",
+    "kind": "popover",
+    "line": "<Container {...ui} data-point-hint position=\"fixed\" top=\"12px\" left=\"50%\" transform=\"translateX(-50%)\" layout=\"horizontal\" gap=\"sm\" alignItems=\"center\" padding=\"sm\" rounded=\"lg\" border=\"all\" style={{ zIndex: LAYER_ORDER.dialog }} className=\"bg-[var(--glass-bg-popover)] shadow-[var(--surface-shadow-raised)]\">",
+    "count": 1
+  },
+  {
+    "path": "src/workspace/point-at-anything.tsx",
+    "kind": "popover",
+    "line": "className={`bg-[var(--glass-bg-popover)] shadow-[var(--surface-shadow-raised)] ${narrow ? 'bottom-2' : ''}`}",
+    "count": 1
+  },
+  {
+    "path": "src/workspace/workspace.css",
+    "kind": "card",
+    "line": ".trillion-file-card { flex: 0 1 auto; max-height: 45%; overflow: auto; }",
+    "count": 1
+  },
+  {
+    "path": "src/workspace/workspace.css",
+    "kind": "card",
+    "line": ".trillion-file-card { flex: none; order: 1; padding: 0 18px 18px; }",
+    "count": 1
+  }
+]

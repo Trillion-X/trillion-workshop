@@ -1,0 +1,9 @@
+{
+  "about": "The sizes the page editor lays side by side on its canvas, left to right, so one change is seen at every size at once. width and height are the frame's size in pixels; gap is the space between frames.",
+  "gap": 96,
+  "frames": [
+    { "id": "desktop", "label": "Desktop", "width": 1280, "height": 900 },
+    { "id": "tablet", "label": "Tablet", "width": 768, "height": 1024 },
+    { "id": "phone", "label": "Phone", "width": 390, "height": 844 }
+  ]
+}

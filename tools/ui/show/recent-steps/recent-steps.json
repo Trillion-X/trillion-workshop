@@ -1,0 +1,30 @@
+{
+  "_what": "What the person did just before asking for help, kept on their own device (recent-steps.ts): how far back it keeps, which page events become which kind of step, and the words and icon each kind shows. A new kind of step is one row under kinds (and one under watch when a page event makes it); nothing in code names a kind.",
+  "keep": { "steps": 30, "minutes": 30, "storage_key": "trillion.recent-steps" },
+  "label_max": 80,
+  "same_step_within_ms": 1500,
+  "page_check_ms": 1000,
+  "watch": [
+    { "event": "click", "kind": "pressed", "on": "button, a[href], summary, [role=button], [role=menuitem], [role=menuitemradio], [role=menuitemcheckbox], [role=tab], [role=option], [role=switch], [role=checkbox], [role=radio], [role=link], label" },
+    { "event": "focusin", "kind": "typed-in", "on": "input:not([type=checkbox]):not([type=radio]):not([type=hidden]), textarea, select, [contenteditable=true], [contenteditable='']" }
+  ],
+  "page_kind": "opened",
+  "ignore": "[data-recent-steps-ignore]",
+  "kinds": {
+    "opened": { "word": "Opened", "icon": "AppWindow" },
+    "pressed": { "word": "Pressed", "icon": "MousePointerClick" },
+    "typed-in": { "word": "Typed in", "icon": "TextCursorInput" },
+    "picked": { "word": "Pointed at", "icon": "Crosshair" }
+  },
+  "other_kind": { "word": "Did", "icon": "Dot" },
+  "words": {
+    "title": "What you did before this",
+    "sent_with_it": "Your AI sees these steps with what you ask. What you typed is never included.",
+    "none": "Nothing yet",
+    "earlier": "and {count} earlier",
+    "just_now": "just now",
+    "seconds_ago": "{count}s ago",
+    "minutes_ago": "{count} min ago"
+  },
+  "shown": 8
+}

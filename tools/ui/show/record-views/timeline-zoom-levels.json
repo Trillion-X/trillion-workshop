@@ -1,0 +1,14 @@
+{
+  "schema": "record-views.timeline-zoom-levels",
+  "default_level": "days",
+  "levels": [
+    {"id": "moments", "label": "Time of day", "tile_px": 260, "group": {"unit": "hour", "span": 3}, "heading": {"format": {"weekday": "short", "month": "short", "day": "numeric", "hour": "numeric"}, "range_end_format": {"hour": "numeric"}}},
+    {"id": "days", "label": "Days", "tile_px": 180, "group": {"unit": "day", "span": 1}, "heading": {"format": {"weekday": "long", "month": "long", "day": "numeric", "year": "numeric"}}},
+    {"id": "weeks", "label": "Weeks", "tile_px": 128, "group": {"unit": "week", "span": 1}, "heading": {"prefix": "Week of ", "format": {"month": "long", "day": "numeric", "year": "numeric"}}},
+    {"id": "months", "label": "Months", "tile_px": 92, "picture_only": true, "group": {"unit": "month", "span": 1}, "heading": {"format": {"month": "long", "year": "numeric"}}},
+    {"id": "years", "label": "Years", "tile_px": 64, "picture_only": true, "group": {"unit": "year", "span": 1}, "heading": {"format": {"year": "numeric"}}},
+    {"id": "decades", "label": "Decades", "tile_px": 44, "picture_only": true, "group": {"unit": "year", "span": 10}, "heading": {"span_start_suffix": "s"}},
+    {"id": "centuries", "label": "Centuries", "tile_px": 30, "picture_only": true, "group": {"unit": "year", "span": 100}, "heading": {"span_start_suffix": "s"}}
+  ],
+  "undated_heading": "No date"
+}

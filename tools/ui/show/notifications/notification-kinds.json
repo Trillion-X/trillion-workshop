@@ -1,0 +1,41 @@
+{
+  "_what": "How each kind of notification looks: an icon name (Lucide, either casing), and a tone. A kind with `gate_words` passes its title and detail through the one failure-words gate (parts/ui/show/safe-error-card sanitize-error-text): words written for a program or an AI, an id or a reference are replaced by the row's `title`, and a detail that cannot pass is left out. Work still running without a measure draws the one loading animation (parts/ui/show/loading-mark); work with a measure fills a ring. The key is the kind a caller passes to notify(). A kind with no row here still draws with the fallback, so a caller can introduce a kind before anyone styles it. Tones name screen-look notification tones in notifications.css. A notification draws as a glance row (parts/ui/show/listing-card), whose tones are the plain tone words; `listing_tones` turns a kind's tone, or a chip's badge tone, into one of them, and a chip whose tone turns into anything but the quiet tone is the row's state badge.",
+  "words": {
+    "together_unit": "like this",
+    "together": "{count} notifications like this",
+    "show_all": "Show all {count}",
+    "show_fewer": "Show fewer",
+    "read_all": "Mark all as read"
+  },
+  "fallback": {"icon": "Bell", "tone": "neutral"},
+  "listing_tones": {"blue": "info", "green": "good", "red": "bad", "yellow": "attention", "purple": "info", "neutral": "quiet", "info": "info", "success": "good", "warning": "attention", "error": "bad", "destructive": "bad"},
+  "kinds": {
+    "info": {"icon": "Info", "tone": "blue"},
+    "success": {"icon": "CircleCheck", "tone": "green"},
+    "done": {"icon": "CircleCheck", "tone": "green"},
+    "error": {"icon": "CircleAlert", "tone": "red", "gate_words": { "title": "That did not work.", "detail": "" } },
+    "warning": {"icon": "TriangleAlert", "tone": "yellow"},
+    "loading": {"icon": "LoaderCircle", "tone": "neutral"},
+    "working": {"icon": "Activity", "tone": "blue"},
+    "drive-connected": {"icon": "HardDrive", "tone": "blue"},
+    "drive-removed": {"icon": "HardDrive", "tone": "neutral"},
+    "transfer": {"icon": "HardDriveDownload", "tone": "blue"},
+    "import": {"icon": "FilePlus2", "tone": "blue"},
+    "transcription": {"icon": "AudioLines", "tone": "purple"},
+    "recording": {"icon": "Mic", "tone": "red"},
+    "archive": {"icon": "Archive", "tone": "neutral"},
+    "restore": {"icon": "ArchiveRestore", "tone": "green"},
+    "export": {"icon": "FileVideo", "tone": "green"},
+    "copy": {"icon": "Copy", "tone": "neutral"},
+    "paused": {"icon": "CirclePause", "tone": "yellow"},
+    "cancelled": {"icon": "CircleSlash", "tone": "neutral"},
+    "space-invitation": {"icon": "UserPlus", "tone": "blue"},
+    "introduction": {"icon": "Handshake", "tone": "blue"},
+    "space-joined": {"icon": "UsersRound", "tone": "green"},
+    "introduction-accepted": {"icon": "Handshake", "tone": "green"},
+    "space-new-items": {"icon": "MessagesSquare", "tone": "purple"},
+    "work-waiting": {"icon": "Inbox", "tone": "yellow"},
+    "work-taken": {"icon": "LoaderCircle", "tone": "blue"},
+    "work-finished": {"icon": "CircleCheck", "tone": "green"}
+  }
+}

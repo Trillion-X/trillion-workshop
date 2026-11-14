@@ -1,0 +1,11 @@
+{
+  "_about": "The words said when code the page fetches later did not arrive (./load-code.ts CodeLoadReason). Each reason has `why` (what happened) and `then` (what the person does). A part drawn later (./later.ts) shows `why` as its title and `then` beside it, inline in its place; a whole screen (src/workspace/lazy-screen.ts) shows both under its own title. `retry` asks again in place, offered only when the connection was the reason; `reload` fetches the page anew, offered when only that can help, and every `then` that offers it says to save work first.",
+  "retry": "Try again",
+  "reload": "Reload page",
+  "reasons": {
+    "unreached": { "why": "Trillion could not be reached", "then": "Check your connection, then try again." },
+    "replaced": { "why": "Trillion was updated", "then": "Save your work, then reload the page to open this." },
+    "stuck": { "why": "Some of this page's code did not arrive", "then": "Save your work, then reload the page to fetch it." },
+    "broken": { "why": "This code stopped while starting", "then": "Save your work, then reload the page to fetch it anew." }
+  }
+}

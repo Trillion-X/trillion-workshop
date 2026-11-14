@@ -1,0 +1,8 @@
+{
+  "what_this_is": "When a menu, popover or select opens as a sheet at the bottom edge, and how far a swipe down closes it (parts/ui/show/phone-sheet). A phone is a finger plus a small screen: narrower than max_width_px, or shorter than max_height_px (a phone on its side). A narrow desktop window has a mouse, so it keeps the floating menus.",
+  "max_width_px": 640,
+  "max_height_px": 500,
+  "close_distance_px": 80,
+  "close_fraction": 0.25,
+  "close_speed_px_per_ms": 0.5
+}

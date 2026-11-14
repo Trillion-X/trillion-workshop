@@ -1,0 +1,206 @@
+{
+  "_what": "Designed views every list is offered (../view-designs.ts): each row names a design a part registered (`design`), the slots a list must fill for it to be offered (`needs`), and the design's options. A person's own rows (their record workspace-preference:designed-views) are offered beside these. Adding a view is one row.",
+  "views": [
+    {
+      "id": "chat",
+      "label": "Chat",
+      "icon": "MessagesSquare",
+      "design": "chat",
+      "needs": [
+        "body"
+      ],
+      "options": {
+        "empty": "Nothing here yet. Write the first message below.",
+        "reply": "Reply"
+      }
+    },
+    {
+      "id": "feed",
+      "label": "Feed",
+      "icon": "Newspaper",
+      "design": "thread",
+      "needs": [
+        "body"
+      ],
+      "options": {
+        "style": "cards",
+        "box": "top",
+        "order": "newest-first",
+        "empty": "Nothing here yet. Write the first post above."
+      }
+    },
+    {
+      "id": "inbox",
+      "label": "Inbox",
+      "icon": "Inbox",
+      "design": "inbox",
+      "needs": [
+        "body"
+      ],
+      "options": {
+        "reply": "Reply",
+        "back": "All conversations",
+        "pick": "Choose a conversation to read it.",
+        "empty": "Nothing here yet.",
+        "narrow_below_px": 760
+      }
+    },
+    {
+      "id": "guide",
+      "label": "Guide",
+      "icon": "Rows3",
+      "design": "rows",
+      "needs": [],
+      "options": {
+        "open": "Open"
+      }
+    },
+    {
+      "id": "swipe",
+      "label": "Swipe",
+      "icon": "PanelsTopLeft",
+      "design": "swipe",
+      "needs": [
+        "title",
+        "status",
+        "detail"
+      ],
+      "options": {
+        "left_label": "Earlier",
+        "right_label": "Later",
+        "empty": "All caught up",
+        "left_tone": "warning",
+        "right_tone": "success"
+      }
+    },
+    {
+      "id": "calendar",
+      "label": "Calendar",
+      "icon": "CalendarDays",
+      "design": "calendar",
+      "needs": [
+        "when"
+      ],
+      "options": {
+        "views": [
+          {
+            "id": "month",
+            "label": "Month",
+            "view": {
+              "grid": "month"
+            }
+          },
+          {
+            "id": "week",
+            "label": "Week",
+            "view": {
+              "grid": "hours",
+              "days": 7
+            }
+          },
+          {
+            "id": "day",
+            "label": "Day",
+            "view": {
+              "grid": "hours",
+              "days": 1
+            }
+          }
+        ],
+        "day_view": "day",
+        "snap_minutes": 15,
+        "item_minutes": 30,
+        "start_scroll_minute": 420,
+        "words": {
+          "previous": "Earlier",
+          "next": "Later",
+          "today": "Today",
+          "show": "Show",
+          "tray": "No date yet",
+          "tray_empty": "Everything here has a date. Drag something here to take its date away.",
+          "more": "{count} more",
+          "placing": "{title} moves to {when}. Let go to set it.",
+          "unplacing": "Let go to take the date away from {title}."
+        }
+      }
+    },
+    {
+      "id": "matrix",
+      "label": "Matrix",
+      "icon": "Grid2x2",
+      "design": "matrix",
+      "needs": [
+        "across",
+        "down"
+      ],
+      "options": {
+        "unset": "None",
+        "moving": "{title} moves to {across} and {down}.",
+        "empty": "Nothing here yet."
+      }
+    },
+    {
+      "id": "sprints",
+      "label": "Sprints",
+      "icon": "IterationCcw",
+      "design": "sprints",
+      "needs": [
+        "when",
+        "status"
+      ],
+      "options": {
+        "period_days": 14,
+        "week_starts_on": 1,
+        "undated": "No date",
+        "unset": "No status",
+        "done": "{done} of {count} done",
+        "moving": "{title} moves to {status}.",
+        "empty": "Nothing here yet."
+      }
+    },
+    {
+      "id": "document",
+      "label": "Document",
+      "icon": "FileText",
+      "design": "document",
+      "needs": [],
+      "options": {
+        "open": "Open",
+        "untitled": "Untitled",
+        "write_here": "Write here",
+        "empty": "Nothing here yet."
+      }
+    },
+    {
+      "id": "carousel",
+      "label": "Carousel",
+      "icon": "GalleryHorizontal",
+      "design": "carousel",
+      "needs": [
+        "title"
+      ],
+      "options": {
+        "open": "Open",
+        "empty": "Nothing here yet."
+      }
+    },
+    {
+      "id": "canvas",
+      "label": "Draw",
+      "icon": "PenTool",
+      "design": "draw",
+      "needs": [
+        "title"
+      ],
+      "fade_edges": [],
+      "options": {
+        "height": "var(--canvas-view-height, max(420px, calc(100dvh - 300px)))",
+        "add_label": "Add to the list",
+        "add_placeholder": "Name it",
+        "new_label": "Something new",
+        "done": "{done} of {count} done",
+        "open": "Open"
+      }
+    }
+  ]
+}

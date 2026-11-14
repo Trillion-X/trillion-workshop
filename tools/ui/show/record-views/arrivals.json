@@ -1,0 +1,5 @@
+{
+  "_what": "The small, temporary arrival policy for records added after a list first draws. Duration comes from the active Screen Look motion-arrival token.",
+  "max_arrivals": 8,
+  "cleanup_margin_ms": 100
+}

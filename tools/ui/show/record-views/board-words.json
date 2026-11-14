@@ -1,0 +1,8 @@
+{
+  "_what": "The accessible words for folding and unfolding a board column. {column} and {count} are filled from the current column.",
+  "fold": "Fold the {column} column",
+  "unfold": "Unfold the {column} column",
+  "folded_title": "{column}, {count} {item_word}",
+  "item_one": "item",
+  "item_many": "items"
+}

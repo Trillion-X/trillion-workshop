@@ -1,0 +1,8 @@
+{
+  "about": "Who a style change in the page editor reaches, in the order offered. A scope takes the selected part alone (no match), the parts picked on the canvas (picked: true; shift-click picks several), or every part on the page whose facts equal the selected part's for each fact in match. A fact is tag (the element's name), class (its classes, in any order) or any attribute's name, such as data-trillion-element, every element's address.",
+  "scopes": [
+    { "id": "one", "label": "This one" },
+    { "id": "picked", "label": "Picked", "picked": true },
+    { "id": "alike", "label": "All like this", "match": ["tag", "class"] }
+  ]
+}

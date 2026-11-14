@@ -1,0 +1,4 @@
+{
+  "_what": "The loading placeholder a list draws while records load, by the view last chosen. Views not named here use the caller's fallback.",
+  "layouts": { "board": "board", "table": "table", "gallery": "gallery" }
+}

@@ -1,0 +1,10 @@
+{
+  "schema": "record-views.detail-levels",
+  "_what": "How much each card says at each step of a pinch on a gallery or board, most first (record-views.tsx detailLevels). Pinching out, Ctrl/Cmd and minus, or Zoom out moves one row down: more, smaller cards that each say less; pinching in moves up. fields is how many of the list's shown fields a card shows under its name (null: every one, 0: the name alone); tile_px is a gallery card's width; words_under_picture keeps the name and fields under a picture instead of the picture alone.",
+  "default_level": "brief",
+  "levels": [
+    {"id": "everything", "label": "Everything", "fields": null, "tile_px": 300, "words_under_picture": true},
+    {"id": "brief", "label": "A few details", "fields": 3, "tile_px": 200},
+    {"id": "names", "label": "Names only", "fields": 0, "tile_px": 140}
+  ]
+}
