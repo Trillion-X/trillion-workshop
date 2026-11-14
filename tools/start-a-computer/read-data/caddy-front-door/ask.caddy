@@ -1,0 +1,13 @@
+http://127.0.0.1:{ask_port} {
+	bind 127.0.0.1
+	@ask path {ask_path}
+	handle @ask {
+		reverse_proxy {door_upstream} {
+			header_up Host {door_host}
+			transport http {
+				tls_server_name {door_host}
+			}
+		}
+	}
+	respond 404
+}

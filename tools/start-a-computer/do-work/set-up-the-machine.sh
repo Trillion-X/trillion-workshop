@@ -8,9 +8,12 @@
 # Caddy site file, each unit and its drop-ins) are written by apply-layout in start-a-computer.mjs, so this script names no
 # path a layout does not give.
 #
-# LAYOUT is the computer's layout row as JSON (request.host_layout, read at run time).
+# LAYOUT is the computer's layout row as JSON (request.host_layout, read at run time). FRONT_DOOR_CADDY, given when the
+# layout's caddy row has `front_door`, is "PATH URL SHA256" of this machine's architecture (settings.json caddy_front_door):
+# that Caddy is fetched and installed at PATH only when its SHA-256 is SHA256.
 set -eu
 LAYOUT=$1
+FRONT_DOOR_CADDY=${2:-}
 command -v apt-get >/dev/null 2>&1 || { echo "This machine has no apt-get; start-a-computer sets up Debian and Ubuntu machines." >&2; exit 3; }
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
@@ -24,6 +27,15 @@ printf '%s' "$LAYOUT" | jq -r '.units[] | [.user, (.config | sub("/[^/]+$"; ""))
     head -c 32 /dev/urandom | base64 -w0 | install -o "$user" -g "$user" -m 0400 /dev/stdin "$key"
   fi
 done
+if [ -n "$FRONT_DOOR_CADDY" ]; then
+  set -- $FRONT_DOOR_CADDY
+  if ! printf '%s  %s\n' "$3" "$1" | sha256sum -c --status 2>/dev/null; then
+    install -d -m 0755 "$(dirname "$1")"
+    curl -fsSL --max-time 300 -o "$1.new" "$2"
+    printf '%s  %s\n' "$3" "$1.new" | sha256sum -c --status || { echo "The Caddy at $2 is not the pinned one." >&2; exit 4; }
+    chmod 0755 "$1.new" && mv "$1.new" "$1"
+  fi
+fi
 ufw allow 22/tcp >/dev/null
 ufw allow 80/tcp >/dev/null
 ufw allow 443/tcp >/dev/null

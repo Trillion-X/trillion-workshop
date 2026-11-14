@@ -102,3 +102,28 @@ test('a restarted unit must answer its health row on the machine, or the apply f
   const crashing = async (m, command) => command.includes('curl') ? '000' : healthy(m, command);
   await assert.rejects(applyHostLayout(machine, layout, crashing), /example-place\.service answered nothing on \/readyz, not 200/);
 });
+
+// A front door (caddy.front_door): its pinned Caddy is fetched by set-up when the machine lacks it, its site file is
+// validated by that Caddy with the shared storage's environment, and Caddy restarts because its drop-in swaps the program.
+test('a front door gets its pinned Caddy, is validated by it and restarts Caddy instead of only reloading it', async () => {
+  const door = { ...layout, caddy: { ...layout.caddy, front_door: {
+    storage_server_cert: '/etc/caddy/storage-server.crt', storage_env: '/etc/caddy/storage.env', ask_port: 9444,
+    ask_path: '/origins/certificate', door_upstream: 'https://192.0.2.10:443', door_host: 'app.example.test',
+    door_server_name: '{http.request.host}', door_hosts: ['app.example.test'] } } };
+  const rendered = renderLayout(door, SITE_BLOCK);
+  const live = Object.fromEntries(rendered.filter(({ path }) => !path.includes('caddy')).map(({ path, text }) => [path, text]));
+  const base = computer(live);
+  const run = async (machine_, command, input) => {
+    if (command === 'uname -m') { base.commands.push({ command }); return 'x86_64\n'; }
+    if (command.includes('sha256sum -c --status || exit 3')) { base.commands.push({ command }); throw Object.assign(new Error('not pinned'), { code: 3 }); }
+    return base.run(machine_, command, input);
+  };
+  const { written, restarted } = await applyHostLayout(machine, door, run);
+  assert.deepEqual(written, ['/etc/caddy/Caddyfile', '/etc/systemd/system/caddy.service.d/front-door.conf']);
+  assert.deepEqual(restarted, ['caddy.service']);
+  const setUp = base.commands.find(({ command }) => command.startsWith('sh -s'));
+  assert.match(setUp.command, / '\/opt\/caddy\/2\.11\.9-redis\/caddy https:\/\/\S+-linux-amd64 eca5f1582fe35e8758a6f03df305427cc1848d908a810341ad1425ef87b2062f'$/);
+  assert.ok(base.commands.some(({ command }) => command.startsWith("set -a && . '/etc/caddy/storage.env' && set +a && '/opt/caddy/2.11.9-redis/caddy' validate")));
+  assert.ok(base.commands.some(({ command }) => command === "systemctl restart 'caddy.service'"));
+  assert.ok(!base.commands.some(({ command }) => command === 'systemctl reload caddy'), 'a restart already loads the new site file');
+});

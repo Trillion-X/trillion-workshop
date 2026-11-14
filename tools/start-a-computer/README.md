@@ -18,6 +18,10 @@ A computer's layout row (`request.host_layout`) may also name the sign-in unit: 
 
 Updates back up replaced config, service unit, settings and release pointer. A failed service health check or sign-up response restores them. Explicit rollback uses the same backup and layout. Removal deletes only resources the saved lease owns; adopted machines are forgotten without deleting them.
 
+## A public front door
+
+A layout whose `caddy` row has `front_door` makes the computer a public front door. Every such computer runs the same Caddy (settings.json `caddy_front_door`: v2.11.9 with only the caddy-storage-redis module, both Apache-2.0, fetched by set-up and refused unless its SHA-256 is the pinned one) and keeps its certificates in one shared store (`storage_env` names the address, password and encryption key, a host-held file the layout never writes; `storage_server_cert` pins the store's TLS certificate), so any front door answers any name. A name no site block names gets a certificate on demand only when `door_upstream`'s `ask_path` (the forwarder's own `/origins/certificate`) answers 200 for it, and every such name and each of `door_hosts` is carried to `door_upstream` with its own Host and TLS name. The layout's own sites are unchanged. `front_door` fields: `storage_server_cert`, `storage_env`, `ask_port`, `ask_path`, `door_upstream`, `door_host`, `door_server_name`, `door_hosts`.
+
 ## Source and checks
 
 This is the existing canonical `start-a-computer` owner, recovered from its committed public origin implementation. Earlier product-filled DATA remains in that Git history; it is not a production default here. Recovery does not assert a new historical byte-copy baseline. The old `start-a-place` working files are outside this recovery's custody.

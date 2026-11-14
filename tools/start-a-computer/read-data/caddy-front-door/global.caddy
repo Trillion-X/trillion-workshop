@@ -1,0 +1,14 @@
+{
+	admin localhost:2019
+	storage redis {
+		address {$CADDY_STORAGE_ADDRESS}
+		password {$CADDY_STORAGE_PASSWORD}
+		encryption_key {$CADDY_STORAGE_KEY}
+		key_prefix caddy
+		tls_enabled true
+		tls_server_certs_path {storage_server_cert}
+	}
+	on_demand_tls {
+		ask http://127.0.0.1:{ask_port}{ask_path}
+	}
+}

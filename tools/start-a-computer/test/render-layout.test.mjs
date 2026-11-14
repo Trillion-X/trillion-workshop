@@ -101,3 +101,27 @@ test('a layout without the route renders no auth routes; an unknown route or a r
   const { settings_file, ...noSettingsFile } = withSignIn.units[1];
   assert.throws(() => renderLayout({ ...withSignIn, units: [layout.units[0], noSettingsFile] }, SITE_BLOCK), /needs settings_file/);
 });
+
+// A front door: shared certificate storage, an on-demand ask that only the door's own answer can make true, the layout's
+// own sites unchanged, and every other name carried to the door with its own Host and TLS name.
+test('a front door renders its storage, its ask, its own sites, its door hosts and the on-demand catch-all', () => {
+  const door = { storage_server_cert: '/etc/caddy/storage-server.crt', storage_env: '/etc/caddy/storage.env', ask_port: 9444,
+    ask_path: '/origins/certificate', door_upstream: 'https://192.0.2.10:443', door_host: 'app.example.test',
+    door_server_name: '{http.request.host}', door_hosts: ['app.example.test'] };
+  const files = renderLayout({ ...layout, caddy: { ...layout.caddy, front_door: door } }, SITE_BLOCK);
+  const caddy = files[0].text;
+  assert.match(caddy, /^\{\n\tadmin localhost:2019\n\tstorage redis \{/);
+  assert.match(caddy, /\tpassword \{\$CADDY_STORAGE_PASSWORD\}\n/, 'the storage password is read from the environment, never written here');
+  assert.match(caddy, /\ton_demand_tls \{\n\t\task http:\/\/127\.0\.0\.1:9444\/origins\/certificate\n\t\}/);
+  assert.match(caddy, /\nhttp:\/\/127\.0\.0\.1:9444 \{\n\tbind 127\.0\.0\.1\n\t@ask path \/origins\/certificate\n/);
+  const block = host => `${SITE_BLOCK.replace('{SITE}', host).replace('{PORT}', '7199')}`;
+  assert.ok(caddy.includes(block('place.example.test')) && caddy.includes(block('www.example.test')), 'the layout sites are unchanged');
+  assert.match(caddy, /\napp\.example\.test \{\n\treverse_proxy https:\/\/192\.0\.2\.10:443 \{\n\t\theader_up Host \{http\.request\.host\}\n/);
+  assert.match(caddy, /\nhttps:\/\/ \{\n\ttls \{\n\t\ton_demand\n\t\}\n\treverse_proxy https:\/\/192\.0\.2\.10:443 \{[\s\S]*tls_server_name \{http\.request\.host\}/);
+  assert.doesNotMatch(caddy, /\{[a-z_]+\}/, 'every field is filled');
+  const dropIn = files.find(file => file.path === '/etc/systemd/system/caddy.service.d/front-door.conf').text;
+  assert.match(dropIn, /^EnvironmentFile=\/etc\/caddy\/storage\.env$/m);
+  assert.match(dropIn, /^ExecStart=\/opt\/caddy\/2\.11\.9-redis\/caddy run --config \/etc\/caddy\/Caddyfile$/m);
+  const { door_upstream, ...missing } = door;
+  assert.throws(() => renderLayout({ ...layout, caddy: { ...layout.caddy, front_door: missing } }, SITE_BLOCK), /caddy\.front_door needs door_upstream/);
+});

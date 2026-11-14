@@ -4,7 +4,10 @@
 // layout is that computer's row (request.host_layout, read at run time); the templates are read-data/unit-templates,
 // the units' own text with a {field} for each value a computer declares. A field the row does not give is refused,
 // so a template never renders half-filled. A layout's own Caddy routes (caddy.routes) are read-data/caddy-routes files filled
-// from the layout's caddy fields, and a unit's settings object is written as JSON to its settings_file.
+// from the layout's caddy fields, and a unit's settings object is written as JSON to its settings_file. A layout whose caddy
+// row has `front_door` is a public front door (read-data/caddy-front-door): its certificates live in the shared storage
+// every front door reaches, a name no site block names gets one on demand only when the door's ask path says yes, and
+// each such name and each of `door_hosts` is carried to `door_upstream`; Caddy itself is settings.json caddy_front_door.
 import { existsSync, readFileSync } from 'node:fs';
 
 const TEMPLATE = name => readFileSync(new URL(`../read-data/unit-templates/${name}`, import.meta.url), 'utf8');
@@ -16,6 +19,8 @@ const ROUTE = name => {
 };
 const DROP_INS = { nofile: TEMPLATE('nofile.conf'), 'product-settings': TEMPLATE('product-settings.conf') };
 const SYSTEMD = '/etc/systemd/system';
+const FRONT_DOOR = name => readFileSync(new URL(`../read-data/caddy-front-door/${name}.caddy`, import.meta.url), 'utf8').trimEnd();
+const FRONT_DOOR_CADDY = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8')).caddy_front_door;
 
 const fill = (template, values, where) => template.replace(/\{([a-z_]+)\}/g, (_, key) => {
   if (values[key] === undefined) throw new Error(`${where} needs ${key}`);
@@ -29,16 +34,31 @@ export const renderCaddy = (siteBlock, caddy) => {
   if (!Array.isArray(site_hosts) || !site_hosts.length) throw new Error('caddy.site_hosts needs at least one name');
   if (siteBlock.includes('{releases}') && !releases) throw new Error('caddy.releases needs the folder the /engine-releases/ route serves');
   const routes = (caddy.routes ?? []).map(name => fill(ROUTE(name), caddy, `caddy route ${name}`)).join('\n');
-  return site_hosts.map(host => {
+  const sites = site_hosts.map(host => {
     const block = siteBlock.replaceAll('{SITE}', host).replaceAll('{PORT}', String(port)).replaceAll('{releases}', releases ?? '');
     return `${routes ? block.replace('\n', `\n${routes}\n`) : block}\n`;
   }).join('');
+  return caddy.front_door ? renderFrontDoor(caddy.front_door, sites) : sites;
+};
+
+/** A front door's whole site file: the shared storage and the on-demand ask (global options), the loopback site the ask
+ * goes to, the layout's own sites, each of `door_hosts`, and every other name, on demand, carried to `door_upstream`. */
+const renderFrontDoor = (door, sites) => {
+  const where = 'caddy.front_door';
+  const doorSite = (name, tls) => fill(FRONT_DOOR('door-site').replace('{SITE}', name).replace('{TLS}', tls), door, where);
+  return [
+    fill(FRONT_DOOR('global'), door, where), fill(FRONT_DOOR('ask'), door, where), sites.trimEnd(),
+    ...(door.door_hosts ?? []).map(name => doorSite(name, '')),
+    doorSite('https://', '\ttls {\n\t\ton_demand\n\t}\n'),
+  ].join('\n\n') + '\n';
 };
 
 /** Every file a layout declares: { path, text }. A unit's drop-ins are the names it lists in `drop_ins`. With the product
  * settings' text (the verified product data), each unit that names a `product_settings` file declares that file too. */
 export function renderLayout(layout, siteBlock, productSettings) {
   const files = [{ path: '/etc/caddy/Caddyfile', text: renderCaddy(siteBlock, layout.caddy) }];
+  const door = layout.caddy?.front_door;
+  if (door) files.push({ path: `${SYSTEMD}/caddy.service.d/front-door.conf`, text: fill(TEMPLATE('caddy-front-door.conf'), { ...door, binary: FRONT_DOOR_CADDY.binary }, 'caddy.front_door') });
   for (const unit of layout.units ?? []) {
     const where = `unit ${unit.unit}`;
     const template = UNITS[unit.template];

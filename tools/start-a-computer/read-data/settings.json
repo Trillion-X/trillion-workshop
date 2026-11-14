@@ -1,5 +1,5 @@
 {
-  "_what": "Generic machine layout and engine protocol limits. Product identity, starting account rows, engine file names and signed feed addresses are caller inputs.",
+  "_what": "Generic machine layout and engine protocol limits. Product identity, starting account rows, engine file names and signed feed addresses are caller inputs. `caddy_front_door` is the Caddy a front-door computer runs (a layout whose caddy row has `front_door`): release v2.11.9 built with only github.com/pberkel/caddy-storage-redis v1.9.0 (both Apache-2.0; `xcaddy build v2.11.9 --with github.com/pberkel/caddy-storage-redis@v1.9.0`, CGO off, the same bytes on every build), one file per `uname -m`, fetched from `url` and refused unless its SHA-256 is `sha256`, installed at `binary`.",
   "product_settings": { "launch_setting": "PRODUCT_SETTINGS", "file": "/var/lib/place/product-settings.json", "most_bytes": 131072 },
   "journal": { "system_max_use": "500M" },
   "health": { "path": "/readyz", "status": 200, "where": "public" },
@@ -7,5 +7,12 @@
   "unit_restarts": { "budget": 5 },
   "layout": { "releases": "/opt/place/releases" },
   "copies": { "most_admitted_computers": 1024 },
-  "caddy_routes": ["engine-releases"]
+  "caddy_routes": ["engine-releases"],
+  "caddy_front_door": {
+    "binary": "/opt/caddy/2.11.9-redis/caddy",
+    "files": {
+      "x86_64": { "url": "https://app.gettrillion.ai/download/caddy/caddy-2.11.9-redis-linux-amd64", "sha256": "eca5f1582fe35e8758a6f03df305427cc1848d908a810341ad1425ef87b2062f" },
+      "aarch64": { "url": "https://app.gettrillion.ai/download/caddy/caddy-2.11.9-redis-linux-arm64", "sha256": "0f15ce80ba4b0538b0603a2f243ea560f24efece8cd22b37cb54408b460cf8ad" }
+    }
+  }
 }

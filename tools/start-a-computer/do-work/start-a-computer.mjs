@@ -111,7 +111,12 @@ export async function applyHostLayout(machine, layout, run = onMachine, product)
   // Set-up makes what is missing (packages, accounts, folders); a computer whose accounts all exist needs none, and
   // running it would refresh the package lists on every apply.
   const accounts = await Promise.all(layout.units.map(unit => run(machine, `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
-  if (accounts.includes(false)) await run(machine, `sh -s -- ${q(JSON.stringify(layout))}`, readFileSync(SETUP));
+  // A front door's pinned Caddy is fetched by set-up too, so a layout that gains front_door on a computer that has its
+  // accounts still runs set-up once.
+  const door = layout.caddy?.front_door;
+  const doorCaddy = door ? await frontDoorCaddy(machine, run) : null;
+  const caddyMissing = door ? await run(machine, `printf '%s  %s\\n' ${q(doorCaddy.sha256)} ${q(doorCaddy.binary)} | sha256sum -c --status || exit 3`).then(() => false, error => { if (error.code === 3) return true; throw error; }) : false;
+  if (accounts.includes(false) || caddyMissing) await run(machine, `sh -s -- ${q(JSON.stringify(layout))}${door ? ` ${q(`${doorCaddy.binary} ${doorCaddy.url} ${doorCaddy.sha256}`)}` : ''}`, readFileSync(SETUP));
   // A product settings file is the unit's own: its user owns it and it is private (0600), as serve writes it.
   const owner = path => layout.units.find(unit => unit.product_settings === path)?.user;
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -119,7 +124,9 @@ export async function applyHostLayout(machine, layout, run = onMachine, product)
     if (live[path] !== undefined) await run(machine, `cp -p ${q(path)} ${q(`${path}.bak-${stamp}`)}`);
     if (path === CADDYFILE) {
       await run(machine, `install -m 0644 -o root -g root /dev/stdin ${q(`${path}.new`)}`, text);
-      await run(machine, `caddy validate --config ${q(`${path}.new`)} --adapter caddyfile >/dev/null && mv ${q(`${path}.new`)} ${q(path)}`);
+      // A front door's site file names its shared storage through the environment file only the door's Caddy reads.
+      const validate = door ? `set -a && . ${q(door.storage_env)} && set +a && ${q(doorCaddy.binary)}` : 'caddy';
+      await run(machine, `${validate} validate --config ${q(`${path}.new`)} --adapter caddyfile >/dev/null && mv ${q(`${path}.new`)} ${q(path)}`);
     } else if (owner(path)) {
       await run(machine, `install -m 0600 -o ${q(owner(path))} -g ${q(owner(path))} /dev/stdin ${q(path)}`, text);
     } else {
@@ -130,10 +137,11 @@ export async function applyHostLayout(machine, layout, run = onMachine, product)
   const units = [...new Set(writes.map(({ path }) => unitOf(path)).filter(Boolean))];
   const running = new Set(writes.filter(({ path }) => live[path] !== undefined).map(({ path }) => unitOf(path)));
   if (units.length) await run(machine, 'systemctl daemon-reload');
+  // Caddy is restarted, never only enabled, when its front-door drop-in changes: the drop-in swaps the program itself.
   for (const unit of units) {
-    await run(machine, running.has(unit) ? `systemctl restart ${q(unit)}` : `systemctl enable ${q(unit)} >/dev/null 2>&1`);
+    await run(machine, running.has(unit) || unit === 'caddy.service' ? `systemctl restart ${q(unit)}` : `systemctl enable ${q(unit)} >/dev/null 2>&1`);
   }
-  if (writes.some(({ path }) => path === CADDYFILE)) await run(machine, 'systemctl reload caddy');
+  if (writes.some(({ path }) => path === CADDYFILE) && !units.includes('caddy.service')) await run(machine, 'systemctl reload caddy');
   // The boot check: each restarted unit must answer the health row its layout names (else the tool default), on the machine
   // itself, so a unit that starts and crashes, or a route that is not served, fails the apply instead of passing it.
   const booted = [];
@@ -148,6 +156,14 @@ export async function applyHostLayout(machine, layout, run = onMachine, product)
 }
 
 const CADDYFILE = '/etc/caddy/Caddyfile';
+
+/** The pinned front-door Caddy for this machine's architecture: { binary, url, sha256 } (settings.json caddy_front_door). */
+async function frontDoorCaddy(machine, run) {
+  const arch = (await run(machine, 'uname -m')).trim();
+  const file = SETTINGS.caddy_front_door.files[arch];
+  if (!file) throw new Error(`No front-door Caddy is pinned for ${arch} (settings.json caddy_front_door.files).`);
+  return { binary: SETTINGS.caddy_front_door.binary, ...file };
+}
 
 /** Copy the release onto the machine as /opt/place/releases/NAME (under `root`, empty on a machine), pointing nothing
  * at it. */

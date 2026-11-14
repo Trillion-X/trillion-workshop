@@ -1,0 +1,11 @@
+{SITE} {
+{TLS}	reverse_proxy {door_upstream} {
+		header_up Host {http.request.host}
+		flush_interval -1
+		transport http {
+			tls_server_name {door_server_name}
+			read_timeout 3600s
+			write_timeout 3600s
+		}
+	}
+}
