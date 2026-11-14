@@ -120,7 +120,8 @@
               { "kind": "workflow-step", "operations": ["records:list"], "prefix": "record:workflow-step:" },
               { "kind": "record:arrival-sources", "operations": ["records:read"] },
               { "kind": "message", "operations": ["records:read"] },
-              { "kind": "record:inputs-arrivals", "operations": ["records:read"] }
+              { "kind": "record:inputs-arrivals", "operations": ["records:read"] },
+              { "kind": "record:broad-condition", "operations": ["records:read"] }
             ]
           }
         },

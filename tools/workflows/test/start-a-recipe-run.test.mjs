@@ -27,6 +27,7 @@ test('the recipes source runs every recipe as the starter', () => {
     { kind: 'record:arrival-sources', operations: ['records:read'] },
     { kind: 'message', operations: ['records:read'] },
     { kind: 'record:inputs-arrivals', operations: ['records:read'] },
+    { kind: 'record:broad-condition', operations: ['records:read'] },
   ]);
 });
 
@@ -130,4 +131,15 @@ test('a source that is off starts nothing, and a missing source is refused', asy
   assert.deepEqual(ran.result, { job: null, status: 'nothing-arrived' });
   const missing = await fireWoken([{ id: 'message:a', deleted: false }], [message('message:a', 'person', 'A thought.')]);
   assert.match(missing.error, /no arrival source/);
+});
+
+test('every published record wake that starts from an arrival source may read the rows it wakes on', () => {
+  // A firing reads each changed row under the source's read_type; a right the starter lacks refuses the whole run
+  // ("This tool may not reach those records.", Nov 14 2026: rewrite-a-broad-condition's broad-found wake).
+  const readable = new Set(starter.invoke.records.rights.filter(right => right.operations.includes('records:read')).map(right => right.kind));
+  const recipes = JSON.parse(readFileSync(new URL('../recipes/workflows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+  const woken = recipes.flatMap(recipe => (recipe.wakes ?? []).filter(wake => wake.on.record?.prefix && wake.input?.arrival_source)
+    .map(wake => ({ recipe: recipe.id, wake: wake.id, kind: wake.on.record.prefix.replace(/:$/, '').split(':').slice(0, 2).join(':') })));
+  assert.ok(woken.length >= 1, 'at least one published recipe wakes on an arrival source');
+  for (const { recipe, wake, kind } of woken) assert.ok(readable.has(kind), `${recipe} wake ${wake} reads ${kind}`);
 });
