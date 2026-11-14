@@ -1,0 +1,219 @@
+import { describe, expect, it, vi } from 'vitest';
+import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
+import {
+  ONLY_ONE_CONTROLS_RULE,
+  AlreadyInControlError,
+  assertNobodyElseIsInControl,
+  buildControlCheckRequest,
+  buildGrantControlRequest,
+  buildControlHandBack,
+  checkControl,
+  checkControlWithDeps,
+  decodeControlNotes,
+  recordControlWithDeps,
+  requestControlCheck,
+  type ControlNote,
+} from '@/packages/permission-lease/do-work/exclusive-control-lease';
+
+vi.mock('@bitfield/runtime-kit', () => ({
+  sendRequestToBitfieldTarget: vi.fn(async (request) => ({ request })),
+}));
+
+const NOW = new Date('2026-08-20T00:00:00Z');
+const LATER = new Date('2026-08-20T01:00:00Z');
+const EARLIER = new Date('2026-08-19T23:00:00Z');
+
+// One computer scope. A human hold on it. A bot hold on a second scope.
+const humanHold = (over: Partial<ControlNote> = {}): ControlNote => ({
+  kind: 'permission_lease',
+  lease_ref: 'control-lease:computer:c1',
+  lease_class: ONLY_ONE_CONTROLS_RULE,
+  scope_ref: 'computer:c1',
+  holder: 'human',
+  holder_subject_ref: 'actor:human:founder',
+  since: '2026-08-20T00:00:00Z',
+  reason: 'Sign in to the bank, the assistant hit a login wall',
+  expires_at: '2026-08-20T00:15:00Z',
+  revoked: false,
+  ...over,
+});
+
+// The record set as it lives on the log: things carrying payloads.
+const asRecords = (...leases: ControlNote[]) =>
+  leases.map((payload) => ({ type: 'record', payload }));
+
+describe('exclusive-control lease: the one-driver takeover', () => {
+  it('(a) refuses the bot actuate while a human holds control of that scope', () => {
+    const check = checkControl([humanHold()], { scopeRef: 'computer:c1', now: NOW });
+    expect(check).toEqual({
+      kind: 'permission_lease_check',
+      allowed: false,
+      scope_ref: 'computer:c1',
+      blocked_reason_ref: 'blocked:human-holds-control',
+      holder: 'human',
+      holder_subject_ref: 'actor:human:founder',
+      lease_ref: 'control-lease:computer:c1',
+    });
+  });
+
+  it('(b) permits the identical actuate after hand-back (the human releases)', () => {
+    // Hand-back is a durable revocation of the held lease. Decode honors it.
+    const records = [
+      ...asRecords(humanHold()),
+      { type: 'record', payload: buildControlHandBack('control-lease:computer:c1', { subjectRef: 'actor:human:founder', reason: 'done, you can drive' }) },
+    ];
+    const leases = decodeControlNotes(records);
+    const check = checkControl(leases, { scopeRef: 'computer:c1', now: NOW });
+    expect(check).toEqual({ kind: 'permission_lease_check', allowed: true, scope_ref: 'computer:c1' });
+  });
+
+  it('(c) two bots cannot both hold one scope (exclusive: at most one live hold)', () => {
+    const botAlreadyDriving = humanHold({
+      lease_ref: 'control-lease:computer:c1#bot-a',
+      holder: 'bot',
+      holder_subject_ref: 'actor:bot:agent-a',
+      expires_at: null,
+    });
+    // A second bot tries to take the same scope while the first hold is live.
+    expect(() => assertNobodyElseIsInControl([botAlreadyDriving], {
+      leaseRef: 'control-lease:computer:c1#bot-b',
+      scopeRef: 'computer:c1',
+      holder: 'bot',
+      holderSubjectRef: 'actor:bot:agent-b',
+      expiresAt: null,
+    }, { now: NOW })).toThrow(AlreadyInControlError);
+
+    // The same holder renewing the SAME lease_ref is not a conflict.
+    const renewed = assertNobodyElseIsInControl([botAlreadyDriving], {
+      leaseRef: 'control-lease:computer:c1#bot-a',
+      scopeRef: 'computer:c1',
+      holder: 'bot',
+      holderSubjectRef: 'actor:bot:agent-a',
+      expiresAt: null,
+    }, { now: NOW });
+    expect(renewed.lease_ref).toBe('control-lease:computer:c1#bot-a');
+  });
+
+  it('(d) an expired exclusive-control human hold does NOT block (expiry releases, SP2/SP3)', () => {
+    // now is past the 00:15 expiry: the hold is released.
+    const past = checkControl([humanHold()], { scopeRef: 'computer:c1', now: LATER });
+    expect(past).toEqual({ kind: 'permission_lease_check', allowed: true, scope_ref: 'computer:c1' });
+
+    // SP3: a rolled-back system clock (before expiry) cannot RESURRECT the passed
+    // expiry. The effective clock is MAX(clock, high-water mark past expiry), so
+    // the hold stays released and the bot stays permitted.
+    const rolledBack = checkControl([humanHold()], {
+      scopeRef: 'computer:c1',
+      now: EARLIER,
+      highWaterMark: LATER,
+    });
+    expect(rolledBack.allowed).toBe(true);
+  });
+
+  it('(e) a lease on a different scope does not gate this scope', () => {
+    const holdOnOtherComputer = humanHold({ lease_ref: 'control-lease:computer:c2', scope_ref: 'computer:c2' });
+    const check = checkControl([holdOnOtherComputer], { scopeRef: 'computer:c1', now: NOW });
+    expect(check).toEqual({ kind: 'permission_lease_check', allowed: true, scope_ref: 'computer:c1' });
+  });
+
+  it('holder is DATA: the blocked reason is derived from whatever party holds it (L090)', () => {
+    const otherAgentHold = humanHold({ holder: 'other-agent', holder_subject_ref: 'actor:bot:sibling', expires_at: null });
+    const check = checkControl([otherAgentHold], { scopeRef: 'computer:c1', now: NOW });
+    expect(check.allowed).toBe(false);
+    expect(check.blocked_reason_ref).toBe('blocked:other-agent-holds-control');
+  });
+
+  it('the actuator holding its own scope is not blocked by itself', () => {
+    const botSelfHold = humanHold({ holder: 'bot', holder_subject_ref: 'actor:bot:agent-a', expires_at: null });
+    const check = checkControl([botSelfHold], { scopeRef: 'computer:c1', actuatorHolder: 'bot', now: NOW });
+    expect(check.allowed).toBe(true);
+  });
+});
+
+describe('exclusive-control lease: WithDeps orchestration (injected reader and writer, no engine)', () => {
+  it('a durable take then a bot check refuses; after a durable release it permits', async () => {
+    const store: ControlNote[] = [];
+    const readControlNotes = async () => asRecords(...store);
+    const writeControlNote = async (lease: ControlNote) => { store.push(lease); };
+
+    // Human takes the wheel.
+    await recordControlWithDeps({
+      leaseRef: 'control-lease:computer:c1',
+      scopeRef: 'computer:c1',
+      holder: 'human',
+      holderSubjectRef: 'actor:human:founder',
+      expiresAt: null,
+    }, { readControlNotes, writeControlNote, now: () => NOW });
+
+    const blocked = await checkControlWithDeps({ scopeRef: 'computer:c1' }, { readControlNotes, now: () => NOW });
+    expect(blocked.allowed).toBe(false);
+    expect(blocked.blocked_reason_ref).toBe('blocked:human-holds-control');
+
+    // A second taker is refused while the human holds (exclusive).
+    await expect(recordControlWithDeps({
+      leaseRef: 'control-lease:computer:c1#bot',
+      scopeRef: 'computer:c1',
+      holder: 'bot',
+      expiresAt: null,
+    }, { readControlNotes, writeControlNote, now: () => NOW })).rejects.toBeInstanceOf(AlreadyInControlError);
+
+    // Human releases (revocation), then the check permits.
+    store[0] = { ...store[0], revoked: true };
+    const permitted = await checkControlWithDeps({ scopeRef: 'computer:c1' }, { readControlNotes, now: () => NOW });
+    expect(permitted.allowed).toBe(true);
+  });
+});
+
+describe('exclusive-control lease: default Envelope wiring reuses record-lease and check-lease', () => {
+  it('the check request rides the configured check-lease action, carrying the scope and class as DATA', () => {
+    const request = buildControlCheckRequest({ scopeRef: 'computer:c1', idempotencyKey: 'idem:check-1' });
+    expect(request).toEqual({
+      target: 'slot::workflow',
+      payload: {
+        definition_id: 'action:permission-lease.check-lease',
+        input: {
+          operation_ref: 'control:computer:c1',
+          requested_action_ref: 'computer.actuate',
+          scope_ref: 'computer:c1',
+          lease_class: 'exclusive-control',
+          actuator_holder: 'bot',
+          idempotency_key: 'idem:check-1',
+        },
+      },
+    });
+  });
+
+  it('the grant request rides the configured record-lease action, carrying holder and lease_class as DATA', () => {
+    const request = buildGrantControlRequest({
+      leaseRef: 'control-lease:computer:c1',
+      scopeRef: 'computer:c1',
+      holder: 'human',
+      holderSubjectRef: 'actor:human:founder',
+      reason: 'login wall',
+      expiresAt: '2026-08-20T00:15:00Z',
+      idempotencyKey: 'idem:take-1',
+    });
+    expect(request.target).toBe('slot::workflow');
+    expect(request.payload.definition_id).toBe('action:permission-lease.record-lease');
+    expect(request.payload.input).toMatchObject({
+      lease_ref: 'control-lease:computer:c1',
+      lease_class: 'exclusive-control',
+      scope_ref: 'computer:c1',
+      holder: 'human',
+      holder_subject_ref: 'actor:human:founder',
+    });
+    // No raw secret ever rides this request.
+    expect(JSON.stringify(request)).not.toContain('password');
+    expect(JSON.stringify(request)).not.toContain('credential_value');
+  });
+
+  it('requestControlCheck dispatches to the configured target without importing workflow internals', async () => {
+    vi.mocked(sendRequestToBitfieldTarget).mockClear();
+    await requestControlCheck({ scopeRef: 'computer:c1', idempotencyKey: 'idem:check-2' });
+    expect(sendRequestToBitfieldTarget).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(sendRequestToBitfieldTarget).mock.calls[0][0]).toMatchObject({
+      target: 'slot::workflow',
+      payload: { definition_id: 'action:permission-lease.check-lease' },
+    });
+  });
+});

@@ -1,0 +1,27 @@
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { describe, expect, it } from 'vitest';
+
+const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+
+describe('guided-overlay entry-to-package DATA map', () => {
+  it('maps every declared package entry to its canonical source path', () => {
+    const manifest = JSON.parse(readFileSync(resolve(packageRoot, 'things-to-store-and-run.json'), 'utf8')) as {
+      things: Array<{ address?: string; payload?: { entry_name?: string; source_path?: string } }>;
+    };
+    const entryMap = JSON.parse(readFileSync(resolve(packageRoot, 'entry-to-package-data-map.json'), 'utf8')) as {
+      entries: Array<{ entry_name?: string; source_path?: string; package_data_path?: string }>;
+    };
+    const declared = manifest.things
+      .filter((thing) => thing.address?.startsWith('package::guided-overlay::entry::'))
+      .map((thing) => [thing.payload?.entry_name, thing.payload?.source_path])
+      .sort(([left], [right]) => String(left).localeCompare(String(right)));
+    const mapped = entryMap.entries
+      .map((entry) => [entry.entry_name, entry.source_path])
+      .sort(([left], [right]) => String(left).localeCompare(String(right)));
+
+    expect(mapped).toEqual(declared);
+    expect(entryMap.entries.every((entry) => entry.package_data_path === 'things-to-store-and-run.json')).toBe(true);
+  });
+});

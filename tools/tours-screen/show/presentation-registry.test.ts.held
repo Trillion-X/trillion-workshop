@@ -1,0 +1,24 @@
+import { describe, expect, it } from 'vitest';
+import {
+  DefaultWalkthroughPresentation,
+  createWalkthroughPresentationRegistry,
+  registerWalkthroughPresentations,
+  type WalkthroughPresentationComponent,
+} from './presentation-registry';
+
+describe('open walkthrough presentation registry', () => {
+  it('keeps absent and unknown refs on the byte-compatible default presenter', () => {
+    const registry = createWalkthroughPresentationRegistry();
+    expect(registry.resolve(undefined)).toBe(DefaultWalkthroughPresentation);
+    expect(registry.resolve('package::future::presentation::unknown')).toBe(DefaultWalkthroughPresentation);
+  });
+
+  it('injects arbitrary package-owned presenters without a shared vocabulary change', () => {
+    const injected = (() => null) as WalkthroughPresentationComponent;
+    const registry = registerWalkthroughPresentations(createWalkthroughPresentationRegistry(), {
+      'package::example::presentation::one': injected,
+    });
+    expect(registry.resolve('package::example::presentation::one')).toBe(injected);
+    expect(registry.refs()).toEqual(['package::example::presentation::one']);
+  });
+});

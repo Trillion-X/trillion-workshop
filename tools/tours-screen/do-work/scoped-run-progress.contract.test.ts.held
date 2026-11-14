@@ -1,0 +1,97 @@
+import { readFileSync } from 'node:fs';
+import { describe, expect, it } from 'vitest';
+import { foldWalkthroughProgress } from '../read-data/walkthrough-eeaf';
+import {
+  PROGRESS_TRANSITION_REQUEST_SCHEMA,
+  applyProgressTransition,
+  emptyProgressState,
+  migrateProgressState,
+  walkthroughProgressAddress,
+  type ProgressTransitionRequest,
+} from './progress-transition-owner';
+
+const identity = {
+  scope_ref: 'local-operator',
+  definition_id: 'sign-in-last',
+  definition_revision: 3,
+  run_id: 'run-durable',
+} as const;
+
+function transition(overrides: Partial<ProgressTransitionRequest> = {}): ProgressTransitionRequest {
+  return {
+    schema: PROGRESS_TRANSITION_REQUEST_SCHEMA,
+    ...identity,
+    expected_cursor_revision: 0,
+    from_step_id: 'one',
+    to_step_id: 'two',
+    history: ['one'],
+    status: 'active',
+    cause: 'advance',
+    once_key: 'trigger-scoped-to-definition',
+    ...overrides,
+  };
+}
+
+describe('scoped-run durability contract', () => {
+  it('maps aggregate cursor state forward to scope, definition, revision, and run', () => {
+    const legacy = {
+      kind: 'walkthrough-progress',
+      consumed_once_keys: ['trigger-scoped-to-definition'],
+      cursors: {
+        'sign-in-last': {
+          currentStepId: 'workspace',
+          history: ['account'],
+          status: 'active',
+          cursorRevision: 2,
+          definitionRevision: 2,
+          runId: 'run-prior-shape',
+        },
+      },
+    };
+    const migrated = migrateProgressState(legacy, identity);
+    expect(migrated).toMatchObject({
+      ...identity,
+      consumed_trigger_keys: ['trigger-scoped-to-definition'],
+      current_step_id: 'workspace',
+      history: ['account'],
+      status: 'active',
+      cursor_revision: 2,
+    });
+
+    const next = applyProgressTransition(migrated, transition({
+      expected_cursor_revision: 2,
+      from_step_id: 'workspace',
+      to_step_id: 'destination',
+      history: ['account', 'workspace'],
+    }));
+    expect(next.receipt).toMatchObject({ accepted: true, cursor_revision: 3 });
+    expect(next.state).toMatchObject({ ...identity, current_step_id: 'destination' });
+  });
+
+  it('folds only the record belonging to the selected scope and run address', () => {
+    const progressed = applyProgressTransition(emptyProgressState(), transition()).state;
+    const records = [
+      { address: 'foreign', value_json: { kind: 'walkthrough-progress', scope_ref: 'other', definition_id: 'sign-in-last' } },
+      { address: walkthroughProgressAddress(identity.scope_ref, identity.definition_id, identity.definition_revision, identity.run_id), value_json: progressed },
+    ];
+    const folded = foldWalkthroughProgress(records, identity.scope_ref);
+    expect(folded.cursors['sign-in-last']).toMatchObject({
+      currentStepId: 'two',
+      cursorRevision: 1,
+      definitionRevision: identity.definition_revision,
+      runId: identity.run_id,
+    });
+  });
+
+  it('keeps do-work free of cross-package source imports', () => {
+    const sources = [
+      'progress-transition-owner.ts',
+      'run-outcome-owner.ts',
+      'walkthrough-completion-writes.ts',
+    ];
+    for (const source of sources) {
+      expect(readFileSync(`packages/guided-overlay/do-work/${source}`, 'utf8'))
+        .not.toMatch(/from\s+'(?:\.\.\/){2,}/);
+    }
+  });
+});

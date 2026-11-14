@@ -1,0 +1,161 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
+import {
+  materializeOperationSessionIntent,
+  readPaymentRail,
+  readExternalOperationRoutes,
+  readOperationOutputTargets,
+} from '@/packages/payment-adapter/read-data/operation-routes';
+import { materializeOperationSessionIntentTarget } from '@/packages/payment-adapter/do-work/materialize-operation-session-intent';
+import {
+  buildOutputDeliveryWorkflowPayload,
+  readContractOutputTargets,
+  type ContractApprovalRequest,
+} from '@/packages/sales-contract-builder/read-data/sales-contract-output-targets';
+
+const packageRoot = join(process.cwd(), 'packages/payment-adapter');
+
+describe('payment-adapter generic operation backend', () => {
+  it('uses one rail capability contract for known and future settlement rails', () => {
+    const quintillion = readPaymentRail({
+      kind: 'payment-rail-descriptor',
+      id: 'payment-rail:quintillion',
+      label: 'Quintillion',
+      enabled: true,
+      spend_authority_ref: 'service_connection:quintillion-bank',
+      credential_ref: 'credentials-vault:quintillion-bank-login',
+      guard_invoke: { target: 'slot::workflow', action_definition_id: 'action:budget-gate' },
+      ledger_invoke: { target: 'slot::workflow', action_definition_id: 'action:record-spend' },
+      settlement_invoke: { target: 'slot::workflow', action_definition_id: 'action:quintillion.settle' },
+      evidence_contract: {
+        session_intent_kind: 'operation-session-intent-record',
+        evidence_ref: 'operation-evidence:quintillion',
+        projection_ref: 'operation-projection:quintillion-readable-status',
+      },
+    });
+
+    expect(quintillion).toMatchObject({
+      guardInvoke: { actionDefinitionId: 'action:budget-gate' },
+      ledgerInvoke: { actionDefinitionId: 'action:record-spend' },
+      evidenceContract: { sessionIntentKind: 'operation-session-intent-record' },
+    });
+  });
+
+  it('reads payment-labeled and non-payment routes through one generic descriptor reader', () => {
+    const routes = readExternalOperationRoutes();
+    const routeIds = routes.map((route) => route.id);
+
+    expect(routeIds).toContain('operation-route:stripe-checkout');
+    expect(routeIds).toContain('operation-route:pdf-output');
+    expect(routes.every((route) => route.ownerInvoke.target === 'slot::workflow')).toBe(true);
+    expect(routes.every((route) => route.projectionRef.startsWith('operation-projection:'))).toBe(true);
+  });
+
+  it('maps every route to the same output-target shape without route-label branches', () => {
+    const targets = readOperationOutputTargets();
+    const stripe = targets.find((target) => target.id === 'operation-route:stripe-checkout');
+    const pdf = targets.find((target) => target.id === 'operation-route:pdf-output');
+
+    expect(stripe?.route.definitionId).toBe('action:stripe-payment-provider.start-checkout');
+    expect(pdf?.route.definitionId).toBe('action:public-document-renderer.render-document');
+    expect(pdf?.operationRoute.projectionRef).toBe('operation-projection:file-readable-status');
+  });
+
+  it('materializes byte-stable generic operation intents for unrelated route labels', () => {
+    const routes = readExternalOperationRoutes();
+    const stripe = routes.find((route) => route.id === 'operation-route:stripe-checkout');
+    const pdf = routes.find((route) => route.id === 'operation-route:pdf-output');
+    const baseInput = {
+      input_facts: {
+        operation_subject: { id: 'subject:contract-1', total: 2500 },
+        service_connection_ref: { id: 'service:stripe-1' },
+      },
+      subject: { id: 'subject:contract-1' },
+      idempotency_key: 'intent-key-1',
+      requested_at: '2026-06-21T12:00:00.000Z',
+      metadata: { source_package: 'test' },
+    };
+
+    const first = materializeOperationSessionIntent({ ...baseInput, route: stripe });
+    const second = materializeOperationSessionIntent({ ...baseInput, route: stripe });
+    const fileIntent = materializeOperationSessionIntent({
+      ...baseInput,
+      route: pdf,
+      input_facts: { operation_subject: { id: 'subject:contract-1', total: 2500 } },
+    });
+
+    expect(JSON.stringify(first)).toBe(JSON.stringify(second));
+    expect(first).toMatchObject({
+      kind: 'operation-session-intent-record',
+      routeId: 'operation-route:stripe-checkout',
+      ownerInvoke: { actionDefinitionId: 'action:stripe-payment-provider.start-checkout' },
+      idempotencyKey: 'intent-key-1',
+      requestedAt: '2026-06-21T12:00:00.000Z',
+    });
+    expect(fileIntent).toMatchObject({
+      kind: 'operation-session-intent-record',
+      routeId: 'operation-route:pdf-output',
+      ownerInvoke: { actionDefinitionId: 'action:public-document-renderer.render-document' },
+      projectionRef: 'operation-projection:file-readable-status',
+    });
+  });
+
+  it('returns generic structured errors when required intent facts are missing', () => {
+    const [route] = readExternalOperationRoutes();
+    const result = materializeOperationSessionIntentTarget({ route });
+
+    expect(result).toMatchObject({
+      error: 'operation intent input is incomplete',
+    });
+    expect((result as { details: string[] }).details).toContain('idempotency_key is required');
+    expect((result as { details: string[] }).details).toContain('requested_at is required');
+  });
+
+  it('lets a consumer carry operation routes without importing the retired request shape', () => {
+    const outputTarget = readContractOutputTargets().find((target) => target.id === 'operation-route:stripe-checkout');
+    expect(outputTarget?.operationRoute).toBeTruthy();
+
+    const request: ContractApprovalRequest = {
+      kind: 'sales-contract-builder.approval-request.v1',
+      requestId: 'approval:one',
+      approvalUrl: 'https://example.test/approval/one',
+      createdAt: '2026-06-21T12:00:00.000Z',
+      contract: { id: 'contract:one', total_amount: 2500 },
+      actorId: 'person:one',
+      outputTarget: outputTarget!,
+      acceptanceRequirements: ['accepted'],
+      selectedServiceConnection: {
+        id: 'service:stripe',
+        serviceName: 'Stripe',
+        serviceVendor: 'stripe',
+        status: 'connected',
+        credentialHandle: 'credential:stripe',
+        scopes: [],
+        connectedAt: null,
+      },
+    };
+    const payload = buildOutputDeliveryWorkflowPayload(request, ['accepted']);
+
+    expect(payload.output_target).toMatchObject({
+      operation_route_id: 'operation-route:stripe-checkout',
+    });
+    expect(payload).toHaveProperty('operation_session_intent');
+    expect(payload).not.toHaveProperty('payment_output_request');
+  });
+
+  it('keeps the old payment-shaped backend family dead in active logic files', () => {
+    const activeLogicFiles = [
+      'read-data/operation-routes.ts',
+      'do-work/materialize-operation-session-intent.ts',
+      'index.ts',
+    ];
+    const source = activeLogicFiles
+      .map((file) => readFileSync(join(packageRoot, file), 'utf8'))
+      .join('\n');
+
+    expect(source).not.toMatch(/payment-provider-target|payment_output_request|provider-session|paymentTarget/);
+    expect(source).not.toMatch(/materializeProviderSessionRequest|buildPaymentOutputRequest|readPaymentProviderTargets/);
+    expect(source).not.toMatch(/new Date\(|Date\.now\(/);
+  });
+});

@@ -1,0 +1,100 @@
+"""Proof that semantic-index convergence emits one payload-free manifest."""
+from __future__ import annotations
+
+from canonical_multihash import mint_canonical_multihash_of_text
+import importlib.util
+import json
+import subprocess
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+HERE = Path(__file__).parent
+SCRIPT = HERE / "apply-semantic-index-plan.py"
+spec = importlib.util.spec_from_file_location("apply_semantic_index_plan", SCRIPT)
+mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(mod)
+
+PARAMS = {"hyperplane_count": 2, "table_count": 2, "seed": 7, "candidate_limit": 20}
+
+
+def h(label: str) -> str:
+    # Was `"1f:" + hashlib.sha256(...)`, and `1f` is the multicodec code for BLAKE3, so the
+    # fixture declared an algorithm it was not produced with. Minted by the owning module now.
+    return mint_canonical_multihash_of_text(label)
+
+
+def mutation(subject: str, *, text: str | None = "hello") -> dict:
+    value = {
+        "index_id": "idx", "content_address": subject,
+        "canonical_address": subject, "canonical_revision": h(f"revision:{subject}"),
+        "canonical_payload_hash": h(f"payload:{subject}"),
+        "source_snapshot_ref": h(f"snapshot:{subject}"),
+    }
+    if text is not None:
+        value["content_text"] = text
+        value["at"] = "2026-07-28T00:00:00Z"
+    return value
+
+
+def descriptor() -> dict:
+    return {"ann_params": PARAMS, "model_id": "test-model", "model_version": "1"}
+
+
+def test_combined_rows_add_and_retract_without_raw_result_boundary() -> None:
+    first_plan = {"upserts": [mutation("subject-a")], "retracts": []}
+    output = {"vectors": {"subject-a": [1.0, 0.0]}, "provenance": {"model_id": "test-model", "model_version": "1"}}
+    rows, count = mod.combined_rows(first_plan, output, descriptor(), {}, "idx")
+    assert count == 1
+    assert any(row["address"].startswith("attribute_fact|subject-a|prop:semantic-embedding") for row in rows)
+    state_payload = next(row["payload"] for row in rows if row["address"].startswith("attribute_fact|idx|prop:semantic-ann-index"))
+    state = json.loads(state_payload["value_json"])
+
+    retract_plan = {"upserts": [], "retracts": [mutation("subject-a", text=None)]}
+    retract_rows, retract_count = mod.combined_rows(retract_plan, {"vectors": {}}, descriptor(), state, "idx")
+    assert retract_count == 1
+    assert any(row.get("remove") is True and "semantic-embedding" in row["address"] for row in retract_rows)
+    assert any(row.get("remove") is True and "semantic-provenance" in row["address"] for row in retract_rows)
+
+
+def test_cli_writes_only_manifest_and_relative_payload_files() -> None:
+    with tempfile.TemporaryDirectory() as temporary:
+        root = Path(temporary)
+        inputs = {
+            "plan.json": {"upserts": [mutation("subject-a")], "retracts": []},
+            "embedding.json": {"vectors": {"subject-a": [1, 0]}, "provenance": {"model_id": "m", "model_version": "v"}},
+            "descriptor.json": descriptor(),
+            "state.json": {},
+        }
+        for name, value in inputs.items():
+            (root / name).write_text(json.dumps(value), encoding="utf-8")
+        writes = root / "writes.json"
+        result = subprocess.run([
+            sys.executable, str(SCRIPT), "--index-id", "idx", "--plan-json", str(root / "plan.json"),
+            "--embedding-output-json", str(root / "embedding.json"), "--descriptor-json", str(root / "descriptor.json"),
+            "--state-json", str(root / "state.json"), "--output-write-set-json", str(writes),
+        ], capture_output=True, text=True)
+        assert result.returncode == 0, result.stderr
+        manifest = json.loads(writes.read_text(encoding="utf-8"))
+        assert manifest["version"] == 1 and manifest["writes"]
+        assert all("payload" not in write for write in manifest["writes"])
+        assert all(not Path(write.get("content_path", "payloads/0.json")).is_absolute() for write in manifest["writes"])
+        assert any((root / write["content_path"]).is_file() for write in manifest["writes"] if "content_path" in write)
+
+
+def test_duplicate_and_empty_values_fail_closed() -> None:
+    duplicate = {"upserts": [mutation("same"), mutation("same")], "retracts": []}
+    with unittest.TestCase().assertRaisesRegex(ValueError, "duplicate"):
+        mod.combined_rows(duplicate, {"vectors": {"same": [1, 0]}}, descriptor(), {}, "idx")
+    empty = {"upserts": [mutation("", text="hello")], "retracts": []}
+    with unittest.TestCase().assertRaises(ValueError):
+        mod.combined_rows(empty, {"vectors": {"": [1, 0]}}, descriptor(), {}, "idx")
+
+
+def load_tests(loader, tests, pattern):
+    suite = unittest.TestSuite()
+    for name, candidate in sorted(globals().items()):
+        if name.startswith("test_") and callable(candidate):
+            suite.addTest(unittest.FunctionTestCase(candidate))
+    return suite

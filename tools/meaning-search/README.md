@@ -70,3 +70,51 @@ These parts of the package only commit to or read from the retired record store.
 - for `do-work/make_picture_vector_set.py`, ffmpeg, numpy, torch, open_clip_torch and Pillow on the person's computer.
 
 **Depended on by:** the rows in `tool-rows.json`.
+
+## Files moved from bitfield-packages (packages/meaning-search)
+
+Each file below is the package's own, byte for byte; `from-bitfield-packages/moved-from.json` names each source path and commit, the identity of its source bytes and of its bytes here, and the `calls` that made a real name or id made up. After the first commit only import paths changed. A file named `.held` is the same bytes with its test name taken off so the repository test does not run it; the reason is under `held` in the receipt. Most files import `@/packages/ui` and the retired package runtime (`@bitfield/runtime-kit`); the shared ui parts live in apps `parts/ui`, so the screens and targets here are prepared, not wired to a tool row.
+
+| File | What it is |
+|---|---|
+| `do-work/capability-index-conformance.test.mjs.held` | A test of the package, held: reads the package boundary file things-to-store-and-run.json (or the package's own data path), which is not carried |
+| `do-work/process-scripts/ann-index.py` | A file of the package. |
+| `do-work/process-scripts/apply-semantic-index-plan.py` | Combines one owner-planned delta, embedding output, descriptor, and prior ANN state into one atomic Envelope write-set |
+| `do-work/process-scripts/assert-semantic-index-readiness.mjs` | A file of the package. |
+| `do-work/process-scripts/assert-semantic-index-readiness.py` | A file of the package. |
+| `do-work/process-scripts/canonical_multihash.py` | A file of the package. |
+| `do-work/process-scripts/embed-text-ollama.py` | A file of the package. |
+| `do-work/process-scripts/envelope_write_set.py` | Strict generic fact-row → payload-file/write-set manifest encoder; routing metadata never contains payload bodies |
+| `do-work/process-scripts/hydrate-ranked-current-item.py` | A file of the package. |
+| `do-work/process-scripts/nearest-embedding-facts.py` | A file of the package. |
+| `do-work/process-scripts/plan-capability-index-convergence.py` | A file of the package. |
+| `do-work/process-scripts/prepare-semantic-index-process-input.py` | Validates exact descriptor/state cardinality and publishes ANN state as immutable content |
+| `do-work/process-scripts/resolve-ranked-current-items.py` | A file of the package. |
+| `do-work/process-scripts/test-ann-parity.mjs.held` | A test of the package, held: runs the original Python twin, which imports bitfield_crypto (the retired package crypto module) and needs the package's semantic index descriptor; needs the content-identity swap before it runs |
+| `do-work/process-scripts/test-assert-parity.mjs.held` | A test of the package, held: runs the original Python twin, which imports bitfield_crypto (the retired package crypto module) and needs the package's semantic index descriptor; needs the content-identity swap before it runs |
+| `do-work/process-scripts/test-embed-ollama-parity.mjs` | A test of the package. |
+| `do-work/process-scripts/test-nearest-parity.mjs.held` | A test of the package, held: runs the original Python twin, which imports bitfield_crypto (the retired package crypto module) and needs the package's semantic index descriptor; needs the content-identity swap before it runs |
+| `do-work/process-scripts/test-prepare-parity.mjs` | A test of the package. |
+| `do-work/process-scripts/test-pyjson-parity.mjs` | A test of the package. |
+| `do-work/process-scripts/test_ann_index.py.held` | A test of the package, held: imports bitfield_crypto (the retired package crypto module); needs the content-identity swap before it runs |
+| `do-work/process-scripts/test_apply_semantic_index_plan.py.held` | A test of the package, held: imports bitfield_crypto (the retired package crypto module); needs the content-identity swap before it runs |
+| `do-work/process-scripts/test_assert_semantic_index_readiness.py.held` | A test of the package, held: the committed file has a syntax error (IndentationError at line 158); the package's working tree has an uncommitted fix that is not carried |
+| `do-work/process-scripts/test_canonical_multihash.py.held` | A test of the package, held: imports bitfield_crypto (the retired package crypto module); needs the content-identity swap before it runs |
+| `do-work/process-scripts/test_embed_text_ollama.py` | A test of the package. |
+| `do-work/process-scripts/test_envelope_write_set.py` | A test of the package. |
+| `do-work/process-scripts/test_hydrate_ranked_current_item.py.held` | A test of the package, held: imports bitfield_crypto (the retired package crypto module); needs the content-identity swap before it runs |
+| `do-work/process-scripts/test_nearest_embedding_facts.py.held` | A test of the package, held: imports bitfield_crypto (the retired package crypto module); needs the content-identity swap before it runs |
+| `do-work/process-scripts/test_plan_capability_index_convergence.py.held` | A test of the package, held: imports bitfield_crypto (the retired package crypto module); needs the content-identity swap before it runs |
+| `do-work/process-scripts/test_prepare_semantic_index_process_input.py` | A test of the package. |
+| `do-work/process-scripts/test_resolve_ranked_current_items.py.held` | A test of the package, held: imports bitfield_crypto (the retired package crypto module); needs the content-identity swap before it runs |
+| `show/mount-media-search.test.tsx.held` | A test of the package, held: a JSX test: it needs a DOM test runtime and the shared ui parts (@/packages/ui) that live in apps parts/ui; not run here |
+| `show/mount-media-search.tsx` | A file of the package. |
+
+### Not carried
+
+- 22 files: proof evidence of the package (screenshots, proof scripts and notes); not carried
+- 5 files: generated build output of the retired package runtime (entry scope, built entry bytes); not carried
+- 1 file: package README, package.json or ignore file; this folder has its own README
+- 1 file: the package boundary file: record contracts, actions and surfaces for the retired package runtime (slot workflows, owner targets); not carried
+
+The receipt's `not_carried` names each path.

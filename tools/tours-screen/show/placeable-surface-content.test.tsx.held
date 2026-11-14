@@ -1,0 +1,190 @@
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { PropsWithChildren } from 'react';
+import { createWalkthroughPresentationRegistry } from './presentation-registry';
+import { WalkthroughSurface } from './WalkthroughSurface';
+import { WalkthroughHost } from './WalkthroughHost';
+import {
+  COMPOSITION_SCENE_MOUNT_STATE_SCHEMA,
+  CompositionSceneContent,
+  PlaceableSurfaceContent,
+  CONTENT_MOUNT_REQUEST_SCHEMA,
+  CONTENT_MOUNT_STATE_SCHEMA,
+  compositionSceneContentMountState,
+  placeableSurfaceContentMountState,
+  readCompositionSceneContentRef,
+  readPlaceableSurfaceById,
+  readPlaceableSurfaceContentRef,
+} from './default-content-renderers';
+
+const delegatedSurfaceProps: Array<{ packageName: string; entryName: string; surfaceInput?: Record<string, unknown> }> = [];
+
+vi.mock('@/packages/ui/show/placeable-surface-host/PlaceableSurfaceHost', () => ({
+  PlaceableSurfaceHost: (props: { packageName: string; entryName: string; surfaceInput?: Record<string, unknown> }) => {
+    delegatedSurfaceProps.push(props);
+    return <div data-testid="delegated-surface">{props.packageName}:{props.entryName}</div>;
+  },
+}));
+
+let publishedSurfaces: unknown;
+vi.mock('@bitfield/runtime-kit/react', () => ({ useBitfieldData: () => publishedSurfaces }));
+
+afterEach(cleanup);
+afterEach(() => { delegatedSurfaceProps.length = 0; publishedSurfaces = undefined; });
+
+describe('generic placeable-surface walkthrough content', () => {
+  it.each([undefined, null])('waits for the surface catalog (%s) before mounting a named surface', (pending) => {
+    publishedSurfaces = pending;
+    const view = render(<PlaceableSurfaceContent payload={{ surface_id: 'work.current' }} />);
+    expect(screen.getByRole('status').textContent).toBe('Loading…');
+    expect(screen.queryByText('This content is not available right now.')).toBeNull();
+    publishedSurfaces = [{ payload: {
+      kind: 'placeable-surface', id: 'work.current',
+      package_entry: { package_name: 'work', entry_name: 'current' },
+    } }];
+    view.rerender(<PlaceableSurfaceContent payload={{ surface_id: 'work.current' }} />);
+    expect(screen.getByTestId('delegated-surface').textContent).toBe('work:current');
+    expect(screen.queryByRole('status')).toBeNull();
+  });
+
+  it('reports a missing named surface after the catalog has loaded', () => {
+    publishedSurfaces = [];
+    render(<PlaceableSurfaceContent payload={{ surface_id: 'work.current' }} />);
+    expect(screen.getByText('This content is not available right now.')).toBeTruthy();
+    expect(screen.queryByRole('status')).toBeNull();
+  });
+
+  it('decodes only the generic address grammar and delegates the surface', () => {
+    expect(readPlaceableSurfaceContentRef('package::service-owner::placeable-surface::settings')).toEqual({
+      packageName: 'service-owner',
+      entryName: 'settings',
+    });
+    expect(placeableSurfaceContentMountState({
+      schema: CONTENT_MOUNT_REQUEST_SCHEMA,
+      content_ref: 'package::service-owner::placeable-surface::settings',
+    })).toMatchObject({
+      schema: CONTENT_MOUNT_STATE_SCHEMA,
+      status: 'ready',
+      package_name: 'service-owner',
+      entry_name: 'settings',
+    });
+    render(<PlaceableSurfaceContent payload={{ content_ref: 'package::service-owner::placeable-surface::settings' }} />);
+    expect(screen.getByTestId('delegated-surface').textContent).toBe('service-owner:settings');
+  });
+
+  it('renders the explicit safe fallback when the referenced surface is malformed', () => {
+    render(<PlaceableSurfaceContent payload={{ content_ref: 'missing-surface' }} />);
+    expect(screen.getByText('This content is not available right now.')).toBeTruthy();
+  });
+
+  it('resolves an owner-safe public surface id without copying its private package address', () => {
+    publishedSurfaces = [{ payload: {
+      kind: 'placeable-surface', id: 'account.sign-in',
+      package_entry: { package_name: 'account-session', entry_name: 'magic-link-login' },
+      surface_input: { mode: 'compact' },
+    } }];
+    expect(readPlaceableSurfaceById(publishedSurfaces, 'account.sign-in')).toMatchObject({
+      status: 'ready', package_name: 'account-session', entry_name: 'magic-link-login',
+    });
+    render(<PlaceableSurfaceContent payload={{ surface_id: 'account.sign-in', surface_input: { source: 'walkthrough' } }} />);
+    expect(screen.getByTestId('delegated-surface').textContent).toBe('account-session:magic-link-login');
+    expect(delegatedSurfaceProps.at(-1)?.surfaceInput).toEqual({ mode: 'compact', source: 'walkthrough' });
+  });
+
+  it('decodes addressed composition scenes and delegates them through the documents scene entry', () => {
+    expect(readCompositionSceneContentRef('package::screen-arrangement::composition-scene::trillion-onboarding-v3-grow')).toEqual({
+      packageName: 'screen-arrangement',
+      sceneId: 'trillion-onboarding-v3-grow',
+    });
+    expect(compositionSceneContentMountState({
+      content_ref: 'package::screen-arrangement::composition-scene::trillion-onboarding-v3-grow',
+      partition_label: 'trillion',
+    })).toMatchObject({
+      schema: COMPOSITION_SCENE_MOUNT_STATE_SCHEMA,
+      status: 'ready',
+      scene_id: 'trillion-onboarding-v3-grow',
+      partition_label: 'trillion',
+    });
+    render(
+      <CompositionSceneContent
+        payload={{
+          content_ref: 'package::screen-arrangement::composition-scene::trillion-onboarding-v3-grow',
+          partition_label: 'trillion',
+        }}
+      />,
+    );
+    expect(screen.getByTestId('delegated-surface').textContent).toBe('documents:composition-scene');
+    expect(delegatedSurfaceProps.at(-1)?.surfaceInput).toMatchObject({
+      schema: 'composition-scene-input/v1',
+      scene_address: 'package::screen-arrangement::composition-scene::trillion-onboarding-v3-grow',
+      partition_label: 'trillion',
+    });
+  });
+
+  it('renders the explicit safe fallback when the composition-scene payload is incomplete', () => {
+    render(<CompositionSceneContent payload={{ content_ref: 'package::screen-arrangement::composition-scene::missing-partition' }} />);
+    expect(screen.getByText('This content is not available right now.')).toBeTruthy();
+  });
+
+  it('runs a mixed default and injected presentation sequence', async () => {
+    const registry = createWalkthroughPresentationRegistry();
+    registry.register('package::example::presentation::custom', ({ children }: PropsWithChildren) => (
+      <section data-testid="injected-presentation">{children}</section>
+    ));
+    render(
+      <WalkthroughSurface
+        definition={{
+          kind: 'walkthrough-definition',
+          id: 'mixed',
+          entry_step: 'default-step',
+          triggers: [],
+          steps: [
+            {
+              id: 'default-step',
+              content: { content_kind: 'text', payload: { title: 'Default presentation' } },
+            },
+            {
+              id: 'custom-step',
+              presentation_ref: 'package::example::presentation::custom',
+              content: { content_kind: 'text', payload: { title: 'Injected presentation' } },
+            },
+          ],
+        }}
+        presentationRegistry={registry}
+        onExit={vi.fn()}
+      />,
+    );
+    expect(screen.queryByTestId('injected-presentation')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    expect(await screen.findByTestId('injected-presentation')).toBeTruthy();
+    expect(screen.getByText('Injected presentation')).toBeTruthy();
+  });
+
+  it('injects the open presentation registry through WalkthroughHost', async () => {
+    const registry = createWalkthroughPresentationRegistry();
+    registry.register('package::example::presentation::host-injected', ({ children }: PropsWithChildren) => (
+      <section data-testid="host-injected-presentation">{children}</section>
+    ));
+    render(
+      <WalkthroughHost
+        presentationRegistry={registry}
+        authoredRecords={[{
+          address: 'definition',
+          payload: {
+            kind: 'walkthrough-definition',
+            id: 'host-injection',
+            entry_step: 'one',
+            triggers: [{ reason: 'first-run', on_event: { event_kind: 'app-opened' } }],
+            steps: [{
+              id: 'one',
+              presentation_ref: 'package::example::presentation::host-injected',
+              content: { content_kind: 'text', payload: { title: 'Host injection' } },
+            }],
+          },
+        }]}
+      />,
+    );
+    expect(await screen.findByTestId('host-injected-presentation')).toBeTruthy();
+    expect(screen.getByText('Host injection')).toBeTruthy();
+  });
+});

@@ -1,0 +1,171 @@
+#!/usr/bin/env python3
+"""Adversarial readiness-gate tests."""
+from __future__ import annotations
+
+import importlib.util
+import json
+
+from canonical_multihash import mint_canonical_multihash_of_text
+import unittest
+from pathlib import Path
+
+SCRIPT = Path(__file__).with_name("assert-semantic-index-readiness.py")
+spec = importlib.util.spec_from_file_location("assert_readiness", SCRIPT)
+mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(mod)
+
+INDEX_ID = "capabilities"
+INDEX_REF = f"semantic-index-descriptor:{INDEX_ID}"
+def h(label: str) -> str:
+    # Was `"1f:" + hashlib.sha256(...)`, and `1f` is the multicodec code for BLAKE3, so the
+    # fixture declared an algorithm it was not produced with. Minted by the owning module now.
+    return mint_canonical_multihash_of_text(label)
+
+
+DIGEST = h("source")
+REVISION = h("descriptor@1")
+MODEL = "model@1"
+
+
+def reply(payload):
+    return {"items": [payload]}
+
+
+def valid():
+    descriptor = reply({
+        "kind": "semantic-index-descriptor",
+        "index_id": INDEX_ID,
+        "descriptor_revision": REVISION,
+        "model_provenance_ref": MODEL,
+    })
+    source = reply({
+        "kind": "capability-index-source-descriptor",
+        "index_id": INDEX_ID,
+        "index_ref": INDEX_REF,
+        "hydration_sample_count": 2,
+    })
+    policy = reply({
+        "kind": "discovery-readiness-policy",
+        "id": INDEX_ID,
+        "index_ref": INDEX_REF,
+        "requires": ["snapshot", "hydration"],
+    })
+    convergence = reply({
+        "kind": "semantic-index-convergence",
+        "id": INDEX_ID,
+        "index_ref": INDEX_REF,
+        "status": "ready",
+        "source_snapshot_ref": DIGEST,
+        "indexed_snapshot_ref": DIGEST,
+        "descriptor_count": 2,
+        "index_descriptor_revision": REVISION,
+        "model_provenance_ref": MODEL,
+        "completion_receipt_ref": h("receipt"),
+        "sampled_hydrations": [
+            {"canonical_address": "aa", "canonical_revision": h("a"), "payload_hash": h("a")},
+            {"canonical_address": "bb", "canonical_revision": h("b"), "payload_hash": h("b")},
+        ],
+    })
+    scan = {
+        "items": [{"address": "aa", "content_hash": h("a")}, {"address": "bb", "content_hash": h("b")}],
+        "snapshot": {"digest": DIGEST, "count": 2},
+    }
+    index_state = {"items": [{"table": "attribute_fact", "property_id": f"prop:semantic-ann-index:{INDEX_ID}", "value_json": json.dumps({"subjects":{"aa":{"canonical_address":"aa","revision":h("a"),"payload_hash":h("a"),"source_snapshot_ref":DIGEST},"bb":{"canonical_address":"bb","revision":h("b"),"payload_hash":h("b"),"source_snapshot_ref":DIGEST}}})}]}
+    return descriptor, source, policy, convergence, scan, index_state
+
+
+class ReadinessTest(unittest.TestCase):
+    def run_gate(self, values):
+        descriptor, source, policy, convergence, scan, index_state = values
+        return mod.assert_ready(
+            index_id=INDEX_ID,
+            descriptor_reply=descriptor,
+            source_descriptor_reply=source,
+            policy_reply=policy,
+            convergence_reply=convergence,
+            source_scan=scan,
+            index_state_reply=index_state,
+        )
+
+    def test_exact_current_fixed_point_is_ready(self):
+        result = self.run_gate(valid())
+        self.assertEqual(result["status"], "ready")
+        self.assertEqual(result["source_snapshot_ref"], DIGEST)
+
+    def test_prepare_probe_is_descriptor_driven_and_requires_exact_snapshot(self):
+        records = {"items": [
+            valid()[0]["items"][0],
+            {
+                **valid()[1]["items"][0],
+                "owner_query": {
+                    "target": "slot::find-current-items",
+                    "request": {
+                        "operation": "find-current-items",
+                        "in": "published-record",
+                        "snapshot": True,
+                        "include": ["address", "content_hash", "payload_json_text"],
+                    },
+                },
+            },
+        ]}
+        probe = mod.prepare_probe(INDEX_ID, records)
+        self.assertEqual(probe["target"], "slot::find-current-items")
+        records["items"][1]["owner_query"]["request"]["snapshot"] = False
+        with self.assertRaisesRegex(ValueError, "exact identity snapshot"):
+            mod.prepare_probe(INDEX_ID, records)
+
+    def test_missing_source_descriptor_raises_index_not_ready(self):
+        with self.assertRaisesRegex(ValueError, rf"^INDEX_NOT_READY:{INDEX_ID}:"):
+            mod.prepare_probe(INDEX_ID, {"items": [valid()[0]["items"][0]]})
+
+        values = list(valid())
+        values[1] = {"items": []}
+        with self.assertRaisesRegex(ValueError, rf"^INDEX_NOT_READY:{INDEX_ID}:"):
+            self.run_gate(values)
+
+    def test_current_source_mutation_denies_stale_receipt(self):
+        values = list(valid())
+        values[4] = {
+            "items": [{"address": "aa"}],
+            "snapshot": {"digest": h("new"), "count": 1},
+        }
+        with self.assertRaisesRegex(ValueError, "stale"):
+            self.run_gate(values)
+
+    def test_missing_duplicate_or_unready_receipt_denies(self):
+        for convergence in (
+            {"items": []},
+            {"items": valid()[3]["items"] * 2},
+            reply({**valid()[3]["items"][0], "status": "building"}),
+        ):
+            values = list(valid())
+            values[3] = convergence
+            with self.assertRaises(ValueError):
+                self.run_gate(values)
+
+    def test_revision_provenance_receipt_and_samples_are_mandatory(self):
+        for patch in (
+            {"index_descriptor_revision": "old"},
+            {"model_provenance_ref": "old"},
+            {"completion_receipt_ref": ""},
+            {"sampled_hydrations": [{"canonical_address": "aa", "canonical_revision": h("a"), "payload_hash": h("a")}]} ,
+        ):
+            values = list(valid())
+            values[3] = reply({**values[3]["items"][0], **patch})
+            with self.assertRaises(ValueError):
+                self.run_gate(values)
+
+    def test_nonempty_malformed_authority_hashes_deny_readiness(self):
+    for location, value in (("snapshot", "1f:" + "A" * 64),
+                            ("content", "sha256:nonempty"),
+                                ("receipt", "1f:" + "0" * 63)):
+            values = list(valid())
+            if location == "snapshot": values[4]["snapshot"]["digest"] = value
+            elif location == "content": values[4]["items"][0]["content_hash"] = value
+            else: values[3]["items"][0]["completion_receipt_ref"] = value
+            with self.assertRaisesRegex(ValueError, "canonical multihash"):
+                self.run_gate(values)
+
+
+if __name__ == "__main__":
+    unittest.main()

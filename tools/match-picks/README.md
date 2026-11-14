@@ -35,6 +35,34 @@ Shows how a community picked the winner of each match, the result, and how one p
 
 **Depends on:** Node 24 in the tool container.
 
-**Not carried:** the builders for a prompt, a pick and a result (each wrapped one record and submitted it to the old workflow slot; engine plumbing) and the screens; the copy guard's word list is not carried, it is the request's `banned_terms`.
+**Carried unwired, in the last section:** the builders for a prompt, a pick and a result (each wraps one record and submits it to the old workflow slot) and the screens, as the package's own files. **Not carried:** the copy guard's word list; `tool:check-pick-copy` takes it as the request's `banned_terms`, and the package's guard (`do-work/regulated-money-copy-guard.ts`) is carried as written.
 
 **Depended on by:** Trillion, which reads `tool-rows.json` when it deploys.
+
+## Files moved from bitfield-packages (packages/match-picks)
+
+Each file below is the package's own, byte for byte; `from-bitfield-packages/moved-from.json` names each source path and commit, the identity of its source bytes and of its bytes here, and the `calls` that made a real name or id made up. After the first commit only import paths changed. A file named `.held` is the same bytes with its test name taken off so the repository test does not run it; the reason is under `held` in the receipt. Most files import `@/packages/ui` and the retired package runtime (`@bitfield/runtime-kit`); the shared ui parts live in apps `parts/ui`, so the screens and targets here are prepared, not wired to a tool row.
+
+| File | What it is |
+|---|---|
+| `do-work/create-pick-prompt.ts` | builds and submits free pick prompt inputs. |
+| `do-work/regulated-money-copy-guard.ts` | rejects wagering and payment copy in prompt/result text. |
+| `do-work/resolve-match-pick.ts` | builds and submits result inputs. |
+| `do-work/submit-match-pick.ts` | builds and submits pick inputs. |
+| `read-data/match-picks-types.ts` | defines match, pick, result, choice view, and personal history records. |
+| `read-data/read-match-picks.ts` | turns match, pick, and result rows into match views and personal history. |
+| `show/MatchPicksSurface.tsx` | renders match selection, choice controls, community pick split, result, and personal history. |
+| `show/match-picks-scoped-feed.test.ts.held` | A test of the package, held: reads the package boundary file things-to-store-and-run.json (or the package's own data path), which is not carried |
+| `show/mount-match-picks.tsx` | A file of the package. |
+| `test/match-picks.test.ts.held` | proves prompt creation, split math, result resolution, action wiring, history, and the copy guard. (held: imports react or shared ui parts (@/packages/ui) that live in apps parts/ui, not in the Workshop) |
+
+### Not carried
+
+- 13 files: proof evidence of the package (screenshots, proof scripts and notes); not carried
+- 5 files: package README, package.json or ignore file; this folder has its own README
+- 3 files: generated build output of the retired package runtime (entry scope, built entry bytes); not carried
+- 1 file: maps package entries to the retired package runtime's entry scope; not carried
+- 1 file: the package's screen reference contract; not carried
+- 1 file: the package boundary file: record contracts, actions and surfaces for the retired package runtime (slot workflows, owner targets); not carried
+
+The receipt's `not_carried` names each path.

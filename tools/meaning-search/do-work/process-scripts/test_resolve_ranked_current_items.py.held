@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+"""Owner-side policy, hydration-plan, and budget tests."""
+
+from __future__ import annotations
+
+import importlib.util
+from pathlib import Path
+import unittest
+
+
+MODULE_PATH = Path(__file__).with_name("resolve-ranked-current-items.py")
+SPEC = importlib.util.spec_from_file_location("resolve_ranked_current_items", MODULE_PATH)
+MODULE = importlib.util.module_from_spec(SPEC)
+assert SPEC.loader
+SPEC.loader.exec_module(MODULE)
+
+
+def digest(ch: str) -> str:
+    return f"1f:{ch * 64}"
+
+
+POLICY_REPLY = {
+    "items": [
+        {
+            "payload": {
+                "kind": "semantic-result-policy",
+                "id": "bounded",
+                "ref": "semantic-result-policy:bounded",
+                "max_result_count": 2,
+                "max_schema_bytes_per_result": 16,
+                "total_prompt_budget_bytes": 20,
+            }
+        }
+    ]
+}
+
+
+class ResolveRankedCurrentItemsTests(unittest.TestCase):
+    def request(self):
+        return {
+            "index_id": "proof",
+            "result_policy_ref": "semantic-result-policy:bounded",
+            "owner_query_target": "slot::find-current-items",
+            "query_text": "serve",
+        }
+
+    def ranked(self, address: str, score: float, schema=None):
+        return {
+            "address": address,
+            "revision": digest("a"),
+            "payload_hash": digest("b"),
+            "descriptor_revision": digest("c"),
+            "model_provenance_ref": "model:proof",
+            "score": score,
+            "input_schema": schema,
+        }
+
+    def test_resolves_exact_policy_and_preserves_rank_order_through_hydration(self):
+        plan = MODULE.prepare(self.request(), POLICY_REPLY)
+        self.assertEqual(plan["query_input"]["limit"], 2)
+        hydration_plan = MODULE.plan_hydrations(
+            plan, {"result": {"items": [self.ranked("owner:b", 0.9), self.ranked("owner:a", 0.8)]}}
+        )
+        requests = hydration_plan["requests"]
+        self.assertEqual([item["canonical_address"] for item in requests], ["owner:b", "owner:a"])
+        hydrated = [{"item": {**item}} for item in requests]
+        result = MODULE.finalize(plan, hydration_plan, hydrated)
+        self.assertEqual([item["canonical_address"] for item in result["items"]], ["owner:b", "owner:a"])
+
+    def test_duplicate_or_ambiguous_policy_fails_closed(self):
+        duplicate = {"items": POLICY_REPLY["items"] * 2}
+        with self.assertRaisesRegex(ValueError, "exactly one"):
+            MODULE.prepare(self.request(), duplicate)
+
+    def test_budget_is_owner_enforced_without_reordering(self):
+        plan = MODULE.prepare(self.request(), POLICY_REPLY)
+        hydration_plan = MODULE.plan_hydrations(
+            plan,
+            {"items": [
+                self.ranked("owner:too-large", 0.9, {"long": "0123456789"}),
+                self.ranked("owner:kept", 0.8, {"x": 1}),
+            ]},
+        )
+        result = MODULE.finalize(
+            plan,
+            hydration_plan,
+            [{"item": {**item}} for item in hydration_plan["requests"]],
+        )
+        self.assertEqual(
+            [item["canonical_address"] for item in result["items"]], ["owner:kept"]
+        )
+
+    def test_hydration_identity_drift_fails_closed(self):
+        plan = MODULE.prepare(self.request(), POLICY_REPLY)
+        hydration_plan = MODULE.plan_hydrations(plan, {"items": [self.ranked("owner:a", 0.9)]})
+        changed = {**hydration_plan["requests"][0], "payload_hash": digest("d")}
+        with self.assertRaisesRegex(ValueError, "changed ranked payload_hash"):
+            MODULE.finalize(plan, hydration_plan, [{"item": changed}])
+
+
+if __name__ == "__main__":
+    unittest.main()

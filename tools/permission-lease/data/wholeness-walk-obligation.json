@@ -1,0 +1,66 @@
+{
+  "note": "Wholeness gate DATA (W2-A, de-faced 2026-07-04). Two published-records: (1) a capability-obligation — the 'deep-work' capability is LOCKED until a walk is ATTESTED today; (2) a measure-definition that COUNTS today's walk-attestation facts. The honest loop: the Satisfy button writes a real activity.attestation fact (evidence, stamped with today's day), then dispatches progression-evaluator's action:compute-and-write-over-facts to REDUCE today's attestations into the canonical measure.fact (emit measure.walk-count-today). The gate reads that reduced measure. Because the reduction is scoped to today ($today in fact_where) AND the condition carries within_ms freshness, the gate DECAYS — it re-locks each day, which a raw measure write never did. The walk is a DATA row: ANY fact can gate ANY capability, ANY reduction, with zero new code (L069/L090).",
+  "writes": [
+    {
+      "type": "record",
+      "address": "package::permission-lease::capability-obligation::obl-walk-before-more-work",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "remove": false,
+      "payload": {
+        "kind": "capability-obligation",
+        "obligation_ref": "obl:walk-before-more-work",
+        "capability_ref": "capability:deep-work",
+        "label": "Take a walk before deep work",
+        "locked_title": "Log a walk to continue",
+        "locked_body": "Deep work is locked until you take a walk today. A short walk clears the head — then you're free to focus.",
+        "unlocked_title": "You're clear for deep work",
+        "unlocked_body": "Walk logged today. Nothing is holding you back — go focus.",
+        "unlock_action_label": "I took my walk",
+        "progress_measure": "measure.walk-count-today",
+        "progress_required": 1,
+        "condition": {
+          "any": [
+            { "measure": "measure.walk-count-today", "op": "gte", "value": 1, "within_ms": 86400000 }
+          ]
+        },
+        "satisfy": {
+          "fact": {
+            "kind": "activity.attestation",
+            "fields": { "activity": "walk" }
+          },
+          "recompute": [
+            {
+              "measure_id": "measure:wholeness.walk-count-today",
+              "fact_where": [
+                { "field": "kind", "in": ["activity.attestation"] },
+                { "field": "activity", "in": ["walk"] },
+                { "field": "day", "in": ["$today"] }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::permission-lease::measure-definition::wholeness-walk-count-today",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "remove": false,
+      "payload": {
+        "kind": "measure-definition",
+        "id": "measure:wholeness.walk-count-today",
+        "op": "count",
+        "emit": "measure.walk-count-today",
+        "inputs": [
+          {
+            "match": { "kind": "activity.attestation", "activity": "walk" }
+          }
+        ],
+        "params": {},
+        "failClosed": true
+      }
+    }
+  ]
+}

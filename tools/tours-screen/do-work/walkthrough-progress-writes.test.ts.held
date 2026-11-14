@@ -1,0 +1,28 @@
+// packages/guided-overlay/do-work/walkthrough-progress-writes.test.ts
+
+import { describe, it, expect } from 'vitest';
+import { buildProgressTransitionTargetRequest } from './walkthrough-progress-writes';
+import { PROGRESS_TRANSITION_REQUEST_SCHEMA } from './progress-transition-owner';
+
+describe('walkthrough-progress-writes (do-work)', () => {
+  it('routes durable cursor mutations only through the package owner target', () => {
+    const request = buildProgressTransitionTargetRequest({
+      run_id: 'run-1',
+      scope_ref: 'local',
+      definition_id: 'wt:tour',
+      definition_revision: 1,
+      expected_cursor_revision: 0,
+      from_step_id: 'step-1',
+      to_step_id: 'step-2',
+      history: ['step-1'],
+      status: 'active',
+      cause: 'advance',
+      once_key: null,
+    });
+
+    expect(request.target).toBe('guided-overlay.progress-transition');
+    expect(request.payload.schema).toBe(PROGRESS_TRANSITION_REQUEST_SCHEMA);
+    expect(request.payload.to_step_id).toBe('step-2');
+    expect(request).not.toHaveProperty('payload.operation_label');
+  });
+});

@@ -1,0 +1,105 @@
+// Does every action this package's descriptors dispatch to actually exist?
+//
+// A text rule in `check-source-files-against-declared-rules` reported two that do not, and a
+// text rule cannot tell a missing declaration from one it cannot read. This is the parser that
+// closes that question, and it is the same check `calendar-booker` already makes by hand at
+// `__tests__/booking-links-backend-boundary.test.mjs:36`, which is why nothing new is invented
+// here: the shape is copied from the package that already got it right.
+//
+// The defect being guarded is silent by construction. A descriptor naming an action nothing
+// declares still renders its control, still admits, still type-checks, and resolves to nothing
+// only when a human presses it. Nothing in the build can see it.
+//
+// Written as `.test.mjs` rather than `.test.ts` on purpose: this package's two existing suites
+// are `.test.ts` under vitest and appear in NO npm script, so nothing runs them. A suite that
+// no runner collects reports success forever, which is the exact failure this repository has
+// logged repeatedly. `node --test <this file>` runs without any config.
+
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import test from 'node:test';
+import { fileURLToPath } from 'node:url';
+
+const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const manifest = JSON.parse(readFileSync(path.join(packageRoot, 'things-to-store-and-run.json'), 'utf8'));
+const things = Array.isArray(manifest) ? manifest : (manifest.things ?? []);
+
+/** Every action id this package DECLARES, by the same rule calendar-booker uses: a record whose
+ *  address marks it a workflow-action, keyed by its payload id. */
+function declaredActionIds() {
+  return new Set(
+    things
+      .filter((thing) => typeof thing?.address === 'string' && thing.address.includes('::workflow-action::'))
+      .map((thing) => thing?.payload?.id)
+      .filter((id) => typeof id === 'string'),
+  );
+}
+
+/** Every action id this package REFERENCES, wherever the reference appears. Walked structurally
+ *  rather than matched by line, because the whole reason a parser is needed here is that a
+ *  pattern cannot see shape. */
+function referencedActionIds() {
+  const found = [];
+  const walk = (node, trail) => {
+    if (Array.isArray(node)) {
+      node.forEach((item, index) => walk(item, `${trail}[${index}]`));
+      return;
+    }
+    if (node === null || typeof node !== 'object') return;
+    for (const [key, value] of Object.entries(node)) {
+      const isActionReference = key === 'action_ref' || key === 'definition_id' || key.endsWith('_action_ref');
+      if (isActionReference && typeof value === 'string' && value.startsWith('action:')) {
+        found.push({ id: value, at: `${trail}.${key}` });
+      }
+      walk(value, `${trail}.${key}`);
+    }
+  };
+  walk(things, 'things');
+  return found;
+}
+
+test('the package declares at least one action, so a clean result cannot mean an empty walk', () => {
+  // Without this, a walker that traversed nothing would report success forever, which is the
+  // failure mode this whole check exists to catch one level down.
+  assert.ok(referencedActionIds().length > 0, 'no action references found at all, so this suite proves nothing');
+});
+
+// THE SHARPER DEFECT, and it is provable from source rather than inferred.
+//
+// `read-data/permission-lease-surface.ts:179` is `if (!actionRef || !operation || !definitionId)
+// return [];`. All three are required, and a record missing any of them is DROPPED, not
+// reported. An empty list is exactly what a package with no configured actions returns, so the
+// healthy value and the broken value are the same value and nothing anywhere raises.
+//
+// `record-lease` carries action_ref, operation, target and label, and no definition_id. So the
+// "Save permission" control cannot render, and has not been able to, silently.
+test('every permission_lease_action carries the three fields its decoder requires', () => {
+  const required = ['action_ref', 'operation', 'definition_id'];
+  const incomplete = things
+    .filter((thing) => thing?.payload?.kind === 'permission_lease_action')
+    .map((thing) => ({
+      address: thing.address,
+      missing: required.filter((field) => typeof thing.payload[field] !== 'string'),
+    }))
+    .filter((row) => row.missing.length > 0);
+
+  assert.deepEqual(
+    incomplete,
+    [],
+    'the decoder returns [] for these, which is indistinguishable from having no actions at all',
+  );
+});
+
+test('every action a descriptor dispatches to is declared by this package', () => {
+  const declared = declaredActionIds();
+  const dangling = referencedActionIds().filter((reference) => !declared.has(reference.id));
+
+  assert.deepEqual(
+    dangling,
+    [],
+    `these dispatch to an action nothing declares, so the control resolves to nothing when pressed.\n` +
+      `declared: ${JSON.stringify(Array.from(declared), null, 2)}\n` +
+      `dangling: ${JSON.stringify(dangling, null, 2)}`,
+  );
+});

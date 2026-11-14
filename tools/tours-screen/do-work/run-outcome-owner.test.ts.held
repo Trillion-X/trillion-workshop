@@ -1,0 +1,367 @@
+import { describe, expect, it, vi } from 'vitest';
+const TEST_HASH = '1f:' + 'ab'.repeat(32);
+const TEST_HASH_BASE64 = Buffer.from('1f20' + 'ab'.repeat(32), 'hex').toString('base64');
+import {
+  RUN_OUTCOME_REQUEST_SCHEMA,
+  normalizeRunOutcomeRequest,
+  runOutcomeOwnerTarget,
+} from './run-outcome-owner';
+import { completionWriteAfterExit, completionWriteForRun } from './walkthrough-completion-writes';
+import type { WalkthroughDefinition } from '../read-data/walkthrough-eeaf';
+
+const input = {
+  schema: RUN_OUTCOME_REQUEST_SCHEMA,
+  run_id: 'run-1',
+  scope_ref: 'local',
+  definition_id: 'walkthrough-1',
+  definition_revision: 2,
+  outcome: 'completed' as const,
+  destination_operation_ref: 'owner.act',
+  destination_readback_ref: 'owner.readback',
+  successor_trigger_ref: 'owner.successor',
+  successor_dispatch: {
+    event: { event_kind: 'scoped-run.completed', custom: 'data' },
+    refs: {
+      destination_operation_ref: 'owner.act',
+      destination_readback_ref: 'owner.readback',
+      successor_trigger_ref: 'owner.successor',
+    },
+  },
+  compatibility_record: {
+    address: 'package::guided-overlay::completion::walkthrough.completed::local::walkthrough-1::2::run-1',
+    value_json: { kind: 'walkthrough.completed', event_kind: 'walkthrough.completed', scope_ref: 'local',
+      definition_id: 'walkthrough-1', definition_revision: 2, run_id: 'run-1', disposition: 'completed',
+      successor_dispatch: { event: { event_kind: 'scoped-run.completed', custom: 'data' }, refs: {
+        destination_operation_ref: 'owner.act', destination_readback_ref: 'owner.readback', successor_trigger_ref: 'owner.successor',
+      } },
+    },
+  },
+};
+
+describe('package-owned run outcome', () => {
+  it.each([undefined, null, '', 'ab'.repeat(32), '1f:ab', `1f:${'gg'.repeat(32)}`, `1f:${'AB'.repeat(32)}`])
+  ('refuses an existing failed claim with an invalid native hash: %s', async content_hash => {
+    const send = vi.fn(async () => ({ found: true, content_hash,
+      payload_hash_base64: 'legacy-field-must-not-be-used',
+      payload: { ...input, kind: 'walkthrough-run-outcome-failed' } }));
+    await expect(runOutcomeOwnerTarget(input, undefined, send)).rejects.toThrow('could not be verified');
+    expect(send).toHaveBeenCalledOnce();
+  });
+
+  it.each([undefined, null, '1f:ab'])('refuses owner effects when the postclaim hash is invalid: %s', async content_hash => {
+    let reads = 0;
+    const send = vi.fn(async ({ payload }: { payload: Record<string, unknown> }) => {
+      if (payload.operation_label === 'engine.operation.read-current') return ++reads === 1
+        ? { found: false } : { found: true, content_hash, payload: { ...input, kind: 'walkthrough-run-outcome-pending' } };
+      return { write_count: 1 };
+    });
+    await expect(runOutcomeOwnerTarget(input, undefined, send)).rejects.toThrow('could not be verified');
+    expect(send).toHaveBeenCalledTimes(3);
+    expect(send.mock.calls.every(([wire]) => wire.payload.operation_label)).toBe(true);
+  });
+
+  it('reads its identity-text claim and terminal result without repeating owner effects', async () => {
+    const store = new Map<string, { payload: unknown; hash: string }>();
+    const key = (row: Record<string, unknown>) => `${row.address_mode ?? 'label_hash'}:${row.address_label}`;
+    const effects: string[] = [];
+    let serial = 0;
+    const send = vi.fn(async ({ target, payload }: { target: string; payload: Record<string, unknown> }) => {
+      if (payload.operation_label === 'engine.operation.read-current') {
+        const value = store.get(key(payload));
+        return value ? { found: true, payload: value.payload, content_hash: value.hash } : { found: false };
+      }
+      if (payload.operation_label === 'engine.operation.write-batch') {
+        const writes = payload.writes as Array<Record<string, unknown>>;
+        if (writes.some(row => row.expected_current && (row.expected_current as any).payload_hash_base64 !== (store.has(key(row))
+          ? Buffer.from(`1f20${store.get(key(row))!.hash.slice(3)}`, 'hex').toString('base64') : null))) return { write_count: 0 };
+        for (const row of writes) store.set(key(row), { payload: row.payload, hash: `1f:${(++serial).toString(16).padStart(64, '0')}` });
+        return { write_count: writes.length };
+      }
+      effects.push(target);
+      return { accepted: true };
+    });
+    await expect(runOutcomeOwnerTarget(input, undefined, send)).resolves.toMatchObject({ accepted: true, deduplicated: false });
+    await expect(runOutcomeOwnerTarget(input, undefined, send)).resolves.toMatchObject({ accepted: true, deduplicated: true });
+    expect(effects).toEqual(['owner.act', 'owner.readback', 'owner.successor']);
+    expect(store.size).toBe(2);
+    expect(serial).toBe(3);
+  });
+  it('encodes each address segment independently and rejects empty completion kinds', () => {
+    const run = { ...input, scope_ref: 'user:a/b', run_id: 'run::two' };
+    const compatibility = completionWriteForRun('tour:done/v1', {}, 'completed', run, input.successor_dispatch);
+    expect(normalizeRunOutcomeRequest({ ...run, compatibility_record: compatibility }).compatibility_record?.address)
+      .toBe('package::guided-overlay::completion::tour%3Adone%2Fv1::user%3Aa%2Fb::walkthrough-1::2::run%3A%3Atwo');
+    expect(() => normalizeRunOutcomeRequest({ ...input, compatibility_record: { ...input.compatibility_record,
+      value_json: { ...input.compatibility_record.value_json, event_kind: ' ' },
+    } })).toThrow('completion event_kind');
+  });
+  it('accepts the exact host-derived completion record with a distinct source event', () => {
+    const source = { event_kind: 'walkthrough.started', occurrence_id: 'source:1' };
+    const definition: WalkthroughDefinition = { kind: 'walkthrough-definition', id: input.definition_id,
+      entry_step: 'one', steps: [{ id: 'one' }], triggers: [], completion: {
+        event_kind: 'walkthrough.completed', successor_event_kind: 'scoped-run.completed',
+        ...input.successor_dispatch.refs,
+      } };
+    const compatibility = completionWriteAfterExit(definition, source, 'completed', input);
+    expect(normalizeRunOutcomeRequest({ ...input, source_event: source,
+      successor_dispatch: { ...input.successor_dispatch, event: { event_kind: 'scoped-run.completed' } },
+      compatibility_record: compatibility,
+    }).compatibility_record).toEqual(compatibility);
+  });
+
+  it.each([
+    { ...input.compatibility_record, extra: true },
+    { ...input.compatibility_record, address: 'package::screen-arrangement::layout' },
+    ...Object.entries({ kind: 'foreign', event_kind: 'foreign', scope_ref: 'foreign', definition_id: 'foreign',
+      definition_revision: 3, run_id: 'foreign', disposition: 'skipped', successor_dispatch: null, source_occurrence: 'injected', extra: true,
+    }).map(([field, value]) => ({ ...input.compatibility_record, value_json: { ...input.compatibility_record.value_json, [field]: value } })),
+  ])('rejects a foreign or mismatched completion record before any owner call', async compatibility => {
+    const send = vi.fn();
+    await expect(runOutcomeOwnerTarget({ ...input, compatibility_record: compatibility }, undefined, send)).rejects.toThrow();
+    expect(send).not.toHaveBeenCalled();
+  });
+
+  it.each([{ accepted: false }, { accepted: undefined }, { kind: 'other-kind' }])('does not turn a malformed prior terminal into success: %j', async change => {
+    const send = vi.fn(async () => ({ found: true, content_hash: TEST_HASH, payload: { ...input, kind: 'walkthrough-run-outcome',
+      schema: 'guided-overlay.run-outcome-receipt/v1', accepted: true, ...change } }));
+    await expect(runOutcomeOwnerTarget(input, undefined, send)).rejects.toThrow('unrecognized terminal state');
+    expect(send).toHaveBeenCalledOnce();
+  });
+  it('retains the destination readback and successor trigger in the terminal receipt', () => {
+    expect(normalizeRunOutcomeRequest(input)).toMatchObject({
+      destination_operation_ref: 'owner.act',
+      destination_readback_ref: 'owner.readback',
+      successor_trigger_ref: 'owner.successor',
+      successor_dispatch: input.successor_dispatch,
+    });
+  });
+
+  it('actuates, reads back, triggers the successor, then writes one create-only outcome', async () => {
+    const calls: Array<{ target: string; payload: Record<string, unknown> }> = [];
+    let stored: Record<string, unknown> | null = null;
+    const send = vi.fn(async (request: { target: string; payload: Record<string, unknown> }) => {
+      calls.push(request);
+      if (request.payload.operation_label === 'engine.operation.read-current') {
+        return stored ? { found: true, content_hash: TEST_HASH, payload: stored } : { found: false };
+      }
+      if (request.payload.operation_label === 'engine.operation.write-batch') {
+        const writes = request.payload.writes as Array<Record<string, unknown>>;
+        stored = writes[0].payload as Record<string, unknown>;
+        return { write_count: writes.length };
+      }
+    return request.target === 'owner.readback'
+      ? { accepted: true, destination: 'owner-state' }
+      : { accepted: true };
+    });
+    const receipt = await runOutcomeOwnerTarget(input, undefined, send);
+    expect(calls.map((call) => call.target)).toEqual([
+      'engine.operation.label-addressed',
+      'engine.operation.label-addressed',
+      'engine.operation.label-addressed',
+      'owner.act',
+      'owner.readback',
+      'owner.successor',
+      'engine.operation.label-addressed',
+    ]);
+    expect(calls.find((call) => call.target === 'owner.successor')?.payload).toMatchObject({
+      event_kind: 'scoped-run.completed',
+      custom: 'data',
+      run_id: 'run-1',
+      scope_ref: 'local',
+      definition_id: 'walkthrough-1',
+      definition_revision: 2,
+    });
+    expect(receipt).toMatchObject({
+      accepted: true,
+      deduplicated: false,
+      outcome: 'completed',
+      destination_readback: { accepted: true, destination: 'owner-state' },
+    });
+    const write = calls.at(-1)?.payload.writes as Array<Record<string, unknown>>;
+    expect(write[0].expected_current).toEqual({ payload_hash_base64: TEST_HASH_BASE64 });
+    expect(write[1]).toMatchObject({
+      address_label: input.compatibility_record.address,
+      payload: input.compatibility_record.value_json,
+    });
+    expect(write[0].payload).toMatchObject({
+      destination_readback: { accepted: true, destination: 'owner-state' },
+      successor_dispatch: input.successor_dispatch,
+    });
+  });
+
+  it('returns the immutable prior receipt and does not actuate a duplicate outcome', async () => {
+    const prior = {
+      kind: 'walkthrough-run-outcome',
+      schema: 'guided-overlay.run-outcome-receipt/v1',
+      accepted: true,
+      deduplicated: false,
+      run_id: 'run-1',
+      definition_id: 'walkthrough-1',
+      definition_revision: 2,
+      outcome: 'completed',
+      destination_operation_ref: 'owner.act',
+      destination_readback_ref: 'owner.readback',
+      destination_readback: { accepted: true, observed: 'owner-state' },
+      successor_trigger_ref: 'owner.successor',
+      successor_dispatch: input.successor_dispatch,
+    };
+    const send = vi.fn(async () => ({ found: true, content_hash: TEST_HASH, payload: prior }));
+
+    await expect(runOutcomeOwnerTarget(input, undefined, send)).resolves.toMatchObject({
+      accepted: true,
+      deduplicated: true,
+      destination_readback: { accepted: true, observed: 'owner-state' },
+    });
+    expect(send).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects an existing run with a conflicting immutable owner door', async () => {
+    const prior = {
+      kind: 'walkthrough-run-outcome',
+      schema: 'guided-overlay.run-outcome-receipt/v1',
+      accepted: true,
+      run_id: 'run-1',
+      definition_id: 'walkthrough-1',
+      definition_revision: 2,
+      outcome: 'completed',
+      destination_operation_ref: 'other.owner.act',
+      destination_readback_ref: 'owner.readback',
+      destination_readback: null,
+      successor_trigger_ref: 'owner.successor',
+      successor_dispatch: input.successor_dispatch,
+    };
+    const send = vi.fn(async () => ({ found: true, content_hash: TEST_HASH, payload: prior }));
+
+    await expect(runOutcomeOwnerTarget(input, undefined, send)).rejects.toThrow('run_id already has a different terminal outcome');
+    expect(send).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not trigger a successor when destination readback fails', async () => {
+    const calls: string[] = [];
+    let claimed = false;
+    const send = vi.fn(async (request: { target: string; payload: Record<string, unknown> }) => {
+      calls.push(request.target);
+      if (request.payload.operation_label === 'engine.operation.read-current') {
+        return claimed ? { found: true, content_hash: TEST_HASH, payload: {
+          kind: 'walkthrough-run-outcome-pending', ...input,
+        } } : { found: false };
+      }
+      if (request.payload.operation_label === 'engine.operation.write-batch') {
+        claimed = true;
+        return { write_count: 1 };
+      }
+      if (request.target === 'owner.readback') throw new Error('destination unavailable');
+      return { accepted: true };
+    });
+
+    await expect(runOutcomeOwnerTarget(input, undefined, send)).rejects.toThrow('destination unavailable');
+    expect(calls).toEqual([
+      'engine.operation.label-addressed',
+      'engine.operation.label-addressed',
+      'engine.operation.label-addressed',
+      'owner.act',
+      'owner.readback',
+      'engine.operation.label-addressed',
+    ]);
+    expect(claimed).toBe(true);
+  });
+
+  it('records a failed claim and lets one later retry resume it', async () => {
+    let stored: Record<string, unknown> | null = null;
+    let revision = 0;
+    const contentHash = () => `1f:${revision.toString(16).padStart(64, '0')}`;
+    const expectedHash = () => stored
+      ? Buffer.from(`1f20${contentHash().slice(3)}`, 'hex').toString('base64') : null;
+    let failReadback = true;
+    const send = vi.fn(async (request: { target: string; payload: Record<string, unknown> }) => {
+      if (request.payload.operation_label === 'engine.operation.read-current') {
+        return stored ? { found: true, content_hash: contentHash(), payload: stored } : { found: false };
+      }
+      if (request.payload.operation_label === 'engine.operation.write-batch') {
+        const writes = request.payload.writes as Array<Record<string, unknown>>;
+        expect(writes[0].expected_current).toEqual({ payload_hash_base64: expectedHash() });
+        stored = writes[0].payload as Record<string, unknown>;
+        revision += 1;
+        return { write_count: writes.length };
+      }
+      if (request.target === 'owner.readback' && failReadback) {
+        failReadback = false;
+        throw new Error('temporary readback failure');
+      }
+      return { accepted: true };
+    });
+
+    await expect(runOutcomeOwnerTarget(input, undefined, send)).rejects.toThrow('temporary readback failure');
+    expect(stored).toMatchObject({ kind: 'walkthrough-run-outcome-failed' });
+    await expect(runOutcomeOwnerTarget(input, undefined, send)).resolves.toMatchObject({ accepted: true });
+    expect(stored).toMatchObject({ kind: 'walkthrough-run-outcome' });
+    expect(revision).toBe(4);
+  });
+
+  it('records a rejected final write as failed using its existing claim precondition', async () => {
+    let stored: Record<string, unknown> | null = null;
+    const writes: Array<Record<string, unknown>> = [];
+    const send = vi.fn(async (request: { target: string; payload: Record<string, unknown> }) => {
+      if (request.payload.operation_label === 'engine.operation.read-current') return stored
+        ? { found: true, content_hash: TEST_HASH, payload: stored } : { found: false };
+      if (request.payload.operation_label === 'engine.operation.write-batch') {
+        const batch = request.payload.writes as Array<Record<string, unknown>>;
+        const value = batch[0].payload as Record<string, unknown>;
+        writes.push(batch[0]);
+        if (value.kind === 'walkthrough-run-outcome') throw new Error('Final write unavailable');
+        stored = value;
+        return { write_count: batch.length };
+      }
+      return { accepted: true };
+    });
+    await expect(runOutcomeOwnerTarget(input, undefined, send)).rejects.toThrow('Final write unavailable');
+    expect(stored).toMatchObject({ kind: 'walkthrough-run-outcome-failed' });
+    expect(writes.at(-1)?.expected_current).toEqual({ payload_hash_base64: TEST_HASH_BASE64 });
+  });
+
+  it('rejects a completed outcome without a successor event and complete owner refs', () => {
+    expect(() => normalizeRunOutcomeRequest({
+      ...input,
+      destination_readback_ref: null,
+      successor_dispatch: {
+        ...input.successor_dispatch,
+        refs: { ...input.successor_dispatch.refs, destination_readback_ref: null },
+      },
+    })).toThrow(
+      'completed outcomes require a successor event and destination/successor refs',
+    );
+  });
+
+  it('claims one concurrent terminal request before any owner side effect', async () => {
+    let stored: Record<string, unknown> | null = null;
+    let initialReads = 0;
+    const ownerCalls: string[] = [];
+    const send = vi.fn(async (request: { target: string; payload: Record<string, unknown> }) => {
+      if (request.payload.operation_label === 'engine.operation.read-current') {
+        initialReads += 1;
+        if (initialReads <= 2) return { found: false };
+        return stored ? { found: true, content_hash: TEST_HASH, payload: stored } : { found: false };
+      }
+      if (request.payload.operation_label === 'engine.operation.write-batch') {
+        const writes = request.payload.writes as Array<Record<string, unknown>>;
+        const next = writes[0].payload as Record<string, unknown>;
+        if (next.kind === 'walkthrough-run-outcome-pending') {
+          if (stored) return { write_count: 0 };
+          stored = next;
+          return { write_count: 1 };
+        }
+        stored = next;
+        return { write_count: writes.length };
+      }
+      ownerCalls.push(request.target);
+      return { accepted: true };
+    });
+
+    const outcomes = await Promise.all([
+      runOutcomeOwnerTarget(input, undefined, send),
+      runOutcomeOwnerTarget(input, undefined, send),
+    ]);
+    expect(outcomes.map((outcome) => outcome.accepted).sort()).toEqual([false, true]);
+    expect(ownerCalls).toEqual(['owner.act', 'owner.readback', 'owner.successor']);
+  });
+});

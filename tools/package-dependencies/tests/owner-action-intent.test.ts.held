@@ -1,0 +1,67 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
+import { createOwnerActionIntent, createOwnerActionIntentTarget } from '@/packages/package-dependencies/do-work/create-owner-action-intent';
+import { readPackageDependencyDescriptors } from '@/packages/package-dependencies/read-data/read-relation-projection';
+
+const packageRoot = join(process.cwd(), 'packages/package-dependencies');
+
+describe('package-dependencies owner-action intent builder', () => {
+  it('reads generic descriptors from the package boundary', () => {
+    const descriptors = readPackageDependencyDescriptors();
+
+    expect(descriptors.relations).toHaveLength(2);
+    expect(descriptors.rules).toHaveLength(3);
+    expect(descriptors.projection?.id).toBe('projection-descriptor:relationship-review');
+    expect(descriptors.ownerActionIntents[0].owner_target_ref).toBe('package-files.install-packages-from-pointers');
+    expect(descriptors.processProofFolds[0].id).toBe('process-proof-fold-descriptor:owner-action-events');
+  });
+
+  it('creates byte-stable owner-action intent records without executing owner logic', () => {
+    const descriptor = readPackageDependencyDescriptors().ownerActionIntents[0];
+    const input = {
+      descriptor,
+      selected_refs: ['record:package:media-editor', 'record:package:permission-review'],
+      expected_projection_generation: 7,
+      confirmation_proof: { confirmed_by: 'person:owner', confirmed_at: '2026-06-22T12:00:00.000Z' },
+      idempotency_key: 'intent-key-7',
+      requested_at: '2026-06-22T12:00:01.000Z',
+      context: { source_projection: 'projection:one' },
+    };
+
+    const first = createOwnerActionIntent(input);
+    const second = createOwnerActionIntent(input);
+
+    expect(JSON.stringify(first)).toBe(JSON.stringify(second));
+    expect(first).toMatchObject({
+      kind: 'owner-action-intent-record',
+      id: 'owner-action-intent:intent-key-7',
+      ownerTargetRef: 'package-files.install-packages-from-pointers',
+      ownerActionRef: 'action:package-files.install-packages-from-pointers',
+      target: 'slot::workflow',
+      selectedRefs: ['record:package:media-editor', 'record:package:permission-review'],
+      expectedProjectionGeneration: '7',
+    });
+  });
+
+  it('returns structured errors for incomplete intent input', () => {
+    const result = createOwnerActionIntentTarget({
+      descriptor_id: 'owner-action-intent-descriptor:install-from-pointers',
+    });
+
+    expect(result).toMatchObject({
+      error: 'owner action intent input is incomplete',
+    });
+    expect((result as { details: string[] }).details).toContain('selected_refs must include at least one ref');
+    expect((result as { details: string[] }).details).toContain('confirmation_proof is required');
+  });
+
+  it('does not import side-effect owner implementation code', () => {
+    const source = [
+      readFileSync(join(packageRoot, 'do-work/create-owner-action-intent.ts'), 'utf8'),
+      readFileSync(join(packageRoot, 'read-data/read-relation-projection.ts'), 'utf8'),
+    ].join('\n');
+
+    expect(source).not.toMatch(/from .*package-files|from .*activation|from .*pricing|from .*product-access|from .*permission|from .*catalog/);
+  });
+});

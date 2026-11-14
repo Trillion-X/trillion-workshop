@@ -142,3 +142,23 @@ The same-behaviour test is `test/python/test_same_as_old.py`; its fixtures (`tes
 (`decision-records.mjs`, for `canonical`), `tools/set-up-my-account` (`harnesses.json`) and
 `tools/take-pictures-out-of-a-zip-archive` (the archive reader, for an export zip), with `@noble/hashes` and `fflate`. `tools/save-what-you-watch-and-read` packs this folder's `read-data` to
 read bookmark and pin exports with its own rows.
+
+## Files moved from bitfield-packages (packages/gmail-mailbox-decoder)
+
+Each file below is the package's own, byte for byte; `from-bitfield-packages/moved-from.json` names each source path and commit, the identity of its source bytes and of its bytes here, and the `calls` that made a real name or id made up. After the first commit only import paths changed. A file named `.held` is the same bytes with its test name taken off so the repository test does not run it; the reason is under `held` in the receipt. Most files import `@/packages/ui` and the retired package runtime (`@bitfield/runtime-kit`); the shared ui parts live in apps `parts/ui`, so the screens and targets here are prepared, not wired to a tool row.
+
+| File | What it is |
+|---|---|
+| `do-work/__tests__/test_gmail_snapshot_store.py.held` | Characterization tests for the fold policy, written before it adopted the shared fold so they prove nothing observable changed. Run by `npm run test:snapshot-folds`. (held: imports conversation_snapshot_fold, the co-mounted fold; the Workshop's fold is convers |
+| `do-work/gmail_snapshot_store.py` | Mail-specific fold policy only: which field is the identity, how entries are ordered, that the copy already held wins a collision, and how the position cursor advances. The merging itself belongs to `conversation-snapshot-fold`, delivered here as a co-mounted  |
+
+### Not carried
+
+- 2 files: package README, package.json or ignore file; this folder has its own README
+- 1 file: the package boundary file: record contracts, actions and surfaces for the retired package runtime (slot workflows, owner targets); not carried
+- 1 file: reads an OAuth credential blob from a file and calls the Gmail API with it: a provider call with a credential; the door hands credentials by handle through a row's invoke.connection, so it needs that swap first
+- 1 file: tests connect-gmail.py
+- 1 file: rewritten in the Workshop as the data row gmail-page in read-data/sources.json read by read_mail.py, with test_source_gmail_page.py; behaviour kept; flagged for the lead
+- 1 file: tests the decoder that the data row replaced
+
+The receipt's `not_carried` names each path.

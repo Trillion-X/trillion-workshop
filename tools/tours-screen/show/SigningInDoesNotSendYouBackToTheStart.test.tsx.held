@@ -1,0 +1,122 @@
+// Signing in sent people back to the first slide of onboarding, forever.
+//
+// The tour's definition ships with the app, so it exists on the first frame.
+// Where someone GOT TO can only come from the live feed, which answers a moment
+// later. Opening the app started the tour immediately, at its entry step,
+// because the saved cursor did not exist yet, and then the cursor arrived and
+// was ignored.
+//
+// On an ordinary reload that is a flicker. After signing in it is a trap: the
+// emailed link reloads the page, the tour restarts at slide one, and the only
+// way to reach the account step again is to click through the whole thing
+// faster than the feed answers. A person hit it repeatedly on the live web app.
+//
+// Both halves are proven here, because they have the same cause and only one
+// of them is about people who are mid-tour.
+
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+let feed: unknown;
+const sendRequest = vi.fn(async () => ({ payload: new Uint8Array() }));
+
+vi.mock('@bitfield/runtime-kit/react', () => ({
+  useBitfieldData: () => feed,
+}));
+vi.mock('@bitfield/runtime-kit', () => ({
+  sendRequestToBitfieldTarget: (request: unknown) => sendRequest(request),
+}));
+
+import { WalkthroughHost } from './WalkthroughHost';
+
+const definition = {
+  kind: 'walkthrough-definition',
+  id: 'onboarding',
+  title: 'Onboarding',
+  entry_step: 'slide-one',
+  revision: 1,
+  progress_style: { style: 'counter' },
+  triggers: [{ reason: 'first-run', on_event: { event_kind: 'app-opened' }, once_key: 'onboarding-once' }],
+  steps: [
+    { id: 'slide-one', content: { content_kind: 'text', payload: { title: 'Slide one' } } },
+    { id: 'account-gate', content: { content_kind: 'text', payload: { title: 'Account gate' } } },
+  ],
+};
+
+function progressRow(payload: Record<string, unknown>) {
+  return { address: 'package::guided-overlay::walkthrough-progress::local::onboarding', payload };
+}
+
+afterEach(() => {
+  cleanup();
+  feed = undefined;
+  sendRequest.mockClear();
+});
+
+describe('a late answer about where you got to still counts', () => {
+  it('moves you to where you were when the feed finally says so', async () => {
+    // The definition ships with the app, so the tour opens at slide one.
+    feed = [{ address: 'definition', payload: definition }];
+    const view = render(<WalkthroughHost scope="local" authoredRecords={[]} />);
+    expect(await screen.findByText('Slide one')).toBeTruthy();
+
+    // The saved cursor lands a moment later, which is the normal order.
+    feed = [
+      { address: 'definition', payload: definition },
+      progressRow({
+        kind: 'walkthrough-progress',
+        consumed_once_keys: [],
+        cursors: {
+          onboarding: {
+            run_id: 'run-from-before-the-reload',
+            definition_revision: 1,
+            cursor_revision: 4,
+            current_step_id: 'account-gate',
+            history: ['slide-one'],
+            status: 'active',
+          },
+        },
+      }),
+    ];
+    view.rerender(<WalkthroughHost scope="local" authoredRecords={[]} />);
+
+    await waitFor(() => expect(screen.getByText('Account gate')).toBeTruthy());
+    expect(screen.queryByText('Slide one')).toBeNull();
+  });
+
+  it('closes a tour you already finished instead of making you sit through it again', async () => {
+    feed = [{ address: 'definition', payload: definition }];
+    const view = render(<WalkthroughHost scope="local" authoredRecords={[]} />);
+    expect(await screen.findByText('Slide one')).toBeTruthy();
+
+    feed = [
+      { address: 'definition', payload: definition },
+      progressRow({
+        kind: 'walkthrough-progress',
+        consumed_once_keys: ['onboarding-once'],
+        cursors: {},
+      }),
+    ];
+    view.rerender(<WalkthroughHost scope="local" authoredRecords={[]} />);
+
+    await waitFor(() => expect(screen.queryByText('Slide one')).toBeNull());
+  });
+
+  it('leaves a tour alone when the feed says nothing about it', async () => {
+    // The control, and the one that matters most: a first run has no progress
+    // to arrive, ever. If an absent answer were treated as an answer, nobody
+    // would see onboarding at all, and an app that never onboards anyone looks
+    // exactly like an app whose onboarding works.
+    feed = [{ address: 'definition', payload: definition }];
+    const view = render(<WalkthroughHost scope="local" authoredRecords={[]} />);
+    expect(await screen.findByText('Slide one')).toBeTruthy();
+
+    feed = [
+      { address: 'definition', payload: definition },
+      progressRow({ kind: 'walkthrough-progress', consumed_once_keys: [], cursors: {} }),
+    ];
+    view.rerender(<WalkthroughHost scope="local" authoredRecords={[]} />);
+
+    await waitFor(() => expect(screen.getByText('Slide one')).toBeTruthy());
+  });
+});

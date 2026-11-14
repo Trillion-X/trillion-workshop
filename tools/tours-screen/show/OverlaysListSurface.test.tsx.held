@@ -1,0 +1,74 @@
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+const { emitWalkthroughEvent } = vi.hoisted(() => ({
+  emitWalkthroughEvent: vi.fn(),
+}));
+
+vi.mock('@bitfield/runtime-kit/react', () => ({
+  useBitfieldData: () => [{
+    address: 'package::guided-overlay::walkthrough-definition::test',
+    payload: {
+      kind: 'walkthrough-definition',
+      id: 'connect-accounts',
+      title: 'Connect accounts',
+      entry_step: 'welcome',
+      triggers: [
+        {
+          reason: 'first-run',
+          on_event: {
+            event_kind: 'onboarding-completed',
+            match: { primary_interaction: 'chat' },
+          },
+          once_key: 'first-run',
+        },
+        {
+          reason: 'manual',
+          on_event: {
+            event_kind: 'walkthrough-requested',
+            match: { walkthrough_id: 'connect-accounts' },
+          },
+        },
+      ],
+      steps: [{
+        id: 'welcome',
+        content: { content_kind: 'text', payload: { title: 'Welcome' } },
+      }],
+    },
+  }],
+}));
+
+vi.mock('./WalkthroughHost', () => ({ emitWalkthroughEvent }));
+
+import { OverlaysListSurface } from './OverlaysListSurface';
+
+afterEach(() => {
+  cleanup();
+  emitWalkthroughEvent.mockClear();
+});
+
+describe('OverlaysListSurface', () => {
+  it('keeps reusable walkthrough copy app-neutral', () => {
+    render(<OverlaysListSurface />);
+    expect(screen.getByText('Interactive tours for this app. Start any one for a guided walk through the surface.')).toBeTruthy();
+    expect(screen.queryByText(/Trillion/)).toBeNull();
+  });
+
+  it('starts the selected definition with its event kind and walkthrough id', () => {
+    render(<OverlaysListSurface />);
+    fireEvent.click(screen.getByRole('button', { name: 'Start' }));
+    expect(emitWalkthroughEvent).toHaveBeenCalledWith({
+      event_kind: 'walkthrough-requested',
+      walkthrough_id: 'connect-accounts',
+    });
+  });
+
+  it('uses exactly one standard bounded vertical scroll viewport', () => {
+    const { container } = render(<OverlaysListSurface />);
+    const viewports = container.querySelectorAll('[data-scrollable-surface-viewport="true"]');
+    expect(viewports).toHaveLength(1);
+    expect(viewports[0].className).toContain('overflow-y-auto');
+    expect(viewports[0].className).toContain('min-h-0');
+    expect(viewports[0].className).toContain('h-full');
+  });
+});

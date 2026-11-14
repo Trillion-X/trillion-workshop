@@ -1,0 +1,73 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { loadTsModule, readPackageFile } from './load-ts-module.mjs';
+
+test('public item creation target denies requests without current server admission', async () => {
+  const { createItemRecordTarget } = await loadTsModule('../do-work/owner-actions.ts');
+  const calls = [];
+  await assert.rejects(
+    createItemRecordTarget({ payload: { subject_ref: 'community:one', target_ref: 'community:one', fields: { body: 'hello' }, expected_revision: 0, idempotency_ref: 'post:one' } }, undefined, async (request) => { calls.push(request); return {}; }),
+    /server admission is required and must be current/,
+  );
+  assert.deepEqual(calls, []);
+});
+
+test('public item creation binds the admitted subject_ref before the owner write', async () => {
+  const { createItemRecordTarget } = await loadTsModule('../do-work/owner-actions.ts');
+  const revisions = { membership_revision: 'm1', policy_revision: 'p1', resource_revision: '0', session_revision: 's1' };
+  const decision = { decision: 'allow', decision_proof: 'proof:one', actor_ref: 'actor:one', session_ref: 'session:one', subject_ref: 'community:one', action_ref: 'item-record.create-item-record', revisions };
+  const calls = [];
+  const request = {
+    payload: { subject_ref: 'community:one', target_ref: 'community:one', fields: { body: 'hello' }, expected_revision: 0, idempotency_ref: 'post:one' },
+    ambient_actor: { actor_ref: 'actor:one', session_ref: 'session:one', session_revision: 's1' },
+    access_decision: decision,
+  };
+  await assert.rejects(createItemRecordTarget(request, undefined, async (call) => {
+    calls.push(call);
+    if (calls.length === 1) return { verified: true, decision };
+    throw new Error('stopped before owner write');
+  }), /stopped before owner write/);
+  assert.equal(calls[0].target, 'access-rule.verify-decision');
+  assert.equal(calls[0].payload.subject_ref, 'community:one');
+});
+
+test('public item creation decodes hosted carrier byte envelopes before verifying admission', async () => {
+  const { createItemRecordTarget } = await loadTsModule('../do-work/owner-actions.ts');
+  const revisions = { membership_revision: 'm1', policy_revision: 'p1', resource_revision: '0', session_revision: 's1' };
+  const decision = { decision: 'allow', decision_proof: 'proof:one', actor_ref: 'actor:one', session_ref: 'session:one', subject_ref: 'community:one', revisions };
+  const browserPayload = { subject_ref: 'community:one', target_ref: 'community:one', fields: { body: 'hello' }, expected_revision: 0, idempotency_ref: 'post:one' };
+  const envelope = {
+    payload: browserPayload,
+    ambient_actor: { actor_ref: 'actor:one', session_ref: 'session:one', session_revision: 's1' },
+    access_decision: decision,
+  };
+  const encoded = new TextEncoder().encode(JSON.stringify(envelope));
+  for (const input of [
+    JSON.stringify(envelope),
+    encoded,
+    { ...envelope, payload: new TextEncoder().encode(JSON.stringify(browserPayload)) },
+    { payload: encoded },
+  ]) {
+    const calls = [];
+    await assert.rejects(createItemRecordTarget(input, undefined, async (call) => {
+      calls.push(call);
+      if (calls.length === 1) return { verified: true, decision };
+      throw new Error('stopped before owner write');
+    }), /stopped before owner write/);
+    assert.equal(calls[0].target, 'access-rule.verify-decision');
+    assert.equal(calls[0].payload.subject_ref, 'community:one');
+  }
+});
+
+test('feed read target is browser-admitted and fixes the durable read owner', async () => {
+  const manifest = JSON.parse(await readPackageFile('../things-to-store-and-run.json'));
+  const descriptor = manifest.things.find((thing) => thing.address === 'package::item-record::target::read-feed-items')?.payload;
+  const entry = manifest.things.find((thing) => thing.address === 'package::item-record::entry::read-feed-items-target')?.payload;
+  assert.equal(descriptor?.target, 'item-record.read-feed-items');
+  assert.equal(descriptor?.exposure, 'hosted-session-admitted');
+  assert.equal(descriptor?.admission?.action_ref, 'item-record.read-feed-items');
+  assert.deepEqual(descriptor?.fixed_owner_targets, ['access-rule.verify-decision', 'item-record.read-space-items']);
+  assert.deepEqual(descriptor?.input_contract?.required, ['subject_ref', 'expected_revision']);
+  assert.ok(descriptor?.input_contract?.forbidden.includes('items'));
+  assert.equal(entry?.export_name, 'readItemRecordFeedTarget');
+});

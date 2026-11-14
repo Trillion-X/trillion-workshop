@@ -35,3 +35,20 @@ The renderers already here are the later, evolved copies of the package's (the J
 ## Carried from media-playback
 
 `show/MediaPlaybackSurface.tsx`, `PlaybackControls.tsx`, `MediaFrame.tsx` and the readers here are the newer copies of the package `media-playback`. What the package held and this folder did not is carried under its own paths in `from-bitfield-packages/media-playback/`, byte for byte, with `moved-from.json`: `read-data/read-media-queue.ts`, `read-media-transcript.ts`, `read-surface-media.ts` (the queue order, the transcript segments and the media a surface names), `do-work/reorder-queue.ts` and `record-playback-event.ts` (the two writes), `show/mount-media-playback.tsx` (the material the screen mounts), the package's records (`things-to-store-and-run.json`) and its twelve tests, which import vitest and are held (names end in `.held`). The two writes and the mount still call the old package runtime, so they do nothing until swapped for the records door.
+## Files moved from bitfield-packages (packages/files)
+
+Each file below is the package's own, byte for byte; `from-bitfield-packages/moved-from.json` names each source path and commit, the identity of its source bytes and of its bytes here, and the `calls` that made a real name or id made up. After the first commit only import paths changed. A file named `.held` is the same bytes with its test name taken off so the repository test does not run it; the reason is under `held` in the receipt. Most files import `@/packages/ui` and the retired package runtime (`@bitfield/runtime-kit`); the shared ui parts live in apps `parts/ui`, so the screens and targets here are prepared, not wired to a tool row.
+
+| File | What it is |
+|---|---|
+| `show/FilesSurface.tsx` | A file of the package. |
+| `show/FilesWorkspace.tsx` | A file of the package. |
+| `show/mount-files.tsx` | A file of the package. |
+
+### Not carried
+
+- 3 files: generated build output of the retired package runtime (entry scope, built entry bytes); not carried
+- 1 file: maps package entries to the retired package runtime's entry scope; not carried
+- 1 file: the package boundary file: record contracts, actions and surfaces for the retired package runtime (slot workflows, owner targets); not carried
+
+The receipt's `not_carried` names each path.

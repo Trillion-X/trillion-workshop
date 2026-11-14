@@ -1,0 +1,167 @@
+// Proves a walkthrough step's non-internal button runs its opaque `perform` DATA
+// as ONE blind Envelope dispatch through the live transport, with NO enumerated
+// role/target/operation in guided-overlay source, then ends the tour. A button
+// with no `perform` (pure dismiss) dispatches nothing and still exits.
+
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+const sendRequest = vi.fn(async () => new Uint8Array(8));
+
+vi.mock('@bitfield/runtime-kit', () => ({
+  sendRequestToBitfieldTarget: (request: unknown) => sendRequest(request),
+}));
+
+import { WalkthroughSurface } from './WalkthroughSurface';
+import type { WalkthroughDefinition } from '../read-data/walkthrough-eeaf';
+
+afterEach(() => {
+  cleanup();
+  sendRequest.mockClear();
+});
+
+// The DATA carries an ARBITRARY target/operation/params. guided-overlay source
+// never names any of these strings; the button role is arbitrary too.
+function chooserDefinition(perform?: {
+  target: string;
+  operation: string;
+  params?: Record<string, unknown>;
+}): WalkthroughDefinition {
+  return {
+    kind: 'walkthrough-definition',
+    id: 'chooser-proof',
+    entry_step: 'pick',
+    triggers: [],
+    steps: [{
+      id: 'pick',
+      content: { content_kind: 'outcome', payload: { title: 'What next?' } },
+      nav: {
+        buttons: [
+          { role: 'do-a-thing', label: 'Do a thing', ...(perform ? { perform } : {}) },
+          { role: 'skip', label: 'Dismiss' },
+        ],
+      },
+    }],
+  };
+}
+
+describe('WalkthroughSurface step-effect dispatch (perform DATA)', () => {
+  it('awaits a Done effect before completing and suppresses a duplicate finish click', async () => {
+    let release!: () => void;
+    sendRequest.mockImplementationOnce(() => new Promise<Uint8Array>((resolve) => {
+      release = () => resolve(new Uint8Array(8));
+    }));
+    const onExit = vi.fn().mockResolvedValue(undefined);
+    const perform = {
+      target: 'slot::workspace-owner',
+      operation: 'open-surface',
+      params: { surface_id: 'real.surface' },
+    };
+    const chooser = chooserDefinition();
+    const doneDefinition: WalkthroughDefinition = {
+      ...chooser,
+      steps: [{
+        ...chooser.steps[0],
+        nav: { buttons: [{ role: 'done', label: 'Finish', perform }] },
+      }],
+    };
+
+    render(<WalkthroughSurface definition={doneDefinition} onExit={onExit} />);
+    const finish = screen.getByRole('button', { name: 'Finish' });
+    fireEvent.click(finish);
+    fireEvent.click(finish);
+
+    expect(sendRequest).toHaveBeenCalledTimes(1);
+    expect(onExit).not.toHaveBeenCalled();
+    release();
+    await waitFor(() => expect(onExit).toHaveBeenCalledWith('completed'));
+  });
+
+  it('dispatches the clicked button perform DATA as one blind Envelope request, then exits', async () => {
+    const onExit = vi.fn().mockResolvedValue(undefined);
+    const perform = {
+      target: 'slot::example-owner',
+      operation: 'do-example-operation',
+      params: { place: 'main', surface_ref: 'anything', count: 3 },
+    };
+
+    render(<WalkthroughSurface definition={chooserDefinition(perform)} onExit={onExit} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Do a thing' }));
+
+    await waitFor(() => expect(sendRequest).toHaveBeenCalledTimes(1));
+    // The payload is the flat inverse of {operation, params}: {operation, ...params}.
+    expect(sendRequest).toHaveBeenCalledWith({
+      target: 'slot::example-owner',
+      payload: {
+        operation: 'do-example-operation',
+        place: 'main',
+        surface_ref: 'anything',
+        count: 3,
+      },
+    });
+    await waitFor(() => expect(onExit).toHaveBeenCalledWith('skipped'));
+  });
+
+  it('dispatches nothing for a pure-dismiss button (no perform) and still exits', async () => {
+    const onExit = vi.fn().mockResolvedValue(undefined);
+
+    render(<WalkthroughSurface definition={chooserDefinition()} onExit={onExit} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
+
+    await waitFor(() => expect(onExit).toHaveBeenCalledWith('skipped'));
+    expect(sendRequest).not.toHaveBeenCalled();
+  });
+
+  it('sends a perform with no params as a bare {operation} payload', async () => {
+    const onExit = vi.fn().mockResolvedValue(undefined);
+    const perform = { target: 'slot::another-owner', operation: 'bare-op' };
+
+    render(<WalkthroughSurface definition={chooserDefinition(perform)} onExit={onExit} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Do a thing' }));
+
+    await waitFor(() => expect(sendRequest).toHaveBeenCalledWith({
+      target: 'slot::another-owner',
+      payload: { operation: 'bare-op' },
+    }));
+  });
+});
+
+describe('WalkthroughSurface consecutive perform steps (D10 auto-open chain)', () => {
+  it('advances through every perform-carrying step: the in-flight guard never deadlocks the tour', async () => {
+    const perform = (surface: string) => ({
+      target: 'slot::workflow',
+      operation: 'execute_definition',
+      params: { definition_id: 'action:arrange-workspace', input: { placements: [{ surfaceId: surface, region: 'center' }] } },
+    });
+    const def: WalkthroughDefinition = {
+      kind: 'walkthrough-definition',
+      id: 'chain-proof',
+      entry_step: 'one',
+      triggers: [],
+      steps: [1, 2, 3].map((n) => ({
+        id: ['one', 'two', 'three'][n - 1],
+        target_ref: { from: 'selector', query: `[data-chain-target="${n}"]` },
+        content: { content_kind: 'text', payload: { title: `Step ${n}` } },
+        nav: { buttons: [{ role: 'advance', label: 'Next', perform: perform(`surface-${n}`) }] },
+      })),
+    };
+    // Mount all three targets so each step resolves instantly.
+    for (const n of [1, 2, 3]) {
+      const el = document.createElement('button');
+      el.setAttribute('data-chain-target', String(n));
+      el.getBoundingClientRect = () => ({ x: 10, y: 10 * n, left: 10, top: 10 * n, right: 110, bottom: 10 * n + 40, width: 100, height: 40, toJSON: () => ({}) }) as DOMRect;
+      document.body.appendChild(el);
+    }
+    const onExit = vi.fn().mockResolvedValue(undefined);
+    render(<WalkthroughSurface definition={def} onExit={onExit} />);
+    await waitFor(() => expect(screen.getByText('Step 1')).toBeTruthy());
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    await waitFor(() => expect(screen.getByText('Step 2')).toBeTruthy());
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    await waitFor(() => expect(screen.getByText('Step 3')).toBeTruthy());
+    // The final advance performs surface-3 then completes the tour.
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    await waitFor(() => expect(onExit).toHaveBeenCalledWith('completed'));
+    expect(sendRequest.mock.calls.length).toBe(3);
+  });
+});

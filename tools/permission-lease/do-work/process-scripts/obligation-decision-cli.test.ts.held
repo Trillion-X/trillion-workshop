@@ -1,0 +1,124 @@
+// packages/permission-lease/do-work/process-scripts/obligation-decision-cli.test.ts
+//
+// Integration tests for the BUILT CLI artifact (the .built.mjs the live
+// compute.process mounts — L085: test what ships, not the .ts source), plus a
+// conformance check that the evaluate-capability workflow-def in
+// things-to-store-and-run.json references real step ids and this script.
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { describe, expect, it } from 'vitest';
+
+const here = dirname(fileURLToPath(import.meta.url));
+const CLI = join(here, 'obligation-decision-cli.built.mjs');
+const NOW = '2026-07-02T12:00:00Z';
+
+const OBLIGATIONS = [
+  {
+    kind: 'capability-obligation',
+    obligation_ref: 'obl:walk-before-more-work',
+    capability_ref: 'capability:deep-work',
+    condition: {
+      any: [
+        { measure: 'measure.walk-count-today', op: 'gte', value: 1 },
+        { measure: 'measure.walk-attested-today', op: 'gte', value: 1 },
+      ],
+    },
+  },
+];
+
+function run(args: string[]): { decision: any; stderr: string } {
+  const stdout = execFileSync('node', [CLI, ...args], { encoding: 'utf8' });
+  return { decision: JSON.parse(stdout), stderr: '' };
+}
+
+describe('obligation-decision-cli (built artifact)', () => {
+  it('denies with no measure facts, workflow argv form', () => {
+    const { decision } = run([
+      '--obligations-json', JSON.stringify(OBLIGATIONS),
+      '--measures-json', '[]',
+      '--capability-ref', 'capability:deep-work',
+      '--now', NOW,
+    ]);
+    expect(decision.allowed).toBe(false);
+    expect(decision.verdicts[0].reason).toContain('measure missing');
+  });
+
+  it('allows once the tracked measure fact exists, and writes --output-json', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'obl-cli-'));
+    const out = join(dir, 'decision.json');
+    const measures = [
+      { id: 'm1', kind: 'measure.walk-count-today', value: 1, recorded_at: '2026-07-02T11:00:00Z' },
+    ];
+    const { decision } = run([
+      '--obligations-json', JSON.stringify(OBLIGATIONS),
+      '--measures-json', JSON.stringify(measures),
+      '--capability-ref', 'capability:deep-work',
+      '--now', NOW,
+      '--output-json', out,
+    ]);
+    expect(decision.allowed).toBe(true);
+    expect(decision.basis).toEqual(['m1']);
+    expect(JSON.parse(readFileSync(out, 'utf8'))).toEqual(decision);
+  });
+
+  it('unwraps find-current-items row shapes ({payload}/{fields}/{items})', () => {
+    const wrapped = { items: [{ payload: OBLIGATIONS[0] }] };
+    const measures = { items: [{ fields: { id: 'm1', kind: 'measure.walk-attested-today', value: 1, recorded_at: NOW } }] };
+    const { decision } = run([
+      '--obligations-json', JSON.stringify(wrapped),
+      '--measures-json', JSON.stringify(measures),
+      '--capability-ref', 'capability:deep-work',
+      '--now', NOW,
+    ]);
+    expect(decision.allowed).toBe(true);
+  });
+
+  it('reads positional file paths (local form)', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'obl-cli-'));
+    const oPath = join(dir, 'o.json');
+    const mPath = join(dir, 'm.json');
+    writeFileSync(oPath, JSON.stringify(OBLIGATIONS));
+    writeFileSync(mPath, '[]');
+    const { decision } = run([oPath, mPath, '--capability-ref', 'capability:deep-work', '--now', NOW]);
+    expect(decision.allowed).toBe(false);
+  });
+});
+
+describe('evaluate-capability workflow-def conformance', () => {
+  it('the def exists, its bindings reference real step ids and this script path', () => {
+    const boundary = JSON.parse(
+      readFileSync(join(here, '..', '..', 'things-to-store-and-run.json'), 'utf8'),
+    );
+    let def: any = null;
+    const walk = (x: unknown) => {
+      if (Array.isArray(x)) { x.forEach(walk); return; }
+      if (x && typeof x === 'object') {
+        const rec = x as Record<string, unknown>;
+        if (rec.id === 'action:permission-lease.evaluate-capability') def = rec;
+        Object.values(rec).forEach(walk);
+      }
+    };
+    walk(boundary);
+    expect(def, 'workflow-def action:permission-lease.evaluate-capability present').toBeTruthy();
+    const stepIds = new Set(def.steps.map((s: any) => s.id));
+    expect(stepIds).toEqual(new Set(['find_obligations', 'find_measures', 'read_script', 'decide', 'done']));
+    const argv: unknown[] = def.steps.find((s: any) => s.id === 'decide').config.input.argv;
+    expect(argv[1]).toBe('packages/permission-lease/do-work/process-scripts/obligation-decision-cli.built.mjs');
+    // every binding select.from steps must name an existing step id
+    const bindingKeys: string[] = [];
+    const collect = (x: unknown) => {
+      if (Array.isArray(x)) { x.forEach(collect); return; }
+      if (x && typeof x === 'object') {
+        const rec = x as Record<string, unknown>;
+        const sel = rec.select as Record<string, unknown> | undefined;
+        if (rec.$kind === 'binding' && sel?.from === 'steps') bindingKeys.push(String(sel.key));
+        Object.values(rec).forEach(collect);
+      }
+    };
+    collect(def.steps);
+    for (const key of bindingKeys) expect(stepIds.has(key), `binding step ${key}`).toBe(true);
+  });
+});

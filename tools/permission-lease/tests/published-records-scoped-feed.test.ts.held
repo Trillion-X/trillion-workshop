@@ -1,0 +1,108 @@
+// packages/permission-lease/tests/published-records-scoped-feed.test.ts
+//
+// L126 scoped-feed migration guard. permission-lease's CapabilityGate +
+// ObligationGatePanel read the live published feed to extract only
+// `capability-gate`, `capability-obligation`, and `measure.*` records — a tiny
+// slice of the 34.7MB `published-records` aggregate. This guard proves the
+// `published-records` input no longer subscribes to the raw aggregate but to a
+// scoped `record_from_matching_records` json_array exclude-exhaust feed
+// (`package::permission-lease::human-feed`), so mounting a capability gate no
+// longer triggers a whole-aggregate re-materialization (L126 blank-tabs root).
+//
+// The consumers are shape-tolerant (`row.payload ?? row` / payloadOf) and read
+// only payload.kind / payload.id (never address), so the json_array feed shape
+// {record:{address},payload} needs NO normalizeFeedRows. This test locks the
+// DATA contract; the row-shape handling is covered by the consumers' own
+// `?? row` fallback.
+
+import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+const FEED_ADDRESS = 'package::permission-lease::human-feed';
+
+interface Thing {
+  type?: string;
+  address?: string;
+  payload?: Record<string, unknown>;
+  payload_bytes?: Record<string, unknown>;
+}
+
+const manifest = JSON.parse(
+  readFileSync(join(__dirname, '..', 'things-to-store-and-run.json'), 'utf8'),
+) as { things: Thing[] };
+
+describe('permission-lease published-records scoped feed (L126)', () => {
+  // INVERTED 2026-09-09, and the direction it used to point would have kept the feature dead.
+  //
+  // This asserted `not.toHaveProperty('definition_id')`, under the name "keeps action pointers out
+  // of the workflow-definition vocabulary". The vocabulary instinct is reasonable and the assertion
+  // was still exactly backwards, because `decodeConfiguredPermissionActions`
+  // (read-data/permission-lease-surface.ts:179) requires action_ref AND operation AND definition_id
+  // and returns [] for a descriptor missing any of the three. Four live callers default to that
+  // decoder, so enforcing the old rule dropped every pointer and rendered no control at all.
+  //
+  // WHY IT SURVIVED: the failure is silent and symmetric. An empty action list is exactly what a
+  // package with no configured actions returns, so the broken value and the healthy value are
+  // identical and nothing raises. That is recorded independently in the declared-rules baseline,
+  // which reached the same conclusion from the opposite direction while chasing a dangling
+  // action_ref.
+  //
+  // A guard may encode a vocabulary preference only where no consumer contradicts it. Here one did,
+  // in the same package, so the invariant worth locking is the decoder's actual contract.
+  it('an action pointer carries the three fields its decoder requires, or it is silently dropped', () => {
+    const pointer = manifest.things.find(
+      (t) => t.address === 'package::permission-lease::action::record-lease',
+    );
+    expect(pointer).toBeTruthy();
+    expect(pointer!.payload).toMatchObject({
+      kind: 'permission_lease_action',
+      action_ref: 'action:permission-lease.record-lease',
+    });
+    // Named one by one rather than as a shape, so a failure says WHICH field went missing.
+    expect(pointer!.payload).toHaveProperty('operation');
+    expect(pointer!.payload).toHaveProperty('definition_id');
+  });
+
+  it('declares a json_array exclude-exhaust sink at the human-feed address', () => {
+    const sink = manifest.things.find(
+      (t) => t.type === 'record_from_matching_records' && t.address === FEED_ADDRESS,
+    );
+    expect(sink).toBeTruthy();
+    const bytes = sink!.payload_bytes as {
+      value_to_bytes?: string;
+      rows?: { match?: Array<{ path?: string[]; not_equals?: string }> };
+    };
+    expect(bytes.value_to_bytes).toBe('json_array');
+    const match = bytes.rows?.match ?? [];
+    // exhaust kinds are excluded, keeping every human record the gate needs
+    const excluded = match
+      .filter((m) => m.path?.[0] === 'payload' && m.path?.[1] === 'kind')
+      .map((m) => m.not_equals);
+    expect(excluded).toContain('ai-execution-run');
+    expect(excluded).toContain('agent-decision');
+    expect(excluded).toContain('action-intent-receipt');
+    // need_payload: a predicate references `payload` so rows without a payload drop
+    expect(match.some((m) => m.path?.length === 1 && m.path?.[0] === 'payload')).toBe(true);
+  });
+
+  it('the published-records input reads the scoped feed, not the raw aggregate', () => {
+    const desc = manifest.things.find(
+      (t) => t.payload?.input_name === 'published-records' && t.payload?.kind === 'bitfield-input-descriptor',
+    );
+    expect(desc).toBeTruthy();
+    const p = desc!.payload as Record<string, any>;
+    expect(p.value_address_label).toBe(FEED_ADDRESS);
+    expect(p.value?.source_bytes?.bytes_to_value).toBe('json');
+  });
+
+  it('NO descriptor still points at the raw published-records aggregate or uses cell_table', () => {
+    const raw = manifest.things.filter(
+      (t) =>
+        t.payload?.kind === 'bitfield-input-descriptor' &&
+        (t.payload?.value_address_label === 'published-records' ||
+          JSON.stringify(t.payload).includes('cell_table')),
+    );
+    expect(raw).toEqual([]);
+  });
+});

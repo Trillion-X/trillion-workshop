@@ -1,0 +1,93 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import test from 'node:test';
+import { foldRelationProjection } from '../processes/fold-relation-projection.mjs';
+import { foldProcessProof } from '../processes/fold-process-proof.mjs';
+
+const packageRoot = join(process.cwd(), 'packages/package-dependencies');
+const fixtures = JSON.parse(readFileSync(join(packageRoot, 'data/relation-projection-fixtures.json'), 'utf8'));
+const boundary = JSON.parse(readFileSync(join(packageRoot, 'things-to-store-and-run.json'), 'utf8'));
+const proofDescriptor = boundary.things
+  .map((thing) => thing.payload)
+  .find((payload) => payload?.kind === 'process-proof-fold-descriptor-record');
+
+function baseProjection() {
+  return foldRelationProjection({
+    descriptors: {
+      relations: fixtures.descriptors.relations.filter((relation) => relation.id === 'relation-descriptor:package-needs'),
+      rules: fixtures.descriptors.rules,
+      projection: fixtures.descriptors.projection,
+    },
+    records: fixtures.sets.package_dense.records,
+    generation: 'fixture:proof',
+  });
+}
+
+test('folds process-session proof rows by declared correlation data', () => {
+  const output = foldProcessProof({
+    descriptor: proofDescriptor,
+    projection: baseProjection(),
+    proof_records: [
+      {
+        correlation_ref: 'intent:one',
+        record_ref: 'record:package:permission-review',
+        occurred_at: '2026-06-22T12:00:03.000Z',
+        message: 'Review proof stored',
+        detail: 'The owner emitted proof for the selected record.',
+      },
+      {
+        correlation_ref: 'intent:one',
+        record_ref: 'record:package:media-editor',
+        occurred_at: '2026-06-22T12:00:01.000Z',
+        message: 'Pointer accepted',
+        detail: 'The owner accepted the selected pointer.',
+      },
+    ],
+  });
+
+  const mediaRow = output.rows.find((row) => row.relatedRef === 'record:package:media-editor');
+  const reviewRow = output.rows.find((row) => row.relatedRef === 'record:package:permission-review');
+
+  assert.equal(mediaRow.proof[0].fields[0].text, 'Pointer accepted');
+  assert.equal(reviewRow.proof[0].fields[1].text, 'The owner emitted proof for the selected record.');
+  assert.equal(output.proofFold.skipped.length, 0);
+});
+
+test('keeps unknown and duplicate events as data rather than branching on labels', () => {
+  const output = foldProcessProof({
+    descriptor: proofDescriptor,
+    projection: baseProjection(),
+    proof_records: [
+      {
+        correlation_ref: 'intent:one',
+        record_ref: 'record:package:media-editor',
+        occurred_at: '2026-06-22T12:00:02.000Z',
+        message: 'Second proof',
+        detail: 'Later proof remains ordered.',
+      },
+      {
+        correlation_ref: 'intent:one',
+        record_ref: 'record:package:media-editor',
+        occurred_at: '2026-06-22T12:00:01.000Z',
+        message: 'First proof',
+        detail: 'Earlier proof sorts first.',
+      },
+      {
+        correlation_ref: 'intent:one',
+        record_ref: 'record:not-in-projection',
+        occurred_at: '2026-06-22T12:00:04.000Z',
+        message: 'Not joined',
+      },
+    ],
+  });
+
+  const mediaRow = output.rows.find((row) => row.relatedRef === 'record:package:media-editor');
+  assert.deepEqual(mediaRow.proof.map((proof) => proof.fields[0].text), ['First proof', 'Second proof']);
+  assert.deepEqual(output.proofFold.skipped, [
+    {
+      ref: 'record:not-in-projection',
+        reason: 'uncorrelated proof record',
+    },
+  ]);
+});

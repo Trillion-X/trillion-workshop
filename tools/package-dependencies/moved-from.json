@@ -1,0 +1,82 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages (packages/package-dependencies): each names its source path and commit, the identity of its source bytes and of its bytes here. The first commit that holds them is the byte copy; later commits change import paths only. A file named .held is the same bytes with its test name taken off so the repository test does not run it; the reason is under `held`. `not_carried` names package files that were left in the package and why.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/package-dependencies/data/relation-projection-fixtures.json",
+      "commit": "dc9179b65502b738ab0d8b7063637fa7cf75c59b",
+      "to": "tools/package-dependencies/data/relation-projection-fixtures.json",
+      "source_identity": "1f:aa88aa157306d13b84e4465b4e84583380583ff8f13e6b34cb478d674fd839de",
+      "identity": "1f:aa88aa157306d13b84e4465b4e84583380583ff8f13e6b34cb478d674fd839de"
+    },
+    {
+      "from": "packages/package-dependencies/do-work/create-owner-action-intent.ts",
+      "commit": "dc9179b65502b738ab0d8b7063637fa7cf75c59b",
+      "to": "tools/package-dependencies/do-work/create-owner-action-intent.ts",
+      "source_identity": "1f:917efaf5ce0eda63d7145cfa00fde236112dd4338cc8dc1396acee6370309cd7",
+      "identity_at_move": "1f:917efaf5ce0eda63d7145cfa00fde236112dd4338cc8dc1396acee6370309cd7",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/package-dependencies/processes/fold-process-proof.mjs",
+      "commit": "dc9179b65502b738ab0d8b7063637fa7cf75c59b",
+      "to": "tools/package-dependencies/processes/fold-process-proof.mjs",
+      "source_identity": "1f:7f30226c6a45fc968832db36e93cf9354a0c77fc569d01ecfff9111089a7b7a5",
+      "identity": "1f:7f30226c6a45fc968832db36e93cf9354a0c77fc569d01ecfff9111089a7b7a5"
+    },
+    {
+      "from": "packages/package-dependencies/processes/fold-relation-projection.mjs",
+      "commit": "dc9179b65502b738ab0d8b7063637fa7cf75c59b",
+      "to": "tools/package-dependencies/processes/fold-relation-projection.mjs",
+      "source_identity": "1f:8664441dd590335d67b1bcad00c531d6a2ae1e6b12bfb2d30d3cf29741cc37f7",
+      "identity": "1f:8664441dd590335d67b1bcad00c531d6a2ae1e6b12bfb2d30d3cf29741cc37f7"
+    },
+    {
+      "from": "packages/package-dependencies/read-data/read-relation-projection.ts",
+      "commit": "dc9179b65502b738ab0d8b7063637fa7cf75c59b",
+      "to": "tools/package-dependencies/read-data/read-relation-projection.ts",
+      "source_identity": "1f:51febd5a6b2c05c5c8f81f8aae8aa612ac9c35bab6eb819de3a33a4068125951",
+      "identity": "1f:51febd5a6b2c05c5c8f81f8aae8aa612ac9c35bab6eb819de3a33a4068125951"
+    },
+    {
+      "from": "packages/package-dependencies/tests/owner-action-intent.test.ts",
+      "commit": "dc9179b65502b738ab0d8b7063637fa7cf75c59b",
+      "to": "tools/package-dependencies/tests/owner-action-intent.test.ts.held",
+      "source_identity": "1f:597e94997db5e701b34e0e1e0c338c5fda2b40a61f1accc94b4c14bd300dc4e9",
+      "identity": "1f:597e94997db5e701b34e0e1e0c338c5fda2b40a61f1accc94b4c14bd300dc4e9"
+    },
+    {
+      "from": "packages/package-dependencies/tests/process-proof-fold.test.mjs",
+      "commit": "dc9179b65502b738ab0d8b7063637fa7cf75c59b",
+      "to": "tools/package-dependencies/tests/process-proof-fold.test.mjs.held",
+      "source_identity": "1f:9f05f08a841fb867053ac450f50e203621a1bed4cb67c7275445d27e38eab40d",
+      "identity": "1f:9f05f08a841fb867053ac450f50e203621a1bed4cb67c7275445d27e38eab40d"
+    },
+    {
+      "from": "packages/package-dependencies/tests/relation-projection.test.mjs",
+      "commit": "dc9179b65502b738ab0d8b7063637fa7cf75c59b",
+      "to": "tools/package-dependencies/tests/relation-projection.test.mjs.held",
+      "source_identity": "1f:9498a01da4861eb1d321a45042e82ff5d3549765ce4640223e4abe372161e297",
+      "identity": "1f:9498a01da4861eb1d321a45042e82ff5d3549765ce4640223e4abe372161e297"
+    }
+  ],
+  "held": {
+    "tools/package-dependencies/tests/owner-action-intent.test.ts.held": "imports react or shared ui parts (@/packages/ui) that live in apps parts/ui, not in the Workshop",
+    "tools/package-dependencies/tests/process-proof-fold.test.mjs.held": "reads the package boundary file things-to-store-and-run.json (or the package's own data path), which is not carried",
+    "tools/package-dependencies/tests/relation-projection.test.mjs.held": "reads the package boundary file things-to-store-and-run.json (or the package's own data path), which is not carried"
+  },
+  "not_carried": {
+    "packages/package-dependencies/README.md": "package README, package.json or ignore file; this folder has its own README",
+    "packages/package-dependencies/data/README.md": "package README, package.json or ignore file; this folder has its own README",
+    "packages/package-dependencies/do-work/README.md": "package README, package.json or ignore file; this folder has its own README",
+    "packages/package-dependencies/entry-to-package-data-map.json": "maps package entries to the retired package runtime's entry scope; not carried",
+    "packages/package-dependencies/processes/README.md": "package README, package.json or ignore file; this folder has its own README",
+    "packages/package-dependencies/proof/README.md": "proof evidence of the package (screenshots, proof scripts and notes); not carried",
+    "packages/package-dependencies/proof/backend-proof.md": "proof evidence of the package (screenshots, proof scripts and notes); not carried",
+    "packages/package-dependencies/read-data/README.md": "package README, package.json or ignore file; this folder has its own README",
+    "packages/package-dependencies/tests/README.md": "package README, package.json or ignore file; this folder has its own README",
+    "packages/package-dependencies/things-to-store-and-run.json": "the package boundary file: record contracts, actions and surfaces for the retired package runtime (slot workflows, owner targets); not carried"
+  }
+}

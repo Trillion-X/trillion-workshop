@@ -1,0 +1,559 @@
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+let feed: unknown;
+let rejectNextProgress = false;
+const defaultSendRequest = async (request: unknown) => {
+  const row = request as { target?: string; payload?: Record<string, unknown> };
+  if (row.target === 'guided-overlay.progress-transition') {
+    const payload = row.payload ?? {};
+    return {
+      payload: new TextEncoder().encode(JSON.stringify({
+        schema: 'guided-overlay.progress-transition-receipt/v1',
+        accepted: !rejectNextProgress,
+        deduplicated: false,
+        transition_ref: 'test-transition',
+        run_id: payload.run_id,
+        definition_id: payload.definition_id,
+        cursor_revision: Number(payload.expected_cursor_revision) + 1,
+        current_step_id: payload.to_step_id,
+        history: payload.history,
+        status: payload.status,
+      })),
+    };
+  }
+  if (row.target === 'guided-overlay.run-outcome') {
+    return { payload: new TextEncoder().encode(JSON.stringify({ accepted: true })) };
+  }
+  return { payload: new Uint8Array() };
+};
+const sendRequest = vi.fn(defaultSendRequest);
+
+vi.mock('@bitfield/runtime-kit/react', () => ({
+  useBitfieldData: () => feed,
+}));
+
+vi.mock('@bitfield/runtime-kit', () => ({
+  sendRequestToBitfieldTarget: (request: unknown) => sendRequest(request),
+}));
+
+import { emitWalkthroughEvent, WalkthroughHost } from './WalkthroughHost';
+import { progressTransitionOwnerTarget } from '../do-work/progress-transition-owner';
+
+const definition = {
+  kind: 'walkthrough-definition',
+  id: 'queued-tour',
+  title: 'Queued tour',
+  entry_step: 'welcome',
+  progress_style: { style: 'counter' },
+  triggers: [{
+    reason: 'replay',
+    on_event: { event_kind: 'walkthrough-requested', match: { walkthrough_id: 'queued-tour' } },
+    once_key: 'queued-tour-once',
+  }],
+  steps: [{
+    id: 'welcome',
+    content: { content_kind: 'text', payload: { title: 'Welcome', body: 'This event survived loading.' } },
+    nav: { buttons: [{ role: 'skip', label: 'Skip for now' }] },
+  }],
+};
+
+afterEach(() => {
+  cleanup();
+  feed = undefined;
+  rejectNextProgress = false;
+  // mockClear keeps call history but a previous test's mockImplementation
+  // override would otherwise leak into every later test.
+  sendRequest.mockReset().mockImplementation(defaultSendRequest);
+});
+
+describe('WalkthroughHost acknowledged lifecycle', () => {
+  it('resumes step six and saves one stage skip through native-shaped owner reads', async () => {
+    const history = Array.from({ length: 5 }, (_, i) => `value-${i}`);
+    const tour = {
+      ...definition,
+      entry_step: history[0],
+      triggers: [{ reason: 'replay', on_event: { event_kind: 'walkthrough-requested' } }],
+      steps: [
+        ...history.map(id => ({ id, content: { content_kind: 'text', payload: { title: id } } })),
+        { id: 'personalization', content: { content_kind: 'text', payload: { title: 'Personalization' } },
+          nav: { buttons: [{ role: 'skip', label: 'Skip for now', skip_to: 'connections' }] } },
+        { id: 'connections', content: { content_kind: 'text', payload: { title: 'Connections' } } },
+      ],
+    };
+    const saved = {
+      kind: 'walkthrough-progress', scope_ref: 'local', definition_id: tour.id,
+      definition_revision: 1, run_id: 'saved-run', consumed_once_keys: [],
+      current_step_id: 'personalization', cursor_revision: 5, history, status: 'active',
+    };
+    let current: Record<string, unknown> = saved;
+    const engine = vi.fn(async ({ payload }: { payload: Record<string, unknown> }) => {
+      if (payload.operation_label === 'engine.operation.read-current') {
+        // Native default label_hash must not find an identity_text record.
+        return payload.address_mode === 'identity_text'
+          ? { found: true, content_hash: `1f:${'ab'.repeat(32)}`, payload: current }
+          : { found: false };
+      }
+      const writes = payload.writes as Array<Record<string, unknown>>;
+      expect(writes).toHaveLength(1);
+      expect(writes[0]).toMatchObject({ address_mode: 'identity_text', expected_current: {
+        payload_hash_base64: Buffer.from(`1f20${'ab'.repeat(32)}`, 'hex').toString('base64'),
+      } });
+      current = writes[0].payload as Record<string, unknown>;
+      return { write_count: 1 };
+    });
+    sendRequest.mockImplementation(async (request: unknown) => {
+      const row = request as { target: string; payload: unknown };
+      expect(row.target).toBe('guided-overlay.progress-transition');
+      return { payload: new TextEncoder().encode(JSON.stringify(
+        await progressTransitionOwnerTarget(row.payload, undefined, engine),
+      )) };
+    });
+    feed = [{ address: 'definition', payload: tour }, { address: 'progress', payload: saved }];
+    const view = render(<WalkthroughHost scope="local" />);
+    emitWalkthroughEvent({ event_kind: 'walkthrough-requested' });
+    await screen.findByRole('dialog', { name: 'Queued tour, step 6 of 7' });
+    view.rerender(<WalkthroughHost scope="local" />);
+    fireEvent.click(screen.getByRole('button', { name: 'Skip for now' }));
+    await screen.findByRole('dialog', { name: 'Queued tour, step 7 of 7' });
+    expect(sendRequest).toHaveBeenCalledTimes(1);
+    expect(sendRequest).toHaveBeenCalledWith(expect.objectContaining({ payload: expect.objectContaining({
+      run_id: 'saved-run', expected_cursor_revision: 5,
+      from_step_id: 'personalization', to_step_id: 'connections',
+    }) }));
+    expect(engine).toHaveBeenCalledTimes(2);
+    expect(current).toMatchObject({ current_step_id: 'connections', cursor_revision: 6, status: 'active' });
+    // A stale feed must not mirror the pre-save cursor back into the visible step.
+    feed = [{ address: 'definition', payload: structuredClone(tour) }, { address: 'progress', payload: saved }];
+    view.rerender(<WalkthroughHost scope="local" />);
+    expect(screen.getByRole('dialog', { name: 'Queued tour, step 7 of 7' })).toBeTruthy();
+    expect(sendRequest).toHaveBeenCalledTimes(1);
+  });
+
+  it('advances one visible step per click and keeps accepted revisions across feed rerenders', async () => {
+    const tour = {
+      ...definition,
+      triggers: [{ reason: 'replay', on_event: { event_kind: 'walkthrough-requested' } }],
+      entry_step: 'slide-0',
+      steps: Array.from({ length: 5 }, (_, index) => ({
+        id: `slide-${index}`,
+        content: { content_kind: 'text', payload: { title: `Value slide ${index}` } },
+        nav: { buttons: [{ role: 'advance', label: 'Next' }] },
+      })),
+    };
+    feed = [{ address: 'definition', payload: tour }];
+    const view = render(<WalkthroughHost scope="test-scope" />);
+    emitWalkthroughEvent({ event_kind: 'walkthrough-requested' });
+    await screen.findByText('Value slide 0');
+    for (let index = 0; index < 4; index += 1) {
+      fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+      await screen.findByText(`Value slide ${index + 1}`);
+      feed = [{ address: 'definition', payload: structuredClone(tour) }];
+      view.rerender(<WalkthroughHost scope="test-scope" />);
+      const calls = sendRequest.mock.calls.map(([value]) => value as { target: string; payload: Record<string, unknown> });
+      expect(calls).toHaveLength(index + 1);
+      expect(calls[index]).toMatchObject({ target: 'guided-overlay.progress-transition', payload: {
+        expected_cursor_revision: index, from_step_id: `slide-${index}`, to_step_id: `slide-${index + 1}`,
+      } });
+      expect(screen.getByText(`Value slide ${index + 1}`)).toBeTruthy();
+    }
+  });
+
+  it.each([true, false])('passes the exact run and source event to completion (authored event: %s)', async (authoredEvent) => {
+    const completion = {
+      ...(authoredEvent ? { event_kind: 'tour.completed' } : {}),
+      destination_operation_ref: 'owner.act',
+      destination_readback_ref: 'owner.read',
+      successor_trigger_ref: 'owner.trigger',
+    };
+    feed = [{ address: 'definition', payload: {
+      ...definition,
+      revision: 3,
+      triggers: [{ reason: 'replay', on_event: { event_kind: 'walkthrough-requested' } }],
+      completion,
+      steps: [{ ...definition.steps[0], nav: { buttons: [{ role: 'done', label: 'Finish' }] } }],
+    } }];
+    render(<WalkthroughHost scope="test-scope" />);
+    emitWalkthroughEvent({ event_kind: 'walkthrough-requested', occurrence_id: 'source-event' });
+    fireEvent.click(await screen.findByRole('button', { name: 'Finish' }));
+    await waitFor(() => expect(sendRequest).toHaveBeenCalledWith(expect.objectContaining({ target: 'guided-overlay.run-outcome' })));
+    const request = sendRequest.mock.calls.map(([value]) => value as { target: string; payload: Record<string, unknown> })
+      .find((value) => value.target === 'guided-overlay.run-outcome')!;
+    expect(request.payload.successor_dispatch).toEqual({
+      event: { event_kind: authoredEvent ? 'tour.completed' : 'walkthrough-requested' },
+      refs: { destination_operation_ref: 'owner.act', destination_readback_ref: 'owner.read', successor_trigger_ref: 'owner.trigger' },
+    });
+    if (authoredEvent) {
+      expect((request.payload.compatibility_record as { value_json: unknown })?.value_json).toMatchObject({
+        scope_ref: 'test-scope', definition_id: definition.id, definition_revision: 3,
+        run_id: request.payload.run_id, disposition: 'completed', source_occurrence: 'source-event',
+      });
+    } else {
+      expect(request.payload.compatibility_record).toBeNull();
+    }
+  });
+
+  it('does not start a late first-run definition whose once key is already consumed', () => {
+    const progressRow = { address: 'progress', payload: {
+      kind: 'walkthrough-progress', consumed_once_keys: ['first-run-once'], cursors: {},
+    } };
+    feed = [{ address: 'manual', payload: definition }, progressRow];
+    const view = render(<WalkthroughHost scope="local" />);
+    feed = [...feed as unknown[], { address: 'first-run', payload: {
+      ...definition, id: 'first-run', triggers: [{
+        reason: 'first-run', on_event: { event_kind: 'app-opened' }, once_key: 'first-run-once',
+      }],
+    } }];
+    view.rerender(<WalkthroughHost scope="local" />);
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(sendRequest).not.toHaveBeenCalled();
+  });
+
+  it('starts a late first-run definition after unrelated definitions arrive first, only once', async () => {
+    feed = [{ address: 'manual', payload: definition }];
+    const view = render(<WalkthroughHost scope="local" />);
+    expect(screen.queryByRole('dialog')).toBeNull();
+    const firstRun = { ...definition, id: 'first-run', triggers: [{
+      reason: 'first-run', on_event: { event_kind: 'app-opened' }, once_key: 'first-run-once',
+    }] };
+    feed = [{ address: 'manual', payload: definition }, { address: 'first-run', payload: firstRun }];
+    view.rerender(<WalkthroughHost scope="local" />);
+    fireEvent.click(await screen.findByRole('button', { name: 'Skip for now' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    feed = [...feed as unknown[]];
+    view.rerender(<WalkthroughHost scope="local" />);
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('starts first-run orientation from scene-authored bootstrap records', async () => {
+    feed = undefined;
+    render(<WalkthroughHost
+      scope="local"
+      authoredRecords={[{
+        address: 'definition',
+        payload: {
+          ...definition,
+          triggers: [{ reason: 'first-run', on_event: { event_kind: 'app-opened' } }],
+        },
+      }]}
+    />);
+
+    expect(await screen.findByRole('dialog', { name: 'Queued tour, step 1 of 1' })).toBeTruthy();
+    expect(screen.getByText('This event survived loading.')).toBeTruthy();
+  });
+
+  it('queues replay until definitions load and dismisses without waiting for durable feed readback', async () => {
+    feed = undefined;
+    const view = render(<WalkthroughHost scope="local" />);
+
+    expect(emitWalkthroughEvent({
+      event_kind: 'walkthrough-requested',
+      walkthrough_id: 'queued-tour',
+    })).toBe(true);
+
+    feed = [{ address: 'definition', payload: definition }];
+    view.rerender(<WalkthroughHost scope="local" />);
+    expect(await screen.findByRole('dialog', { name: 'Queued tour, step 1 of 1' })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Skip for now' }));
+    await waitFor(() => expect(sendRequest).toHaveBeenCalledTimes(1));
+    expect(screen.queryByRole('dialog')).toBeNull();
+
+    feed = [
+      { address: 'definition', payload: definition },
+      {
+        address: 'package::guided-overlay::walkthrough-progress::local::queued-tour-once',
+        payload: { kind: 'walkthrough-progress', consumed_once_keys: ['queued-tour-once'], cursors: {} },
+      },
+    ];
+    view.rerender(<WalkthroughHost scope="local" />);
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
+  it('does not resurrect a dismissed run when its delayed progress save succeeds', async () => {
+    let resolveProgress!: (value: unknown) => void;
+    const delayedProgress = new Promise((resolve) => { resolveProgress = resolve; });
+    sendRequest.mockImplementationOnce(() => delayedProgress);
+    feed = [{ address: 'definition', payload: definition }];
+    const view = render(<WalkthroughHost scope="local" />);
+
+    expect(emitWalkthroughEvent({
+      event_kind: 'walkthrough-requested',
+      walkthrough_id: 'queued-tour',
+    })).toBe(true);
+    fireEvent.click(await screen.findByRole('button', { name: 'Skip for now' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+
+    // A newer run can start while the dismissed run's optional save is pending.
+    expect(emitWalkthroughEvent({
+      event_kind: 'walkthrough-requested',
+      walkthrough_id: 'queued-tour',
+    })).toBe(true);
+    expect(await screen.findByRole('dialog', { name: 'Queued tour, step 1 of 1' })).toBeTruthy();
+
+    resolveProgress({
+      payload: new TextEncoder().encode(JSON.stringify({
+        schema: 'guided-overlay.progress-transition-receipt/v1',
+        accepted: true,
+        deduplicated: false,
+        transition_ref: 'delayed-transition',
+        run_id: 'dismissed-run',
+        definition_id: 'queued-tour',
+        cursor_revision: 1,
+        current_step_id: 'welcome',
+        history: [],
+        status: 'complete',
+      })),
+    });
+    feed = [
+      { address: 'definition', payload: definition },
+      {
+        address: 'package::guided-overlay::walkthrough-progress::local::queued-tour-once',
+        payload: { kind: 'walkthrough-progress', consumed_once_keys: ['queued-tour-once'], cursors: {} },
+      },
+    ];
+    view.rerender(<WalkthroughHost scope="local" />);
+
+    await waitFor(() => expect(sendRequest).toHaveBeenCalledWith(expect.objectContaining({
+      target: 'guided-overlay.run-outcome',
+    })));
+    expect(screen.getByRole('dialog', { name: 'Queued tour, step 1 of 1' })).toBeTruthy();
+  });
+
+  it('does not let a delayed advance overwrite a newer run after dismissal', async () => {
+    let resolveAdvance!: (value: unknown) => void;
+    const delayedAdvance = new Promise((resolve) => { resolveAdvance = resolve; });
+    sendRequest.mockImplementationOnce(() => delayedAdvance);
+    const twoStepDefinition = {
+      ...definition,
+      steps: [
+        {
+          ...definition.steps[0],
+          nav: { buttons: [{ role: 'advance', label: 'Next' }] },
+        },
+        {
+          id: 'second',
+          content: { content_kind: 'text', payload: { title: 'Old run second step' } },
+          nav: { buttons: [{ role: 'done', label: 'Done' }] },
+        },
+      ],
+    };
+    feed = [{ address: 'definition', payload: twoStepDefinition }];
+    render(<WalkthroughHost scope="local" />);
+
+    expect(emitWalkthroughEvent({ event_kind: 'walkthrough-requested', walkthrough_id: 'queued-tour' })).toBe(true);
+    fireEvent.click(await screen.findByRole('button', { name: 'Next' }));
+    await waitFor(() => expect(sendRequest).toHaveBeenCalledTimes(1));
+    fireEvent.keyDown(window, { key: 'Escape' });
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+
+    expect(emitWalkthroughEvent({ event_kind: 'walkthrough-requested', walkthrough_id: 'queued-tour' })).toBe(true);
+    expect(await screen.findByText('This event survived loading.')).toBeTruthy();
+
+    resolveAdvance({
+      payload: new TextEncoder().encode(JSON.stringify({
+        schema: 'guided-overlay.progress-transition-receipt/v1',
+        accepted: true,
+        deduplicated: false,
+        transition_ref: 'delayed-advance',
+        run_id: 'old-run',
+        definition_id: 'queued-tour',
+        cursor_revision: 1,
+        current_step_id: 'second',
+        history: ['welcome'],
+        status: 'active',
+      })),
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(screen.getByText('This event survived loading.')).toBeTruthy();
+    expect(screen.queryByText('Old run second step')).toBeNull();
+  });
+
+  it('reports unacknowledged when no host is listening', () => {
+    expect(emitWalkthroughEvent({ event_kind: 'walkthrough-requested' })).toBe(false);
+  });
+
+  it('does not publish a terminal outcome after a stale final cursor transition', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    rejectNextProgress = true;
+    feed = [{
+      address: 'definition',
+      payload: {
+        ...definition,
+        triggers: [{ reason: 'replay', on_event: { event_kind: 'walkthrough-requested', match: { walkthrough_id: 'queued-tour' } } }],
+        steps: [{
+          ...definition.steps[0],
+          nav: { buttons: [{ role: 'done', label: 'Finish current step' }] },
+        }],
+      },
+    }];
+    render(<WalkthroughHost scope="local" />);
+    emitWalkthroughEvent({ event_kind: 'walkthrough-requested', walkthrough_id: 'queued-tour' });
+    fireEvent.click(await screen.findByRole('button', { name: 'Finish current step' }));
+
+    await waitFor(() => expect(sendRequest).toHaveBeenCalledWith(expect.objectContaining({
+      target: 'guided-overlay.progress-transition',
+    })));
+    expect(sendRequest.mock.calls.some(([request]) => (request as { target?: string }).target === 'guided-overlay.run-outcome')).toBe(false);
+    // The rejected transition surfaces as the surface's retry copy, not an exit.
+    await waitFor(() => expect(screen.getByRole('dialog')).toBeTruthy());
+  });
+
+  it('resumes a refresh from the owner cursor instead of restarting the tour', async () => {
+    feed = [{
+      address: 'definition',
+      payload: {
+        ...definition,
+        triggers: [{ reason: 'replay', on_event: { event_kind: 'walkthrough-requested', match: { walkthrough_id: 'queued-tour' } } }],
+        steps: [
+          { id: 'welcome', content: { content_kind: 'text', payload: { title: 'Welcome', body: 'First' } } },
+          { id: 'second', content: { content_kind: 'text', payload: { title: 'Second', body: 'Resumed' } } },
+        ],
+      },
+    }, {
+      // The owner door wrote this durable cursor before the page reloaded.
+      address: 'package::guided-overlay::walkthrough-progress',
+      payload: {
+        kind: 'walkthrough-progress',
+        scope_ref: 'local',
+        definition_id: 'queued-tour',
+        definition_revision: 1,
+        run_id: 'durable-run-1',
+        consumed_once_keys: [],
+        current_step_id: 'second',
+        history: ['welcome'],
+        status: 'active',
+        cursor_revision: 3,
+      },
+    }];
+    render(<WalkthroughHost scope="local" />);
+    expect(emitWalkthroughEvent({ event_kind: 'walkthrough-requested', walkthrough_id: 'queued-tour' })).toBe(true);
+
+    expect(await screen.findByRole('dialog', { name: 'Queued tour, step 2 of 2' })).toBeTruthy();
+    expect(screen.getByText('Resumed')).toBeTruthy();
+    // The next advance continues the owner revision instead of resetting it.
+    fireEvent.click(screen.getByRole('button', { name: 'Done' }));
+    await waitFor(() => expect(sendRequest).toHaveBeenCalledWith(expect.objectContaining({
+      target: 'guided-overlay.progress-transition',
+      payload: expect.objectContaining({
+        run_id: 'durable-run-1',
+        expected_cursor_revision: 3,
+        from_step_id: 'second',
+      }),
+    })));
+  });
+
+  it('records skip and completion as distinct immutable owner outcomes', async () => {
+    const seen: Array<Record<string, unknown>> = [];
+    sendRequest.mockImplementation(async (request: unknown) => {
+      const row = request as { target?: string; payload?: Record<string, unknown> };
+      if (row.target === 'guided-overlay.run-outcome') {
+        seen.push({ ...row.payload });
+        return {
+          payload: new TextEncoder().encode(JSON.stringify({
+            schema: 'guided-overlay.run-outcome-receipt/v1',
+            accepted: true,
+            deduplicated: false,
+            ...row.payload,
+          })),
+        };
+      }
+      return defaultSendRequest(request);
+    });
+
+    // Skipped run: the terminal outcome is an owner write with disposition skipped.
+    feed = [{
+      address: 'definition',
+      payload: {
+        ...definition,
+        triggers: [{ reason: 'replay', on_event: { event_kind: 'walkthrough-requested', match: { walkthrough_id: 'queued-tour' } } }],
+        completion: {
+          destination_operation_ref: 'owner.act',
+          destination_readback_ref: 'owner.readback',
+          successor_trigger_ref: 'owner.successor',
+        },
+      },
+    }];
+    render(<WalkthroughHost scope="local" />);
+    expect(emitWalkthroughEvent({ event_kind: 'walkthrough-requested', walkthrough_id: 'queued-tour' })).toBe(true);
+    fireEvent.click(await screen.findByRole('button', { name: 'Skip for now' }));
+    await waitFor(() => expect(seen.length).toBe(1));
+    expect(seen[0]).toMatchObject({ outcome: 'skipped' });
+    expect('once_key' in seen[0]).toBe(false);
+
+    cleanup();
+    seen.length = 0;
+
+    // Completed run: same owner door, a different immutable outcome value.
+    feed = [{
+      address: 'definition',
+      payload: {
+        ...definition,
+        triggers: [{ reason: 'replay', on_event: { event_kind: 'walkthrough-requested', match: { walkthrough_id: 'queued-tour' } } }],
+        steps: [{
+          id: 'welcome',
+          content: { content_kind: 'text', payload: { title: 'Welcome', body: 'This event survived loading.' } },
+          nav: { buttons: [{ role: 'done', label: 'Finish current step' }] },
+        }],
+        completion: {
+          destination_operation_ref: 'owner.act',
+          destination_readback_ref: 'owner.readback',
+          successor_trigger_ref: 'owner.successor',
+        },
+      },
+    }];
+    render(<WalkthroughHost scope="local" />);
+    expect(emitWalkthroughEvent({ event_kind: 'walkthrough-requested', walkthrough_id: 'queued-tour' })).toBe(true);
+    fireEvent.click(await screen.findByRole('button', { name: 'Finish current step' }));
+    await waitFor(() => expect(seen.length).toBe(1));
+    expect(seen[0]).toMatchObject({
+      outcome: 'completed',
+      destination_operation_ref: 'owner.act',
+      destination_readback_ref: 'owner.readback',
+      successor_trigger_ref: 'owner.successor',
+    });
+  });
+
+  it('elects one document host so duplicate scene mounts cannot stack scrims', async () => {
+    const target = document.createElement('button');
+    target.id = 'one-host-target';
+    target.getBoundingClientRect = () => ({ x: 20, y: 20, width: 80, height: 40 } as DOMRect);
+    document.body.appendChild(target);
+    feed = [{
+      address: 'definition',
+      payload: {
+        ...definition,
+        steps: [{ ...definition.steps[0], target_ref: { from: 'selector', query: '#one-host-target' } }],
+      },
+    }];
+    render(<><WalkthroughHost scope="local" /><WalkthroughHost scope="local" /></>);
+
+    expect(emitWalkthroughEvent({
+      event_kind: 'walkthrough-requested',
+      walkthrough_id: 'queued-tour',
+    })).toBe(true);
+    expect(await screen.findAllByRole('dialog', { name: 'Queued tour, step 1 of 1' })).toHaveLength(1);
+    await waitFor(() => expect(document.querySelectorAll('[data-overlay-scrim]')).toHaveLength(1));
+    target.remove();
+  });
+
+  it('launches visible walkthrough content from a real author Start row', async () => {
+    feed = [{
+      address: 'definition',
+      payload: {
+        ...definition,
+        triggers: [{
+          reason: 'manual',
+          on_event: { event_kind: 'start-walkthrough', match: { walkthrough_id: 'queued-tour' } },
+        }],
+      },
+    }];
+    render(<WalkthroughHost scope="local" />);
+
+    // A start-walkthrough event (however emitted) ignites the queued tour in the host.
+    emitWalkthroughEvent({ event_kind: 'start-walkthrough', walkthrough_id: 'queued-tour' });
+    expect(await screen.findByRole('dialog', { name: 'Queued tour, step 1 of 1' })).toBeTruthy();
+    expect(screen.getByText('This event survived loading.')).toBeTruthy();
+  });
+});

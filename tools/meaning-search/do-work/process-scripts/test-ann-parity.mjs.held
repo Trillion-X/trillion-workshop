@@ -1,0 +1,179 @@
+#!/usr/bin/env node
+// Golden byte-identity parity test: ann-index (all 4 modes).
+//
+// Runs the ORIGINAL python3 leaf and the ported node leaf through identical
+// command SEQUENCES (chaining state.json across steps, so serialized hyperplane
+// floats get reloaded and re-emitted) and asserts every compared output file is
+// byte-for-byte identical (L108 preserve-behavior). Includes a seeded fuzz over
+// many LCG seeds/dims to stress the BigInt LCG + Python-float rendering, which is
+// the highest-risk byte-divergence in this leaf.
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import crypto from "node:crypto";
+import { blake3 } from "@noble/hashes/blake3.js";
+import { execFileSync } from "node:child_process";
+
+const HERE = path.dirname(new URL(import.meta.url).pathname);
+const PY = path.join(HERE, "ann-index.py");
+const MJS = path.join(HERE, "ann-index.mjs");
+
+let failures = 0;
+let cases = 0;
+
+// A fixture identity that is ACTUALLY what its prefix says it is.
+//
+// This returned `1f:` + a SHA-256 digest. `1f` is the multihash code for BLAKE3, so every
+// fixture declared an algorithm it had not been produced with. A forged fixture is worse than
+// a wrong one: it passes any check that reads the prefix, and it teaches the code under test
+// that such values are normal, so the day a verifier hashes the content and compares, these
+// tests either break for a reason nobody can place or, worse, prove nothing while passing.
+function h(label) {
+  return "1f:" + Buffer.from(blake3(Buffer.from(label, "utf-8"))).toString("hex");
+}
+
+// commands: array of argv arrays (relative filenames, run with cwd=dir).
+function runCase(name, initialFiles, commands, compareFiles) {
+  cases += 1;
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "ann-parity-"));
+  const pyDir = path.join(root, "py");
+  const mjsDir = path.join(root, "mjs");
+  fs.mkdirSync(pyDir);
+  fs.mkdirSync(mjsDir);
+  for (const dir of [pyDir, mjsDir]) {
+    for (const [fname, contents] of Object.entries(initialFiles)) {
+      const text = typeof contents === "string" ? contents : JSON.stringify(contents);
+      fs.writeFileSync(path.join(dir, fname), text, "utf-8");
+    }
+  }
+  const runAll = (bin, script, dir) => {
+    for (const argv of commands) {
+      execFileSync(bin, [script, ...argv], { cwd: dir, stdio: "pipe" });
+    }
+  };
+  let pyErr = null;
+  let mjsErr = null;
+  try { runAll("python3", PY, pyDir); } catch (e) { pyErr = e; }
+  try { runAll("node", MJS, mjsDir); } catch (e) { mjsErr = e; }
+  if (Boolean(pyErr) !== Boolean(mjsErr)) {
+    failures += 1;
+    console.log(`FAIL ${name}: exit-status divergence py-error=${Boolean(pyErr)} mjs-error=${Boolean(mjsErr)}`);
+    if (mjsErr) console.log(`  mjs stderr: ${String(mjsErr.stderr || "").trim().slice(0, 300)}`);
+    return;
+  }
+  if (pyErr && mjsErr) { console.log(`ok   ${name} (both rejected)`); return; }
+  for (const f of compareFiles) {
+    const a = fs.readFileSync(path.join(pyDir, f));
+    const b = fs.readFileSync(path.join(mjsDir, f));
+    if (Buffer.compare(a, b) !== 0) {
+      failures += 1;
+      console.log(`FAIL ${name}: ${f} differs`);
+      console.log(`  py : ${a.toString("utf-8").slice(0, 500)}`);
+      console.log(`  mjs: ${b.toString("utf-8").slice(0, 500)}`);
+      return;
+    }
+  }
+  console.log(`ok   ${name} (${compareFiles.join(", ")} byte-identical)`);
+}
+
+function upsertArgv(subjectId, vecFile, opts = {}) {
+  return [
+    "--mode", "upsert", "--state-json", "state.json", "--vector-json", vecFile, "--params-json", "params.json",
+    "--index-id", "idx", "--subject-id", subjectId,
+    "--canonical-address", opts.address || `addr-${subjectId}`,
+    "--revision", h(opts.rev || `rev-${subjectId}`),
+    "--payload-hash", h(opts.pay || `pay-${subjectId}`),
+    "--source-snapshot-ref", h(opts.snap || "snap"),
+    "--at", "2026-07-25T00:00:00Z",
+    "--output-state-json", "state.json", "--output-facts-json", "facts.json",
+  ];
+}
+
+const PARAMS = { hyperplane_count: 4, table_count: 2, seed: 1, candidate_limit: 4 };
+
+// Single upsert from empty -> state (with hyperplane floats) + facts.
+runCase("upsert-single",
+  { "state.json": "{}", "params.json": PARAMS, "v.json": [1.0, 0.0, -0.5, 0.25] },
+  [upsertArgv("s1", "v.json")],
+  ["state.json", "facts.json"],
+);
+
+// Chained multi-upsert (3 subjects) -> reload hyperplanes/buckets across steps.
+runCase("upsert-chain-3",
+  { "state.json": "{}", "params.json": PARAMS, "a.json": [1, 0, 0, 0], "b.json": [0.2, 0.9, -0.1, 0.4], "c.json": [-0.7, 0.3, 0.5, -0.2] },
+  [upsertArgv("s1", "a.json"), upsertArgv("s2", "b.json"), upsertArgv("s3", "c.json")],
+  ["state.json", "facts.json"],
+);
+
+// Query the built index -> candidates (no floats, but bucket keys depend on the
+// reloaded hyperplanes, so this proves the query path byte-identical too).
+runCase("upsert-then-query",
+  { "state.json": "{}", "params.json": PARAMS, "a.json": [1, 0, 0, 0], "b.json": [0.2, 0.9, -0.1, 0.4], "q.json": [0.9, 0.1, 0.0, 0.05] },
+  [
+    upsertArgv("s1", "a.json"), upsertArgv("s2", "b.json"),
+    ["--mode", "query", "--state-json", "state.json", "--vector-json", "q.json", "--params-json", "params.json", "--index-id", "idx", "--output-candidates-json", "cand.json"],
+  ],
+  ["state.json", "cand.json"],
+);
+
+// Delete after upserts -> tombstone + retraction facts.
+runCase("upsert-then-delete",
+  { "state.json": "{}", "params.json": PARAMS, "a.json": [1, 0, 0, 0], "b.json": [0.2, 0.9, -0.1, 0.4] },
+  [
+    upsertArgv("s1", "a.json"), upsertArgv("s2", "b.json"),
+    ["--mode", "delete", "--state-json", "state.json", "--params-json", "params.json", "--index-id", "idx", "--subject-id", "s1", "--canonical-address", "addr-s1", "--revision", h("rev-s1"), "--payload-hash", h("pay-s1"), "--source-snapshot-ref", h("snap"), "--output-state-json", "state.json", "--output-facts-json", "facts.json"],
+  ],
+  ["state.json", "facts.json"],
+);
+
+// apply-plan with an upsert and a retract in one batch.
+runCase("apply-plan-batch",
+  {
+    "state.json": "{}", "params.json": PARAMS,
+    "plan.json": {
+      upserts: [{ index_id: "idx", content_address: "s1", content_text: "x", canonical_address: "addr-s1", canonical_revision: h("rev-s1"), canonical_payload_hash: h("pay-s1"), source_snapshot_ref: h("snap") }],
+      retracts: [{ index_id: "idx", content_address: "s2", canonical_address: "addr-s2", canonical_revision: h("rev-s2"), canonical_payload_hash: h("pay-s2"), source_snapshot_ref: h("snap") }],
+    },
+    "vectors.json": { s1: [0.3, 0.4, 0.5, 0.6] },
+  },
+  [["--mode", "apply-plan", "--state-json", "state.json", "--plan-json", "plan.json", "--vectors-json", "vectors.json", "--params-json", "params.json", "--index-id", "idx", "--output-state-json", "state.json", "--output-facts-json", "facts.json"]],
+  ["state.json", "facts.json"],
+);
+
+// query against an empty/absent index -> honest empty candidate set.
+runCase("query-empty-index",
+  { "state.json": "{}", "params.json": PARAMS, "q.json": [1, 0, 0, 0] },
+  [["--mode", "query", "--state-json", "state.json", "--vector-json", "q.json", "--params-json", "params.json", "--index-id", "idx", "--output-candidates-json", "cand.json"]],
+  ["cand.json"],
+);
+
+// Seeded fuzz: many LCG seeds + dims + upsert chains -> stress BigInt LCG +
+// hyperplane float rendering across serialize/reload.
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const rnd = mulberry32(0x1234abcd);
+for (let k = 0; k < 40; k++) {
+  const dim = 2 + Math.floor(rnd() * 5);
+  const seed = Math.floor(rnd() * 1e9);
+  const params = { hyperplane_count: 2 + Math.floor(rnd() * 7), table_count: 1 + Math.floor(rnd() * 4), seed, candidate_limit: 4 };
+  const stepCount = 1 + Math.floor(rnd() * 3);
+  const files = { "state.json": "{}", "params.json": params };
+  const cmds = [];
+  for (let s = 0; s < stepCount; s++) {
+    const vec = [];
+    for (let d = 0; d < dim; d++) vec.push(rnd() * 2 - 1);
+    files[`v${s}.json`] = vec;
+    cmds.push(upsertArgv(`s${s}`, `v${s}.json`, { snap: `snap-${k}` }));
+  }
+  runCase(`fuzz-${k}`, files, cmds, ["state.json", "facts.json"]);
+}
+
+console.log(`\n${cases - failures}/${cases} cases parity-passed`);
+process.exit(failures === 0 ? 0 : 1);

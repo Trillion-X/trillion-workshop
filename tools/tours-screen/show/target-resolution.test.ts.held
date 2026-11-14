@@ -1,0 +1,57 @@
+import { describe, expect, it } from 'vitest';
+import { createAnchorResolverRegistry } from '@/packages/ui/show/anchor-resolver/anchor-resolver';
+import {
+  normalizeWalkthroughTargetRef,
+  resolveWalkthroughTarget,
+} from './target-resolution';
+
+describe('guided-overlay target resolution', () => {
+  it('accepts canonical selector, legacy author selector, id, data attribute, and stable key forms', () => {
+    expect(normalizeWalkthroughTargetRef({ from: 'selector', query: '#one' })).toEqual({ from: 'selector', query: '#one' });
+    expect(normalizeWalkthroughTargetRef({ kind: 'selector', selector: '#two' })).toEqual({ from: 'selector', query: '#two' });
+    expect(normalizeWalkthroughTargetRef({ kind: 'id', id: 'three' })).toEqual({ from: 'selector', query: '[id="three"]' });
+    expect(normalizeWalkthroughTargetRef({ from: 'id', id: 'three-b' })).toEqual({ from: 'selector', query: '[id="three-b"]' });
+    expect(normalizeWalkthroughTargetRef({ kind: 'data-attribute', attribute: 'data-surface-id', value: 'four' }))
+      .toEqual({ from: 'selector', query: '[data-surface-id="four"]' });
+    expect(normalizeWalkthroughTargetRef({ from: 'data-attribute', attribute: 'data-surface-id', value: 'four-b' }))
+      .toEqual({ from: 'selector', query: '[data-surface-id="four-b"]' });
+    expect(normalizeWalkthroughTargetRef({ target_key: 'five' })?.query).toContain('data-guided-overlay-target');
+  });
+
+  it('resolves a real element and fails closed on malformed or missing targets', () => {
+    document.body.innerHTML = '<button data-surface-id="ready">Ready</button>';
+    const target = document.querySelector('button') as HTMLButtonElement;
+    target.getBoundingClientRect = () => ({ x: 4, y: 8, width: 80, height: 32 } as DOMRect);
+    const registry = createAnchorResolverRegistry();
+
+    expect(resolveWalkthroughTarget(registry, {
+      kind: 'data-attribute', attribute: 'data-surface-id', value: 'ready',
+    }, document).status).toBe('resolved');
+    expect(resolveWalkthroughTarget(registry, { kind: 'selector', selector: '[' }, document))
+      .toMatchObject({ status: 'unresolved', reason: 'invalid-selector' });
+    expect(resolveWalkthroughTarget(registry, { kind: 'selector', selector: '#missing' }, document))
+      .toMatchObject({ status: 'unresolved', reason: 'not-found' });
+  });
+
+  it('rejects an ambiguous stable target key instead of choosing an arbitrary element', () => {
+    document.body.innerHTML = '<button data-guided-target="duplicate"></button><button data-guided-target="duplicate"></button>';
+    for (const element of document.querySelectorAll('button')) {
+      element.getBoundingClientRect = () => ({ x: 1, y: 1, width: 40, height: 20 } as DOMRect);
+    }
+    expect(resolveWalkthroughTarget(createAnchorResolverRegistry(), { target_key: 'duplicate' }, document))
+      .toMatchObject({ status: 'unresolved', reason: 'ambiguous' });
+  });
+
+  it('selects the one visible responsive variant from a shared selector', () => {
+    document.body.innerHTML = '<aside style="display:none"></aside><button aria-label="Open navigation menu">Menu</button>';
+    const aside = document.querySelector('aside') as HTMLElement;
+    const button = document.querySelector('button') as HTMLButtonElement;
+    aside.getBoundingClientRect = () => ({ x: 0, y: 0, width: 280, height: 700 } as DOMRect);
+    button.getBoundingClientRect = () => ({ x: 16, y: 16, width: 40, height: 40 } as DOMRect);
+
+    const result = resolveWalkthroughTarget(createAnchorResolverRegistry(), {
+      from: 'selector', query: 'aside, [aria-label="Open navigation menu"]',
+    }, document);
+    expect(result).toMatchObject({ status: 'resolved', element: button });
+  });
+});

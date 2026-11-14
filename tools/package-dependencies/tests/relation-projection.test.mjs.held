@@ -1,0 +1,62 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import test from 'node:test';
+import { foldRelationProjection, readProjectionRowValue } from '../processes/fold-relation-projection.mjs';
+
+const packageRoot = join(process.cwd(), 'packages/package-dependencies');
+const fixtures = JSON.parse(readFileSync(join(packageRoot, 'data/relation-projection-fixtures.json'), 'utf8'));
+
+function project(setName, relationId = 'relation-descriptor:package-needs') {
+  return foldRelationProjection({
+    descriptors: {
+      relations: fixtures.descriptors.relations.filter((relation) => relation.id === relationId),
+      rules: fixtures.descriptors.rules,
+      projection: fixtures.descriptors.projection,
+    },
+    records: fixtures.sets[setName].records,
+    generation: `fixture:${setName}`,
+  });
+}
+
+test('folds empty, sparse, and dense records through one descriptor path', () => {
+  const empty = project('empty');
+  const sparse = project('package_sparse');
+  const dense = project('package_dense');
+
+  assert.equal(empty.rowCount, 0);
+  assert.equal(sparse.rowCount, 2);
+  assert.equal(sparse.problemCount, 2);
+  assert.equal(dense.rowCount, 3);
+  assert.equal(dense.problemCount, 0);
+  assert.equal(readProjectionRowValue(dense.rows[0], 'title'), 'Media editor');
+  assert.equal(readProjectionRowValue(dense.rows[2], 'rank'), 'Optional');
+});
+
+test('uses the same evaluator for unrelated relationship examples', () => {
+  const output = project('work_dense', 'relation-descriptor:example-work-items');
+
+  assert.equal(output.rowCount, 2);
+  assert.equal(output.problemCount, 0);
+  assert.deepEqual(output.rows.map((row) => readProjectionRowValue(row, 'owner')), ['Writing', 'QA']);
+});
+
+test('surfaces self-reference and missing related rows as data facts', () => {
+  const self = project('self_reference');
+  const sparse = project('package_sparse');
+
+  assert.equal(self.problemCount, 2);
+  assert(self.problems.some((problem) => problem.field === 'self_reference'));
+  assert(sparse.problems.some((problem) => problem.field === 'record_presence'));
+  assert(sparse.problems.some((problem) => problem.field === 'owner_summary_presence'));
+});
+
+test('source evaluator keeps package-specific state nouns out of generic code', () => {
+  const source = [
+    readFileSync(join(packageRoot, 'processes/fold-relation-projection.mjs'), 'utf8'),
+    readFileSync(join(packageRoot, 'processes/fold-process-proof.mjs'), 'utf8'),
+    readFileSync(join(packageRoot, 'read-data/read-relation-projection.ts'), 'utf8'),
+  ].join('\n');
+
+  assert.doesNotMatch(source, /DependencyStatus|RequiredPackage|OptionalPackage|InstallState|lead|loss|campaign|event|provider/);
+});

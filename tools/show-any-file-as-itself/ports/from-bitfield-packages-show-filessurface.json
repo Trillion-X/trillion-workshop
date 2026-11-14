@@ -1,0 +1,63 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-SHOW-ANY-FILE-AS-ITSELF-SHOW-FILESSURFACE-FROM-BITFIELD-PACKAGES",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "census-and-restore lane 11, 2026-11-13: no rewrites from scratch; originals move wholesale",
+    "message_multihash": "1f:31cfaef8fe1b095bcdda0c309aeb261d0b928f36c81425a5d444f4f86483ec45",
+    "quote": "standing order: NO rewrites from scratch. Originals move wholesale (byte for byte, with moved-from receipts)"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "bitfield-packages",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "path": "packages/files/show/FilesSurface.tsx",
+      "multihash": "1f:038b64a6882c2287e2ae3e96aa608a9d4b5400a13b2f6ca0efb7a0c9179daa4b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-17T06:54:28Z",
+        "deleted_with": "the change that lands this move: the package file leaves bitfield-packages in the same change"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/show-any-file-as-itself/show/FilesSurface.tsx"
+    }
+  ],
+  "preserve": [
+    "the file is the original package file, moved with its import paths changed to this tree and nothing else",
+    "what the file did in the package: its exports, its rules and its edge cases are not rewritten here"
+  ],
+  "allowed_deltas": [
+    "import paths and the file header name the file's new place"
+  ],
+  "banned_substitutions": [
+    "a second implementation of the same job beside this file",
+    "a rewrite from scratch of what the package file does"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:038b64a6882c2287e2ae3e96aa608a9d4b5400a13b2f6ca0efb7a0c9179daa4b",
+    "target_multihash_at_baseline": "1f:038b64a6882c2287e2ae3e96aa608a9d4b5400a13b2f6ca0efb7a0c9179daa4b",
+    "recorded_at": "2026-11-14T06:55:28Z",
+    "rows": [
+      {
+        "path": "tools/show-any-file-as-itself/show/FilesSurface.tsx",
+        "source_multihash": "1f:038b64a6882c2287e2ae3e96aa608a9d4b5400a13b2f6ca0efb7a0c9179daa4b",
+        "target_multihash_at_baseline": "1f:038b64a6882c2287e2ae3e96aa608a9d4b5400a13b2f6ca0efb7a0c9179daa4b"
+      }
+    ],
+    "commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export interface FilesSurfaceProps {"
+    ],
+    "test_refs": [],
+    "render_refs": [],
+    "originality_ref": null
+  }
+}

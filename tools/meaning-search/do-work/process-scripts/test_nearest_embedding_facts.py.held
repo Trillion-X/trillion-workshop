@@ -1,0 +1,111 @@
+#!/usr/bin/env python3
+"""Contract tests for provenance-bearing, owner-hydratable rank results."""
+
+from __future__ import annotations
+
+import json
+import subprocess
+
+from canonical_multihash import mint_canonical_multihash_of_text
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+HERE = Path(__file__).parent
+SCRIPT = HERE / "nearest-embedding-facts.py"
+
+
+def h(label: str) -> str:
+    # Was `"1f:" + hashlib.sha256(...)`, and `1f` is the multicodec code for BLAKE3, so every
+    # fixture declared an algorithm it had not been produced with. Now minted by the module that
+    # owns the format, which writes the label from whatever produced the digest.
+    return mint_canonical_multihash_of_text(label)
+
+
+def test_rank_emits_bounded_canonical_identity_and_provenance() -> None:
+    with tempfile.TemporaryDirectory() as temporary:
+        root = Path(temporary)
+        (root / "embedding.json").write_text('{"vector":[1,0]}')
+        (root / "input.json").write_text('{"limit":1}')
+        (root / "descriptor.json").write_text(json.dumps({
+            "index_id": "generic-index", "model_id": "embed-v1", "model_version": "1",
+            "model_provenance_ref": "model:embed-v1@1",
+            "descriptor_revision": h("descriptor"),
+            "min_score": 0.5, "result_limit": 1,
+        }))
+        (root / "facts.json").write_text(json.dumps([{
+            "subject_id": "legacy-subject",
+            "value_json": json.dumps({"vector": [1, 0], "canonical_address": "package::owner::action::x",
+                                       "canonical_revision": h("42"), "canonical_payload_hash": h("payload-x"),
+                                       "source_snapshot_ref": h("snapshot"), "owner_target": "slot::workflow",
+                                       "schema_ref": "package::owner::action::x", "schema_digest": h("schema-x"),
+                                       "authority_provenance_ref": "authority:test"}),
+        }, {
+            "subject_id": "invalid", "value_json": json.dumps({"vector": [1, 0]}),
+        }]))
+        output = root / "nearest.json"
+        result = subprocess.run([sys.executable, str(SCRIPT), "--embedding-json", str(root / "embedding.json"),
+                                 "--input-json", str(root / "input.json"), "--descriptor-json", str(root / "descriptor.json"),
+                                 "--facts-json", str(root / "facts.json"), "--output-json", str(output)],
+                                text=True, capture_output=True)
+        assert result.returncode == 0, result.stderr
+        ranked = json.loads(output.read_text())
+        assert ranked["items"] == [{
+            "address": "package::owner::action::x", "score": 1.0, "index_id": "generic-index",
+            "model_id": "embed-v1", "model_version": "1",
+            "model_provenance_ref": "model:embed-v1@1", "descriptor_revision": h("descriptor"),
+            "revision": h("42"), "payload_hash": h("payload-x"),
+            "source_snapshot_ref": h("snapshot"), "owner_target": "slot::workflow",
+            "schema_ref": "package::owner::action::x", "schema_digest": h("schema-x"),
+            "authority_provenance_ref": "authority:test",
+        }]
+        assert ranked["skipped"] == 1
+
+
+def test_rank_rejects_unproven_legacy_vector() -> None:
+    with tempfile.TemporaryDirectory() as temporary:
+        root = Path(temporary)
+        for name, value in {
+            "embedding.json": {"vector": [1]}, "input.json": {}, "descriptor.json": {"index_id": "i", "min_score": 0, "result_limit": 1},
+            "facts.json": [{"subject_id": "old", "value_json": "[1]"}],
+        }.items():
+            (root / name).write_text(json.dumps(value))
+        output = root / "nearest.json"
+        assert subprocess.run([sys.executable, str(SCRIPT), "--embedding-json", str(root / "embedding.json"),
+                               "--input-json", str(root / "input.json"), "--descriptor-json", str(root / "descriptor.json"),
+                               "--facts-json", str(root / "facts.json"), "--output-json", str(output)]).returncode == 0
+        assert json.loads(output.read_text())["items"] == []
+
+
+def test_equal_score_boundary_is_independent_of_fact_order() -> None:
+    rows = [
+        {"subject_id": "z", "value_json": json.dumps({"vector": [1], "canonical_address": "z-address", "canonical_revision": h("r"), "canonical_payload_hash": h("z"), "source_snapshot_ref": h("snapshot")})},
+        {"subject_id": "a", "value_json": json.dumps({"vector": [1], "canonical_address": "a-address", "canonical_revision": h("r"), "canonical_payload_hash": h("a"), "source_snapshot_ref": h("snapshot")})},
+    ]
+    with tempfile.TemporaryDirectory() as temporary:
+        root = Path(temporary)
+        for name, value in {"embedding.json": {"vector": [1]}, "input.json": {"limit": 1},
+                            "descriptor.json": {
+                                "index_id": "i", "min_score": 0, "result_limit": 1,
+                                "model_provenance_ref": "model:test@1",
+                                "descriptor_revision": h("descriptor"),
+                            }}.items():
+            (root / name).write_text(json.dumps(value))
+        selected = []
+        for order in (rows, list(reversed(rows))):
+            (root / "facts.json").write_text(json.dumps(order))
+            output = root / "nearest.json"
+            assert subprocess.run([sys.executable, str(SCRIPT), "--embedding-json", str(root / "embedding.json"),
+                                   "--input-json", str(root / "input.json"), "--descriptor-json", str(root / "descriptor.json"),
+                                   "--facts-json", str(root / "facts.json"), "--output-json", str(output)]).returncode == 0
+            selected.append(json.loads(output.read_text())["items"][0]["address"])
+        assert selected == ["a-address", "a-address"]
+
+
+def load_tests(loader, tests, pattern):
+    suite = unittest.TestSuite()
+    for name, candidate in sorted(globals().items()):
+        if name.startswith("test_") and callable(candidate):
+            suite.addTest(unittest.FunctionTestCase(candidate))
+    return suite

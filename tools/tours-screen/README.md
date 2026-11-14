@@ -67,3 +67,61 @@ These files were moved byte for byte from the web client (`moved-from.json` name
 | `web/src/workspace/canvas-edit-screen.tsx` | Edit on canvas (`tool:screen-canvas-edit`): a tour or another editable thing laid out as all its parts on the canvas. |
 | `web/src/workspace/canvas-edit.json` | DATA for Edit on canvas: its words, the kinds it opens and what can be picked in each (only that screen reads it). |
 | `show/canvas-edit-mount.tsx` | The module entry the row names for `canvas-edit`: `mount` is `mountCanvasEditScreen`. |
+
+## Files moved from bitfield-packages (packages/guided-overlay)
+
+Each file below is the package's own, byte for byte; `from-bitfield-packages/moved-from.json` names each source path and commit, the identity of its source bytes and of its bytes here, and the `calls` that made a real name or id made up. After the first commit only import paths changed. A file named `.held` is the same bytes with its test name taken off so the repository test does not run it; the reason is under `held` in the receipt. Most files import `@/packages/ui` and the retired package runtime (`@bitfield/runtime-kit`); the shared ui parts live in apps `parts/ui`, so the screens and targets here are prepared, not wired to a tool row.
+
+| File | What it is |
+|---|---|
+| `do-work/build-application-walkthrough-contribution.test.ts` | A test of the package. |
+| `do-work/build-application-walkthrough-contribution.ts` | A file of the package. |
+| `do-work/commit-completion.ts` | A file of the package. |
+| `do-work/commit-progress.ts` | A file of the package. |
+| `do-work/current-read-precondition.ts` | A file of the package. |
+| `do-work/owner-signal-bridge.test.ts` | A test of the package. |
+| `do-work/owner-signal-bridge.ts` | A file of the package. |
+| `do-work/progress-transition-owner.test.ts.held` | A test of the package, held: imports @bitfield/runtime-kit or @bitfield/slot-protocol (the retired package runtime); needs the records door in its place |
+| `do-work/progress-transition-owner.ts` | A file of the package. |
+| `do-work/run-outcome-owner.test.ts.held` | A test of the package, held: imports @bitfield/runtime-kit or @bitfield/slot-protocol (the retired package runtime); needs the records door in its place |
+| `do-work/run-outcome-owner.ts` | A file of the package. |
+| `do-work/scoped-run-progress.contract.test.ts.held` | A test of the package, held: imports @bitfield/runtime-kit or @bitfield/slot-protocol (the retired package runtime); needs the records door in its place |
+| `do-work/walkthrough-completion-writes.test.ts` | A test of the package. |
+| `do-work/walkthrough-completion-writes.ts` | A file of the package. |
+| `do-work/walkthrough-progress-writes.test.ts.held` | A test of the package, held: imports @bitfield/runtime-kit or @bitfield/slot-protocol (the retired package runtime); needs the records door in its place |
+| `do-work/walkthrough-progress-writes.ts` | A file of the package. |
+| `engine/advance-evaluator.test.ts.held` | A test of the package, held: a module it needs is not in the Workshop: tools/ui/show/blind-registry/blind-registry (Workshop's evolved copy imports without extension, or the shared ui part lives in apps) |
+| `engine/cursor-machine.test.ts.held` | A test of the package, held: a module it needs is not in the Workshop: tools/tours-screen/engine/branch-resolver (Workshop's evolved copy imports without extension, or the shared ui part lives in apps) |
+| `engine/trigger-intake.test.ts.held` | A test of the package, held: tests the package's older copy; the Workshop's evolved module no longer exports suppressionKeyToConsume |
+| `read-data/application-entry-map.test.ts.held` | A test of the package, held: reads the package boundary file things-to-store-and-run.json (or the package's own data path), which is not carried |
+| `read-data/application-walkthrough-contribution.test.ts.held` | A test of the package, held: reads the package boundary file things-to-store-and-run.json (or the package's own data path), which is not carried |
+| `read-data/application-walkthrough-contribution.ts` | A file of the package. |
+| `read-data/walkthrough-eeaf.test.ts.held` | A test of the package, held: tests the package's older copy; the Workshop's evolved module no longer exports walkthroughProgressAddress |
+| `show/OverlaysListSurface.test.tsx.held` | A test of the package, held: a JSX test: it needs a DOM test runtime and the shared ui parts (@/packages/ui) that live in apps parts/ui; not run here |
+| `show/OverlaysListSurface.tsx` | A file of the package. |
+| `show/SigningInDoesNotSendYouBackToTheStart.test.tsx.held` | A test of the package, held: a JSX test: it needs a DOM test runtime and the shared ui parts (@/packages/ui) that live in apps parts/ui; not run here |
+| `show/WalkthroughHost.lifecycle.test.tsx.held` | A test of the package, held: a JSX test: it needs a DOM test runtime and the shared ui parts (@/packages/ui) that live in apps parts/ui; not run here |
+| `show/WalkthroughSurface.perform-dispatch.test.tsx.held` | A test of the package, held: a JSX test: it needs a DOM test runtime and the shared ui parts (@/packages/ui) that live in apps parts/ui; not run here |
+| `show/WalkthroughSurface.persistence.test.tsx.held` | A test of the package, held: a JSX test: it needs a DOM test runtime and the shared ui parts (@/packages/ui) that live in apps parts/ui; not run here |
+| `show/WalkthroughSurface.skip-stage.test.tsx.held` | A test of the package, held: a JSX test: it needs a DOM test runtime and the shared ui parts (@/packages/ui) that live in apps parts/ui; not run here |
+| `show/WalkthroughSurface.targeting.test.tsx.held` | A test of the package, held: a JSX test: it needs a DOM test runtime and the shared ui parts (@/packages/ui) that live in apps parts/ui; not run here |
+| `show/mount-overlays-list.tsx` | A file of the package. |
+| `show/mount-walkthrough-host.test.tsx.held` | A test of the package, held: a JSX test: it needs a DOM test runtime and the shared ui parts (@/packages/ui) that live in apps parts/ui; not run here |
+| `show/package-onboarding.test.ts` | A test of the package. |
+| `show/placeable-surface-content.test.tsx.held` | A test of the package, held: a JSX test: it needs a DOM test runtime and the shared ui parts (@/packages/ui) that live in apps parts/ui; not run here |
+| `show/presentation-registry.test.ts.held` | A test of the package, held: imports react or shared ui parts (@/packages/ui) that live in apps parts/ui, not in the Workshop |
+| `show/target-resolution.test.ts.held` | A test of the package, held: imports react or shared ui parts (@/packages/ui) that live in apps parts/ui, not in the Workshop |
+| `show/walkthrough-presentation.test.ts.held` | A test of the package, held: imports a JSON file without the import attribute node needs (a bundler resolves it) |
+
+### Not carried
+
+- 25 files: generated build output of the retired package runtime (entry scope, built entry bytes); not carried
+- 18 files: the Workshop holds a later copy of this file at the same path in this folder, moved from trillion-apps web parts/guided-overlay, which was adapted after this package copy; kept
+- 5 files: package README, package.json or ignore file; this folder has its own README
+- 4 files: barrel file that re-exports package modules by their package paths; the modules are imported by path here
+- 1 file: maps package entries to the retired package runtime's entry scope; not carried
+- 1 file: the package boundary file: record contracts, actions and surfaces for the retired package runtime (slot workflows, owner targets); not carried
+- 1 file: names one real business's program and its tour in the test and its fixture; a public tree holds made-up data only
+- 1 file: a real business's first-run tour (its name, its screens and its copy); a public tree holds made-up data only
+
+The receipt's `not_carried` names each path.

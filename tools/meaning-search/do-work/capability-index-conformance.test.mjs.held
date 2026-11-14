@@ -1,0 +1,345 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import test from 'node:test';
+import { fileURLToPath } from 'node:url';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const manifest = JSON.parse(fs.readFileSync(path.join(root, 'things-to-store-and-run.json'), 'utf8'));
+const actions = new Map(manifest.things
+  .filter((thing) => thing.type === 'record' && thing.payload?.kind === 'action')
+  .map((thing) => [thing.payload.id, thing.payload]));
+
+test('meaning search exposes only generic capability-index operations', () => {
+  for (const id of ['action:index-content', 'action:index-content-vector',
+    'action:remove-indexed-content', 'action:find-similar', 'action:find-similar-vector',
+    'action:hydrate-ranked-current-item', 'action:find-similar-current-items']) {
+    assert.ok(actions.has(id), `missing ${id}`);
+  }
+  const remove = actions.get('action:remove-indexed-content');
+  assert.equal(remove.operation_contract?.mode, 'delete');
+  assert.ok(remove.steps.length >= 4, 'retraction is an executable Workflow, not a metadata-only action');
+  assert.ok(remove.steps.some((step) => step.id === 'ann_delete' && step.config?.name === 'compute.process'));
+  assert.ok(remove.steps.some((step) => step.id === 'write_ann_facts' && step.kind === 'write'));
+  assert.deepEqual(remove.input_schema.required, [
+    'index_id', 'content_address', 'canonical_address', 'canonical_revision', 'canonical_payload_hash', 'source_snapshot_ref',
+  ]);
+  for (const id of ['action:index-content', 'action:index-content-vector']) {
+    const schema = actions.get(id).input_schema;
+    for (const key of ['canonical_address', 'canonical_revision', 'canonical_payload_hash', 'source_snapshot_ref']) {
+      assert.equal(schema.properties[key]?.type, 'string');
+      assert.ok(schema.required.includes(key));
+    }
+  }
+  assert.equal(manifest.things.some((thing) =>
+    thing.payload?.kind === 'semantic-index-descriptor'), false,
+  'index tuning/configuration is Studio data, never package data');
+});
+
+test('batch convergence crosses nested actions by immutable artifact refs, never giant JSON inputs', () => {
+  const apply = actions.get('action:apply-semantic-index-plan');
+  assert.deepEqual(apply.input_schema.required, [
+    'index_id', 'plan_content_hash', 'index_descriptor_items', 'index_state_content_hash',
+  ]);
+  const serialized = JSON.stringify(apply);
+  for (const duplicatedValue of [
+    'plan_base64', 'embedding_request', 'index_state_base64',
+    'plan_step_ref', 'index_descriptor_step_ref', 'index_state_step_ref',
+  ]) {
+    assert.doesNotMatch(serialized, new RegExp(duplicatedValue));
+  }
+  const prepare = apply.steps.find((step) => step.id === 'prepare_process_input');
+  const mounts = new Map(prepare.config.input.inputs.map((mount) => [mount.mount_path, mount]));
+  assert.equal(mounts.get('plan.json').source.kind, 'blob_ref');
+  assert.equal(mounts.get('plan.json').source.hash.select.path, 'plan_content_hash');
+  assert.equal(mounts.get('d.json').source.kind, 'inline');
+  assert.equal(mounts.get('d.json').source.bytes.select.path, 'index_descriptor_items');
+  assert.equal(mounts.get('s.json').source.kind, 'blob_ref');
+  assert.equal(mounts.get('s.json').source.hash.select.path, 'index_state_content_hash');
+  assert.deepEqual(prepare.config.input.outputs.map((output) => output.mount_path), [
+    'o.json', 'embedding-request.json', 'state.json',
+  ]);
+  assert.equal(prepare.config.input.outputs[1].storage, 'immutable_content');
+  assert.equal(prepare.config.input.outputs[2].storage, 'immutable_content');
+  const batchEmbed = apply.steps.find((step) => step.id === 'run_batch_embed');
+  const requestMount = batchEmbed.config.input.inputs.transform.at(-1).args.value;
+  assert.deepEqual(requestMount.source, {
+    kind: 'blob_ref',
+    hash: {
+      $kind: 'binding',
+      select: {
+        from: 'steps',
+        key: 'prepare_process_input',
+        path: 'output.outputs.1.content_hash',
+      },
+    },
+  });
+  assert.deepEqual(apply.steps.map((step) => step.id), [
+    'read_process_preparation_script', 'read_ann_script', 'read_canonical_multihash',
+    'read_facts_script', 'read_apply_plan_script', 'read_write_set_script',
+    'prepare_process_input', 'run_batch_embed', 'apply_index_plan', 'done',
+  ]);
+  const atomicApply = apply.steps.find((step) => step.id === 'apply_index_plan');
+  const atomicMounts = new Map(
+    atomicApply.config.input.inputs.map((mount) => [mount.mount_path, mount]),
+  );
+  assert.deepEqual(atomicMounts.get('state.json').source, {
+    kind: 'blob_ref',
+    hash: {
+      $kind: 'binding',
+      select: {
+        from: 'steps',
+        key: 'prepare_process_input',
+        path: 'output.outputs.2.content_hash',
+      },
+    },
+  });
+  assert.deepEqual(atomicApply.config.input.outputs, [{
+    mount_path: 'writes.json',
+    content_type: 'application/vnd.bitfield.envelope-write-set+json',
+    storage: 'envelope_write_set',
+  }]);
+  for (const mountPath of ['plan.json', 'embedding-output.json', 'state.json']) {
+    assert.equal(
+      atomicMounts.get(mountPath).source.kind,
+      'blob_ref',
+      `${mountPath} stays behind an immutable reference`,
+    );
+  }
+  assert.equal(
+    atomicApply.config.input.inputs.some((mount) =>
+      ['records.json', 'vectors.json', 'facts.out.json'].includes(mount.mount_path)),
+    false,
+    'fact and vector bodies never return through Workflow before the atomic commit',
+  );
+  assert.equal(apply.steps.some((step) => step.kind === 'write'), false);
+  assert.deepEqual(Object.keys(apply.steps.at(-1).config.value.atomic_write_set).sort(), [
+    'byte_len', 'integrity_hash', 'storage',
+  ]);
+  // RESTORED 2026-09-04 after an independent convergence refuted its removal. This line was
+  // deleted on the claim that plan-capability-index-convergence.py is inert, because it has ZERO
+  // `stored-bytes::` references in this package's things-to-store-and-run.json. That grep was run
+  // against the wrong file: the workflow lives in Studio DATA, exactly as this suite's own
+  // assertion at :34-37 says it must ("index tuning/configuration is Studio data, never package
+  // data"). The script is step 0 `read_planner` of `action:converge-semantic-index`
+  // (capability-index-records.json:289), is_active, dispatched by three trigger rules, and run
+  // four times per convergence. It is also a named measured performance owner with 12 metrics.
+  // This assertion is the LAST LINK of the four-part chain above (:45-50, :59-63, :64-76) proving
+  // the embedding request is derived once and travels only as immutable content; the Python test
+  // covers two of three modes, so deleting this left the third with zero coverage.
+  const planner = fs.readFileSync(
+    path.join(root, 'do-work/process-scripts/plan-capability-index-convergence.py'), 'utf8',
+  );
+  assert.doesNotMatch(planner, /["']embedding_request["']\s*:/);
+});
+
+test('one owner action resolves policy, ranks, exact-hydrates, and budgets current results', () => {
+  const owner = actions.get('action:find-similar-current-items');
+  assert.deepEqual(owner.input_schema.required, [
+    'index_id', 'result_policy_ref', 'owner_query_target',
+  ]);
+  assert.deepEqual(owner.steps.map((step) => step.id), [
+    'read_resolver', 'read_canonical_multihash', 'read_result_policies',
+    'prepare_query', 'rank_current_representations', 'prepare_hydrations',
+    'hydrate_current_owners', 'finalize_bounded_results', 'result',
+  ]);
+  assert.equal(
+    owner.steps.find((step) => step.id === 'rank_current_representations').config.definition_id,
+    'action:find-similar',
+  );
+  assert.equal(
+    owner.steps.find((step) => step.id === 'hydrate_current_owners').config.definition_id,
+    'action:hydrate-ranked-current-item',
+  );
+  const source = fs.readFileSync(
+    path.join(root, 'do-work/process-scripts/resolve-ranked-current-items.py'), 'utf8',
+  );
+  for (const authority of [
+    'resolve_policy', 'plan_hydrations', 'max_schema_bytes_per_result',
+    'total_prompt_budget_bytes', 'hydrated result changed ranked',
+  ]) assert.match(source, new RegExp(authority));
+});
+
+test('canonical owner hydration is one generic dynamic Envelope action', () => {
+  const hydrate = actions.get('action:hydrate-ranked-current-item');
+  assert.equal(hydrate.steps[0].config.name.select.path, 'owner_query_target');
+  assert.equal(hydrate.steps[0].config.input.select.path, 'owner_query');
+  assert.deepEqual(hydrate.input_schema.required, [
+    'owner_query_target', 'owner_query', 'canonical_address', 'canonical_revision', 'payload_hash',
+    'descriptor_revision', 'model_provenance_ref',
+  ]);
+  const validator = hydrate.steps.find((step) => step.id === 'validate_owner');
+  assert.equal(validator.config.name, 'compute.process');
+});
+
+test('every semantic query fails closed through one private current-snapshot readiness definition', () => {
+  const readiness = actions.get('action:assert-semantic-index-ready');
+  assert.equal(readiness, undefined, 'private workflow is not catalogued as a discoverable action');
+  const internal = manifest.things.find((thing) =>
+    thing.payload?.id === 'action:assert-semantic-index-ready')?.payload;
+  assert.equal(internal?.kind, 'workflow-internal');
+  assert.deepEqual(internal.steps.map((step) => step.id), [
+    'read_validator', 'read_canonical_multihash', 'read_pyjson_script', 'read_readiness_records', 'prepare_owner_probe',
+    'scan_current_sources', 'read_current_index_state', 'assert_current_fixed_point', 'ready',
+  ]);
+  assert.equal(internal.steps.find((step) => step.id === 'scan_current_sources').config.name.select.key, 'prepare_owner_probe');
+  for (const stepId of ['prepare_owner_probe', 'assert_current_fixed_point']) {
+    assert.deepEqual(
+      internal.steps.find((step) => step.id === stepId).config.input.containment,
+      { kind: 'leaf' },
+      `${stepId} must run cross-platform without held-directory descendant containment`,
+    );
+  }
+  for (const id of ['action:find-similar', 'action:find-similar-vector']) {
+    const query = actions.get(id);
+    assert.equal(query.steps[0].id, 'assert_index_ready');
+    assert.equal(query.steps[0].config.definition_id, 'action:assert-semantic-index-ready');
+  }
+});
+
+test('ANN primitive has delete, revision, provenance, and atomic-commit closure', () => {
+  const source = fs.readFileSync(path.join(root, 'do-work/process-scripts/ann-index.py'), 'utf8');
+  for (const symbol of ['cmd_delete', 'semantic_index.mutated', 'semantic_index.stale_rejected',
+    'semantic_index.queried', 'os.replace', 'canonical_address', 'payload_hash', 'source_snapshot_ref']) {
+    assert.match(source, new RegExp(symbol.replace('.', '\\.')));
+  }
+  assert.doesNotMatch(source, /def default_params/);
+  for (const id of ['action:find-similar', 'action:find-similar-vector']) {
+    const subject = actions.get(id).steps.find((step) => step.id === 'fetch_facts')
+      .config.input.where.all.find((condition) => condition.field === 'subject_id');
+    assert.deepEqual(subject.in.transform.map((item) => item.op), ['op:core.decode', 'op:core.json_parse', 'op:core.map']);
+    assert.equal(subject.in.transform[2].args.path, 'subject_ref');
+  }
+});
+
+test('process preparation eliminates positional collection reads and fails closed on duplicates', () => {
+  assert.doesNotMatch(JSON.stringify(manifest), /items\.0/,
+    'production Workflow data never selects a reply row by position');
+  for (const id of ['action:index-content', 'action:index-content-vector',
+    'action:find-similar', 'action:find-similar-vector', 'action:remove-indexed-content']) {
+    const action = actions.get(id);
+    const prepare = action.steps.find((step) => step.id === 'prepare_process_input');
+    assert.equal(prepare?.config?.name, 'compute.process', `${id} validates full replies before any process`);
+    assert.ok(action.steps.some((step) => step.id === 'read_descriptor'));
+    assert.ok(action.steps.some((step) => step.id === 'read_ann_state'));
+    const stateOutput = prepare.config.input.outputs.find(
+      (output) => output.mount_path === 'state.json',
+    );
+    assert.equal(stateOutput?.storage, 'immutable_content');
+    const stateMounts = action.steps
+      .filter((step) => step.config?.name === 'compute.process')
+      .flatMap((step) => Array.isArray(step.config.input.inputs) ? step.config.input.inputs : [])
+      .filter((mount) => mount.mount_path === 'state.json');
+    assert.ok(stateMounts.length > 0);
+    for (const mount of stateMounts) {
+      assert.equal(mount.source.kind, 'blob_ref');
+      assert.equal(mount.source.hash.select.path, 'output.outputs.1.content_hash');
+    }
+  }
+  const source = fs.readFileSync(path.join(root, 'do-work/process-scripts/prepare-semantic-index-process-input.py'), 'utf8');
+  assert.match(source, /exactly one current row/);
+  assert.match(source, /zero or one current row/);
+  for (const id of ['action:index-content', 'action:find-similar']) {
+    const process = actions.get(id).steps.find((step) => step.id === 'run_embed').config.input;
+    const lookupKeys = (binding) => binding.transform
+      .filter((transform) => transform.op === 'op:core.lookup')
+      .map((transform) => transform.args.key);
+    assert.deepEqual(lookupKeys(process.argv), ['descriptor', 'executor', 'argv']);
+    assert.deepEqual(lookupKeys(process.inputs), ['descriptor', 'executor', 'inputs']);
+    assert.equal(
+      process.inputs.transform.at(-1)?.op,
+      'op:core.append',
+      `${id} appends its request payload after the descriptor-owned process inputs`,
+    );
+    assert.deepEqual(lookupKeys(process.timeout_ms), ['descriptor', 'executor', 'timeout_ms']);
+  }
+  assert.equal(
+    manifest.things.filter((thing) =>
+      thing.type === 'stored_bytes' && thing.name === 'embed-text-ollama').length,
+    1,
+  );
+});
+
+test('every stored Python process leaf mounts its complete package-local import closure', () => {
+  const scriptsRoot = path.join(root, 'do-work/process-scripts');
+  for (const thing of manifest.things) {
+    for (const step of thing.payload?.steps ?? []) {
+      const mounts = Array.isArray(step.config?.input?.inputs)
+        ? step.config.input.inputs
+        : [];
+      for (const mount of mounts) {
+        const mountPath = String(mount.mount_path ?? '');
+        const leaf = path.posix.basename(mountPath);
+        if (!leaf.endsWith('.py') || !fs.existsSync(path.join(scriptsRoot, leaf))) continue;
+        const source = fs.readFileSync(path.join(scriptsRoot, leaf), 'utf8');
+        const imported = [...source.matchAll(/^\s*(?:from\s+([A-Za-z_]\w*)\s+import|import\s+([A-Za-z_]\w*))/gm)]
+          .map((match) => match[1] ?? match[2])
+          .filter((module) => fs.existsSync(path.join(scriptsRoot, `${module}.py`)));
+        for (const module of imported) {
+          const sibling = path.posix.join(path.posix.dirname(mountPath), `${module}.py`);
+          assert.ok(
+            mounts.some((candidate) => candidate.mount_path === sibling),
+            `${thing.payload.id}/${step.id} mounts ${leaf} but not its imported sibling ${sibling}`,
+          );
+        }
+      }
+    }
+  }
+});
+
+test('process JSON mounts never stringify a Workflow raw-byte reference as a reply object', () => {
+  for (const thing of manifest.things) {
+    for (const step of thing.payload?.steps ?? []) {
+      if (step.config?.name !== 'compute.process') continue;
+      const mounts = Array.isArray(step.config?.input?.inputs)
+        ? step.config.input.inputs
+        : [];
+      for (const mount of mounts) {
+        const bytes = mount.source?.kind === 'inline' ? mount.source.bytes : null;
+        const select = bytes?.select;
+        const transforms = bytes?.transform;
+        if (select?.from !== 'steps' || select.path !== 'output' || !Array.isArray(transforms)) continue;
+        const producer = thing.payload.steps.find((candidate) => candidate.id === select.key);
+        if (producer?.kind !== 'ask') continue;
+        const serializesJson = transforms.some((item) => item?.op === 'op:core.stringify')
+          && transforms.some((item) => item?.op === 'op:core.encode');
+        assert.equal(
+          serializesJson,
+          false,
+          `${thing.payload.id}/${step.id}/${mount.mount_path} serializes steps.${select.key}.output, which is the retained raw-byte reference; select a parsed reply subpath (for example output.items) or explicit step bytes instead`,
+        );
+      }
+    }
+  }
+});
+
+test('readiness preserves snapshot-bearing scans through Workflow explicit raw bytes', () => {
+  const internal = manifest.things.find((thing) => thing.payload?.id === 'action:assert-semantic-index-ready').payload;
+  const fixedPoint = internal.steps.find((step) => step.id === 'assert_current_fixed_point');
+  const scan = fixedPoint.config.input.inputs.find((mount) => mount.mount_path === 'source-scan.json').source.bytes;
+  assert.equal(scan.select.key, 'scan_current_sources');
+  assert.equal(scan.select.path, 'output.base64');
+  assert.deepEqual(scan.transform, []);
+  for (const mount of fixedPoint.config.input.inputs.filter((item) => ['records.json', 'index-state.json'].includes(item.mount_path))) {
+    assert.equal(mount.source.bytes.select.path, 'output.items');
+  }
+});
+
+test('live proof executes real convergence and proves races and owner-present retraction', () => {
+  const source = fs.readFileSync(
+    path.join(root, 'proof/capability-index-live-proof.mjs'), 'utf8',
+  );
+  assert.doesNotMatch(source, /function\s+writeConvergence|write_initial_convergence|write_updated_convergence/);
+  assert.match(source, /'action:converge-semantic-index'/);
+  assert.match(source, /stage: 'cold_bootstrap_real_convergence'/);
+  assert.match(source, /stage: 'stable_repeat_zero_mutations'/);
+  assert.match(source, /stage: 'racing_source_mutation_denied'/);
+  assert.match(source, /stage: 'retract_while_owner_still_current'/);
+  assert.match(source, /await assertOwnerReadable\(client, identity\)/);
+  assert.match(source, /current_representation_fact_count: facts\.length/);
+  assert.match(source, /cleanKnownLeakedAuditIndex/);
+  assert.match(source, /const CURRENT_ADDRESS_MODES = \['identity_text', 'label_hash'\]/);
+  assert.match(source, /removeSubjectRepresentationFacts/);
+  assert.match(source, /cleanup\.subject_state/);
+  assert.doesNotMatch(source, /multihash_hex/);
+});

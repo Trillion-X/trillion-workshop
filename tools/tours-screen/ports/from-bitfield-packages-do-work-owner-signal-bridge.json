@@ -1,0 +1,64 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-TOURS-SCREEN-DO-WORK-OWNER-SIGNAL-BRIDGE-FROM-BITFIELD-PACKAGES",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "census-and-restore lane 11, 2026-11-13: no rewrites from scratch; originals move wholesale",
+    "message_multihash": "1f:31cfaef8fe1b095bcdda0c309aeb261d0b928f36c81425a5d444f4f86483ec45",
+    "quote": "standing order: NO rewrites from scratch. Originals move wholesale (byte for byte, with moved-from receipts)"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "bitfield-packages",
+      "commit": "77618d4b95671f364efb7ffcc39de5765bd3b38a",
+      "path": "packages/guided-overlay/do-work/owner-signal-bridge.ts",
+      "multihash": "1f:f3edf75dea2ab05a5d3d25e28dffa0e0964c683baa0b52c939b1f4b5dcd58c39",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-17T06:54:28Z",
+        "deleted_with": "the change that lands this move: the package file leaves bitfield-packages in the same change"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/tours-screen/do-work/owner-signal-bridge.ts"
+    }
+  ],
+  "preserve": [
+    "the file is the original package file, moved with its import paths changed to this tree and nothing else",
+    "what the file did in the package: its exports, its rules and its edge cases are not rewritten here"
+  ],
+  "allowed_deltas": [
+    "import paths and the file header name the file's new place"
+  ],
+  "banned_substitutions": [
+    "a second implementation of the same job beside this file",
+    "a rewrite from scratch of what the package file does"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:f3edf75dea2ab05a5d3d25e28dffa0e0964c683baa0b52c939b1f4b5dcd58c39",
+    "target_multihash_at_baseline": "1f:f3edf75dea2ab05a5d3d25e28dffa0e0964c683baa0b52c939b1f4b5dcd58c39",
+    "recorded_at": "2026-11-14T06:55:28Z",
+    "rows": [
+      {
+        "path": "tools/tours-screen/do-work/owner-signal-bridge.ts",
+        "source_multihash": "1f:f3edf75dea2ab05a5d3d25e28dffa0e0964c683baa0b52c939b1f4b5dcd58c39",
+        "target_multihash_at_baseline": "1f:f3edf75dea2ab05a5d3d25e28dffa0e0964c683baa0b52c939b1f4b5dcd58c39"
+      }
+    ],
+    "commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "function isRecord(value: unknown): value is Record<string, unknown>",
+      "function localStorageParam(source: OwnerSignalContextParamSource): string | null"
+    ],
+    "test_refs": [],
+    "render_refs": [],
+    "originality_ref": null
+  }
+}

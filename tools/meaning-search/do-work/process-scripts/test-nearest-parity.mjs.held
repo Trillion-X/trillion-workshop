@@ -1,0 +1,184 @@
+#!/usr/bin/env node
+// Golden byte-identity parity test: nearest-embedding-facts.
+//
+// Runs the ORIGINAL python3 leaf and the ported node leaf on identical inputs and
+// asserts the --output-json is byte-for-byte identical (L108 preserve-behavior).
+// Includes a seeded randomized fuzz over real-shaped vectors/scores/limits to
+// stress cosine + round(x,6) + the ranking sort, which are the highest-risk
+// byte-divergences (float rendering).
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import crypto from "node:crypto";
+import { blake3 } from "@noble/hashes/blake3.js";
+import { execFileSync } from "node:child_process";
+
+const HERE = path.dirname(new URL(import.meta.url).pathname);
+const PY = path.join(HERE, "nearest-embedding-facts.py");
+const MJS = path.join(HERE, "nearest-embedding-facts.mjs");
+
+let failures = 0;
+let cases = 0;
+
+// A fixture identity that is ACTUALLY what its prefix says it is. `1f` is the multihash code
+// for BLAKE3, and this returned a SHA-256 digest under it, so every fixture declared an
+// algorithm it had not been produced with.
+function h(label) {
+  return "1f:" + Buffer.from(blake3(Buffer.from(label, "utf-8"))).toString("hex");
+}
+
+function runCase(name, inputFiles) {
+  cases += 1;
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "near-parity-"));
+  const pyDir = path.join(root, "py");
+  const mjsDir = path.join(root, "mjs");
+  fs.mkdirSync(pyDir);
+  fs.mkdirSync(mjsDir);
+  for (const dir of [pyDir, mjsDir]) {
+    for (const [fname, contents] of Object.entries(inputFiles)) {
+      const text = typeof contents === "string" ? contents : JSON.stringify(contents);
+      fs.writeFileSync(path.join(dir, fname), text, "utf-8");
+    }
+  }
+  const argvFor = (dir) => [
+    "--embedding-json", path.join(dir, "embedding.json"),
+    "--input-json", path.join(dir, "input.json"),
+    "--descriptor-json", path.join(dir, "descriptor.json"),
+    "--facts-json", path.join(dir, "facts.json"),
+    "--output-json", path.join(dir, "nearest.json"),
+  ];
+  let pyErr = null;
+  let mjsErr = null;
+  try { execFileSync("python3", [PY, ...argvFor(pyDir)], { stdio: "pipe" }); } catch (e) { pyErr = e; }
+  try { execFileSync("node", [MJS, ...argvFor(mjsDir)], { stdio: "pipe" }); } catch (e) { mjsErr = e; }
+  if (Boolean(pyErr) !== Boolean(mjsErr)) {
+    failures += 1;
+    console.log(`FAIL ${name}: exit-status divergence py-error=${Boolean(pyErr)} mjs-error=${Boolean(mjsErr)}`);
+    if (mjsErr) console.log(`  mjs stderr: ${String(mjsErr.stderr || "").trim().slice(0, 300)}`);
+    return;
+  }
+  if (pyErr && mjsErr) { console.log(`ok   ${name} (both rejected)`); return; }
+  const a = fs.readFileSync(path.join(pyDir, "nearest.json"));
+  const b = fs.readFileSync(path.join(mjsDir, "nearest.json"));
+  if (Buffer.compare(a, b) !== 0) {
+    failures += 1;
+    console.log(`FAIL ${name}: nearest.json differs`);
+    console.log(`  py : ${a.toString("utf-8").slice(0, 500)}`);
+    console.log(`  mjs: ${b.toString("utf-8").slice(0, 500)}`);
+    return;
+  }
+  console.log(`ok   ${name} (nearest.json byte-identical)`);
+}
+
+// Contract case 1: full canonical identity + provenance, one valid + one invalid.
+runCase("canonical-identity-and-provenance", {
+  "embedding.json": { vector: [1, 0] },
+  "input.json": { limit: 1 },
+  "descriptor.json": {
+    index_id: "generic-index", model_id: "embed-v1", model_version: "1",
+    model_provenance_ref: "model:embed-v1@1", descriptor_revision: h("descriptor"),
+    min_score: 0.5, result_limit: 1,
+  },
+  "facts.json": [
+    {
+      subject_id: "legacy-subject",
+      value_json: JSON.stringify({
+        vector: [1, 0], canonical_address: "package::owner::action::x",
+        canonical_revision: h("42"), canonical_payload_hash: h("payload-x"),
+        source_snapshot_ref: h("snapshot"), owner_target: "slot::workflow",
+        schema_ref: "package::owner::action::x", schema_digest: h("schema-x"),
+        authority_provenance_ref: "authority:test",
+      }),
+    },
+    { subject_id: "invalid", value_json: JSON.stringify({ vector: [1, 0] }) },
+  ],
+});
+
+// Contract case 2: legacy unproven vector -> items [].
+runCase("legacy-vector-rejected", {
+  "embedding.json": { vector: [1] },
+  "input.json": {},
+  "descriptor.json": { index_id: "i", min_score: 0, result_limit: 1 },
+  "facts.json": [{ subject_id: "old", value_json: "[1]" }],
+});
+
+// Contract case 3: equal-score boundary independent of fact order (both orders).
+const eqRows = [
+  { subject_id: "z", value_json: JSON.stringify({ vector: [1], canonical_address: "z-address", canonical_revision: h("r"), canonical_payload_hash: h("z"), source_snapshot_ref: h("snapshot") }) },
+  { subject_id: "a", value_json: JSON.stringify({ vector: [1], canonical_address: "a-address", canonical_revision: h("r"), canonical_payload_hash: h("a"), source_snapshot_ref: h("snapshot") }) },
+];
+const eqDescriptor = { index_id: "i", min_score: 0, result_limit: 1, model_provenance_ref: "model:test@1", descriptor_revision: h("descriptor") };
+runCase("equal-score-order-a", { "embedding.json": { vector: [1] }, "input.json": { limit: 1 }, "descriptor.json": eqDescriptor, "facts.json": eqRows });
+runCase("equal-score-order-b", { "embedding.json": { vector: [1] }, "input.json": { limit: 1 }, "descriptor.json": eqDescriptor, "facts.json": [...eqRows].reverse() });
+
+// append-not-current edge cases folded into the ranking output (2026-08-14):
+// small-exponent-band min_score + exact 1.0 self-match score (type erasure:
+// score/min_score are floats, considered/skipped are ints in the same object).
+runCase("band-minscore-and-selfmatch", {
+  "embedding.json": { vector: [1, 0] },
+  "input.json": { limit: 5 },
+  "descriptor.json": { index_id: "i", model_id: "m", model_version: "1", model_provenance_ref: "model:m@1", descriptor_revision: h("d"), min_score: 1e-5, result_limit: 5 },
+  "facts.json": [
+    { subject_id: "s1", value_json: JSON.stringify({ vector: [1, 0], canonical_address: "a1", canonical_revision: h("r1"), canonical_payload_hash: h("p1"), source_snapshot_ref: h("s"), title: "café ranked 😀" }) },
+  ],
+});
+// exact 0.0 (orthogonal) and -1.0 (opposite) scores kept via min_score=-1.
+runCase("exact-zero-and-negone-scores", {
+  "embedding.json": { vector: [1, 0] },
+  "input.json": {},
+  "descriptor.json": { index_id: "i", model_id: "m", model_version: "1", model_provenance_ref: "model:m@1", descriptor_revision: h("d"), min_score: -1, result_limit: 5 },
+  "facts.json": [
+    { subject_id: "orth", value_json: JSON.stringify({ vector: [0, 1], canonical_address: "a-orth", canonical_revision: h("r2"), canonical_payload_hash: h("p2"), source_snapshot_ref: h("s") }) },
+    { subject_id: "opp", value_json: JSON.stringify({ vector: [-1, 0], canonical_address: "a-opp", canonical_revision: h("r3"), canonical_payload_hash: h("p3"), source_snapshot_ref: h("s") }) },
+  ],
+});
+
+// Seeded fuzz: random dims/vectors/scores/limits -> stress cosine + round(6) + sort.
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const rnd = mulberry32(0x9e3779b9);
+function randVec(dim) {
+  const v = [];
+  for (let i = 0; i < dim; i++) v.push(rnd() * 2 - 1);
+  return v;
+}
+for (let k = 0; k < 60; k++) {
+  const dim = 2 + Math.floor(rnd() * 7);
+  const query = randVec(dim);
+  const factCount = 3 + Math.floor(rnd() * 8);
+  const facts = [];
+  for (let i = 0; i < factCount; i++) {
+    // occasionally a dimension-mismatched vector (cosine -> -1.0 path).
+    const fdim = rnd() < 0.15 ? dim + 1 : dim;
+    facts.push({
+      subject_id: `subject-${i}`,
+      value_json: JSON.stringify({
+        vector: randVec(fdim),
+        canonical_address: `addr-${i}-${k}`,
+        canonical_revision: h(`rev-${i}-${k}`),
+        canonical_payload_hash: h(`pay-${i}-${k}`),
+        source_snapshot_ref: h(`snap-${k}`),
+        ...(rnd() < 0.5 ? { title: `Title ${i}` } : {}),
+        ...(rnd() < 0.3 ? { owner_target: `slot::owner-${i}` } : {}),
+      }),
+    });
+  }
+  const descriptor = {
+    index_id: `idx-${k}`, model_id: "m", model_version: "1",
+    model_provenance_ref: "model:m@1", descriptor_revision: h(`desc-${k}`),
+    min_score: rnd() < 0.3 ? 0 : rnd() * 1.6 - 0.8,
+    result_limit: 1 + Math.floor(rnd() * 9),
+  };
+  const input = rnd() < 0.5 ? { limit: 1 + Math.floor(rnd() * 12) } : {};
+  runCase(`fuzz-${k}`, { "embedding.json": { vector: query }, "input.json": input, "descriptor.json": descriptor, "facts.json": facts });
+}
+
+console.log(`\n${cases - failures}/${cases} cases parity-passed`);
+process.exit(failures === 0 ? 0 : 1);

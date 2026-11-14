@@ -1,0 +1,64 @@
+#!/usr/bin/env python3
+"""Exact-cardinality authority tests for ranked owner hydration."""
+from __future__ import annotations
+
+from canonical_multihash import mint_canonical_multihash_of_text
+import importlib.util
+import unittest
+from pathlib import Path
+
+SCRIPT = Path(__file__).with_name("hydrate-ranked-current-item.py")
+spec = importlib.util.spec_from_file_location("hydrate_ranked_current_item", SCRIPT)
+mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(mod)
+
+
+def h(value: str) -> str:
+    # Was `"1f:" + hashlib.sha256(...)`, and `1f` is the multicodec code for BLAKE3, so the
+    # fixture declared an algorithm it was not produced with. Minted by the owning module now.
+    return mint_canonical_multihash_of_text(value)
+
+
+ADDRESS = "1f" + "61" * 32
+CURRENT = h("current")
+STALE = h("stale")
+
+
+def request():
+    return {
+        "canonical_address": ADDRESS,
+        "canonical_revision": CURRENT,
+        "payload_hash": CURRENT,
+        "rank_score": 1,
+        "descriptor_revision": h("descriptor"),
+        "model_provenance_ref": "model:test@1",
+    }
+
+
+def owner(content_hash=CURRENT):
+    return {"address": ADDRESS, "content_hash": content_hash, "payload": {"kind": "owner"}}
+
+
+class HydrateRankedCurrentItemTest(unittest.TestCase):
+    def test_exact_current_owner_is_the_only_accepted_authority(self):
+        result = mod.hydrate(request(), {"items": [owner()]})
+        self.assertEqual(result["item"]["canonical_address"], ADDRESS)
+        self.assertEqual(result["item"]["content_hash"], CURRENT)
+        self.assertEqual(result["item"]["descriptor_revision"], h("descriptor"))
+        self.assertEqual(result["item"]["model_provenance_ref"], "model:test@1")
+
+    def test_stale_owner_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, "exactly one"):
+            mod.hydrate(request(), {"items": [owner(STALE)]})
+
+    def test_retracted_owner_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, "exactly one"):
+            mod.hydrate(request(), {"items": []})
+
+    def test_duplicate_current_rows_are_rejected(self):
+        with self.assertRaisesRegex(ValueError, "exactly one"):
+            mod.hydrate(request(), {"items": [owner(), owner()]})
+
+
+if __name__ == "__main__":
+    unittest.main()

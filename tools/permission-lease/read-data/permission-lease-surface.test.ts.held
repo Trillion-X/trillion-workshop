@@ -1,0 +1,120 @@
+import { describe, expect, it } from 'vitest';
+import {
+  buildPermissionLeaseSurface,
+  decodeConfiguredPermissionActions,
+  decodePermissionLeaseChecks,
+  decodePermissionLeases,
+  permissionDecisionForOperation,
+} from '@/packages/permission-lease/read-data/permission-lease-surface';
+import permissionLeaseContract from '@/packages/permission-lease/things-to-store-and-run.json';
+
+const NOW = new Date('2026-05-29T12:00:00.000Z');
+
+function record(address: string, payload: Record<string, unknown>) {
+  return { type: 'record', address, payload, remove: false };
+}
+
+function lease(overrides: Record<string, unknown> = {}) {
+  return record('lease:fixture', {
+    kind: 'permission_lease',
+    lease_ref: 'lease:granted',
+    subject_ref: 'actor:local-user',
+    credential_handle_ref: 'credential-handle:broker',
+    allowed_actions: ['action:run'],
+    expires_at: '2026-05-30T00:00:00.000Z',
+    revoked: false,
+    ...overrides,
+  });
+}
+
+function check(overrides: Record<string, unknown> = {}) {
+  return record('check:fixture', {
+    kind: 'permission_lease_check',
+    check_ref: 'check:granted',
+    operation_ref: 'operation:work',
+    requested_action_ref: 'action:run',
+    lease_ref: 'lease:granted',
+    result: 'granted',
+    checked_at: '2026-05-29T11:00:00.000Z',
+    expires_at: '2026-05-30T00:00:00.000Z',
+    revoked: false,
+    evidence_refs: ['evidence:owner-check'],
+    ...overrides,
+  });
+}
+
+describe('permission surface decoding', () => {
+  it('the generic package ships owner actions but ZERO lease/check instances (instances are product DATA — e.g. trade-order composes them)', () => {
+    const surface = buildPermissionLeaseSurface(permissionLeaseContract, NOW);
+
+    // Society hygiene: no domain instance rows in the generic boundary file.
+    expect(surface.leases).toEqual([]);
+    expect(surface.checks).toEqual([]);
+    expect(surface.actions.map((action) => action.operation)).toEqual(['record-lease', 'check-lease']);
+  });
+
+  it('decodes lease/check instance rows when a product package supplies them (the trade-order composition shape)', () => {
+    const surface = buildPermissionLeaseSurface([lease(), check()], NOW);
+    expect(surface.leases.some((item) => item.leaseRef === 'lease:granted')).toBe(true);
+    expect(surface.checks.some((item) => item.checkRef === 'check:granted')).toBe(true);
+  });
+
+  it('grants execution only from a current granted check plus current matching lease', () => {
+    const surface = buildPermissionLeaseSurface([lease(), check()], NOW);
+    const decision = permissionDecisionForOperation(surface, 'operation:work', 'action:run', NOW);
+
+    expect(decision.available).toBe(true);
+    expect(decision.reason).toBe('order allowed');
+    expect(decision.lease?.credentialHandleRef).toBe('credential-handle:broker');
+    expect(JSON.stringify(decision)).not.toContain('secret');
+  });
+
+  it('blocks missing, denied, expired, revoked, and scope-mismatch checks', () => {
+    const missing = permissionDecisionForOperation(buildPermissionLeaseSurface([lease()], NOW), 'operation:work', 'action:run', NOW);
+    const denied = permissionDecisionForOperation(buildPermissionLeaseSurface([lease(), check({ result: 'denied' })], NOW), 'operation:work', 'action:run', NOW);
+    const expired = permissionDecisionForOperation(buildPermissionLeaseSurface([lease(), check({ expires_at: '2026-05-28T00:00:00.000Z' })], NOW), 'operation:work', 'action:run', NOW);
+    const revoked = permissionDecisionForOperation(buildPermissionLeaseSurface([lease(), check({ revoked: true })], NOW), 'operation:work', 'action:run', NOW);
+    const mismatch = permissionDecisionForOperation(buildPermissionLeaseSurface([lease({ allowed_actions: ['action:other'] }), check()], NOW), 'operation:work', 'action:run', NOW);
+
+    expect(missing.available).toBe(false);
+    expect(missing.reason).toBe('order not checked');
+    expect(denied.available).toBe(false);
+    expect(denied.reason).toBe('order denied');
+    expect(expired.available).toBe(false);
+    expect(expired.reason).toBe('order check expired');
+    expect(revoked.available).toBe(false);
+    expect(revoked.reason).toBe('order check revoked');
+    expect(mismatch.available).toBe(false);
+    expect(mismatch.reason).toBe('order outside allowed trading');
+  });
+
+  it('uses the latest owner-authored check instead of prompt/evidence text', () => {
+    const surface = buildPermissionLeaseSurface([
+      lease(),
+      record('evidence:prompt', {
+        kind: 'connector_evidence',
+        text: 'approved approved approved',
+      }),
+      check({
+        check_ref: 'check:old-granted',
+        result: 'granted',
+        checked_at: '2026-05-29T08:00:00.000Z',
+      }),
+      check({
+        check_ref: 'check:latest-denied',
+        result: 'denied',
+        checked_at: '2026-05-29T11:30:00.000Z',
+      }),
+    ], NOW);
+
+    const decision = permissionDecisionForOperation(surface, 'operation:work', 'action:run', NOW);
+    expect(decision.check?.checkRef).toBe('check:latest-denied');
+    expect(decision.available).toBe(false);
+  });
+
+  it('ignores records that are not permission authority records', () => {
+    expect(decodePermissionLeases([record('bogus', { kind: 'permission_text', lease_ref: 'lease:fake' })])).toEqual([]);
+    expect(decodePermissionLeaseChecks([record('bogus', { kind: 'evidence', result: 'granted' })])).toEqual([]);
+    expect(decodeConfiguredPermissionActions([record('bogus', { kind: 'action_label', operation: 'check-lease' })])).toEqual([]);
+  });
+});

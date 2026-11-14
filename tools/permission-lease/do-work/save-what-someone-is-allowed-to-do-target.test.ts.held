@@ -1,0 +1,145 @@
+import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { saveWhatSomeoneIsAllowedToDoTarget } from '@/packages/permission-lease/do-work/save-what-someone-is-allowed-to-do-target';
+
+/*
+ * What went wrong and what these check.
+ *
+ * The manifest pointed the target at the pure decision function, which needs a
+ * second argument carrying three outside effects. Nothing in production had one.
+ * So the target resolved, was called with one argument, and threw
+ * `seams.confirmAllowed is not a function`. Every test that existed handed the
+ * seams in itself, which is exactly why none of them could see it.
+ *
+ * These drive the PUBLISHED entry with only a sender, the way the runtime does,
+ * and one of them reads the manifest to check the declaration still points here.
+ * A test that imports the adapter while the manifest names something else would
+ * pass over the same gap.
+ */
+
+const manifest = JSON.parse(
+  readFileSync(join(__dirname, '..', 'things-to-store-and-run.json'), 'utf8'),
+) as { things?: Array<Record<string, any>> };
+
+const request = {
+  lease_ref: 'note:target-1',
+  subject_ref: 'subject:agent-a',
+  holder: 'subject:agent-a',
+  requested_operation_refs: ['interactive-browser'],
+  decision_proof: 'proof-xyz',
+  actor_ref: 'actor:agent-a',
+  session_ref: 'session:1',
+  revisions: { session_revision: 's1' },
+  idempotency_key: 'idem-1',
+};
+
+/** A stand-in runtime: one durable yes, one published-record table. */
+function runtime(options: { decision?: Record<string, unknown> | null } = {}) {
+  const stored: Record<string, unknown>[] = [];
+  const sent: Array<{ target: string; payload: any }> = [];
+  const decision = options.decision === undefined
+    ? {
+      subject_ref: request.holder,
+      actor_ref: request.actor_ref,
+      authorized_action_refs: ['interactive-browser'],
+      decision_proof: 'proof-xyz',
+    }
+    : options.decision;
+  const sender = async ({ target, payload }: { target: string; payload: any }) => {
+    sent.push({ target, payload });
+    if (target === 'access-rule.verify-decision') {
+      return decision ? { verified: true, decision } : { verified: false, reason: 'decision-not-found' };
+    }
+    if (target === 'engine.operation.label-addressed') {
+      for (const write of payload.writes) stored.push(write.payload);
+      return { ok: true };
+    }
+    if (target === 'slot::find-current-items') {
+      const wanted = payload.where.all.find((clause: any) => clause.field === 'lease_ref')?.eq;
+      return { items: stored.filter((row) => row.lease_ref === wanted).map((payloadRow) => ({ payload: payloadRow })) };
+    }
+    throw new Error(`unexpected target ${target}`);
+  };
+  return { stored, sent, sender };
+}
+
+describe('the published save-a-permission route', () => {
+  it('runs end to end with only a sender, which is all the runtime gives it', async () => {
+    const { sender, stored } = runtime();
+    const receipt = await saveWhatSomeoneIsAllowedToDoTarget(request, undefined, sender);
+
+    expect(receipt.accepted).toBe(true);
+    expect(receipt.saved).toBe(true);
+    expect(stored).toHaveLength(1);
+    expect(stored[0].kind).toBe('permission_lease');
+    expect(stored[0].lease_ref).toBe(request.lease_ref);
+    expect(stored[0].allowed_operation_refs).toEqual(['interactive-browser']);
+    expect(stored[0].idempotency_key).toBe(request.idempotency_key);
+  });
+
+  it('asks the decision owner before it writes anything', async () => {
+    const { sender, sent } = runtime();
+    await saveWhatSomeoneIsAllowedToDoTarget(request, undefined, sender);
+
+    const askedAt = sent.findIndex((call) => call.target === 'access-rule.verify-decision');
+    const wroteAt = sent.findIndex((call) => call.target === 'engine.operation.label-addressed');
+    expect(askedAt).toBeGreaterThanOrEqual(0);
+    expect(wroteAt).toBeGreaterThan(askedAt);
+  });
+
+  it('refuses with a reason rather than a stack trace when there is no yes', async () => {
+    const { sender, stored } = runtime({ decision: null });
+    const receipt = await saveWhatSomeoneIsAllowedToDoTarget(request, undefined, sender);
+
+    expect(receipt.accepted).toBe(false);
+    expect(receipt.reason).toBe('decision-not-found');
+    expect(stored).toHaveLength(0);
+  });
+
+  it('refuses a yes that names a different holder', async () => {
+    const { sender, stored } = runtime({
+      decision: {
+        subject_ref: 'subject:somebody-else',
+        actor_ref: request.actor_ref,
+        authorized_action_refs: ['interactive-browser'],
+        decision_proof: 'proof-xyz',
+      },
+    });
+    const receipt = await saveWhatSomeoneIsAllowedToDoTarget(request, undefined, sender);
+
+    expect(receipt.accepted).toBe(false);
+    expect(receipt.reason).toBe('the-yes-names-someone-else');
+    expect(stored).toHaveLength(0);
+  });
+
+  it('refuses rather than throws when the decision owner cannot be reached', async () => {
+    const receipt = await saveWhatSomeoneIsAllowedToDoTarget(request, undefined, async ({ target }) => {
+      if (target === 'access-rule.verify-decision') throw new Error('no route');
+      return {};
+    });
+
+    expect(receipt.accepted).toBe(false);
+    expect(receipt.reason).toContain('could-not-reach-the-decision-owner');
+  });
+
+  it('is what the manifest actually publishes, so the wiring cannot drift back', () => {
+    const target = manifest.things?.find(
+      (row) => row.address === 'package::permission-lease::target::save-what-someone-is-allowed-to-do',
+    );
+    expect(target, 'the target record went missing').toBeTruthy();
+    expect(target!.payload.export_name).toBe('saveWhatSomeoneIsAllowedToDoTarget');
+    expect(target!.payload.source_path).toBe('do-work/save-what-someone-is-allowed-to-do-target.ts');
+  });
+
+  it('takes the field name the declared workflow sends', () => {
+    const action = manifest.things?.find(
+      (row) => row.address === 'package::permission-lease::workflow-action::record-lease',
+    );
+    expect(action, 'the record-lease action went missing').toBeTruthy();
+    // The workflow forwards its input unchanged, so its required names ARE the
+    // target's required names. They disagreed, and the control could not save.
+    expect(action!.payload.input_schema.required).toContain('lease_ref');
+    expect(action!.payload.input_schema.required).not.toContain('note_ref');
+  });
+});

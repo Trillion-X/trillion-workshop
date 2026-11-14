@@ -1,0 +1,81 @@
+import React from 'react';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import mount from './mount-walkthrough-host';
+
+const captured: { node: React.ReactNode | null; props: Record<string, unknown> | null } = {
+  node: null,
+  props: null,
+};
+
+vi.mock('@/packages/ui', () => ({
+  ErrorBoundary: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  mountReactSurface: (_el: HTMLElement, node: React.ReactNode) => {
+    captured.node = node;
+    return () => undefined;
+  },
+}));
+
+vi.mock('@/packages/guided-overlay/show/WalkthroughHost', () => ({
+  WalkthroughHost: (props: Record<string, unknown>) => {
+    captured.props = props;
+    return <div data-testid="walkthrough-host-probe" />;
+  },
+}));
+
+afterEach(() => {
+  cleanup();
+  captured.node = null;
+  captured.props = null;
+});
+
+describe('mount-walkthrough-host surface input bootstrap', () => {
+  it('reads scope and authored walkthrough records from surfaceInput when mounted as a placeable surface', () => {
+    mount({
+      el: document.createElement('div'),
+      props: {
+        surfaceInput: {
+          scope: 'entry-flow',
+          authoredRecords: [{
+            address: 'definition',
+            payload: {
+              kind: 'walkthrough-definition',
+              id: 'entry-flow-tour',
+              entry_step: 'intro',
+              triggers: [{ reason: 'first-run', on_event: { event_kind: 'app-opened' } }],
+              steps: [{ id: 'intro', content: { content_kind: 'text', payload: { title: 'Hello' } } }],
+            },
+          }],
+        },
+      },
+    });
+    render(<>{captured.node}</>);
+    expect(screen.getByTestId('walkthrough-host-probe')).toBeTruthy();
+    expect(captured.props).toMatchObject({
+      scope: 'entry-flow',
+      authoredRecords: [{
+        address: 'definition',
+        payload: { id: 'entry-flow-tour' },
+      }],
+    });
+  });
+
+  it('preserves direct props when both direct and surfaceInput values are present', () => {
+    mount({
+      el: document.createElement('div'),
+      props: {
+        scope: 'direct',
+        authoredRecords: [{ address: 'direct-definition', payload: { id: 'direct-tour' } }],
+        surfaceInput: {
+          scope: 'ignored',
+          authoredRecords: [{ address: 'surface-definition', payload: { id: 'surface-tour' } }],
+        },
+      },
+    });
+    render(<>{captured.node}</>);
+    expect(captured.props).toMatchObject({
+      scope: 'direct',
+      authoredRecords: [{ address: 'direct-definition', payload: { id: 'direct-tour' } }],
+    });
+  });
+});

@@ -1,0 +1,88 @@
+import { describe, expect, it } from 'vitest';
+import { readAuthorizationTimeTarget } from './read-authorization-time';
+
+const hash = '1f:' + 'ab'.repeat(32);
+const context = (now: number) => ({ runtime: { partition_label: 'fixture', ambient: { time_unix_ms: now } } });
+const request = { request_ref: 'check:fixture' };
+function engine(initial?: number) {
+  let value: number | undefined = initial;
+  const calls: Record<string, unknown>[] = [];
+  const sender = async ({ payload }: { payload: Record<string, unknown> }) => {
+    calls.push(payload);
+    expect(payload.partition_label).toBe('fixture');
+    if (payload.operation_label === 'engine.operation.read-current') {
+      return { payload: value === undefined ? { found: false } : {
+        found: true, content_hash: hash,
+        payload: { kind: 'permission-lease.authorization-time-observation', now_ms: value },
+      } };
+    }
+    expect(payload.operation_label).toBe('engine.operation.write-batch');
+    const write = (payload.writes as Array<Record<string, unknown>>)[0];
+    expect(write.expected_current).toEqual({ payload_hash_base64: value === undefined ? null : Buffer.from('1f20' + 'ab'.repeat(32), 'hex').toString('base64') });
+    value = (write.payload as { now_ms: number }).now_ms;
+    return { payload: { write_count: 1 } };
+  };
+  return { sender, calls };
+}
+
+describe('durable authorization time', () => {
+  it('records trusted time with compare-and-swap and confirms the exact observation', async () => {
+    const { sender, calls } = engine();
+    expect(await readAuthorizationTimeTarget(request, context(100), sender)).toMatchObject({ now_ms: 100, observation_hash: hash });
+    expect(calls.map((p) => p.operation_label)).toEqual([
+      'engine.operation.read-current', 'engine.operation.write-batch', 'engine.operation.read-current',
+    ]);
+    await readAuthorizationTimeTarget(request, context(120), sender);
+    expect(calls).toHaveLength(6);
+  });
+  it('refuses rollback and reuses equal observed time without another write', async () => {
+    const { sender, calls } = engine(100);
+    await expect(readAuthorizationTimeTarget(request, context(99), sender)).rejects.toThrow('backwards');
+    expect(await readAuthorizationTimeTarget(request, context(100), sender)).toMatchObject({ now_ms: 100 });
+    expect(calls.every((p) => p.operation_label === 'engine.operation.read-current')).toBe(true);
+  });
+  it.each([{ ...request, now_ms: 200 }, { ...request, credential: { issued_at_ms: 200 } }, null, {}])(
+    'rejects caller clock inputs before any storage call', async (input) => {
+      const { sender, calls } = engine();
+      await expect(readAuthorizationTimeTarget(input, context(100), sender)).rejects.toThrow();
+      expect(calls).toEqual([]);
+    },
+  );
+  it('requires trusted clock and partition', async () => {
+    const { sender, calls } = engine();
+    await expect(readAuthorizationTimeTarget(request, undefined, sender)).rejects.toThrow();
+    await expect(readAuthorizationTimeTarget(request, { runtime: { ambient: { time_unix_ms: 100 } } }, sender)).rejects.toThrow();
+    expect(calls).toEqual([]);
+  });
+  it('retries a conflicting write with a fresh record and rejects a later concurrent observation', async () => {
+    const base = engine(90);
+    let writes = 0;
+    const sender = async (input: Parameters<typeof base.sender>[0]) => {
+      if (input.payload.operation_label === 'engine.operation.write-batch' && ++writes === 1) {
+        throw new Error('FE_EXPECTED_CURRENT_MISMATCH');
+      }
+      return base.sender(input);
+    };
+    await expect(readAuthorizationTimeTarget(request, context(100), sender)).resolves.toMatchObject({ now_ms: 100 });
+    expect(writes).toBe(2);
+    let reads = 0;
+    const changed = async ({ payload }: Parameters<typeof base.sender>[0]) => {
+      if (payload.operation_label === 'engine.operation.write-batch') return { write_count: 1 };
+      return ++reads === 1 ? { found: false } : { found: true, content_hash: hash,
+        payload: { kind: 'permission-lease.authorization-time-observation', now_ms: 101 } };
+    };
+    await expect(readAuthorizationTimeTarget(request, context(100), changed)).rejects.toThrow('changed');
+  });
+  it('bounds conflicts and rejects malformed persisted time', async () => {
+    let writes = 0;
+    const sender = async ({ payload }: { payload: Record<string, unknown> }) => {
+      if (payload.operation_label === 'engine.operation.read-current') return { found: false };
+      writes += 1; throw new Error('FE_EXPECTED_CURRENT_MISMATCH');
+    };
+    await expect(readAuthorizationTimeTarget(request, context(100), sender)).rejects.toThrow();
+    expect(writes).toBe(3);
+    await expect(readAuthorizationTimeTarget(request, context(100), async () => ({
+      found: true, content_hash: hash, payload: { kind: 'permission-lease.authorization-time-observation', now_ms: -1 },
+    }))).rejects.toThrow('invalid');
+  });
+});

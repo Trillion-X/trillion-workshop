@@ -1,0 +1,96 @@
+// packages/eeaf/tests/eeaf-sqlite-store.test.mjs
+//
+// The eleven-table EEAF store over Node's SQLite, with foreign keys enforced, so every
+// write order the store uses is one the canonical schema accepts.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { DatabaseSync } from 'node:sqlite';
+import { EEAF_CORE_TABLES, canonicalAddressString, eeafStore } from '../do-work/eeaf-sqlite-store.mjs';
+
+function database() {
+  const db = new DatabaseSync(':memory:');
+  db.exec('PRAGMA foreign_keys = ON');
+  const statements = new Map();
+  const sql = { exec: (query, ...params) => {
+    if (!statements.has(query)) statements.set(query, db.prepare(query));
+    const rows = statements.get(query).all(...params);
+    return { toArray: () => rows };
+  } };
+  const transaction = fn => { db.exec('BEGIN'); try { const result = fn(); db.exec('COMMIT'); return result; } catch (error) { db.exec('ROLLBACK'); throw error; } };
+  const rows = query => db.prepare(query).all();
+  return { sql, transaction, rows };
+}
+const hash = text => `h:${text.length}:${[...text].reduce((sum, ch) => (sum * 31 + ch.charCodeAt(0)) >>> 0, 7)}`;
+
+test('all eleven canonical tables exist, in the order the PRD lists them', () => {
+  const { sql, transaction, rows } = database();
+  eeafStore(sql, { transaction, hash });
+  assert.deepEqual(EEAF_CORE_TABLES.map(item => item.table), ['entity', 'entity_types', 'type_properties', 'participation', 'attribute_fact', 'interaction_sets', 'interaction_set_members', 'bitemporal_facts', 'IndexEngine', 'IndexInstance', 'IndexArtifact']);
+  const names = new Set(rows("SELECT name FROM sqlite_master WHERE type = 'table'").map(row => row.name));
+  for (const { table } of EEAF_CORE_TABLES) assert.ok(names.has(table), `${table} is missing`);
+});
+
+test('the address grammar matches crates/eeaf-addressing, escapes included', () => {
+  assert.equal(canonicalAddressString('entity', { id: 'component:app-shell' }), 'entity|component:app-shell');
+  assert.equal(canonicalAddressString('entity_types', { entity_id: 'component:app-shell', type_id: 'type:extension' }), 'entity_types|component:app-shell|type:extension');
+  assert.equal(canonicalAddressString('type_properties', { type_id: 'type:extension', property_id: 'prop:extension:name' }), 'type_properties|type:extension|prop:extension:name');
+  assert.equal(canonicalAddressString('attribute_fact', { subject_id: 'component:app-shell', property_id: 'prop:extension:name', type_id: 'type:extension' }), 'attribute_fact|component:app-shell|prop:extension:name|type:extension');
+  assert.equal(canonicalAddressString('entity', { id: 'has|pipe' }), 'entity|has\\|pipe');
+  assert.equal(canonicalAddressString('entity', { id: 'a\\|b' }), 'entity|a\\\\\\|b');
+  assert.equal(canonicalAddressString('entity', { id: 'café' }), canonicalAddressString('entity', { id: 'café' }));
+});
+
+test('a record round-trips with nested objects as entities and lists as ordered sets, never one JSON text', () => {
+  const { sql, transaction, rows } = database();
+  const store = eeafStore(sql, { transaction, hash });
+  const value = { goal: 'pick a racket', tags: ['a', 'b'], empty: [], nothing: null, input: { evidence: [{ ref: 'e1', claim: 'c1' }, { ref: 'e2', claim: 'c2', extra: { deep: true } }] }, 'odd/key': { x: 1 } };
+  store.write([{ id: 'case:1', type: 'decision', value }]);
+  assert.deepEqual(store.read('case:1'), value);
+  const texts = rows('SELECT value_json FROM attribute_fact').map(row => JSON.parse(row.value_json));
+  assert.ok(texts.every(item => item === null || typeof item !== 'object' || Array.isArray(item)), 'no stored value is an object');
+  assert.equal(rows("SELECT COUNT(*) AS n FROM interaction_set_members WHERE set_id = 'case:1/input/evidence'")[0].n, 2);
+  assert.deepEqual(store.ids('decision'), ['case:1']);
+});
+
+test('a change touches only the changed rows, keeps every earlier value in the log, and removal is a logged remove', () => {
+  const { sql, transaction } = database();
+  const store = eeafStore(sql, { transaction, hash });
+  store.write([{ id: 'case:1', type: 'decision', value: { goal: 'first', notes: [{ text: 'n1' }] } }]);
+  const second = store.write([{ id: 'case:1', type: 'decision', value: { goal: 'second', notes: [{ text: 'n1' }, { text: 'n2' }] } }]);
+  const changed = store.log({ transaction_id: second.transaction_id });
+  assert.ok(!changed.some(row => row.record_id.includes('case:1/notes/0|')), 'an unchanged list item is not written again');
+  const goal = store.log({ record_id: 'attribute_fact|case:1|prop:decision:goal|type:decision' }).map(row => JSON.parse(row.patch));
+  assert.deepEqual(goal, [{ op: 'add', value: 'first' }, { op: 'replace', value: 'second' }]);
+  store.write([{ id: 'case:1', type: 'decision', value: { goal: 'second' } }]);
+  assert.deepEqual(store.read('case:1'), { goal: 'second' });
+  assert.deepEqual(store.log({ record_id: 'attribute_fact|case:1/notes/1|prop:decision/notes:text|type:decision/notes' }).map(row => JSON.parse(row.patch).op), ['add', 'remove']);
+  store.write([{ id: 'case:1', type: 'decision', value: null }]);
+  assert.equal(store.read('case:1'), null);
+});
+
+test('a content-addressed child is stored once and outlives the records that used it', () => {
+  const { sql, transaction, rows } = database();
+  const contentId = (typeName, value) => typeName.endsWith('/method') ? `method:${hash(JSON.stringify(value))}` : null;
+  const store = eeafStore(sql, { transaction, hash, contentId });
+  const method = { id: 'universal', steps: [{ id: 'scope' }, { id: 'outcome' }] };
+  store.write([{ id: 'case:a', type: 'decision', value: { method, goal: 'a' } }, { id: 'case:b', type: 'decision', value: { method, goal: 'b' } }]);
+  assert.equal(rows("SELECT COUNT(*) AS n FROM entity WHERE id LIKE 'method:%' AND id NOT LIKE '%/%'")[0].n, 1);
+  store.write([{ id: 'case:a', type: 'decision', value: null }]);
+  assert.deepEqual(store.read('case:b').method, method);
+});
+
+test('the application time of a change can differ from when it was recorded (carrying history forward)', () => {
+  const { sql, transaction } = database();
+  const store = eeafStore(sql, { transaction, hash });
+  const { transaction_id } = store.write([{ id: 's:1', type: 'setting', value: { value: 1 } }], { application_time: '2026-01-01T00:00:00.000Z', actor: { by: 'migration' } });
+  const [row] = store.log({ transaction_id }).filter(item => item.table_name === 'attribute_fact');
+  assert.equal(row.application_time, '2026-01-01T00:00:00.000Z');
+  assert.notEqual(row.system_time, row.application_time);
+  assert.deepEqual(JSON.parse(row.actor_context), { by: 'migration' });
+});
+
+test('a root id holding "/" is refused, because it would read as another record\'s child', () => {
+  const { sql, transaction } = database();
+  const store = eeafStore(sql, { transaction, hash });
+  assert.throws(() => store.write([{ id: 'a/b', type: 'x', value: {} }]), /without "\/"/);
+});

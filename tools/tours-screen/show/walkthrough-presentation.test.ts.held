@@ -1,0 +1,27 @@
+import { describe, expect, it } from 'vitest';
+import defaults from '../guided-overlay-defaults.json';
+import {
+  fitCutoutToViewport,
+  resolveSpotlightAppearance,
+  resolveTargetingOptions,
+} from './walkthrough-presentation';
+
+describe('guided-overlay presentation DATA', () => {
+  it('uses the package DATA defaults and permits per-walkthrough overrides', () => {
+    expect(resolveSpotlightAppearance(undefined).scrimColor).toBe(defaults.spotlight.scrim_color);
+    expect(resolveSpotlightAppearance({ spotlight: { scrim_color: 'rgba(0,0,0,.4)', ring_width_px: 2 } }))
+      .toMatchObject({ scrimColor: 'rgba(0,0,0,.4)', ringWidthPx: 2 });
+    expect(resolveTargetingOptions({ targeting: { retry_timeout_ms: 9000 } }).retryTimeoutMs).toBe(9000);
+  });
+
+  it('keeps ring and punch-through geometry inside every viewport edge', () => {
+    expect(fitCutoutToViewport(
+      { x: -8, y: -4, width: 100, height: 52, rx: 12, ry: 12 },
+      { width: 320, height: 200 },
+    )).toEqual({ x: 0, y: 0, width: 92, height: 48, rx: 12, ry: 12 });
+    expect(fitCutoutToViewport(
+      { x: 300, y: 180, width: 40, height: 40, rx: 12, ry: 12 },
+      { width: 320, height: 200 },
+    )).toEqual({ x: 300, y: 180, width: 20, height: 20, rx: 10, ry: 10 });
+  });
+});

@@ -1,0 +1,64 @@
+// Tests for the DATA-driven composer config (L090 / enum-dissolution): the
+// composer's entire behavior is derived from surface_input DATA, so the same
+// blind component serves a top-of-feed post AND a per-post reply with zero
+// source change per kind. These assert that contract on the pure resolver.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { loadTsModule } from './load-ts-module.mjs';
+
+const { resolveComposerConfig, composerEventRef } = await loadTsModule('../read-data/composer-config.ts');
+
+test('bare mount falls back to a root post', () => {
+  const c = resolveComposerConfig({});
+  assert.equal(c.kind, 'post');
+  assert.equal(c.parentRef, null);
+  assert.equal(c.submitLabel, 'Post');
+  assert.equal(c.compact, false);
+  assert.match(c.label, /community/i);
+});
+
+test('surface_input DATA declares an arbitrary kind with zero code change (deletion test)', () => {
+  // A kind the source never names — proves the handler enumerates nothing.
+  const c = resolveComposerConfig({ surface_input: { kind: 'announcement', target_ref: 'subject:c1', label: 'Post an update' } });
+  assert.equal(c.kind, 'announcement');
+  assert.equal(c.targetRef, 'subject:c1');
+  assert.equal(c.scopeRef, 'subject:c1');
+  assert.equal(c.label, 'Post an update');
+  assert.equal(c.parentRef, null);
+});
+
+test('a parent_ref turns the SAME component into a compact reply composer', () => {
+  const c = resolveComposerConfig({ surface_input: { kind: 'comment', parent_ref: 'item-record:post-1', target_ref: 'subject:c1' } });
+  assert.equal(c.kind, 'comment');
+  assert.equal(c.parentRef, 'item-record:post-1');
+  assert.equal(c.submitLabel, 'Reply');
+  assert.equal(c.compact, true);
+  assert.match(c.label, /reply/i);
+});
+
+test('nested surfaceInput camelCase and explicit overrides are honored', () => {
+  const c = resolveComposerConfig({ surfaceInput: { kind: 'question', parentRef: 'item-record:q-parent', submit_label: 'Ask', compact: true, scope_ref: 'subject:c2', target_ref: 'collection:c2' } });
+  assert.equal(c.kind, 'question');
+  assert.equal(c.parentRef, 'item-record:q-parent');
+  assert.equal(c.submitLabel, 'Ask');
+  assert.equal(c.compact, true);
+  assert.equal(c.targetRef, 'collection:c2');
+  assert.equal(c.scopeRef, 'subject:c2');
+});
+
+test('blank/whitespace DATA is ignored (treated as absent)', () => {
+  const c = resolveComposerConfig({ surface_input: { kind: '   ', parent_ref: '', target_ref: '  ' } });
+  assert.equal(c.kind, 'post');       // blank kind -> fallback
+  assert.equal(c.parentRef, null);    // blank parent -> root
+  assert.equal(c.targetRef, null);
+});
+
+test('eventRef prefixes with the kind and is deterministic under injected time/rand', () => {
+  assert.equal(composerEventRef('comment', 1234, 'abc123'), 'comment-1234-abc123');
+  assert.equal(composerEventRef('post', 42, 'zz'), 'post-42-zz');
+});
+
+test('null props do not throw', () => {
+  const c = resolveComposerConfig(null);
+  assert.equal(c.kind, 'post');
+});

@@ -1,0 +1,171 @@
+#!/usr/bin/env node
+// Golden byte-identity parity test: assert-semantic-index-readiness.
+//
+// Runs the ORIGINAL python3 leaf and the ported node leaf on identical inputs and
+// asserts the --output-json is byte-for-byte identical (L108 preserve-behavior).
+// Covers assert-ready (success), prepare-probe (incl. non-ASCII to exercise the
+// ensure_ascii=False raw-UTF-8 output), and several fail-closed rejections.
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import crypto from "node:crypto";
+import { blake3 } from "@noble/hashes/blake3.js";
+import { execFileSync } from "node:child_process";
+
+const HERE = path.dirname(new URL(import.meta.url).pathname);
+const PY = path.join(HERE, "assert-semantic-index-readiness.py");
+const MJS = path.join(HERE, "assert-semantic-index-readiness.mjs");
+
+let failures = 0;
+let cases = 0;
+
+// A fixture identity that is ACTUALLY what its prefix says it is. `1f` is the multihash code
+// for BLAKE3, and this returned a SHA-256 digest under it, so every fixture declared an
+// algorithm it had not been produced with.
+function h(label) {
+  return "1f:" + Buffer.from(blake3(Buffer.from(label, "utf-8"))).toString("hex");
+}
+
+const INDEX_ID = "capabilities";
+const INDEX_REF = `semantic-index-descriptor:${INDEX_ID}`;
+const DIGEST = h("source");
+const REVISION = h("descriptor@1");
+const MODEL = "model@1";
+
+const descriptor = { kind: "semantic-index-descriptor", index_id: INDEX_ID, descriptor_revision: REVISION, model_provenance_ref: MODEL };
+const source = { kind: "capability-index-source-descriptor", index_id: INDEX_ID, index_ref: INDEX_REF, hydration_sample_count: 2 };
+const policy = { kind: "discovery-readiness-policy", id: INDEX_ID, index_ref: INDEX_REF, requires: ["snapshot", "hydration"] };
+const convergence = {
+  kind: "semantic-index-convergence", id: INDEX_ID, index_ref: INDEX_REF, status: "ready",
+  source_snapshot_ref: DIGEST, indexed_snapshot_ref: DIGEST, descriptor_count: 2,
+  index_descriptor_revision: REVISION, model_provenance_ref: MODEL, completion_receipt_ref: h("receipt"),
+  sampled_hydrations: [
+    { canonical_address: "aa", canonical_revision: h("a"), payload_hash: h("a") },
+    { canonical_address: "bb", canonical_revision: h("b"), payload_hash: h("b") },
+  ],
+};
+const scan = { items: [{ address: "aa", content_hash: h("a") }, { address: "bb", content_hash: h("b") }], snapshot: { digest: DIGEST, count: 2 } };
+const indexState = { items: [{ table: "attribute_fact", property_id: `prop:semantic-ann-index:${INDEX_ID}`, value_json: JSON.stringify({ subjects: { aa: { canonical_address: "aa", revision: h("a"), payload_hash: h("a"), source_snapshot_ref: DIGEST }, bb: { canonical_address: "bb", revision: h("b"), payload_hash: h("b"), source_snapshot_ref: DIGEST } } }) }] };
+
+function runCase(name, inputFiles, argvTail, options = {}) {
+  cases += 1;
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "assert-parity-"));
+  const pyDir = path.join(root, "py");
+  const mjsDir = path.join(root, "mjs");
+  fs.mkdirSync(pyDir);
+  fs.mkdirSync(mjsDir);
+  for (const dir of [pyDir, mjsDir]) {
+    for (const [fname, contents] of Object.entries(inputFiles)) {
+      const text = typeof contents === "string" ? contents : JSON.stringify(contents);
+      fs.writeFileSync(path.join(dir, fname), text, "utf-8");
+    }
+  }
+  const argvFor = (dir) => argvTail.map((t) => (typeof t === "function" ? t(dir) : t));
+  let pyErr = null;
+  let mjsErr = null;
+  try { execFileSync("python3", [PY, ...argvFor(pyDir)], { stdio: "pipe" }); } catch (e) { pyErr = e; }
+  try { execFileSync("node", [MJS, ...argvFor(mjsDir)], { stdio: "pipe" }); } catch (e) { mjsErr = e; }
+  if (Boolean(pyErr) !== Boolean(mjsErr)) {
+    failures += 1;
+    console.log(`FAIL ${name}: exit-status divergence py-error=${Boolean(pyErr)} mjs-error=${Boolean(mjsErr)}`);
+    if (mjsErr) console.log(`  mjs stderr: ${String(mjsErr.stderr || "").trim().slice(0, 300)}`);
+    return;
+  }
+  if (pyErr && mjsErr) {
+    const expected = options.stderrIncludes;
+    if (expected) {
+      const pyStderr = String(pyErr.stderr || "");
+      const mjsStderr = String(mjsErr.stderr || "");
+      if (!pyStderr.includes(expected) || !mjsStderr.includes(expected)) {
+        failures += 1;
+        console.log(`FAIL ${name}: expected stderr token ${JSON.stringify(expected)}`);
+        console.log(`  py : ${pyStderr.trim().slice(0, 400)}`);
+        console.log(`  mjs: ${mjsStderr.trim().slice(0, 400)}`);
+        return;
+      }
+    }
+    console.log(`ok   ${name} (both rejected)`);
+    return;
+  }
+  const a = fs.readFileSync(path.join(pyDir, "out.json"));
+  const b = fs.readFileSync(path.join(mjsDir, "out.json"));
+  if (Buffer.compare(a, b) !== 0) {
+    failures += 1;
+    console.log(`FAIL ${name}: out.json differs`);
+    console.log(`  py : ${a.toString("utf-8").slice(0, 400)}`);
+    console.log(`  mjs: ${b.toString("utf-8").slice(0, 400)}`);
+    return;
+  }
+  console.log(`ok   ${name} (out.json byte-identical)`);
+}
+
+const assertArgv = [
+  "--mode", "assert", "--index-id", INDEX_ID,
+  "--records-json", (d) => path.join(d, "records.json"),
+  "--source-scan-json", (d) => path.join(d, "scan.json"),
+  "--index-state-json", (d) => path.join(d, "state.json"),
+  "--output-json", (d) => path.join(d, "out.json"),
+];
+const prepareArgv = [
+  "--mode", "prepare", "--index-id", INDEX_ID,
+  "--records-json", (d) => path.join(d, "records.json"),
+  "--output-json", (d) => path.join(d, "out.json"),
+];
+
+// Valid assert -> ready.
+runCase("assert-ready-valid", {
+  "records.json": { items: [descriptor, source, policy, convergence] },
+  "scan.json": scan,
+  "state.json": indexState,
+}, assertArgv);
+
+// Prepare probe (exact identity snapshot) -> {target,request}.
+runCase("prepare-probe", {
+  "records.json": { items: [descriptor, { ...source, owner_query: { target: "slot::find-current-items", request: { operation: "find-current-items", in: "published-record", snapshot: true, include: ["address", "content_hash", "payload_json_text"] } } }] },
+}, prepareArgv);
+
+// Prepare probe with NON-ASCII target + request value -> ensure_ascii=False raw UTF-8.
+runCase("prepare-probe-nonascii", {
+  "records.json": { items: [descriptor, { ...source, owner_query: { target: "slot::recherché-中文", request: { operation: "find-current-items", note: "café 🚀", snapshot: true, include: ["address", "content_hash"] } } }] },
+}, prepareArgv);
+
+// Prepare with snapshot=false -> BOTH reject.
+runCase("prepare-not-snapshot", {
+  "records.json": { items: [descriptor, { ...source, owner_query: { target: "slot::x", request: { operation: "find-current-items", snapshot: false, include: ["address", "content_hash"] } } }] },
+}, prepareArgv);
+
+// Missing source descriptor -> structured INDEX_NOT_READY for the unbuilt-index case.
+runCase("prepare-missing-source-descriptor", {
+  "records.json": { items: [descriptor] },
+}, prepareArgv, { stderrIncludes: `INDEX_NOT_READY:${INDEX_ID}:` });
+
+// Assert with stale/mutated scan -> BOTH reject.
+runCase("assert-stale-scan", {
+  "records.json": { items: [descriptor, source, policy, convergence] },
+  "scan.json": { items: [{ address: "aa", content_hash: h("a") }], snapshot: { digest: h("new"), count: 1 } },
+  "state.json": indexState,
+}, assertArgv);
+
+// Missing source descriptor -> structured INDEX_NOT_READY for the unbuilt-index case.
+runCase("assert-missing-source-descriptor", {
+  "records.json": { items: [descriptor, policy, convergence] },
+  "scan.json": scan,
+  "state.json": indexState,
+}, assertArgv, { stderrIncludes: `INDEX_NOT_READY:${INDEX_ID}:` });
+
+// Assert with malformed (non-canonical) content_hash -> BOTH reject.
+runCase("assert-malformed-hash", {
+  "records.json": { items: [descriptor, source, policy, convergence] },
+  "scan.json": { items: [{ address: "aa", content_hash: "sha256:nonempty" }, { address: "bb", content_hash: h("b") }], snapshot: { digest: DIGEST, count: 2 } },
+  "state.json": indexState,
+}, assertArgv);
+
+// Assert with unready convergence status -> BOTH reject.
+runCase("assert-unready-status", {
+  "records.json": { items: [descriptor, source, policy, { ...convergence, status: "building" }] },
+  "scan.json": scan,
+  "state.json": indexState,
+}, assertArgv);
+
+console.log(`\n${cases - failures}/${cases} cases parity-passed`);
+process.exit(failures === 0 ? 0 : 1);

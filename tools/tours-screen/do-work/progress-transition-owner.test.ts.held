@@ -1,0 +1,226 @@
+import { describe, expect, it, vi } from 'vitest';
+const TEST_HASH = '1f:' + 'ab'.repeat(32);
+import {
+  PROGRESS_TRANSITION_REQUEST_SCHEMA,
+  applyProgressTransition,
+  emptyProgressState,
+  migrateProgressState,
+  progressTransitionOwnerTarget,
+  type ProgressTransitionRequest,
+} from './progress-transition-owner';
+
+function request(overrides: Partial<ProgressTransitionRequest> = {}): ProgressTransitionRequest {
+  return {
+    schema: PROGRESS_TRANSITION_REQUEST_SCHEMA,
+    run_id: 'run-1',
+    scope_ref: 'local',
+    definition_id: 'walkthrough-1',
+    definition_revision: 1,
+    expected_cursor_revision: 0,
+    from_step_id: 'one',
+    to_step_id: 'two',
+    history: ['one'],
+    status: 'active',
+    cause: 'advance',
+    ...overrides,
+  };
+}
+
+describe('package-owned progress transition', () => {
+  it.each([undefined, null, [], 0, false, 'saved progress'])
+  ('refuses a found record with valid hash and invalid progress payload: %j', async payload => {
+    const send = vi.fn(async () => ({ found: true, content_hash: TEST_HASH, payload }));
+    await expect(progressTransitionOwnerTarget(request(), undefined, send)).rejects.toThrow('could not be verified');
+    expect(send).toHaveBeenCalledOnce();
+  });
+
+  it.each([undefined, null, '', 'ab'.repeat(32), '1f:ab', `1f:${'gg'.repeat(32)}`, `1f:${'AB'.repeat(32)}`])
+  ('refuses an existing progress record with an invalid native hash: %s', async content_hash => {
+    const send = vi.fn(async () => ({ found: true, payload: emptyProgressState(), content_hash,
+      payload_hash_base64: 'legacy-field-must-not-be-used' }));
+    await expect(progressTransitionOwnerTarget(request(), undefined, send)).rejects.toThrow('could not be verified');
+    expect(send).toHaveBeenCalledOnce();
+  });
+
+  it.each([{}, { found: null }, { found: 'false' }])('requires explicit absence: %j', async read => {
+    const send = vi.fn(async () => read);
+    await expect(progressTransitionOwnerTarget(request(), undefined, send)).rejects.toThrow('could not be verified');
+    expect(send).toHaveBeenCalledOnce();
+  });
+
+  it('reads the same identity-text record across successive transitions and replay', async () => {
+    const store = new Map<string, { payload: unknown; hash: string }>();
+    const key = (row: Record<string, unknown>) => `${row.address_mode ?? 'label_hash'}:${row.address_label}`;
+    let serial = 0;
+    const send = vi.fn(async ({ payload }: { payload: Record<string, unknown> }) => {
+      if (payload.operation_label === 'engine.operation.read-current') {
+        const value = store.get(key(payload));
+        return value ? { found: true, payload: value.payload, content_hash: value.hash } : { found: false };
+      }
+      const writes = payload.writes as Array<Record<string, unknown>>;
+      if (writes.some(row => (row.expected_current as any).payload_hash_base64 !== (store.has(key(row))
+        ? Buffer.from(`1f20${store.get(key(row))!.hash.slice(3)}`, 'hex').toString('base64') : null))) return { write_count: 0 };
+      for (const row of writes) store.set(key(row), { payload: row.payload, hash: `1f:${(++serial).toString(16).padStart(64, '0')}` });
+      return { write_count: writes.length };
+    });
+    const first = request();
+    const second = request({ expected_cursor_revision: 1, from_step_id: 'two', to_step_id: 'three', history: ['one', 'two'] });
+    await expect(progressTransitionOwnerTarget(first, undefined, send)).resolves.toMatchObject({ accepted: true, cursor_revision: 1 });
+    await expect(progressTransitionOwnerTarget(second, undefined, send)).resolves.toMatchObject({ accepted: true, cursor_revision: 2 });
+    await expect(progressTransitionOwnerTarget(second, undefined, send)).resolves.toMatchObject({ accepted: true, deduplicated: true, cursor_revision: 2 });
+    expect(store.size).toBe(1);
+    expect(serial).toBe(2);
+  });
+  it('persists a replayable cursor transition and deduplicates the same request', () => {
+    const first = applyProgressTransition(emptyProgressState(), request());
+    expect(first.receipt).toMatchObject({ accepted: true, deduplicated: false, cursor_revision: 1 });
+    expect(first.state.transition_history).toHaveLength(1);
+    const duplicate = applyProgressTransition(first.state, request());
+    expect(duplicate.receipt).toMatchObject({ accepted: true, deduplicated: true, cursor_revision: 1 });
+    expect(duplicate.state.transition_history).toHaveLength(1);
+  });
+
+  it('rejects a stale transition so an older browser cannot regress the cursor', () => {
+    const first = applyProgressTransition(emptyProgressState(), request());
+    const stale = applyProgressTransition(first.state, request({ to_step_id: 'older' }));
+    expect(stale.receipt).toMatchObject({ accepted: false, reason: 'stale-cursor', cursor_revision: 1 });
+    expect(stale.state).toMatchObject({ current_step_id: 'two', cursor_revision: 1 });
+  });
+
+  it('keeps skip completion distinct and stores the authored trigger key', () => {
+    const skipped = applyProgressTransition(emptyProgressState(), request({
+      to_step_id: 'one',
+      history: [],
+      status: 'complete',
+      once_key: 'trigger-1',
+    }));
+    expect(skipped.state.consumed_trigger_keys).toEqual(['trigger-1']);
+    expect(skipped.state.consumed_once_keys).toEqual(['trigger-1']);
+    expect(skipped.receipt.status).toBe('complete');
+  });
+
+  it('allows a new run to replay after terminal history with the current revision', () => {
+    const terminal = applyProgressTransition(emptyProgressState(), request({ status: 'complete', to_step_id: 'one' }));
+    const replay = applyProgressTransition(terminal.state, request({
+      run_id: 'run-2',
+      expected_cursor_revision: 1,
+      from_step_id: 'one',
+      to_step_id: 'two',
+    }));
+    expect(replay.receipt).toMatchObject({ accepted: true, run_id: 'run-2', cursor_revision: 2 });
+    expect(replay.state.transition_history).toHaveLength(2);
+  });
+
+  it('names no partition, so the engine serves the request from its own envelope', async () => {
+    const send = vi.fn(async (wire: { payload: Record<string, unknown> }) => (
+      wire.payload.operation_label === 'engine.operation.read-current'
+        ? { found: false }
+        : { write_count: 1 }
+    ));
+    await expect(progressTransitionOwnerTarget(
+      request(),
+      { runtime: { partition_label: 'trillion-test' } },
+      send as never,
+    )).resolves.toMatchObject({ accepted: true, cursor_revision: 1 });
+    // Even handed a trusted label, the owner must not forward one. `partition_label` is
+    // optional on this path and the engine falls back to the serving envelope's partition,
+    // so sending a value can only ever send the WRONG value.
+    expect(send.mock.calls[0][0].payload).toMatchObject({
+      operation_label: 'engine.operation.read-current',
+    });
+    expect(send.mock.calls[0][0].payload).not.toHaveProperty('partition_label');
+    const writes = send.mock.calls[1][0].payload.writes as Array<Record<string, unknown>>;
+    expect(writes[0].expected_current).toEqual({ payload_hash_base64: null });
+  });
+
+  it('keys a cursor by scope, definition, revision, and run', async () => {
+    const send = vi.fn(async (wire: { payload: Record<string, unknown> }) => (
+      wire.payload.operation_label === 'engine.operation.read-current' ? { found: false } : { write_count: 1 }
+    ));
+    await progressTransitionOwnerTarget(request({ run_id: 'run-key', definition_revision: 7 }), undefined, send as never);
+    expect(send.mock.calls[0][0].payload.address_label).toBe(
+      'package::guided-overlay::walkthrough-progress::local::walkthrough-1::7::run-key',
+    );
+  });
+
+  it('migrates an aggregate cursor forward to the requested scoped run', () => {
+    const migrated = migrateProgressState({
+      kind: 'walkthrough-progress',
+      consumed_once_keys: ['legacy-trigger'],
+      cursors: {
+        'walkthrough-1': {
+          currentStepId: 'two',
+          history: ['one'],
+          status: 'active',
+          cursorRevision: 4,
+          definitionRevision: 1,
+          runId: 'legacy-run',
+        },
+      },
+    }, {
+      scope_ref: 'account',
+      definition_id: 'walkthrough-1',
+      definition_revision: 2,
+      run_id: 'run-forward',
+    });
+    expect(migrated).toMatchObject({
+      scope_ref: 'account',
+      definition_id: 'walkthrough-1',
+      definition_revision: 2,
+      run_id: 'run-forward',
+      consumed_trigger_keys: ['legacy-trigger'],
+      current_step_id: 'two',
+      history: ['one'],
+      status: 'active',
+      cursor_revision: 4,
+    });
+
+    const resumed = applyProgressTransition(migrated, request({
+      scope_ref: 'account',
+      definition_revision: 2,
+      run_id: 'run-forward',
+      expected_cursor_revision: 4,
+      from_step_id: 'two',
+      to_step_id: 'three',
+    }));
+    expect(resumed.receipt).toMatchObject({ accepted: true, cursor_revision: 5 });
+  });
+
+  it('rereads and returns the honest stale cursor after a compare-and-swap race', async () => {
+    const first = applyProgressTransition(emptyProgressState(), request({ to_step_id: 'newer' })).state;
+    const send = vi.fn(async (wire: { payload: Record<string, unknown> }) => {
+      if (wire.payload.operation_label === 'engine.operation.read-current') {
+        return send.mock.calls.filter((call) => call[0].payload.operation_label === 'engine.operation.read-current').length === 1
+          ? { found: false } : { found: true, content_hash: TEST_HASH, payload: first };
+      }
+      return { write_count: 0 };
+    });
+    await expect(progressTransitionOwnerTarget(request(), undefined, send as never)).resolves.toMatchObject({
+      accepted: false,
+      reason: 'stale-cursor',
+      current_step_id: 'newer',
+    });
+  });
+
+  it('does not acknowledge a refused write when the reread is unchanged', async () => {
+    const send = vi.fn(async (wire: { payload: Record<string, unknown> }) => (
+      wire.payload.operation_label === 'engine.operation.read-current'
+        ? { found: false } : { write_count: 0 }
+    ));
+    await expect(progressTransitionOwnerTarget(request(), undefined, send as never))
+      .rejects.toThrow('Walkthrough progress was not saved. Try again.');
+  });
+
+  it('acknowledges the same transition only when the reread proves it was already saved', async () => {
+    const saved = applyProgressTransition(emptyProgressState(), request()).state;
+    let reads = 0;
+    const send = vi.fn(async (wire: { payload: Record<string, unknown> }) => {
+      if (wire.payload.operation_label === 'engine.operation.read-current') {
+        return ++reads === 1 ? { found: false } : { found: true, content_hash: TEST_HASH, payload: saved };
+      }
+      return { write_count: 0 };
+    });
+    await expect(progressTransitionOwnerTarget(request(), undefined, send as never))
+      .resolves.toMatchObject({ accepted: true, deduplicated: true, cursor_revision: 1 });
+  });
+});

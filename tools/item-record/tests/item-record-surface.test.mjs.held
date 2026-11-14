@@ -1,0 +1,91 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import test from 'node:test';
+import vm from 'node:vm';
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
+import { build } from 'esbuild';
+
+const require = createRequire(import.meta.url);
+
+async function readPackageFile(path) {
+  return readFile(new URL(path, import.meta.url), 'utf8');
+}
+
+async function feedReader() {
+  const entryPoint = fileURLToPath(new URL('../read-data/read-item-records.ts', import.meta.url));
+  const result = await build({
+    entryPoints: [entryPoint],
+    bundle: true,
+    platform: 'node',
+    format: 'cjs',
+    target: 'es2022',
+    write: false,
+  });
+  const context = { exports: {}, module: { exports: {} }, require, console };
+  context.exports = context.module.exports;
+  vm.runInNewContext(result.outputFiles[0].text, context);
+  return context.module.exports;
+}
+
+test('item-record declares a runnable typescript-jsx feed entry', async () => {
+  const things = JSON.parse(await readPackageFile('../things-to-store-and-run.json'));
+  const entry = things.things.find((thing) => thing.address === 'package::item-record::entry::item-record');
+  const storedBytes = things.things.find((thing) => thing.type === 'stored_bytes' && thing.name === 'entry-bytes-item-record');
+
+  assert.equal(things.package, 'item-record');
+  assert.equal(entry.payload.kind, 'bitfield-package-entry');
+  assert.equal(entry.payload.entry_name, 'item-record');
+  assert.equal(entry.payload.source_path, 'show/mount-item-record.tsx');
+  // Same partial migration as person-list. An entry-bytes declaration has two live shapes: the old
+  // one carries `build.request.{source_file,source_kind}`, the new one a prebuilt `source_path`
+  // plus `source_closure_receipt_path`. Both shapes are live, so neither side can be assumed, and
+  // the `??` below is what encodes that. This package migrated and the assertion did not follow,
+  // which is the whole reason it went red. Accepts either, matching the accommodation already in
+  // `content-production/__tests__/capability-delivery.test.mjs`.
+  const declaredSource = storedBytes.source_path ?? storedBytes.build?.request?.source_file;
+  if (storedBytes.build) {
+    assert.equal(declaredSource, 'show/mount-item-record.tsx');
+    assert.equal(storedBytes.build.request.source_kind, 'text/typescript-jsx');
+  } else {
+    assert.equal(declaredSource, 'built-stored-bytes/entry-bytes-item-record');
+    assert.equal(storedBytes.source_closure_receipt_path, 'built-stored-bytes/entry-bytes-item-record.source-closure.json');
+  }
+});
+
+test('item-record feed reader decodes rows newest first and tolerates field shapes', async () => {
+  const { decodeFeedItems } = await feedReader();
+  const scope = {
+    actor_ref: 'actor:server',
+    session_ref: 'session:server',
+    subject_ref: 'scope:feed',
+    action_ref: 'action:read',
+    decision_proof: 'decision:feed',
+    revisions: { session_revision: 'session:1', policy_revision: 'policy:1', membership_revision: 'membership:1', resource_revision: 'resource:1' },
+  };
+  const items = decodeFeedItems([
+    { id: 'a', target_ref: 'scope:feed', body: 'older', created_at: '2026-01-01T00:00:00Z' },
+    { id: 'b', target_ref: 'scope:feed', fields: JSON.stringify({ body: 'newer', author: 'someone' }), requested_at: '2026-02-01T00:00:00Z' },
+    { id: 'skipped' },
+  ], undefined, scope);
+
+  assert.equal(items.length, 2);
+  assert.equal(items[0].id, 'b');
+  assert.equal(items[0].body, 'newer');
+  assert.equal(items[0].author, 'someone');
+  assert.equal(items[1].id, 'a');
+});
+
+test('item-record source stays free of product and provider names', async () => {
+  const sources = await Promise.all([
+    '../show/mount-item-record.tsx',
+    '../show/ItemFeed.tsx',
+    '../read-data/read-item-records.ts',
+    '../do-work/create-item-record.ts',
+  ].map(readPackageFile));
+  const forbidden = new RegExp(['A' + 'OM', 'Tri' + 'bes', 'Eth' + 'os', 'Sup' + 'abase', '@sup' + 'abase', 'create' + 'Client'].join('|'), 'i');
+  for (const source of sources) assert.doesNotMatch(source, forbidden);
+  assert.doesNotMatch(sources[1], /feed-scene|tribes-feed/i);
+  assert.match(sources[1], /packageName=\{scene\.package_entry\.package_name\}/);
+  assert.match(sources[1], /surfaceInput=\{scene\.surface_input\}/);
+});

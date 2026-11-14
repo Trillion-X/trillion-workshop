@@ -21,6 +21,318 @@
       "source_identity": "1f:99835d7ebcf44fb70e1569ff2d259639c697db9465ac12b4c1a8f5c0d47a348a",
       "identity": "1f:99835d7ebcf44fb70e1569ff2d259639c697db9465ac12b4c1a8f5c0d47a348a",
       "found_by": "byte copy"
+    },
+    {
+      "from": "packages/permission-lease/data/wholeness-walk-obligation.json",
+      "commit": "6e7e89dc8d41080bb13a1e9fc03d8c2a322e8f5c",
+      "to": "tools/permission-lease/data/wholeness-walk-obligation.json",
+      "source_identity": "1f:e36508d1f38d3ccee779e8ff0677790151135499a6f6e105125e5093a0356e99",
+      "identity": "1f:e36508d1f38d3ccee779e8ff0677790151135499a6f6e105125e5093a0356e99"
+    },
+    {
+      "from": "packages/permission-lease/do-work/exclusive-control-lease-core.ts",
+      "commit": "80a04d7c34700c51f8ead29fabecd90da1c36739",
+      "to": "tools/permission-lease/do-work/exclusive-control-lease-core.ts",
+      "source_identity": "1f:369af72a8293d5c4983e740e740a8c08d9054397315449440a11b7fc549b9b6f",
+      "identity": "1f:369af72a8293d5c4983e740e740a8c08d9054397315449440a11b7fc549b9b6f"
+    },
+    {
+      "from": "packages/permission-lease/do-work/exclusive-control-lease-targets.test.ts",
+      "commit": "d542c5dd8ea457143318f28188f995dd1d1a563d",
+      "to": "tools/permission-lease/do-work/exclusive-control-lease-targets.test.ts.held",
+      "source_identity": "1f:39c8ed0a4128b65f04d1257e77e1fa32222712c5d074c44ac9122a0a273fce2b",
+      "identity": "1f:39c8ed0a4128b65f04d1257e77e1fa32222712c5d074c44ac9122a0a273fce2b"
+    },
+    {
+      "from": "packages/permission-lease/do-work/exclusive-control-lease-targets.ts",
+      "commit": "d542c5dd8ea457143318f28188f995dd1d1a563d",
+      "to": "tools/permission-lease/do-work/exclusive-control-lease-targets.ts",
+      "source_identity": "1f:572d4b1fbdaf99b987893ed17b4a0a9a60c2a8594479b9b01b5b74369eebabe5",
+      "identity_at_move": "1f:572d4b1fbdaf99b987893ed17b4a0a9a60c2a8594479b9b01b5b74369eebabe5",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/permission-lease/do-work/exclusive-control-lease.test.ts",
+      "commit": "80a04d7c34700c51f8ead29fabecd90da1c36739",
+      "to": "tools/permission-lease/do-work/exclusive-control-lease.test.ts.held",
+      "source_identity": "1f:e347c9b95731d02fa641c41a2af26705a1350042b1e8e331cf6c8e44d5f8ac54",
+      "identity": "1f:e347c9b95731d02fa641c41a2af26705a1350042b1e8e331cf6c8e44d5f8ac54"
+    },
+    {
+      "from": "packages/permission-lease/do-work/exclusive-control-lease.ts",
+      "commit": "80a04d7c34700c51f8ead29fabecd90da1c36739",
+      "to": "tools/permission-lease/do-work/exclusive-control-lease.ts",
+      "source_identity": "1f:e20752bf3bf40192ea57165afe3d7886561b9a4871cca9a60c57fc97480db8d5",
+      "identity_at_move": "1f:e20752bf3bf40192ea57165afe3d7886561b9a4871cca9a60c57fc97480db8d5",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/permission-lease/do-work/permission-lease-actions.test.ts",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/permission-lease/do-work/permission-lease-actions.test.ts.held",
+      "source_identity": "1f:b58ae7bd9c3b4da661eadb92bfb93dcca52e7127d030b93db47960d545935b53",
+      "identity": "1f:b58ae7bd9c3b4da661eadb92bfb93dcca52e7127d030b93db47960d545935b53"
+    },
+    {
+      "from": "packages/permission-lease/do-work/process-scripts/build-process-scripts.mjs",
+      "commit": "dcdba83aa0b80277f8e9c039c158c11072ba1bdc",
+      "to": "tools/permission-lease/do-work/process-scripts/build-process-scripts.mjs",
+      "source_identity": "1f:61e3cc1418e3fda4a5afa809b773d2c561721ddeb3afc54ebbd0a53096b19a06",
+      "identity": "1f:61e3cc1418e3fda4a5afa809b773d2c561721ddeb3afc54ebbd0a53096b19a06"
+    },
+    {
+      "from": "packages/permission-lease/do-work/process-scripts/obligation-decision-cli.test.ts",
+      "commit": "dcdba83aa0b80277f8e9c039c158c11072ba1bdc",
+      "to": "tools/permission-lease/do-work/process-scripts/obligation-decision-cli.test.ts.held",
+      "source_identity": "1f:57f5c8cd92132afe86f45b5d7557e2a09da9f18d095bdf4ee9099c07368e0244",
+      "identity": "1f:57f5c8cd92132afe86f45b5d7557e2a09da9f18d095bdf4ee9099c07368e0244"
+    },
+    {
+      "from": "packages/permission-lease/do-work/process-scripts/obligation-decision-cli.ts",
+      "commit": "cf74c931f52cb52fbeeed18b613c615033179d77",
+      "to": "tools/permission-lease/do-work/process-scripts/obligation-decision-cli.ts",
+      "source_identity": "1f:48953ceeac53b018e3839e7172ee4e1946202d2b8c4cbea343e6f5c534ab7890",
+      "identity_at_move": "1f:48953ceeac53b018e3839e7172ee4e1946202d2b8c4cbea343e6f5c534ab7890",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/permission-lease/do-work/read-authorization-time.test.ts",
+      "commit": "4c4ef7af59bc8ca2b3aa06d3e6ecc0f0ea1aeb09",
+      "to": "tools/permission-lease/do-work/read-authorization-time.test.ts.held",
+      "source_identity": "1f:46f5e76fb89ea4d9e6bbecfbc8524a4f23335d0a44744a95707556d95d9b723f",
+      "identity": "1f:46f5e76fb89ea4d9e6bbecfbc8524a4f23335d0a44744a95707556d95d9b723f"
+    },
+    {
+      "from": "packages/permission-lease/do-work/read-authorization-time.ts",
+      "commit": "4c4ef7af59bc8ca2b3aa06d3e6ecc0f0ea1aeb09",
+      "to": "tools/permission-lease/do-work/read-authorization-time.ts",
+      "source_identity": "1f:e520974c8b699dbeed04c36b95840f310849111b71ea657884b9cd7dec4e53c0",
+      "identity": "1f:e520974c8b699dbeed04c36b95840f310849111b71ea657884b9cd7dec4e53c0"
+    },
+    {
+      "from": "packages/permission-lease/do-work/record-permission-lease.ts",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/permission-lease/do-work/record-permission-lease.ts",
+      "source_identity": "1f:dc2e20b6d3098f8f949bec7f70d2d922b1cc3f1343af686b4509c84d2471230f",
+      "identity_at_move": "1f:dc2e20b6d3098f8f949bec7f70d2d922b1cc3f1343af686b4509c84d2471230f",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/permission-lease/do-work/request-permission-lease-check.ts",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/permission-lease/do-work/request-permission-lease-check.ts",
+      "source_identity": "1f:5f0f2ff9ef7f08a3eba66168d363c295edf8129ca8848eddda9b4e7d3eeb73fe",
+      "identity_at_move": "1f:5f0f2ff9ef7f08a3eba66168d363c295edf8129ca8848eddda9b4e7d3eeb73fe",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/permission-lease/do-work/save-what-someone-is-allowed-to-do-target.test.ts",
+      "commit": "9bfc08014657e8edb6197c24afaa5faec7b909bf",
+      "to": "tools/permission-lease/do-work/save-what-someone-is-allowed-to-do-target.test.ts.held",
+      "source_identity": "1f:80677774325d383e935085e360b02c1bf96a836442b20d555fefdc1542891e7d",
+      "identity": "1f:80677774325d383e935085e360b02c1bf96a836442b20d555fefdc1542891e7d"
+    },
+    {
+      "from": "packages/permission-lease/do-work/save-what-someone-is-allowed-to-do-target.ts",
+      "commit": "83bb2fa4f9563a9422893e6da7984c31992e94eb",
+      "to": "tools/permission-lease/do-work/save-what-someone-is-allowed-to-do-target.ts",
+      "source_identity": "1f:0d5ddfcb24128b8fd8e62f086d9dd05927875fbd0bc3e38f0c10cab475b1a10a",
+      "identity_at_move": "1f:0d5ddfcb24128b8fd8e62f086d9dd05927875fbd0bc3e38f0c10cab475b1a10a",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/permission-lease/do-work/save-what-someone-is-allowed-to-do.test.ts",
+      "commit": "9104f5c76a65fd38cece7031d6fddcc3680780ab",
+      "to": "tools/permission-lease/do-work/save-what-someone-is-allowed-to-do.test.ts",
+      "source_identity": "1f:83a7d49d8d4b864b0f7c4ec08a90f594c32d103964bd9c50ca24c7642423bd9e",
+      "identity_at_move": "1f:83a7d49d8d4b864b0f7c4ec08a90f594c32d103964bd9c50ca24c7642423bd9e",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/permission-lease/do-work/save-what-someone-is-allowed-to-do.ts",
+      "commit": "9104f5c76a65fd38cece7031d6fddcc3680780ab",
+      "to": "tools/permission-lease/do-work/save-what-someone-is-allowed-to-do.ts",
+      "source_identity": "1f:492d84777890b2e6032f2fd0fa4f08e080bcaf21d0576012a8275479deb691d7",
+      "identity_at_move": "1f:492d84777890b2e6032f2fd0fa4f08e080bcaf21d0576012a8275479deb691d7",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/permission-lease/do-work/session-audit.test.ts",
+      "commit": "83bb2fa4f9563a9422893e6da7984c31992e94eb",
+      "to": "tools/permission-lease/do-work/session-audit.test.ts",
+      "source_identity": "1f:a42a463e9cdbe8cdaf1ff7295dfab98dbea6c77ac8ea72b47a68459070c2399f",
+      "identity_at_move": "1f:a42a463e9cdbe8cdaf1ff7295dfab98dbea6c77ac8ea72b47a68459070c2399f",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/permission-lease/read-data/capability-gate-descriptor.test.ts",
+      "commit": "39635907744f1bd9f8eba12da7d4398b1eb2226f",
+      "to": "tools/permission-lease/read-data/capability-gate-descriptor.test.ts",
+      "source_identity": "1f:d0e9ecf6921d56fa0362cd445d6a981aaabc074f5e59576d7bcbf8cf4af005c8",
+      "identity_at_move": "1f:d0e9ecf6921d56fa0362cd445d6a981aaabc074f5e59576d7bcbf8cf4af005c8",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/permission-lease/read-data/capability-gate-descriptor.ts",
+      "commit": "dbdb5b99f9ee05c7afee5605f8704ea0efce10b6",
+      "to": "tools/permission-lease/read-data/capability-gate-descriptor.ts",
+      "source_identity": "1f:52e9fbb2409f0091037ce842923fd4183650f2a6b14fea9796a2e42ad9d0a147",
+      "identity_at_move": "1f:52e9fbb2409f0091037ce842923fd4183650f2a6b14fea9796a2e42ad9d0a147",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/permission-lease/read-data/condition-node-pack.ts",
+      "commit": "6e7e89dc8d41080bb13a1e9fc03d8c2a322e8f5c",
+      "to": "tools/permission-lease/read-data/condition-node-pack.ts",
+      "source_identity": "1f:0138ed31dd6b8970f62336509f8401b9a8be0fa56ce56e7b4a58194e1574121a",
+      "identity_at_move": "1f:0138ed31dd6b8970f62336509f8401b9a8be0fa56ce56e7b4a58194e1574121a",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/permission-lease/read-data/hold-reason.ts",
+      "commit": "0e49e3f47782f347d301c8dd8b91d42898a9a74d",
+      "to": "tools/permission-lease/read-data/hold-reason.ts",
+      "source_identity": "1f:8a01549e5902babd9abc2ce80b78ad3f68b617fe14c1ae1143995e028a4599a3",
+      "identity": "1f:8a01549e5902babd9abc2ce80b78ad3f68b617fe14c1ae1143995e028a4599a3"
+    },
+    {
+      "from": "packages/permission-lease/read-data/live-guardrails-surface.test.ts",
+      "commit": "005262a19d6daa3a8b15157995b63ad4865b36d4",
+      "to": "tools/permission-lease/read-data/live-guardrails-surface.test.ts",
+      "source_identity": "1f:d65d48bf83f4b043f956a2a9580a603392010d35cfd609b2da7d375fe388c1f5",
+      "identity_at_move": "1f:d65d48bf83f4b043f956a2a9580a603392010d35cfd609b2da7d375fe388c1f5",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/permission-lease/read-data/live-guardrails-surface.ts",
+      "commit": "0e49e3f47782f347d301c8dd8b91d42898a9a74d",
+      "to": "tools/permission-lease/read-data/live-guardrails-surface.ts",
+      "source_identity": "1f:0913eb01aeb49163dfc0612326df91a34f175a080631c3c30d2e6f0a32dcfd18",
+      "identity_at_move": "1f:0913eb01aeb49163dfc0612326df91a34f175a080631c3c30d2e6f0a32dcfd18",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/permission-lease/read-data/lock-surface-descriptor.test.ts",
+      "commit": "4ce8abb44f5c5c96673f8fa6fcfd76cb725c4df2",
+      "to": "tools/permission-lease/read-data/lock-surface-descriptor.test.ts",
+      "source_identity": "1f:fff6fd4e58b041fe5002e3f6cba0a97d599c5fba8a1b4e097f243ce2296238bf",
+      "identity_at_move": "1f:fff6fd4e58b041fe5002e3f6cba0a97d599c5fba8a1b4e097f243ce2296238bf",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/permission-lease/read-data/lock-surface-descriptor.ts",
+      "commit": "4ce8abb44f5c5c96673f8fa6fcfd76cb725c4df2",
+      "to": "tools/permission-lease/read-data/lock-surface-descriptor.ts",
+      "source_identity": "1f:4f4319ce1b55d814b58ac6b7f3755bb3304f38347b8f6358cc44a711a8182284",
+      "identity_at_move": "1f:4f4319ce1b55d814b58ac6b7f3755bb3304f38347b8f6358cc44a711a8182284",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/permission-lease/read-data/obligation-decision.test.ts",
+      "commit": "6e7e89dc8d41080bb13a1e9fc03d8c2a322e8f5c",
+      "to": "tools/permission-lease/read-data/obligation-decision.test.ts",
+      "source_identity": "1f:9dc72c6f7bb157c11b69a4794cba16af171509ffbef869d967d7c06580200bc9",
+      "identity_at_move": "1f:9dc72c6f7bb157c11b69a4794cba16af171509ffbef869d967d7c06580200bc9",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/permission-lease/read-data/obligation-decision.ts",
+      "commit": "cf74c931f52cb52fbeeed18b613c615033179d77",
+      "to": "tools/permission-lease/read-data/obligation-decision.ts",
+      "source_identity": "1f:e591bc77c9389bd30fe1ad315446d14fff1b1028ea0cdcc9916ee37b31c799c9",
+      "identity": "1f:e591bc77c9389bd30fe1ad315446d14fff1b1028ea0cdcc9916ee37b31c799c9"
+    },
+    {
+      "from": "packages/permission-lease/read-data/permission-lease-surface.test.ts",
+      "commit": "3cf2f7fae0d5048e89f95c7edca42b5ab43ce108",
+      "to": "tools/permission-lease/read-data/permission-lease-surface.test.ts.held",
+      "source_identity": "1f:e4393934ea4bc32ce095f081faebeb71720e1cc3e8ef8420001f3d3057ea1cb7",
+      "identity": "1f:e4393934ea4bc32ce095f081faebeb71720e1cc3e8ef8420001f3d3057ea1cb7"
+    },
+    {
+      "from": "packages/permission-lease/read-data/permission-lease-surface.ts",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/permission-lease/read-data/permission-lease-surface.ts",
+      "source_identity": "1f:d26b1e9c8567ca7c2d09080181578961f71f38955f5138c22de9b2eaa6cb3ea2",
+      "identity_at_move": "1f:d26b1e9c8567ca7c2d09080181578961f71f38955f5138c22de9b2eaa6cb3ea2",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/permission-lease/read-data/read-live-guardrails.ts",
+      "commit": "d838c561d921dd17d6120696947c2e1438e9287d",
+      "to": "tools/permission-lease/read-data/read-live-guardrails.ts",
+      "source_identity": "1f:4c9833559287937e909adce63b7916c981346e7e027520780a24bcc1f83c70fd",
+      "identity_at_move": "1f:4c9833559287937e909adce63b7916c981346e7e027520780a24bcc1f83c70fd",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/permission-lease/show/CapabilityGate.tsx",
+      "commit": "2928cece5b454532e33518e5ca56f3db7b277819",
+      "to": "tools/permission-lease/show/CapabilityGate.tsx",
+      "source_identity": "1f:b505383ed94a85390e1be3305f9f86cd220bab90a2eabb109bf4b88622479913",
+      "identity_at_move": "1f:b505383ed94a85390e1be3305f9f86cd220bab90a2eabb109bf4b88622479913",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/permission-lease/show/ObligationGatePanel.tsx",
+      "commit": "4ce8abb44f5c5c96673f8fa6fcfd76cb725c4df2",
+      "to": "tools/permission-lease/show/ObligationGatePanel.tsx",
+      "source_identity": "1f:d73ddfdfe2d33ec72502e7cad0edb631f2a5dfeb2f1faa8234b7a4f8b016e7b1",
+      "identity_at_move": "1f:d73ddfdfe2d33ec72502e7cad0edb631f2a5dfeb2f1faa8234b7a4f8b016e7b1",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/permission-lease/show/PermissionLeasePanel.tsx",
+      "commit": "ac80a8a835867f7650df4e7e148a9025c0c1da22",
+      "to": "tools/permission-lease/show/PermissionLeasePanel.tsx",
+      "source_identity": "1f:ef635fc6a7b62ece2970b94272066814111e689330b045a277c3f6b5c3ffaab5",
+      "identity_at_move": "1f:ef635fc6a7b62ece2970b94272066814111e689330b045a277c3f6b5c3ffaab5",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/permission-lease/show/mount-capability-gate.tsx",
+      "commit": "dbdb5b99f9ee05c7afee5605f8704ea0efce10b6",
+      "to": "tools/permission-lease/show/mount-capability-gate.tsx",
+      "source_identity": "1f:1b712e678c361a643faea004344bf32a52ff5f6a303d05eb4d663988d873fe09",
+      "identity_at_move": "1f:1b712e678c361a643faea004344bf32a52ff5f6a303d05eb4d663988d873fe09",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/permission-lease/show/mount-obligation-gate.tsx",
+      "commit": "862c5b1bac6f783e4eef8613a8671ae781e63e11",
+      "to": "tools/permission-lease/show/mount-obligation-gate.tsx",
+      "source_identity": "1f:e44c9db1f2c977080d98834ee93b70a1c9a67406d60ac8251aab4f75f9d94803",
+      "identity_at_move": "1f:e44c9db1f2c977080d98834ee93b70a1c9a67406d60ac8251aab4f75f9d94803",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/permission-lease/show/mount-permission-lease.tsx",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/permission-lease/show/mount-permission-lease.tsx",
+      "source_identity": "1f:51664f1ba6a9613b67bc4b43f1352d7a07dc7733eb5ce8aa5386ff79a4e7d562",
+      "identity_at_move": "1f:51664f1ba6a9613b67bc4b43f1352d7a07dc7733eb5ce8aa5386ff79a4e7d562",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/permission-lease/tests/every-action-ref-resolves.test.mjs",
+      "commit": "0cd2a17f6ee0dab401f1a11354a940ba1f8c485f",
+      "to": "tools/permission-lease/tests/every-action-ref-resolves.test.mjs.held",
+      "source_identity": "1f:caffcf44be5419bec5636ca9484a14037d6c87d6c11604fdfe4a4842392f682e",
+      "identity": "1f:caffcf44be5419bec5636ca9484a14037d6c87d6c11604fdfe4a4842392f682e"
+    },
+    {
+      "from": "packages/permission-lease/tests/published-records-scoped-feed.test.ts",
+      "commit": "6ccc4c979655687551fd1cd5f7bf79d87ec2d557",
+      "to": "tools/permission-lease/tests/published-records-scoped-feed.test.ts.held",
+      "source_identity": "1f:88cfabbf8a478ff724c1c8d46597e04522e580a47f220f6838c5a4ce90a86b5d",
+      "identity": "1f:88cfabbf8a478ff724c1c8d46597e04522e580a47f220f6838c5a4ce90a86b5d"
+    },
+    {
+      "from": "packages/permission-lease/tests/recorder-public-source-contract.test.ts",
+      "commit": "0e49e3f47782f347d301c8dd8b91d42898a9a74d",
+      "to": "tools/permission-lease/tests/recorder-public-source-contract.test.ts.held",
+      "source_identity": "1f:6eff36344d7f4e76f4834360a7aa616fd305fc72ef6f25155362ad45e8126a40",
+      "identity": "1f:6eff36344d7f4e76f4834360a7aa616fd305fc72ef6f25155362ad45e8126a40"
     }
   ]
 }

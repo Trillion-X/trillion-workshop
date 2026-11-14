@@ -25,3 +25,22 @@ From old trillion main at 5dc302be37 (the old-trillion sweep): `test/tell-a-chat
 
 - Rows: `tool-rows.json` offers the two commands a person's AI runs here, both through `harness/setup.mjs`: setting up the hooks in an AI app (inspect, apply, remove) and its Trillion MCP entry (inspect, preview, register, unregister). The other scripts are hooks or long-running helpers that setup starts, not rows; adapting their `../src/` imports to the records door is still a later lane.
 - `src/` holds the old app's files these scripts imported (the import closure), each still in its old shape.
+
+## Files moved from bitfield-packages (packages/eeaf)
+
+Each file below is the package's own, byte for byte; `from-bitfield-packages/moved-from.json` names each source path and commit, the identity of its source bytes and of its bytes here, and the `calls` that made a real name or id made up. After the first commit only import paths changed. A file named `.held` is the same bytes with its test name taken off so the repository test does not run it; the reason is under `held` in the receipt. Most files import `@/packages/ui` and the retired package runtime (`@bitfield/runtime-kit`); the shared ui parts live in apps `parts/ui`, so the screens and targets here are prepared, not wired to a tool row.
+
+| File | What it is |
+|---|---|
+| `parts/eeaf/tests/eeaf-sqlite-store.test.mjs.held` | Proves the eleven tables exist, the address grammar matches `crates/eeaf-addressing`, records round-trip with no object stored as JSON text, changes write only changed rows and keep every earlier value, content-addressed children are stored once, and foreign k |
+
+### Not carried
+
+- 9 files: Rust source of the retired eeaf slot (WASI component); the engine's own eeaf store lives in trillion-rust src/eeaf_store*.rs, not in the Workshop
+- 4 files: tests the retired eeaf slot or the package tree (live shell, cargo build, scene packages); not carried
+- 3 files: generated build output of the retired package runtime (entry scope, built entry bytes); not carried
+- 1 file: package README, package.json or ignore file; this folder has its own README
+- 1 file: the package boundary file: record contracts, actions and surfaces for the retired package runtime (slot workflows, owner targets); not carried
+- 1 file: the Workshop holds a later copy at parts/eeaf/do-work/eeaf-sqlite-store.mjs (sealed log generations); kept
+
+The receipt's `not_carried` names each path.

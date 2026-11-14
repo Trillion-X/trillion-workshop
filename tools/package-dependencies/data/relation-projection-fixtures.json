@@ -1,0 +1,245 @@
+{
+  "descriptors": {
+    "relations": [
+      {
+        "id": "relation-descriptor:package-needs",
+        "method": "field-ref-list",
+        "subject_ref": "record:package:screen-recorder",
+        "related_refs_path": [
+          "fields",
+          "related_package_refs"
+        ],
+        "projection_field": "requirement_rows",
+        "labels": {
+          "section": "What this package needs"
+        }
+      },
+      {
+        "id": "relation-descriptor:example-work-items",
+        "method": "field-ref-list",
+        "subject_ref": "record:work:launch",
+        "related_refs_path": [
+          "fields",
+          "related_work_refs"
+        ],
+        "projection_field": "related_rows",
+        "labels": {
+          "section": "Related work"
+        }
+      }
+    ],
+    "rules": [
+      {
+        "id": "rule-descriptor:related-record-present",
+        "method": "related-record-present",
+        "projection_field": "record_presence",
+        "labels": {
+          "pass": "Record found",
+          "problem": "Record missing"
+        }
+      },
+      {
+        "id": "rule-descriptor:owner-summary-present",
+        "method": "owner-summary-present",
+        "projection_field": "owner_summary_presence",
+        "labels": {
+          "pass": "Owner summary found",
+          "problem": "Owner summary missing"
+        }
+      },
+      {
+        "id": "rule-descriptor:self-reference",
+        "method": "self-reference",
+        "projection_field": "self_reference",
+        "labels": {
+          "problem": "A record points to itself"
+        }
+      }
+    ],
+    "projection": {
+      "id": "projection-descriptor:relationship-review",
+      "title_path": [
+        "fields",
+        "title"
+      ],
+      "subtitle_path": [
+        "fields",
+        "summary"
+      ],
+      "row_fields": [
+        {
+          "id": "title",
+          "label": "Name",
+          "path": [
+            "fields",
+            "title"
+          ],
+          "fallback": "Untitled record"
+        },
+        {
+          "id": "reason",
+          "label": "Why it matters",
+          "path": [
+            "fields",
+            "reason"
+          ],
+          "fallback": "No reason was provided."
+        },
+        {
+          "id": "rank",
+          "label": "Rank",
+          "path": [
+            "fields",
+            "rank_label"
+          ],
+          "fallback": "Unranked"
+        },
+        {
+          "id": "owner",
+          "label": "Owner",
+          "path": [
+            "owner_summary",
+            "label"
+          ],
+          "fallback": "Owner summary missing"
+        }
+      ],
+      "problem_field": "problems",
+      "proof_field": "proof"
+    }
+  },
+  "sets": {
+    "empty": {
+      "records": []
+    },
+    "package_sparse": {
+      "records": [
+        {
+          "ref": "record:package:screen-recorder",
+          "fields": {
+            "title": "Screen recorder",
+            "summary": "Records a product walkthrough.",
+            "related_package_refs": [
+              "record:package:media-editor",
+              "record:package:permission-review"
+            ]
+          }
+        },
+        {
+          "ref": "record:package:media-editor",
+          "owner_ref": "owner:catalog",
+          "owner_summary": {
+            "label": "Catalog"
+          },
+          "fields": {
+            "title": "Media editor",
+            "reason": "Trims and exports the recording.",
+            "rank_label": "Required"
+          }
+        }
+      ]
+    },
+    "package_dense": {
+      "records": [
+        {
+          "ref": "record:package:screen-recorder",
+          "fields": {
+            "title": "Screen recorder",
+            "summary": "Records a product walkthrough.",
+            "related_package_refs": [
+              "record:package:media-editor",
+              "record:package:permission-review",
+              "record:package:changelog-publisher"
+            ]
+          }
+        },
+        {
+          "ref": "record:package:media-editor",
+          "owner_ref": "owner:catalog",
+          "owner_summary": {
+            "label": "Catalog"
+          },
+          "fields": {
+            "title": "Media editor",
+            "reason": "Trims and exports the recording.",
+            "rank_label": "Required"
+          }
+        },
+        {
+          "ref": "record:package:permission-review",
+          "owner_ref": "owner:access",
+          "owner_summary": {
+            "label": "Access"
+          },
+          "fields": {
+            "title": "Permission review",
+            "reason": "Shows what the install can access before the bundle is installed.",
+            "rank_label": "Required"
+          }
+        },
+        {
+          "ref": "record:package:changelog-publisher",
+          "owner_ref": "owner:catalog",
+          "owner_summary": {
+            "label": "Catalog"
+          },
+          "fields": {
+            "title": "Changelog publisher",
+            "reason": "Publishes release notes after the recording is ready.",
+            "rank_label": "Optional"
+          }
+        }
+      ]
+    },
+    "work_dense": {
+      "records": [
+        {
+          "ref": "record:work:launch",
+          "fields": {
+            "title": "Launch checklist",
+            "summary": "Prepare related work before launch.",
+            "related_work_refs": [
+              "record:work:copy",
+              "record:work:proof"
+            ]
+          }
+        },
+        {
+          "ref": "record:work:copy",
+          "owner_summary": {
+            "label": "Writing"
+          },
+          "fields": {
+            "title": "Draft public copy",
+            "reason": "Explains the release in plain language.",
+            "rank_label": "Before launch"
+          }
+        },
+        {
+          "ref": "record:work:proof",
+          "owner_summary": {
+            "label": "QA"
+          },
+          "fields": {
+            "title": "Verify proof",
+            "reason": "Confirms the shipped records match the release.",
+            "rank_label": "Before launch"
+          }
+        }
+      ]
+    },
+    "self_reference": {
+      "records": [
+        {
+          "ref": "record:package:screen-recorder",
+          "fields": {
+            "title": "Screen recorder",
+            "related_package_refs": [
+              "record:package:screen-recorder"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

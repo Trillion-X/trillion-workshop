@@ -1,0 +1,187 @@
+import React from 'react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
+import { useBitfieldData } from '@bitfield/runtime-kit/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { buildCreateMatchPickPromptInput } from '@/packages/match-picks/do-work/create-pick-prompt';
+import { buildResolveMatchPickInput } from '@/packages/match-picks/do-work/resolve-match-pick';
+import { buildSubmitMatchPickInput } from '@/packages/match-picks/do-work/submit-match-pick';
+import {
+  matchPickPersonalHistory,
+  matchPickViews,
+  readMatchPicksState,
+} from '@/packages/match-picks/read-data/read-match-picks';
+import { MatchPicksSurface } from '@/packages/match-picks/show/MatchPicksSurface';
+
+vi.mock('@bitfield/runtime-kit', () => ({
+  sendRequestToBitfieldTarget: vi.fn(async () => ({ ok: true })),
+}));
+
+vi.mock('@bitfield/runtime-kit/react', () => ({
+  useBitfieldData: vi.fn(),
+}));
+
+const now = new Date('2026-06-20T12:00:00.000Z');
+const bannedCopy = /odds|payout|balance|stake|deposit|cashout|wallet|line movement|wager|betting/i;
+
+function seededRows() {
+  return [
+    {
+      payload: {
+        kind: 'pick-match',
+        matchId: 'match:1',
+        label: 'Ari vs Mina',
+        startsAt: '2026-06-20T14:00:00.000Z',
+        status: 'open',
+        choices: [
+          { choiceId: 'player:ari', label: 'Ari' },
+          { choiceId: 'player:mina', label: 'Mina' },
+        ],
+      },
+    },
+    {
+      payload: buildSubmitMatchPickInput({
+        pickId: 'match-pick:1',
+        matchId: 'match:1',
+        pickerId: 'user:1',
+        choiceId: 'player:ari',
+        now,
+      }).pick_record,
+    },
+    {
+      payload: buildSubmitMatchPickInput({
+        pickId: 'match-pick:2',
+        matchId: 'match:1',
+        pickerId: 'user:2',
+        choiceId: 'player:mina',
+        now,
+      }).pick_record,
+    },
+    {
+      payload: buildSubmitMatchPickInput({
+        pickId: 'match-pick:3',
+        matchId: 'match:1',
+        pickerId: 'user:3',
+        choiceId: 'player:mina',
+        now,
+      }).pick_record,
+    },
+  ];
+}
+
+describe('match-picks', () => {
+  beforeEach(() => {
+    vi.mocked(sendRequestToBitfieldTarget).mockClear();
+    vi.mocked(useBitfieldData).mockReset();
+  });
+
+  afterEach(() => {
+    cleanup();
+  });
+
+  it('builds prompt, pick, and result records', () => {
+    const prompt = buildCreateMatchPickPromptInput({
+      matchId: 'pick-match:clean',
+      label: ' Ari vs Mina ',
+      startsAt: '2026-06-20T14:00:00.000Z',
+      choices: [
+        { choiceId: ' player:ari ', label: ' Ari ' },
+        { choiceId: ' player:mina ', label: ' Mina ' },
+      ],
+    });
+    const pick = buildSubmitMatchPickInput({
+      pickId: 'match-pick:clean',
+      matchId: ' match:1 ',
+      pickerId: ' user:1 ',
+      choiceId: ' player:ari ',
+      now,
+    });
+    const result = buildResolveMatchPickInput({
+      resultId: 'match-pick-result:1',
+      matchId: 'match:1',
+      winningChoiceId: 'player:ari',
+      summary: '  Ari won in two sets.  ',
+      now,
+    });
+
+    expect(prompt.match_record).toMatchObject({
+      label: 'Ari vs Mina',
+      status: 'open',
+    });
+    expect(prompt.match_record.choices).toEqual([
+      { choiceId: 'player:ari', label: 'Ari' },
+      { choiceId: 'player:mina', label: 'Mina' },
+    ]);
+    expect(pick.pick_record).toMatchObject({ matchId: 'match:1', pickerId: 'user:1', choiceId: 'player:ari' });
+    expect(result.result_record.summary).toBe('Ari won in two sets.');
+    expect(() => buildCreateMatchPickPromptInput({
+      label: 'Best payout today',
+      choices: [
+        { choiceId: 'a', label: 'A' },
+        { choiceId: 'b', label: 'B' },
+      ],
+    })).toThrow(/regulated-money copy/);
+    expect(() => buildResolveMatchPickInput({
+      matchId: 'match:1',
+      winningChoiceId: 'player:ari',
+      summary: 'Ari payout cleared',
+    })).toThrow(/regulated-money copy/);
+    expect(() => buildSubmitMatchPickInput({ matchId: '', pickerId: 'user:1', choiceId: 'a' })).toThrow(/Match/);
+  });
+
+  it('projects community pick split and personal pick', () => {
+    const state = readMatchPicksState(seededRows());
+    const view = matchPickViews(state, 'user:1')[0];
+
+    expect(view?.totalPicks).toBe(3);
+    expect(view?.choices.find((choice) => choice.choiceId === 'player:ari')?.percentPicked).toBe(33);
+    expect(view?.choices.find((choice) => choice.choiceId === 'player:mina')?.percentPicked).toBe(67);
+    expect(view?.userPick?.choiceId).toBe('player:ari');
+  });
+
+  it('projects resolved result as append-only result row', () => {
+    const result = buildResolveMatchPickInput({
+      resultId: 'match-pick-result:1',
+      matchId: 'match:1',
+      winningChoiceId: 'player:mina',
+      summary: 'Mina won.',
+      now,
+    }).result_record;
+    const state = readMatchPicksState([...seededRows(), { payload: result }]);
+    const view = matchPickViews(state, 'user:1')[0];
+
+    expect(view?.result?.winningChoiceId).toBe('player:mina');
+    expect(view?.choices.find((choice) => choice.choiceId === 'player:mina')?.winner).toBe(true);
+    expect(matchPickPersonalHistory(state, 'user:1')[0]).toMatchObject({
+      matchLabel: 'Ari vs Mina',
+      choiceLabel: 'Ari',
+      correct: false,
+      resultSummary: 'Mina won.',
+    });
+  });
+
+  it('renders pick action and avoids regulated-money copy', async () => {
+    vi.mocked(useBitfieldData).mockReturnValue(seededRows());
+
+    const { container } = render(React.createElement(MatchPicksSurface, { pickerId: 'user:1' }));
+
+    expect(container.textContent).not.toMatch(bannedCopy);
+    fireEvent.click(screen.getAllByRole('button', { name: 'Pick winner' })[0]);
+
+    await waitFor(() => expect(sendRequestToBitfieldTarget).toHaveBeenCalledTimes(1));
+    expect(vi.mocked(sendRequestToBitfieldTarget).mock.calls[0]?.[0]).toMatchObject({
+      target: 'slot::workflow',
+      payload: {
+        definition_id: 'action:match-picks.submit-pick',
+        input: {
+          pick_record: {
+            matchId: 'match:1',
+            pickerId: 'user:1',
+            choiceId: 'player:ari',
+          },
+        },
+      },
+    });
+    expect(container.textContent).toMatch(/Your picks/);
+  });
+});

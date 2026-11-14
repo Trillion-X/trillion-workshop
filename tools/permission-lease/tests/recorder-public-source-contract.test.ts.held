@@ -1,0 +1,55 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+import { describe, expect, it } from 'vitest';
+
+type PackageThing = {
+  payload?: {
+    kind?: string;
+    source_path?: string;
+  };
+};
+
+const packageRoot = resolve(import.meta.dirname, '..');
+const packagesRoot = resolve(packageRoot, '..');
+const manifest = JSON.parse(
+  readFileSync(resolve(packageRoot, 'things-to-store-and-run.json'), 'utf8'),
+) as { things: PackageThing[] };
+
+const publicRoots = manifest.things
+  .filter((thing) => thing.payload?.kind === 'bitfield-package-public-source')
+  .map((thing) => thing.payload?.source_path)
+  .filter((value): value is string => typeof value === 'string')
+  .sort();
+
+function permissionLeaseImports(relativePath: string): string[] {
+  const source = readFileSync(resolve(packagesRoot, relativePath), 'utf8');
+  return [...source.matchAll(/from ['"]@\/packages\/permission-lease\/([^'"]+)['"]/g)]
+    .map((match) => match[1])
+    .sort();
+}
+
+function isPublicImport(targetPath: string): boolean {
+  return publicRoots.some((root) => targetPath === root || targetPath.startsWith(`${root}/`));
+}
+
+describe('recorder permission-lease public source contract', () => {
+  it('keeps both recorder call graphs inside compiler-declared owner roots', () => {
+    const imports = [
+      ...permissionLeaseImports('record-audio/show/RecordAudioPanel.tsx'),
+      ...permissionLeaseImports('record-video/show/RecordVideoPanel.tsx'),
+    ].sort();
+
+    expect(imports).toEqual([
+      'read-data/capability-permission',
+      'read-data/capability-permission',
+      'show/CapabilityPermissionPrompt',
+      'show/CapabilityPermissionPrompt',
+    ]);
+    expect(imports.filter((targetPath) => !isPublicImport(targetPath))).toEqual([]);
+  });
+
+  it('rejects a sibling source path outside the declared public roots', () => {
+    expect(isPublicImport('private/CapabilityPermissionPrompt')).toBe(false);
+  });
+});

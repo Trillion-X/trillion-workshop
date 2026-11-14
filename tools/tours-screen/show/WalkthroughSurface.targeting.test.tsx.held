@@ -1,0 +1,403 @@
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { WalkthroughDefinition } from '../read-data/walkthrough-eeaf';
+import { WalkthroughSurface } from './WalkthroughSurface';
+import { PLACEABLE_SURFACE_MIME } from '@/packages/ui/show/placeable-surface-intent/placeable-surface-intent';
+import { createStepContentRegistry } from '@/packages/ui/show/step-content-renderer/step-content-renderer';
+import type { StepContentProps } from '@/packages/ui/show/step-content-renderer/StepContent';
+
+function definition(targetRef: unknown, timeout = 500): WalkthroughDefinition {
+  return {
+    kind: 'walkthrough-definition',
+    id: 'targeting-proof',
+    title: 'Targeting proof',
+    entry_step: 'one',
+    triggers: [],
+    status_copy: {
+      target_loading: 'Finding this part of Trillion...',
+      target_missing: 'This part is not available yet.',
+      retry_label: 'Try this target again',
+    },
+    look: {
+      targeting: { retry_timeout_ms: timeout, retry_interval_ms: 20 },
+      spotlight: {
+        scrim_color: 'rgba(0, 0, 0, 0.52)',
+        ring_color: 'rgb(1, 2, 3)',
+        ring_width_px: 3,
+        ring_glow: '0 0 12px rgb(1, 2, 3)',
+        transition_ms: 200,
+      },
+    },
+    steps: [{
+      id: 'one',
+      target_ref: targetRef,
+      content: { content_kind: 'outcome', payload: { title: 'Ordinary step content' } },
+      nav: { buttons: [{ role: 'done', label: 'Done' }] },
+    }],
+  };
+}
+
+function mountTarget(attribute = 'data-late-target', value = 'ready') {
+  const target = document.createElement('button');
+  target.setAttribute(attribute, value);
+  target.textContent = 'Real target';
+  target.getBoundingClientRect = () => ({
+    x: 24, y: 40, left: 24, top: 40, right: 144, bottom: 80,
+    width: 120, height: 40, toJSON: () => ({}),
+  });
+  const scrollIntoView = vi.fn();
+  target.scrollIntoView = scrollIntoView;
+  document.body.appendChild(target);
+  return { target, scrollIntoView };
+}
+
+afterEach(() => {
+  cleanup();
+  document.body.innerHTML = '';
+  vi.restoreAllMocks();
+});
+
+describe('WalkthroughSurface target lifecycle', () => {
+  it('renders an authored full-screen step as a large movable panel, never a blocking modal, without naming a product', () => {
+    render(<WalkthroughSurface
+      definition={{
+        kind: 'walkthrough-definition',
+        id: 'generic-full-screen',
+        title: 'Welcome',
+        entry_step: 'value',
+        triggers: [],
+        steps: [{
+          id: 'value',
+          presentation_ref: 'guided-overlay.presentation.full-screen',
+          content: { content_kind: 'text', payload: { title: 'A clear start', body: 'One useful thing at a time.' } },
+          nav: { buttons: [{ role: 'advance', label: 'Continue' }] },
+        }],
+      }}
+      onExit={vi.fn()}
+    />);
+
+    const dialog = screen.getByRole('dialog');
+    expect(dialog.getAttribute('aria-modal')).toBeNull();
+    expect(dialog.className).toContain('coss-floating-panel');
+    expect(dialog.querySelector('[data-floating-grab]')).toBeTruthy();
+    const viewport = dialog.querySelector<HTMLElement>('[data-full-screen-walkthrough="true"]');
+    expect(viewport).toBeTruthy();
+    expect(viewport?.style.minHeight).toBe('100vh');
+    expect(viewport?.style.padding).toContain('clamp');
+    expect(screen.getByText('A clear start').getAttribute('data-walkthrough-copy')).toBe('title');
+    expect(screen.getByText('One useful thing at a time.').getAttribute('data-walkthrough-copy')).toBe('body');
+  });
+
+  it('keeps a nested surface request visible inside a full-screen walkthrough', async () => {
+    const RenderSurface = ({ payload }: StepContentProps) => (
+      <div data-test-surface={String(payload.surface_id)}>
+        <h3>{String(payload.surface_id)}</h3>
+        <p>Compact embedded copy</p>
+      </div>
+    );
+    const registry = createStepContentRegistry(RenderSurface);
+    registry.register('placeable-surface', RenderSurface);
+    const outsidePlacement = vi.fn();
+    window.addEventListener(PLACEABLE_SURFACE_MIME, outsidePlacement);
+    try {
+      render(<WalkthroughSurface
+        definition={{
+          kind: 'walkthrough-definition',
+          id: 'inline-surface-navigation',
+          title: 'Connect',
+          entry_step: 'choose',
+          triggers: [],
+          steps: [{
+            id: 'choose',
+            presentation_ref: 'guided-overlay.presentation.full-screen',
+            content: { content_kind: 'placeable-surface', payload: { surface_id: 'choose-ai' } },
+            nav: { buttons: [{ role: 'advance', label: 'Continue' }] },
+          }],
+        }}
+        contentRegistry={registry}
+        onExit={vi.fn()}
+      />);
+      expect(screen.getByText('choose-ai')).toBeTruthy();
+
+      const event = new CustomEvent(PLACEABLE_SURFACE_MIME, {
+        cancelable: true,
+        detail: { id: 'connected-services' },
+      });
+      act(() => { window.dispatchEvent(event); });
+
+      expect(event.defaultPrevented).toBe(true);
+      expect(screen.getByText('connected-services')).toBeTruthy();
+      expect(screen.queryByText('choose-ai')).toBeNull();
+      expect(screen.getByText('connected-services').hasAttribute('data-walkthrough-copy')).toBe(false);
+      expect(screen.getByText('Compact embedded copy').hasAttribute('data-walkthrough-copy')).toBe(false);
+      const fullScreenStyles = document.querySelector('[data-full-screen-walkthrough="true"] style')?.textContent ?? '';
+      expect(fullScreenStyles).toContain('[data-walkthrough-copy="title"]');
+      expect(fullScreenStyles).toContain('[data-walkthrough-copy="body"]');
+      expect(fullScreenStyles).not.toContain('[data-full-screen-walkthrough="true"] h3');
+      expect(fullScreenStyles).not.toContain('[data-full-screen-walkthrough="true"] p');
+      expect(outsidePlacement).not.toHaveBeenCalled();
+    } finally {
+      window.removeEventListener(PLACEABLE_SURFACE_MIME, outsidePlacement);
+    }
+  });
+
+  it('reveals the declared surface when resuming a saved target step without advancing progress', async () => {
+    const base = definition({ from: 'selector', query: '[data-prepared-target]' });
+    const surface = { id: 'workspace' };
+    const prepared = { ...base, steps: [{ ...base.steps[0], target_preparation: { surface } }] };
+    const onPlacement = vi.fn((event: Event) => {
+      expect((event as CustomEvent).detail).toEqual(expect.objectContaining(surface));
+      event.preventDefault();
+      mountTarget('data-prepared-target', '');
+    });
+    window.addEventListener(PLACEABLE_SURFACE_MIME, onPlacement);
+    try {
+      const onCursorTransition = vi.fn();
+      render(<WalkthroughSurface definition={prepared} onExit={vi.fn()}
+        initialCursor={{ currentStepId: 'one', history: ['previous-step'], status: 'active' }}
+        onCursorTransition={onCursorTransition} />);
+      await waitFor(() => expect(screen.getByText('Ordinary step content')).toBeTruthy());
+      expect(onPlacement).toHaveBeenCalledTimes(1);
+      expect(document.querySelector('[data-guided-overlay-target-highlight]')).toBeTruthy();
+      expect(onCursorTransition).not.toHaveBeenCalled();
+    } finally {
+      window.removeEventListener(PLACEABLE_SURFACE_MIME, onPlacement);
+    }
+  });
+
+  it('keeps the missing-target error when no placement owner accepts preparation', async () => {
+    const base = definition({ from: 'selector', query: '[data-refused-target]' }, 30);
+    const prepared = { ...base, steps: [{ ...base.steps[0], target_preparation: {
+      surface: { id: 'unavailable', packageEntry: { packageName: 'example', entryName: 'workspace' } },
+    } }] };
+    const onExit = vi.fn();
+    render(<WalkthroughSurface definition={prepared} onExit={onExit} />);
+    expect(await screen.findByText('This part is not available yet.')).toBeTruthy();
+    expect(document.querySelector('[data-guided-overlay-target-highlight]')).toBeNull();
+    expect(onExit).not.toHaveBeenCalled();
+  });
+
+  it('retries a late mount, scrolls it into view, and paints punch-through plus ring from DATA', async () => {
+    render(<WalkthroughSurface
+      definition={definition({ kind: 'data-attribute', attribute: 'data-late-target', value: 'ready' })}
+      onExit={vi.fn()}
+    />);
+    expect(screen.getByText('Finding this part of Trillion...')).toBeTruthy();
+
+    const { scrollIntoView } = mountTarget();
+
+    await waitFor(() => expect(document.querySelector('[data-guided-overlay-target-highlight]')).toBeTruthy());
+    expect(scrollIntoView).toHaveBeenCalledTimes(1);
+    expect(scrollIntoView).toHaveBeenCalledWith(expect.objectContaining({ block: 'center', inline: 'nearest' }));
+    expect(screen.getByText('Ordinary step content')).toBeTruthy();
+    const scrim = document.querySelector<SVGPathElement>('[data-overlay-scrim]');
+    const ring = document.querySelector<HTMLElement>('[data-guided-overlay-target-highlight]');
+    expect(scrim?.getAttribute('fill')).toBe('rgba(0, 0, 0, 0.52)');
+    expect(scrim?.getAttribute('fill-rule')).toBe('evenodd');
+    expect(ring?.style.border).toContain('3px solid rgb(1, 2, 3)');
+    expect(ring?.style.transition).toContain('200ms');
+  });
+
+  it('dispatches mobile target preparation before resolving the target', async () => {
+    const prepared = definition({ from: 'selector', query: '[data-mobile-target]' }) as WalkthroughDefinition & {
+      steps: Array<WalkthroughDefinition['steps'][number]>;
+    };
+    prepared.steps[0] = {
+      ...prepared.steps[0],
+      target_preparation: {
+        event_name: 'bitfield:sidebar-open-mobile-navigation',
+        max_viewport_width_px: 1200,
+      },
+    };
+    const onPrepare = () => {
+      mountTarget('data-mobile-target', '');
+    };
+    window.addEventListener('bitfield:sidebar-open-mobile-navigation', onPrepare, { once: true });
+
+    render(<WalkthroughSurface definition={prepared} onExit={vi.fn()} />);
+
+    await waitFor(() => expect(screen.getByText('Ordinary step content')).toBeTruthy());
+    expect(document.querySelector('[data-mobile-target]')).toBeTruthy();
+    expect(document.querySelector('[data-guided-overlay-target-highlight]')).toBeTruthy();
+  });
+
+  it('fails loudly after bounded retries and never renders ordinary content at viewport center', async () => {
+    render(<WalkthroughSurface
+      definition={definition({ from: 'selector', query: '[data-never-mounts]' }, 0)}
+      onExit={vi.fn()}
+    />);
+
+    expect(await screen.findByText('This part is not available yet.')).toBeTruthy();
+    expect(screen.queryByText('Ordinary step content')).toBeNull();
+    expect(document.querySelector('[data-overlay-spotlight]')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Try this target again' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Skip tour' })).toBeTruthy();
+  });
+
+  it('starts a fresh retry window and recovers after the target appears', async () => {
+    render(<WalkthroughSurface
+      definition={definition({ kind: 'selector', selector: '[data-retry-target]' }, 0)}
+      onExit={vi.fn()}
+    />);
+    expect(await screen.findByText('This part is not available yet.')).toBeTruthy();
+
+    mountTarget('data-retry-target', '');
+    fireEvent.click(screen.getByRole('button', { name: 'Try this target again' }));
+
+    await waitFor(() => expect(screen.getByText('Ordinary step content')).toBeTruthy());
+    expect(document.querySelector('[data-guided-overlay-target-highlight]')).toBeTruthy();
+  });
+});
+
+describe('WalkthroughSurface wait-for-target (D8)', () => {
+  it('does NOT render the not-available card for a target that mounts late inside the wait window', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-08-25T00:00:00Z'));
+    try {
+      const def: WalkthroughDefinition = {
+        kind: 'walkthrough-definition',
+        id: 'wait-for-target-proof',
+        title: 'Wait for target proof',
+        entry_step: 'one',
+        triggers: [],
+        status_copy: {
+          target_loading: 'Finding this part of Trillion...',
+          target_missing: 'This part is not available yet.',
+          retry_label: 'Try again',
+        },
+        look: { targeting: { retry_timeout_ms: 10_000, retry_interval_ms: 50 } },
+        steps: [{
+          id: 'one',
+          target_ref: { from: 'selector', query: '[data-arrives-late]' },
+          content: { content_kind: 'text', payload: { title: 'The first step' } },
+          nav: { buttons: [{ role: 'advance', label: 'Next' }] },
+        }],
+      };
+      render(<WalkthroughSurface definition={def} onExit={vi.fn()} />);
+      // The surface mounts BEFORE the workspace surface: it must WAIT, not fail.
+      expect(screen.getByText('Finding this part of Trillion...')).toBeTruthy();
+      expect(screen.queryByText('This part is not available yet.')).toBeNull();
+
+      // 3 seconds of genuine absence: still waiting, still no failure card.
+      act(() => { vi.advanceTimersByTime(3_000); });
+      expect(screen.queryByText('This part is not available yet.')).toBeNull();
+
+      // The target arrives at ~3.1s: it resolves on this attempt, no card ever shown.
+      const { target } = mountTarget('data-arrives-late', 'ready');
+      for (let i = 0; i < 20 && !document.querySelector('[data-guided-overlay-target-highlight]'); i += 1) {
+        act(() => { vi.advanceTimersByTime(50); });
+      }
+      expect(document.querySelector('[data-guided-overlay-target-highlight]')).toBeTruthy();
+      expect(screen.queryByText('This part is not available yet.')).toBeNull();
+      expect(screen.getByText('The first step')).toBeTruthy();
+      target.remove();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('renders the not-available card only after the full ~10s genuine absence, with Try again', async () => {
+    const def: WalkthroughDefinition = {
+      kind: 'walkthrough-definition',
+      id: 'wait-for-target-absent-proof',
+      title: 'Wait for target absent proof',
+      entry_step: 'one',
+      triggers: [],
+      status_copy: {
+        target_loading: 'Finding this part of Trillion...',
+        target_missing: 'This part is not available yet.',
+        retry_label: 'Try again',
+      },
+      look: { targeting: { retry_timeout_ms: 10_000, retry_interval_ms: 200 } },
+      steps: [{
+        id: 'one',
+        target_ref: { from: 'selector', query: '[data-never-mounts]' },
+        content: { content_kind: 'text', payload: { title: 'The first step' } },
+        nav: { buttons: [{ role: 'advance', label: 'Next' }] },
+      }],
+    };
+    // Fast-forward past the 10s ceiling with a cheap interval.
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-08-25T00:00:00Z'));
+    render(<WalkthroughSurface definition={def} onExit={vi.fn()} />);
+    try {
+      for (let i = 0; i < 60 && screen.queryByText('This part is not available yet.') === null; i += 1) {
+        act(() => { vi.advanceTimersByTime(200); });
+      }
+      expect(screen.queryByText('This part is not available yet.')).toBeTruthy();
+      expect(screen.getByRole('button', { name: 'Try again' })).toBeTruthy();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
+
+describe('WalkthroughSurface spotlight continuity between steps (D12)', () => {
+  it('keeps the scrim painted while the next step resolves, so the dim never blinks off', async () => {
+    // Step one resolves a target; step two's target never mounts immediately.
+    // Between the two, the spotlight must keep painting the carried rect.
+    const first = mountTarget('data-continuous-a', '');
+    const def: WalkthroughDefinition = {
+      kind: 'walkthrough-definition',
+      id: 'continuity-proof',
+      title: 'Continuity proof',
+      entry_step: 'one',
+      triggers: [],
+      look: { targeting: { retry_timeout_ms: 60000, retry_interval_ms: 50 } },
+      steps: [
+        {
+          id: 'one',
+          target_ref: { from: 'selector', query: '[data-continuous-a]' },
+          content: { content_kind: 'text', payload: { title: 'First target' } },
+          nav: { buttons: [{ role: 'advance', label: 'Next' }] },
+        },
+        {
+          id: 'two',
+          target_ref: { from: 'selector', query: '[data-continuous-b]' },
+          content: { content_kind: 'text', payload: { title: 'Second target' } },
+          nav: { buttons: [{ role: 'advance', label: 'Next' }] },
+        },
+      ],
+    };
+    render(<WalkthroughSurface definition={def} onExit={vi.fn()} />);
+
+    await waitFor(() => expect(screen.getByText('First target')).toBeTruthy());
+    const scrimBefore = document.querySelector('[data-overlay-scrim]');
+    expect(scrimBefore).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+
+    // Step two's target has not mounted yet: the step content swaps, but the
+    // spotlight stays painted (carried rect) instead of blinking away.
+    await waitFor(() => expect(screen.getByText('Second target')).toBeTruthy());
+    const scrimDuringResolve = document.querySelector('[data-overlay-scrim]');
+    expect(scrimDuringResolve).toBeTruthy();
+    expect(document.querySelector('[data-target-resolution-state="resolving"]')).toBeNull();
+
+    first.target.remove();
+    const second = mountTarget('data-continuous-b', '');
+    await waitFor(() => expect(document.querySelector('[data-guided-overlay-target-highlight]')).toBeTruthy());
+    second.target.remove();
+  });
+
+  it('renders the centred target-loading card only when no previous rect exists', async () => {
+    const def: WalkthroughDefinition = {
+      kind: 'walkthrough-definition',
+      id: 'first-resolve-proof',
+      title: 'First resolve proof',
+      entry_step: 'one',
+      triggers: [],
+      look: { targeting: { retry_timeout_ms: 60000, retry_interval_ms: 50 } },
+      steps: [{
+        id: 'one',
+        target_ref: { from: 'selector', query: '[data-late-continuous]' },
+        content: { content_kind: 'text', payload: { title: 'Waiting content' } },
+        nav: { buttons: [{ role: 'advance', label: 'Next' }] },
+      }],
+    };
+    render(<WalkthroughSurface definition={def} onExit={vi.fn()} />);
+    expect(document.querySelector('[data-target-resolution-state="resolving"]')).toBeTruthy();
+    expect(document.querySelector('[data-overlay-scrim]')).toBeNull();
+    cleanup();
+  });
+});

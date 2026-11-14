@@ -1,0 +1,76 @@
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { describe, expect, it } from 'vitest';
+
+import { buildApplicationWalkthroughContribution } from './application-walkthrough-contribution';
+
+const here = dirname(fileURLToPath(import.meta.url));
+
+const operation = {
+  operation: 'upsert',
+  composition_id: 'sample-app',
+  contribution_id: 'sample-walkthrough',
+  owner_ref: 'package::guided-overlay::application-contribution::walkthrough-definition',
+  state_epoch: 1,
+  config: {
+    definition: {
+      kind: 'walkthrough-definition',
+      id: 'sample-guide',
+      entry_step: 'start',
+      steps: [{ id: 'start', content: { content_kind: 'text', payload: { title: 'Start' } } }],
+    },
+  },
+};
+
+describe('guided overlay application contribution', () => {
+  it('materializes definition DATA in the guided-overlay owner namespace', () => {
+    expect(buildApplicationWalkthroughContribution(operation)).toMatchObject({
+      write_set: {
+        upserts: [{
+          address: 'package::guided-overlay::walkthrough-definition::sample-app::sample-guide',
+          payload: {
+            kind: 'walkthrough-definition',
+            id: 'sample-guide',
+            application_composition_ref: {
+              composition_id: 'sample-app', contribution_id: 'sample-walkthrough', state_epoch: 1,
+            },
+          },
+        }],
+        retractions: [],
+      },
+    });
+  });
+
+  it('emits a payload-omitting retraction', () => {
+    const result = buildApplicationWalkthroughContribution({ ...operation, operation: 'retract' });
+    expect(result.write_set.retractions[0]).not.toHaveProperty('payload');
+    expect(result.write_set.retractions[0]).toMatchObject({ remove: true });
+  });
+
+  it('prevents cross-application definition address collisions and requires lifecycle identity', () => {
+    const other = buildApplicationWalkthroughContribution({ ...operation, composition_id: 'other-app' });
+    expect(other.write_set.upserts[0]?.address).toBe(
+      'package::guided-overlay::walkthrough-definition::other-app::sample-guide',
+    );
+    const { contribution_id: _removed, ...withoutContribution } = operation;
+    expect(() => buildApplicationWalkthroughContribution(withoutContribution)).toThrow('contribution_id');
+  });
+
+  it('is registered and built by the guided-overlay owner package', () => {
+    const manifest = JSON.parse(readFileSync(resolve(here, '../things-to-store-and-run.json'), 'utf8')) as {
+      things: Array<{ address?: string; name?: string }>;
+    };
+    expect(manifest.things.some((thing) => (
+      thing.address === 'package::guided-overlay::entry::build-application-walkthrough-contribution'
+    ))).toBe(true);
+    expect(manifest.things.some((thing) => (
+      thing.name === 'entry-bytes-build-application-walkthrough-contribution'
+    ))).toBe(true);
+    expect(manifest.things.some((thing) => (
+      thing.address === 'attribute_fact|scene:guided-overlay|prop:scene:roots|type:scene'
+    ))).toBe(false);
+    expect(existsSync(resolve(here, '../built-stored-bytes/entry-bytes-build-application-walkthrough-contribution')))
+      .toBe(true);
+  });
+});

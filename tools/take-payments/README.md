@@ -191,3 +191,27 @@ The purchased agreement comes from `context.agreementOf(ref)` or a read projecti
 Exact fractional carry and a cumulative applied-source cursor are persisted in the same records door as settlements. Subcent accrual touches no provider. Each prepared report freezes its request and idempotency key before dispatch and holds one agreement/payer/currency cash checkpoint. Corrections compare cumulative totals, so skipping an earlier version does not double bill. A timeout or local write failure retains the hold and an unknown outcome. Retry the same source version within 23 hours; outside that window, or after a backwards clock, use `reconcileResourceUsageReport({report_id,provider_invoice_item_id})`, which reads and checks the actual provider receipt without another POST. `readResourceUsageReport` returns the current state. `cancelPreparedResourceUsageReport` releases only a prepared report with no dispatch marker. Unknown or possibly dispatched charges cannot be cancelled locally.
 
 `provider_accepted` proves the exact invoice item was accepted. Every public result retains `payment_state:"not_proved_collected"`; collection must be observed through the existing provider invoice/payment lifecycle. Carry is only reported as committed after the provider acceptance checkpoint, never after an ambiguous attempt. This API does not prove native pre-read monetary reservations are mounted and does not replace their budget owner.
+
+## Files moved from bitfield-packages (packages/payment-adapter)
+
+Each file below is the package's own, byte for byte; `from-bitfield-packages/moved-from.json` names each source path and commit, the identity of its source bytes and of its bytes here, and the `calls` that made a real name or id made up. After the first commit only import paths changed. A file named `.held` is the same bytes with its test name taken off so the repository test does not run it; the reason is under `held` in the receipt. Most files import `@/packages/ui` and the retired package runtime (`@bitfield/runtime-kit`); the shared ui parts live in apps `parts/ui`, so the screens and targets here are prepared, not wired to a tool row.
+
+| File | What it is |
+|---|---|
+| `do-work/materialize-operation-session-intent.ts` | exposes the package target |
+| `read-data/operation-routes.ts` | decodes generic route records and maps them to |
+| `test/payment-adapter-backend.test.ts.held` | proves payment-labeled and PDF routes (held: imports react or shared ui parts (@/packages/ui) that live in apps parts/ui, not in the Workshop) |
+
+### Not carried
+
+- 10 files: generated build output of the retired package runtime (entry scope, built entry bytes); not carried
+- 4 files: package README, package.json or ignore file; this folder has its own README
+- 1 file: maps package entries to the retired package runtime's entry scope; not carried
+- 1 file: package entry wiring for the retired package runtime; not carried
+- 1 file: the package boundary file: record contracts, actions and surfaces for the retired package runtime (slot workflows, owner targets); not carried
+- 1 file: byte-equal to tools/take-payments/read-data/when-money-is-taken.ts
+- 1 file: the Workshop test is later (test/when-money-is-taken.test.ts)
+- 1 file: its logic is in tools/take-payments/do-work/session-intent.ts and hosted-session.ts (the dispatch to a slot target was replaced by the session intent); the checkout lane owns that adaptation
+- 1 file: tests the package's dispatch through a slot target; the checkout lane owns the Workshop's replacement tests
+
+The receipt's `not_carried` names each path.

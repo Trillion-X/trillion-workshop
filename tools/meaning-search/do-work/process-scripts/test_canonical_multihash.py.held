@@ -1,0 +1,16 @@
+import unittest
+from canonical_multihash import is_canonical_multihash, mint_canonical_multihash_of_text
+
+class CanonicalMultihashTests(unittest.TestCase):
+    def test_shared_owner_known_answer(self):
+        self.assertEqual(mint_canonical_multihash_of_text('abc'),
+            '1f:6437b3ac38465133ffb63b75273a8db548c558465d79db03fd359c6cd5bd9d85')
+
+    def test_search_identity_contract(self):
+        value = mint_canonical_multihash_of_text('abc')
+        self.assertTrue(is_canonical_multihash(value))
+        for invalid in (value+'\n', value.upper(), '12:'+value[3:], '1f:aa', None):
+            self.assertFalse(is_canonical_multihash(invalid), repr(invalid))
+
+if __name__ == '__main__':
+    unittest.main()

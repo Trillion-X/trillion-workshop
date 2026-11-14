@@ -1,0 +1,114 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
+import {
+  buildPermissionLeaseCheckRequest,
+  requestPermissionLeaseCheck,
+} from '@/packages/permission-lease/do-work/request-permission-lease-check';
+import {
+  buildPermissionLeaseRecordRequest,
+  recordPermissionLease,
+} from '@/packages/permission-lease/do-work/record-permission-lease';
+
+vi.mock('@bitfield/runtime-kit', () => ({
+  sendRequestToBitfieldTarget: vi.fn(async (request) => ({ request })),
+}));
+
+const actions = [
+  {
+    actionRef: 'action:record',
+    operation: 'record-lease',
+    target: 'slot::workflow',
+    definitionId: 'action:permission-lease.record-lease',
+    label: 'Record',
+  },
+  {
+    actionRef: 'action:check',
+    operation: 'check-lease',
+    target: 'slot::workflow',
+    definitionId: 'action:permission-lease.check-lease',
+    label: 'Check',
+  },
+] as const;
+
+describe('allowed trading action requests', () => {
+  beforeEach(() => {
+    vi.mocked(sendRequestToBitfieldTarget).mockClear();
+  });
+
+  it('builds check requests from configured action records', () => {
+    expect(buildPermissionLeaseCheckRequest({
+      operationRef: 'operation:work',
+      requestedActionRef: 'action:run',
+      subjectRef: 'actor:local-user',
+      leaseRef: 'lease:granted',
+      idempotencyKey: 'idem:check',
+      evidenceRefs: ['evidence:1'],
+    }, [...actions])).toEqual({
+      target: 'slot::workflow',
+      payload: {
+        definition_id: 'action:permission-lease.check-lease',
+        input: {
+          operation_ref: 'operation:work',
+          requested_action_ref: 'action:run',
+          subject_ref: 'actor:local-user',
+          lease_ref: 'lease:granted',
+          idempotency_key: 'idem:check',
+          evidence_refs: ['evidence:1'],
+        },
+      },
+    });
+  });
+
+  it('builds lease records with handles only', () => {
+    const request = buildPermissionLeaseRecordRequest({
+      leaseRef: 'lease:new',
+      subjectRef: 'actor:local-user',
+      connectorRef: 'connector:broker',
+      credentialHandleRef: 'credential-handle:broker',
+      allowedActions: ['action:run'],
+      expiresAt: null,
+      idempotencyKey: 'idem:record',
+    }, [...actions]);
+
+    expect(request.payload.input).toMatchObject({
+      lease_ref: 'lease:new',
+      credential_handle_ref: 'credential-handle:broker',
+    });
+    expect(JSON.stringify(request)).not.toContain('credential_value');
+    expect(JSON.stringify(request)).not.toContain('password');
+  });
+
+  it('rejects raw credential material in lease recording', () => {
+    expect(() => buildPermissionLeaseRecordRequest({
+      leaseRef: 'lease:new',
+      subjectRef: 'actor:local-user',
+      allowedActions: ['action:run'],
+      idempotencyKey: 'idem:record',
+      credentialValue: 'raw-secret',
+    } as never, [...actions])).toThrow('saved key handle required');
+  });
+
+  it('invokes the configured target without importing workflow internals', async () => {
+    await requestPermissionLeaseCheck({
+      operationRef: 'operation:work',
+      requestedActionRef: 'action:run',
+      idempotencyKey: 'idem:check',
+    });
+    await recordPermissionLease({
+      leaseRef: 'lease:new',
+      subjectRef: 'actor:local-user',
+      allowedActions: ['action:run'],
+      idempotencyKey: 'idem:record',
+    });
+
+    expect(sendRequestToBitfieldTarget).toHaveBeenCalledTimes(2);
+    expect(vi.mocked(sendRequestToBitfieldTarget).mock.calls[0][0]).toMatchObject({
+      target: 'slot::workflow',
+      payload: { definition_id: 'action:permission-lease.check-lease' },
+    });
+    expect(vi.mocked(sendRequestToBitfieldTarget).mock.calls[1][0]).toMatchObject({
+      target: 'slot::workflow',
+      payload: { definition_id: 'action:permission-lease.record-lease' },
+    });
+  });
+});

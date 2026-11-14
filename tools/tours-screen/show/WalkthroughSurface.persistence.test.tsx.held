@@ -1,0 +1,593 @@
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { WalkthroughDefinition } from '../read-data/walkthrough-eeaf';
+import {
+  WalkthroughSurface,
+  liveViewport,
+  rectInLiveViewport,
+} from './WalkthroughSurface';
+
+const definition: WalkthroughDefinition = {
+  kind: 'walkthrough-definition',
+  id: 'persistence-proof',
+  entry_step: 'finish',
+  triggers: [],
+  progress_style: { style: 'counter' },
+  status_copy: {
+    saving: 'Saving this choice…',
+    error: 'This choice was not saved. Try again.',
+    retry_label: 'Try again',
+  },
+  steps: [{
+    id: 'finish',
+    content: { content_kind: 'outcome', payload: { title: 'Ready' } },
+    nav: { buttons: [{ role: 'done', label: 'Finish' }] },
+  }],
+};
+
+const originalVisualViewport = Object.getOwnPropertyDescriptor(window, 'visualViewport');
+const originalInnerWidth = Object.getOwnPropertyDescriptor(window, 'innerWidth');
+const originalInnerHeight = Object.getOwnPropertyDescriptor(window, 'innerHeight');
+
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+  vi.restoreAllMocks();
+  if (originalVisualViewport) Object.defineProperty(window, 'visualViewport', originalVisualViewport);
+  else delete (window as Window & { visualViewport?: VisualViewport }).visualViewport;
+  if (originalInnerWidth) Object.defineProperty(window, 'innerWidth', originalInnerWidth);
+  if (originalInnerHeight) Object.defineProperty(window, 'innerHeight', originalInnerHeight);
+  document.querySelectorAll('[data-viewport-geometry-target]').forEach((node) => node.remove());
+});
+
+type MutableVisualViewport = Pick<VisualViewport, 'width' | 'height' | 'offsetLeft' | 'offsetTop'> & {
+  width: number;
+  height: number;
+  offsetLeft: number;
+  offsetTop: number;
+  dispatchEvent(event: Event): boolean;
+};
+
+function installVisualViewport(
+  geometry: Pick<VisualViewport, 'width' | 'height' | 'offsetLeft' | 'offsetTop'>,
+): MutableVisualViewport {
+  const events = new EventTarget();
+  const visual = {
+    ...geometry,
+    addEventListener: events.addEventListener.bind(events),
+    removeEventListener: events.removeEventListener.bind(events),
+    dispatchEvent: events.dispatchEvent.bind(events),
+  } as MutableVisualViewport;
+  Object.defineProperty(window, 'visualViewport', {
+    configurable: true,
+    value: visual,
+  });
+  return visual;
+}
+
+describe('WalkthroughSurface progress recovery', () => {
+  it('renders untargeted guidance through the shared floating panel and dismisses without completing', async () => {
+    const onExit = vi.fn();
+    const onDismiss = vi.fn();
+    render(<><button>Workspace control</button><WalkthroughSurface definition={definition} onExit={onExit} onDismiss={onDismiss} /></>);
+    const dialog = screen.getByRole('dialog', { name: /Walkthrough, step 1 of 1/ });
+    expect(dialog.className).toContain('coss-floating-panel');
+    expect(dialog.getAttribute('aria-modal')).toBeNull();
+    expect(document.querySelector('[data-anchored-coachmark]')).toBeNull();
+    const finish = screen.getByRole('button', { name: 'Finish' });
+    await waitFor(() => expect(document.activeElement).toBe(finish));
+    // Nothing traps focus: the workspace stays usable while the guidance is open.
+    screen.getByRole('button', { name: 'Workspace control' }).focus();
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Workspace control' }));
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onDismiss).toHaveBeenCalledTimes(1);
+    expect(onExit).toHaveBeenCalledExactlyOnceWith('skipped');
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('does not reapply an initial resume cursor after an accepted transition', async () => {
+    const initial = { currentStepId: 'first', history: [], status: 'active' as const };
+    const tour: WalkthroughDefinition = { ...definition, entry_step: 'first', steps: [
+      { id: 'first', content: { content_kind: 'text', payload: { title: 'First slide' } } },
+      definition.steps[0],
+    ] };
+    const transition = vi.fn(async (_previous, next) => next);
+    const view = render(<WalkthroughSurface definition={tour} initialCursor={initial} onExit={vi.fn()} onCursorTransition={transition} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    await screen.findByRole('button', { name: 'Finish' });
+    view.rerender(<WalkthroughSurface definition={tour} initialCursor={{ ...initial }} onExit={vi.fn()} onCursorTransition={transition} />);
+    expect(screen.getByRole('button', { name: 'Finish' })).toBeTruthy();
+    expect(transition).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(['rejected request', 'refused transition'])('retries the first step after a %s without completing or advancing locally', async (failure) => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const onExit = vi.fn();
+    const transition = vi.fn()
+      .mockImplementationOnce(async () => {
+        if (failure === 'rejected request') throw new Error('unknown target: guided-overlay.progress-transition');
+        return null;
+      })
+      .mockImplementation(async (_previous, next) => next);
+    const tour: WalkthroughDefinition = {
+      ...definition,
+      entry_step: 'first',
+      steps: [
+        { id: 'first', content: { content_kind: 'text', payload: { title: 'First slide' } }, nav: { buttons: [{ role: 'advance', label: 'Next' }] } },
+        { ...definition.steps[0] },
+      ],
+    };
+    render(<WalkthroughSurface definition={tour} onExit={onExit} onCursorTransition={transition} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    expect(await screen.findByText('This choice was not saved. Try again.')).toBeTruthy();
+    expect(screen.getByText('First slide')).toBeTruthy();
+    expect(onExit).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Finish' })).toBeTruthy());
+    expect(transition).toHaveBeenCalledTimes(2);
+    expect(transition.mock.calls[1]).toEqual(transition.mock.calls[0]);
+    expect(onExit).not.toHaveBeenCalled();
+  });
+
+  it('keeps a refused final transition visible and completes only after its retry is accepted', async () => {
+    const onExit = vi.fn();
+    const transition = vi.fn().mockResolvedValueOnce(null).mockImplementation(async (_previous, next) => next);
+    render(<WalkthroughSurface definition={definition} onExit={onExit} onCursorTransition={transition} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Finish' }));
+    await screen.findByText('This choice was not saved. Try again.');
+    expect(onExit).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    await waitFor(() => expect(onExit).toHaveBeenCalledWith('completed'));
+    expect(onExit).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    { width: 320, height: 568 },
+    { width: 390, height: 844 },
+  ])('uses the visible $width px mobile viewport', ({ width, height }) => {
+    installVisualViewport({ width, height, offsetLeft: 0, offsetTop: 0 });
+
+    expect(liveViewport()).toEqual({ width, height, offsetLeft: 0, offsetTop: 0 });
+  });
+
+  it('uses keyboard-reduced visual height instead of the unchanged layout viewport', () => {
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 390 });
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 844 });
+    installVisualViewport({ width: 390, height: 430, offsetLeft: 0, offsetTop: 0 });
+
+    expect(liveViewport()).toEqual({ width: 390, height: 430, offsetLeft: 0, offsetTop: 0 });
+  });
+
+  it('reflows the mounted overlay when the visual viewport reports a keyboard resize', async () => {
+    const visual = installVisualViewport({ width: 390, height: 844, offsetLeft: 0, offsetTop: 0 });
+    const target = document.createElement('button');
+    target.dataset.viewportGeometryTarget = 'true';
+    target.getBoundingClientRect = () => ({
+      x: 20,
+      y: 40,
+      left: 20,
+      top: 40,
+      right: 68,
+      bottom: 72,
+      width: 48,
+      height: 32,
+      toJSON: () => ({}),
+    });
+    document.body.appendChild(target);
+    const anchoredDefinition: WalkthroughDefinition = {
+      ...definition,
+      steps: [{
+        ...definition.steps[0],
+        target_ref: { from: 'selector', query: '[data-viewport-geometry-target="true"]' },
+      }],
+    };
+
+    render(<WalkthroughSurface definition={anchoredDefinition} onExit={vi.fn()} />);
+    const spotlight = await waitFor(() => document.querySelector<SVGElement>('[data-overlay-spotlight]'));
+    expect(spotlight?.getAttribute('width')).toBe('390');
+    expect(spotlight?.getAttribute('height')).toBe('844');
+    expect(spotlight?.style.left).toBe('0px');
+    expect(spotlight?.style.top).toBe('0px');
+    expect(spotlight?.style.width).toBe('390px');
+    expect(spotlight?.style.height).toBe('844px');
+
+    visual.height = 430;
+    visual.dispatchEvent(new Event('resize'));
+
+    await waitFor(() => {
+      expect(spotlight?.getAttribute('height')).toBe('430');
+      expect(spotlight?.style.height).toBe('430px');
+    });
+    target.remove();
+  });
+
+  it('normalizes zoomed and panned layout coordinates into visual-viewport space', () => {
+    installVisualViewport({ width: 195, height: 422, offsetLeft: 83.5, offsetTop: 210.25 });
+    const viewport = liveViewport();
+
+    expect(viewport).toEqual({
+      width: 195,
+      height: 422,
+      offsetLeft: 83.5,
+      offsetTop: 210.25,
+    });
+    expect(rectInLiveViewport(
+      { x: 103.5, y: 250.25, width: 48, height: 32 },
+      viewport,
+    )).toEqual({ x: 20, y: 40, width: 48, height: 32 });
+  });
+
+  it('paints spotlight, coachmark, and leader line in one fractional-offset viewport frame', async () => {
+    installVisualViewport({ width: 195, height: 422, offsetLeft: 83.5, offsetTop: 210.25 });
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
+      x: 0,
+      y: 0,
+      left: 0,
+      top: 0,
+      right: 180,
+      bottom: 400,
+      width: 180,
+      height: 400,
+      toJSON: () => ({}),
+    } as DOMRect);
+    const target = document.createElement('button');
+    target.dataset.viewportGeometryTarget = 'true';
+    target.getBoundingClientRect = () => ({
+      x: 103.5,
+      y: 250.25,
+      left: 103.5,
+      top: 250.25,
+      right: 151.5,
+      bottom: 282.25,
+      width: 48,
+      height: 32,
+      toJSON: () => ({}),
+    });
+    document.body.appendChild(target);
+    const anchoredDefinition: WalkthroughDefinition = {
+      ...definition,
+      steps: [{
+        ...definition.steps[0],
+        target_ref: { from: 'selector', query: '[data-viewport-geometry-target="true"]' },
+      }],
+    };
+
+    render(<WalkthroughSurface definition={anchoredDefinition} onExit={vi.fn()} />);
+    const coachmark = await screen.findByRole('dialog');
+    const spotlight = document.querySelector<SVGElement>('[data-overlay-spotlight]');
+    const leader = document.querySelector<SVGLineElement>('svg line')?.closest('svg');
+    const scrim = document.querySelector<SVGPathElement>('[data-overlay-scrim]');
+
+    expect(spotlight?.getAttribute('viewBox')).toBe('0 0 195 422');
+    expect(spotlight?.style.left).toBe('83.5px');
+    expect(spotlight?.style.top).toBe('210.25px');
+    expect(spotlight?.style.width).toBe('195px');
+    expect(spotlight?.style.height).toBe('422px');
+    expect(Number(spotlight?.style.zIndex)).toBeLessThan(Number(coachmark.style.zIndex));
+    expect(scrim?.getAttribute('d')).toContain('M20 32');
+    expect(coachmark.style.left).toBe('83.5px');
+    expect(coachmark.style.top).toBe('232.25px');
+    expect(coachmark.style.width).toContain('195px');
+    expect(coachmark.style.width).not.toContain('100vw');
+    expect(coachmark.style.maxHeight).toBe('calc(422px - 2rem)');
+    expect(coachmark.style.overflowY).toBe('auto');
+    expect(coachmark.style.overscrollBehavior).toBe('contain');
+    expect(leader?.getAttribute('viewBox')).toBe('0 0 195 422');
+    expect(leader?.style.left).toBe('83.5px');
+    expect(leader?.style.top).toBe('210.25px');
+    expect(leader?.style.width).toBe('195px');
+    expect(leader?.style.height).toBe('422px');
+  });
+
+  it('adds the same fractional viewport origin to a fitted coachmark tail', async () => {
+    installVisualViewport({ width: 390, height: 844, offsetLeft: 15.25, offsetTop: 20.5 });
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
+      x: 0,
+      y: 0,
+      left: 0,
+      top: 0,
+      right: 180,
+      bottom: 100,
+      width: 180,
+      height: 100,
+      toJSON: () => ({}),
+    } as DOMRect);
+    const target = document.createElement('button');
+    target.dataset.viewportGeometryTarget = 'true';
+    target.getBoundingClientRect = () => ({
+      x: 115.25,
+      y: 220.5,
+      left: 115.25,
+      top: 220.5,
+      right: 163.25,
+      bottom: 252.5,
+      width: 48,
+      height: 32,
+      toJSON: () => ({}),
+    });
+    document.body.appendChild(target);
+    const anchoredDefinition: WalkthroughDefinition = {
+      ...definition,
+      steps: [{
+        ...definition.steps[0],
+        target_ref: { from: 'selector', query: '[data-viewport-geometry-target="true"]' },
+      }],
+    };
+
+    render(<WalkthroughSurface definition={anchoredDefinition} onExit={vi.fn()} />);
+    const coachmark = await screen.findByRole('dialog');
+    const tail = document.querySelector<HTMLElement>('[data-coachmark-tail]');
+
+    expect(coachmark.style.left).toBe('49.25px');
+    expect(coachmark.style.top).toBe('260.5px');
+    expect(tail?.style.left).toBe('133.25px');
+    expect(tail?.style.top).toBe('254.5px');
+    expect(document.querySelector('svg line')).toBeNull();
+  });
+
+  it('falls back to the layout viewport when VisualViewport is unavailable', () => {
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 390 });
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 844 });
+
+    expect(liveViewport()).toEqual({
+      width: 390,
+      height: 844,
+      offsetLeft: 0,
+      offsetTop: 0,
+    });
+  });
+
+  it('keeps the final step visible and exposes an explicit retry after persistence fails', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const onExit = vi.fn()
+      .mockRejectedValueOnce(new Error('offline'))
+      .mockResolvedValueOnce(undefined);
+
+    render(<WalkthroughSurface definition={definition} onExit={onExit} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Finish' }));
+
+    expect(await screen.findByText('This choice was not saved. Try again.')).toBeTruthy();
+    expect(onExit).toHaveBeenCalledWith('completed');
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    await waitFor(() => expect(onExit).toHaveBeenCalledTimes(2));
+  });
+
+  it('uses a synchronous in-flight guard so a same-tick double click dispatches once', async () => {
+    let release!: () => void;
+    const pending = new Promise<void>((resolve) => { release = resolve; });
+    const onExit = vi.fn(() => pending);
+
+    render(<WalkthroughSurface definition={definition} onExit={onExit} />);
+    const finish = await screen.findByRole('button', { name: 'Finish' });
+    fireEvent.click(finish);
+    fireEvent.click(finish);
+
+    expect(onExit).toHaveBeenCalledTimes(1);
+    release();
+  });
+
+  it('allows Dismiss while completion persistence is pending without repeating the owner call', async () => {
+    const pending = new Promise<void>(() => undefined);
+    const onExit = vi.fn(() => pending);
+
+    render(<WalkthroughSurface definition={definition} onExit={onExit} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Finish' }));
+    const dismiss = await screen.findByRole('button', { name: 'Dismiss' });
+    expect(dismiss.hasAttribute('disabled')).toBe(false);
+
+    fireEvent.click(dismiss);
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(onExit).toHaveBeenCalledTimes(1);
+    expect(onExit).toHaveBeenCalledWith('completed');
+  });
+
+  it('allows Escape after completion persistence fails without retrying the owner call', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const onExit = vi.fn().mockRejectedValue(new Error('unknown target'));
+
+    render(<WalkthroughSurface definition={definition} onExit={onExit} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Finish' }));
+    expect(await screen.findByRole('button', { name: 'Dismiss' })).toBeTruthy();
+
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(onExit).toHaveBeenCalledTimes(1);
+  });
+
+  it('dismisses immediately while skip persistence continues in the background', async () => {
+    let rejectPersistence!: (error: Error) => void;
+    const pending = new Promise<void>((_resolve, reject) => { rejectPersistence = reject; });
+    const onExit = vi.fn(() => pending);
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const skipDefinition: WalkthroughDefinition = {
+      ...definition,
+      steps: [{
+        ...definition.steps[0],
+        nav: { buttons: [{ role: 'skip', label: 'Skip for now' }] },
+      }],
+    };
+
+    render(<WalkthroughSurface definition={skipDefinition} onExit={onExit} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Skip for now' }));
+    await waitFor(() => expect(onExit).toHaveBeenCalledWith('skipped'));
+    expect(screen.queryByRole('dialog')).toBeNull();
+
+    rejectPersistence(new Error('unknown target: guided-overlay.progress-transition'));
+    await waitFor(() => expect(console.error).toHaveBeenCalledWith(
+      '[WalkthroughSurface] Progress save failed after dismissal:',
+      expect.any(Error),
+    ));
+  });
+
+  it('dismisses when the optional skip persistence callback throws synchronously', () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const onExit = vi.fn(() => { throw new Error('owner unavailable'); });
+    const skipDefinition: WalkthroughDefinition = {
+      ...definition,
+      steps: [{
+        ...definition.steps[0],
+        nav: { buttons: [{ role: 'skip', label: 'Dismiss' }] },
+      }],
+    };
+
+    render(<WalkthroughSurface definition={skipDefinition} onExit={onExit} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
+
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(onExit).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the tour open when the spotlight scrim is clicked', async () => {
+    const target = document.createElement('button');
+    target.dataset.viewportGeometryTarget = 'true';
+    target.scrollIntoView = vi.fn();
+    target.getBoundingClientRect = () => ({
+      x: 20,
+      y: 32,
+      width: 120,
+      height: 36,
+      top: 32,
+      right: 140,
+      bottom: 68,
+      left: 20,
+      toJSON: () => ({}),
+    });
+    document.body.appendChild(target);
+    const onExit = vi.fn().mockResolvedValue(undefined);
+    const anchoredDefinition: WalkthroughDefinition = {
+      ...definition,
+      steps: [{ ...definition.steps[0], target_ref: { from: 'selector', query: '[data-viewport-geometry-target="true"]' } }],
+    };
+
+    render(<WalkthroughSurface definition={anchoredDefinition} onExit={onExit} />);
+    const scrim = await waitFor(() => {
+      const node = document.querySelector<SVGPathElement>('[data-overlay-scrim]');
+      expect(node).toBeTruthy();
+      return node as SVGPathElement;
+    });
+    fireEvent.click(scrim);
+
+    expect(onExit).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog')).toBeTruthy();
+  });
+
+  it('adds Back to default navigation after the first step and retreats', async () => {
+    const twoStepDefinition: WalkthroughDefinition = {
+      ...definition,
+      entry_step: 'first',
+      steps: [
+        { id: 'first', content: { content_kind: 'text', payload: { title: 'First step' } } },
+        { id: 'second', content: { content_kind: 'text', payload: { title: 'Second step' } } },
+      ],
+    };
+
+    render(<WalkthroughSurface definition={twoStepDefinition} onExit={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    expect(await screen.findByText('Second step')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Back' }));
+    expect(await screen.findByText('First step')).toBeTruthy();
+  });
+
+  it('announces a non-modal panel, leaves the page usable, dismisses with Escape, and restores focus', async () => {
+    const launcher = document.createElement('button');
+    launcher.textContent = 'Open tour';
+    document.body.appendChild(launcher);
+    launcher.focus();
+    const onExit = vi.fn().mockResolvedValue(undefined);
+
+    const view = render(<WalkthroughSurface definition={definition} onExit={onExit} />);
+
+    const dialog = await screen.findByRole('dialog', { name: 'Walkthrough, step 1 of 1' });
+    expect(dialog).toBeTruthy();
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Finish' })));
+
+    // Nothing traps focus: the person can go back to the page while the tour is open.
+    launcher.focus();
+    expect(document.activeElement).toBe(launcher);
+
+    fireEvent.keyDown(window, { key: 'Escape' });
+    await waitFor(() => expect(onExit).toHaveBeenCalledWith('skipped'));
+
+    view.unmount();
+    expect(document.activeElement).toBe(launcher);
+    launcher.remove();
+  });
+});
+
+describe('owner-signal bridge (OD-04/OD-05 dependency)', () => {
+  it('does not overlap owner reads when one read lasts longer than the refresh cadence', async () => {
+    vi.useFakeTimers();
+    const bridge = vi.fn(() => new Promise<Record<string, unknown>>(() => undefined));
+    const ownerReadDefinition = {
+      kind: 'walkthrough-definition' as const,
+      id: 'single-flight-owner-readback',
+      entry_step: 'gate',
+      triggers: [],
+      steps: [{
+        id: 'gate',
+        content: { content_kind: 'text', payload: { title: 'Choose' } },
+        advance_condition: {
+          op: 'owner-readback',
+          args: { answer_fact_ref: 'package::owner::answer' },
+        },
+      }],
+    };
+
+    render(
+      <WalkthroughSurface
+        definition={ownerReadDefinition}
+        onExit={() => undefined}
+        ownerSignalBridge={bridge}
+      />,
+    );
+
+    await act(async () => undefined);
+    expect(bridge).toHaveBeenCalledTimes(1);
+    await act(async () => { await vi.advanceTimersByTimeAsync(2_100); });
+    expect(bridge).toHaveBeenCalledTimes(1);
+  });
+
+  it('resolves a step owner-readback condition through the injected bridge and unlocks advancement', async () => {
+    const seen: Array<{ refs: string[]; stepId: string }> = [];
+    const bridge = async (refs: readonly string[], context: { stepId: string }) => {
+      seen.push({ refs: [...refs], stepId: context.stepId });
+      return Object.fromEntries(refs.map((ref) => [ref, 'documents-person']));
+    };
+    const definition = {
+      kind: 'walkthrough-definition' as const,
+      id: 'owner-readback-def',
+      entry_step: 'gate',
+      triggers: [],
+      steps: [
+        {
+          id: 'gate',
+          content: { content_kind: 'text', payload: { title: 'Choose' } },
+          advance_condition: {
+            op: 'owner-readback',
+            args: { owner: 'unseen-owner', answer_fact_ref: 'package::unseen-owner::answer::form::respondent::question', required_answer_values: ['documents-person'] },
+          },
+          nav: { buttons: [{ role: 'advance', label: 'Continue' }] },
+        },
+      ],
+    };
+    const transitions: unknown[] = [];
+    render(
+      <WalkthroughSurface
+        definition={definition}
+        onExit={() => undefined}
+        ownerSignalBridge={bridge}
+        onCursorTransition={async (_prev, next) => { transitions.push(next); return next; }}
+      />,
+    );
+    const advance = await screen.findByRole('button', { name: 'Continue' });
+    // The bridge resolves quickly enough that the assertion must be the END
+    // state (unlocked), plus proof the bridge received exactly the declared refs.
+    await waitFor(() => {
+      expect(seen.at(-1)?.refs).toEqual(['package::unseen-owner::answer::form::respondent::question']);
+    });
+    await waitFor(() => {
+      expect(advance).toHaveProperty('disabled', false);
+    });
+    expect(seen.length).toBeGreaterThan(0);
+  });
+});

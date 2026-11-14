@@ -1,0 +1,219 @@
+import { describe, expect, it } from 'vitest';
+import { makeHashCodeHexFromBytes, makeMultihashEncodedBytesFromCodeHex } from '@bitfield/slot-protocol';
+import {
+  recordControlTarget,
+  handBackControlTarget,
+  type ControlTargetSender,
+} from '@/packages/permission-lease/do-work/exclusive-control-lease-targets';
+
+// Each case still injects its own clock as the fourth argument, which is what these
+// cases are about. The context supplies the ENTROPY the lease-ref nonce is minted
+// from; the minter throws when the runtime supplied none, so passing undefined here
+// is no longer a way to get a random nonce.
+const FIXED_TEST_RUNTIME_CONTEXT = {
+  runtime: {
+    partition_label: 'test',
+    ambient: { time_unix_ms: 1_700_000_000_000, entropy_hex: 'ab'.repeat(32) },
+  },
+};
+
+/**
+ * A tiny in-memory engine that answers the exact two ops the targets use:
+ * `slot::find-current-items` (read published-record by field) and
+ * `engine.operation.label-addressed` -> `engine.operation.write-batch` (write one
+ * published-record by address). It stores each write by address_label and serves
+ * find-current-items from the union of stored payloads, so a written lease is
+ * immediately readable back, the same round-trip proven live.
+ */
+function makeFakeEngine() {
+  const store = new Map<string, Record<string, unknown>>();
+  const hash = (value: Record<string, unknown>) => makeHashCodeHexFromBytes(new TextEncoder().encode(JSON.stringify(value)));
+  const sender: ControlTargetSender = async ({ target, payload }) => {
+    if (target === 'slot::find-current-items') {
+      const where = (payload as { where?: { all?: Array<{ field: string; eq?: unknown; in?: unknown[] }> } }).where?.all ?? [];
+      const items = [...store.values()].filter((record) =>
+        where.every((clause) =>
+          clause.in !== undefined
+            ? (clause.in as unknown[]).includes(record[clause.field])
+            : record[clause.field] === clause.eq));
+      return { items: items.map((record) => ({ payload: record })) };
+    }
+    if (target === 'engine.operation.label-addressed') {
+      const op = payload as { operation_label: string; address_label: string; writes: Array<{ address_label: string; payload: Record<string, unknown>; expected_current?: { payload_hash_base64: string | null } }> };
+      if (op.operation_label === 'engine.operation.read-current') {
+        const value = store.get(op.address_label);
+        return value ? { found: true, content_hash: hash(value), payload: value } : { found: false };
+      }
+      if (op.operation_label !== 'engine.operation.write-batch') throw new Error(`unexpected op ${op.operation_label}`);
+      for (const write of op.writes) {
+        if (!write.expected_current) continue;
+        const current = store.get(write.address_label);
+        const currentHash = current ? Buffer.from(makeMultihashEncodedBytesFromCodeHex(hash(current))).toString('base64') : null;
+        if (write.expected_current.payload_hash_base64 !== currentHash) throw new Error('FE_EXPECTED_CURRENT_MISMATCH');
+      }
+      for (const write of op.writes) store.set(write.address_label, write.payload);
+      return { write_count: op.writes.length };
+    }
+    throw new Error(`unexpected target ${target}`);
+  };
+  return { sender, store };
+}
+
+const SCOPE = 'computer:test-1';
+const clock = (iso: string) => () => new Date(iso);
+
+describe('permission-lease exclusive-control target ops', () => {
+  it('advances the scope revision even when an expired caller lease identity is reused', async () => {
+    const { sender, store } = makeFakeEngine();
+    await recordControlTarget({ scope_ref: SCOPE, holder: 'first', lease_ref: 'reused', expires_at: '2026-08-20T10:00:01Z' },
+      FIXED_TEST_RUNTIME_CONTEXT, sender, clock('2026-08-20T10:00:00Z'));
+    const results = await Promise.allSettled(['second', 'third'].map(holder => recordControlTarget(
+      { scope_ref: SCOPE, holder, lease_ref: 'reused' }, FIXED_TEST_RUNTIME_CONTEXT, sender, clock('2026-08-20T10:00:02Z'),
+    )));
+    expect(results.filter(r => r.status === 'fulfilled' && r.value.accepted)).toHaveLength(1);
+    expect([...store.values()].find(r => r.generation)?.generation).toBe(2);
+  });
+
+  it('only one concurrent acquisition succeeds for an empty scope', async () => {
+    const { sender, store } = makeFakeEngine();
+    const results = await Promise.allSettled(['human', 'bot'].map(holder => recordControlTarget(
+      { scope_ref: SCOPE, holder }, FIXED_TEST_RUNTIME_CONTEXT, sender, clock('2026-08-20T10:00:00Z'),
+    )));
+    expect(results.filter(r => r.status === 'fulfilled' && r.value.accepted)).toHaveLength(1);
+    expect([...store.values()].filter(r => r.kind === 'permission_lease')).toHaveLength(1);
+  });
+
+  it('caller since cannot advance the observed clock', async () => {
+    const { sender, store } = makeFakeEngine();
+    await recordControlTarget({ scope_ref: SCOPE, holder: 'human', since: '2099-01-01T00:00:00Z' },
+      FIXED_TEST_RUNTIME_CONTEXT, sender, clock('2026-08-20T10:00:00Z'));
+    expect([...store.values()].find(r => r.kind === 'permission_lease')?.since).toBe('2026-08-20T10:00:00.000Z');
+  });
+  it('uses durable authorization time on the production default path and refuses rollback', async () => {
+    const base = makeFakeEngine();
+    let observed: Record<string, unknown> | undefined;
+    const sender: ControlTargetSender = async (request) => {
+      const payload = request.payload as Record<string, unknown>;
+      if (request.target === 'engine.operation.label-addressed'
+        && payload.operation_label === 'engine.operation.read-current'
+        && payload.address_label === 'package::permission-lease::authorization-time') {
+        expect(payload.partition_label).toBe('test');
+        return observed ? { found: true, content_hash: '1f:' + 'ab'.repeat(32), payload: observed } : { found: false };
+      }
+      if (request.target === 'engine.operation.label-addressed'
+        && payload.operation_label === 'engine.operation.write-batch') {
+        const writes = payload.writes as Array<{ address_label: string; payload: Record<string, unknown>; expected_current?: unknown }>;
+        if (writes[0].address_label === 'package::permission-lease::authorization-time') {
+          expect(writes[0].expected_current).toEqual({ payload_hash_base64: null });
+          observed = writes[0].payload;
+          return { write_count: 1 };
+        }
+      }
+      return base.sender(request);
+    };
+    await expect(recordControlTarget(
+      { scope_ref: SCOPE, holder: 'human' }, FIXED_TEST_RUNTIME_CONTEXT, sender,
+    )).resolves.toMatchObject({ accepted: true });
+    expect(observed?.now_ms).toBe(FIXED_TEST_RUNTIME_CONTEXT.runtime.ambient.time_unix_ms);
+    await expect(recordControlTarget(
+      { scope_ref: SCOPE, holder: 'bot' },
+      { runtime: { ...FIXED_TEST_RUNTIME_CONTEXT.runtime, ambient: {
+        ...FIXED_TEST_RUNTIME_CONTEXT.runtime.ambient,
+        time_unix_ms: FIXED_TEST_RUNTIME_CONTEXT.runtime.ambient.time_unix_ms - 1,
+      } } }, sender,
+    )).rejects.toThrow('backwards');
+  });
+
+  it('record-lease mints a lease and writes a live permission_lease record found by readback', async () => {
+    const { sender, store } = makeFakeEngine();
+    const receipt = await recordControlTarget(
+      { operation: 'record-lease', lease_class: 'exclusive-control', scope_ref: SCOPE, holder: 'human', reason: 'took the wheel' },
+      FIXED_TEST_RUNTIME_CONTEXT,
+      sender,
+      clock('2026-08-20T10:00:00Z'),
+    );
+    expect(receipt.accepted).toBe(true);
+    expect(receipt.recorded).toBe(true);
+    expect(receipt.lease_ref).toMatch(/^lease:exclusive-control:computer:test-1:human:/);
+    const written = [...store.values()].find((r) => r.kind === 'permission_lease');
+    expect(written).toMatchObject({ kind: 'permission_lease', lease_class: 'exclusive-control', scope_ref: SCOPE, holder: 'human', revoked: false });
+  });
+
+  it('record-lease is idempotent for the same holder (no second write)', async () => {
+    const { sender, store } = makeFakeEngine();
+    await recordControlTarget({ operation: 'record-lease', scope_ref: SCOPE, holder: 'human' }, FIXED_TEST_RUNTIME_CONTEXT, sender, clock('2026-08-20T10:00:00Z'));
+    const leaseCount = () => [...store.values()].filter((r) => r.kind === 'permission_lease').length;
+    expect(leaseCount()).toBe(1);
+    const again = await recordControlTarget({ operation: 'record-lease', scope_ref: SCOPE, holder: 'human' }, FIXED_TEST_RUNTIME_CONTEXT, sender, clock('2026-08-20T10:00:05Z'));
+    expect(again.accepted).toBe(true);
+    expect(again.already_held).toBe(true);
+    expect(again.recorded).toBe(false);
+    expect(leaseCount()).toBe(1);
+  });
+
+  it('record-lease REFUSES a second party while one holds the wheel (AlreadyInControlError)', async () => {
+    const { sender } = makeFakeEngine();
+    await recordControlTarget({ operation: 'record-lease', scope_ref: SCOPE, holder: 'human' }, FIXED_TEST_RUNTIME_CONTEXT, sender, clock('2026-08-20T10:00:00Z'));
+    const conflict = await recordControlTarget({ operation: 'record-lease', scope_ref: SCOPE, holder: 'bot' }, FIXED_TEST_RUNTIME_CONTEXT, sender, clock('2026-08-20T10:00:01Z'));
+    expect(conflict.accepted).toBe(false);
+    expect(conflict.recorded).toBe(false);
+    expect(conflict.conflict?.held_by).toBe('human');
+  });
+
+  it('revoke-lease writes a durable revocation naming the lease_ref and frees the scope', async () => {
+    const { sender, store } = makeFakeEngine();
+    const grant = await recordControlTarget({ operation: 'record-lease', scope_ref: SCOPE, holder: 'human' }, FIXED_TEST_RUNTIME_CONTEXT, sender, clock('2026-08-20T10:00:00Z'));
+    const revoke = await handBackControlTarget({ operation: 'revoke-lease', scope_ref: SCOPE, reason: 'handed back' }, FIXED_TEST_RUNTIME_CONTEXT, sender, clock('2026-08-20T10:05:00Z'));
+    expect(revoke.accepted).toBe(true);
+    expect(revoke.revoked_lease_refs).toContain(grant.lease_ref);
+    const revocation = [...store.values()].find((r) => r.kind === 'permission_lease_revocation');
+    expect(revocation).toMatchObject({ kind: 'permission_lease_revocation', lease_ref: grant.lease_ref });
+    // After hand-back the same scope is grantable again (a fresh take succeeds).
+    const retake = await recordControlTarget({ operation: 'record-lease', scope_ref: SCOPE, holder: 'human' }, FIXED_TEST_RUNTIME_CONTEXT, sender, clock('2026-08-20T10:06:00Z'));
+    expect(retake.accepted).toBe(true);
+    expect(retake.recorded).toBe(true);
+    expect(retake.lease_ref).not.toBe(grant.lease_ref);
+  });
+
+  it('revoke-lease is idempotent when the wheel is already free', async () => {
+    const { sender } = makeFakeEngine();
+    const revoke = await handBackControlTarget({ operation: 'revoke-lease', scope_ref: SCOPE }, FIXED_TEST_RUNTIME_CONTEXT, sender, clock('2026-08-20T10:00:00Z'));
+    expect(revoke.accepted).toBe(true);
+    expect(revoke.revoked_lease_refs).toEqual([]);
+    expect(revoke.recorded).toBe(false);
+  });
+
+  it('does not expire a current hold merely because its deadline is recorded', async () => {
+    const { sender, store } = makeFakeEngine();
+    store.set('lease:current', {
+      kind: 'permission_lease', lease_class: 'exclusive-control', lease_ref: 'lease:current',
+      scope_ref: SCOPE, holder: 'human', since: '2026-08-20T09:00:00Z',
+      expires_at: '2026-08-20T11:00:00Z', revoked: false,
+    });
+    const conflict = await recordControlTarget(
+      { operation: 'record-lease', scope_ref: SCOPE, holder: 'bot' },
+      FIXED_TEST_RUNTIME_CONTEXT, sender, clock('2026-08-20T10:00:00Z'),
+    );
+    expect(conflict.accepted).toBe(false);
+    expect(conflict.recorded).toBe(false);
+    expect(conflict.conflict?.held_by).toBe('human');
+  });
+
+  it('SP3 high-water mark: a rolled-back clock cannot revive an expired lease', async () => {
+    const { sender, store } = makeFakeEngine();
+    // A lease that already expired per its own expires_at in the log.
+    store.set('package::permission-lease::exclusive-control-lease::lease:old', {
+      kind: 'permission_lease', lease_class: 'exclusive-control', lease_ref: 'lease:old', scope_ref: SCOPE, holder: 'human',
+      since: '2026-08-20T09:00:00Z', expires_at: '2026-08-20T09:30:00Z', revoked: false,
+    });
+    // High-water mark is pulled to 11:00 by a later revocation timestamp in the log.
+    store.set('package::permission-lease::exclusive-control-revocation::lease:stale', {
+      kind: 'permission_lease_revocation', lease_ref: 'lease:stale', revoked_at: '2026-08-20T11:00:00Z',
+    });
+    // Even with a rolled-back system clock (09:15), effectiveNow floors at 11:00 so
+    // lease:old is expired and a new take is grantable, not blocked by the dead lease.
+    const receipt = await recordControlTarget({ operation: 'record-lease', scope_ref: SCOPE, holder: 'human' }, FIXED_TEST_RUNTIME_CONTEXT, sender, clock('2026-08-20T09:15:00Z'));
+    expect(receipt.accepted).toBe(true);
+    expect(receipt.recorded).toBe(true);
+  });
+});

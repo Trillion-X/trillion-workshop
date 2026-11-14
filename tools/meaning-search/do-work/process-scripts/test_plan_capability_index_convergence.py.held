@@ -1,0 +1,214 @@
+#!/usr/bin/env python3
+"""Adversarial tests for fixed-point semantic-index convergence planning."""
+from __future__ import annotations
+
+import importlib.util
+import json
+
+from canonical_multihash import mint_canonical_multihash_of_text
+import unittest
+from pathlib import Path
+
+HERE = Path(__file__).parent
+SCRIPT = HERE / "plan-capability-index-convergence.py"
+spec = importlib.util.spec_from_file_location("capability_convergence", SCRIPT)
+mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(mod)
+
+
+def h(label: str) -> str:
+    # Was `"1f:" + hashlib.sha256(...)`, and `1f` is the multicodec code for BLAKE3, so the
+    # fixture declared an algorithm it was not produced with. Minted by the owning module now.
+    return mint_canonical_multihash_of_text(label)
+
+DESCRIPTOR = {
+    "index_id": "capabilities",
+    "max_source_count": 10,
+    "hydration_sample_count": 2,
+    "owner_query": {"target": "slot::find-current-items", "request": {"operation": "find-current-items"}},
+    "authority_provenance_ref": "authority:current-user",
+    "descriptor_revision": h("descriptor"),
+    "model_provenance_ref": "model:embed",
+    "owner_targets": {"action": "slot::workflow", "placeable-surface": "slot::screen-arrangement"},
+}
+SOURCE_DESCRIPTOR = {
+    key: value
+    for key, value in DESCRIPTOR.items()
+    if key not in {"descriptor_revision", "model_provenance_ref"}
+}
+SOURCE_DESCRIPTOR["index_ref"] = "semantic-index-descriptor:capabilities"
+INDEX_DESCRIPTOR = {
+    "index_id": "capabilities",
+    "descriptor_revision": DESCRIPTOR["descriptor_revision"],
+    "model_provenance_ref": DESCRIPTOR["model_provenance_ref"],
+}
+
+
+def row(address: str, digest: str, text: str = '{"kind":"action","name":"Test"}') -> dict:
+    return {"address": address, "content_hash": h(digest), "payload_json_text": text}
+
+
+def scan(digest: str, rows: list[dict]) -> dict:
+    return {"items": rows, "snapshot": {"digest": h(digest), "count": len(rows)}}
+
+
+def state(subjects: dict) -> dict:
+    for value in subjects.values():
+        if isinstance(value, dict):
+            for key in ("revision", "payload_hash", "source_snapshot_ref"):
+                if key in value:
+                    value[key] = h(value[key])
+    return {"items": [{
+        "table": "attribute_fact",
+        "property_id": "prop:semantic-ann-index:capabilities",
+        "value_json": json.dumps({"subjects": subjects}),
+    }]}
+
+
+class ConvergencePlannerTest(unittest.TestCase):
+    def test_exact_descriptor_row_array_accepts_one_and_denies_zero_or_ambiguous(self):
+        source_row = {
+            **SOURCE_DESCRIPTOR,
+            "kind": "capability-index-source-descriptor",
+        }
+        index_row = {
+            **INDEX_DESCRIPTOR,
+            "kind": "semantic-index-descriptor",
+        }
+        prepared = mod.prepare([source_row], [index_row])
+        self.assertEqual(prepared["projected_descriptor"]["index_id"], "capabilities")
+        with self.assertRaisesRegex(ValueError, "exactly one current descriptor"):
+            mod.prepare([], [index_row])
+        with self.assertRaisesRegex(ValueError, "exactly one current descriptor"):
+            mod.prepare([source_row, source_row], [index_row])
+        with self.assertRaisesRegex(ValueError, "exactly one current descriptor"):
+            mod.prepare([source_row], [index_row, index_row])
+
+    def test_projection_keeps_index_provenance_single_owned_and_rejects_crossed_refs(self):
+        projected = mod.projected_descriptor(SOURCE_DESCRIPTOR, INDEX_DESCRIPTOR)
+        self.assertEqual(projected["descriptor_revision"], DESCRIPTOR["descriptor_revision"])
+        self.assertNotIn("descriptor_revision", SOURCE_DESCRIPTOR)
+        with self.assertRaisesRegex(ValueError, "index_ref"):
+            mod.projected_descriptor(
+                {**SOURCE_DESCRIPTOR, "index_ref": "semantic-index-descriptor:other"},
+                INDEX_DESCRIPTOR,
+            )
+
+    def test_plan_upserts_all_and_retracts_absent_current_subjects(self):
+        result = mod.plan(
+            scan("1f:set-a", [row("1f20aa", "1f:one"), row("1f20bb", "1f:two")]),
+            state({
+                "1f20aa": {"canonical_address": "1f20aa", "revision": "1f:old",
+                           "payload_hash": "1f:old", "source_snapshot_ref": "1f:old"},
+                "1f20gone": {"canonical_address": "1f20gone", "revision": "1f:gone",
+                             "payload_hash": "1f:gone", "source_snapshot_ref": "1f:old"},
+            }),
+            DESCRIPTOR,
+            "2026-07-25T00:00:00Z",
+        )
+        self.assertEqual([item["content_address"] for item in result["upserts"]],
+                         ["1f20aa", "1f20bb"])
+        self.assertEqual([item["content_address"] for item in result["retracts"]],
+                         ["1f20gone"])
+        self.assertTrue(all(item["source_snapshot_ref"] == h("1f:set-a")
+                            for item in result["upserts"] + result["retracts"]))
+        self.assertNotIn("embedding_request", result)
+
+    def test_stable_repeat_plans_zero_mutations(self):
+        current_scan = scan("1f:set-a", [row("1f20aa", "1f:one")])
+        current_state = state({
+            "1f20aa": {
+                "canonical_address": "1f20aa",
+                "revision": "1f:one",
+                "payload_hash": "1f:one",
+                "source_snapshot_ref": "1f:set-a",
+                "removed": False,
+            },
+        })
+        result = mod.plan(
+            current_scan,
+            current_state,
+            DESCRIPTOR,
+            "2026-07-25T00:00:00Z",
+        )
+        self.assertEqual(result["upserts"], [])
+        self.assertEqual(result["retracts"], [])
+
+    def test_descriptor_selected_precomputed_vector_is_forwarded_generically(self):
+        vector_payload = json.dumps({
+            "kind": "action",
+            "name": "Test",
+            "proof_vector": "eyJ2ZWN0b3IiOlsxLjAsMC4wXX0=",
+        }, separators=(",", ":"))
+        result = mod.plan(
+            scan("1f:set-a", [row("1f20aa", "1f:one", vector_payload)]),
+            state({}),
+            {**DESCRIPTOR, "content_vector_field": "proof_vector"},
+            "2026-07-25T00:00:00Z",
+        )
+        self.assertEqual(
+            result["upserts"][0]["content_vector_base64"],
+            "eyJ2ZWN0b3IiOlsxLjAsMC4wXX0=",
+        )
+        self.assertNotIn("embedding_request", result)
+
+    def test_verify_requires_two_equal_owner_reads_and_exact_index(self):
+        current_scan = scan("1f:set-a", [row("1f20aa", "1f:one")])
+        current_state = state({
+            "1f20aa": {"canonical_address": "1f20aa", "revision": "1f:one",
+                       "payload_hash": "1f:one", "source_snapshot_ref": "1f:set-a",
+                       "removed": False},
+        })
+        ready = mod.verify(current_scan, current_scan, current_state, DESCRIPTOR)
+        self.assertEqual(ready["status"], "ready")
+        self.assertEqual(ready["source_snapshot_ref"], ready["indexed_snapshot_ref"])
+        self.assertEqual(ready["samples"][0]["owner_query"]["addresses"], ["1f20aa"])
+        self.assertEqual(ready["samples"][0]["owner_query_target"], "slot::find-current-items")
+        self.assertEqual(ready["samples"][0]["owner_target"], "slot::workflow")
+
+        raced = mod.verify(
+            current_scan,
+            scan("1f:set-b", [row("1f20aa", "1f:two")]),
+            current_state,
+            DESCRIPTOR,
+        )
+        self.assertEqual(raced["status"], "unstable")
+        self.assertEqual(raced["reason_ref"], "owner-snapshot-changed")
+
+        stale = mod.verify(
+            current_scan,
+            current_scan,
+            state({
+                "1f20aa": {"canonical_address": "1f20aa", "revision": "1f:old",
+                           "payload_hash": "1f:old", "source_snapshot_ref": "1f:set-a"},
+            }),
+            DESCRIPTOR,
+        )
+        self.assertEqual(stale["reason_ref"], "index-identity-mismatch")
+
+    def test_duplicate_conflict_count_mismatch_and_bound_fail_closed(self):
+        with self.assertRaisesRegex(ValueError, "snapshot.count"):
+            mod.snapshot_rows({"items": [], "snapshot": {"digest": h("x"), "count": 1}})
+        with self.assertRaisesRegex(ValueError, "duplicate owner address"):
+            mod.snapshot_rows(scan(
+                "1f:x",
+                [row("1f20aa", "1f:one"), row("1f20aa", "1f:two")],
+            ))
+        too_small = {**DESCRIPTOR, "max_source_count": 1}
+        with self.assertRaisesRegex(ValueError, "max_source_count"):
+            mod.plan(
+                scan("1f:x", [row("1f20aa", "1f:one"), row("1f20bb", "1f:two")]),
+                state({}),
+                too_small,
+                "2026-07-25T00:00:00Z",
+            )
+
+    def test_nonempty_malformed_snapshot_or_content_hash_fails_closed(self):
+        with self.assertRaisesRegex(ValueError, "canonical multihash"):
+            mod.snapshot_rows(scan("bad", []) | {"snapshot": {"digest": "sha256:bad", "count": 0}})
+        with self.assertRaisesRegex(ValueError, "canonical multihash"):
+            mod.snapshot_rows(scan("ok", [{"address": "a", "content_hash": "1f:" + "A" * 64, "payload_json_text": "{}"}]))
+
+
+if __name__ == "__main__":
+    unittest.main()

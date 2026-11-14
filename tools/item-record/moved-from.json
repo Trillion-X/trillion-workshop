@@ -1,0 +1,216 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages (packages/item-record): each names its source path and commit, the identity of its source bytes and of its bytes here. The first commit that holds them is the byte copy; later commits change import paths only. A file named .held is the same bytes with its test name taken off so the repository test does not run it; the reason is under `held`. `not_carried` names package files that were left in the package and why.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/item-record/do-work/create-item-record.ts",
+      "commit": "4d8a3c1b31b1adbdeb5a6d4cef1eeaa62ebb064d",
+      "to": "tools/item-record/do-work/create-item-record.ts",
+      "source_identity": "1f:bb902346948405fd6bc162d2009a846b2fa3c908a22df21f27bdf1ad66f818d3",
+      "identity": "1f:bb902346948405fd6bc162d2009a846b2fa3c908a22df21f27bdf1ad66f818d3"
+    },
+    {
+      "from": "packages/item-record/do-work/owner-actions.ts",
+      "commit": "4d8a3c1b31b1adbdeb5a6d4cef1eeaa62ebb064d",
+      "to": "tools/item-record/do-work/owner-actions.ts",
+      "source_identity": "1f:044bc444c34d8cc638fa2fd60ceca0ba7d11e19abc3aa3456d6029dec76e2bdb",
+      "identity": "1f:044bc444c34d8cc638fa2fd60ceca0ba7d11e19abc3aa3456d6029dec76e2bdb"
+    },
+    {
+      "from": "packages/item-record/do-work/read-activity-effects.ts",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "to": "tools/item-record/do-work/read-activity-effects.ts",
+      "source_identity": "1f:0bee5be5dae0168bcadf948fc3f29ed4b749899fd5a4cbf99a515378bd89bf1c",
+      "identity": "1f:0bee5be5dae0168bcadf948fc3f29ed4b749899fd5a4cbf99a515378bd89bf1c"
+    },
+    {
+      "from": "packages/item-record/do-work/read-item-record-feed.test.ts",
+      "commit": "4d8a3c1b31b1adbdeb5a6d4cef1eeaa62ebb064d",
+      "to": "tools/item-record/do-work/read-item-record-feed.test.ts.held",
+      "source_identity": "1f:18b8c649cbc9c89817dcbf1d669b238bb75a69ed7777b4998b57a4dc94876e2f",
+      "identity": "1f:18b8c649cbc9c89817dcbf1d669b238bb75a69ed7777b4998b57a4dc94876e2f"
+    },
+    {
+      "from": "packages/item-record/do-work/read-item-record-feed.ts",
+      "commit": "4d8a3c1b31b1adbdeb5a6d4cef1eeaa62ebb064d",
+      "to": "tools/item-record/do-work/read-item-record-feed.ts",
+      "source_identity": "1f:e5b3f04d7f1d5779e444410992fbdc2e13628d3e39dcf9ea3f3ce97de53355cb",
+      "identity_at_move": "1f:e5b3f04d7f1d5779e444410992fbdc2e13628d3e39dcf9ea3f3ce97de53355cb",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/item-record/do-work/record-activity-effect.ts",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "to": "tools/item-record/do-work/record-activity-effect.ts",
+      "source_identity": "1f:3ecdfaefbd8531a4a74b59aa893611ba9092fc6d5c7cb5a5dd59bd789ce0776e",
+      "identity": "1f:3ecdfaefbd8531a4a74b59aa893611ba9092fc6d5c7cb5a5dd59bd789ce0776e"
+    },
+    {
+      "from": "packages/item-record/do-work/refresh-item-records.ts",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "to": "tools/item-record/do-work/refresh-item-records.ts",
+      "source_identity": "1f:d34d93aa73857032ead92bb1e9843438c4c01296d681995806ca97e8451d7437",
+      "identity": "1f:d34d93aa73857032ead92bb1e9843438c4c01296d681995806ca97e8451d7437"
+    },
+    {
+      "from": "packages/item-record/read-data/read-home-rail.ts",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "to": "tools/item-record/read-data/read-home-rail.ts",
+      "source_identity": "1f:c22a5f20d7bce11d551a38a2c4846e115e6dce92c5ab1f12f4147c6e45bc6d6d",
+      "identity": "1f:c22a5f20d7bce11d551a38a2c4846e115e6dce92c5ab1f12f4147c6e45bc6d6d"
+    },
+    {
+      "from": "packages/item-record/read-data/read-item-records.test.ts",
+      "commit": "4d8a3c1b31b1adbdeb5a6d4cef1eeaa62ebb064d",
+      "to": "tools/item-record/read-data/read-item-records.test.ts",
+      "source_identity": "1f:2fe0d6f137e0a9963cb3e98ee00b2238cd84fd6ee7056d69c901c5867d7bb487",
+      "identity_at_move": "1f:2fe0d6f137e0a9963cb3e98ee00b2238cd84fd6ee7056d69c901c5867d7bb487",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/item-record/read-data/read-item-records.ts",
+      "commit": "4d8a3c1b31b1adbdeb5a6d4cef1eeaa62ebb064d",
+      "to": "tools/item-record/read-data/read-item-records.ts",
+      "source_identity": "1f:5f707fced72e97dc2cdb6f9fb097f9f73967a23d292d12d70ae2301e7d92df4f",
+      "identity_at_move": "1f:5f707fced72e97dc2cdb6f9fb097f9f73967a23d292d12d70ae2301e7d92df4f",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/item-record/read-data/record-descriptors.ts",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/item-record/read-data/record-descriptors.ts",
+      "source_identity": "1f:d79a91666eaad936770b81df3b19d4beed08c28151ca5b79bd023388c112ce38",
+      "identity": "1f:d79a91666eaad936770b81df3b19d4beed08c28151ca5b79bd023388c112ce38"
+    },
+    {
+      "from": "packages/item-record/show/ItemFeed.empty-state.test.tsx",
+      "commit": "4d8a3c1b31b1adbdeb5a6d4cef1eeaa62ebb064d",
+      "to": "tools/item-record/show/ItemFeed.empty-state.test.tsx.held",
+      "source_identity": "1f:49a979e35dc26fdd13c4c25889a6fc5ec4a3b02f1cc7e81789473f2713e1cbc3",
+      "identity": "1f:49a979e35dc26fdd13c4c25889a6fc5ec4a3b02f1cc7e81789473f2713e1cbc3"
+    },
+    {
+      "from": "packages/item-record/show/ItemFeed.tsx",
+      "commit": "4d8a3c1b31b1adbdeb5a6d4cef1eeaa62ebb064d",
+      "to": "tools/item-record/show/ItemFeed.tsx",
+      "source_identity": "1f:34605a09d99dba6415f9643db22fc7cb8fa9a85657f0679668515d552c901a8d",
+      "identity_at_move": "1f:34605a09d99dba6415f9643db22fc7cb8fa9a85657f0679668515d552c901a8d",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/item-record/show/mount-item-composer.tsx",
+      "commit": "4d8a3c1b31b1adbdeb5a6d4cef1eeaa62ebb064d",
+      "to": "tools/item-record/show/mount-item-composer.tsx",
+      "source_identity": "1f:fd8bd5ed0d6bb7bc570888cd62244bcc52b6e6c8f4c65ef2cc085174292de0c4",
+      "identity_at_move": "1f:fd8bd5ed0d6bb7bc570888cd62244bcc52b6e6c8f4c65ef2cc085174292de0c4",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/item-record/show/mount-item-record.tsx",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "to": "tools/item-record/show/mount-item-record.tsx",
+      "source_identity": "1f:7a90feb5b6a5e824a71282df1a48d38d14038db3edd6b2a485014909b87463a7",
+      "identity_at_move": "1f:7a90feb5b6a5e824a71282df1a48d38d14038db3edd6b2a485014909b87463a7",
+      "byte_copy_commit": "28ec870754eb4753750752d4c5497cc4a4a6c24f"
+    },
+    {
+      "from": "packages/item-record/tests/item-record-actions.test.mjs",
+      "commit": "e0022dc3e90dd7760015c7086613f85219d54324",
+      "to": "tools/item-record/tests/item-record-actions.test.mjs",
+      "source_identity": "1f:1ea62436f18eb8eb7c6eeae7675fbda93d5ce941d5cfc89a3e79b0013406c4ca",
+      "identity": "1f:1ea62436f18eb8eb7c6eeae7675fbda93d5ce941d5cfc89a3e79b0013406c4ca"
+    },
+    {
+      "from": "packages/item-record/tests/item-record-composer.test.mjs",
+      "commit": "4d8a3c1b31b1adbdeb5a6d4cef1eeaa62ebb064d",
+      "to": "tools/item-record/tests/item-record-composer.test.mjs.held",
+      "source_identity": "1f:c6338e9b1007ac9d8f654b3be32e6c879819fe1a12d22529ed8b77ecc5f05e44",
+      "identity": "1f:c6338e9b1007ac9d8f654b3be32e6c879819fe1a12d22529ed8b77ecc5f05e44"
+    },
+    {
+      "from": "packages/item-record/tests/item-record-create-target.test.mjs",
+      "commit": "4d8a3c1b31b1adbdeb5a6d4cef1eeaa62ebb064d",
+      "to": "tools/item-record/tests/item-record-create-target.test.mjs.held",
+      "source_identity": "1f:45b445c01b80acb7b5d7507f4e0bc35f11a0295d53ef9affeaae5f03f7de7880",
+      "identity": "1f:45b445c01b80acb7b5d7507f4e0bc35f11a0295d53ef9affeaae5f03f7de7880"
+    },
+    {
+      "from": "packages/item-record/tests/item-record-descriptors.test.mjs",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/item-record/tests/item-record-descriptors.test.mjs",
+      "source_identity": "1f:f2462f1b805a79dee885accc48c00c618a770b9e577b64b69acbb1a1b4432f8f",
+      "identity": "1f:f2462f1b805a79dee885accc48c00c618a770b9e577b64b69acbb1a1b4432f8f"
+    },
+    {
+      "from": "packages/item-record/tests/item-record-projections.test.mjs",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/item-record/tests/item-record-projections.test.mjs",
+      "source_identity": "1f:84f4bd217be57810070b5486416f3e00df649f9c18f6ee06da6ab77079c33576",
+      "identity": "1f:84f4bd217be57810070b5486416f3e00df649f9c18f6ee06da6ab77079c33576"
+    },
+    {
+      "from": "packages/item-record/tests/item-record-surface.test.mjs",
+      "commit": "dc27f587899198a66bac59543cb51a2b90a31630",
+      "to": "tools/item-record/tests/item-record-surface.test.mjs.held",
+      "source_identity": "1f:7ebff4b3be0d496858ae2f3414aa7637d58ce63b8c9a8ffa726cb51189a5d9b3",
+      "identity": "1f:7ebff4b3be0d496858ae2f3414aa7637d58ce63b8c9a8ffa726cb51189a5d9b3"
+    },
+    {
+      "from": "packages/item-record/tests/load-ts-module.mjs",
+      "commit": "f49b6c30143a3627ea64cae8c140e6550fc42c1a",
+      "to": "tools/item-record/tests/load-ts-module.mjs",
+      "source_identity": "1f:19f29fbe02edbda9c0494907b74f2562e76d93f619900ab3a9b061d223a2b83e",
+      "identity": "1f:19f29fbe02edbda9c0494907b74f2562e76d93f619900ab3a9b061d223a2b83e"
+    }
+  ],
+  "held": {
+    "tools/item-record/do-work/read-item-record-feed.test.ts.held": "imports @bitfield/runtime-kit or @bitfield/slot-protocol (the retired package runtime); needs the records door in its place",
+    "tools/item-record/show/ItemFeed.empty-state.test.tsx.held": "a JSX test: it needs a DOM test runtime and the shared ui parts (@/packages/ui) that live in apps parts/ui; not run here",
+    "tools/item-record/tests/item-record-composer.test.mjs.held": "bundles a package source that imports retired package paths",
+    "tools/item-record/tests/item-record-create-target.test.mjs.held": "reads the package boundary file things-to-store-and-run.json (or the package's own data path), which is not carried",
+    "tools/item-record/tests/item-record-surface.test.mjs.held": "reads the package boundary file things-to-store-and-run.json (or the package's own data path), which is not carried"
+  },
+  "not_carried": {
+    "packages/item-record/.bitfield-entry-scope/create-item-record-target/entry.ts": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/.bitfield-entry-scope/create-item-record-target/runtime-kit-react.ts": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/.bitfield-entry-scope/create-item-record-target/runtime-kit.ts": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/.bitfield-entry-scope/item-composer/entry.ts": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/.bitfield-entry-scope/item-composer/runtime-kit-react.ts": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/.bitfield-entry-scope/item-composer/runtime-kit.ts": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/.bitfield-entry-scope/item-record/entry.ts": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/.bitfield-entry-scope/item-record/runtime-kit-react.ts": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/.bitfield-entry-scope/item-record/runtime-kit.ts": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/.bitfield-entry-scope/read-feed-items-target/entry.ts": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/.bitfield-entry-scope/read-feed-items-target/runtime-kit-react.ts": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/.bitfield-entry-scope/read-feed-items-target/runtime-kit.ts": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/.bitfield-entry-scope/read-space-items-target/entry.ts": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/.bitfield-entry-scope/read-space-items-target/runtime-kit-react.ts": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/.bitfield-entry-scope/read-space-items-target/runtime-kit.ts": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/.bitfield-entry-scope/record-space-items-target/entry.ts": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/.bitfield-entry-scope/record-space-items-target/runtime-kit-react.ts": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/.bitfield-entry-scope/record-space-items-target/runtime-kit.ts": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/README.md": "package README, package.json or ignore file; this folder has its own README",
+    "packages/item-record/built-stored-bytes/entry-bytes-create-item-record-target": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/built-stored-bytes/entry-bytes-create-item-record-target.source-closure.json": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/built-stored-bytes/entry-bytes-item-composer": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/built-stored-bytes/entry-bytes-item-composer.source-closure.json": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/built-stored-bytes/entry-bytes-item-record": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/built-stored-bytes/entry-bytes-item-record.source-closure.json": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/built-stored-bytes/entry-bytes-read-feed-items-target": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/built-stored-bytes/entry-bytes-read-feed-items-target.source-closure.json": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/built-stored-bytes/entry-bytes-read-space-items-target": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/built-stored-bytes/entry-bytes-read-space-items-target.source-closure.json": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/built-stored-bytes/entry-bytes-record-space-items-target": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/built-stored-bytes/entry-bytes-record-space-items-target.source-closure.json": "generated build output of the retired package runtime (entry scope, built entry bytes); not carried",
+    "packages/item-record/do-work/README.md": "package README, package.json or ignore file; this folder has its own README",
+    "packages/item-record/entry-to-package-data-map.json": "maps package entries to the retired package runtime's entry scope; not carried",
+    "packages/item-record/read-data/README.md": "package README, package.json or ignore file; this folder has its own README",
+    "packages/item-record/show/README.md": "package README, package.json or ignore file; this folder has its own README",
+    "packages/item-record/tests/README.md": "package README, package.json or ignore file; this folder has its own README",
+    "packages/item-record/things-to-store-and-run.json": "the package boundary file: record contracts, actions and surfaces for the retired package runtime (slot workflows, owner targets); not carried",
+    "packages/item-record/read-data/composer-config.ts": "the Workshop holds a later copy at tools/edit-a-document-together/do-work/composer-config.ts (moved from trillion parts/documents); kept",
+    "packages/item-record/read-data/read-leaderboard.ts": "the Workshop holds a later copy at tools/person-list/read-data/read-leaderboard.ts (metric windows as descriptor data); kept"
+  }
+}

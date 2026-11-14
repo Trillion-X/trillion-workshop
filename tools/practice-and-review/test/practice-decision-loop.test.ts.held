@@ -1,0 +1,310 @@
+import React from 'react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
+import { useBitfieldData } from '@bitfield/runtime-kit/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { buildDecisionLoopEffectRecords } from '@/packages/practice-decision-loop/do-work/build-decision-loop-effects';
+import { buildCreateDecisionPromptInput } from '@/packages/practice-decision-loop/do-work/create-decision-prompt';
+import { buildPublishDecisionResultInput } from '@/packages/practice-decision-loop/do-work/publish-decision-result';
+import { buildSubmitDecisionResponseInput } from '@/packages/practice-decision-loop/do-work/submit-decision-response';
+import {
+  assertGenericPracticeDecisionRecord,
+  promptViews,
+  readPracticeDecisionState,
+} from '@/packages/practice-decision-loop/read-data/read-practice-decision-loop';
+import type { DecisionEvidence, DecisionPrompt } from '@/packages/practice-decision-loop/read-data/practice-decision-loop-types';
+import { PracticeDecisionLoopSurface } from '@/packages/practice-decision-loop/show/PracticeDecisionLoopSurface';
+
+vi.mock('@bitfield/runtime-kit', () => ({
+  sendRequestToBitfieldTarget: vi.fn(async () => ({ ok: true })),
+}));
+
+vi.mock('@bitfield/runtime-kit/react', () => ({
+  useBitfieldData: vi.fn(),
+}));
+
+const now = new Date('2026-06-20T12:00:00.000Z');
+
+describe('practice-decision-loop', () => {
+  beforeEach(() => {
+    vi.mocked(sendRequestToBitfieldTarget).mockClear();
+    vi.mocked(useBitfieldData).mockReset();
+  });
+
+  it('builds response and reason records through one generic action input', () => {
+    const input = buildSubmitDecisionResponseInput({
+      responseId: 'decision-response:1',
+      reasonId: 'response-reason:1',
+      promptId: 'decision-prompt:1',
+      userId: 'person:1',
+      choiceId: 'choice:a',
+      reasonText: 'The available evidence supports the first choice.',
+      now,
+    });
+
+    expect(input.response_record).toMatchObject({
+      kind: 'decision-response',
+      responseId: 'decision-response:1',
+      promptId: 'decision-prompt:1',
+      choiceId: 'choice:a',
+    });
+    expect(input.reason_record).toMatchObject({
+      kind: 'response-reason',
+      reasonId: 'response-reason:1',
+      responseId: 'decision-response:1',
+    });
+  });
+
+  it('builds subject, evidence, attachment, and prompt records through one generic start action input', () => {
+    const input = buildCreateDecisionPromptInput({
+      subjectId: 'decision-subject:1',
+      evidenceId: 'decision-evidence:1',
+      attachmentId: 'evidence-attachment:1',
+      promptId: 'decision-prompt:1',
+      subjectKind: 'practice-case',
+      subjectPayload: { sourceKind: 'structured-fixture' },
+      evidenceKind: 'observation',
+      evidenceSourceId: 'source:1',
+      evidenceConfidence: 0.8,
+      evidencePayload: { signal: 'high-confidence' },
+      promptKind: 'choose-action',
+      title: 'Choose the next action',
+      body: 'What action follows from the evidence?',
+      choices: [{ choiceId: 'choice:a', label: 'Action A' }],
+      now,
+    });
+
+    expect(input.subject_record).toMatchObject({
+      kind: 'decision-subject',
+      subjectId: 'decision-subject:1',
+      subjectKind: 'practice-case',
+    });
+    expect(input.attachment_record).toMatchObject({
+      kind: 'evidence-attachment',
+      evidenceId: 'decision-evidence:1',
+      relationshipKind: 'supports-prompt',
+    });
+    expect(input.prompt_record.evidenceRefs).toEqual(['decision-evidence:1']);
+  });
+
+  it('builds result, comparison, progress, profile, and debrief records together', () => {
+    const input = buildPublishDecisionResultInput({
+      resultId: 'judge-result:1',
+      comparisonId: 'comparison-result:1',
+      progressId: 'progress-effect:1',
+      profileEffectId: 'profile-effect:1',
+      debriefId: 'decision-debrief:1',
+      responseId: 'decision-response:1',
+      promptId: 'decision-prompt:1',
+      learnerId: 'person:1',
+      subjectId: 'subject:1',
+      profileId: 'profile:1',
+      score: 92,
+      label: 'Strong answer',
+      rubricRef: 'rubric:first-principles',
+      evidenceRefs: ['decision-evidence:1'],
+      masteryDelta: 25,
+      reviewAfter: '2026-06-22T12:00:00.000Z',
+      debriefPoints: ['The answer matched the highest-confidence evidence.'],
+      now,
+    });
+
+    expect(input.result_record.score).toBe(92);
+    expect(input.progress_record.masteryDelta).toBe(25);
+    expect(input.progress_record.reviewAfter).toBe('2026-06-22T12:00:00.000Z');
+    expect(input.profile_effect_record.sourceRefs).toContain('judge-result:1');
+    expect(input.debrief_record.points).toHaveLength(1);
+  });
+
+  it('builds generic downstream effect records for learning, practice, review, events, media, content, follow-up, and access snapshots', () => {
+    const records = buildDecisionLoopEffectRecords({
+      learnerId: 'person:1',
+      subjectId: 'decision-subject:1',
+      promptId: 'decision-prompt:1',
+      resultId: 'judge-result:1',
+      masteryDelta: 12,
+      reviewDueAt: '2026-06-23T12:00:00.000Z',
+      practiceStepKind: 'repeat-decision',
+      eventKind: 'source-event',
+      eventPayload: { sequenceSource: 'fixture' },
+      mediaId: 'media:1',
+      evidenceId: 'decision-evidence:1',
+      analysisRef: 'analysis:1',
+      contentSourceRefs: ['decision-prompt:1', 'judge-result:1'],
+      followUpStepKind: 'next-contact',
+      resourceId: 'resource:1',
+      accessState: 'unknown',
+      accessSourceOwner: 'external-access-owner',
+      now,
+    });
+
+    expect(records.progressEffect).toMatchObject({
+      kind: 'progress-effect',
+      masteryDelta: 12,
+      reviewAfter: '2026-06-23T12:00:00.000Z',
+    });
+    expect(records.practiceStep).toMatchObject({
+      kind: 'practice-step',
+      stepKind: 'repeat-decision',
+      status: 'ready',
+    });
+    expect(records.reviewSchedule?.kind).toBe('review-schedule');
+    expect(records.event?.kind).toBe('decision-event');
+    expect(records.mediaEvidenceLink?.analysisRef).toBe('analysis:1');
+    expect(records.contentReference?.state).toBe('draft');
+    expect(records.followUpStep?.stepKind).toBe('next-contact');
+    expect(records.accessSnapshot).toMatchObject({
+      kind: 'access-snapshot',
+      accessState: 'unknown',
+      sourceOwner: 'external-access-owner',
+    });
+  });
+
+  it('reads prompts with evidence, responses, reasons, results, comparisons, and debriefs', () => {
+    const evidence: DecisionEvidence = {
+      kind: 'decision-evidence',
+      evidenceId: 'decision-evidence:1',
+      subject: { id: 'subject:1', kind: 'generic-case' },
+      evidenceKind: 'observation',
+      source: { id: 'source:1', confidence: 0.7 },
+      payload: { note: 'Source split stays separate.' },
+      createdAt: now.toISOString(),
+    };
+    const prompt: DecisionPrompt = {
+      kind: 'decision-prompt',
+      promptId: 'decision-prompt:1',
+      subject: { id: 'subject:1', kind: 'generic-case' },
+      promptKind: 'choose-action',
+      title: 'Choose the next action',
+      body: 'What action follows from the evidence?',
+      choices: [{ choiceId: 'choice:a', label: 'Action A' }],
+      evidenceRefs: ['decision-evidence:1'],
+      createdAt: now.toISOString(),
+    };
+    const submit = buildSubmitDecisionResponseInput({
+      responseId: 'decision-response:1',
+      reasonId: 'response-reason:1',
+      promptId: prompt.promptId,
+      userId: 'person:1',
+      choiceId: 'choice:a',
+      reasonText: 'Because the evidence supports it.',
+      now,
+    });
+    const result = buildPublishDecisionResultInput({
+      resultId: 'judge-result:1',
+      comparisonId: 'comparison-result:1',
+      progressId: 'progress-effect:1',
+      profileEffectId: 'profile-effect:1',
+      debriefId: 'decision-debrief:1',
+      responseId: submit.response_id,
+      promptId: prompt.promptId,
+      learnerId: 'person:1',
+      subjectId: 'subject:1',
+      profileId: 'profile:1',
+      score: 80,
+      label: 'Good',
+      rubricRef: 'rubric:1',
+      now,
+    });
+    const effectRecords = buildDecisionLoopEffectRecords({
+      learnerId: 'person:1',
+      subjectId: 'subject:1',
+      promptId: prompt.promptId,
+      resultId: result.result_id,
+      reviewDueAt: '2026-06-23T12:00:00.000Z',
+      eventKind: 'source-event',
+      mediaId: 'media:1',
+      evidenceId: 'decision-evidence:1',
+      contentSourceRefs: [prompt.promptId, result.result_id],
+      followUpStepKind: 'next-contact',
+      resourceId: 'resource:1',
+      accessState: 'unknown',
+      now,
+    });
+    const state = readPracticeDecisionState([
+      { payload: evidence },
+      { payload: prompt },
+      { payload: submit.response_record },
+      { payload: submit.reason_record },
+      { payload: result.result_record },
+      { payload: result.comparison_record },
+      { payload: result.debrief_record },
+      { payload: effectRecords.progressEffect },
+      { payload: effectRecords.practiceStep },
+      { payload: effectRecords.reviewSchedule },
+      { payload: effectRecords.event },
+      { payload: effectRecords.mediaEvidenceLink },
+      { payload: effectRecords.contentReference },
+      { payload: effectRecords.followUpStep },
+      { payload: effectRecords.accessSnapshot },
+    ]);
+
+    const views = promptViews(state);
+    expect(views).toHaveLength(1);
+    expect(views[0]?.evidence).toHaveLength(1);
+    expect(views[0]?.responses).toHaveLength(1);
+    expect(views[0]?.debrief?.debriefId).toBe('decision-debrief:1');
+    expect(views[0]?.progressEffects).toHaveLength(1);
+    expect(views[0]?.practiceSteps).toHaveLength(1);
+    expect(views[0]?.reviewSchedules).toHaveLength(1);
+    expect(views[0]?.events).toHaveLength(1);
+    expect(views[0]?.mediaEvidenceLinks).toHaveLength(1);
+    expect(views[0]?.contentReferences).toHaveLength(1);
+    expect(views[0]?.followUpSteps).toHaveLength(1);
+    expect(views[0]?.accessSnapshots).toHaveLength(1);
+  });
+
+  it('rejects product words in generic records', () => {
+    expect(() => assertGenericPracticeDecisionRecord({
+      kind: 'decision-evidence',
+      evidenceId: 'decision-evidence:bad',
+      subject: { id: 'subject:bad', kind: 'product-word-a' },
+      evidenceKind: 'observation',
+      source: { id: 'source:bad' },
+      payload: {},
+      createdAt: now.toISOString(),
+    }, ['product-word-a'])).toThrow(/product word/);
+  });
+
+  it('renders a generic answer flow that submits through the generic owner action', async () => {
+    const prompt: DecisionPrompt = {
+      kind: 'decision-prompt',
+      promptId: 'decision-prompt:surface',
+      subject: { id: 'subject:surface', kind: 'generic-case' },
+      promptKind: 'choose-action',
+      title: 'Choose the next action',
+      body: 'What action follows from the evidence?',
+      choices: [{ choiceId: 'choice:a', label: 'Action A' }],
+      evidenceRefs: [],
+      createdAt: now.toISOString(),
+    };
+    vi.mocked(useBitfieldData).mockReturnValue([{ payload: prompt }]);
+
+    render(React.createElement(PracticeDecisionLoopSurface, { userId: 'person:surface' }));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Action A' }));
+    fireEvent.change(screen.getByPlaceholderText('Why this answer?'), {
+      target: { value: 'The evidence points there.' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Submit answer' }));
+
+    await waitFor(() => expect(sendRequestToBitfieldTarget).toHaveBeenCalledTimes(1));
+    expect(vi.mocked(sendRequestToBitfieldTarget).mock.calls[0]?.[0]).toMatchObject({
+      target: 'slot::workflow',
+      payload: {
+        operation: 'execute_definition',
+        definition_id: 'action:practice-decision-loop.submit-response',
+        input: {
+          response_record: {
+            promptId: 'decision-prompt:surface',
+            userId: 'person:surface',
+            choiceId: 'choice:a',
+          },
+          reason_record: {
+            text: 'The evidence points there.',
+          },
+        },
+      },
+    });
+  });
+});
