@@ -1280,6 +1280,216 @@
     {
       "payload": {
         "kind": "ai-tool-descriptor",
+        "id": "tool:write-a-source-copy",
+        "label": "Write a copy of a repository into my files, for citations to be checked against",
+        "status": "active",
+        "job": "Write the files of a repository, the dates of its commits and a stamp naming the commit into my own files under /source-copies/<root>/, so a check of what a finding cites can read them on any computer",
+        "description": "Takes a root name, the ref and head the copy was made from, a list of files ({path, text}, at most 64, each at most 4 MiB), the commit dates ({<full hash>: <ISO date>}) and whether the list is every tracked file. Writes each file, then .commit-dates.json, and the stamp .source-copy.json last, under /source-copies/<root>/, so a copy whose stamp is old never claims a new head. The stamp holds ref, head, copied_at and files: the sorted paths the copy holds (the earlier stamp's files plus these, or exactly these when complete is true). A path with .., ., an empty part, a leading / or a backslash is refused and nothing is written. The tool never reads a repository: the caller reads git and hands in the text.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "root",
+            "ref",
+            "head",
+            "files",
+            "dates"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "root": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]*$",
+              "description": "The name of the copy folder under /source-copies/ (the root name a resolver lists)"
+            },
+            "ref": {
+              "type": "string",
+              "description": "The ref the copy was made from"
+            },
+            "head": {
+              "type": "string",
+              "description": "The commit the copy was made from"
+            },
+            "files": {
+              "type": "array",
+              "maxItems": 64,
+              "items": {
+                "type": "object",
+                "required": [
+                  "path",
+                  "text"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "text": {
+                    "type": "string"
+                  }
+                }
+              },
+              "description": "The files to write, at their repository paths"
+            },
+            "dates": {
+              "type": "object",
+              "description": "Full commit hash to ISO date"
+            },
+            "complete": {
+              "type": "boolean",
+              "description": "True when the files sent are every tracked file of the repository"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "root",
+            "head",
+            "written",
+            "bytes"
+          ],
+          "properties": {
+            "root": {
+              "type": "string"
+            },
+            "head": {
+              "type": "string"
+            },
+            "written": {
+              "type": "integer"
+            },
+            "bytes": {
+              "type": "integer"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/read-data/write-a-source-copy.mjs",
+            "writeASourceCopy"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "task": {
+              "fill": {
+                "from": "task"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "workflows",
+                "paths": [
+                  "read-data/write-a-source-copy.mjs"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "most_writes": 256,
+            "rights": [
+              {
+                "files": "/source-copies/",
+                "operations": [
+                  "find_file",
+                  "read_file",
+                  "write_file_start",
+                  "write_file_piece",
+                  "write_file_finish"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:workflows",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "root": "sample-repo",
+              "ref": "origin/main",
+              "head": "0123456789abcdef0123456789abcdef01234567",
+              "files": [
+                {
+                  "path": "src/a.txt",
+                  "text": "first line\nsecond line\n"
+                }
+              ],
+              "dates": {
+                "0123456789abcdef0123456789abcdef01234567": "2026-11-10T10:00:00Z"
+              },
+              "complete": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
         "id": "tool:gate-a-piece-against-a-checklist",
         "label": "Run a read-only checklist gate on my files (runs on your computer)",
         "status": "active",

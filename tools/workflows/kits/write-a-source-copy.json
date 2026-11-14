@@ -1,0 +1,51 @@
+{
+  "draft": true,
+  "drafted_from": "tool:write-a-source-copy's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Write the files of a repository, the dates of its commits and a stamp naming the commit into my own files under /source-copies/<root>/, so a check of what a finding cites can read them on any computer\", with {\"root\":\"sample-repo\",\"ref\":\"origin/main\",\"head\":\"0123456789abcdef0123456789abcdef01234567\",\"files\":[{\"path\":\"src/a.txt\",\"text\":\"first line\\nsecond line\\n\"}],\"dates\":{\"0123456789abcdef0123456789abcdef01234567\":\"2026-11-10T10:00:00Z\"},\"complete\":true}. It runs tool:write-a-source-copy and answers {\"root\":\"sample-repo\",\"head\":\"0123456789abcdef0123456789abcdef01234567\",\"written\":1,\"bytes\":238}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows () through the records door.",
+  "workflows": [],
+  "tools": [
+    "tool:write-a-source-copy"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Write the files of a repository, the dates of its commits and a stamp naming the commit into my own files under /source-copies/<root>/, so a check of what a finding cites can read them on any computer\", and give it root (The name of the copy folder under /source-copies/ (the root name a resolver lists)); ref (The ref the copy was made from); head (The commit the copy was made from); files (The files to write, at their repository paths); dates (Full commit hash to ISO date).",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:write-a-source-copy and its input (the worked example shows one).",
+    "3. Read what comes back: Takes a root name, the ref and head the copy was made from, a list of files ({path, text}, at most 64, each at most 4 MiB), the commit dates ({<full hash>: <ISO date>}) and whether the list is every tracked file.",
+    "4. It reads and writes only its own rows through the records door: undefined (find_file, read_file, write_file_start, write_file_piece, write_file_finish)."
+  ],
+  "worked_examples": [
+    {
+      "title": "Write a copy of a repository into my files, for citations to be checked against on its own sample",
+      "ask": "Write the files of a repository, the dates of its commits and a stamp naming the commit into my own files under /source-copies/<root>/, so a check of what a finding cites can read them on any computer",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:write-a-source-copy",
+            "input": {
+              "root": "sample-repo",
+              "ref": "origin/main",
+              "head": "0123456789abcdef0123456789abcdef01234567",
+              "files": [
+                {
+                  "path": "src/a.txt",
+                  "text": "first line\nsecond line\n"
+                }
+              ],
+              "dates": {
+                "0123456789abcdef0123456789abcdef01234567": "2026-11-10T10:00:00Z"
+              },
+              "complete": true
+            }
+          }
+        }
+      },
+      "given": "The input {\"root\":\"sample-repo\",\"ref\":\"origin/main\",\"head\":\"0123456789abcdef0123456789abcdef01234567\",\"files\":[{\"path\":\"src/a.txt\",\"text\":\"first line\\nsecond line\\n\"}],\"dates\":{\"0123456789abcdef0123456789abcdef01234567\":\"2026-11-10T10:00:00Z\"},\"complete\":true}.",
+      "hands_back": "It answered {\"root\":\"sample-repo\",\"head\":\"0123456789abcdef0123456789abcdef01234567\",\"written\":1,\"bytes\":238}."
+    }
+  ]
+}
