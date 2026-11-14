@@ -13,11 +13,27 @@
 //   laneAiId(run, lane) -> AI id            the AI id the lane's job is taken and finished under, its own, never the session's
 //   laneCommands(run, step, lane) -> { as, take, finish }   the exact commands that take and finish that lane's job under that id
 //   agentProblems(step, name) -> [problem]    what is wrong with a step's agents and lanes, for the recipe validator
+//   runStep(step, input) -> step              the step as one run runs it: the run's input `agents_per_step` under the step's
+//                                             id overrides the row's `agents`, so the row's number is the default and the run's wins
 
 export function agentsOf(step) {
   if (step?.agents === undefined) return 1;
   if (!Number.isInteger(step.agents) || step.agents < 1) throw new Error(`Step ${step?.id}: agents must be a whole number from 1 up, got ${JSON.stringify(step.agents)}.`);
   return step.agents;
+}
+
+// One number per step, kept in two places: the step row (the default every run gets) and the run's input under
+// `agents_per_step` (this run's width). The starter, the step start and the submit all read the step through this, so
+// they agree on how many lanes the run has. A step whose lanes are named (`lanes`, `lanes_from`) has its width fixed by
+// those names, and a step with no lane-jobs check cannot be widened, since its lanes would never be judged.
+export const AGENTS_INPUT = 'agents_per_step';
+export function runStep(step, input) {
+  const given = input?.[AGENTS_INPUT]?.[step?.id];
+  if (given === undefined) return step;
+  if (!Number.isInteger(given) || given < 1) throw new Error(`The run's ${AGENTS_INPUT}.${step.id} must be a whole number from 1 up, got ${JSON.stringify(given)}.`);
+  if (step.lanes_from !== undefined || step.lanes !== undefined) throw new Error(`Step ${step.id} names its lanes on its row (${step.lanes_from !== undefined ? 'lanes_from' : 'lanes'}), so the run's ${AGENTS_INPUT} cannot change how many agents run it.`);
+  if (given > 1 && !(step.checks ?? []).some(check => check?.kind === 'lane-jobs')) throw new Error(`Step ${step.id} has no lane-jobs check, so the run's ${AGENTS_INPUT} cannot give it more than one agent: each lane must come from its own job.`);
+  return { ...step, agents: given };
 }
 
 export const runsLaneJobs = step => step?.lanes_from !== undefined || Array.isArray(step?.lanes) || agentsOf(step) > 1;

@@ -16,7 +16,7 @@
 // The kept answer is the ai-job row `<run>#answer:<step>`, status done. The first answer kept for a step stays: a
 // submit that comes again finds it and changes nothing.
 
-import { laneIds, laneJobId, runsLaneJobs } from './step-agents.mjs';
+import { laneIds, laneJobId, runStep, runsLaneJobs } from './step-agents.mjs';
 import { checkResults, valuesAt } from './recipe-check-results.mjs';
 import { readFileSync } from 'node:fs';
 import { resolveItem } from './citation-resolvers.mjs';
@@ -37,7 +37,8 @@ export async function submitARecipeStep({ input = {}, task = {} } = {}, { door, 
   const steps = parent.job ?? [];
   const at = steps.findIndex(item => item.id === stepId);
   if (at < 0) throw new Error(`Run ${run} has no step "${stepId}".`);
-  const step = steps[at];
+  // The step as this run runs it: the run's agents_per_step over the row's agents (runStep), as the starter read it.
+  const step = runStep(steps[at], parent.input);
   const id = answerId(run, stepId);
   if (await door.read(JOB_KIND, id)) return { status: 'already-there', answer_id: id, checks: [], unchecked: [] };
 
@@ -62,9 +63,9 @@ export async function submitARecipeStep({ input = {}, task = {} } = {}, { door, 
   // What the answer cites is looked up first (a lookup is async), then the checks are judged on what was found.
   const looked = new Map();
   for (const check of (step.checks ?? []).filter(item => item.kind === 'cites-resolve')) {
-    for (const item of valuesAt(check.path, context)) looked.set(`${steps.indexOf(step)}:${(step.checks).indexOf(check)}:${JSON.stringify(item)}`, await resolveItem(check, item, { resolvers, door }));
+    for (const item of valuesAt(check.path, context)) looked.set(`${at}:${(step.checks).indexOf(check)}:${JSON.stringify(item)}`, await resolveItem(check, item, { resolvers, door }));
   }
-  const resolved = (check, item) => looked.get(`${steps.indexOf(step)}:${step.checks.indexOf(check)}:${JSON.stringify(item)}`);
+  const resolved = (check, item) => looked.get(`${at}:${step.checks.indexOf(check)}:${JSON.stringify(item)}`);
   const results = checkResults(step, context, { catalogs, resolved });
   const failed = results.filter(result => result.passed === false);
   // A kind whose row says `refuse_unchecked` is a gate: when it cannot be judged here (a repository is not on this

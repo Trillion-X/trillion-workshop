@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflow-steps:public",
   "list": "workflow-steps",
-  "blake3": "21d387beb4316316d29f78d2858ab7632237f419e32baaf507508a7d7d9ade4d",
+  "blake3": "c58e6ccb5ce42652d796ad044855a5b973ce1e7016eb0f38e9316c19468f5a41",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -15376,10 +15376,10 @@
    "id": "grow-the-one-tree--plant-the-seed",
    "values": {
     "actor_policy": "",
-    "came_from": "calendar-tasks rows with parent_id and children.",
+    "came_from": "calendar-tasks rows with parent_id and children; a record wake's cause (src/wake.rs: detail.changes of {id, sequence, version, deleted}).",
     "checks": "[{\"kind\": \"distinct-at-least\", \"path\": [\"this\", \"root_task\"], \"count\": 1, \"says\": \"The root task id is given.\"}]",
-    "do": "Write one row to list calendar-tasks (records:write at @own-records, type record:calendar-task): id \"record:calendar-task:tree-<short slug of the seed words>\", value {title: the seed in one line, description: input.seed.words and came_from, collection_id: [input.owner.task_list], priority: \"high\", status: \"To do\", children: []}. Every later step adds children (parent_id pointing here) and a child is set Done only when its done_when holds. Read the row back.",
-    "done_when": "The root task reads back with the seed's words and the owner's task list.",
+    "do": "The seeds are input.seed when it is given; otherwise every row the run's cause names (the run job's cause.detail.changes, each {id, deleted}): read each changed row that is not deleted (records:read at @own-records) and make it a seed: words = its words as written (the row's own text fields, word for word), came_from = its row id. A row that already has a root task (a calendar-task whose description names that came_from) is not planted twice. For each seed write one row to list calendar-tasks (records:write at @own-records, type record:calendar-task): id \"record:calendar-task:tree-<short slug of the seed words>\", value {title: the seed in one line, description: the seed's words and came_from, collection_id: [input.owner.task_list], priority: \"high\", status: \"To do\", children: []}. Every later step adds children (parent_id pointing here) and a child is set Done only when its done_when holds. Read the row back.",
+    "done_when": "Each seed's root task reads back with the seed's words, its came_from and the owner's task list.",
     "flags": "{}",
     "good_answer": "One root row.",
     "if_missing": "If the seed was already planted (a root task has the same description), reuse it and say so.",
@@ -15403,13 +15403,13 @@
    "id": "grow-the-one-tree--choose-branches",
    "values": {
     "actor_policy": "",
-    "came_from": "list tree-branches.",
+    "came_from": "list tree-branches (branch, workflow, fires_when as the label, agents, state) and list tree-branch-conditions (one tool:filter-rows-by-rules {fields, tree} per row).",
     "checks": "[{\"kind\": \"distinct-at-least\", \"path\": [\"this\", \"chosen\"], \"count\": 1, \"says\": \"At least one branch is chosen.\"}]",
-    "do": "First take the seed apart: one seed is often a mix (ideas, material for content, journal, instructions to the AI, a question, a claim) and is never judged as one thing. Split its words into the parts it really holds, whatever those are, each part keeping its own words word for word and its position in the seed; list the parts in the answer. Then, for each part separately: Read the rows of list tree-branches (records:list at @own-records, type record:tree-branches), each {branch, workflow, fires_when, agents, visibility_default, state}. choose every branch whose state is On and whose fires_when this part meets (judge it against the part's words and input.niches). Give each its agent count from input.agents_per_step under its branch id, else the row's agents, else 1. Write one child task per chosen branch and part under the root, naming the part. A part no branch meets is kept as a row in list findings with its words, never dropped.",
-    "done_when": "Every part of the seed has been routed to at least one branch or kept as a finding, and every chosen branch has a child task naming its part and an agent count.",
+    "do": "First take the seed apart: one seed is often a mix (ideas, material for content, journal, instructions to the AI, a question, a claim) and is never judged as one thing. Split its words into the parts it really holds, each part keeping its own words word for word and its position in the seed. Give each part its typed fields: kinds (tags), subjects (tags), people (tags), niches (tags, with input.niches where they fit) and own_words (true when the words are the person's own). Read the rows of list tree-branch-conditions (records:list at @own-records, type record:tree-branch-conditions), each {branch, label, condition, made_by, state}; the tags their conditions name are the words to tag kinds with first, and a part may carry other tags too. Then the engine chooses, not you: for each condition row whose state is On and whose branch row (list tree-branches) has state On, call tool:filter-rows-by-rules with records = the parts and the condition's fields and tree; the branch fires for every part in its matches. A condition whose answer lists incomplete rules or error rows chooses nothing and is named in the answer. Only for a part no condition keeps, read the On branch rows' fires_when (their labels) and judge whether one fits the part's words. When one does, choose it and write your judgment back as a new condition row (record:tree-branch-conditions:<branch slug>--<short slug>, {branch, label: why it fits in one line, condition: the smallest rule over this part's fields that keeps it, made_by: \"ai-judgment\", state: \"On\", evidence: the part's words and this run}); run that condition through tool:filter-rows-by-rules on the part before writing it, so it keeps the part. Each chosen branch runs its row's agents number (1 when left out); input.agents_per_step under the branch's id overrides it, the same rule every step's own agents number follows. Write one child task per chosen branch and part under the root, naming the part and how it was chosen. A part no branch meets is kept as a row in list findings with its words, never dropped.",
+    "done_when": "Every part has typed fields and was routed by a condition row (one the engine evaluated, or one written back this run) or kept as a finding; every chosen branch has a child task naming its part, the condition that chose it and its agents number.",
     "flags": "{}",
-    "good_answer": "Chosen branches with their agent counts.",
-    "if_missing": "If tree-branches has no rows, write the default rows first (record:tree-branches:<slug>) for the workflows this recipe names, then choose.",
+    "good_answer": "The typed parts, and each chosen branch with the condition row that chose it and its agents number.",
+    "if_missing": "If tree-branches has no rows, write the default rows first (record:tree-branches:<slug>) for the workflows this recipe names. If a branch has no condition row, its fires_when is judged as above and the judgment written back, so the next seed is chosen by the engine.",
     "part_of": [
      "record:workflow-recipe:grow-the-one-tree"
     ],
@@ -15420,7 +15420,7 @@
     ],
     "run_tool": "",
     "step": "choose-branches",
-    "submit": "{\"type\": \"object\", \"required\": [\"parts\", \"chosen\"], \"properties\": {\"parts\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"required\": [\"words\"], \"properties\": {\"words\": {\"type\": \"string\"}, \"routed_to\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}}}}, \"chosen\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"required\": [\"branch\", \"workflow\", \"agents\", \"task\"], \"properties\": {\"branch\": {\"type\": \"string\"}, \"workflow\": {\"type\": \"string\"}, \"agents\": {\"type\": \"integer\"}, \"task\": {\"type\": \"string\"}, \"part\": {\"type\": \"string\"}}}}}}",
+    "submit": "{\"type\": \"object\", \"required\": [\"parts\", \"chosen\"], \"properties\": {\"parts\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"required\": [\"words\", \"position\", \"kinds\"], \"properties\": {\"words\": {\"type\": \"string\"}, \"position\": {\"type\": \"integer\"}, \"kinds\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}, \"subjects\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}, \"people\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}, \"niches\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}, \"own_words\": {\"type\": \"boolean\"}, \"routed_to\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}, \"finding\": {\"type\": \"string\"}}}}, \"chosen\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"required\": [\"branch\", \"workflow\", \"agents\", \"task\", \"part\", \"by\"], \"properties\": {\"branch\": {\"type\": \"string\"}, \"workflow\": {\"type\": \"string\"}, \"agents\": {\"type\": \"integer\", \"minimum\": 1}, \"task\": {\"type\": \"string\"}, \"part\": {\"type\": \"integer\"}, \"by\": {\"type\": \"string\", \"description\": \"The condition row that kept the part (or the new one this run wrote).\"}}}}, \"written_conditions\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}, \"unfinished_conditions\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}}}",
     "title": "Choose the branches that fire",
     "when": "After plant-the-seed.",
     "why": "The branches are data, so a new branch needs only a new row. A note is a mix; routing it whole loses the parts (the person, 2026-11-13: the arrival split into request or pursuit is instance-solving)."
@@ -15430,13 +15430,13 @@
    "id": "grow-the-one-tree--fan-out",
    "values": {
     "actor_policy": "",
-    "came_from": "tool:start-a-recipe-run",
+    "came_from": "tool:start-a-recipe-run; workflow:make-the-piece-without-waiting-for-the-person (a waiting step becomes a permanent branch row); L227 self-healing.",
     "checks": "[{\"kind\": \"subset-of\", \"path\": [\"this\", \"runs\", \"*\", \"branch\"], \"of\": [\"steps\", \"choose-branches\", \"chosen\", \"*\", \"branch\"], \"says\": \"Every run belongs to a chosen branch.\"}]",
-    "do": "For each chosen branch call tool:start-a-recipe-run with row workflow: the branch's workflow and an input made from the seed, the owner and the visibility. Start as many runs as the branch's agents number says: each run is one agent and writes its own rows. A larger number is the same step with more runs (this is also how a simulation runs); there is no separate engine. Keep each run id on its child task. A branch whose source tool is refused takes its fallback in the same run, never a wait: for YouTube captions and comments that is the treg route written in workflow:answer-commenters-with-videos step keep-posts-and-comments.",
-    "done_when": "Every chosen branch has as many runs as agents.",
+    "do": "For each chosen branch call tool:start-a-recipe-run with row workflow: the branch's workflow and an input made from the seed, the owner, the visibility and input.agents_per_step (passed on as it is, so its numbers reach the branch's own steps). Start as many runs as the branch's chosen agents number says: each run is one agent and writes its own rows. A larger number is the same step with more runs (this is also how a simulation runs); there is no separate engine. Keep each run id on its child task. A branch whose source tool is refused takes its fallback in the same run, never a wait: for YouTube captions and comments that is the treg route written in workflow:answer-commenters-with-videos step keep-posts-and-comments. A branch that is blocked with no fallback written (a refusal, a missing tool, a step waiting on a person past its due time) heals instead of stopping: find another path to the same output among the workflows and tools that exist, write it as a new row of list tree-branches (record:tree-branches:<slug>, {branch, workflow, fires_when: when it is taken, agents, visibility_default, state: \"On\", evidence: the block it went round, with the run}) and a condition row that chooses it for this kind of part, then run it in this pass. Name the healed branch in the answer.",
+    "done_when": "Every chosen branch has as many runs as its agents number, and every blocked branch either took its fallback or healed into a new branch row that ran.",
     "flags": "{}",
     "good_answer": "Run ids per branch.",
-    "if_missing": "If a run cannot start, record why on its child task and keep the others going.",
+    "if_missing": "If no other path exists, record the block on the child task with what was tried, keep the others going, and leave the child task open.",
     "part_of": [
      "record:workflow-recipe:grow-the-one-tree"
     ],
@@ -15447,7 +15447,7 @@
     ],
     "run_tool": "",
     "step": "fan-out",
-    "submit": "{\"type\": \"object\", \"properties\": {\"runs\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"properties\": {\"branch\": {\"type\": \"string\"}, \"run_id\": {\"type\": \"string\"}}, \"required\": [\"branch\", \"run_id\"]}}}, \"required\": [\"runs\"]}",
+    "submit": "{\"type\": \"object\", \"required\": [\"runs\"], \"properties\": {\"runs\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"required\": [\"branch\", \"run_id\"], \"properties\": {\"branch\": {\"type\": \"string\"}, \"run_id\": {\"type\": \"string\"}}}}, \"healed\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"required\": [\"blocked_branch\", \"new_branch\", \"block\"], \"properties\": {\"blocked_branch\": {\"type\": \"string\"}, \"new_branch\": {\"type\": \"string\"}, \"new_condition\": {\"type\": \"string\"}, \"block\": {\"type\": \"string\"}, \"run_id\": {\"type\": \"string\"}}}}}}",
     "title": "Run every chosen branch",
     "when": "After choose-branches.",
     "why": "One number sets the width of the tree."
@@ -15648,8 +15648,8 @@
     "actor_policy": "",
     "came_from": "workflow:read-the-week-and-make-more-of-what-won a library reference on turning a voice note into an outline: the writer is updated every day on client data.",
     "checks": "[]",
-    "do": "Run workflow:read-the-week-and-make-more-of-what-won. Write what it learned into the branch rows (agents, fires_when) and the voice. Retire a branch variant only after it failed three times; keep the row and set state Off with the reasons. Every day also retrain the writing on real results: read the person's edits to what was written for him with tool:keep-a-voice-edit and tool:find-repeated-voice-edits, save the repeated ones with tool:save-voice, and read the day's numbers with tool:see-how-each-post-did, so the next outline or script starts from what worked.",
-    "done_when": "Learnings are written and only three-time failures are retired.",
+    "do": "Run workflow:read-the-week-and-make-more-of-what-won. Write what it learned as rows: a new condition row in list tree-branch-conditions when a kind of part should reach a branch it did not, a branch row's agents number when its measured results say it is worth more or less width, and the voice. Prune only by measured outcome rows: a branch or condition whose runs failed three times (their child tasks blocked, or their outputs measured worse in list cost-measurements and the post numbers) is retired: keep the row, set state Off and write the reasons with the run ids. Every day also retrain the writing on real results: read the person's edits to what was written for him with tool:keep-a-voice-edit and tool:find-repeated-voice-edits, save the repeated ones with tool:save-voice, and read the day's numbers with tool:see-how-each-post-did, so the next outline or script starts from what worked.",
+    "done_when": "Learnings are written as rows, and only rows with three measured failures are retired, each with its reasons and run ids.",
     "flags": "{}",
     "good_answer": "What changed in which row.",
     "if_missing": "If no number is available, retire nothing.",
@@ -15665,7 +15665,7 @@
     "step": "learn-and-prune",
     "submit": "{\"type\": \"object\", \"properties\": {\"learned\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}, \"retired\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}}, \"required\": [\"learned\"]}",
     "title": "Feed learnings back and prune",
-    "when": "Weekly.",
+    "when": "Daily, by the wake daily, and at the end of each run.",
     "why": "The tree improves from its own results and stays clean."
    }
   },
