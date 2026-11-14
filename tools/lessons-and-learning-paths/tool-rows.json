@@ -1064,8 +1064,19 @@
      "placement:small-container"
     ],
     "maker": "maker:lessons-and-learning-paths",
+    "screen": {
+     "group": "learn",
+     "kind": "module",
+     "module": {
+      "package": "lessons-and-learning-paths",
+      "entry": "web/course-lesson-screen-mount.tsx"
+     },
+     "icon": "BookOpen",
+     "label": "Lesson",
+     "about": "Read one lesson: its notes, the resources it names and what to try now."
+    },
     "provenance": {
-     "source": "bitfield-packages packages/learning-progress and packages/learning-path"
+     "source": "bitfield-packages packages/learning-progress and packages/learning-path, and packages/course-lesson (its lesson page, moved byte for byte)"
     },
     "verify": [
      {

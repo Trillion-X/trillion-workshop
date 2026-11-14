@@ -9,7 +9,8 @@ Where a learner stands on a track of ordered steps, and the writes that accept a
 | `learning-progress` | Ported | `read-data/read-learning-progress.ts` and `do-work/build-evaluation-writes.ts` are `do-work/learning-progress.mjs`; its tests are in `test/`. The engine write glue (`accept-evaluation-target.ts`) is not carried: the tool plans the writes and the caller makes them. |
 | `learning-path` | Ported in part | The step-to-path projection (`projectProgressToPath`) is the `path` field of each view. The rail screen model and surface stay screens. |
 | `learning-mastery-protocol` | Absorbed | Its lifecycle (a map of which phase may follow which) is what `move-records-through-declared-states` answers. The descriptor panel stays a screen. |
-| `course-lesson`, `learning-home` | Screens | They only draw a surface; no logic to carry. |
+| `course-lesson` | Moved | `packages/course-lesson/show/CourseLessonSurface.tsx` moved byte for byte from bitfield-packages d926b7adb (the receipt names the unedited file); only its ui import path changed. It is the screen of `tool:show-the-courses-a-learner-is-on`, mounted by `web/course-lesson-screen-mount.tsx`, which reads one `record:lesson` row (`read-data/lesson-input.mjs` maps its title, summary, body, do_now, primary_resource_id and resources to the page). The retired package entry `mount-course-lesson.tsx` and the vitest test `CourseLessonSurface.test.tsx` are not carried: the mount module takes the entry's place and this repository has no vitest runner. |
+| `learning-home` | Screen | It only draws a surface; no logic to carry. |
 
 ## Files
 
@@ -18,6 +19,9 @@ Where a learner stands on a track of ordered steps, and the writes that accept a
 | `do-work/learning-progress.mjs` | The engine: pure functions over the records handed in. |
 | `do-work/work-out-where-a-learner-stands.mjs` | `tool:work-out-where-a-learner-stands`: per track, the steps in order, percent finished, the step to do next, the latest evaluation, recent evidence and the path. |
 | `do-work/plan-an-evaluation-write.mjs` | `tool:plan-an-evaluation-write`: the receipt and next progress state to write for an evaluation, or idempotent with no writes, or a refusal with the reason. |
+| `web/course-lesson-screen-mount.tsx` | The lesson page as a screen module: reads the lesson row the input names and draws it. |
+| `read-data/lesson-input.mjs` | What the lesson page is given for one lesson row. |
+| `packages/course-lesson/show/` | The lesson page, moved from bitfield-packages (receipt: `moved-from.json`). |
 | `part.json` | The engine file is public. |
 | `tool-rows.json` | The Workshop rows Trillion reads for this folder. |
 | `test/lessons-and-learning-paths.test.mjs` | Tests for this folder, run by `npm test` at the top of the repository. Fixtures are a made-up bakery course. |

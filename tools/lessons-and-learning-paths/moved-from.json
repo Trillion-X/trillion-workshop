@@ -5,6 +5,13 @@
   "calls": [],
   "files": [
     {
+      "from": "packages/course-lesson/show/CourseLessonSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/lessons-and-learning-paths/packages/course-lesson/show/CourseLessonSurface.tsx",
+      "source_identity": "1f:a57ec8e326f756eaf8198bb7fa5321cb1a62bc45f576c923ad0201663cf7bc11",
+      "identity": "1f:a57ec8e326f756eaf8198bb7fa5321cb1a62bc45f576c923ad0201663cf7bc11"
+    },
+    {
       "from": "packages/learning-mastery-protocol/do-work/run-protocol-action.ts",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/lessons-and-learning-paths/packages/learning-mastery-protocol/do-work/run-protocol-action.ts",
