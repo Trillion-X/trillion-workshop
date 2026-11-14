@@ -41,6 +41,7 @@ export function skillFromWorkflow(recipe) {
     '---',
     `name: ${slug}`,
     `description: ${quote(recipe.skill?.description ?? `Use when asked to: ${oneLine(recipe.job)} Runs ${recipe.id}; this skill is generated from that workflow's rows.`)}`,
+    `source: record:workflow-recipe:${slug}`,
     '---',
     `# ${recipe.label}`,
     '',

@@ -65,3 +65,11 @@ test('a recipe row\'s skill field gives the trigger and the extra sections, plac
   assert.ok(made.includes('Answer plainly.') && made.includes('Only into rows.'));
   assert.ok(!text().includes('## Judgments'));
 });
+
+test('the skill is deterministic and a document the skill-row refresh can read: name, description and a source line naming the workflow row, no machine path or time', () => {
+  const skill = text();
+  const front = skill.split('---\n')[1];
+  assert.match(front, /^name: made-up-dig\ndescription: ".+"\nsource: record:workflow-recipe:made-up-dig\n$/);
+  assert.doesNotMatch(skill, /\/Users\/|~\/|\d{4}-\d{2}-\d{2}T\d{2}:/);
+  assert.equal(skillFromWorkflow(recipeFromRows(recipeRow, [...stepRows])), skillFromWorkflow(recipeFromRows(recipeRow, [...stepRows].reverse())));
+});
