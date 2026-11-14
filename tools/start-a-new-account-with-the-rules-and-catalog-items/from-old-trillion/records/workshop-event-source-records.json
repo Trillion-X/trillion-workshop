@@ -577,24 +577,18 @@
             "name": "mail",
             "each": [
               {
-                "field": "history",
-                "as": "h"
-              },
-              {
-                "field": "messagesAdded",
+                "field": "messages",
                 "as": "added"
               }
             ],
             "fields": {
               "message_id": [
                 "added",
-                "message",
                 "id"
               ],
               "thread_id": [
                 "added",
-                "message",
-                "threadId"
+                "thread_id"
               ]
             },
             "required": [
@@ -605,28 +599,35 @@
         "route_key": "mailbox",
         "event_id": "message_id",
         "route_key_proof": {
-          "tool_id": "tool:google-account-find_my_mailbox",
-          "output_selector": "$.emailAddress"
+          "tool_id": "tool:find-my-mailbox",
+          "output_selector": "$.address",
+          "input": {
+            "provider": "gmail"
+          }
         },
         "poll": {
-          "tool_id": "tool:google-account-list_new_mail",
+          "tool_id": "tool:list-new-mail",
           "every_minutes": 2,
           "cursor": {
             "input_field": "since",
             "start": {
-              "tool_id": "tool:google-account-find_my_mailbox",
-              "output_selector": "$.historyId"
+              "tool_id": "tool:find-my-mailbox",
+              "output_selector": "$.cursor",
+              "input": {
+                "provider": "gmail"
+              }
             },
             "next": {
-              "output_selector": "$.historyId"
+              "output_selector": "$.cursor"
             }
           },
           "restart_when_error_contains": [
             "404"
           ],
           "detail": {
-            "tool_id": "tool:google-account-read_mail_headers",
+            "tool_id": "tool:read-mail-headers",
             "input": {
+              "provider": "gmail",
               "message_id": {
                 "fill": {
                   "from": "event",
@@ -636,44 +637,20 @@
             },
             "fields": {
               "from": [
-                "payload",
                 "headers",
-                {
-                  "find": {
-                    "name": "From"
-                  }
-                },
-                "value"
+                "from"
               ],
               "to": [
-                "payload",
                 "headers",
-                {
-                  "find": {
-                    "name": "To"
-                  }
-                },
-                "value"
+                "to"
               ],
               "subject": [
-                "payload",
                 "headers",
-                {
-                  "find": {
-                    "name": "Subject"
-                  }
-                },
-                "value"
+                "subject"
               ],
               "sent": [
-                "payload",
                 "headers",
-                {
-                  "find": {
-                    "name": "Date"
-                  }
-                },
-                "value"
+                "date"
               ],
               "text": [
                 "snippet",
@@ -682,6 +659,9 @@
                 }
               ]
             }
+          },
+          "input": {
+            "provider": "gmail"
           }
         },
         "source": {

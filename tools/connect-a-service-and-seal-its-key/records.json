@@ -1623,30 +1623,28 @@
       "description": "Let Trillion read, organize and send email from this Gmail account. This choice does not change Google's sign-in permissions.",
       "user_choice": true,
       "tool_ids": [
-       "tool:google-account-find_my_mailbox",
-       "tool:google-account-search_mail",
-       "tool:google-account-list_new_mail",
-       "tool:google-account-read_mail_headers",
-       "tool:google-account-read_a_mail",
-       "tool:google-account-list_drafts",
-       "tool:google-account-read_draft",
-       "tool:google-account-modify_mail",
-       "tool:google-account-trash_mail",
-       "tool:google-account-restore_mail",
-       "tool:google-account-read_mail_thread",
-       "tool:google-account-modify_mail_thread",
-       "tool:google-account-trash_mail_thread",
-       "tool:google-account-restore_mail_thread",
-       "tool:google-account-create_draft",
-       "tool:google-account-update_draft",
-       "tool:google-account-delete_draft",
-       "tool:google-account-send_draft",
-       "tool:google-account-list_send_as",
-       "tool:google-account-update_send_as_signature",
-       "tool:google-account-clear_primary_signature"
+       "tool:find-my-mailbox",
+       "tool:find-mail",
+       "tool:list-new-mail",
+       "tool:read-mail-headers",
+       "tool:read-a-mail",
+       "tool:list-mail-drafts",
+       "tool:read-a-mail-draft",
+       "tool:organize-mail",
+       "tool:trash-mail",
+       "tool:restore-mail",
+       "tool:read-a-conversation",
+       "tool:organize-a-conversation",
+       "tool:trash-a-conversation",
+       "tool:restore-a-conversation",
+       "tool:save-a-mail-draft",
+       "tool:delete-a-mail-draft",
+       "tool:send-a-mail-draft",
+       "tool:list-send-as-addresses",
+       "tool:set-a-mail-signature"
       ],
       "required_scope_alternatives_by_tool": {
-       "tool:google-account-find_my_mailbox": [
+       "tool:find-my-mailbox": [
         [
          "https://mail.google.com/"
         ],
@@ -1663,7 +1661,7 @@
          "https://www.googleapis.com/auth/gmail.metadata"
         ]
        ],
-       "tool:google-account-search_mail": [
+       "tool:find-mail": [
         [
          "https://mail.google.com/"
         ],
@@ -1674,21 +1672,7 @@
          "https://www.googleapis.com/auth/gmail.readonly"
         ]
        ],
-       "tool:google-account-list_new_mail": [
-        [
-         "https://mail.google.com/"
-        ],
-        [
-         "https://www.googleapis.com/auth/gmail.modify"
-        ],
-        [
-         "https://www.googleapis.com/auth/gmail.readonly"
-        ],
-        [
-         "https://www.googleapis.com/auth/gmail.metadata"
-        ]
-       ],
-       "tool:google-account-read_mail_headers": [
+       "tool:list-new-mail": [
         [
          "https://mail.google.com/"
         ],
@@ -1702,70 +1686,7 @@
          "https://www.googleapis.com/auth/gmail.metadata"
         ]
        ],
-       "tool:google-account-read_a_mail": [
-        [
-         "https://mail.google.com/"
-        ],
-        [
-         "https://www.googleapis.com/auth/gmail.modify"
-        ],
-        [
-         "https://www.googleapis.com/auth/gmail.readonly"
-        ]
-       ],
-       "tool:google-account-list_drafts": [
-        [
-         "https://mail.google.com/"
-        ],
-        [
-         "https://www.googleapis.com/auth/gmail.modify"
-        ],
-        [
-         "https://www.googleapis.com/auth/gmail.compose"
-        ],
-        [
-         "https://www.googleapis.com/auth/gmail.readonly"
-        ]
-       ],
-       "tool:google-account-read_draft": [
-        [
-         "https://mail.google.com/"
-        ],
-        [
-         "https://www.googleapis.com/auth/gmail.modify"
-        ],
-        [
-         "https://www.googleapis.com/auth/gmail.compose"
-        ],
-        [
-         "https://www.googleapis.com/auth/gmail.readonly"
-        ]
-       ],
-       "tool:google-account-modify_mail": [
-        [
-         "https://mail.google.com/"
-        ],
-        [
-         "https://www.googleapis.com/auth/gmail.modify"
-        ]
-       ],
-       "tool:google-account-trash_mail": [
-        [
-         "https://mail.google.com/"
-        ],
-        [
-         "https://www.googleapis.com/auth/gmail.modify"
-        ]
-       ],
-       "tool:google-account-restore_mail": [
-        [
-         "https://mail.google.com/"
-        ],
-        [
-         "https://www.googleapis.com/auth/gmail.modify"
-        ]
-       ],
-       "tool:google-account-read_mail_thread": [
+       "tool:read-mail-headers": [
         [
          "https://mail.google.com/"
         ],
@@ -1779,55 +1700,18 @@
          "https://www.googleapis.com/auth/gmail.metadata"
         ]
        ],
-       "tool:google-account-modify_mail_thread": [
+       "tool:read-a-mail": [
         [
          "https://mail.google.com/"
         ],
         [
          "https://www.googleapis.com/auth/gmail.modify"
-        ]
-       ],
-       "tool:google-account-trash_mail_thread": [
-        [
-         "https://mail.google.com/"
         ],
         [
-         "https://www.googleapis.com/auth/gmail.modify"
+         "https://www.googleapis.com/auth/gmail.readonly"
         ]
        ],
-       "tool:google-account-restore_mail_thread": [
-        [
-         "https://mail.google.com/"
-        ],
-        [
-         "https://www.googleapis.com/auth/gmail.modify"
-        ]
-       ],
-       "tool:google-account-create_draft": [
-        [
-         "https://www.googleapis.com/auth/gmail.modify"
-        ],
-        [
-         "https://www.googleapis.com/auth/gmail.compose"
-        ]
-       ],
-       "tool:google-account-update_draft": [
-        [
-         "https://www.googleapis.com/auth/gmail.modify"
-        ],
-        [
-         "https://www.googleapis.com/auth/gmail.compose"
-        ]
-       ],
-       "tool:google-account-delete_draft": [
-        [
-         "https://www.googleapis.com/auth/gmail.modify"
-        ],
-        [
-         "https://www.googleapis.com/auth/gmail.compose"
-        ]
-       ],
-       "tool:google-account-send_draft": [
+       "tool:list-mail-drafts": [
         [
          "https://mail.google.com/"
         ],
@@ -1836,9 +1720,115 @@
         ],
         [
          "https://www.googleapis.com/auth/gmail.compose"
+        ],
+        [
+         "https://www.googleapis.com/auth/gmail.readonly"
         ]
        ],
-       "tool:google-account-list_send_as": [
+       "tool:read-a-mail-draft": [
+        [
+         "https://mail.google.com/"
+        ],
+        [
+         "https://www.googleapis.com/auth/gmail.modify"
+        ],
+        [
+         "https://www.googleapis.com/auth/gmail.compose"
+        ],
+        [
+         "https://www.googleapis.com/auth/gmail.readonly"
+        ]
+       ],
+       "tool:organize-mail": [
+        [
+         "https://mail.google.com/"
+        ],
+        [
+         "https://www.googleapis.com/auth/gmail.modify"
+        ]
+       ],
+       "tool:trash-mail": [
+        [
+         "https://mail.google.com/"
+        ],
+        [
+         "https://www.googleapis.com/auth/gmail.modify"
+        ]
+       ],
+       "tool:restore-mail": [
+        [
+         "https://mail.google.com/"
+        ],
+        [
+         "https://www.googleapis.com/auth/gmail.modify"
+        ]
+       ],
+       "tool:read-a-conversation": [
+        [
+         "https://mail.google.com/"
+        ],
+        [
+         "https://www.googleapis.com/auth/gmail.modify"
+        ],
+        [
+         "https://www.googleapis.com/auth/gmail.readonly"
+        ],
+        [
+         "https://www.googleapis.com/auth/gmail.metadata"
+        ]
+       ],
+       "tool:organize-a-conversation": [
+        [
+         "https://mail.google.com/"
+        ],
+        [
+         "https://www.googleapis.com/auth/gmail.modify"
+        ]
+       ],
+       "tool:trash-a-conversation": [
+        [
+         "https://mail.google.com/"
+        ],
+        [
+         "https://www.googleapis.com/auth/gmail.modify"
+        ]
+       ],
+       "tool:restore-a-conversation": [
+        [
+         "https://mail.google.com/"
+        ],
+        [
+         "https://www.googleapis.com/auth/gmail.modify"
+        ]
+       ],
+       "tool:save-a-mail-draft": [
+        [
+         "https://www.googleapis.com/auth/gmail.modify"
+        ],
+        [
+         "https://www.googleapis.com/auth/gmail.compose"
+        ]
+       ],
+       "tool:delete-a-mail-draft": [
+        [
+         "https://www.googleapis.com/auth/gmail.modify"
+        ],
+        [
+         "https://www.googleapis.com/auth/gmail.compose"
+        ]
+       ],
+       "tool:send-a-mail-draft": [
+        [
+         "https://mail.google.com/"
+        ],
+        [
+         "https://www.googleapis.com/auth/gmail.modify"
+        ],
+        [
+         "https://www.googleapis.com/auth/gmail.compose"
+        ]
+       ],
+       "tool:list-send-as-addresses": [
         [
          "https://www.googleapis.com/auth/gmail.settings.basic"
         ],
@@ -1849,15 +1839,7 @@
          "https://www.googleapis.com/auth/gmail.readonly"
         ]
        ],
-       "tool:google-account-update_send_as_signature": [
-        [
-         "https://www.googleapis.com/auth/gmail.settings.basic"
-        ],
-        [
-         "https://www.googleapis.com/auth/gmail.settings.sharing"
-        ]
-       ],
-       "tool:google-account-clear_primary_signature": [
+       "tool:set-a-mail-signature": [
         [
          "https://www.googleapis.com/auth/gmail.settings.basic"
         ],
@@ -1911,7 +1893,7 @@
       {
        "from": "body",
        "path": [
-        "emailAddress"
+        "address"
        ]
       }
      ]

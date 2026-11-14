@@ -1,0 +1,5472 @@
+{
+  "kind": "tool-rows",
+  "record_set": "read-and-write-mail-tool-rows",
+  "what_this_is": "The Workshop rows for tools/read-and-write-mail: one container row per mail job (find a mailbox, search, read, organize, trash and restore mail and conversations, keep and send drafts, set a signature), each taking provider, an id of read-data/mail-providers.json, and running as the account its input's connection names. The provider's connection kind and key renewal are the row's by_input variants, derived from the provider rows (test/mail-tools.test.mjs); the provider's wire format is one adapter file behind its row.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:find-my-mailbox",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:read-and-write-mail",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "read_only": true,
+        "label": "Find a mailbox's address",
+        "job": "Find which address a connected mail account belongs to, and where its mail stands now (cursor: the point list-new-mail goes on from).",
+        "description": "Find which address a connected mail account belongs to, and where its mail stands now (cursor: the point list-new-mail goes on from). Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection",
+            "provider"
+          ],
+          "properties": {
+            "provider": {
+              "type": "string",
+              "description": "Which mail provider the account is on: an id of read-data/mail-providers.json"
+            },
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": true,
+              "description": "The person's account of that provider, by its handle only",
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "service_connection:<vendor> or service_connection:<vendor>:<account>, as the person's connections list it"
+                },
+                "connected_at": {
+                  "type": "string",
+                  "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "address",
+            "cursor"
+          ],
+          "properties": {
+            "address": {
+              "type": "string"
+            },
+            "cursor": {
+              "type": "string"
+            },
+            "messages_total": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "threads_total": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          }
+        },
+        "provenance": {
+          "source": "the earlier tool:google-account-* rows (one http row per Gmail request) and the mail screen's Gmail reading (gmail-email.ts), moved request for request into read-data/adapters/gmail.mjs behind read-data/mail-providers.json; the second provider is Microsoft Graph"
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/read-and-write-mail",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/read-and-write-mail/read-data/mail.mjs",
+            "findMyMailbox"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "field_id": "access_token",
+              "fd": 4
+            }
+          ],
+          "by_input": {
+            "input": "provider",
+            "variants": {
+              "gmail": {
+                "connection": {
+                  "vendor": "google-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://oauth2.googleapis.com/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "google-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "google-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              },
+              "outlook": {
+                "connection": {
+                  "vendor": "microsoft-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "microsoft-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "microsoft-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "read-and-write-mail",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/read-and-write-mail"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "provider": "gmail",
+              "connection": {
+                "connection_id": "service_connection:google-account:sample"
+              }
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://gmail.googleapis.com/gmail/v1/users/me/profile"
+                },
+                "status": 200,
+                "body": {
+                  "emailAddress": "sam@example.com",
+                  "messagesTotal": 3,
+                  "threadsTotal": 2,
+                  "historyId": "482913"
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-14",
+            "output_selector": "$.address"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-new-mail",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:read-and-write-mail",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "read_only": true,
+        "label": "List mail that arrived since a point",
+        "job": "List the mail that reached the inbox since a point in its history (since: the cursor find-my-mailbox or an earlier list-new-mail answered).",
+        "description": "List the mail that reached the inbox since a point in its history (since: the cursor find-my-mailbox or an earlier list-new-mail answered). Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection",
+            "provider",
+            "since"
+          ],
+          "properties": {
+            "provider": {
+              "type": "string",
+              "description": "Which mail provider the account is on: an id of read-data/mail-providers.json"
+            },
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": true,
+              "description": "The person's account of that provider, by its handle only",
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "service_connection:<vendor> or service_connection:<vendor>:<account>, as the person's connections list it"
+                },
+                "connected_at": {
+                  "type": "string",
+                  "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+                }
+              }
+            },
+            "since": {
+              "type": "string",
+              "description": "The cursor to go on from"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "messages",
+            "cursor"
+          ],
+          "properties": {
+            "messages": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "cursor": {
+              "type": "string"
+            },
+            "next_page_token": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "provenance": {
+          "source": "the earlier tool:google-account-* rows (one http row per Gmail request) and the mail screen's Gmail reading (gmail-email.ts), moved request for request into read-data/adapters/gmail.mjs behind read-data/mail-providers.json; the second provider is Microsoft Graph"
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/read-and-write-mail",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/read-and-write-mail/read-data/mail.mjs",
+            "listNewMail"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "field_id": "access_token",
+              "fd": 4
+            }
+          ],
+          "by_input": {
+            "input": "provider",
+            "variants": {
+              "gmail": {
+                "connection": {
+                  "vendor": "google-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://oauth2.googleapis.com/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "google-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "google-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              },
+              "outlook": {
+                "connection": {
+                  "vendor": "microsoft-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "microsoft-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "microsoft-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "read-and-write-mail",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/read-and-write-mail"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "provider": "gmail",
+              "connection": {
+                "connection_id": "service_connection:google-account:sample"
+              },
+              "since": "482913"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://gmail.googleapis.com/gmail/v1/users/me/history"
+                },
+                "status": 200,
+                "body": {
+                  "history": [
+                    {
+                      "id": "482920",
+                      "messagesAdded": [
+                        {
+                          "message": {
+                            "id": "18c1a2b3d4e5f888",
+                            "threadId": "18c1a2b3d4e5f601",
+                            "labelIds": [
+                              "INBOX",
+                              "UNREAD"
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "historyId": "482925"
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-14",
+            "output_selector": "$.cursor"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:find-mail",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:read-and-write-mail",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "read_only": true,
+        "label": "Find mail",
+        "job": "Find messages: the ones in a folder (inbox, starred, sent, drafts, trash or all; the inbox when none is given), or, when text is given, the ones matching it across all mail, written in the provider's own search words (from:, to:, subject:, after: where it takes them). One page at a time: pass next_page_token to go on.",
+        "description": "Find messages: the ones in a folder (inbox, starred, sent, drafts, trash or all; the inbox when none is given), or, when text is given, the ones matching it across all mail, written in the provider's own search words (from:, to:, subject:, after: where it takes them). One page at a time: pass next_page_token to go on. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection",
+            "provider"
+          ],
+          "properties": {
+            "provider": {
+              "type": "string",
+              "description": "Which mail provider the account is on: an id of read-data/mail-providers.json"
+            },
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": true,
+              "description": "The person's account of that provider, by its handle only",
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "service_connection:<vendor> or service_connection:<vendor>:<account>, as the person's connections list it"
+                },
+                "connected_at": {
+                  "type": "string",
+                  "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+                }
+              }
+            },
+            "folder": {
+              "type": "string",
+              "description": "inbox, starred, sent, trash or all"
+            },
+            "text": {
+              "type": "string",
+              "description": "Words to search all mail for; a folder is then not used"
+            },
+            "page_token": {
+              "type": "string",
+              "description": "next_page_token of the page before"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "messages"
+          ],
+          "properties": {
+            "messages": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "thread_id": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            },
+            "next_page_token": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "provenance": {
+          "source": "the earlier tool:google-account-* rows (one http row per Gmail request) and the mail screen's Gmail reading (gmail-email.ts), moved request for request into read-data/adapters/gmail.mjs behind read-data/mail-providers.json; the second provider is Microsoft Graph"
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/read-and-write-mail",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/read-and-write-mail/read-data/mail.mjs",
+            "findMail"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "field_id": "access_token",
+              "fd": 4
+            }
+          ],
+          "by_input": {
+            "input": "provider",
+            "variants": {
+              "gmail": {
+                "connection": {
+                  "vendor": "google-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://oauth2.googleapis.com/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "google-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "google-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              },
+              "outlook": {
+                "connection": {
+                  "vendor": "microsoft-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "microsoft-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "microsoft-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "read-and-write-mail",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/read-and-write-mail"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "provider": "gmail",
+              "connection": {
+                "connection_id": "service_connection:google-account:sample"
+              },
+              "text": "from:alex invoice"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://gmail.googleapis.com/gmail/v1/users/me/messages"
+                },
+                "status": 200,
+                "body": {
+                  "messages": [
+                    {
+                      "id": "18c1a2b3d4e5f601",
+                      "threadId": "18c1a2b3d4e5f601"
+                    }
+                  ]
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-14",
+            "output_selector": "$.messages.0.id"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-mail-headers",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:read-and-write-mail",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "read_only": true,
+        "label": "Read who a message is from and its subject",
+        "job": "Read who sent a message, to whom, its subject and when, with its labels and preview line. Its text is not included: read it with read-a-mail.",
+        "description": "Read who sent a message, to whom, its subject and when, with its labels and preview line. Its text is not included: read it with read-a-mail. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection",
+            "message_id",
+            "provider"
+          ],
+          "properties": {
+            "provider": {
+              "type": "string",
+              "description": "Which mail provider the account is on: an id of read-data/mail-providers.json"
+            },
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": true,
+              "description": "The person's account of that provider, by its handle only",
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "service_connection:<vendor> or service_connection:<vendor>:<account>, as the person's connections list it"
+                },
+                "connected_at": {
+                  "type": "string",
+                  "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+                }
+              }
+            },
+            "message_id": {
+              "type": "string",
+              "description": "A message id from find-mail, list-new-mail or read-a-conversation"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "A neutral message: id, thread_id, draft_id, labels (neutral names), date_ms, snippet, headers {from,to,cc,bcc,reply_to,subject,date,message_id,references,in_reply_to,list_unsubscribe}, has_calendar_invite, text, links, attachments [{name,mime_type,size}], needs_original"
+        },
+        "provenance": {
+          "source": "the earlier tool:google-account-* rows (one http row per Gmail request) and the mail screen's Gmail reading (gmail-email.ts), moved request for request into read-data/adapters/gmail.mjs behind read-data/mail-providers.json; the second provider is Microsoft Graph"
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/read-and-write-mail",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/read-and-write-mail/read-data/mail.mjs",
+            "readMailHeaders"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "field_id": "access_token",
+              "fd": 4
+            }
+          ],
+          "by_input": {
+            "input": "provider",
+            "variants": {
+              "gmail": {
+                "connection": {
+                  "vendor": "google-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://oauth2.googleapis.com/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "google-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "google-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              },
+              "outlook": {
+                "connection": {
+                  "vendor": "microsoft-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "microsoft-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "microsoft-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "read-and-write-mail",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/read-and-write-mail"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "provider": "gmail",
+              "connection": {
+                "connection_id": "service_connection:google-account:sample"
+              },
+              "message_id": "18c1a2b3d4e5f601"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://gmail.googleapis.com/gmail/v1/users/me/messages/18c1a2b3d4e5f601"
+                },
+                "status": 200,
+                "body": {
+                  "id": "18c1a2b3d4e5f601",
+                  "threadId": "18c1a2b3d4e5f601",
+                  "labelIds": [
+                    "INBOX",
+                    "UNREAD"
+                  ],
+                  "snippet": "Your invoice is attached.",
+                  "internalDate": "1699999999000",
+                  "payload": {
+                    "mimeType": "multipart/mixed",
+                    "headers": [
+                      {
+                        "name": "From",
+                        "value": "Alex Rivera <alex@example.com>"
+                      },
+                      {
+                        "name": "To",
+                        "value": "sam@example.com"
+                      },
+                      {
+                        "name": "Subject",
+                        "value": "Invoice 1042"
+                      },
+                      {
+                        "name": "Date",
+                        "value": "Tue, 14 Nov 2023 22:13:19 +0000"
+                      },
+                      {
+                        "name": "Message-ID",
+                        "value": "<CAF1042@example.com>"
+                      }
+                    ],
+                    "parts": [
+                      {
+                        "mimeType": "text/plain",
+                        "body": {
+                          "data": "SGkgU2FtLCB5b3VyIGludm9pY2UgaXMgYXR0YWNoZWQu"
+                        }
+                      },
+                      {
+                        "mimeType": "application/pdf",
+                        "filename": "invoice-1042.pdf",
+                        "body": {
+                          "attachmentId": "a1",
+                          "size": 20480
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-14",
+            "output_selector": "$.headers.subject"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-mail",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:read-and-write-mail",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "read_only": true,
+        "label": "Read a whole message",
+        "job": "Read one whole message: its headers, its plain text, the web links in it and the files it carries (names, kinds, sizes).",
+        "description": "Read one whole message: its headers, its plain text, the web links in it and the files it carries (names, kinds, sizes). Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection",
+            "message_id",
+            "provider"
+          ],
+          "properties": {
+            "provider": {
+              "type": "string",
+              "description": "Which mail provider the account is on: an id of read-data/mail-providers.json"
+            },
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": true,
+              "description": "The person's account of that provider, by its handle only",
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "service_connection:<vendor> or service_connection:<vendor>:<account>, as the person's connections list it"
+                },
+                "connected_at": {
+                  "type": "string",
+                  "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+                }
+              }
+            },
+            "message_id": {
+              "type": "string",
+              "description": "A message id from find-mail, list-new-mail or read-a-conversation"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "A neutral message: id, thread_id, draft_id, labels (neutral names), date_ms, snippet, headers {from,to,cc,bcc,reply_to,subject,date,message_id,references,in_reply_to,list_unsubscribe}, has_calendar_invite, text, links, attachments [{name,mime_type,size}], needs_original"
+        },
+        "provenance": {
+          "source": "the earlier tool:google-account-* rows (one http row per Gmail request) and the mail screen's Gmail reading (gmail-email.ts), moved request for request into read-data/adapters/gmail.mjs behind read-data/mail-providers.json; the second provider is Microsoft Graph"
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/read-and-write-mail",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/read-and-write-mail/read-data/mail.mjs",
+            "readAMail"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "field_id": "access_token",
+              "fd": 4
+            }
+          ],
+          "by_input": {
+            "input": "provider",
+            "variants": {
+              "gmail": {
+                "connection": {
+                  "vendor": "google-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://oauth2.googleapis.com/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "google-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "google-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              },
+              "outlook": {
+                "connection": {
+                  "vendor": "microsoft-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "microsoft-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "microsoft-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "read-and-write-mail",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/read-and-write-mail"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "provider": "gmail",
+              "connection": {
+                "connection_id": "service_connection:google-account:sample"
+              },
+              "message_id": "18c1a2b3d4e5f601"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://gmail.googleapis.com/gmail/v1/users/me/messages/18c1a2b3d4e5f601"
+                },
+                "status": 200,
+                "body": {
+                  "id": "18c1a2b3d4e5f601",
+                  "threadId": "18c1a2b3d4e5f601",
+                  "labelIds": [
+                    "INBOX",
+                    "UNREAD"
+                  ],
+                  "snippet": "Your invoice is attached.",
+                  "internalDate": "1699999999000",
+                  "payload": {
+                    "mimeType": "multipart/mixed",
+                    "headers": [
+                      {
+                        "name": "From",
+                        "value": "Alex Rivera <alex@example.com>"
+                      },
+                      {
+                        "name": "To",
+                        "value": "sam@example.com"
+                      },
+                      {
+                        "name": "Subject",
+                        "value": "Invoice 1042"
+                      },
+                      {
+                        "name": "Date",
+                        "value": "Tue, 14 Nov 2023 22:13:19 +0000"
+                      },
+                      {
+                        "name": "Message-ID",
+                        "value": "<CAF1042@example.com>"
+                      }
+                    ],
+                    "parts": [
+                      {
+                        "mimeType": "text/plain",
+                        "body": {
+                          "data": "SGkgU2FtLCB5b3VyIGludm9pY2UgaXMgYXR0YWNoZWQu"
+                        }
+                      },
+                      {
+                        "mimeType": "application/pdf",
+                        "filename": "invoice-1042.pdf",
+                        "body": {
+                          "attachmentId": "a1",
+                          "size": 20480
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-14",
+            "output_selector": "$.text"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-conversation",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:read-and-write-mail",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "read_only": true,
+        "label": "Read a conversation",
+        "job": "Read the messages of one conversation as headers, previews and labels, with no message text; read one message with read-a-mail.",
+        "description": "Read the messages of one conversation as headers, previews and labels, with no message text; read one message with read-a-mail. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection",
+            "provider",
+            "thread_id"
+          ],
+          "properties": {
+            "provider": {
+              "type": "string",
+              "description": "Which mail provider the account is on: an id of read-data/mail-providers.json"
+            },
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": true,
+              "description": "The person's account of that provider, by its handle only",
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "service_connection:<vendor> or service_connection:<vendor>:<account>, as the person's connections list it"
+                },
+                "connected_at": {
+                  "type": "string",
+                  "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+                }
+              }
+            },
+            "thread_id": {
+              "type": "string",
+              "description": "A thread_id of a message"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "thread_id",
+            "messages"
+          ],
+          "properties": {
+            "thread_id": {
+              "type": "string"
+            },
+            "messages": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "description": "A neutral message: id, thread_id, draft_id, labels (neutral names), date_ms, snippet, headers {from,to,cc,bcc,reply_to,subject,date,message_id,references,in_reply_to,list_unsubscribe}, has_calendar_invite, text, links, attachments [{name,mime_type,size}], needs_original"
+              }
+            }
+          }
+        },
+        "provenance": {
+          "source": "the earlier tool:google-account-* rows (one http row per Gmail request) and the mail screen's Gmail reading (gmail-email.ts), moved request for request into read-data/adapters/gmail.mjs behind read-data/mail-providers.json; the second provider is Microsoft Graph"
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/read-and-write-mail",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/read-and-write-mail/read-data/mail.mjs",
+            "readAConversation"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "field_id": "access_token",
+              "fd": 4
+            }
+          ],
+          "by_input": {
+            "input": "provider",
+            "variants": {
+              "gmail": {
+                "connection": {
+                  "vendor": "google-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://oauth2.googleapis.com/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "google-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "google-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              },
+              "outlook": {
+                "connection": {
+                  "vendor": "microsoft-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "microsoft-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "microsoft-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "read-and-write-mail",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/read-and-write-mail"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "provider": "gmail",
+              "connection": {
+                "connection_id": "service_connection:google-account:sample"
+              },
+              "thread_id": "18c1a2b3d4e5f601"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://gmail.googleapis.com/gmail/v1/users/me/threads/18c1a2b3d4e5f601"
+                },
+                "status": 200,
+                "body": {
+                  "id": "18c1a2b3d4e5f601",
+                  "messages": [
+                    {
+                      "id": "18c1a2b3d4e5f601",
+                      "threadId": "18c1a2b3d4e5f601",
+                      "labelIds": [
+                        "INBOX",
+                        "UNREAD"
+                      ],
+                      "snippet": "Your invoice is attached.",
+                      "internalDate": "1699999999000",
+                      "payload": {
+                        "mimeType": "multipart/mixed",
+                        "headers": [
+                          {
+                            "name": "From",
+                            "value": "Alex Rivera <alex@example.com>"
+                          },
+                          {
+                            "name": "To",
+                            "value": "sam@example.com"
+                          },
+                          {
+                            "name": "Subject",
+                            "value": "Invoice 1042"
+                          },
+                          {
+                            "name": "Date",
+                            "value": "Tue, 14 Nov 2023 22:13:19 +0000"
+                          },
+                          {
+                            "name": "Message-ID",
+                            "value": "<CAF1042@example.com>"
+                          }
+                        ],
+                        "parts": [
+                          {
+                            "mimeType": "text/plain",
+                            "body": {
+                              "data": "SGkgU2FtLCB5b3VyIGludm9pY2UgaXMgYXR0YWNoZWQu"
+                            }
+                          },
+                          {
+                            "mimeType": "application/pdf",
+                            "filename": "invoice-1042.pdf",
+                            "body": {
+                              "attachmentId": "a1",
+                              "size": 20480
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-14",
+            "output_selector": "$.messages.0.id"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:organize-mail",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:read-and-write-mail",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "read_only": false,
+        "label": "Add or remove labels on a message",
+        "job": "Add or remove neutral labels on one message: remove inbox to archive it, add or remove unread to change its read state, add or remove starred to star it. Answers the labels it has now.",
+        "description": "Add or remove neutral labels on one message: remove inbox to archive it, add or remove unread to change its read state, add or remove starred to star it. Answers the labels it has now. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection",
+            "message_id",
+            "provider"
+          ],
+          "properties": {
+            "provider": {
+              "type": "string",
+              "description": "Which mail provider the account is on: an id of read-data/mail-providers.json"
+            },
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": true,
+              "description": "The person's account of that provider, by its handle only",
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "service_connection:<vendor> or service_connection:<vendor>:<account>, as the person's connections list it"
+                },
+                "connected_at": {
+                  "type": "string",
+                  "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+                }
+              }
+            },
+            "message_id": {
+              "type": "string",
+              "description": "A message id"
+            },
+            "add_labels": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Neutral labels to add"
+            },
+            "remove_labels": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Neutral labels to remove"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "id",
+            "labels"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "thread_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "labels": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "provenance": {
+          "source": "the earlier tool:google-account-* rows (one http row per Gmail request) and the mail screen's Gmail reading (gmail-email.ts), moved request for request into read-data/adapters/gmail.mjs behind read-data/mail-providers.json; the second provider is Microsoft Graph"
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/read-and-write-mail",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/read-and-write-mail/read-data/mail.mjs",
+            "organizeMail"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "field_id": "access_token",
+              "fd": 4
+            }
+          ],
+          "by_input": {
+            "input": "provider",
+            "variants": {
+              "gmail": {
+                "connection": {
+                  "vendor": "google-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://oauth2.googleapis.com/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "google-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "google-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              },
+              "outlook": {
+                "connection": {
+                  "vendor": "microsoft-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "microsoft-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "microsoft-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "read-and-write-mail",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/read-and-write-mail"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "provider": "gmail",
+              "connection": {
+                "connection_id": "service_connection:google-account:sample"
+              },
+              "message_id": "18c1a2b3d4e5f601",
+              "add_labels": [
+                "starred"
+              ],
+              "remove_labels": [
+                "unread"
+              ]
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://gmail.googleapis.com/gmail/v1/users/me/messages/18c1a2b3d4e5f601/modify"
+                },
+                "status": 200,
+                "body": {
+                  "id": "18c1a2b3d4e5f601",
+                  "threadId": "18c1a2b3d4e5f601",
+                  "labelIds": [
+                    "INBOX",
+                    "STARRED"
+                  ]
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-14",
+            "output_selector": "$.labels.1"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:organize-a-conversation",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:read-and-write-mail",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "read_only": false,
+        "label": "Add or remove labels on a conversation",
+        "job": "Add or remove neutral labels on every message of one conversation: remove inbox to archive the whole conversation.",
+        "description": "Add or remove neutral labels on every message of one conversation: remove inbox to archive the whole conversation. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection",
+            "provider",
+            "thread_id"
+          ],
+          "properties": {
+            "provider": {
+              "type": "string",
+              "description": "Which mail provider the account is on: an id of read-data/mail-providers.json"
+            },
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": true,
+              "description": "The person's account of that provider, by its handle only",
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "service_connection:<vendor> or service_connection:<vendor>:<account>, as the person's connections list it"
+                },
+                "connected_at": {
+                  "type": "string",
+                  "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+                }
+              }
+            },
+            "thread_id": {
+              "type": "string",
+              "description": "A thread_id"
+            },
+            "add_labels": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Neutral labels to add"
+            },
+            "remove_labels": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Neutral labels to remove"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "thread_id"
+          ],
+          "properties": {
+            "thread_id": {
+              "type": "string"
+            }
+          }
+        },
+        "provenance": {
+          "source": "the earlier tool:google-account-* rows (one http row per Gmail request) and the mail screen's Gmail reading (gmail-email.ts), moved request for request into read-data/adapters/gmail.mjs behind read-data/mail-providers.json; the second provider is Microsoft Graph"
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/read-and-write-mail",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/read-and-write-mail/read-data/mail.mjs",
+            "organizeAConversation"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "field_id": "access_token",
+              "fd": 4
+            }
+          ],
+          "by_input": {
+            "input": "provider",
+            "variants": {
+              "gmail": {
+                "connection": {
+                  "vendor": "google-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://oauth2.googleapis.com/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "google-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "google-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              },
+              "outlook": {
+                "connection": {
+                  "vendor": "microsoft-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "microsoft-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "microsoft-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "read-and-write-mail",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/read-and-write-mail"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "provider": "gmail",
+              "connection": {
+                "connection_id": "service_connection:google-account:sample"
+              },
+              "thread_id": "18c1a2b3d4e5f601",
+              "remove_labels": [
+                "inbox"
+              ]
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://gmail.googleapis.com/gmail/v1/users/me/threads/18c1a2b3d4e5f601/modify"
+                },
+                "status": 200,
+                "body": {
+                  "id": "18c1a2b3d4e5f601"
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-14",
+            "output_selector": "$.thread_id"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:trash-mail",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:read-and-write-mail",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "read_only": false,
+        "label": "Move a message to the trash",
+        "job": "Move one message to the trash, where it can still be restored.",
+        "description": "Move one message to the trash, where it can still be restored. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection",
+            "message_id",
+            "provider"
+          ],
+          "properties": {
+            "provider": {
+              "type": "string",
+              "description": "Which mail provider the account is on: an id of read-data/mail-providers.json"
+            },
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": true,
+              "description": "The person's account of that provider, by its handle only",
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "service_connection:<vendor> or service_connection:<vendor>:<account>, as the person's connections list it"
+                },
+                "connected_at": {
+                  "type": "string",
+                  "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+                }
+              }
+            },
+            "message_id": {
+              "type": "string",
+              "description": "A message id"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "id",
+            "labels"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "thread_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "labels": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "provenance": {
+          "source": "the earlier tool:google-account-* rows (one http row per Gmail request) and the mail screen's Gmail reading (gmail-email.ts), moved request for request into read-data/adapters/gmail.mjs behind read-data/mail-providers.json; the second provider is Microsoft Graph"
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/read-and-write-mail",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/read-and-write-mail/read-data/mail.mjs",
+            "trashMail"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "field_id": "access_token",
+              "fd": 4
+            }
+          ],
+          "by_input": {
+            "input": "provider",
+            "variants": {
+              "gmail": {
+                "connection": {
+                  "vendor": "google-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://oauth2.googleapis.com/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "google-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "google-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              },
+              "outlook": {
+                "connection": {
+                  "vendor": "microsoft-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "microsoft-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "microsoft-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "read-and-write-mail",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/read-and-write-mail"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "provider": "gmail",
+              "connection": {
+                "connection_id": "service_connection:google-account:sample"
+              },
+              "message_id": "18c1a2b3d4e5f601"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://gmail.googleapis.com/gmail/v1/users/me/messages/18c1a2b3d4e5f601/trash"
+                },
+                "status": 200,
+                "body": {
+                  "id": "18c1a2b3d4e5f601",
+                  "threadId": "18c1a2b3d4e5f601",
+                  "labelIds": [
+                    "TRASH"
+                  ]
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-14",
+            "output_selector": "$.labels.0"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:restore-mail",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:read-and-write-mail",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "read_only": false,
+        "label": "Restore a message from the trash",
+        "job": "Restore one message from the trash.",
+        "description": "Restore one message from the trash. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection",
+            "message_id",
+            "provider"
+          ],
+          "properties": {
+            "provider": {
+              "type": "string",
+              "description": "Which mail provider the account is on: an id of read-data/mail-providers.json"
+            },
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": true,
+              "description": "The person's account of that provider, by its handle only",
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "service_connection:<vendor> or service_connection:<vendor>:<account>, as the person's connections list it"
+                },
+                "connected_at": {
+                  "type": "string",
+                  "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+                }
+              }
+            },
+            "message_id": {
+              "type": "string",
+              "description": "A message id"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "id",
+            "labels"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "thread_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "labels": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "provenance": {
+          "source": "the earlier tool:google-account-* rows (one http row per Gmail request) and the mail screen's Gmail reading (gmail-email.ts), moved request for request into read-data/adapters/gmail.mjs behind read-data/mail-providers.json; the second provider is Microsoft Graph"
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/read-and-write-mail",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/read-and-write-mail/read-data/mail.mjs",
+            "restoreMail"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "field_id": "access_token",
+              "fd": 4
+            }
+          ],
+          "by_input": {
+            "input": "provider",
+            "variants": {
+              "gmail": {
+                "connection": {
+                  "vendor": "google-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://oauth2.googleapis.com/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "google-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "google-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              },
+              "outlook": {
+                "connection": {
+                  "vendor": "microsoft-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "microsoft-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "microsoft-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "read-and-write-mail",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/read-and-write-mail"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "provider": "gmail",
+              "connection": {
+                "connection_id": "service_connection:google-account:sample"
+              },
+              "message_id": "18c1a2b3d4e5f601"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://gmail.googleapis.com/gmail/v1/users/me/messages/18c1a2b3d4e5f601/untrash"
+                },
+                "status": 200,
+                "body": {
+                  "id": "18c1a2b3d4e5f601",
+                  "threadId": "18c1a2b3d4e5f601",
+                  "labelIds": [
+                    "INBOX"
+                  ]
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-14",
+            "output_selector": "$.labels.0"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:trash-a-conversation",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:read-and-write-mail",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "read_only": false,
+        "label": "Move a conversation to the trash",
+        "job": "Move every message of one conversation to the trash, where it can still be restored.",
+        "description": "Move every message of one conversation to the trash, where it can still be restored. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection",
+            "provider",
+            "thread_id"
+          ],
+          "properties": {
+            "provider": {
+              "type": "string",
+              "description": "Which mail provider the account is on: an id of read-data/mail-providers.json"
+            },
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": true,
+              "description": "The person's account of that provider, by its handle only",
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "service_connection:<vendor> or service_connection:<vendor>:<account>, as the person's connections list it"
+                },
+                "connected_at": {
+                  "type": "string",
+                  "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+                }
+              }
+            },
+            "thread_id": {
+              "type": "string",
+              "description": "A thread_id"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "thread_id"
+          ],
+          "properties": {
+            "thread_id": {
+              "type": "string"
+            }
+          }
+        },
+        "provenance": {
+          "source": "the earlier tool:google-account-* rows (one http row per Gmail request) and the mail screen's Gmail reading (gmail-email.ts), moved request for request into read-data/adapters/gmail.mjs behind read-data/mail-providers.json; the second provider is Microsoft Graph"
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/read-and-write-mail",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/read-and-write-mail/read-data/mail.mjs",
+            "trashAConversation"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "field_id": "access_token",
+              "fd": 4
+            }
+          ],
+          "by_input": {
+            "input": "provider",
+            "variants": {
+              "gmail": {
+                "connection": {
+                  "vendor": "google-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://oauth2.googleapis.com/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "google-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "google-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              },
+              "outlook": {
+                "connection": {
+                  "vendor": "microsoft-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "microsoft-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "microsoft-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "read-and-write-mail",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/read-and-write-mail"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "provider": "gmail",
+              "connection": {
+                "connection_id": "service_connection:google-account:sample"
+              },
+              "thread_id": "18c1a2b3d4e5f601"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://gmail.googleapis.com/gmail/v1/users/me/threads/18c1a2b3d4e5f601/trash"
+                },
+                "status": 200,
+                "body": {
+                  "id": "18c1a2b3d4e5f601"
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-14",
+            "output_selector": "$.thread_id"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:restore-a-conversation",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:read-and-write-mail",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "read_only": false,
+        "label": "Restore a conversation from the trash",
+        "job": "Restore every message of one conversation from the trash.",
+        "description": "Restore every message of one conversation from the trash. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection",
+            "provider",
+            "thread_id"
+          ],
+          "properties": {
+            "provider": {
+              "type": "string",
+              "description": "Which mail provider the account is on: an id of read-data/mail-providers.json"
+            },
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": true,
+              "description": "The person's account of that provider, by its handle only",
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "service_connection:<vendor> or service_connection:<vendor>:<account>, as the person's connections list it"
+                },
+                "connected_at": {
+                  "type": "string",
+                  "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+                }
+              }
+            },
+            "thread_id": {
+              "type": "string",
+              "description": "A thread_id"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "thread_id"
+          ],
+          "properties": {
+            "thread_id": {
+              "type": "string"
+            }
+          }
+        },
+        "provenance": {
+          "source": "the earlier tool:google-account-* rows (one http row per Gmail request) and the mail screen's Gmail reading (gmail-email.ts), moved request for request into read-data/adapters/gmail.mjs behind read-data/mail-providers.json; the second provider is Microsoft Graph"
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/read-and-write-mail",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/read-and-write-mail/read-data/mail.mjs",
+            "restoreAConversation"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "field_id": "access_token",
+              "fd": 4
+            }
+          ],
+          "by_input": {
+            "input": "provider",
+            "variants": {
+              "gmail": {
+                "connection": {
+                  "vendor": "google-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://oauth2.googleapis.com/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "google-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "google-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              },
+              "outlook": {
+                "connection": {
+                  "vendor": "microsoft-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "microsoft-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "microsoft-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "read-and-write-mail",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/read-and-write-mail"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "provider": "gmail",
+              "connection": {
+                "connection_id": "service_connection:google-account:sample"
+              },
+              "thread_id": "18c1a2b3d4e5f601"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://gmail.googleapis.com/gmail/v1/users/me/threads/18c1a2b3d4e5f601/untrash"
+                },
+                "status": 200,
+                "body": {
+                  "id": "18c1a2b3d4e5f601"
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-14",
+            "output_selector": "$.thread_id"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-mail-drafts",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:read-and-write-mail",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "read_only": true,
+        "label": "List drafts",
+        "job": "List the person's drafts, one page at a time: each draft id with its message id and thread id. Read one with read-a-mail-draft.",
+        "description": "List the person's drafts, one page at a time: each draft id with its message id and thread id. Read one with read-a-mail-draft. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection",
+            "provider"
+          ],
+          "properties": {
+            "provider": {
+              "type": "string",
+              "description": "Which mail provider the account is on: an id of read-data/mail-providers.json"
+            },
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": true,
+              "description": "The person's account of that provider, by its handle only",
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "service_connection:<vendor> or service_connection:<vendor>:<account>, as the person's connections list it"
+                },
+                "connected_at": {
+                  "type": "string",
+                  "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+                }
+              }
+            },
+            "text": {
+              "type": "string",
+              "description": "Words to search the drafts for"
+            },
+            "page_token": {
+              "type": "string",
+              "description": "next_page_token of the page before"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "drafts"
+          ],
+          "properties": {
+            "drafts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "draft_id": {
+                    "type": "string"
+                  },
+                  "message_id": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "thread_id": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            },
+            "next_page_token": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "provenance": {
+          "source": "the earlier tool:google-account-* rows (one http row per Gmail request) and the mail screen's Gmail reading (gmail-email.ts), moved request for request into read-data/adapters/gmail.mjs behind read-data/mail-providers.json; the second provider is Microsoft Graph"
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/read-and-write-mail",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/read-and-write-mail/read-data/mail.mjs",
+            "listMailDrafts"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "field_id": "access_token",
+              "fd": 4
+            }
+          ],
+          "by_input": {
+            "input": "provider",
+            "variants": {
+              "gmail": {
+                "connection": {
+                  "vendor": "google-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://oauth2.googleapis.com/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "google-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "google-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              },
+              "outlook": {
+                "connection": {
+                  "vendor": "microsoft-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "microsoft-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "microsoft-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "read-and-write-mail",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/read-and-write-mail"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "provider": "gmail",
+              "connection": {
+                "connection_id": "service_connection:google-account:sample"
+              }
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://gmail.googleapis.com/gmail/v1/users/me/drafts"
+                },
+                "status": 200,
+                "body": {
+                  "drafts": [
+                    {
+                      "id": "r-7301442210",
+                      "message": {
+                        "id": "18c1a2b3d4e5f777",
+                        "threadId": "18c1a2b3d4e5f601"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-14",
+            "output_selector": "$.drafts.0.draft_id"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-mail-draft",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:read-and-write-mail",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "read_only": true,
+        "label": "Read a draft",
+        "job": "Read one draft as a neutral message (needs_original says whether editing it as plain text would lose attachments, formatting or a Bcc line).",
+        "description": "Read one draft as a neutral message (needs_original says whether editing it as plain text would lose attachments, formatting or a Bcc line). Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection",
+            "draft_id",
+            "provider"
+          ],
+          "properties": {
+            "provider": {
+              "type": "string",
+              "description": "Which mail provider the account is on: an id of read-data/mail-providers.json"
+            },
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": true,
+              "description": "The person's account of that provider, by its handle only",
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "service_connection:<vendor> or service_connection:<vendor>:<account>, as the person's connections list it"
+                },
+                "connected_at": {
+                  "type": "string",
+                  "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+                }
+              }
+            },
+            "draft_id": {
+              "type": "string",
+              "description": "A draft_id from list-mail-drafts or save-a-mail-draft"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "draft_id",
+            "message"
+          ],
+          "properties": {
+            "draft_id": {
+              "type": "string"
+            },
+            "message": {
+              "type": "object",
+              "description": "A neutral message: id, thread_id, draft_id, labels (neutral names), date_ms, snippet, headers {from,to,cc,bcc,reply_to,subject,date,message_id,references,in_reply_to,list_unsubscribe}, has_calendar_invite, text, links, attachments [{name,mime_type,size}], needs_original"
+            }
+          }
+        },
+        "provenance": {
+          "source": "the earlier tool:google-account-* rows (one http row per Gmail request) and the mail screen's Gmail reading (gmail-email.ts), moved request for request into read-data/adapters/gmail.mjs behind read-data/mail-providers.json; the second provider is Microsoft Graph"
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/read-and-write-mail",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/read-and-write-mail/read-data/mail.mjs",
+            "readAMailDraft"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "field_id": "access_token",
+              "fd": 4
+            }
+          ],
+          "by_input": {
+            "input": "provider",
+            "variants": {
+              "gmail": {
+                "connection": {
+                  "vendor": "google-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://oauth2.googleapis.com/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "google-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "google-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              },
+              "outlook": {
+                "connection": {
+                  "vendor": "microsoft-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "microsoft-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "microsoft-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "read-and-write-mail",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/read-and-write-mail"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "provider": "gmail",
+              "connection": {
+                "connection_id": "service_connection:google-account:sample"
+              },
+              "draft_id": "r-7301442210"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://gmail.googleapis.com/gmail/v1/users/me/drafts/r-7301442210"
+                },
+                "status": 200,
+                "body": {
+                  "id": "r-7301442210",
+                  "message": {
+                    "id": "18c1a2b3d4e5f777",
+                    "threadId": "18c1a2b3d4e5f601",
+                    "labelIds": [
+                      "DRAFT"
+                    ],
+                    "snippet": "Your invoice is attached.",
+                    "internalDate": "1699999999000",
+                    "payload": {
+                      "mimeType": "multipart/mixed",
+                      "headers": [
+                        {
+                          "name": "From",
+                          "value": "Alex Rivera <alex@example.com>"
+                        },
+                        {
+                          "name": "To",
+                          "value": "sam@example.com"
+                        },
+                        {
+                          "name": "Subject",
+                          "value": "Invoice 1042"
+                        },
+                        {
+                          "name": "Date",
+                          "value": "Tue, 14 Nov 2023 22:13:19 +0000"
+                        },
+                        {
+                          "name": "Message-ID",
+                          "value": "<CAF1042@example.com>"
+                        }
+                      ],
+                      "parts": [
+                        {
+                          "mimeType": "text/plain",
+                          "body": {
+                            "data": "SGkgU2FtLCB5b3VyIGludm9pY2UgaXMgYXR0YWNoZWQu"
+                          }
+                        },
+                        {
+                          "mimeType": "application/pdf",
+                          "filename": "invoice-1042.pdf",
+                          "body": {
+                            "attachmentId": "a1",
+                            "size": 20480
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-14",
+            "output_selector": "$.draft_id"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:save-a-mail-draft",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:read-and-write-mail",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "read_only": false,
+        "label": "Save a draft",
+        "job": "Keep a plain-text draft: a new one, or the one named by draft_id replaced. Give from (the mailbox address), to (addresses joined by commas), subject and text; thread_id, in_reply_to and references make it a reply where the provider takes them. Nothing is sent. Run with the same request key to repeat a save safely.",
+        "description": "Keep a plain-text draft: a new one, or the one named by draft_id replaced. Give from (the mailbox address), to (addresses joined by commas), subject and text; thread_id, in_reply_to and references make it a reply where the provider takes them. Nothing is sent. Run with the same request key to repeat a save safely. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection",
+            "provider",
+            "to"
+          ],
+          "properties": {
+            "provider": {
+              "type": "string",
+              "description": "Which mail provider the account is on: an id of read-data/mail-providers.json"
+            },
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": true,
+              "description": "The person's account of that provider, by its handle only",
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "service_connection:<vendor> or service_connection:<vendor>:<account>, as the person's connections list it"
+                },
+                "connected_at": {
+                  "type": "string",
+                  "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+                }
+              }
+            },
+            "draft_id": {
+              "type": "string",
+              "description": "The draft to replace; none makes a new one"
+            },
+            "thread_id": {
+              "type": "string",
+              "description": "The conversation a reply draft belongs to"
+            },
+            "from": {
+              "type": "string",
+              "description": "The mailbox address it is written from"
+            },
+            "to": {
+              "type": "string",
+              "description": "Recipients, joined by commas"
+            },
+            "cc": {
+              "type": "string",
+              "description": "Copied recipients, joined by commas"
+            },
+            "subject": {
+              "type": "string",
+              "description": "Subject"
+            },
+            "text": {
+              "type": "string",
+              "description": "Plain-text words"
+            },
+            "in_reply_to": {
+              "type": "string",
+              "description": "The message id of the message replied to"
+            },
+            "references": {
+              "type": "string",
+              "description": "The message ids of the conversation, joined by spaces"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "draft_id"
+          ],
+          "properties": {
+            "draft_id": {
+              "type": "string"
+            },
+            "message_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "thread_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "provenance": {
+          "source": "the earlier tool:google-account-* rows (one http row per Gmail request) and the mail screen's Gmail reading (gmail-email.ts), moved request for request into read-data/adapters/gmail.mjs behind read-data/mail-providers.json; the second provider is Microsoft Graph"
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/read-and-write-mail",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/read-and-write-mail/read-data/mail.mjs",
+            "saveAMailDraft"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "field_id": "access_token",
+              "fd": 4
+            }
+          ],
+          "by_input": {
+            "input": "provider",
+            "variants": {
+              "gmail": {
+                "connection": {
+                  "vendor": "google-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://oauth2.googleapis.com/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "google-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "google-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              },
+              "outlook": {
+                "connection": {
+                  "vendor": "microsoft-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "microsoft-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "microsoft-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "read-and-write-mail",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/read-and-write-mail"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "provider": "gmail",
+              "connection": {
+                "connection_id": "service_connection:google-account:sample"
+              },
+              "from": "sam@example.com",
+              "to": "alex@example.com",
+              "subject": "Re: Invoice 1042",
+              "text": "Thanks, Alex."
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://gmail.googleapis.com/gmail/v1/users/me/drafts"
+                },
+                "status": 200,
+                "body": {
+                  "id": "r-7301442210",
+                  "message": {
+                    "id": "18c1a2b3d4e5f777",
+                    "threadId": "18c1a2b3d4e5f601"
+                  }
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-14",
+            "output_selector": "$.draft_id"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:delete-a-mail-draft",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:read-and-write-mail",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "read_only": false,
+        "label": "Delete a draft",
+        "job": "Delete one draft permanently.",
+        "description": "Delete one draft permanently. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection",
+            "draft_id",
+            "provider"
+          ],
+          "properties": {
+            "provider": {
+              "type": "string",
+              "description": "Which mail provider the account is on: an id of read-data/mail-providers.json"
+            },
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": true,
+              "description": "The person's account of that provider, by its handle only",
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "service_connection:<vendor> or service_connection:<vendor>:<account>, as the person's connections list it"
+                },
+                "connected_at": {
+                  "type": "string",
+                  "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+                }
+              }
+            },
+            "draft_id": {
+              "type": "string",
+              "description": "A draft id"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "draft_id",
+            "deleted"
+          ],
+          "properties": {
+            "draft_id": {
+              "type": "string"
+            },
+            "deleted": {
+              "type": "boolean"
+            }
+          }
+        },
+        "provenance": {
+          "source": "the earlier tool:google-account-* rows (one http row per Gmail request) and the mail screen's Gmail reading (gmail-email.ts), moved request for request into read-data/adapters/gmail.mjs behind read-data/mail-providers.json; the second provider is Microsoft Graph"
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/read-and-write-mail",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/read-and-write-mail/read-data/mail.mjs",
+            "deleteAMailDraft"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "field_id": "access_token",
+              "fd": 4
+            }
+          ],
+          "by_input": {
+            "input": "provider",
+            "variants": {
+              "gmail": {
+                "connection": {
+                  "vendor": "google-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://oauth2.googleapis.com/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "google-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "google-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              },
+              "outlook": {
+                "connection": {
+                  "vendor": "microsoft-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "microsoft-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "microsoft-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "read-and-write-mail",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/read-and-write-mail"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "provider": "gmail",
+              "connection": {
+                "connection_id": "service_connection:google-account:sample"
+              },
+              "draft_id": "r-7301442210"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "DELETE",
+                  "url": "https://gmail.googleapis.com/gmail/v1/users/me/drafts/r-7301442210"
+                },
+                "status": 204,
+                "body": ""
+              }
+            ],
+            "shape_read_at": "2026-11-14",
+            "output_selector": "$.deleted"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:send-a-mail-draft",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:read-and-write-mail",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "read_only": false,
+        "label": "Send a draft",
+        "job": "Send an existing draft. Sending consumes the draft, so the same draft id cannot send twice; the same request key answers the first send.",
+        "description": "Send an existing draft. Sending consumes the draft, so the same draft id cannot send twice; the same request key answers the first send. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection",
+            "draft_id",
+            "provider"
+          ],
+          "properties": {
+            "provider": {
+              "type": "string",
+              "description": "Which mail provider the account is on: an id of read-data/mail-providers.json"
+            },
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": true,
+              "description": "The person's account of that provider, by its handle only",
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "service_connection:<vendor> or service_connection:<vendor>:<account>, as the person's connections list it"
+                },
+                "connected_at": {
+                  "type": "string",
+                  "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+                }
+              }
+            },
+            "draft_id": {
+              "type": "string",
+              "description": "A draft id"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "message_id"
+          ],
+          "properties": {
+            "message_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "thread_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "provenance": {
+          "source": "the earlier tool:google-account-* rows (one http row per Gmail request) and the mail screen's Gmail reading (gmail-email.ts), moved request for request into read-data/adapters/gmail.mjs behind read-data/mail-providers.json; the second provider is Microsoft Graph"
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/read-and-write-mail",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/read-and-write-mail/read-data/mail.mjs",
+            "sendAMailDraft"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "field_id": "access_token",
+              "fd": 4
+            }
+          ],
+          "by_input": {
+            "input": "provider",
+            "variants": {
+              "gmail": {
+                "connection": {
+                  "vendor": "google-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://oauth2.googleapis.com/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "google-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "google-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              },
+              "outlook": {
+                "connection": {
+                  "vendor": "microsoft-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "microsoft-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "microsoft-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "read-and-write-mail",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/read-and-write-mail"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "provider": "gmail",
+              "connection": {
+                "connection_id": "service_connection:google-account:sample"
+              },
+              "draft_id": "r-7301442210"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://gmail.googleapis.com/gmail/v1/users/me/drafts/send"
+                },
+                "status": 200,
+                "body": {
+                  "id": "18c1a2b3d4e5f777",
+                  "threadId": "18c1a2b3d4e5f601"
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-14",
+            "output_selector": "$.message_id"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-send-as-addresses",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:read-and-write-mail",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "read_only": true,
+        "label": "List the addresses a mailbox sends as",
+        "job": "List the addresses the mailbox can send as, each with whether it is the primary one and the signature the provider holds for it (null when the provider holds none).",
+        "description": "List the addresses the mailbox can send as, each with whether it is the primary one and the signature the provider holds for it (null when the provider holds none). Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection",
+            "provider"
+          ],
+          "properties": {
+            "provider": {
+              "type": "string",
+              "description": "Which mail provider the account is on: an id of read-data/mail-providers.json"
+            },
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": true,
+              "description": "The person's account of that provider, by its handle only",
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "service_connection:<vendor> or service_connection:<vendor>:<account>, as the person's connections list it"
+                },
+                "connected_at": {
+                  "type": "string",
+                  "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "addresses"
+          ],
+          "properties": {
+            "addresses": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "address": {
+                    "type": "string"
+                  },
+                  "is_primary": {
+                    "type": "boolean"
+                  },
+                  "signature": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "provenance": {
+          "source": "the earlier tool:google-account-* rows (one http row per Gmail request) and the mail screen's Gmail reading (gmail-email.ts), moved request for request into read-data/adapters/gmail.mjs behind read-data/mail-providers.json; the second provider is Microsoft Graph"
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/read-and-write-mail",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/read-and-write-mail/read-data/mail.mjs",
+            "listSendAsAddresses"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "field_id": "access_token",
+              "fd": 4
+            }
+          ],
+          "by_input": {
+            "input": "provider",
+            "variants": {
+              "gmail": {
+                "connection": {
+                  "vendor": "google-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://oauth2.googleapis.com/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "google-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "google-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              },
+              "outlook": {
+                "connection": {
+                  "vendor": "microsoft-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "microsoft-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "microsoft-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "read-and-write-mail",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/read-and-write-mail"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "provider": "gmail",
+              "connection": {
+                "connection_id": "service_connection:google-account:sample"
+              }
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://gmail.googleapis.com/gmail/v1/users/me/settings/sendAs"
+                },
+                "status": 200,
+                "body": {
+                  "sendAs": [
+                    {
+                      "sendAsEmail": "sam@example.com",
+                      "isPrimary": true,
+                      "signature": "Sam<br>Sam's Bakery"
+                    }
+                  ]
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-14",
+            "output_selector": "$.addresses.0.address"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:set-a-mail-signature",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:read-and-write-mail",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "read_only": false,
+        "label": "Set a mailbox signature",
+        "job": "Set the signature of one address the mailbox sends as (address from list-send-as-addresses), as the HTML the provider takes; an empty signature clears it. The answer is what the provider saved.",
+        "description": "Set the signature of one address the mailbox sends as (address from list-send-as-addresses), as the HTML the provider takes; an empty signature clears it. The answer is what the provider saved. Takes provider (an id of read-data/mail-providers.json) and connection (the person's account of that provider, by its handle only: {connection_id}). Runs as that account with the key the person's vault holds for it; the engine hands the key to this run alone and it is placed only in the request to the provider's own host, never shown. Answers the provider-neutral rows of read-data/neutral.mjs, never the provider's own payload. A provider that does not offer it says so in words.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "address",
+            "connection",
+            "provider"
+          ],
+          "properties": {
+            "provider": {
+              "type": "string",
+              "description": "Which mail provider the account is on: an id of read-data/mail-providers.json"
+            },
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": true,
+              "description": "The person's account of that provider, by its handle only",
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "service_connection:<vendor> or service_connection:<vendor>:<account>, as the person's connections list it"
+                },
+                "connected_at": {
+                  "type": "string",
+                  "description": "When that account was connected, so a reconnected account is a new one (not read by the run)"
+                }
+              }
+            },
+            "address": {
+              "type": "string",
+              "description": "The address whose signature to set"
+            },
+            "signature": {
+              "type": "string",
+              "description": "The signature as HTML; empty clears it"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "address"
+          ],
+          "properties": {
+            "address": {
+              "type": "string"
+            },
+            "signature": {
+              "type": "string"
+            }
+          }
+        },
+        "provenance": {
+          "source": "the earlier tool:google-account-* rows (one http row per Gmail request) and the mail screen's Gmail reading (gmail-email.ts), moved request for request into read-data/adapters/gmail.mjs behind read-data/mail-providers.json; the second provider is Microsoft Graph"
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/read-and-write-mail",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/read-and-write-mail/read-data/mail.mjs",
+            "setAMailSignature"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "field_id": "access_token",
+              "fd": 4
+            }
+          ],
+          "by_input": {
+            "input": "provider",
+            "variants": {
+              "gmail": {
+                "connection": {
+                  "vendor": "google-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://oauth2.googleapis.com/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "google-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "google-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              },
+              "outlook": {
+                "connection": {
+                  "vendor": "microsoft-account",
+                  "from_input": "connection"
+                },
+                "refresh": {
+                  "token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                  "asked": {
+                    "method": "POST",
+                    "grant_type": "refresh_token",
+                    "token_param": "refresh_token"
+                  },
+                  "client_auth": "form",
+                  "client": {
+                    "id": {
+                      "name": "microsoft-sign-in-client-id"
+                    },
+                    "secret": {
+                      "name": "microsoft-sign-in-client-secret"
+                    }
+                  },
+                  "access_field": "access_token",
+                  "token_paths": [
+                    [
+                      "access_token"
+                    ]
+                  ],
+                  "expires_path": [
+                    "expires_in"
+                  ],
+                  "refresh": {
+                    "field": "refresh_token",
+                    "token_paths": [
+                      [
+                        "refresh_token"
+                      ]
+                    ]
+                  },
+                  "when_expiry_unknown": true
+                }
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "read-and-write-mail",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/read-and-write-mail"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "provider": "gmail",
+              "connection": {
+                "connection_id": "service_connection:google-account:sample"
+              },
+              "address": "sam@example.com",
+              "signature": "Sam<br>Sam's Bakery"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "PATCH",
+                  "url": "https://gmail.googleapis.com/gmail/v1/users/me/settings/sendAs/sam%40example.com"
+                },
+                "status": 200,
+                "body": {
+                  "sendAsEmail": "sam@example.com",
+                  "signature": "Sam<br>Sam's Bakery"
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-14",
+            "output_selector": "$.address"
+          }
+        ]
+      }
+    }
+  ]
+}

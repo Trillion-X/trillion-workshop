@@ -49,7 +49,7 @@ const onePage = [{ id: '1000000000000001', name: 'Made Up Page' }];
 const twoPages = [...onePage, { id: '1000000000000002', name: 'Another Made Up Page' }];
 const toolRuns = ({ pages = onePage, email = 'someone@example.com', traded = { access_token: HELD, refresh_token: HELD, id_token: HELD, expires_in: 3599, scope: 'openid email https://www.googleapis.com/auth/gmail.readonly', token_type: 'Bearer' }, tradeError = null } = {}) => ({
   'tool:trade-a-gmail-sign-in-code-for-its-tokens': () => { if (tradeError) throw new Error(tradeError); return traded; },
-  'tool:google-account-find_my_mailbox': () => ({ emailAddress: email, messagesTotal: 3, threadsTotal: 2, historyId: '1' }),
+  'tool:find-my-mailbox': () => ({ address: email, messages_total: 3, threads_total: 2, cursor: '1' }),
   'tool:trade-an-instagram-sign-in-code-for-its-short-token': () => ({ access_token: HELD, user_id: 17800000000000001 }),
   'tool:trade-a-short-instagram-token-for-a-long-one': () => ({ access_token: HELD, token_type: 'bearer', expires_in: 5183944 }),
   'tool:trade-a-facebook-sign-in-code-for-its-short-token': () => ({ access_token: HELD, token_type: 'bearer', expires_in: 5183944 }),
@@ -164,7 +164,8 @@ test('the connection row is created by one write that already holds the starting
   assert.deepEqual(trade.input.connection, { connection_id: written.value.connection_id });
   assert.equal(trade.input.code, CODE);
   assert.equal(trade.input.code_verifier, typed(started, settings.pending.type)[0].value.code_verifier);
-  assert.equal(verify.tool, 'tool:google-account-find_my_mailbox');
+  assert.equal(verify.tool, 'tool:find-my-mailbox');
+  assert.equal(verify.input.provider, 'gmail');
   assert.equal(typed(run, settings.pending.type).length, 0, 'the pending sign-in is used up');
 });
 

@@ -1,0 +1,43 @@
+{
+  "drafted_from": "tool:trash-mail's own row in tools/read-and-write-mail/tool-rows.json and the neutral rows of read-data/neutral.mjs; the answer is the shape the Gmail adapter and the stand-in test of test/mail-adapters.test.mjs produce for this sample input",
+  "start_here": "Say to your AI: \"Move message 18c1a2b3d4e5f601 to the trash. Use my Gmail account connection service_connection:google-account:sam-bakery.\" It runs tool:trash-mail as that account on the provider gmail and hands back the neutral row.",
+  "lists": [],
+  "no_lists_because": "It keeps no list: it calls the mail provider for one account the connection names and answers the neutral row.",
+  "workflows": [],
+  "tools": [
+    "tool:trash-mail",
+    "tool:restore-mail"
+  ],
+  "instructions": [
+    "1. Connect your mail account in your Workshop connections and note its handle, like service_connection:google-account:sam-bakery; the provider is the id in read-data/mail-providers.json that account is on (gmail for it).",
+    "2. Say to your AI: \"Move message 18c1a2b3d4e5f601 to the trash.\" and let it call run_resource_operation at @workshop-tools with method tools:run, tool tool:trash-mail and the input {\"provider\":\"gmail\",\"connection\":{\"connection_id\":\"service_connection:google-account:sam-bakery\"},\"message_id\":\"18c1a2b3d4e5f601\"}.",
+    "3. Read what comes back: the labels the message has now (trash).",
+    "4. A provider that does not offer the job says so in words and nothing is sent."
+  ],
+  "worked_examples": [
+    {
+      "title": "Run trash-mail on a sample input",
+      "ask": "Move message 18c1a2b3d4e5f601 to the trash.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:trash-mail",
+            "input": {
+              "provider": "gmail",
+              "connection": {
+                "connection_id": "service_connection:google-account:sam-bakery"
+              },
+              "message_id": "18c1a2b3d4e5f601"
+            }
+          }
+        }
+      },
+      "given": "The input {\"provider\":\"gmail\",\"connection\":{\"connection_id\":\"service_connection:google-account:sam-bakery\"},\"message_id\":\"18c1a2b3d4e5f601\"}, the mail provider answering from a recorded reply.",
+      "hands_back": "It answered {\"id\":\"18c1a2b3d4e5f601\",\"thread_id\":\"18c1a2b3d4e5f601\",\"labels\":[\"trash\"]}."
+    }
+  ]
+}

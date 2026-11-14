@@ -1333,7 +1333,7 @@
             ],
             "runs": [
               "tool:trade-a-gmail-sign-in-code-for-its-tokens",
-              "tool:google-account-find_my_mailbox",
+              "tool:find-my-mailbox",
               "tool:trade-a-youtube-sign-in-code-for-its-tokens",
               "tool:check-a-connection",
               "tool:trade-an-instagram-sign-in-code-for-its-short-token",

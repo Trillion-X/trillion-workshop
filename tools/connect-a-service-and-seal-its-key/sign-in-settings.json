@@ -16,7 +16,7 @@
  "services": {
   "google-account": {
    "trade": ["tool:trade-a-gmail-sign-in-code-for-its-tokens"],
-   "verify": { "tool": "tool:google-account-find_my_mailbox", "input": { "connection": { "connection_id": "{connection_id}" } } }
+   "verify": { "tool": "tool:find-my-mailbox", "input": { "provider": "gmail", "connection": { "connection_id": "{connection_id}" } } }
   },
   "youtube": {
    "trade": ["tool:trade-a-youtube-sign-in-code-for-its-tokens"],

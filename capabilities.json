@@ -1047,9 +1047,9 @@
     },
     {
       "capability": "search, read, organize, trash and restore a person's Gmail mail and threads, keep and send drafts and set their send-as signature, as the Google account the run names",
-      "owner": ["tools/read-and-write-gmail/"],
-      "entry": "tools/read-and-write-gmail/tool-rows.json",
-      "evidence": "README.md:3 each tool is one http row, one Gmail request, run as the Google account the input's connection names; the token stays in the person's vault",
+      "owner": ["tools/read-and-write-mail/"],
+      "entry": "tools/read-and-write-mail/tool-rows.json",
+      "evidence": "README.md:3 each tool takes provider, an id of read-data/mail-providers.json, and answers the neutral message row; the provider's wire format is one adapter file behind its row; the person's key stays in their vault and is handed only to the run",
       "distinct_from": [
         {"job": "send a message or email to people through a chosen provider (email service, text message, Messages)", "why": "that sends through a sending service; this one reads and keeps the person's own Gmail mailbox, its drafts and labels"},
         {"job": "bring a person's conversations from every app (chat apps, email, AI chats) into one place to read and reply", "why": "that decodes conversations it is given; this one makes the Gmail requests"}

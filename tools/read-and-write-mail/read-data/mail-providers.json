@@ -1,0 +1,130 @@
+{
+  "_what": "The mail providers a person's mailbox can be on, one row each: the connection kind that reaches the account (connection_vendor: a connection `service_connection:<vendor>` or `service_connection:<vendor>:<name>`), the one host family a held key may go to (hosts, base_url), how its key is renewed (refresh, the engine's own descriptor), which wire adapter turns its requests and replies into the neutral mail rows (adapter: read-data/adapters/<adapter>.mjs), which operations it offers, the words of its labels and folders, and how its web page for one message is written. Read by read-data/mail.mjs, by the screens that choose a provider for an account, and by test/mail-tools.test.mjs, which derives each tool row's by_input variants from these rows so this file is the only owner of what differs between providers. A new provider is a row and an adapter file; no tool id, row or screen names one.",
+  "operations": [
+    "find-my-mailbox",
+    "list-new-mail",
+    "find-mail",
+    "read-mail-headers",
+    "read-a-mail",
+    "read-a-conversation",
+    "organize-mail",
+    "organize-a-conversation",
+    "trash-mail",
+    "restore-mail",
+    "trash-a-conversation",
+    "restore-a-conversation",
+    "list-mail-drafts",
+    "read-a-mail-draft",
+    "save-a-mail-draft",
+    "delete-a-mail-draft",
+    "send-a-mail-draft",
+    "list-send-as-addresses",
+    "set-a-mail-signature"
+  ],
+  "neutral_labels": ["inbox", "unread", "starred", "important", "draft", "sent", "trash", "spam"],
+  "folders": ["inbox", "starred", "sent", "drafts", "trash", "all"],
+  "words": {
+    "not_offered": "{label} does not offer this: {job}.",
+    "refused": "{label} refused the request ({status}): {said}",
+    "no_key": "Your {label} connection holds no access key. Connect {label} again.",
+    "host": "A connection's key goes only to {hosts}, so nothing was sent to {host}.",
+    "no_provider": "Give provider: one of {providers}.",
+    "no_such_provider": "{provider} is not a mail provider here; the providers are {providers}.",
+    "no_folder": "{label} has no folder called {folder}.",
+    "no_address": "{label} did not say which address this mailbox is."
+  },
+  "providers": [
+    {
+      "id": "gmail",
+      "label": "Gmail",
+      "channel": "mail",
+      "adapter": "gmail",
+      "connection_vendor": "google-account",
+      "connect_path": "/work/connect/google-account",
+      "hosts": ["gmail.googleapis.com"],
+      "base_url": "https://gmail.googleapis.com/gmail/v1/users/me",
+      "refresh": {
+        "token_url": "https://oauth2.googleapis.com/token",
+        "asked": { "method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token" },
+        "client_auth": "form",
+        "client": { "id": { "name": "google-sign-in-client-id" }, "secret": { "name": "google-sign-in-client-secret" } },
+        "access_field": "access_token",
+        "token_paths": [["access_token"]],
+        "expires_path": ["expires_in"],
+        "refresh": { "field": "refresh_token", "token_paths": [["refresh_token"]] },
+        "when_expiry_unknown": true
+      },
+      "operations": [
+        "find-my-mailbox", "list-new-mail", "find-mail", "read-mail-headers", "read-a-mail", "read-a-conversation",
+        "organize-mail", "organize-a-conversation", "trash-mail", "restore-mail", "trash-a-conversation", "restore-a-conversation",
+        "list-mail-drafts", "read-a-mail-draft", "save-a-mail-draft", "delete-a-mail-draft", "send-a-mail-draft",
+        "list-send-as-addresses", "set-a-mail-signature"
+      ],
+      "labels": {
+        "INBOX": "inbox",
+        "UNREAD": "unread",
+        "STARRED": "starred",
+        "IMPORTANT": "important",
+        "DRAFT": "draft",
+        "SENT": "sent",
+        "TRASH": "trash",
+        "SPAM": "spam"
+      },
+      "folders": {
+        "inbox": "in:inbox",
+        "starred": "is:starred",
+        "sent": "in:sent",
+        "drafts": "in:drafts",
+        "trash": "in:trash",
+        "all": "in:anywhere -in:spam -in:trash"
+      },
+      "page_size": 50,
+      "history_page_size": 100,
+      "web_link": {
+        "message": "https://mail.google.com/mail/?authuser={mailbox}#all/{id}",
+        "draft": "https://mail.google.com/mail/?authuser={mailbox}#drafts/{id}"
+      }
+    },
+    {
+      "id": "outlook",
+      "label": "Outlook",
+      "channel": "mail",
+      "adapter": "outlook",
+      "connection_vendor": "microsoft-account",
+      "connect_path": "/work/connect/microsoft-account",
+      "hosts": ["graph.microsoft.com"],
+      "base_url": "https://graph.microsoft.com/v1.0/me",
+      "refresh": {
+        "token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+        "asked": { "method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token" },
+        "client_auth": "form",
+        "client": { "id": { "name": "microsoft-sign-in-client-id" }, "secret": { "name": "microsoft-sign-in-client-secret" } },
+        "access_field": "access_token",
+        "token_paths": [["access_token"]],
+        "expires_path": ["expires_in"],
+        "refresh": { "field": "refresh_token", "token_paths": [["refresh_token"]] },
+        "when_expiry_unknown": true
+      },
+      "operations": [
+        "find-my-mailbox", "list-new-mail", "find-mail", "read-mail-headers", "read-a-mail", "read-a-conversation",
+        "organize-mail", "organize-a-conversation", "trash-mail", "restore-mail", "trash-a-conversation", "restore-a-conversation",
+        "list-mail-drafts", "read-a-mail-draft", "save-a-mail-draft", "delete-a-mail-draft", "send-a-mail-draft",
+        "list-send-as-addresses"
+      ],
+      "labels": {},
+      "folders": {
+        "inbox": "inbox",
+        "sent": "sentitems",
+        "drafts": "drafts",
+        "trash": "deleteditems",
+        "archive": "archive"
+      },
+      "page_size": 50,
+      "history_page_size": 100,
+      "web_link": {
+        "message": "https://outlook.office.com/mail/id/{id}",
+        "draft": "https://outlook.office.com/mail/id/{id}"
+      }
+    }
+  ]
+}

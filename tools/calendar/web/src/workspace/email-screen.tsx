@@ -1,5 +1,6 @@
-// The mail screen uses Gmail's declared read tools through the same Workshop route as AI callers. This screen owns
-// only its temporary search and selection state; Gmail remains the source of truth for every message.
+// The mail screen uses the mail tools (tools/read-and-write-mail) through the same Workshop route as AI callers, on the
+// provider each account is on. This screen owns only its temporary search and selection state; the provider remains the
+// source of truth for every message, and the screen reads only the provider-neutral message row (mail-message.ts).
 import * as React from 'react';
 import { AnchoredOverlay, Button, Container, Input, Textarea, Text, InboxThreePane, NamedIcon, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue } from '../../parts/ui';
 import { EmailThread, EmailView, type EmailThreadEntry } from '../../parts/ui/show/email-view';
@@ -13,10 +14,10 @@ import { postJson, readJson } from './api';
 import { refusal } from './failure';
 import { ScreenState, useScreenLoad } from '../../parts/ui/show/screen-state';
 import type { Ran } from './workshop-tool-api';
-import { gmailHeader, gmailDraftNeedsOriginal, gmailMessageUrl, gmailRawMessage, gmailAttachments, gmailForwardBody, gmailLinks, gmailParticipants, gmailRecipients, gmailThreadView, plainTextBody, replyAllRecipients, splitEmailAddresses, type GmailMessage, type GmailPayload, type GmailThreadView } from './gmail-email';
+import { forwardBody, mailAddress, mailParticipants, mailRecipients, mailThreadView, mailWebLink, replyAllRecipients, splitEmailAddresses, type MailMessage, type MailThreadView } from './mail-message';
 import { fill, MailActionBar, MailCardActions, type MailBarProps, type MailPanel, type MailPlan } from './mail-action-bar';
 import { useMailSignature } from './mail-settings';
-import { mailAccountKey, readMailAccounts, runAsAccount, type MailAccount } from './mail-accounts';
+import { connectionTrouble, mailAccountKey, providerOf, readMailAccounts, runAsAccount, type MailAccount } from './mail-accounts';
 import { openScreenOn } from './open-screen';
 import { useMailKeyOf, useMailKeys } from './mail-keys';
 import { changeMailTask, completeMailTask, duplicateMailTask, ensureMailTask, findMailTask, mailSourceId, readTaskLists, scheduleMailTask, unscheduleMailTask, type MailTask } from './mail-task';
@@ -24,41 +25,38 @@ import type { CommandTable } from '../../parts/ui/show/command-table/command-tab
 import commandData from './mail-commands.json';
 import actionData from './mail-actions.json';
 
-type DraftSummary = { id: string; message?: { id?: string; threadId?: string; snippet?: string; payload?: GmailPayload } };
-type SearchResponse = { messages?: { id: string; threadId?: string }[]; drafts?: DraftSummary[]; nextPageToken?: string; resultSizeEstimate?: number };
-type MailboxResponse = { emailAddress?: string };
-type HeaderResponse = GmailMessage;
-type FullResponse = GmailMessage & { draftId?: string };
-type SearchRow = { id: string; draftId?: string; threadId?: string; header?: GmailPayload; labels?: string[]; snippet?: string; loading?: boolean; failed?: boolean };
-type GmailFolder = { id: string; label: string; query: string; icon: string };
+type DraftSummary = { draft_id: string; message_id?: string | null; thread_id?: string | null };
+type SearchResponse = { messages?: { id: string; thread_id?: string | null }[]; drafts?: DraftSummary[]; next_page_token?: string | null };
+type MailboxResponse = { address?: string };
+type SearchRow = { id: string; draftId?: string; threadId?: string; header?: MailMessage; labels?: string[]; snippet?: string; loading?: boolean; failed?: boolean };
+type MailFolder = { id: string; label: string; icon: string };
 
-const FOLDERS: GmailFolder[] = [
-  { id: 'inbox', label: 'Inbox', query: 'in:inbox', icon: 'Inbox' },
-  { id: 'starred', label: 'Starred', query: 'is:starred', icon: 'Star' },
-  { id: 'sent', label: 'Sent', query: 'in:sent', icon: 'Send' },
-  { id: 'drafts', label: 'Drafts', query: 'in:drafts', icon: 'FileEdit' },
-  { id: 'trash', label: 'Trash', query: 'in:trash', icon: 'Trash2' },
-  { id: 'all', label: 'All mail', query: 'in:anywhere -in:spam -in:trash', icon: 'MailOpen' },
+// The folders the person picks from. What each means at a provider (a search query, a folder name) is that provider's row.
+const FOLDERS: MailFolder[] = [
+  { id: 'inbox', label: 'Inbox', icon: 'Inbox' },
+  { id: 'starred', label: 'Starred', icon: 'Star' },
+  { id: 'sent', label: 'Sent', icon: 'Send' },
+  { id: 'drafts', label: 'Drafts', icon: 'FileEdit' },
+  { id: 'trash', label: 'Trash', icon: 'Trash2' },
+  { id: 'all', label: 'All mail', icon: 'MailOpen' },
 ];
-const SEARCH = 'tool:google-account-search_mail';
-const MAILBOX = 'tool:google-account-find_my_mailbox';
-const HEADERS = 'tool:google-account-read_mail_headers';
-const READ = 'tool:google-account-read_a_mail';
-const MODIFY = 'tool:google-account-modify_mail';
-const TRASH = 'tool:google-account-trash_mail';
-const RESTORE = 'tool:google-account-restore_mail';
-const THREAD = 'tool:google-account-read_mail_thread';
-const MODIFY_THREAD = 'tool:google-account-modify_mail_thread';
-const TRASH_THREAD = 'tool:google-account-trash_mail_thread';
-const RESTORE_THREAD = 'tool:google-account-restore_mail_thread';
-const CREATE_DRAFT = 'tool:google-account-create_draft';
-const UPDATE_DRAFT = 'tool:google-account-update_draft';
-const SEND_DRAFT = 'tool:google-account-send_draft';
-const LIST_DRAFTS = 'tool:google-account-list_drafts';
-const READ_DRAFT = 'tool:google-account-read_draft';
-const DELETE_DRAFT = 'tool:google-account-delete_draft';
-const GOOGLE_CONNECT = '/work/connect/google-account';
-const GOOGLE_CONNECTIONS = '/connections';
+const SEARCH = 'tool:find-mail';
+const MAILBOX = 'tool:find-my-mailbox';
+const HEADERS = 'tool:read-mail-headers';
+const READ = 'tool:read-a-mail';
+const MODIFY = 'tool:organize-mail';
+const TRASH = 'tool:trash-mail';
+const RESTORE = 'tool:restore-mail';
+const THREAD = 'tool:read-a-conversation';
+const MODIFY_THREAD = 'tool:organize-a-conversation';
+const TRASH_THREAD = 'tool:trash-a-conversation';
+const RESTORE_THREAD = 'tool:restore-a-conversation';
+const SAVE_DRAFT = 'tool:save-a-mail-draft';
+const SEND_DRAFT = 'tool:send-a-mail-draft';
+const LIST_DRAFTS = 'tool:list-mail-drafts';
+const READ_DRAFT = 'tool:read-a-mail-draft';
+const DELETE_DRAFT = 'tool:delete-a-mail-draft';
+const MAIL_ACCOUNTS = '/connections';
 const CONNECT_TASK = '/work/api/calendar/tasks';
 const BATCH_SIZE = 12;
 const mailCommands = commandData as CommandTable;
@@ -78,21 +76,20 @@ const toIso = (value: string) => {
   const time = Date.parse(value);
   return Number.isFinite(time) ? new Date(time).toISOString() : null;
 };
-const headerOf = (row: SearchRow, name: string) => gmailHeader(row.header, name);
-const mailState = (run: Ran<unknown>) => run.error ? errorWords(new Error(run.error)) : 'Gmail did not return this message.';
-/** The conversation a message is in; Gmail names it on every message it reads. */
-const threadIdOf = (message: GmailMessage): string => {
-  if (!message.threadId) throw new Error(mailWords.thread_missing);
-  return message.threadId;
+const headerOf = (row: SearchRow, field: keyof MailMessage['headers']) => row.header?.headers[field] ?? '';
+const mailState = (run: Ran<unknown>, provider: string) => run.error ? errorWords(new Error(run.error)) : `${provider} did not return this message.`;
+/** The conversation a message is in; the provider names it on every message it reads. */
+const threadIdOf = (message: MailMessage, provider: string): string => {
+  if (!message.thread_id) throw new Error(fill(mailWords.thread_missing, { provider }));
+  return message.thread_id;
 };
-const addressOnly = (value: string) => /<([^>]+)>\s*$/.exec(value)?.[1]?.trim() ?? value.trim();
 
 
 /** What a loaded inbox message says about itself, for turning mail into todos (calendar-task-messages.mjs reads these facts). */
 export type MailMessageFacts = { id: string; subject: string; from: string; labels: string[]; list_unsubscribe: boolean; has_invite: boolean; url: string };
 type EmailSurfaceProps = { presentation?: 'full' | 'calendar'; enabled?: boolean; composeRequest?: number; onDetailChange?: (open: boolean) => void; onCountChange?: (count: { count: number; more: boolean }) => void; onInboxMessages?: (messages: MailMessageFacts[], account: { connection_id: string }) => void };
 
-const NO_ACCOUNT = 'Connect a Google account to open your mail.';
+const NO_ACCOUNT = 'Connect a mail account to open your mail.';
 
 /** The first read of the accounts goes through the shared screen-state lifecycle: loading rows, then the failed state
  *  with Try again, then the mail. A later re-check (Try again beside the mail) keeps the mail drawn. Mail that is not
@@ -102,7 +99,7 @@ function EmailScreen(props: EmailSurfaceProps) {
 }
 
 function MailWithAccounts(props: EmailSurfaceProps) {
-  const loaded = useScreenLoad<MailAccount[]>('mail-accounts', { loading: { label: 'Opening your mail', layout: 'rows' }, read: readMailAccounts, failed: refusal('Your Google accounts could not be read') });
+  const loaded = useScreenLoad<MailAccount[]>('mail-accounts', { loading: { label: 'Opening your mail', layout: 'rows' }, read: readMailAccounts, failed: refusal('Your mail accounts could not be read') });
   if (loaded.state) return <ScreenState state={loaded.state} />;
   return <Mail {...props} first={loaded.value} />;
 }
@@ -112,20 +109,20 @@ function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCou
   const [accounts, setAccounts] = React.useState<MailAccount[]>(first ?? []);
   const [account, setAccount] = React.useState<MailAccount | null>(first?.length === 1 ? first[0] : null);
   const requester = React.useCallback((toolId: string, input: Record<string, unknown>, requestKey?: string) => {
-    if (!account) return Promise.reject(new Error('Choose a connected Google account first.'));
+    if (!account) return Promise.reject(new Error('Choose a connected mail account first.'));
     return runAsAccount(account, toolId, input, requestKey);
   }, [account?.connection_id, account?.connected_at]);
   const [optionsOpen, setOptionsOpen] = React.useState(false);
   const optionsAnchor = React.useRef<HTMLButtonElement | null>(null);
   const [width, setWidth] = React.useState(typeof window === 'undefined' ? 1200 : window.innerWidth);
   const [folder, setFolder] = React.useState(FOLDERS[0]);
-  const [query, setQuery] = React.useState(FOLDERS[0].query);
+  const [query, setQuery] = React.useState('');
   const [rows, setRows] = React.useState<SearchRow[]>([]);
   const [nextPage, setNextPage] = React.useState<string | undefined>();
   const [queuedRows, setQueuedRows] = React.useState<SearchRow[]>([]);
   React.useEffect(() => { onCountChange?.({ count: rows.length, more: Boolean(queuedRows.length || nextPage) }); }, [rows.length, queuedRows.length, nextPage, onCountChange]);
   const [selectedId, setSelectedId] = React.useState('');
-  const [selected, setSelected] = React.useState<FullResponse | null>(null);
+  const [selected, setSelected] = React.useState<MailMessage | null>(null);
   const [searching, setSearching] = React.useState(false);
   const [loadingMore, setLoadingMore] = React.useState(false);
   const [opening, setOpening] = React.useState(false);
@@ -136,12 +133,19 @@ function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCou
   const [connectedError, setConnectedError] = React.useState(Boolean(first && !first.length));
   const [folderSelected, setFolderSelected] = React.useState(true);
   const [mailbox, setMailbox] = React.useState('');
+  // The provider this account is on: its name for the words, its web pages for the links. Nothing else of it is known here.
+  const provider = providerOf(account);
+  const label = provider.label;
+  const messageLink = (id: string) => mailWebLink(provider.web_link.message, mailbox, id);
+  const draftLink = (id: string) => mailWebLink(provider.web_link.draft, mailbox, id);
+  const sentWords = new RegExp(`sent from ${label}|deleted from ${label}`);
+  const doneWords = new RegExp(`saved in ${label}|sent from ${label}|Marked|Trash\\.|Restored|Starred|Unstarred|Priority set|Scheduled|Removed from|Deadline|Duration set|Repeat saved|Moved to|Duplicated|Copied`);
   // The inbox, once its messages have been read, is told to whoever turns mail into todos (the Calendar's Email list).
   React.useEffect(() => {
     if (!onInboxMessages || !account || folder.id !== 'inbox' || !rows.length || rows.some(row => row.loading)) return;
     onInboxMessages(rows.filter(row => row.header && !row.failed && !row.draftId).map(row => ({
       id: `${account.connection_id}:${row.id}`, subject: headerOf(row, 'subject'), from: headerOf(row, 'from'), labels: row.labels ?? [],
-      list_unsubscribe: Boolean(headerOf(row, 'list-unsubscribe')), has_invite: /text\/calendar/i.test(headerOf(row, 'content-type')), url: gmailMessageUrl(row.id, mailbox),
+      list_unsubscribe: Boolean(headerOf(row, 'list_unsubscribe')), has_invite: Boolean(row.header?.has_calendar_invite), url: messageLink(row.id),
     })), { connection_id: account.connection_id });
   }, [rows, folder.id, account?.connection_id, mailbox, onInboxMessages]);
   const [replyOpen, setReplyOpen] = React.useState(false);
@@ -151,13 +155,13 @@ function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCou
   const [draftCc, setDraftCc] = React.useState('');
   const [draftThread, setDraftThread] = React.useState<{ threadId?: string; inReplyTo?: string; references?: string }>({});
   const [task, setTask] = React.useState<MailTask | null>(null);
-  const [thread, setThread] = React.useState<GmailThreadView | null>(null);
+  const [thread, setThread] = React.useState<MailThreadView | null>(null);
   const [threadFailed, setThreadFailed] = React.useState(false);
   const [taskLists, setTaskLists] = React.useState<{ id: string; title: string }[]>([]);
   const [panel, setPanel] = React.useState<MailPanel>(null);
   const [draftId, setDraftId] = React.useState('');
   React.useEffect(() => { onDetailChange?.(Boolean(selectedId || replyOpen)); }, [selectedId, replyOpen, onDetailChange]);
-  const [draftNeedsGmail, setDraftNeedsGmail] = React.useState(false);
+  const [draftNeedsOriginal, setDraftNeedsOriginal] = React.useState(false);
   const [mailActionState, setMailActionState] = React.useState('');
   const [mailActionBusy, setMailActionBusy] = React.useState(false);
   const [accountReadFailed, setAccountReadFailed] = React.useState(false);
@@ -169,7 +173,6 @@ function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCou
   const sendRequest = React.useRef({ draftId: '', key: '' });
   const searchGeneration = React.useRef(0);
   const readGeneration = React.useRef(0);
-  const needsGmailToPreserve = gmailDraftNeedsOriginal;
 
   React.useEffect(() => {
     const root = rootRef.current;
@@ -190,20 +193,20 @@ function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCou
         const row = batch[next++];
         try {
           const run = await requester(row.draftId ? READ_DRAFT : HEADERS, row.draftId ? { draft_id: row.draftId } : { message_id: row.id });
-          if (!run.result) throw new Error(mailState(run));
-          const output = run.result as HeaderResponse | { message: HeaderResponse };
+          if (!run.result) throw new Error(mailState(run, label));
+          const output = run.result as MailMessage | { draft_id: string; message: MailMessage };
           const message = 'message' in output ? output.message : output;
-          if (generation === searchGeneration.current) setRows(current => current.map(item => item.id === row.id ? { ...item, header: message.payload, labels: message.labelIds, snippet: message.snippet ?? item.snippet, loading: false, failed: false } : item));
+          if (generation === searchGeneration.current) setRows(current => current.map(item => item.id === row.id ? { ...item, header: message, labels: message.labels, snippet: message.snippet || item.snippet, loading: false, failed: false } : item));
         } catch {
           if (generation === searchGeneration.current) setRows(current => current.map(item => item.id === row.id ? { ...item, loading: false, failed: true } : item));
         }
       }
     });
     await Promise.all(workers);
-  }, [requester]);
+  }, [requester, label]);
 
-  const runSearch = React.useCallback(async (searchText: string, folderRow?: GmailFolder, pageToken?: string) => {
-    const q = searchText.trim() || 'in:inbox';
+  const runSearch = React.useCallback(async (searchText: string, folderRow?: MailFolder, pageToken?: string) => {
+    const typed = searchText.trim();
     const generation = pageToken ? searchGeneration.current : ++searchGeneration.current;
     if (!pageToken) {
       readGeneration.current += 1;
@@ -214,21 +217,22 @@ function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCou
     try {
       const activeFolder = folderRow ?? currentFolder.current;
       const isDraftFolder = activeFolder.id === 'drafts';
+      // Typed words search all mail in the provider's own search words; with none, the folder is read.
       const run = await requester(isDraftFolder ? LIST_DRAFTS : SEARCH, isDraftFolder
-        ? { ...(q !== 'in:drafts' ? { query: q } : {}), ...(pageToken ? { page_token: pageToken } : {}) }
-        : { query: q, ...(pageToken ? { page_token: pageToken } : {}) });
+        ? { ...(typed ? { text: typed } : {}), ...(pageToken ? { page_token: pageToken } : {}) }
+        : { ...(typed ? { text: typed } : { folder: activeFolder.id }), ...(pageToken ? { page_token: pageToken } : {}) });
       if (generation !== searchGeneration.current) return;
       if (!run.result) {
-        const message = mailState(run);
+        const message = mailState(run, label);
         setError(message);
-        setConnectedError(/connect|credential|google-account|authorization/i.test(message));
+        setConnectedError(connectionTrouble(message));
         return;
       }
       const result = run.result as SearchResponse;
       const ids: SearchRow[] = isDraftFolder
-        ? (result.drafts ?? []).filter(draft => draft.id).map(draft => ({ id: draft.message?.id ?? draft.id, draftId: draft.id, threadId: draft.message?.threadId, header: draft.message?.payload, snippet: draft.message?.snippet }))
-        : (result.messages ?? []).filter(message => message.id).map(message => ({ id: message.id, threadId: message.threadId }));
-      setNextPage(result.nextPageToken);
+        ? (result.drafts ?? []).filter(draft => draft.draft_id).map(draft => ({ id: draft.message_id ?? draft.draft_id, draftId: draft.draft_id, threadId: draft.thread_id ?? undefined }))
+        : (result.messages ?? []).filter(message => message.id).map(message => ({ id: message.id, threadId: message.thread_id ?? undefined }));
+      setNextPage(result.next_page_token ?? undefined);
       if (pageToken) {
         setQueuedRows(current => [...current, ...ids]);
       } else {
@@ -236,10 +240,10 @@ function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCou
       }
       if (!ids.length && !pageToken) setRows([]);
     } catch (cause) {
-      const message = errorWords(cause, 'Gmail could not search your mail.');
-      if (generation === searchGeneration.current) { setError(message); setConnectedError(/connect|credential|google-account|authorization/i.test(message)); }
+      const message = errorWords(cause, `${label} could not search your mail.`);
+      if (generation === searchGeneration.current) { setError(message); setConnectedError(connectionTrouble(message)); }
     } finally { if (generation === searchGeneration.current) { setSearching(false); setLoadingMore(false); } }
-  }, [loadSearchRows, requester]);
+  }, [loadSearchRows, requester, label]);
 
   const loadAccounts = React.useCallback(async () => {
     const generation = ++accountReadGeneration.current;
@@ -267,19 +271,19 @@ function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCou
   React.useEffect(() => () => { accountReadGeneration.current += 1; }, []);
   React.useEffect(() => {
     setMailbox('');
-    if (account) { setQuery('in:inbox'); void runSearch('in:inbox', FOLDERS[0]); }
+    if (account) { setQuery(''); void runSearch('', FOLDERS[0]); }
   }, [runSearch]);
   React.useEffect(() => {
     let active = true;
     if (!account) return;
     void requester(MAILBOX, {}).then(run => {
       const answer = run.result as MailboxResponse | undefined;
-      if (active && answer?.emailAddress) setMailbox(answer.emailAddress);
+      if (active && answer?.address) setMailbox(answer.address);
     }).catch(() => {});
     return () => { active = false; };
   }, [requester]);
 
-  const { signature } = useMailSignature(account ? requester : null);
+  const { signature } = useMailSignature(account ? requester : null, account);
   /** What a new message opens with: the signature, set apart by the usual two dashes, when there is one. */
   const signatureBlock = () => signature && signature !== 'unavailable' && signature.text ? `\n\n-- \n${signature.text}` : '';
 
@@ -297,10 +301,10 @@ function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCou
         const row = batch[next++];
         try {
           const run = await requester(row.draftId ? READ_DRAFT : HEADERS, row.draftId ? { draft_id: row.draftId } : { message_id: row.id });
-          if (!run.result) throw new Error(mailState(run));
-          const output = run.result as HeaderResponse | { message: HeaderResponse };
+          if (!run.result) throw new Error(mailState(run, label));
+          const output = run.result as MailMessage | { draft_id: string; message: MailMessage };
           const message = 'message' in output ? output.message : output;
-          if (generation === searchGeneration.current) setRows(current => current.map(item => item.id === row.id ? { ...item, header: message.payload, snippet: message.snippet ?? item.snippet, loading: false } : item));
+          if (generation === searchGeneration.current) setRows(current => current.map(item => item.id === row.id ? { ...item, header: message, labels: message.labels, snippet: message.snippet || item.snippet, loading: false } : item));
         } catch {
           if (generation === searchGeneration.current) setRows(current => current.map(item => item.id === row.id ? { ...item, loading: false, failed: true } : item));
         }
@@ -318,20 +322,20 @@ function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCou
     if (!sameThread) { setThread(null); setThreadFailed(false); }
     try {
       const run = await requester(row?.draftId ? READ_DRAFT : READ, row?.draftId ? { draft_id: row.draftId } : { message_id: id });
-      if (!run.result) throw new Error(mailState(run));
+      if (!run.result) throw new Error(mailState(run, label));
       if (generation === readGeneration.current) {
-        const result = run.result as FullResponse | { id: string; message: FullResponse };
-        const opened = 'message' in result ? { ...result.message, draftId: result.id } : result;
+        const result = run.result as MailMessage | { draft_id: string; message: MailMessage };
+        const opened = 'message' in result ? { ...result.message, draft_id: result.draft_id } : result;
         setSelected(opened);
-        setTaskTitle(gmailHeader(opened.payload, 'subject') || '');
-        if (opened.draftId) {
-          setDraftId(opened.draftId);
-          setDraftTo(gmailHeader(opened.payload, 'to'));
-          setDraftCc(gmailHeader(opened.payload, 'cc'));
-          setDraftSubject(gmailHeader(opened.payload, 'subject'));
-          setDraftBody(plainTextBody(opened.payload) ?? '');
-          setDraftThread({ threadId: opened.threadId, inReplyTo: gmailHeader(opened.payload, 'in-reply-to') || undefined, references: gmailHeader(opened.payload, 'references') || undefined });
-          setDraftNeedsGmail(needsGmailToPreserve(opened.payload) || Boolean(gmailHeader(opened.payload, 'bcc')));
+        setTaskTitle(opened.headers.subject || '');
+        if (opened.draft_id) {
+          setDraftId(opened.draft_id);
+          setDraftTo(opened.headers.to);
+          setDraftCc(opened.headers.cc);
+          setDraftSubject(opened.headers.subject);
+          setDraftBody(opened.text ?? '');
+          setDraftThread({ threadId: opened.thread_id ?? undefined, inReplyTo: opened.headers.in_reply_to || undefined, references: opened.headers.references || undefined });
+          setDraftNeedsOriginal(opened.needs_original);
           setReplyOpen(true);
         } else if (account) {
           void findMailTask(mailSourceId(account.connection_id, id)).then(found => { if (generation === readGeneration.current) setTask(found); }).catch(() => {});
@@ -340,14 +344,14 @@ function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCou
     } catch (cause) {
       if (generation === readGeneration.current) {
         setError(errorWords(cause, 'This message could not be opened.'));
-        setConnectedError(/connect|credential|google-account|authorization/i.test(errorWords(cause)));
+        setConnectedError(connectionTrouble(errorWords(cause)));
       }
     } finally { if (generation === readGeneration.current) setOpening(false); }
   };
 
   const actionRun = async <T,>(toolId: string, input: Record<string, unknown>, requestKey?: string): Promise<T> => {
     const run = await requester(toolId, input, requestKey);
-    if (!run.result) throw new Error(mailState(run));
+    if (!run.result) throw new Error(mailState(run, label));
     return run.result as T;
   };
 
@@ -355,29 +359,29 @@ function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCou
     if (!selectedId || !selected || mailActionBusy) return;
     setMailActionBusy(true); setMailActionState('');
     try {
-      let output: { labelIds?: string[] } = {};
-      // Done and Delete are for the whole conversation, so they go to Gmail's conversation tools; read, unread and star are the open message's own.
-      if (action === 'trash') await actionRun(TRASH_THREAD, { thread_id: threadIdOf(selected) });
-      else if (action === 'restore') await actionRun(RESTORE_THREAD, { thread_id: threadIdOf(selected) });
-      else if (action === 'done') await actionRun(MODIFY_THREAD, { thread_id: threadIdOf(selected), remove_label_ids: ['INBOX'] });
+      let output: { labels?: string[] } = {};
+      // Done and Delete are for the whole conversation, so they go to the conversation tools; read, unread and star are the open message's own.
+      if (action === 'trash') await actionRun(TRASH_THREAD, { thread_id: threadIdOf(selected, label) });
+      else if (action === 'restore') await actionRun(RESTORE_THREAD, { thread_id: threadIdOf(selected, label) });
+      else if (action === 'done') await actionRun(MODIFY_THREAD, { thread_id: threadIdOf(selected, label), remove_labels: ['inbox'] });
       else {
-        const add = action === 'read' ? [] : action === 'unread' ? ['UNREAD'] : action === 'star' ? ['STARRED'] : [];
-        const remove = action === 'read' ? ['UNREAD'] : action === 'unstar' ? ['STARRED'] : [];
-        output = await actionRun(MODIFY, { message_id: selectedId, ...(add.length ? { add_label_ids: add } : {}), ...(remove.length ? { remove_label_ids: remove } : {}) });
+        const add = action === 'read' ? [] : action === 'unread' ? ['unread'] : action === 'star' ? ['starred'] : [];
+        const remove = action === 'read' ? ['unread'] : action === 'unstar' ? ['starred'] : [];
+        output = await actionRun(MODIFY, { message_id: selectedId, ...(add.length ? { add_labels: add } : {}), ...(remove.length ? { remove_labels: remove } : {}) });
       }
-      if (Array.isArray(output.labelIds)) {
-        const labelIds = output.labelIds;
-        setSelected(current => current ? { ...current, labelIds } : current);
-        setThread(current => current ? { ...current, messages: current.messages.map(message => message.id === selectedId ? { ...message, labelIds } : message) } : current);
+      if (Array.isArray(output.labels)) {
+        const labels = output.labels;
+        setSelected(current => current ? { ...current, labels } : current);
+        setThread(current => current ? { ...current, messages: current.messages.map(message => message.id === selectedId ? { ...message, labels } : message) } : current);
       }
       const completes = action === 'done' && task !== null && task.status !== 'Done';
       if (completes && task) setTask(await completeMailTask(task.id));
-      setMailActionState(action === 'done' ? (completes ? mailWords.planned.done_task : mailWords.planned.done) : action === 'trash' ? 'Moved to Gmail Trash.' : action === 'restore' ? 'Restored from Gmail Trash.' : action === 'star' ? 'Starred in Gmail.' : action === 'unstar' ? 'Unstarred in Gmail.' : action === 'read' ? 'Marked as read.' : 'Marked as unread.');
+      setMailActionState(action === 'done' ? (completes ? mailWords.planned.done_task : mailWords.planned.done) : action === 'trash' ? `Moved to ${label} Trash.` : action === 'restore' ? `Restored from ${label} Trash.` : action === 'star' ? `Starred in ${label}.` : action === 'unstar' ? `Unstarred in ${label}.` : action === 'read' ? 'Marked as read.' : 'Marked as unread.');
       if (action === 'done' || action === 'trash' || action === 'restore') void runSearch(query);
     } catch (cause) {
-      const message = errorWords(cause, 'Gmail could not update this message.');
+      const message = errorWords(cause, `${label} could not update this message.`);
       setMailActionState(message);
-      setConnectedError(/connect|credential|google-account|authorization|403|permission/i.test(message));
+      setConnectedError(connectionTrouble(message, true));
     } finally { setMailActionBusy(false); }
   };
 
@@ -385,34 +389,34 @@ function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCou
   const openDraftWith = (fields: { to: string; cc: string; subject: string; body: string; thread: { threadId?: string; inReplyTo?: string; references?: string } }) => {
     if (sendRequest.current.draftId) { setMailActionState('Check the previous send result before opening another draft.'); return; }
     setDraftTo(fields.to); setDraftCc(fields.cc); setDraftSubject(fields.subject); setDraftBody(fields.body); setDraftThread(fields.thread);
-    setDraftId(''); setDraftNeedsGmail(false); setReplyOpen(true); setMailActionState(''); setPanel(null);
+    setDraftId(''); setDraftNeedsOriginal(false); setReplyOpen(true); setMailActionState(''); setPanel(null);
   };
 
   const beginReply = (everyone: boolean) => {
-    if (!selected?.payload) return;
-    const subject = gmailHeader(selected.payload, 'subject');
-    const people = replyAllRecipients(selected.payload, mailbox);
-    const sender = gmailHeader(selected.payload, 'reply-to') || gmailHeader(selected.payload, 'from');
+    if (!selected) return;
+    const subject = selected.headers.subject;
+    const people = replyAllRecipients(selected.headers, mailbox);
+    const sender = selected.headers.reply_to || selected.headers.from;
     openDraftWith({
-      to: everyone && people.to.length ? people.to.join(', ') : addressOnly(sender), cc: everyone ? people.cc.join(', ') : '',
+      to: everyone && people.to.length ? people.to.join(', ') : mailAddress(sender), cc: everyone ? people.cc.join(', ') : '',
       subject: /^re:/i.test(subject) ? subject : `${mailWords.reply_subject_prefix}${subject}`, body: signatureBlock(),
-      thread: { threadId: selected.threadId, inReplyTo: gmailHeader(selected.payload, 'message-id') || undefined, references: [gmailHeader(selected.payload, 'references'), gmailHeader(selected.payload, 'message-id')].filter(Boolean).join(' ') || undefined },
+      thread: { threadId: selected.thread_id ?? undefined, inReplyTo: selected.headers.message_id || undefined, references: [selected.headers.references, selected.headers.message_id].filter(Boolean).join(' ') || undefined },
     });
   };
 
   const beginForward = () => {
-    if (!selected?.payload) return;
-    const subject = gmailHeader(selected.payload, 'subject');
+    if (!selected) return;
+    const subject = selected.headers.subject;
     openDraftWith({
       to: '', cc: '', subject: /^fwd?:/i.test(subject) ? subject : `${mailWords.forward_subject_prefix}${subject}`,
-      body: `${signatureBlock()}${gmailForwardBody(selected.payload, { marker: mailWords.forwarded_marker, from: mailWords.forward_from, date: mailWords.forward_date, subject: mailWords.forward_subject, to: mailWords.forward_to })}`,
+      body: `${signatureBlock()}${forwardBody(selected, { marker: mailWords.forwarded_marker, from: mailWords.forward_from, date: mailWords.forward_date, subject: mailWords.forward_subject, to: mailWords.forward_to })}`,
       thread: {},
     });
   };
 
   const beginCompose = () => {
     if (sendRequest.current.draftId) { setMailActionState('Check the previous send result before opening another draft.'); return; }
-    setSelectedId(''); setSelected(null); setError(''); setConnectedError(false); setTaskState(''); setReplyOpen(true); setDraftId(''); setDraftTo(''); setDraftCc(''); setDraftSubject(''); setDraftBody(signatureBlock()); setDraftThread({}); setDraftNeedsGmail(false); setMailActionState(''); setFolderSelected(true); setPanel(null); setTask(null);
+    setSelectedId(''); setSelected(null); setError(''); setConnectedError(false); setTaskState(''); setReplyOpen(true); setDraftId(''); setDraftTo(''); setDraftCc(''); setDraftSubject(''); setDraftBody(signatureBlock()); setDraftThread({}); setDraftNeedsOriginal(false); setMailActionState(''); setFolderSelected(true); setPanel(null); setTask(null);
   };
 
   const openSettings = () => openScreenOn(mailWords.settings_screen, { page: mailWords.settings_page }, mailWords.settings_open);
@@ -425,46 +429,44 @@ function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCou
   }, [composeRequest]);
 
   const saveDraft = async (): Promise<string> => {
-    const to = gmailRecipients(draftTo);
-    const cc = draftCc.trim() ? gmailRecipients(draftCc) : [];
+    const to = mailRecipients(draftTo);
+    const cc = draftCc.trim() ? mailRecipients(draftCc) : [];
     if (!to || !cc) throw new Error(mailWords.bad_recipients);
-    if (!mailbox) throw new Error('Connect Google account again to see its email address before creating a draft.');
-    const raw = gmailRawMessage({ from: mailbox, to: to.join(', '), ...(cc.length ? { cc: cc.join(', ') } : {}), subject: draftSubject, body: draftBody, inReplyTo: draftThread.inReplyTo, references: draftThread.references });
-    const fingerprint = JSON.stringify({ raw, thread_id: draftThread.threadId ?? '', draft_id: draftId });
+    if (!mailbox) throw new Error('Connect the mail account again to see its email address before creating a draft.');
+    // The provider composes the message in its own wire format; the screen hands over the words.
+    const draft = { from: mailbox, to: to.join(', '), ...(cc.length ? { cc: cc.join(', ') } : {}), subject: draftSubject, text: draftBody, ...(draftThread.inReplyTo ? { in_reply_to: draftThread.inReplyTo } : {}), ...(draftThread.references ? { references: draftThread.references } : {}), ...(draftThread.threadId ? { thread_id: draftThread.threadId } : {}), ...(draftId ? { draft_id: draftId } : {}) };
+    const fingerprint = JSON.stringify(draft);
     if (draftRequest.current.fingerprint !== fingerprint) draftRequest.current = { fingerprint, key: `mail-draft:${crypto.randomUUID()}` };
-    const thread = draftThread.threadId ? { thread_id: draftThread.threadId } : {};
-    const output = draftId
-      ? await actionRun<{ id: string }>(UPDATE_DRAFT, { draft_id: draftId, raw, ...thread }, draftRequest.current.key)
-      : await actionRun<{ id: string }>(CREATE_DRAFT, { raw, ...thread }, draftRequest.current.key);
-    setDraftId(output.id);
-    return output.id;
+    const output = await actionRun<{ draft_id: string }>(SAVE_DRAFT, draft, draftRequest.current.key);
+    setDraftId(output.draft_id);
+    return output.draft_id;
   };
 
   const saveDraftAction = async () => {
     if (mailActionBusy) return;
     if (sendRequest.current.draftId) { setMailActionState('Check the previous send result before editing this draft.'); return; }
-    if (draftNeedsGmail) { setMailActionState('This draft has attachments, formatting or extra recipients. Open it in Gmail to preserve everything when you edit or send.'); return; }
+    if (draftNeedsOriginal) { setMailActionState(`This draft has attachments, formatting or extra recipients. Open it in ${label} to preserve everything when you edit or send.`); return; }
     setMailActionBusy(true); setMailActionState('');
-    try { await saveDraft(); setMailActionState('Draft saved in Gmail.'); }
+    try { await saveDraft(); setMailActionState(`Draft saved in ${label}.`); }
     catch (cause) {
       const message = errorWords(cause, 'The draft was not saved.');
-      setMailActionState(message); setConnectedError(/connect|credential|google-account|authorization|403|permission/i.test(message));
+      setMailActionState(message); setConnectedError(connectionTrouble(message, true));
     } finally { setMailActionBusy(false); }
   };
 
   const sendDraft = async () => {
     if (mailActionBusy) return;
-    if (draftNeedsGmail) { setMailActionState('This draft has attachments, formatting or extra recipients. Open it in Gmail to preserve everything when you edit or send.'); return; }
+    if (draftNeedsOriginal) { setMailActionState(`This draft has attachments, formatting or extra recipients. Open it in ${label} to preserve everything when you edit or send.`); return; }
     setMailActionBusy(true); setMailActionState('');
     try {
       const id = sendRequest.current.draftId || await saveDraft();
       if (sendRequest.current.draftId !== id) sendRequest.current = { draftId: id, key: `mail-send:${crypto.randomUUID()}` };
       await actionRun(SEND_DRAFT, { draft_id: id }, sendRequest.current.key);
-      setMailActionState('Email sent from Gmail.'); setReplyOpen(false); setDraftId(''); sendRequest.current = { draftId: '', key: '' };
+      setMailActionState(`Email sent from ${label}.`); setReplyOpen(false); setDraftId(''); sendRequest.current = { draftId: '', key: '' };
     } catch (cause) {
-      const message = errorWords(cause, 'Gmail did not confirm that this email was sent. Check Gmail Sent before trying again.');
-      setMailActionState(message.includes('Gmail returned') ? `${message} Check Gmail Sent before trying again.` : message);
-      setConnectedError(/connect|credential|google-account|authorization|403|permission/i.test(message));
+      const message = errorWords(cause, `${label} did not confirm that this email was sent. Check ${label} Sent before trying again.`);
+      setMailActionState(message.includes(`${label} refused`) ? `${message} Check ${label} Sent before trying again.` : message);
+      setConnectedError(connectionTrouble(message, true));
     } finally { setMailActionBusy(false); }
   };
 
@@ -474,19 +476,19 @@ function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCou
     setMailActionBusy(true); setMailActionState('');
     try {
       await requester(DELETE_DRAFT, { draft_id: draftId }, `mail-delete:${draftId}`);
-      setMailActionState('Draft deleted from Gmail.');
+      setMailActionState(`Draft deleted from ${label}.`);
       setReplyOpen(false); setDraftId(''); setSelectedId(''); setSelected(null);
-      if (folder.id === 'drafts') void runSearch('in:drafts', FOLDERS.find(item => item.id === 'drafts'));
+      if (folder.id === 'drafts') void runSearch('', FOLDERS.find(item => item.id === 'drafts'));
     } catch (cause) {
-      const message = errorWords(cause, 'Gmail could not delete this draft.');
-      setMailActionState(message); setConnectedError(/connect|credential|google-account|authorization|403|permission/i.test(message));
+      const message = errorWords(cause, `${label} could not delete this draft.`);
+      setMailActionState(message); setConnectedError(connectionTrouble(message, true));
     } finally { setMailActionBusy(false); }
   };
 
   const createTask = async () => {
     if (!selectedId || !taskTitle.trim() || taskBusy || !account) return;
     setTaskBusy(true); setTaskState('');
-    const sourceUrl = gmailMessageUrl(selectedId, mailbox);
+    const sourceUrl = messageLink(selectedId);
     const sourceId = mailSourceId(account.connection_id, selectedId);
     try {
       let made = await ensureMailTask({ sourceId, title: taskTitle.trim(), url: sourceUrl });
@@ -502,7 +504,7 @@ function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCou
   const taskForPlan = async (): Promise<MailTask> => {
     if (task) return task;
     if (!selectedId || !account) throw new Error(mailWords.plan_failed);
-    const made = await ensureMailTask({ sourceId: mailSourceId(account.connection_id, selectedId), title: gmailHeader(selected?.payload, 'subject') || taskTitle || '(no subject)', url: gmailMessageUrl(selectedId, mailbox) });
+    const made = await ensureMailTask({ sourceId: mailSourceId(account.connection_id, selectedId), title: selected?.headers.subject || taskTitle || '(no subject)', url: messageLink(selectedId) });
     setTask(made);
     return made;
   };
@@ -538,7 +540,7 @@ function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCou
   };
 
   const copyTitle = async () => {
-    const title = gmailHeader(selected?.payload, 'subject');
+    const title = selected?.headers.subject ?? '';
     if (!title) { setMailActionState(mailWords.nothing_to_copy); return; }
     try { await navigator.clipboard.writeText(title); setMailActionState(mailWords.planned.copy_title); }
     catch (cause) { setMailActionState(errorWords(cause, mailWords.plan_failed)); }
@@ -546,30 +548,30 @@ function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCou
 
   /** One road for every verb of the card, the bar, their menus and the keys. */
   const runVerb = (id: string) => {
-    if (!selected || selected.draftId || mailActionBusy) return;
+    if (!selected || selected.draft_id || mailActionBusy) return;
     if (id === 'reply') beginReply(false);
     else if (id === 'reply_all') beginReply(true);
     else if (id === 'forward') beginForward();
     else if (id === 'done') void changeMail('done');
-    else if (id === 'unread') void changeMail(selected.labelIds?.includes('UNREAD') ? 'read' : 'unread');
+    else if (id === 'unread') void changeMail(selected.labels.includes('unread') ? 'read' : 'unread');
     else if (id === 'read') void changeMail('read');
-    else if (id === 'delete') void changeMail(selected.labelIds?.includes('TRASH') ? 'restore' : 'trash');
+    else if (id === 'delete') void changeMail(selected.labels.includes('trash') ? 'restore' : 'trash');
     else if (id === 'priority' || id === 'schedule' || id === 'deadline') setPanel(current => current === id ? null : id);
     else if (id === 'duplicate') void duplicateTask();
     else if (id === 'copy_title') void copyTitle();
     else if (id === 'attachments') setPanel(current => current === 'attachments' ? null : 'attachments');
   };
-  const keysLive = Boolean(selected && !selected.draftId && !replyOpen);
+  const keysLive = Boolean(selected && !selected.draft_id && !replyOpen);
   useMailKeys(command => { if (keysLive) runVerb(command); });
   const keyOf = useMailKeyOf();
   // The rest of the conversation is read once, headers only, when a message of it is open; opening another message of it reads nothing more.
-  const openThreadId = selected && !selected.draftId ? selected.threadId : undefined;
+  const openThreadId = selected && !selected.draft_id ? selected.thread_id ?? undefined : undefined;
   React.useEffect(() => {
     if (!openThreadId || thread?.threadId === openThreadId) return;
     let active = true;
     setThreadFailed(false);
-    void actionRun<{ messages?: GmailMessage[] }>(THREAD, { thread_id: openThreadId })
-      .then(read => { if (active) setThread(gmailThreadView(openThreadId, read.messages, threadMost)); })
+    void actionRun<{ messages?: MailMessage[] }>(THREAD, { thread_id: openThreadId })
+      .then(read => { if (active) setThread(mailThreadView(openThreadId, read.messages, threadMost)); })
       .catch(() => { if (active) setThreadFailed(true); });
     return () => { active = false; };
   }, [openThreadId, requester]);
@@ -581,29 +583,29 @@ function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCou
     return () => { active = false; };
   }, [selectedId]);
 
-  const gmailUrl = selected?.draftId ? `https://mail.google.com/mail/?authuser=${encodeURIComponent(mailbox)}#drafts/${encodeURIComponent(selected.draftId)}` : selectedId ? gmailMessageUrl(selectedId, mailbox) : '';
-  const payload = selected?.payload;
-  const date = toIso(gmailHeader(payload, 'date'));
-  const cc = splitEmailAddresses(gmailHeader(payload, 'cc')).map(to => ({ to, how: 'cc' }));
-  const bcc = splitEmailAddresses(gmailHeader(payload, 'bcc')).map(to => ({ to, how: 'bcc' }));
-  const body = plainTextBody(payload);
-  const attachments = gmailAttachments(payload);
-  const links = gmailLinks(payload);
-  const conversation = thread && thread.threadId === selected?.threadId ? thread : null;
-  const participants = gmailParticipants(conversation ? conversation.messages.map(message => message.id === selectedId ? payload : message.payload) : [payload]);
-  const barProps: MailBarProps = { table: mailCommands, keyOf, busy: mailActionBusy, task, taskLists, messageRead: !selected?.labelIds?.includes('UNREAD'), participants, links, attachments, panel, onPanel: setPanel, onRun: runVerb, onPlan: change => void plan(change) };
+  const providerUrl = selected?.draft_id ? draftLink(selected.draft_id) : selectedId ? messageLink(selectedId) : '';
+  const headers = selected?.headers;
+  const date = toIso(headers?.date ?? '');
+  const cc = splitEmailAddresses(headers?.cc ?? '').map(to => ({ to, how: 'cc' }));
+  const bcc = splitEmailAddresses(headers?.bcc ?? '').map(to => ({ to, how: 'bcc' }));
+  const body = selected?.text ?? null;
+  const attachments = selected?.attachments ?? [];
+  const links = selected?.links ?? [];
+  const conversation = thread && thread.threadId === selected?.thread_id ? thread : null;
+  const participants = mailParticipants(conversation ? conversation.messages.map(message => message.id === selectedId ? selected ?? undefined : message) : [selected ?? undefined]);
+  const barProps: MailBarProps = { table: mailCommands, keyOf, busy: mailActionBusy, task, taskLists, messageRead: !selected?.labels.includes('unread'), participants, links, attachments, provider: label, panel, onPanel: setPanel, onRun: runVerb, onPlan: change => void plan(change) };
   const openCard = <Container layout="vertical" gap="none" data-mail-card="">
-    <EmailView subject={gmailHeader(payload, 'subject')} from={gmailHeader(payload, 'from') || 'Unknown sender'} to={splitEmailAddresses(gmailHeader(payload, 'to'))} copies={[...cc, ...bcc]} sentAt={date} preheader={selected?.snippet} bodyText={body} noBody="This email has no plain-text copy. Open it in Gmail to view its original formatting." actions={null}
-      footer={selected?.draftId ? null : <MailCardActions {...barProps} />} />
+    <EmailView subject={headers?.subject ?? ''} from={headers?.from || 'Unknown sender'} to={splitEmailAddresses(headers?.to ?? '')} copies={[...cc, ...bcc]} sentAt={date} preheader={selected?.snippet} bodyText={body} noBody={`This email has no plain-text copy. Open it in ${label} to view its original formatting.`} actions={null}
+      footer={selected?.draft_id ? null : <MailCardActions {...barProps} />} />
   </Container>;
   const threadEntries: EmailThreadEntry[] = conversation && conversation.messages.some(message => message.id === selectedId)
     ? conversation.messages.map(message => message.id === selectedId
-      ? { id: message.id, from: gmailHeader(payload, 'from'), content: openCard }
-      : { id: message.id, from: gmailHeader(message.payload, 'from') || 'Unknown sender', sentAt: toIso(gmailHeader(message.payload, 'date')), preview: message.snippet, unread: message.labelIds?.includes('UNREAD') })
-    : [{ id: selectedId, from: gmailHeader(payload, 'from'), content: openCard }];
-  const readerActions = gmailUrl ? <Button size="sm" variant="outline" onClick={() => window.open(gmailUrl, '_blank', 'noopener,noreferrer')}>Open in Gmail</Button> : null;
-  const accountSetupHref = accounts.length ? GOOGLE_CONNECTIONS : GOOGLE_CONNECT;
-  const accountSetupLabel = accounts.length ? 'Manage connected accounts' : 'Connect Google account';
+      ? { id: message.id, from: headers?.from ?? '', content: openCard }
+      : { id: message.id, from: message.headers.from || 'Unknown sender', sentAt: toIso(message.headers.date), preview: message.snippet, unread: message.labels.includes('unread') })
+    : [{ id: selectedId, from: headers?.from ?? '', content: openCard }];
+  const readerActions = providerUrl ? <Button size="sm" variant="outline" onClick={() => window.open(providerUrl, '_blank', 'noopener,noreferrer')}>Open in {label}</Button> : null;
+  const accountSetupHref = accounts.length ? MAIL_ACCOUNTS : provider.connect_path;
+  const accountSetupLabel = accounts.length ? 'Manage connected accounts' : `Connect ${label}`;
   const accountSetupControl = accountReadFailed
     ? <Button size="sm" variant="outline" disabled={accountReadBusy} onClick={() => loadAccounts()}>{accountReadBusy ? 'Checking accounts…' : 'Try again'}</Button>
     : <Button size="sm" variant="outline" onClick={() => location.assign(accountSetupHref)}><Text variant="body-sm" truncate>{accountSetupLabel}</Text></Button>;
@@ -612,12 +614,12 @@ function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCou
       if (sendRequest.current.draftId) { setMailActionState('Check the previous send result before changing accounts.'); return; }
       setAccount(accounts.find(row => mailAccountKey(row) === value) ?? null); setDraftId(''); setReplyOpen(false);
       draftRequest.current = { fingerprint: '', key: '' };
-    }}><SelectTrigger aria-label="Google account"><SelectValue placeholder="Choose an account">{account?.account_label}</SelectValue></SelectTrigger><SelectPopup>{accounts.map(row => <SelectItem key={mailAccountKey(row)} value={mailAccountKey(row)}>{row.account_label}</SelectItem>)}</SelectPopup></Select> : null;
+    }}><SelectTrigger aria-label="Mail account"><SelectValue placeholder="Choose an account">{account?.account_label}</SelectValue></SelectTrigger><SelectPopup>{accounts.map(row => <SelectItem key={mailAccountKey(row)} value={mailAccountKey(row)}>{row.account_label}</SelectItem>)}</SelectPopup></Select> : null;
   const rail = <Container layout="vertical" gap="xs" padding="sm" minWidth="0" className="amie-mail-rail" data-mail-rail="">
     <Container layout="horizontal" gap="sm" alignItems="center" padding="sm"><NamedIcon name="mail" size="sm" /><Container layout="vertical" gap="none"><Text variant="heading-xs">Mail</Text>{mailbox ? <Text variant="caption" color="muted" truncate>{mailbox}</Text> : null}</Container></Container>
     {accountPicker}
     <Container padding="sm"><Button size="sm" variant="primary" disabled={!account} onClick={beginCompose}><NamedIcon name="plus" size="xs" />Compose</Button></Container>
-    {FOLDERS.map(item => <Button key={item.id} size="nav" variant={folder.id === item.id ? 'secondary' : 'ghost'} active={folder.id === item.id} onClick={() => { setQuery(item.query); setFolderSelected(true); void runSearch(item.query, item); }}>
+    {FOLDERS.map(item => <Button key={item.id} size="nav" variant={folder.id === item.id ? 'secondary' : 'ghost'} active={folder.id === item.id} onClick={() => { setQuery(''); setFolderSelected(true); void runSearch('', item); }}>
       <NamedIcon name={item.icon} size="xs" /><Text variant="body-sm">{item.label}</Text>
     </Button>)}
     <Container padding="sm"><Button size="nav" variant="ghost" disabled={!account} onClick={openSettings}><NamedIcon name="Settings" size="xs" /><Text variant="body-sm">{mailWords.settings_open}</Text></Button></Container>
@@ -627,11 +629,11 @@ function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCou
   const mailSearchControls = <>
     <Container layout="horizontal" gap="sm" alignItems="center">
       {width < 760 && !compact ? <Button size="sm" variant="ghost" onClick={() => setFolderSelected(false)}><NamedIcon name="menu" size="xs" />Folders</Button> : null}
-      <SearchField label="Search Gmail" value={query} placeholder="Search mail" onChange={event => setQuery(event.target.value)} onKeyDown={event => { if (event.key === 'Enter') void runSearch(query); }} />
+      <SearchField label={`Search ${label}`} value={query} placeholder="Search mail" onChange={event => setQuery(event.target.value)} onKeyDown={event => { if (event.key === 'Enter') void runSearch(query); }} />
       <Button size="icon" variant="ghost" aria-label="Search mail" disabled={searching} onClick={() => runSearch(query)}><NamedIcon name="search" size="xs" /></Button>
     </Container>
     <Container layout="horizontal" gap="sm" alignItems="center" padding="xs">
-      {compact ? <Select value={folder.id} onValueChange={value => { const next = FOLDERS.find(item => item.id === value); if (next) { setQuery(next.query); void runSearch(next.query, next); } }}><SelectTrigger aria-label="Mail folder"><SelectValue>{folder.label}</SelectValue></SelectTrigger><SelectPopup>{FOLDERS.map(item => <SelectItem key={item.id} value={item.id}>{item.label}</SelectItem>)}</SelectPopup></Select>
+      {compact ? <Select value={folder.id} onValueChange={value => { const next = FOLDERS.find(item => item.id === value); if (next) { setQuery(''); void runSearch('', next); } }}><SelectTrigger aria-label="Mail folder"><SelectValue>{folder.label}</SelectValue></SelectTrigger><SelectPopup>{FOLDERS.map(item => <SelectItem key={item.id} value={item.id}>{item.label}</SelectItem>)}</SelectPopup></Select>
         : <Text variant="label" color="muted">{folder.label}</Text>}
       {searching ? <Text variant="caption" color="muted">Searching…</Text> : null}
     </Container>
@@ -653,12 +655,12 @@ function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCou
         : connectedError ? <Button size="sm" onClick={() => location.assign(accountSetupHref)}>{accountSetupLabel}</Button> : null}
     </Container> : null}
     {(compact || width < 760) && !selectedId && !replyOpen && mailActionState ? <Container padding="sm" role="status">
-      <Text variant="caption" color={/sent from Gmail|deleted from Gmail/.test(mailActionState) ? 'success' : 'error'}>{mailActionState}</Text>
+      <Text variant="caption" color={sentWords.test(mailActionState) ? 'success' : 'error'}>{mailActionState}</Text>
     </Container> : null}
     <Container layout="vertical" gap="xs" minHeight="0" flex={1} overflow="auto">
       {rows.map(row => {
         const sender = headerOf(row, 'from') || (row.loading ? 'Loading sender…' : row.failed ? 'Message details unavailable' : 'Email');
-        const subject = headerOf(row, 'subject') || (row.failed ? 'Open in Gmail to read this message' : '(no subject)');
+        const subject = headerOf(row, 'subject') || (row.failed ? `Open in ${label} to read this message` : '(no subject)');
         const dateText = when(headerOf(row, 'date'));
         return <Button key={row.id} variant={row.id === selectedId ? 'secondary' : 'ghost'} size="option-row" className="mail-message-row" active={row.id === selectedId} onClick={() => openMessage(row.id)} aria-label={`${subject}, from ${sender}`}>
           {compact ? <Container layout="horizontal" gap="sm" alignItems="center" minWidth="0" flex={1}>
@@ -685,58 +687,58 @@ function Mail({ presentation = 'full', composeRequest = 0, onDetailChange, onCou
     {selectedId ? <Container layout="horizontal" gap="sm" alignItems="center" padding="sm" wrap className="amie-mail-detail-actions">
       {compact || width < 760 ? <Button size="sm" variant="ghost" disabled={Boolean(sendRequest.current.draftId)} onClick={() => { setSelectedId(''); setSelected(null); }}><NamedIcon name="arrow-left" size="xs" />Back to mail</Button> : null}
       <Container flex={1} />
-      {selected?.draftId ? <Button size="sm" variant="ghost" disabled={mailActionBusy} onClick={() => deleteDraft()}>Delete draft</Button> : null}
+      {selected?.draft_id ? <Button size="sm" variant="ghost" disabled={mailActionBusy} onClick={() => deleteDraft()}>Delete draft</Button> : null}
       {readerActions}
     </Container> : null}
     {opening ? <Container padding="xl"><Text variant="body">Opening message…</Text></Container> : null}
-    {selected && payload ? <>
+    {selected ? <>
       <Container layout="vertical" gap="none" padding="sm">
         <EmailThread label={mailWords.thread_label} entries={threadEntries} onOpen={id => void openMessage(id, true)}
           earlier={conversation?.earlier ? fill(mailWords.thread_earlier, { count: conversation.earlier }) : null}
           note={threadFailed ? mailWords.thread_failed : openThreadId && !conversation ? mailWords.thread_loading : null} />
       </Container>
-      {selected.draftId ? null : <Container layout="vertical" gap="none" padding="sm"><MailActionBar {...barProps} /></Container>}
+      {selected.draft_id ? null : <Container layout="vertical" gap="none" padding="sm"><MailActionBar {...barProps} /></Container>}
       <Container layout="vertical" gap="sm" padding="md" border="top" data-email-task-origin="">
         <Text variant="heading-xs">Make this a task</Text>
         <Text variant="caption" color="muted">The task will keep a link back to this email.</Text>
         <Input aria-label="Task title" value={taskTitle} onChange={event => setTaskTitle(event.target.value)} placeholder="Task title" />
         <Container layout="horizontal" gap="sm" alignItems="center" wrap>
           <Button size="sm" disabled={taskBusy || !taskTitle.trim()} onClick={() => createTask()}>{taskBusy ? 'Creating task…' : 'Create task'}</Button>
-          <Button size="sm" variant="ghost" onClick={() => window.open(gmailUrl, '_blank', 'noopener,noreferrer')}>Open in Gmail</Button>
+          <Button size="sm" variant="ghost" onClick={() => window.open(providerUrl, '_blank', 'noopener,noreferrer')}>Open in {label}</Button>
         </Container>
         {taskState ? <Text variant="caption" color={taskState.startsWith('Task created') ? 'success' : 'error'}>{taskState}</Text> : null}
-        <Text variant="caption" color="muted">Done, read status, replies and sending use your connected Gmail account.</Text>
+        <Text variant="caption" color="muted">Done, read status, replies and sending use your connected {label} account.</Text>
       </Container>
       {mailActionState ? <Container layout="vertical" gap="xs" padding="md" border="top" role="status">
-        <Text variant="caption" color={/saved in Gmail|sent from Gmail|Marked|Trash\.|Restored|Starred|Unstarred|Priority set|Scheduled|Removed from|Deadline|Duration set|Repeat saved|Moved to|Duplicated|Copied/.test(mailActionState) ? 'success' : 'error'}>{mailActionState}</Text>
+        <Text variant="caption" color={doneWords.test(mailActionState) ? 'success' : 'error'}>{mailActionState}</Text>
         {connectedError ? <Button size="sm" onClick={() => location.assign(accountSetupHref)}>{accountSetupLabel}</Button> : null}
       </Container> : null}
     </> : null}
     {replyOpen ? <Container layout="vertical" gap="sm" padding="md" border="top" data-email-reply="">
-      <Text variant="heading-xs">{selected?.draftId ? 'Edit draft' : selected ? 'Reply' : 'New email'}</Text>
+      <Text variant="heading-xs">{selected?.draft_id ? 'Edit draft' : selected ? 'Reply' : 'New email'}</Text>
       <Input aria-label="To" disabled={mailActionBusy || Boolean(sendRequest.current.draftId)} value={draftTo} onChange={event => setDraftTo(event.target.value)} placeholder={mailWords.to_placeholder} />
       <Input aria-label={mailWords.cc} disabled={mailActionBusy || Boolean(sendRequest.current.draftId)} value={draftCc} onChange={event => setDraftCc(event.target.value)} placeholder={mailWords.cc_placeholder} />
       <Input aria-label="Subject" disabled={mailActionBusy || Boolean(sendRequest.current.draftId)} value={draftSubject} onChange={event => setDraftSubject(event.target.value)} placeholder="Subject" />
       <Textarea aria-label="Email message" disabled={mailActionBusy || Boolean(sendRequest.current.draftId)} value={draftBody} onChange={event => setDraftBody(event.target.value)} rows={8} placeholder="Write your email" />
       {attachments.length && !draftId && /^fwd?:/i.test(draftSubject) ? <Text variant="caption" color="muted" role="note">{mailWords.forward_attachments_note}</Text> : null}
-      {draftNeedsGmail ? <Container layout="vertical" gap="xs" padding="sm" border="all" role="status"><Text variant="body-sm">This draft has attachments, formatting or extra recipients. Open it in Gmail to preserve everything when you edit or send.</Text>{readerActions}</Container> : null}
+      {draftNeedsOriginal ? <Container layout="vertical" gap="xs" padding="sm" border="all" role="status"><Text variant="body-sm">This draft has attachments, formatting or extra recipients. Open it in ${label} to preserve everything when you edit or send.</Text>{readerActions}</Container> : null}
       <Container layout="horizontal" gap="sm" alignItems="center" wrap>
-        <Button size="sm" variant="primary" disabled={mailActionBusy || draftNeedsGmail || !draftTo.trim() || !draftSubject.trim()} onClick={() => sendDraft()}>{mailActionBusy ? 'Working…' : sendRequest.current.draftId ? 'Check send result' : 'Send'}</Button>
-        <Button size="sm" variant="outline" disabled={mailActionBusy || draftNeedsGmail || !draftTo.trim() || !draftSubject.trim()} onClick={() => saveDraftAction()}>{draftId ? 'Save changes' : 'Save draft'}</Button>
+        <Button size="sm" variant="primary" disabled={mailActionBusy || draftNeedsOriginal || !draftTo.trim() || !draftSubject.trim()} onClick={() => sendDraft()}>{mailActionBusy ? 'Working…' : sendRequest.current.draftId ? 'Check send result' : 'Send'}</Button>
+        <Button size="sm" variant="outline" disabled={mailActionBusy || draftNeedsOriginal || !draftTo.trim() || !draftSubject.trim()} onClick={() => saveDraftAction()}>{draftId ? 'Save changes' : 'Save draft'}</Button>
         <Button size="sm" variant="ghost" disabled={mailActionBusy || Boolean(sendRequest.current.draftId)} onClick={() => setReplyOpen(false)}>Close</Button>
       </Container>
     </Container> : null}
-    {mailActionState && !selected ? <Container layout="vertical" gap="xs" padding="md" border="top" role="status"><Text variant="caption" color={/deleted from Gmail/.test(mailActionState) ? 'success' : 'error'}>{mailActionState}</Text></Container> : null}
+    {mailActionState && !selected ? <Container layout="vertical" gap="xs" padding="md" border="top" role="status"><Text variant="caption" color={new RegExp(`deleted from ${label}`).test(mailActionState) ? 'success' : 'error'}>{mailActionState}</Text></Container> : null}
     {!selectedId && !opening && !replyOpen ? <Container layout="vertical" gap="sm" padding="xl" alignItems="start">
       <NamedIcon name="mail-open" size="lg" />
       <Text variant="heading-sm">Your mail</Text>
-      <Text variant="body" color="muted">Choose a message to read it. Search uses Gmail’s own query words.</Text>
+      <Text variant="body" color="muted">Choose a message to read it. Search uses {label}’s own search words.</Text>
       {accountSetupControl}
     </Container> : null}
     {error ? <Container layout="vertical" gap="sm" padding="md" border="top" role="alert">
       <Text variant="body" color="error">{error}</Text>
       {connectedError ? <Button size="sm" onClick={() => location.assign(accountSetupHref)}>{accountSetupLabel}</Button> : null}
-      {selectedId ? <Button size="sm" variant="outline" onClick={() => window.open(gmailUrl, '_blank', 'noopener,noreferrer')}>Open in Gmail</Button> : null}
+      {selectedId ? <Button size="sm" variant="outline" onClick={() => window.open(providerUrl, '_blank', 'noopener,noreferrer')}>Open in {label}</Button> : null}
     </Container> : null}
   </Container>;
 

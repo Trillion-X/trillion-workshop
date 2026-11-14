@@ -557,7 +557,7 @@ export function makeEventRules({ workshop, workflows = null, facts, routes, sour
     const setup = await Promise.all(['subscribe', 'proof'].map(purpose => facts.read(`event-listen-task:${source_id}:${purpose}`)));
     const heldSetup = setup.find(item => item && controlRevisionOf(item) === controlRevision && ['working', 'scheduled'].includes(item.state));
     const at = heldSetup?.at ?? now().toISOString();
-    const proof = await readTask(source, source.route_key_proof.tool_id, {}, at, 'proof', controlRevision);
+    const proof = await readTask(source, source.route_key_proof.tool_id, source.route_key_proof.input ?? {}, at, 'proof', controlRevision);
     await stillWanted();
     if (proof.state !== 'completed') {
       const error = new WorkshopError(`The connected account could not be read, so nothing is listening yet: ${proof.error ?? proof.state}.`, proof.next_call);
@@ -703,7 +703,7 @@ export function makeEventRules({ workshop, workflows = null, facts, routes, sour
   async function startCursor(source, at) {
     const start = source.poll.cursor.start;
     if (!start?.tool_id) return now().toISOString();
-    return selected(await readOnce(source, start.tool_id, {}, at, 'start'), start.output_selector);
+    return selected(await readOnce(source, start.tool_id, start.input ?? {}, at, 'start'), start.output_selector);
   }
   async function startReading(source, at) {
     const connection_binding = (await facts.read(`event-listen:${source.id}`))?.connection_binding;

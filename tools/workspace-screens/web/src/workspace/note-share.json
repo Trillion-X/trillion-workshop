@@ -1,5 +1,5 @@
 {
-  "_what": "Where a meeting note can be sent from its Share row and Share via panel, and every word they show. A destination is a row: add one here and it appears. kind link copies the note's public link; mail sends through the person's connected Gmail; service hands the note to the person's tool place whose name contains `match` (src/share-destinations.mjs). `connect_row` is the Connections row opened when the place is not set up.",
+  "_what": "Where a meeting note can be sent from its Share row and Share via panel, and every word they show. A destination is a row: add one here and it appears. kind link copies the note's public link; mail sends through the person's connected mail account; service hands the note to the person's tool place whose name contains `match` (src/share-destinations.mjs). `connect_row` is the Connections row opened when the place is not set up.",
   "words": {
     "row_label": "Share this note",
     "via": "Share via",
@@ -22,7 +22,7 @@
     "missing": "Fill in {field}.",
     "bad_email": "Enter a valid email address.",
     "bad_address": "Enter a public https address, like https://example.com/hook.",
-    "no_address": "Connect your Google account again to see its email address before sending.",
+    "no_address": "Connect your mail account again to see its email address before sending.",
     "mail_subject": "{title}",
     "more": "More"
   },
@@ -32,8 +32,6 @@
       "label": "Email",
       "icon": "Mail",
       "kind": "mail",
-      "vendor": "google-account",
-      "connect_row": "google-account",
       "fields": [
         {
           "id": "to",

@@ -54,7 +54,7 @@ export function deliveryBody(row, place, values, { link, title, requestKey, limi
   return { to: [place.id], items: [{ kind: 'link', url: link, title: clean.title || title }], ...(own ? { own_words: own } : {}), input: clean, request_key: requestKey, from: 'Meeting note' };
 }
 
-/** The mail a Gmail draft is made from: where, subject, and the message with the note's link under it. */
+/** The mail a draft is made from: where, subject, and the message with the note's link under it. */
 export const mailParts = (values, { link, limit }) => ({
   to: String(values.to ?? '').trim(),
   subject: String(values.subject ?? '').trim().slice(0, 300),

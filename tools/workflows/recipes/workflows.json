@@ -34211,11 +34211,11 @@
             "tool:search-everything-in-a-small-container",
             "tool:list-every-connection",
             "tool:list-connected-drives",
-            "tool:google-account-find_my_mailbox",
+            "tool:find-my-mailbox",
             "tool:list-a-drive-folder",
-            "tool:google-account-search_mail",
-            "tool:google-account-read_mail_headers",
-            "tool:google-account-read_a_mail",
+            "tool:find-mail",
+            "tool:read-mail-headers",
+            "tool:read-a-mail",
             "tool:read-documents-as-list-rows",
             "tool:read-namespace-documents-as-list-rows",
             "tool:match-rows",
@@ -34227,13 +34227,13 @@
             "tool:start-a-decision",
             "tool:judge-against-rules",
             "tool:check-copy",
-            "tool:google-account-create_draft",
-            "tool:google-account-send_draft",
+            "tool:save-a-mail-draft",
+            "tool:send-a-mail-draft",
             "tool:send-a-message-on-this-mac",
             "tool:drive-the-screen",
             "workflow:file-what-needs-the-person",
             "tool:what-is-waiting-on-me",
-            "tool:google-account-list_new_mail"
+            "tool:list-new-mail"
           ],
           "gaps": "Each tool the workflow needs and the catalogue lacks is a record:workflow-gap row (see the gap ids named in the steps).",
           "note": "Synthetic-free by construction: the recipe contains no real data. Real items live only in the person's own records."
@@ -34351,7 +34351,7 @@
           {
             "id": "connect-the-sources",
             "title": "List the places the money is kept and say which are readable",
-            "do": "Call tool:list-every-connection and tool:list-connected-drives. For each place the money is kept, write one record money-source:<key>-<n> with records:write: {kind (mail, drive-folder, statement-file, bank-or-card, ledger or other, using the connection's own name), connection_id, readable (true only when a readback in this step proved it), covers_from, covers_to}. For each Gmail connection call tool:google-account-find_my_mailbox and keep its address. For each folder the person names (or one they granted) call tool:list-a-drive-folder. For each kind of source a money item needs that no connection gives (bank or card transactions, statement files as text, a payment ledger), write a gap row record:workflow-gap:<tool wanted> (see the gap rows named in the other steps), then continue with what exists. Never ask the person for a credential: a sign-in only they can give is filed in step file-every-movement-for-approval.",
+            "do": "Call tool:list-every-connection and tool:list-connected-drives. For each place the money is kept, write one record money-source:<key>-<n> with records:write: {kind (mail, drive-folder, statement-file, bank-or-card, ledger or other, using the connection's own name), connection_id, readable (true only when a readback in this step proved it), covers_from, covers_to}. For each mail connection call tool:find-my-mailbox (provider: the id in tools/read-and-write-mail/read-data/mail-providers.json that the connection is on; connection: its handle) and keep its address. For each folder the person names (or one they granted) call tool:list-a-drive-folder. For each kind of source a money item needs that no connection gives (bank or card transactions, statement files as text, a payment ledger), write a gap row record:workflow-gap:<tool wanted> (see the gap rows named in the other steps), then continue with what exists. Never ask the person for a credential: a sign-in only they can give is filed in step file-every-movement-for-approval.",
             "submit": {
               "type": "object",
               "required": [
@@ -34396,7 +34396,7 @@
           {
             "id": "inventory-every-item",
             "title": "Write one row for every bill, debt, subscription, refund or transfer the sources show",
-            "do": "First read the kinds: records:list {type:'record:money-kind'}. For each readable source read the rows that show money. Mail: tool:google-account-search_mail once per term, terms = the words the person used plus bill, statement, invoice, receipt, past due, refund, reimbursement, cancel, subscription, renewal, overdraft, collection, payment plan, with after set to covers_from. Read each hit with tool:google-account-read_mail_headers and, when the body carries the amount or the date, tool:google-account-read_a_mail. Drive or statement files: tool:read-documents-as-list-rows or tool:read-namespace-documents-as-list-rows for markdown. A PDF or image with no text is not read: write gap record:workflow-gap:read-statement-files-as-text and continue. For every row that shows an amount the person owes, is owed, or pays on a schedule, write record:money-item:<key>-<n> with: kind (an id of a record:money-kind row), payee (exactly as the source names it), amount_cents (integer; null when the source gives none), currency (ISO code from the source; null when none), due_on (YYYY-MM-DD from the source; null when none), status (current, past-due, disputed, closed or unknown, only as the source states it), source_ref (the mail id or file row id), quote (the exact sentence that holds the amount or date), branch_id (the branch for its kind). Then write record:calendar-task:<key>-<n> with parent_id = branch_id, source_id = the item id, status 'To do', title '<kind>: <payee> <amount>', description = the quote. A field the source does not state stays null. Never infer, round or fill from memory.",
+            "do": "First read the kinds: records:list {type:'record:money-kind'}. For each readable source read the rows that show money. Mail: tool:find-mail once per term, terms = the words the person used plus bill, statement, invoice, receipt, past due, refund, reimbursement, cancel, subscription, renewal, overdraft, collection, payment plan, with after set to covers_from. Read each hit with tool:read-mail-headers and, when the body carries the amount or the date, tool:read-a-mail. Drive or statement files: tool:read-documents-as-list-rows or tool:read-namespace-documents-as-list-rows for markdown. A PDF or image with no text is not read: write gap record:workflow-gap:read-statement-files-as-text and continue. For every row that shows an amount the person owes, is owed, or pays on a schedule, write record:money-item:<key>-<n> with: kind (an id of a record:money-kind row), payee (exactly as the source names it), amount_cents (integer; null when the source gives none), currency (ISO code from the source; null when none), due_on (YYYY-MM-DD from the source; null when none), status (current, past-due, disputed, closed or unknown, only as the source states it), source_ref (the mail id or file row id), quote (the exact sentence that holds the amount or date), branch_id (the branch for its kind). Then write record:calendar-task:<key>-<n> with parent_id = branch_id, source_id = the item id, status 'To do', title '<kind>: <payee> <amount>', description = the quote. A field the source does not state stays null. Never infer, round or fill from memory.",
             "submit": {
               "type": "object",
               "required": [
@@ -34590,7 +34590,7 @@
           {
             "id": "draft-every-message",
             "title": "Draft every message, request and dispute, judged and unsent",
-            "do": "For each item whose action needs a message (a payment-plan or hardship request, a dispute, a refund request, a cancellation request, a question about a balance), write the message as a draft. Its facts come only from the item row, its findings and the person's own contact row (records:list {type:'record:person-contact'}); never type a name, address or number yourself. Read the person's message rules (records:list {type:'record:message-rule'}); with none, judge with the claims alone. Judge each draft with tool:judge-against-rules and run tool:check-copy on it; rewrite until both pass. Save a mail draft with tool:google-account-create_draft (reply to the thread when the item came from one). Write record:money-draft:<item key> {item_id, channel ('mail' or 'messages-on-this-mac'), draft_id, judged: true, action}. Nothing is sent in this step.",
+            "do": "For each item whose action needs a message (a payment-plan or hardship request, a dispute, a refund request, a cancellation request, a question about a balance), write the message as a draft. Its facts come only from the item row, its findings and the person's own contact row (records:list {type:'record:person-contact'}); never type a name, address or number yourself. Read the person's message rules (records:list {type:'record:message-rule'}); with none, judge with the claims alone. Judge each draft with tool:judge-against-rules and run tool:check-copy on it; rewrite until both pass. Save a mail draft with tool:save-a-mail-draft (reply to the thread when the item came from one). Write record:money-draft:<item key> {item_id, channel ('mail' or 'messages-on-this-mac'), draft_id, judged: true, action}. Nothing is sent in this step.",
             "submit": {
               "type": "object",
               "required": [
@@ -34674,7 +34674,7 @@
           {
             "id": "act-on-approved-rows",
             "title": "Do only the actions the person has approved, and record each readback",
-            "do": "For each waiting row, read it back with records:read immediately before acting; act only when approved is true. A message draft: tool:google-account-send_draft with its draft id (sending consumes the draft, so it cannot repeat), or tool:send-a-message-on-this-mac for a text draft. A payment or a cancellation: tool:drive-the-screen on the payee's own page, one action per approval, saving the screen readback. An action with no tool is a gap row record:workflow-gap:<action wanted> and that row stays waiting. Write the result on the item only when the result says so: status 'sent' or 'paid' with the message id, confirmation or balance readback id. Never retry a movement before reading its result.",
+            "do": "For each waiting row, read it back with records:read immediately before acting; act only when approved is true. A message draft: tool:send-a-mail-draft with its draft id (sending consumes the draft, so it cannot repeat), or tool:send-a-message-on-this-mac for a text draft. A payment or a cancellation: tool:drive-the-screen on the payee's own page, one action per approval, saving the screen readback. An action with no tool is a gap row record:workflow-gap:<action wanted> and that row stays waiting. Write the result on the item only when the result says so: status 'sent' or 'paid' with the message id, confirmation or balance readback id. Never retry a movement before reading its result.",
             "submit": {
               "type": "object",
               "required": [
@@ -34725,7 +34725,7 @@
           {
             "id": "follow-up-until-closed",
             "title": "Check each open item until a readback closes it",
-            "do": "For each item not closed, read new mail with tool:google-account-list_new_mail since its last check, and the readbacks from reconcile-against-cash for its payee's lines. A reply that asks for something is filed as a new approval row in file-every-movement-for-approval, never sent here. An item is closed only when a readback shows it: a matching line, a confirmation id, or the payee's written end of the balance. Write record:money-check:<item key>-<n> {item_id, checked_on (today), readback_id or 'nothing new', next_check_on (the due_on, or 7 days after today when none)}, and set the leaf's status to 'Done' only with a closing readback.",
+            "do": "For each item not closed, read new mail with tool:list-new-mail since its last check, and the readbacks from reconcile-against-cash for its payee's lines. A reply that asks for something is filed as a new approval row in file-every-movement-for-approval, never sent here. An item is closed only when a readback shows it: a matching line, a confirmation id, or the payee's written end of the balance. Write record:money-check:<item key>-<n> {item_id, checked_on (today), readback_id or 'nothing new', next_check_on (the due_on, or 7 days after today when none)}, and set the leaf's status to 'Done' only with a closing readback.",
             "submit": {
               "type": "object",
               "required": [

@@ -22,7 +22,7 @@ import { DateTimePicker } from '../../parts/ui/show/date-picker/DateTimePicker';
 import { TaskRecurrence, type TaskRecurrenceValue } from '../../parts/ui/show/task-recurrence/TaskRecurrence';
 import { rowById, type CommandTable } from '../../parts/ui/show/command-table/command-table';
 import type { MailKey } from './mail-keys';
-import type { GmailAttachment, GmailParticipant } from './gmail-email';
+import type { MailAttachment, MailParticipant } from './mail-message';
 import type { MailTask } from './mail-task';
 import layout from './mail-actions.json';
 import calendarScreen from './shared-calendar.json';
@@ -49,9 +49,11 @@ export type MailBarProps = {
   taskLists: readonly { id: string; title: string }[];
   /** Whether the message is read: Mark as unread is offered while it is, Mark as read while it is not. */
   messageRead: boolean;
-  participants: readonly GmailParticipant[];
+  participants: readonly MailParticipant[];
   links: readonly string[];
-  attachments: readonly GmailAttachment[];
+  attachments: readonly MailAttachment[];
+  /** The mail provider's name, for the words that send the person to its own page. */
+  provider: string;
   panel: MailPanel;
   onPanel: (panel: MailPanel) => void;
   onRun: (id: string) => void;
@@ -216,7 +218,7 @@ export function MailActionBar(props: MailBarProps) {
         </Container> : null}
         {props.attachments.length ? <Container layout="vertical" gap="xs"><Text variant="label">{words.popover_attachments}</Text>
           {props.attachments.map((file, index) => <Container key={`${file.name}-${index}`} layout="horizontal" gap="sm" alignItems="center"><NamedIcon name="Paperclip" size="xs" /><Text variant="body-sm" truncate>{file.name}</Text>{file.size !== null ? <Text variant="caption" color="muted" wrap="nowrap">{fill(words.attachment_size, { kb: Math.max(1, Math.round(file.size / 1024)) })}</Text> : null}</Container>)}
-          <Text variant="caption" color="muted">{words.popover_open_in_gmail}</Text>
+          <Text variant="caption" color="muted">{fill(words.popover_open_in_provider, { provider: props.provider })}</Text>
         </Container> : null}
       </Container>
     </AnchoredOverlay>

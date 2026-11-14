@@ -81,11 +81,11 @@ test('Gmail action requirements preserve metadata, search, draft and settings di
     assert.equal(status(requirement, [], false), 'unknown');
     assert.equal(status(requirement, []), 'missing');
   }
-  assert.equal(status(requirements['tool:google-account-read_mail_headers'], [prefix + 'gmail.metadata']), 'satisfied');
-  assert.equal(status(requirements['tool:google-account-read_a_mail'], [prefix + 'gmail.metadata']), 'missing');
-  assert.equal(status(requirements['tool:google-account-search_mail'], [prefix + 'gmail.metadata']), 'missing');
-  assert.equal(status(requirements['tool:google-account-send_draft'], [prefix + 'gmail.send']), 'missing');
-  assert.equal(status(requirements['tool:google-account-send_draft'], [prefix + 'gmail.compose']), 'satisfied');
-  assert.equal(status(requirements['tool:google-account-update_send_as_signature'], [prefix + 'gmail.modify']), 'missing');
-  assert.equal(status(requirements['tool:google-account-update_send_as_signature'], [prefix + 'gmail.settings.basic']), 'satisfied');
+  assert.equal(status(requirements['tool:read-mail-headers'], [prefix + 'gmail.metadata']), 'satisfied');
+  assert.equal(status(requirements['tool:read-a-mail'], [prefix + 'gmail.metadata']), 'missing');
+  assert.equal(status(requirements['tool:find-mail'], [prefix + 'gmail.metadata']), 'missing');
+  assert.equal(status(requirements['tool:send-a-mail-draft'], [prefix + 'gmail.send']), 'missing');
+  assert.equal(status(requirements['tool:send-a-mail-draft'], [prefix + 'gmail.compose']), 'satisfied');
+  assert.equal(status(requirements['tool:set-a-mail-signature'], [prefix + 'gmail.modify']), 'missing');
+  assert.equal(status(requirements['tool:set-a-mail-signature'], [prefix + 'gmail.settings.basic']), 'satisfied');
 });

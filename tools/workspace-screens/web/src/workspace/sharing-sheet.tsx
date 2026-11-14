@@ -32,8 +32,7 @@ import { openWorkPanel } from '../../parts/screen-arrangement/show/mount-floatin
 import { ScreenState } from '../../parts/ui/show/screen-state';
 import { postJson, readJson } from './api';
 import { failedState } from './failure';
-import { runAsAccount } from './mail-accounts';
-import { gmailRawMessage } from './gmail-email';
+import { mailProviders, readMailAccounts, runAsAccount, type MailAccount } from './mail-accounts';
 import { deliveryBody, deliveryOutcome, filterDestinations, formProblem, mailParts, readyPlace, sentWords, startingValues } from './note-share-plan.mjs';
 import noteShare from './note-share.json' with { type: 'json' };
 // The toast words of a copied public link are the Notes list's (note-list-menu.json), so both menus say it the same way.
@@ -265,27 +264,26 @@ export async function copyPublicLink(record: string, words: { done: string; deta
 // the one chosen. Copy link makes a new public link for the note through publicLinkFor above.
 //   1. Destinations, forms and every word are DATA (note-share.json); nothing here names a service.
 //   2. A service place receives the note only through the one delivery road (POST /share-destinations/deliver); an email
-//      goes only through the person's connected Gmail tools. Sent is said only on a confirmed answer.
+//      goes only through the person's connected mail tools. Sent is said only on a confirmed answer.
 //   3. A send keeps one request key until it succeeds, so sending again after a stop never sends twice.
 //   4. The public link is made only when the person copies it or sends it, never by opening the row or the panel.
 // ---------------------------------------------------------------------------------------------------------------------
 type Field = { id: string; label: string; kind: string; required?: boolean; placeholder?: string; from?: string };
 type Destination = { id: string; label: string; icon: string; kind: string; vendor?: string; match?: string; connect_row?: string; fields?: Field[] };
 type NotePlace = { id: string; label: string };
-type MailAccount = { connection_id: string; connected_at: string; account_label: string; status: string; can_send?: boolean };
 type Where = { places: NotePlace[]; accounts: MailAccount[] };
 const noteWords = noteShare.words;
 const noteDestinations = noteShare.destinations as Destination[];
-const CREATE_DRAFT = 'tool:google-account-create_draft';
-const SEND_DRAFT = 'tool:google-account-send_draft';
+const CREATE_DRAFT = 'tool:save-a-mail-draft';
+const SEND_DRAFT = 'tool:send-a-mail-draft';
 
-/** Where this account can send a note now: its tool places and the Gmail accounts that may send. */
+/** Where this account can send a note now: its tool places and the mail accounts that may send. */
 async function readWhere(): Promise<Where> {
   const [shares, mail] = await Promise.all([
     readJson<{ destinations?: NotePlace[] }>('/work/api/share-destinations'),
-    readJson<{ accounts?: MailAccount[] }>(`/work/api/workshop/accounts?vendor=google-account&check=${crypto.randomUUID()}`).catch(() => ({ accounts: [] })),
+    readMailAccounts().catch(() => [] as MailAccount[]),
   ]);
-  return { places: (shares.destinations ?? []).slice(0, noteShare.limits.places_read), accounts: mail.accounts ?? [] };
+  return { places: (shares.destinations ?? []).slice(0, noteShare.limits.places_read), accounts: mail };
 }
 function useWhere() {
   const [where, setWhere] = React.useState<Where | null>(null);
@@ -300,7 +298,7 @@ function useWhere() {
   return { where, failed, again: () => { setWhere(null); setAsked(count => count + 1); } };
 }
 
-const setUp = (row: Destination) => window.open(`/connections?show_row=${encodeURIComponent(row.connect_row ?? row.id)}`, '_blank', 'noopener,noreferrer');
+const setUp = (row: Destination) => window.open(`/connections?show_row=${encodeURIComponent(row.connect_row ?? (row.kind === 'mail' ? mailProviders[0].connection_vendor : row.id))}`, '_blank', 'noopener,noreferrer');
 
 const copyNoteLink = (record: string) => copyPublicLink(record, noteList.public_link);
 
@@ -321,9 +319,8 @@ function ShareForm({ row, record, title, where, onBack }: { row: Destination; re
         const account = ready.account as MailAccount | undefined;
         if (!account || !account.account_label.includes('@')) throw new Error(noteWords.no_address);
         const mail = mailParts(values, { link, limit: noteShare.limits.text });
-        const raw = gmailRawMessage({ from: account.account_label, to: mail.to, subject: mail.subject, body: mail.body });
-        const draft = await runAsAccount(account, CREATE_DRAFT, { raw }, `${requestKey.current}:draft`);
-        const draftId = (draft.result as { id?: string } | undefined)?.id;
+        const draft = await runAsAccount(account, CREATE_DRAFT, { from: account.account_label, to: mail.to, subject: mail.subject, text: mail.body }, `${requestKey.current}:draft`);
+        const draftId = (draft.result as { draft_id?: string } | undefined)?.draft_id;
         if (!draftId) throw new Error(noteWords.failed);
         await runAsAccount(account, SEND_DRAFT, { draft_id: draftId }, `${requestKey.current}:send`);
         requestKey.current = '';
