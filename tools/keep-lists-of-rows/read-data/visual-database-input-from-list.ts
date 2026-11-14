@@ -16,7 +16,8 @@
 //   4. Nesting has one model: a list that nests its records hands its group graph (parts/ui/show/group/group-graph:
 //      groups with ordered members), and a record sits under each record whose group holds it, in that group's
 //      memberOrder; records are handed over in that order (depth first), which is the order the views draw siblings
-//      in. A field of kind `parent` is read only when the list hands no graph.
+//      in. Any link field (a field the list says holds the ids of other records) is a line of the graph as well, in
+//      any number: a record linked to many and linked from many, a chain of any depth, a cycle. No field kind is named.
 //   5. The zoom step the list hands (`detail`) never changes what a view needs to draw: at the name alone, a field keeps
 //      its part only when it is the record's name, its nesting, its lane (what ticks it done), or a part the view needs.
 
@@ -45,9 +46,13 @@ export interface ListField {
   /** The field holds a document (written and read as markdown): the first such field is each record's notes, edited
    * with the documents editor in every view that opens a record. */
   document?: boolean;
-  /** The field holds the ids of other records of the list (the records it came from or leads to): drawn by their
-   * names, never their ids. */
+  /** The field holds the ids of other records (the records it came from or leads to): drawn by their names, never
+   * their ids, and a line of the list's graph. */
   links?: { direction: string };
+  /** The ids a link field holds, when its `read` gives names (how a cell is drawn): what the graph's lines join. */
+  linkIds?: (record: any) => readonly string[];
+  /** The key of the list a link field links to (`links_to`). */
+  linksTo?: string;
 }
 
 /** One change the list keeps (parts/ui/show/record-views RecordChange): values set on a record (a new one when
@@ -80,6 +85,12 @@ export interface ListContext {
   /** The list's own Group by, outermost first (parts/ui/show/record-views GroupLevel): a list view sits its records
    * under these fields' values. */
   groupLevels?: readonly { field: string }[];
+  /** The link fields the graph draws, by field id: the view's own setting. Every link field when it names none. */
+  linkFields?: readonly string[];
+  /** The key of this list, so a linked list's link fields that point here can be told from the ones that do not. */
+  listKey?: string;
+  /** Lists whose rows link to this list's rows, handed over for a graph: each of their rows is a node under the rows it links to. */
+  linked?: readonly { fields: readonly ListField[]; records: readonly any[]; identify: (record: any) => string }[];
 }
 
 export interface ListNesting {
@@ -107,6 +118,8 @@ export interface OfferedViewRow {
   done_values?: readonly string[];
   /** A list view that says above its records how many of them are done (the Checklist). */
   progress?: boolean;
+  /** For a graph: the link fields it draws, by field id. Every link field when it names none. */
+  link_fields?: readonly string[];
 }
 
 export interface ListFieldRoles {
@@ -116,6 +129,7 @@ export interface ListFieldRoles {
   dependency?: { field: ListField; direction: 'from' | 'to' };
   lane?: ListField;
   group?: ListField;
+  /** The first field that links records: what a graph needs to draw. Every link field draws (`topologyOf`). */
   link?: ListField;
   /** The field holding each record's notes as a document. */
   body?: ListField;
@@ -150,7 +164,7 @@ export function doneValuesOf(field: Pick<ListField, 'values' | 'settles'>, done:
 
 /** What each field is for: the first names a record; the first date places it in time; fields that declare their
  * values and may group sort records into lanes (the first) and swimlanes (the second, or the first when it is the
- * only one); a field of kind `parent` holds the record it sits under; number-like fields are summed. */
+ * only one); a field that links records is a line of the graph; number-like fields are summed. */
 export function listFieldRoles(fields: readonly ListField[], done: Pick<OfferedViewRow, 'done_tones' | 'done_values'> = {}): ListFieldRoles {
   const image = fields.find(field => field.kind === 'thumbnail');
   const [title, ...rest] = fields.filter(field => field !== image);
@@ -165,7 +179,7 @@ export function listFieldRoles(fields: readonly ListField[], done: Pick<OfferedV
     ...(linking?.links ? { dependency: { field: linking, direction: linking.links.direction as 'from' | 'to' } } : {}),
     lane: grouping[0],
     group: grouping[1] ?? grouping[0],
-    link: rest.find(field => field.kind === 'parent'),
+    link: linking,
     body: rest.find(field => field.document === true),
     image,
     ...(doneField ? { done: { field: doneField, values: doneValues(doneField) } } : {}),
@@ -214,7 +228,7 @@ function domainOf(field: ListField, doneValues: ReadonlySet<string>) {
   };
 }
 
-const ROLE_SLOTS: readonly (keyof Omit<ListFieldRoles, 'numbers' | 'done' | 'dependency' | 'span'>)[] = ['title', 'date', 'lane', 'link', 'body', 'image'];
+const ROLE_SLOTS: readonly (keyof Omit<ListFieldRoles, 'numbers' | 'done' | 'dependency' | 'span' | 'link'>)[] = ['title', 'date', 'lane', 'body', 'image'];
 
 /** The list as visual-database input: one record row per record (its identity as the address), one field descriptor
  * per field with the role it plays, and the one view this row draws. */
@@ -266,7 +280,7 @@ export function listRecordPayloads(context: ListContext): { id: string; payload:
     const payload: Record<string, unknown> = {};
     for (const field of context.fields) {
       payload[field.id] = field.pictureUrl ? field.pictureUrl(record) : isDate(field) ? dateOf(field, record) : plain(field.links ? named(readOf(field, record)) : readOf(field, record));
-      if (field.links) payload[`${field.id}${LINK_IDS}`] = plain(readOf(field, record));
+      if (field.links) payload[`${field.id}${LINK_IDS}`] = field.linkIds ? [...field.linkIds(record)] : plain(readOf(field, record));
     }
     if (nested) payload[NESTED_UNDER] = underValue(nested.parents.get(id) ?? []);
     return { id, payload };
@@ -277,8 +291,8 @@ export function visualDatabaseInputFromList(context: ListContext, row: OfferedVi
   const roles = listFieldRoles(context.fields, row);
   const doneOf = (field: ListField) => new Set(roles.done?.field === field ? roles.done.values : []);
   const nested = Boolean(context.nesting);
+  const linkFields = linkFieldsOf(context, row);
   const writable = Boolean(context.write);
-  if (nested) roles.link = undefined;
   const roleOf = new Map<string, string>();
   for (const slot of ROLE_SLOTS) {
     const field = roles[slot];
@@ -324,18 +338,21 @@ export function visualDatabaseInputFromList(context: ListContext, row: OfferedVi
       ]
       : []),
   ];
-  const records = listRecordPayloads(context).map(({ id, payload }) => ({ id, address: id, payload }));
+  const records = [
+    ...listRecordPayloads(context).map(({ id, payload }) => ({ id, address: id, payload })),
+    ...(row.kind === 'graph' ? linkedNodes(context, roles.title) : []),
+  ];
   return {
     records,
     fields: { descriptors },
-    views: { views: [{ ...viewDescriptor(row, roles, context.label, nested), ...sectionsOf(context) }] },
+    views: { views: [{ ...viewDescriptor(row, roles, context.label, nested, linkFields, row.kind === 'graph' && Boolean(context.linked?.length)), ...sectionsOf(context) }] },
     actions: { actions: [] },
   };
 }
 
 /** The one view this row draws. Every view carries the list's time axis and its summary: a view reads what its kind
  * reads (a timeline its date field, a summary its metrics) and leaves the rest. */
-function viewDescriptor(row: OfferedViewRow, roles: ListFieldRoles, label: string, nested: boolean) {
+function viewDescriptor(row: OfferedViewRow, roles: ListFieldRoles, label: string, nested: boolean, linkFields: readonly ListField[], linkedFrom: boolean) {
   // The summary: the records sorted by the field that says where each stands (what marks it done, else its first
   // grouping), then each number-like field's total and average. A list with no such field counts its records.
   const overviewField = roles.done?.field ?? roles.lane ?? roles.group;
@@ -353,7 +370,7 @@ function viewDescriptor(row: OfferedViewRow, roles: ListFieldRoles, label: strin
     ...(row.zoom ? { zoom: row.zoom } : {}),
     ...(row.progress ? { progress: true } : {}),
     ...(overviewField ? { overview: { field: overviewField.id } } : {}),
-    ...topologyOf(roles, nested, overviewField),
+    ...topologyOf(roles, nested, overviewField, linkFields, linkedFrom),
     metrics: overviewField ? numbers : [count, ...numbers],
   };
 }
@@ -365,14 +382,47 @@ function sectionsOf(context: ListContext) {
 }
 
 /** The list as a node graph (the shared node-graph's topology descriptor): each record a node named by its title and
- * coloured by where it stands, and a line from each record to the records it sits under (the list's nesting, else its
- * field of kind `parent`). A list with neither has nodes and no lines. */
-function topologyOf(roles: ListFieldRoles, nested: boolean, standing: ListField | undefined) {
-  const under = nested ? NESTED_UNDER : roles.link?.id;
+ * coloured by where it stands, and a line for each id a link field holds: from the linked record to the record that holds
+ * it (a field of the records it came from) or from the record to the linked one (a field of the records it leads to),
+ * and from each record to the records under it when the list nests. A path holding several ids draws a line to or from
+ * each, so a record linked to many and from many, a chain of any depth and a cycle all draw. A list with none has nodes
+ * and no lines. */
+function topologyOf(roles: ListFieldRoles, nested: boolean, standing: ListField | undefined, linkFields: readonly ListField[], linkedFrom: boolean) {
+  const lines = [
+    ...(nested ? [{ from: `payload.${NESTED_UNDER}`, to: 'id' }] : []),
+    ...(linkedFrom ? [{ from: `payload.${LINKED_FROM}`, to: 'id' }] : []),
+    ...linkFields.map(field => (field.links?.direction === 'to'
+      ? { from: 'id', to: `payload.${field.id}${LINK_IDS}` }
+      : { from: `payload.${field.id}${LINK_IDS}`, to: 'id' })),
+  ];
   return {
     topology: {
       nodeSources: [{ id: 'id', ...(roles.title ? { label: `payload.${roles.title.id}` } : {}), ...(standing ? { status: `payload.${standing.id}` } : {}) }],
-      ...(under ? { edgeSources: [{ from: `payload.${under}`, to: 'id' }] } : {}),
+      ...(lines.length ? { edgeSources: lines } : {}),
     },
   };
+}
+
+/** The payload key a linked list's row keeps the ids of this list's rows it links to under. */
+const LINKED_FROM = ':linked-from';
+
+/** The rows of the lists that link to this one, as nodes of a graph: each named by its list's first field, holding the
+ * ids it links to in this list (through every link field whose target is this list). They join the graph only; no other
+ * view reads them. */
+function linkedNodes(context: ListContext, title: ListField | undefined) {
+  return (context.linked ?? []).flatMap(list => {
+    const [name] = list.fields;
+    const toHere = list.fields.filter(field => field.links && (context.listKey === undefined || field.linksTo === context.listKey));
+    return list.records.map(record => {
+      const id = list.identify(record);
+      const ids = toHere.flatMap(field => (field.linkIds ? [...field.linkIds(record)] : [plain(readOf(field, record))].flat().map(String)));
+      return { id, address: id, payload: { ...(title && name ? { [title.id]: plain(readOf(name, record)) } : {}), [LINKED_FROM]: ids } };
+    });
+  });
+}
+
+/** The link fields a view draws: the ones it names (the list's setting, else the offered row's), every link field when it names none. */
+function linkFieldsOf(context: ListContext, row: OfferedViewRow): ListField[] {
+  const named = context.linkFields ?? row.link_fields;
+  return context.fields.filter(field => field.links && (!named || named.includes(field.id)));
 }
