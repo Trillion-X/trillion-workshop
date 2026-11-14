@@ -1,0 +1,15 @@
+{
+  "about": "Files that no tree held any more (not trillion-apps web/parts/ui, not the Workshop, not the old Trillion tag), carried byte for byte from the bitfield-packages ui package at the commit named. Nothing was edited: imports keep the package's own `@/packages/ui/...` form, so wiring them into a build is separate work.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/ui/show/draggable-panel/DraggablePanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/draggable-panel/DraggablePanel.tsx",
+      "source_identity": "1f:3d4b23c38a27a51a404a4c94902f5624d9e270a08a1af29a424a2538f252c464",
+      "identity": "1f:3d4b23c38a27a51a404a4c94902f5624d9e270a08a1af29a424a2538f252c464"
+    }
+  ]
+}

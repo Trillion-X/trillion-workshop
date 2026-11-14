@@ -1,0 +1,36 @@
+{
+  "about": "Files that no tree held any more (not trillion-apps web/parts/ui, not the Workshop, not the old Trillion tag), carried byte for byte from the bitfield-packages ui package at the commit named. Nothing was edited: imports keep the package's own `@/packages/ui/...` form, so wiring them into a build is separate work.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/ui/show/action-row/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/action-row/README.md",
+      "source_identity": "1f:6a8d1a2064a5040bc1fa1532ad9797e3601e40c455ef836d2c3ffaa90239b240",
+      "identity": "1f:6a8d1a2064a5040bc1fa1532ad9797e3601e40c455ef836d2c3ffaa90239b240"
+    },
+    {
+      "from": "packages/ui/show/action-row/action-row.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/action-row/action-row.tsx",
+      "source_identity": "1f:7173f5b2b0a0ebc5f5969649645e11dea9a97ff87fc025253ef60fa9f4ca1ff1",
+      "identity": "1f:7173f5b2b0a0ebc5f5969649645e11dea9a97ff87fc025253ef60fa9f4ca1ff1"
+    },
+    {
+      "from": "packages/ui/show/action-row/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/action-row/index.ts",
+      "source_identity": "1f:84d801541d6f6ab928a1ad0efe7381356430ff9a87c325bb85d07588685f0b60",
+      "identity": "1f:84d801541d6f6ab928a1ad0efe7381356430ff9a87c325bb85d07588685f0b60"
+    },
+    {
+      "from": "packages/ui/show/action-row/provenance.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/action-row/provenance.json",
+      "source_identity": "1f:9b72e1a3fa46218bbe956d61b632e124229c395b831a7adf2c17f7067e30cf1c",
+      "identity": "1f:9b72e1a3fa46218bbe956d61b632e124229c395b831a7adf2c17f7067e30cf1c"
+    }
+  ]
+}

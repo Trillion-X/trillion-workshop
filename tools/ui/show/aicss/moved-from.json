@@ -1,0 +1,50 @@
+{
+  "about": "Files that no tree held any more (not trillion-apps web/parts/ui, not the Workshop, not the old Trillion tag), carried byte for byte from the bitfield-packages ui package at the commit named. Nothing was edited: imports keep the package's own `@/packages/ui/...` form, so wiring them into a build is separate work.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/ui/show/aicss/ActivityLabel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/aicss/ActivityLabel.tsx",
+      "source_identity": "1f:316304a69304a61a5e082d271b7887ce736cddccad74138059987d02d79c8d63",
+      "identity": "1f:316304a69304a61a5e082d271b7887ce736cddccad74138059987d02d79c8d63"
+    },
+    {
+      "from": "packages/ui/show/aicss/LICENSE",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/aicss/LICENSE",
+      "source_identity": "1f:ace9edef2151d8a19ceac2413b4c1eb3fb6a9625eba62a3fd608946998297e1d",
+      "identity": "1f:ace9edef2151d8a19ceac2413b4c1eb3fb6a9625eba62a3fd608946998297e1d"
+    },
+    {
+      "from": "packages/ui/show/aicss/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/aicss/README.md",
+      "source_identity": "1f:a12efdcd3b120002c9a31616094aeba574ab05e190edd132828383e98a5f1ba9",
+      "identity": "1f:a12efdcd3b120002c9a31616094aeba574ab05e190edd132828383e98a5f1ba9"
+    },
+    {
+      "from": "packages/ui/show/aicss/provenance.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/aicss/provenance.json",
+      "source_identity": "1f:f999e5ab6d19b9d463c7e3a093c65b535340e6674f7b31afce0d05ac7ca9d30a",
+      "identity": "1f:f999e5ab6d19b9d463c7e3a093c65b535340e6674f7b31afce0d05ac7ca9d30a"
+    },
+    {
+      "from": "packages/ui/show/aicss/upstream/ThinkingState.module.css",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/aicss/upstream/ThinkingState.module.css",
+      "source_identity": "1f:b289da1e28f292366e95a8e69497016d23b6e9b704ac1d9c5cc3b632f2adace2",
+      "identity": "1f:b289da1e28f292366e95a8e69497016d23b6e9b704ac1d9c5cc3b632f2adace2"
+    },
+    {
+      "from": "packages/ui/show/aicss/upstream/ThinkingState.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/aicss/upstream/ThinkingState.tsx",
+      "source_identity": "1f:9b98d96a7df052f0447c146756beb1b60574f29daad9b2f50020060e286d5aa1",
+      "identity": "1f:9b98d96a7df052f0447c146756beb1b60574f29daad9b2f50020060e286d5aa1"
+    }
+  ]
+}

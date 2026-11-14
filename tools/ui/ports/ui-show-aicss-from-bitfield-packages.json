@@ -1,0 +1,63 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-UI-SHOW-AICSS-FROM-BITFIELD-PACKAGES",
+  "status": "BASELINED",
+  "directive": {
+    "quote": "NO rewrites from scratch. Originals move wholesale (byte for byte); a rewrite that lost capability is replaced by the most complete original.",
+    "message_multihash": "1f:8f15812bab615f9bc6015ea9e6f1e3a0f496f629a0039604e482eb79dda48ce7"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/aicss/ActivityLabel.tsx",
+      "multihash": "1f:316304a69304a61a5e082d271b7887ce736cddccad74138059987d02d79c8d63",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/aicss/upstream/ThinkingState.tsx",
+      "multihash": "1f:9b98d96a7df052f0447c146756beb1b60574f29daad9b2f50020060e286d5aa1",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/ui/show/aicss/ActivityLabel.tsx"
+    },
+    {
+      "path": "tools/ui/show/aicss/upstream/ThinkingState.tsx"
+    }
+  ],
+  "preserve": [
+    "every export, prop, option and rule the files hold stays as the original wrote it"
+  ],
+  "allowed_deltas": [
+    "none: the files move byte for byte; imports keep the original's own form until a build maps it"
+  ],
+  "banned_substitutions": [
+    "a rewritten copy of any of these parts",
+    "a second copy kept in the web shell"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:316304a69304a61a5e082d271b7887ce736cddccad74138059987d02d79c8d63",
+    "target_multihash_at_baseline": "1f:316304a69304a61a5e082d271b7887ce736cddccad74138059987d02d79c8d63",
+    "recorded_at": "2026-11-14T05:00:00Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 1,
+    "required_mechanisms": [],
+    "test_refs": [
+      "node tools/move-code-between-trees check"
+    ]
+  }
+}

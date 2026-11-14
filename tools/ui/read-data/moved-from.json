@@ -1,0 +1,53 @@
+{
+  "about": "Files that no tree held any more (not trillion-apps web/parts/ui, not the Workshop, not the old Trillion tag), carried byte for byte from the bitfield-packages ui package at the commit named. Nothing was edited: imports keep the package's own `@/packages/ui/...` form, so wiring them into a build is separate work.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "a-home-folder-made-relative",
+      "find": "[/]Users[/]br[i]anakhtar[/]",
+      "replace": "",
+      "means": "A path in the maker's home folder, written from the home folder instead."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/ui/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/read-data/README.md",
+      "source_identity": "1f:6d05b6d8629d81f307bba8488f91eec0a33735e680c9399675669fa298f9e1be",
+      "identity": "1f:6d05b6d8629d81f307bba8488f91eec0a33735e680c9399675669fa298f9e1be"
+    },
+    {
+      "from": "packages/ui/read-data/reexport-binding-lint.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/read-data/reexport-binding-lint.ts",
+      "source_identity": "1f:d4f9a5243fc451f724d4cb91bfcdf5ed572e7d9af4f9a695e17f650146ffd9be",
+      "identity": "1f:d4f9a5243fc451f724d4cb91bfcdf5ed572e7d9af4f9a695e17f650146ffd9be"
+    },
+    {
+      "from": "packages/ui/read-data/time-lens/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/read-data/time-lens/README.md",
+      "source_identity": "1f:adde778707276a2abad7e944f5977c50dc76bdbad26f8df68c44816e86351e7a",
+      "identity": "1f:adde778707276a2abad7e944f5977c50dc76bdbad26f8df68c44816e86351e7a"
+    },
+    {
+      "from": "packages/ui/read-data/time-lens/time-lens.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/read-data/time-lens/time-lens.ts",
+      "source_identity": "1f:596f2102badb2d02b492b932233dce69102d04032cc5290032874db2ad23aa73",
+      "identity": "1f:596f2102badb2d02b492b932233dce69102d04032cc5290032874db2ad23aa73"
+    },
+    {
+      "from": "packages/ui/reference-adaptation-contract.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/reference-adaptation-contract.json",
+      "source_identity": "1f:89f942f1d4cf447ceff1e899be20287c8c8f5175ca80f4915c390d3d68749424",
+      "identity": "1f:9407c19c0abd0df366ee0791e9e32d7e3cb3cf3dbb7084304a59505a93fafd78",
+      "calls": [
+        "a-home-folder-made-relative"
+      ]
+    }
+  ]
+}

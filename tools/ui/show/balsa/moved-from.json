@@ -1,0 +1,141 @@
+{
+  "about": "Files that no tree held any more (not trillion-apps web/parts/ui, not the Workshop, not the old Trillion tag), carried byte for byte from the bitfield-packages ui package at the commit named. Nothing was edited: imports keep the package's own `@/packages/ui/...` form, so wiring them into a build is separate work.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/ui/show/balsa/LICENSE",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/balsa/LICENSE",
+      "source_identity": "1f:6778052123b03b98b12aca4a6064fdbf21e2437e36c4d6504c455c2378e1fe67",
+      "identity": "1f:6778052123b03b98b12aca4a6064fdbf21e2437e36c4d6504c455c2378e1fe67"
+    },
+    {
+      "from": "packages/ui/show/balsa/color-picker.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/balsa/color-picker.tsx",
+      "source_identity": "1f:b2fc17411228bc5824b86d2195c92882e7215bbe87de5eee583124ec36ce6e4c",
+      "identity": "1f:b2fc17411228bc5824b86d2195c92882e7215bbe87de5eee583124ec36ce6e4c"
+    },
+    {
+      "from": "packages/ui/show/balsa/provenance.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/balsa/provenance.json",
+      "source_identity": "1f:58ed23f8fea4d8761aba293d81741da0bbfc0468fed9ade25d6989b99ed1dabf",
+      "identity": "1f:58ed23f8fea4d8761aba293d81741da0bbfc0468fed9ade25d6989b99ed1dabf"
+    },
+    {
+      "from": "packages/ui/show/balsa/source/packages/react/src/components/ui/BalsaPortalScope.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/balsa/source/packages/react/src/components/ui/BalsaPortalScope.tsx",
+      "source_identity": "1f:11185d3d031c16689e513e23b453922f624023d474ae8343fd6931cf418e9e6a",
+      "identity": "1f:11185d3d031c16689e513e23b453922f624023d474ae8343fd6931cf418e9e6a"
+    },
+    {
+      "from": "packages/ui/show/balsa/source/packages/react/src/components/ui/Button.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/balsa/source/packages/react/src/components/ui/Button.tsx",
+      "source_identity": "1f:efb25d9bd189ae2e555ef437e9216af15b0aa95c9aaf24974549a9437b4a9ca3",
+      "identity": "1f:efb25d9bd189ae2e555ef437e9216af15b0aa95c9aaf24974549a9437b4a9ca3"
+    },
+    {
+      "from": "packages/ui/show/balsa/source/packages/react/src/components/ui/ColorPicker.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/balsa/source/packages/react/src/components/ui/ColorPicker.tsx",
+      "source_identity": "1f:51a6aa8a196fec1d44671f4c6263c51181b1b0435c47fb2b4d7d73978223dfc2",
+      "identity": "1f:51a6aa8a196fec1d44671f4c6263c51181b1b0435c47fb2b4d7d73978223dfc2"
+    },
+    {
+      "from": "packages/ui/show/balsa/source/packages/react/src/components/ui/Icon.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/balsa/source/packages/react/src/components/ui/Icon.tsx",
+      "source_identity": "1f:85fb341ed026c73586361c570c2ea45e7c8dad0a15d77c51235be9124a189811",
+      "identity": "1f:85fb341ed026c73586361c570c2ea45e7c8dad0a15d77c51235be9124a189811"
+    },
+    {
+      "from": "packages/ui/show/balsa/source/packages/react/src/components/ui/Input.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/balsa/source/packages/react/src/components/ui/Input.tsx",
+      "source_identity": "1f:2fe3164936a4672a0d38d49f3614d187334559573b6716d641cb62e9384ee473",
+      "identity": "1f:2fe3164936a4672a0d38d49f3614d187334559573b6716d641cb62e9384ee473"
+    },
+    {
+      "from": "packages/ui/show/balsa/source/packages/react/src/components/ui/Select.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/balsa/source/packages/react/src/components/ui/Select.tsx",
+      "source_identity": "1f:946548754fa0ddba0ab9e4c52259cda5de4526ec04c71b0768a9687004fa78a1",
+      "identity": "1f:946548754fa0ddba0ab9e4c52259cda5de4526ec04c71b0768a9687004fa78a1"
+    },
+    {
+      "from": "packages/ui/show/balsa/source/packages/react/src/components/ui/classes.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/balsa/source/packages/react/src/components/ui/classes.ts",
+      "source_identity": "1f:56cbd24458d823c9e9bc0a0f48460f7d530a93b455a97557a9b4c0f0b454d39b",
+      "identity": "1f:56cbd24458d823c9e9bc0a0f48460f7d530a93b455a97557a9b4c0f0b454d39b"
+    },
+    {
+      "from": "packages/ui/show/balsa/source/packages/react/src/components/ui/form.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/balsa/source/packages/react/src/components/ui/form.ts",
+      "source_identity": "1f:bf4a000e416dae4f2e68c9903d6016124c4715d5e4100421bd68f24877802caa",
+      "identity": "1f:bf4a000e416dae4f2e68c9903d6016124c4715d5e4100421bd68f24877802caa"
+    },
+    {
+      "from": "packages/ui/show/balsa/source/packages/react/src/components/ui/portal-core.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/balsa/source/packages/react/src/components/ui/portal-core.ts",
+      "source_identity": "1f:d26ef88cd06928f40916e48b4e5b2146aa036f521bba6f926ffd8152c8cd7cd1",
+      "identity": "1f:d26ef88cd06928f40916e48b4e5b2146aa036f521bba6f926ffd8152c8cd7cd1"
+    },
+    {
+      "from": "packages/ui/show/balsa/source/packages/react/src/components/ui/theme-context.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/balsa/source/packages/react/src/components/ui/theme-context.ts",
+      "source_identity": "1f:78fe5930fd039eb5641771e3274806ffbf580bfddf760f25171fe838823be880",
+      "identity": "1f:78fe5930fd039eb5641771e3274806ffbf580bfddf760f25171fe838823be880"
+    },
+    {
+      "from": "packages/ui/show/balsa/source/packages/react/src/components/ui/theme-core.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/balsa/source/packages/react/src/components/ui/theme-core.ts",
+      "source_identity": "1f:8d8d6df775ae570b55b094c9cd5c5843a63ec393eafafbc97b03a8f65a340e20",
+      "identity": "1f:8d8d6df775ae570b55b094c9cd5c5843a63ec393eafafbc97b03a8f65a340e20"
+    },
+    {
+      "from": "packages/ui/show/balsa/source/packages/react/src/components/ui/theme.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/balsa/source/packages/react/src/components/ui/theme.ts",
+      "source_identity": "1f:79ea1cfa9de2192fea02fade0fa69a443a5b6f180485d23f3d90b54f7e1d1aa4",
+      "identity": "1f:79ea1cfa9de2192fea02fade0fa69a443a5b6f180485d23f3d90b54f7e1d1aa4"
+    },
+    {
+      "from": "packages/ui/show/balsa/source/packages/react/src/components/ui/types.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/balsa/source/packages/react/src/components/ui/types.ts",
+      "source_identity": "1f:fbdfc6a111517ca04984d70c0d536fc88441067c435260d213006fd9bac520df",
+      "identity": "1f:fbdfc6a111517ca04984d70c0d536fc88441067c435260d213006fd9bac520df"
+    },
+    {
+      "from": "packages/ui/show/balsa/source/packages/shared/src/portal-core/portal-core.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/balsa/source/packages/shared/src/portal-core/portal-core.ts",
+      "source_identity": "1f:2c85a05c09d97c8c0a5011c9b215630fa5c7d4e6109df9ed31a3a9bc35e79193",
+      "identity": "1f:2c85a05c09d97c8c0a5011c9b215630fa5c7d4e6109df9ed31a3a9bc35e79193"
+    },
+    {
+      "from": "packages/ui/show/balsa/source/packages/shared/src/theme-core/theme-component-contracts.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/balsa/source/packages/shared/src/theme-core/theme-component-contracts.ts",
+      "source_identity": "1f:9b75f823d9f6a5d25ecfbc497af3bb54f1a717528c97d498c450021a4cedd1a7",
+      "identity": "1f:9b75f823d9f6a5d25ecfbc497af3bb54f1a717528c97d498c450021a4cedd1a7"
+    },
+    {
+      "from": "packages/ui/show/balsa/source/packages/shared/src/theme-core/theme-core.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/balsa/source/packages/shared/src/theme-core/theme-core.ts",
+      "source_identity": "1f:56076b439f0d95fdf146d483f821c28177a5bc1a4b15f21fb7e528fb01cded38",
+      "identity": "1f:56076b439f0d95fdf146d483f821c28177a5bc1a4b15f21fb7e528fb01cded38"
+    }
+  ]
+}

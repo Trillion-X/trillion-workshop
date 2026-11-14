@@ -1,0 +1,22 @@
+{
+  "about": "Files that no tree held any more (not trillion-apps web/parts/ui, not the Workshop, not the old Trillion tag), carried byte for byte from the bitfield-packages ui package at the commit named. Nothing was edited: imports keep the package's own `@/packages/ui/...` form, so wiring them into a build is separate work.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/ui/show/record-fields/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/record-fields/README.md",
+      "source_identity": "1f:400e64fd601ec551fd86b1cb1527019fd1219d91617ab3d80304a7b069ce5616",
+      "identity": "1f:400e64fd601ec551fd86b1cb1527019fd1219d91617ab3d80304a7b069ce5616"
+    },
+    {
+      "from": "packages/ui/show/record-fields/schema-fields.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/record-fields/schema-fields.mjs",
+      "source_identity": "1f:03d1e53090369e0881691eed70fc74d5de60ba9156e5321c8fb876076c8a6d6d",
+      "identity": "1f:03d1e53090369e0881691eed70fc74d5de60ba9156e5321c8fb876076c8a6d6d"
+    }
+  ]
+}

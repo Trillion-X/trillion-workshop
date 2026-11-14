@@ -1,0 +1,43 @@
+{
+  "about": "Files that no tree held any more (not trillion-apps web/parts/ui, not the Workshop, not the old Trillion tag), carried byte for byte from the bitfield-packages ui package at the commit named. Nothing was edited: imports keep the package's own `@/packages/ui/...` form, so wiring them into a build is separate work.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/ui/show/ask-bar/AskBar.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/ask-bar/AskBar.tsx",
+      "source_identity": "1f:11281496ee0c510a7b02f9795a8a1960858f0aa863875ba404a6cc6e913e1a7a",
+      "identity": "1f:11281496ee0c510a7b02f9795a8a1960858f0aa863875ba404a6cc6e913e1a7a"
+    },
+    {
+      "from": "packages/ui/show/ask-bar/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/ask-bar/README.md",
+      "source_identity": "1f:009ec678fa4e516c5fa8b45ef9756a8bba14fd3924b437d762e09b49b690d76a",
+      "identity": "1f:009ec678fa4e516c5fa8b45ef9756a8bba14fd3924b437d762e09b49b690d76a"
+    },
+    {
+      "from": "packages/ui/show/ask-bar/dom-composer.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/ask-bar/dom-composer.mjs",
+      "source_identity": "1f:0644a35489898506840725167baa39aae8b4fd68b583b66b940117039e0215ea",
+      "identity": "1f:0644a35489898506840725167baa39aae8b4fd68b583b66b940117039e0215ea"
+    },
+    {
+      "from": "packages/ui/show/ask-bar/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/ask-bar/index.ts",
+      "source_identity": "1f:860b2d64e963568d0c72b364a3964dbeaf0c2d76a669f26d946d107cf00c1b6d",
+      "identity": "1f:860b2d64e963568d0c72b364a3964dbeaf0c2d76a669f26d946d107cf00c1b6d"
+    },
+    {
+      "from": "packages/ui/show/ask-bar/mount-ask-bar.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/ask-bar/mount-ask-bar.tsx",
+      "source_identity": "1f:f0a7ce69425a506d9508620a52a1c35dbdcc58d1d4753beddcff70c0c5b7e6fd",
+      "identity": "1f:f0a7ce69425a506d9508620a52a1c35dbdcc58d1d4753beddcff70c0c5b7e6fd"
+    }
+  ]
+}

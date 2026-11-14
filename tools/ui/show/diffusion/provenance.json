@@ -1,0 +1,37 @@
+{
+  "source": "https://github.com/diffusionstudio/editor",
+  "version": "0.200.0",
+  "snapshot_date": "2026-08-28",
+  "upstream_commit": null,
+  "commit_note": "Local extracted source has no upstream commit metadata; exact file hashes identify this snapshot.",
+  "license": "MPL-2.0",
+  "files": [
+    {
+      "upstream_path": "web-src/components/ui/slider.tsx",
+      "copied_path": "source/slider.tsx",
+      "sha256": "89d3a5a3e000683651ee693756bd2264c96f29fe80668e08d3e811a5e7737582",
+      "upstream_sha256": "89d3a5a3e000683651ee693756bd2264c96f29fe80668e08d3e811a5e7737582",
+      "changes": "none"
+    },
+    {
+      "upstream_path": "web-src/lib/cva.ts",
+      "copied_path": "source/cva.ts",
+      "sha256": "0fb334f3e335da642ac1132c728dec0818b2c375ba1fe8689764f0d25abe440b",
+      "upstream_sha256": "0fb334f3e335da642ac1132c728dec0818b2c375ba1fe8689764f0d25abe440b",
+      "changes": "none"
+    },
+    {
+      "upstream_path": "build-contract/LICENSE",
+      "copied_path": "LICENSE",
+      "sha256": "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85",
+      "upstream_sha256": "c76f740d1521b9bed9ca7a04ad526c310493c62621b1341d623b431736533b30",
+      "changes": "trailing newline added"
+    }
+  ],
+  "integration": [
+    "range-slider.tsx adds domain-blind imperative mounting and controlled state using original Slider exports.",
+    "Original alias @/lib/cva resolved at build time; original component files unchanged.",
+    "Shared appearance compiles original Tailwind classes in a scoped container."
+  ],
+  "distribution": "Ship diffusion-controls-source.json and DIFFUSION-NOTICE.txt with bundle; disclosure contains covered files and license."
+}

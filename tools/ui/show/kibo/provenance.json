@@ -1,0 +1,26 @@
+{
+  "source": "https://www.kibo-ui.com/components/snippet",
+  "repository": "https://github.com/shadcnblocks/kibo",
+  "commit": "3d63cdb15b79d972e3dc38a10997987672f9b263",
+  "license": "MIT",
+  "license_file": "LICENSE.md",
+  "upstream_path": "packages/snippet/index.tsx",
+  "retained_source": "upstream/snippet.tsx",
+  "retained_sha256": "e33286b7ead323f457fabff91b545759156f6abbf37d80a183d3b290a29c89d5",
+  "components": [
+    "SnippetCopyButton"
+  ],
+  "adaptation": "CopyButton.tsx",
+  "consumer": "../coss/workspace-controls.tsx#mountConversation",
+  "changes": [
+    "Use the existing Coss button owner, without importing Kibo's unused tabs.",
+    "Keep keyboard and touch access; expose a real clipboard failure.",
+    "Clear success timeout on unmount and text change.",
+    "Ignore delayed clipboard responses for superseded text.",
+    "Disable duplicate copying while a request is pending."
+  ],
+  "appearance": "../../../screen-look/show/kibo-copy.css",
+  "source_hashes": {
+    "upstream/snippet.tsx": "e33286b7ead323f457fabff91b545759156f6abbf37d80a183d3b290a29c89d5"
+  }
+}

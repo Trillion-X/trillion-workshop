@@ -1,0 +1,36 @@
+{
+  "about": "Files that no tree held any more (not trillion-apps web/parts/ui, not the Workshop, not the old Trillion tag), carried byte for byte from the bitfield-packages ui package at the commit named. Nothing was edited: imports keep the package's own `@/packages/ui/...` form, so wiring them into a build is separate work.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/ui/show/marketing-page/LandingMedia.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/marketing-page/LandingMedia.tsx",
+      "source_identity": "1f:8ea7e9947d684217a0038178292c985c8c7758ef252fd742d01ce1005b959318",
+      "identity": "1f:8ea7e9947d684217a0038178292c985c8c7758ef252fd742d01ce1005b959318"
+    },
+    {
+      "from": "packages/ui/show/marketing-page/LandingMinimap.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/marketing-page/LandingMinimap.tsx",
+      "source_identity": "1f:03b407d1c098aa4d8a19c25a1089b84c52bf2915737f711e47f17a0bddfde05a",
+      "identity": "1f:03b407d1c098aa4d8a19c25a1089b84c52bf2915737f711e47f17a0bddfde05a"
+    },
+    {
+      "from": "packages/ui/show/marketing-page/MarketingPagePrimitives.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/marketing-page/MarketingPagePrimitives.tsx",
+      "source_identity": "1f:ebcb9b91c96929f50719a99eee96336446dd7e09e0e31a55cbfce695e2b519f6",
+      "identity": "1f:ebcb9b91c96929f50719a99eee96336446dd7e09e0e31a55cbfce695e2b519f6"
+    },
+    {
+      "from": "packages/ui/show/marketing-page/ProofMarquee.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/marketing-page/ProofMarquee.tsx",
+      "source_identity": "1f:2e159987575e38072c72ebe354f29503d8bf11cf606ac29574311caac9115f86",
+      "identity": "1f:2e159987575e38072c72ebe354f29503d8bf11cf606ac29574311caac9115f86"
+    }
+  ]
+}

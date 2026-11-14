@@ -1,0 +1,50 @@
+{
+  "about": "Files that no tree held any more (not trillion-apps web/parts/ui, not the Workshop, not the old Trillion tag), carried byte for byte from the bitfield-packages ui package at the commit named. Nothing was edited: imports keep the package's own `@/packages/ui/...` form, so wiring them into a build is separate work.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/ui/show/diffusion/LICENSE",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/diffusion/LICENSE",
+      "source_identity": "1f:0bf594418f6bfc3add122ef82b0a104af3976278d007bb0062e4e52a09797e2f",
+      "identity": "1f:0bf594418f6bfc3add122ef82b0a104af3976278d007bb0062e4e52a09797e2f"
+    },
+    {
+      "from": "packages/ui/show/diffusion/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/diffusion/README.md",
+      "source_identity": "1f:3fb0d83afd4c6f7779ea1f4c2ae4a62d2b8203893dbfc6bae77f55c08c327d30",
+      "identity": "1f:3fb0d83afd4c6f7779ea1f4c2ae4a62d2b8203893dbfc6bae77f55c08c327d30"
+    },
+    {
+      "from": "packages/ui/show/diffusion/provenance.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/diffusion/provenance.json",
+      "source_identity": "1f:3f81a66c4981160650a3088aa3326b35fea377dd1d3c2ffe4e2d5563a431f075",
+      "identity": "1f:3f81a66c4981160650a3088aa3326b35fea377dd1d3c2ffe4e2d5563a431f075"
+    },
+    {
+      "from": "packages/ui/show/diffusion/range-slider.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/diffusion/range-slider.tsx",
+      "source_identity": "1f:c0ad90472913059521c7ec9042f82c68a15ba22f05b23a8a516a1ea31c7fb004",
+      "identity": "1f:c0ad90472913059521c7ec9042f82c68a15ba22f05b23a8a516a1ea31c7fb004"
+    },
+    {
+      "from": "packages/ui/show/diffusion/source/cva.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/diffusion/source/cva.ts",
+      "source_identity": "1f:32dbc566c013c60a51d005848509167b7a1092e584caa214621779fe5c917b49",
+      "identity": "1f:32dbc566c013c60a51d005848509167b7a1092e584caa214621779fe5c917b49"
+    },
+    {
+      "from": "packages/ui/show/diffusion/source/slider.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/diffusion/source/slider.tsx",
+      "source_identity": "1f:8751505e37c10cd7717f2f0a537d7f8f286540d1dbe361f6d6d30eed7062ba3b",
+      "identity": "1f:8751505e37c10cd7717f2f0a537d7f8f286540d1dbe361f6d6d30eed7062ba3b"
+    }
+  ]
+}

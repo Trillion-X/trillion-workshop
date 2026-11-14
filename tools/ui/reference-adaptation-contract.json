@@ -1,0 +1,88 @@
+{
+  "schema": "ai-orchestra.reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-UI-CONSOLIDATION",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "For valuable work, inspect the actual behavior and integrate the final correct implementation into the default branch using ordinary commits.",
+    "message_sha256": "cce66acd2fc5f90f85208e7ee9d5c9099c91015cfed5263ff398626125969c38"
+  },
+  "mode": "BEHAVIORAL_PORT",
+  "sources": [
+    {
+      "path": "dev/design-systems/cult/3b855612fb524cb042cc91b65f0cd575057471cc/three-d-carousel.tsx",
+      "sha256": "943577b58d4a71d7119451675c07ffa1a528540dae5927d55b80a5eb47128556",
+      "ownership": "MIT Cult UI source; discrete caller-owned card selection adaptation"
+    },
+    {
+      "path": "packages/ui/show/coss/ui/scroll-area.tsx",
+      "sha256": "6274eace4599cba26e731b0f02cd2307d2207947162ccc575e45984e87aa269f",
+      "ownership": "MIT apps/ui source at e937becd2d5ffb5c621eed6f8b1f223cbb6051e7"
+    },
+    {
+      "path": "packages/ui/things-to-store-and-run.json",
+      "sha256": "30dc62f65cc40275e73279bc3aa4a9750756976a28bdf06e4162964cd7287f96",
+      "ownership": "repository-owned"
+    }
+  ],
+  "targets": [
+    {
+      "path": "packages/ui/show/cult/rotating-carousel.tsx"
+    },
+    {
+      "path": "packages/ui/show/scrollable-surface/ScrollViewport.tsx"
+    },
+    {
+      "path": "packages/ui/show/placeable-surface-intent/surface-completion-target.ts"
+    },
+    {
+      "path": "packages/ui/show/placeable-surface-intent/viewer-access-refs.tsx"
+    },
+    {
+      "path": "packages/ui/show/metric-row/MetricRow.tsx"
+    },
+    {
+      "path": "packages/ui/show/ask-bar/AskBar.tsx"
+    },
+    {
+      "path": "packages/ui/show/region-drop-intent/RegionDropRouter.tsx"
+    },
+    {
+      "path": "packages/ui/show/expandable-tabs/ExpandableTabs.tsx"
+    },
+    {
+      "path": "packages/ui/show/segmented-control/SegmentedControl.tsx"
+    },
+    {
+      "path": "packages/ui/show/README.md"
+    }
+  ],
+  "preserve": [
+    "Existing shared components and default metric-row presentation."
+  ],
+  "allowed_deltas": [
+    "Shared measured scroll fade and bounded dock geometry for founder sidebar repair; exact request 2026-09-12-sidebar-isolation-and-instant-opening/founder-request-verbatim.md SHA256 6a976dd42a4cec0097dd4f938fd778b5c77d41bca909e0e686cf5f2f9773051c.",
+    "Retain generic owner-declared completion targets carrying JSON-safe correlation and result data; reject prototype-inherited descriptors.",
+    "Preserve current viewer-ref input error isolation so child errors reach the outer surface boundary.",
+    "Retain generic question input and DATA-selected metric grid/presentation from inspected branch work.",
+    "Keep a visible submit control and neutral metric tone; retain shared typography spacing.",
+    "Retain nested workspace backdrop drops and flex growth from inspected consolidation branches.",
+    "Add a compact icon-choice primitive by composing the shared Button and applying shared screen-look tokens; expose caller labels only for the selected option and honor reduced motion."
+  ],
+  "banned_substitutions": [
+    "No app-specific aliases or home-screen takeover.",
+    "No runtime deployment or fabricated metric values."
+  ],
+  "baseline": {
+    "copied_before_adaptation": false,
+    "note": "Existing source behavior comparison; no external visual reference or appearance change."
+  },
+  "proof": {
+    "test_refs": [
+      "packages/ui/show/scrollable-surface/ScrollViewport.test.tsx",
+      "packages/sidebar/show/ContainedSidebar.test.tsx",
+      "packages/ui/show/ask-bar/AskBar.test.tsx",
+      "packages/ui/show/region-drop-intent/region-drop-nest.test.tsx"
+    ],
+    "note": "Local component/source checks only; no deployed appearance claim."
+  }
+}

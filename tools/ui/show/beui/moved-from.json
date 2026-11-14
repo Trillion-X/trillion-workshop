@@ -1,0 +1,67 @@
+{
+  "about": "Files that no tree held any more (not trillion-apps web/parts/ui, not the Workshop, not the old Trillion tag), carried byte for byte from the bitfield-packages ui package at the commit named. Nothing was edited: imports keep the package's own `@/packages/ui/...` form, so wiring them into a build is separate work.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "a-home-folder-made-relative",
+      "find": "[/]Users[/]br[i]anakhtar[/]",
+      "replace": "",
+      "means": "A path in the maker's home folder, written from the home folder instead."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/ui/show/beui/LICENSE",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/beui/LICENSE",
+      "source_identity": "1f:e956cc164c818092a7a41db40b9a2cc3e6032db3c8d12f8bbf063fce9f6c9ea1",
+      "identity": "1f:e956cc164c818092a7a41db40b9a2cc3e6032db3c8d12f8bbf063fce9f6c9ea1"
+    },
+    {
+      "from": "packages/ui/show/beui/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/beui/README.md",
+      "source_identity": "1f:25a6c85fee0686465e4389f000ef4bbbd1a62baa0212c9daefd3cad24ed2be9f",
+      "identity": "1f:25a6c85fee0686465e4389f000ef4bbbd1a62baa0212c9daefd3cad24ed2be9f"
+    },
+    {
+      "from": "packages/ui/show/beui/StepRow.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/beui/StepRow.tsx",
+      "source_identity": "1f:6c00d989c50cc347d026c9afee27531cd5fa095cd83b616678a6adc89e1c4e0b",
+      "identity": "1f:6c00d989c50cc347d026c9afee27531cd5fa095cd83b616678a6adc89e1c4e0b"
+    },
+    {
+      "from": "packages/ui/show/beui/activity.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/beui/activity.tsx",
+      "source_identity": "1f:62e456ac0df58e3c40599a75e2b2622956862ecd2a2cb8aaff6ee3689359e86a",
+      "identity": "1f:62e456ac0df58e3c40599a75e2b2622956862ecd2a2cb8aaff6ee3689359e86a"
+    },
+    {
+      "from": "packages/ui/show/beui/provenance.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/beui/provenance.json",
+      "source_identity": "1f:eb4d43aa61fa4a360c9405623178c9d5d1ea2c9a7768892e0c26a34e59ef7ce5",
+      "identity": "1f:56acd059e52773f7af0eaea6d8f7a5d88fc405b4012f4ab4a4adb870057f1b88",
+      "calls": [
+        "a-home-folder-made-relative"
+      ]
+    },
+    {
+      "from": "packages/ui/show/beui/reference-adaptation-contract.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/beui/reference-adaptation-contract.json",
+      "source_identity": "1f:7f2ec9d1123b67767b5ce7df748c88125e48af6d0e37e20ff3ca29eaaaa043d1",
+      "identity": "1f:7f2ec9d1123b67767b5ce7df748c88125e48af6d0e37e20ff3ca29eaaaa043d1"
+    },
+    {
+      "from": "packages/ui/show/beui/types.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/beui/types.ts",
+      "source_identity": "1f:3991002187fe49fa855a7307c0085f783bdc9f7a6176b75d12d0d1e8d7073fcd",
+      "identity": "1f:3991002187fe49fa855a7307c0085f783bdc9f7a6176b75d12d0d1e8d7073fcd"
+    }
+  ]
+}

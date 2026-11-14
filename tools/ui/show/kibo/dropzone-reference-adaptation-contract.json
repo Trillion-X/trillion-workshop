@@ -1,0 +1,23 @@
+{
+  "source": "Kibo packages/dropzone/index.tsx",
+  "license": "MIT",
+  "retained_source": "upstream/dropzone.tsx",
+  "executable_source": "dropzone.tsx",
+  "preserve": [
+    "react-dropzone file picker, batch extraction, acceptance and rejection",
+    "actual Kibo Dropzone and DropzoneEmptyState components"
+  ],
+  "adaptations": [
+    "Explicit button role and aria-label fix upstream presentation role",
+    "Coss Button/cn integration imports via build aliases",
+    "Async callback recovery and duplicate suppression",
+    "Transient external-file workspace overlay and imperative hidden picker",
+    "Visible local dropzones take precedence over the workspace overlay"
+  ],
+  "consumer": "Expansion workspace fallback and empty Library",
+  "verification": [
+    "tests/file-dropzone.test.mjs",
+    "tests/library-empty-index-recovery.browser.test.mjs"
+  ],
+  "visual_status": "Isolated fixture screenshot only; root owns real app proof"
+}

@@ -1,0 +1,24 @@
+{
+  "source": "https://github.com/starc007/ui-components",
+  "commit": "8d3fa7b4b3b4d74f53ea7096d5eb59e4479c0340",
+  "license": "MIT",
+  "original_files": [
+    {
+      "path": "dev/design-systems/source-discovery/2026-09-12-expansion-license-review/beui.dev/components/agents/agent-activity/activity-row.tsx",
+      "upstream_path": "components/agents/agent-activity/activity-row.tsx",
+      "sha256": "81eca79e4a921ab1862ff930a4177ba9098bb9f83b7356196cc1094dca2fa511"
+    },
+    {
+      "path": "dev/design-systems/source-discovery/2026-09-12-expansion-license-review/beui.dev/components/agents/agent-activity/types.ts",
+      "upstream_path": "components/agents/agent-activity/types.ts",
+      "sha256": "4e0038a255aead2d9d6aaf9dd9544346570d099928e7d361149ee8ab17ae39d3"
+    }
+  ],
+  "adaptations": [
+    "Extracted StepRow only; other unused ActivityRow variants not bundled.",
+    "Replaced motion.span opacity pulse with CSS animation under screen-look, disabled for reduced motion.",
+    "Shared cn utility import replaces upstream alias."
+  ],
+  "consumer": "dev/app_expanse/mac-app/index.html#renderActivityRows"
+}
+

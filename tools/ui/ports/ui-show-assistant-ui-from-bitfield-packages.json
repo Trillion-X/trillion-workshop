@@ -1,0 +1,3339 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-UI-SHOW-ASSISTANT-UI-FROM-BITFIELD-PACKAGES",
+  "status": "BASELINED",
+  "directive": {
+    "quote": "NO rewrites from scratch. Originals move wholesale (byte for byte); a rewrite that lost capability is replaced by the most complete original.",
+    "message_multihash": "1f:8f15812bab615f9bc6015ea9e6f1e3a0f496f629a0039604e482eb79dda48ce7"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/disclosure.tsx",
+      "multihash": "1f:cfa0d8164381949e4f026f2f4530033f80f61ff3869d52afd34a9497aa711bee",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/floating-workspace.tsx",
+      "multihash": "1f:4e5b1103d2180f72b375a8574c0125e5bf22b5031838b6e72ea6a52ee3db7c9f",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/result-actions.tsx",
+      "multihash": "1f:db461183649314546a49b8928ffff043878b8e500cb337430071158a71373c5e",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/activity-graph.tsx",
+      "multihash": "1f:eaca302358e309fafd587f81316e50b85ac10bf6a83f6dcf6e624d64708df3b1",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/agent-card.tsx",
+      "multihash": "1f:713f10242e4d7bb7a0ff3d7edee82a2f39d6d3400ffed3dd47a51f2d1ace0c17",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/agent-handoff.tsx",
+      "multihash": "1f:78a5a4cff4f893f6fc8339c2e1379d2ae459c1679c02d0c64ce517c67c9d42f8",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/agent-plan.tsx",
+      "multihash": "1f:c0ca272a51f061f3ab88b48cdee59eb46f0b0f5719bcc8436536aeb58a081ab8",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/agent-status.tsx",
+      "multihash": "1f:7ca70aa88f07bc3eec88b370e070199700e9b07df1fe531c3e0f6787f099b4b2",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/artifact-card.tsx",
+      "multihash": "1f:226ff52b418857640cab3cce72e89596fa0583d4a0f1f89c6fa41fe64e9f5dd3",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/assistant-modal.aui.radix.tsx",
+      "multihash": "1f:2b96364dfba2b1c30c2e876f8ba6342e6808b469323b7ba49d581ea6bf7793f2",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/assistant-modal.aui.tsx",
+      "multihash": "1f:060a2187bb692353f2610bd9f12c182bc9c92b8b39f7e5a1c133f748aaa271bd",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/assistant-sidebar.aui.tsx",
+      "multihash": "1f:2ecb5c233ce5a285af4667eb75cefcc3888a34d3b6bb9024f4542f2c44c1f712",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/attachment.aui.radix.tsx",
+      "multihash": "1f:8bcab43f4c63b5e14a141d9232683c1cb0d69546f29da79e6916bb8b890a159d",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/attachment.aui.tsx",
+      "multihash": "1f:90e6a87d9a0b738d7cde9261607476f6777e345893ce83d412b2ff5730301c91",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/background-inbox.tsx",
+      "multihash": "1f:c771144af8b3de0919e0c40cb0dd04a6faeeefea688034bc5e9bce7722ae3105",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/canvas-split.tsx",
+      "multihash": "1f:53686656e7ccef69e7dd8259f4cbeac31d4761773336447204818e43fbb63a8a",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/chart.tsx",
+      "multihash": "1f:e88304e58e7faff7bb3ad2a8802e09b52fb74a0a94445421a3b3dbdfcc8b1903",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/chat-panel.tsx",
+      "multihash": "1f:2c8a43a7fd287dee9f57ef284426608c0b3e04fc3fe869a86a4f5326ef1d582e",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/checkpoint-history.tsx",
+      "multihash": "1f:d2d04a5eff1489aefc6dde016f9eb4fb65c2e61705e3ebd2966d1de073ce9fac",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/code-diff.tsx",
+      "multihash": "1f:85cb1e17355151fc069b7bb465049a62314d3bc979a30a517d7c8fe4ad14e39d",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/code-runner.tsx",
+      "multihash": "1f:fe87cc5c96dbd91188f248ecc6c3026ec9fd1bcd4685a2fe71e441386035edb9",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/command-palette.tsx",
+      "multihash": "1f:802436431d10532dd1b650aa161458f84a81a22000c0aa39c3e5a8efc6d5a36b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/comparison-card.tsx",
+      "multihash": "1f:0cfd6378a2d92bf47cdd7a6bb23bb5399398f72b1cd72bff880764c3a32d0f7c",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/composer-trigger-popover.aui.tsx",
+      "multihash": "1f:d1a270a8a8cea6ca6b8bdfe88b2a58701eeaa59bbf23212bc87abb778a6105ff",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/composer.tsx",
+      "multihash": "1f:bf1262484cac9b53c1c625313ae4dcdbf7e4c5ee44b06a7aac5914c567d690b1",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/computer-use.tsx",
+      "multihash": "1f:0507ac0f1acb7e51d5b76a16276dffda1753618b02da9e7782ebac73cae76ab9",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/confidence-marker.tsx",
+      "multihash": "1f:5affb98713ec0700d2a18ec99edcb8b592ae579d2f511ee00cbef5dbeb07bc9d",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/connection-state.tsx",
+      "multihash": "1f:a4e3d2f1ea812f1c107176c78ca0ca99016d73d0b102ac3d74b453f1f6113c5e",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/context-breakdown.tsx",
+      "multihash": "1f:378e1109574c3e824a2228ebc7984c44e853cea04771d7c32552726d935c33cd",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/context-display.aui.tsx",
+      "multihash": "1f:cb26471208f8aff4c9f423f6bac6e1c3c48c8041ce28bbacd038468ad06affd0",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/context-display.radix.tsx",
+      "multihash": "1f:2d32496498cb1bb7fdac5d0e6a46fa48985b15630fa45cda5b212604d98da959",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/context-display.tsx",
+      "multihash": "1f:71a2dd1fdab61085d6c8455c895593b0fb8a8a7a03063a1934a03691023d91be",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/conversation-map.aui.tsx",
+      "multihash": "1f:62983873055a5eeb1ea237ce2a3946acbb9b5cb556cbb2229865c3c216547573",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/conversation-map.tsx",
+      "multihash": "1f:fd7e0a7d4feeab3bb4bcafd3dbe99bcdd5b8166ecbfa7a9c781899363564a32a",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/conversation-search.tsx",
+      "multihash": "1f:e2e023abc63d6fa464647a76a401b67c81d13e3a2b4a4809dd44e6fa88144d4c",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/cost-meter.tsx",
+      "multihash": "1f:8bc4776a9ae854e0a3ae440fb1e75a32e7df5a30c0a8329d973690d594b6a536",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/data-table.tsx",
+      "multihash": "1f:9bace4fa623b550d4c1c7333d0633b26270942973155277b6d0d3374f3b73be9",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/day-separator.tsx",
+      "multihash": "1f:f78ec91c132d14a63df784345c0fedbb208734b164c472fd2075c7cb423efa6c",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/diagram.tsx",
+      "multihash": "1f:b4cf6647922eec239323782863a541d116df4c315c7e768348e0081f2157273b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/directive-text.aui.tsx",
+      "multihash": "1f:f879929234421dc63b1f9107a5dbe80b5ece919260e38e3007e31d879c6474f2",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/directive-text.tsx",
+      "multihash": "1f:dab68e60941c8446e6f64c2d12da08f14ee25077897b72749e02465d054c499f",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/document-reference.tsx",
+      "multihash": "1f:b31099d990a9fd47e352a1c6866b5f7e08493ecdfc2dae537603775f69b0d90d",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/draft-restore.tsx",
+      "multihash": "1f:58df03e02a599853731512244570633543f4eb638ee3b757121dfbec82699777",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/edit-message.tsx",
+      "multihash": "1f:d2bd71ece8d158801fced1215839ff3e0da3f42eb6ca73cb5090c31c1b3b3c7e",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/elicitation-form.tsx",
+      "multihash": "1f:60bac4f2c5f8c8d443293bd136a115881e79bdcb0adfb8679f8495c01450b4f7",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/empty-state.tsx",
+      "multihash": "1f:f12cb42393b8990ee55fd842c70d05ae6161aa098bd06343b0bb7330e34af949",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/error-state.tsx",
+      "multihash": "1f:eba174ce1cf6d055d33b20a81a28d1e9f13d87e8b1617889e54098d20048f34d",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/feedback-dialog.tsx",
+      "multihash": "1f:9692bb8fc1b566ce9f6b6b7d5571a757edbcf6d6cf5cb3c9113b6a65182198e7",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/file-tree.tsx",
+      "multihash": "1f:19599311ccae544fdac12fc06a8bc5a0373a3fb5fe3755997c829d5b3057c787",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/file.tsx",
+      "multihash": "1f:ff6d014fc9ca2768d18c48c06a98a3ad80fb62e0a1412f3d89e9de05dda0addc",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/flow-canvas.tsx",
+      "multihash": "1f:890dcb4b92aadf508b71117bfce389d4282b9297af216868f47d8d223bee8f62",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/flow-expand.tsx",
+      "multihash": "1f:6351b4088e86ba8d91862084cdb12f3b1c8552dcb9da3d8f785c6e9e7cbfc017",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/flow-graph.tsx",
+      "multihash": "1f:4255503b32f5bd99876cc65c09d7bd45fc8f4e55f8b3f719fb6c2b69db27bbc7",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/flow.tsx",
+      "multihash": "1f:0b5f3a897103d817f3aaf337baead9568563a3cf9f8eb2e84a79a78ed42ce802",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/follow-up-suggestions.aui.tsx",
+      "multihash": "1f:29912a6f11cf6e1e82b2131c4ae74e6e2efb70dc62bd6a5274df3a4b40476279",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/generative-ui.tsx",
+      "multihash": "1f:489d9ae12764f8aff032cf9b2b74400e9cc01ec26a5de151a7b7d689505bab8f",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/guardrail-notice.tsx",
+      "multihash": "1f:d38b2df966ae021e64b00f7d4f5333ef185b4b0db19cc054087c7de48ed6ea49",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/heat-graph.tsx",
+      "multihash": "1f:afd1982644333a7ec8b04b058e68e417e4ac8fb397e39ae33bca2a6ba314b3be",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/image-generation.tsx",
+      "multihash": "1f:e5bc9d8c68dbab919416b529799bc9cbd112b0d73cfc977a7f817c37f87dc1ea",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/image.tsx",
+      "multihash": "1f:47a0278e7db4e6be05b538b5a105fd93c1f29968c8964e9e8ee07f9e26471777",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/inline-citation.tsx",
+      "multihash": "1f:9b972d70f4126d638c89f62780bfb2fd4aff284c89a622319fcdf821fc7b7673",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/job-progress.tsx",
+      "multihash": "1f:99f5c290252a6f2490fe8378db29147fc2c36de4cbb7179340d7a6558440230c",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/launcher-bubble.tsx",
+      "multihash": "1f:958e0b27f27208fcda11d8dfa5b257d058b80e2ee34ddf296975edb73ca53df1",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/loading-state.tsx",
+      "multihash": "1f:0ea8f419d6bbd3c1aa4ed4bc00b02652ea7cdf73a5781d5d596f3147ad1a5683",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/logos.tsx",
+      "multihash": "1f:309228ad28876015553345825e925a69584cc59db3c8c16feb7acd7dbe1e0610",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/map-answer.tsx",
+      "multihash": "1f:7c77b84e1241d8cfd20d94f567ac1b8466e5b1af3500ffc18ef82843b4770403",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/markdown-text.tsx",
+      "multihash": "1f:9ba2b4d646edcc84daf7d7b8a9ed88861bf47795685f2b555a100453660ca9db",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/math-block.tsx",
+      "multihash": "1f:3ee1943d65b2bffd592c12ca17427510cc5304f44912f4897861362277543713",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/mcp-config.aui.radix.tsx",
+      "multihash": "1f:97c1f3566b6ce167113ffc4e25bcee0531580ba5a102648e5e429d70cbc243fd",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/mcp-config.aui.tsx",
+      "multihash": "1f:d78c477cf3d0fe1c7a55fcc0b438a60f3bc3e8ed479db871778e9858e3cb530d",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/mcp-server-panel.tsx",
+      "multihash": "1f:e88d3e296c9c4f8b91ef95860b93ee4d657b352123b94994d62af20cc891c974",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/memory-chips.tsx",
+      "multihash": "1f:b177c6fd4297e1eada53de5f40625e671d92bc9812359c724da93d3d91480184",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/mermaid-diagram.aui.tsx",
+      "multihash": "1f:4d2384a8f72a677511103643635f1d0554d9e3e6b3a6df5ae008255fc7afc6bd",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/mermaid-diagram.tsx",
+      "multihash": "1f:10a2200793ba8335465555d88db22f89fe938dae459a8924c0783a4d67f30b0c",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/message-actions.tsx",
+      "multihash": "1f:0416cd0e0b19916d49041b6e3ba40b77d8848b1c4b3e01c99a30f88d6ae5f3dd",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/message-attachment.tsx",
+      "multihash": "1f:63bea984eac30bdba26d3a1276299b43b36ad1fad0db0d5d158ff84d03b7fc80",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/message-branches.tsx",
+      "multihash": "1f:8c77670bcde37de1e656c0e2d4bfe1e59393acc1cd1aa3487ec8e64630172803",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/message-pair.tsx",
+      "multihash": "1f:13475ddd207116ad3708545ff5e0e0b9330d4185cde7a012083b5001676b65ec",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/message-queue.tsx",
+      "multihash": "1f:05156b9cc5ab02880a17604f0364fc98e744e3fa74294119e96dca989de0148f",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/message-timing.aui.radix.tsx",
+      "multihash": "1f:f5a000ecafbb2978d6109588a8365e70194cab01329e632040ac9d655a147b94",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/message-timing.aui.tsx",
+      "multihash": "1f:42377760e66159f30cde2b4d26db163974e4e7dddd7b41b785c8fa964b74e0c1",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/message-timing.tsx",
+      "multihash": "1f:5740dde17ded5503e6768ce625658a028fc38a9d8e11eb1c88b7b7cc60c9d252",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/mobile-composer.tsx",
+      "multihash": "1f:a04f78416f5fbd3051861f9390431fd5290e5efe343b3451f67f1599f5f22aba",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/model-picker.tsx",
+      "multihash": "1f:60278c1764420277c4275e202f2a81e639e5353b685f2cf8ae32cecb137816e0",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/model-selector.aui.tsx",
+      "multihash": "1f:b24e69a2168d46c5b303491e7ab1eeb17e02bfa71e4f78ddf57c4f177e2f619d",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/model-selector.radix.tsx",
+      "multihash": "1f:1fee1a0b5cbf2700ae2e44ea90000c664620b34d3a1172caf9df9596a1744919",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/model-selector.tsx",
+      "multihash": "1f:f97ff46a8aba99d08b2402c9f6badfd45b57ce811a3f6f5b0f7ea67fb91c865f",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/number-ticker.tsx",
+      "multihash": "1f:1ab71883fb3fb6f77abed3e0de7e985e7c5a8fb05002b9fd65fdc81d62417c83",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/onboarding.tsx",
+      "multihash": "1f:92f52bf584b80ee2cf75d3c3b1c57e24852e58d4be92c0b1b06181e4b2693c0f",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/prompt-library.tsx",
+      "multihash": "1f:ca181d9b12efb5910bee4aee3d301943ca72520a49fb37d584b930a5bf09902e",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/quota-banner.tsx",
+      "multihash": "1f:bcb5357f0cd0a222838eeda269d366cccbb56fc95bd7d2e9c9b877aa5c9a7aca",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/quote-reply.tsx",
+      "multihash": "1f:bf2a9198ab7b071bd779140912a5f5e535f4099229542cab2f5c3bf77b17b812",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/quote.aui.tsx",
+      "multihash": "1f:b5cb8265f944af852037b37dff037ac13019cdf28fcff2b77fcfc114a8e23bfa",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/read-aloud.tsx",
+      "multihash": "1f:00c814d9e3260b4aa8ab184fb2890b78c6fb46b42c4d28b5c50173f4296e6223",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/reasoning-effort.tsx",
+      "multihash": "1f:c367628b73e234d0acbe215702658d9d78e5ae169fd571be6b1c6bdc6d3425e9",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/reasoning-panel.tsx",
+      "multihash": "1f:3c23b410ed446a8df9ea87af7e340d35bbc573a93ac65f2ca4811e04738744cf",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/reasoning.aui.tsx",
+      "multihash": "1f:665ba968e96c875c791cfe2823575eb5c3e6061d43b595f08a80f19d010c5cf8",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/reasoning.tsx",
+      "multihash": "1f:948fe977f75f1efc37a83081ef78d00f4ab86d524145b9d6604e0bbb6982666b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/recommendation-card.tsx",
+      "multihash": "1f:0c0867f8ea046c98d27ffd7a16ed671d38bfe4a13ae446df31b48a74f62de267",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/regenerate-menu.tsx",
+      "multihash": "1f:52a6e427321d82d5d55bf4d374cd8501c813adb54ff2f3353cf2b9ea51b5398b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/research-report.tsx",
+      "multihash": "1f:5a06bece5aad00fe1b1900ae29a2eac5bbe86314cf3e9c7a430db5cf24412a43",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/retrieval-chunks.tsx",
+      "multihash": "1f:89fe9efce9a8d4df33d177a14e1a4a53dffc1af7d9c8c1211a565c55ac1a8fe4",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/reviewable-diff.tsx",
+      "multihash": "1f:0926f925bd411533a59bc74f585633b96c51ca884d22abedf948b869928a189c",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/schedule-card.tsx",
+      "multihash": "1f:60a84cb15593a20c356b89e8b6ceeb7830e8900c6a9f8157ffc3e9eab02554f6",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/score-breakdown.tsx",
+      "multihash": "1f:b2fc9aac0223b6b2b4d23cc2e5c54e7d2aee6135f2a4175c3fbef4e5dcabb313",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/scroll-anchor.tsx",
+      "multihash": "1f:baf2a29417303f0147a4005f0ff18b964427cef512907a35ce36df70dee050f1",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/settings-panel.tsx",
+      "multihash": "1f:56a2472d2b2352adb7b62613a8c97a9867c79fed6c1d696caf0f7c0f0b3ea2ba",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/shared-conversation.tsx",
+      "multihash": "1f:e0de1fada34e0d18a276ff4d1fbd7796b871f7b2695882a36fac51af4bdca5e5",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/shiki-highlighter.aui.tsx",
+      "multihash": "1f:cd75fce83dfcd9fe069084b8388fab42d780418427324a4916b4bc9a1cd62fb9",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/shiki-highlighter.tsx",
+      "multihash": "1f:96118a489d733e5a6f6fd18bee446abf98b44e660642d3f587aef77d37e75fd7",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/sources.aui.tsx",
+      "multihash": "1f:b1f8e6d639e45daf2b9389e7ce366c18f57ae9e7032901506cfcffafcee8221b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/sources.tsx",
+      "multihash": "1f:0483442652dfe3055ca6bdc8b3112dbfa13ece4455579f22aa264701f9321db1",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/speaker-identity.tsx",
+      "multihash": "1f:67f8c1aa2578df52bbdcfd4d52634e31b28ba3f6a6c0dff54f23bcbb0a7bf91c",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/spec-sheet.tsx",
+      "multihash": "1f:d1936c3b555f23a8a5b676e90114f1602b186b6ad6211ebcebd5a6d4852d711f",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/stopped-run.tsx",
+      "multihash": "1f:02d06a06359314fad31007d20a6a2ea46d2936bb573a711e3c7e50de5ca2f4ce",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/streaming-text.tsx",
+      "multihash": "1f:5b7c3a6eb0ebc86cf77169cd60654898dcc0964faf2db0a476adcf9ac09bd6ce",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/subagent-list.tsx",
+      "multihash": "1f:49554b7c491c9e51a4dcad7f68b207999c0517372139b4b42a46e30070962fe2",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/suggestions.tsx",
+      "multihash": "1f:e7153344fa02799d278febbc99cd6a219bc51d982f9647f795773cd712d0a463",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/surfaces.tsx",
+      "multihash": "1f:dbfb13dcc75ac2826fc1adaac6c0951b38063db9e9a60f086c65c4c6c011cc8e",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/syntax-highlighter.tsx",
+      "multihash": "1f:994e479fc67581bac7170df9a27f1f3aa0fd1ed5c32cd479385451b2b7904054",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/terminal-block.tsx",
+      "multihash": "1f:9788ccf9ecd14ef910146f7ee446cc0cca9c1b1064f488b7ff9646256c65b499",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/thinking-indicator.tsx",
+      "multihash": "1f:a5be1c306f3fdd2dd9deab25ff8c0131c2a8ed271ebc22f27536e59a2d03f090",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/thread-list.aui.tsx",
+      "multihash": "1f:78e77f2387c357437d76a863ce13e5f21f46072d84085cdc963cf6d27f17c3cc",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/thread-list.tsx",
+      "multihash": "1f:3c13f333c2309fdb942a7d5b4c9275c041a770ac5fcd3b21ea8b55ec3db10efc",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/thread-search.tsx",
+      "multihash": "1f:43f409cbe559fb48b8c65635e78ae8ed229b30522bec81d61eeac68a9cb40f21",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/thread.aui.tsx",
+      "multihash": "1f:049d5d9d1f2fdf6827d665239160e6246bbb5c2ba1829eb4c64584c5bce5309e",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/threadlist-sidebar.aui.radix.tsx",
+      "multihash": "1f:3efea2a4dc72fcb7aa13a6c47e8ca07300034e7c94c05bb1bd77bb6286c6ba56",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/threadlist-sidebar.aui.tsx",
+      "multihash": "1f:c0a220245236f447a777f46083ab2fd079c78350d141fdc8ddff2153dd6607ad",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/timeline.tsx",
+      "multihash": "1f:edf0f023e155a6be524b532a116fd682227f460891a2f0bb504babe01e4bba64",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/todo-list.tsx",
+      "multihash": "1f:2f18cc060abd85d5d2e55a4fe44a87c6fe1f2f04ca11cb30197d0150252c8beb",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/tool-call.tsx",
+      "multihash": "1f:b39e34782bac6486cda26d26a7d7858183864827d9eeb33fe9af1655445dc984",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/tool-error.tsx",
+      "multihash": "1f:dccd20b477ffb44e93c7a6ff13c9c3399494d7826d104e65701f30c61894ccc0",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/tool-fallback.aui.tsx",
+      "multihash": "1f:a412257a8be0b13c7aecaed73d4dcea2266d47b5472fa2fbf40b68ee519ba8b6",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/tool-group.aui.tsx",
+      "multihash": "1f:f819614b6c038db0a19f3d6f04cd8eabb57bb36e98dddfdd8c637b4bae0982a1",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/tool-group.tsx",
+      "multihash": "1f:d78c37127ff2fdd981e314069a7d8f809961172070ae9934c56db01abd76531e",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/tool-timeline.tsx",
+      "multihash": "1f:9e14170af57a7dd772cde4cd72e4222cb0cf41d71f35332fd49373e90489604a",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/tooltip-icon-button.radix.tsx",
+      "multihash": "1f:36b810ac004220d45a386dab0ffc3181cfc7e21a40a67e4d67d23675f4664d25",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/tooltip-icon-button.tsx",
+      "multihash": "1f:56e69ca570e868d7d3eb96260588e118899c9f42b6667959da31beb6fbfeab19",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/trace-waterfall.tsx",
+      "multihash": "1f:4d2c8c8c265a51803c87d8e4a240c0e82dde1ea8bb505f99e0a1b49754d6ffdf",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/typing-indicator.tsx",
+      "multihash": "1f:db1fa226afa96847dd7a770f8af391d0bd3ba35577d9aae6cf8c3e2dadb6c60c",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/voice-conversation.tsx",
+      "multihash": "1f:0a42deee2af733a58c57298f36c7ecf8699b2b772f593585956a00c7ba6405d8",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/voice.aui.tsx",
+      "multihash": "1f:fdf4e118561c799098c05bd40ffee145ded0ace10a9f08e1d132a10a81234b77",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/voice.tsx",
+      "multihash": "1f:23c47e4dd56358d83df2167bf069b2e83afc93d45e2d98a58fdb683c4803e7fa",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/web-preview.tsx",
+      "multihash": "1f:6e36ed952216d89cb0476b7f3b004826a39101288e5bcd698e31ac756ae29460",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/elements/web-search.tsx",
+      "multihash": "1f:5b194953d81bf9a217f8711ee36f459a7125626f5fc994247284098f5551f00c",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/assistant-ui/utils/range.ts",
+      "multihash": "1f:cab4fe7532db74125d59f24fc3f4b940ca55bfb4bc6a972619ab9c5fb59fb12a",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/icons/discord.tsx",
+      "multihash": "1f:23b5d9fe12c8b93259fd8513fe772e242c3e25129b170789fae74a38f9ac571a",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/icons/gemini.tsx",
+      "multihash": "1f:d322ac9b2087bdce5d09c4511e087647063f405dd4a5d8e922922641bff836e5",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/icons/github.tsx",
+      "multihash": "1f:47ee382a9f1bcea6ea8daeaa2dfe5ec3156510007ac47e10941ea386e40f8427",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/icons/grok.tsx",
+      "multihash": "1f:a92b9d54302f9a2d9474504f3bf96bc0a66853e4d74a19175271243e818e5e7b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/accordion.tsx",
+      "multihash": "1f:288c7269b7371279142c061e7aa65678deb73f7ad5255c0abe4086900c6557de",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/avatar.tsx",
+      "multihash": "1f:f3b9f779b1244cdb5ca35c1638edc68829b6f2e62cd74d1faeae9fec3d7a49bf",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/badge.tsx",
+      "multihash": "1f:a5a9c8170eaf2831eaf1330d5047b9ed59f7ced8e861465f8a7aa76e4c856455",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/breadcrumb.tsx",
+      "multihash": "1f:c752449003bdbbdfcdbcab898abf7417a1bdde04731ac60f60c64ca26b084cb0",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/button.tsx",
+      "multihash": "1f:1e874bf86b9c5bb7940700f5f0390563d1d50aef809e74284594134f1a3719a9",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/callout.tsx",
+      "multihash": "1f:e48c79038f9c4b52ce050cfb1f680a117c4c7ea07ea03ed5b54e6b1ba396bf3f",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/code-block.tsx",
+      "multihash": "1f:1e8dcbdbe9bb63e2029a8454864d2884a64586700c4762040cd92442f617510b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/collapsible.tsx",
+      "multihash": "1f:f6276f69992b456dc66dd20d6f34a04a3141a605b68393ee8bd0b8c8bc5c894f",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/combobox.tsx",
+      "multihash": "1f:80fbf84726ad6ac2d1985a227762aecc9d9c7aad65a73d52c7e8640ea18486b0",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/command-tabs.tsx",
+      "multihash": "1f:72fe9abdf3e906eb66c43a4a7cb77bc3fb1f55bc9926c705204ca0ccdeb5d378",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/command.tsx",
+      "multihash": "1f:ab2060f6293f16670a7405fa24445c92317dfc8244becdc85b71441b09e3ddbf",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/definition-list.tsx",
+      "multihash": "1f:80e2bdede0bbe0c52da5c174e8af78c6f086279790e3ac4b3e3a06e16afc4367",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/dialog.tsx",
+      "multihash": "1f:c00cf58b60c3985596928f80603699a7602c62f138d24c9f44aa7bebd66f709a",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/diff-viewer.tsx",
+      "multihash": "1f:1b6344579ca2640003d82f2642b7ec5e53b47adcfca31406c288745f1bac8dc0",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/dot-matrix.tsx",
+      "multihash": "1f:931818e22d4448b748659a68e99b93cbf5affc21d4ab461ad7602a0e792a87d9",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/dropdown-menu.tsx",
+      "multihash": "1f:838e234b5b8b5456db1c9a433fb4487a0635f6180d4a130f2412b1f7e0319377",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/input.tsx",
+      "multihash": "1f:3df3917010b262f8a001ab9b76027adb3f8ea0b208828427310c06c21a957be8",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/kbd.tsx",
+      "multihash": "1f:20b851e78c71cc4c607424fffc44c304350a493c3546a80f2eda0b5b886e42ea",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/label.tsx",
+      "multihash": "1f:dcc85c1fed0530b403887122ce327f91d0aec5c73e7e38eba60874b9eb329b53",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/navigation-menu.tsx",
+      "multihash": "1f:3928f3eed824da012e42fbf6e88157a55819a47f21ffc1eac9b39b461ca7db33",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/number-roll.tsx",
+      "multihash": "1f:64ac70bd1d9c843b6bb09db49cc8eac347f9b8a6bf911a6b963b859d70a4bf85",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/select.tsx",
+      "multihash": "1f:d6c0a6b4845ad55336c7a1180217488602919416c6227a21176d49776b3276bd",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/separator.tsx",
+      "multihash": "1f:cbb78c6f8e9610ff4df1b2d2be17f335dbb0455537017ad455651c773858f96f",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/sheet.tsx",
+      "multihash": "1f:2373a494b23ee08466f8cc0b6b348df5a130da1f2580e4ab633bb17bbbe444bd",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/sidebar.tsx",
+      "multihash": "1f:89a84ff3643baed22fd122f28e9223722fb4a4e5278de03bb27bbdca04111fd4",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/skeleton.tsx",
+      "multihash": "1f:2c1e40ec98b659fb8ae1822396ec0bef38c0fdfa4f3b1e6dab5dffca1e6339fb",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/sonner.tsx",
+      "multihash": "1f:81e6b762afe5bd9039fecb1559a9f09f84d7af002eac7a3240981c74994eb984",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/steps.tsx",
+      "multihash": "1f:8e200e16e6ef4943dad1fb4805557ed751cb01b67d1e62d25e241f3ffa67bce4",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/switch.tsx",
+      "multihash": "1f:ec3ec50e6fa798cae7095eb3eee523f14b986c4f28f882970d7cf455bde8247c",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/table.tsx",
+      "multihash": "1f:3a0a968c77a8163321046c2bedb61742d812c40f3fcbaa35c88fd1fd72fa0a55",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/tabs.tsx",
+      "multihash": "1f:71ab05b33a65f7606c38aae4dd188df6f155a2c257eafe74068b67ee8886e04d",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/textarea.tsx",
+      "multihash": "1f:516a7b67965e6d06a6d5b82613b1805bd5d04be4b72832a02420c86b41be89f8",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/base/tooltip.tsx",
+      "multihash": "1f:d155f5f4fc47efc639d95e926b1057d3a15fd6f41236231daaaecaa6396d8bc8",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/accordion.tsx",
+      "multihash": "1f:188b71d171a8d28a9b99b3918418ff82c4b3899d75837b3680bfb800cb5525b3",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/alert.tsx",
+      "multihash": "1f:64149ed8c7fb295a033ac8ddf86946bcd3a9a641b97febfc6cf0e7c69246908a",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/aspect-ratio.tsx",
+      "multihash": "1f:447a751c1e87bd7e01496c9ffd56f9077b51ba029f0b41140626755ed40e7e89",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/avatar.tsx",
+      "multihash": "1f:e9870c99b6e1bb87cc455e1b814df6449299f657eb3a26aefd6388342ee34855",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/badge.tsx",
+      "multihash": "1f:66de10f14b67405f8b19e64ca91ac046d8144ea29de6ee60c7cce459230b810b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/breadcrumb.tsx",
+      "multihash": "1f:21bb2b97373754106671c0f2b3f6dcec394355187e77622071e758e0554cd8db",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/button-group.tsx",
+      "multihash": "1f:153ebc4a47365c3e12041955823759b47aae0d35827de43c01ad6405863724c9",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/button.tsx",
+      "multihash": "1f:fd8c50c4f607371204c5ae42ae5542bdc98b5aa308982165586e197480952e0c",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/calendar.tsx",
+      "multihash": "1f:40dc22d38dc8f705f8e08c183c80da85326edcb9323255c38daa1d288dfad61b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/callout.tsx",
+      "multihash": "1f:e48c79038f9c4b52ce050cfb1f680a117c4c7ea07ea03ed5b54e6b1ba396bf3f",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/card.tsx",
+      "multihash": "1f:918a23639c6353c57ff3db93ec1e7bac9ea737748327e5823c5cd88d658568bf",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/carousel.tsx",
+      "multihash": "1f:79482ebd8c0f7a0cb1b08fa335d46d356c29df0ad02597f1d1ce8bcce8e7f05c",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/chart.tsx",
+      "multihash": "1f:d9fb02b272b8e9e2fb17e48036d9db19688826bb442b73665b4a35139c87f8b4",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/checkbox.tsx",
+      "multihash": "1f:b186834ce4cf721f8fde559c1175ab550ddee88f6693c991003d9125c9a7cb04",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/code-block.tsx",
+      "multihash": "1f:1e8dcbdbe9bb63e2029a8454864d2884a64586700c4762040cd92442f617510b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/collapsible.tsx",
+      "multihash": "1f:6c75287ef8ccbcb90f135a0d6c1d55db8555b04ba963c7ebfadbbab38b88867a",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/combobox.tsx",
+      "multihash": "1f:80fbf84726ad6ac2d1985a227762aecc9d9c7aad65a73d52c7e8640ea18486b0",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/command-tabs.tsx",
+      "multihash": "1f:72fe9abdf3e906eb66c43a4a7cb77bc3fb1f55bc9926c705204ca0ccdeb5d378",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/command.tsx",
+      "multihash": "1f:83bf2b38462bd2140218ec281fab7fdfa96de20da3ecc7b09244bdd1d725e46d",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/context-menu.tsx",
+      "multihash": "1f:86efc99a92f9ee54c7bc8d5650c386a291d8974ab1b9e62a1f8c08aaefa7047c",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/definition-list.tsx",
+      "multihash": "1f:80e2bdede0bbe0c52da5c174e8af78c6f086279790e3ac4b3e3a06e16afc4367",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/dialog.tsx",
+      "multihash": "1f:46bf278862f6eae1c9954b5d78ae23477af0333b701c4b50d91c50060217d301",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/diff-viewer.tsx",
+      "multihash": "1f:1b6344579ca2640003d82f2642b7ec5e53b47adcfca31406c288745f1bac8dc0",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/direction.radix.tsx",
+      "multihash": "1f:d6ed6ddcd533d35df12df9de5b922d7ff830c035e22d3e594d8862431eb41f80",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/direction.tsx",
+      "multihash": "1f:694d186b89fb3e29f580004c978242f61bb706ddc6dec805d8c832acff7e96f9",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/dot-matrix.tsx",
+      "multihash": "1f:931818e22d4448b748659a68e99b93cbf5affc21d4ab461ad7602a0e792a87d9",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/drawer.tsx",
+      "multihash": "1f:451f5bee6742992477d786df87a73634542945144cfa8ad900858100a56a45ea",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/dropdown-menu.tsx",
+      "multihash": "1f:c2cbabf9fdd2aece2ec0657aed3a9ee6dcf40bbc8d0933b4cbf4fdf493393188",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/empty.tsx",
+      "multihash": "1f:49efafd3c94214eab70a8179155898f2c56d1ef27fb8f304ebba33b8080850ad",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/field.tsx",
+      "multihash": "1f:73d27cf5a484a5aee931c94aa20d793290a6e114b41d7f382fcb7fa32c27e60e",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/form.tsx",
+      "multihash": "1f:6125c76c8213ebf71ee3199760f12ec4983e129c7aa7a4350eef812cf7dcd2ca",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/hover-card.tsx",
+      "multihash": "1f:924160c41853f9d0c689ab16f0fc122d287fae844eb699775c15e944d1c70f9a",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/input-group.tsx",
+      "multihash": "1f:59dbb0d0328b53d184db20cd6abe97d77318d4b351add6aed0d21d76e674ebe1",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/input-otp.tsx",
+      "multihash": "1f:8b2a4df8c0993428259e95d0b96af93faf0cd90d703f057a15410ff6f1593f80",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/input.tsx",
+      "multihash": "1f:0aa0cb76806c50b8db2a39e2666a52492c00e66307dbf440840ef3e70bfab83b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/item.tsx",
+      "multihash": "1f:f1ffe06079fab2bd1bf245556d98c6b370b94b4df94658157a3c3f010e5965e1",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/kbd.tsx",
+      "multihash": "1f:20b851e78c71cc4c607424fffc44c304350a493c3546a80f2eda0b5b886e42ea",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/label.tsx",
+      "multihash": "1f:29bb94744017a72e51ede174594865d13d06a809587a80cc195c8652bee802b8",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/menubar.tsx",
+      "multihash": "1f:d7162e096edcd257cd75f28ccee3f6a1bc59fb8c1d0c996a7f9ecaade1fd5594",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/native-select.tsx",
+      "multihash": "1f:792dd56d551acda3ab24e2b0c8ffc79a53228bf6ee681ea728b8b4f8e133b60f",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/navigation-menu.tsx",
+      "multihash": "1f:1fa9acbaf76677dd84aa043d922bdaa8d6fc41eb626627dd3d65ca434443fc42",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/number-roll.tsx",
+      "multihash": "1f:64ac70bd1d9c843b6bb09db49cc8eac347f9b8a6bf911a6b963b859d70a4bf85",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/pagination.tsx",
+      "multihash": "1f:0a3840647e1e529b1ecd3270f60d8dfef570f2d40324e23f6ea4b6ad9b0ce4f4",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/popover.tsx",
+      "multihash": "1f:abc7bd508ad6e205d7fb4ceb3124b17fe85b63464a61466d082fe8e875c452ee",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/progress.tsx",
+      "multihash": "1f:bf6cbdae831eda22822b7b0d06d44fcada7edf1e25c308f5098a02b39d17d311",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/radio-group.tsx",
+      "multihash": "1f:4d82ae8667a61b54e8cff3e44eedae5890dffbacda3643f63d32f31108212781",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/resizable.tsx",
+      "multihash": "1f:793aa18041e23bd57544a075460a3fe078413c6ea7b84711a116881776ecbbf1",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/scroll-area.tsx",
+      "multihash": "1f:cbea397c82799286890661e2183aebe6db912dc1fef2ed4b72d929fea8b8476b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/select.tsx",
+      "multihash": "1f:19d1610752855578ec704d89c2f3e5d8a8d359872e64a740911af73d0aea48fa",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/separator.tsx",
+      "multihash": "1f:00951d776ba26ac18d6a1a501988bc4d6d0d83eb2b75b5a5e7cb20b60d4f998a",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/sheet.tsx",
+      "multihash": "1f:0f3d05a31c8bf4eca531f8209687ae461e08d1e858ce34053563b6b835002636",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/sidebar.tsx",
+      "multihash": "1f:613430dd49170f05bc0223d723a46307e2cdbbd688b37bfcd3127e6cbbbed0b4",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/skeleton.tsx",
+      "multihash": "1f:2c1e40ec98b659fb8ae1822396ec0bef38c0fdfa4f3b1e6dab5dffca1e6339fb",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/slider.tsx",
+      "multihash": "1f:f7abd18ce414fc3050ced40e31b7776c2170e00bdc5052c114123318bc645de6",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/sonner.tsx",
+      "multihash": "1f:81e6b762afe5bd9039fecb1559a9f09f84d7af002eac7a3240981c74994eb984",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/spinner.tsx",
+      "multihash": "1f:15e53bef39364e9f0f088599728691e06aac4232420ccf8b6423f6d74e56819b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/steps.tsx",
+      "multihash": "1f:8e200e16e6ef4943dad1fb4805557ed751cb01b67d1e62d25e241f3ffa67bce4",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/switch.tsx",
+      "multihash": "1f:1859fd4cc3b22e6b136fb240fbcf6f8b61925f67122032edf3d3cd738df4f9d2",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/table.tsx",
+      "multihash": "1f:3a0a968c77a8163321046c2bedb61742d812c40f3fcbaa35c88fd1fd72fa0a55",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/tabs.tsx",
+      "multihash": "1f:43891d54c9a118e07389204085f96bb2095dc90bdeb4aafef4e8225210ee7e1f",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/textarea.tsx",
+      "multihash": "1f:516a7b67965e6d06a6d5b82613b1805bd5d04be4b72832a02420c86b41be89f8",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/toggle-group.tsx",
+      "multihash": "1f:a9602d2c3a6445b66823d9c34fe274844385c43e905f48388a90b2b02be70006",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/toggle.tsx",
+      "multihash": "1f:cc9b02fa216f68a37f183a1c1764689f970487af945b7212b05380e3ee7f2cea",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/components/react/ui/radix/tooltip.tsx",
+      "multihash": "1f:c44f41d5c49ab86ccf079458c069be050c75dfefe6d9b6eb2858ff5731fc65af",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/globals.d.ts",
+      "multihash": "1f:7bb825a752cff8218dd4e9b0b3bc874133f5ba2964b58b12e364d64e9bceab44",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/hooks/use-attachment-src.ts",
+      "multihash": "1f:252bbb889c3b750facc77f26ad23a7023dbc7fe34fe955e0ace0b8d874b537c6",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/hooks/use-copy-to-clipboard.ts",
+      "multihash": "1f:5de34e0ccda27c39aa3f4eb2cd650d6a30f84e8241c4890f5f5caab540e9cd80",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/hooks/use-mobile.ts",
+      "multihash": "1f:04c674a868f260e3da38b6cbf73e5680dccb0943e944a12ff12fcd4c1e03fc56",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/lib/generative-ui-vocabulary-css.ts",
+      "multihash": "1f:60604c46cd25071dc75dc5d0eae57a4292f83b880840f3ac5e1e7c945431f58d",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/source/lib/utils.ts",
+      "multihash": "1f:be867fd618b22c705b3e6e6ea8b29230379332dadb221b3cdec7e14a13421a79",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/assistant-ui/tabbed-content.tsx",
+      "multihash": "1f:d488199e18dbf42f354c181b1242ccdee44baa179c3dde9bb54f1d1fe09bf305",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/ui/show/assistant-ui/disclosure.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/floating-workspace.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/result-actions.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/activity-graph.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/agent-card.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/agent-handoff.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/agent-plan.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/agent-status.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/artifact-card.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/assistant-modal.aui.radix.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/assistant-modal.aui.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/assistant-sidebar.aui.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/attachment.aui.radix.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/attachment.aui.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/background-inbox.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/canvas-split.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/chart.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/chat-panel.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/checkpoint-history.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/code-diff.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/code-runner.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/command-palette.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/comparison-card.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/composer-trigger-popover.aui.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/composer.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/computer-use.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/confidence-marker.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/connection-state.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/context-breakdown.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/context-display.aui.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/context-display.radix.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/context-display.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/conversation-map.aui.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/conversation-map.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/conversation-search.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/cost-meter.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/data-table.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/day-separator.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/diagram.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/directive-text.aui.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/directive-text.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/document-reference.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/draft-restore.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/edit-message.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/elicitation-form.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/empty-state.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/error-state.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/feedback-dialog.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/file-tree.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/file.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/flow-canvas.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/flow-expand.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/flow-graph.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/flow.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/follow-up-suggestions.aui.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/generative-ui.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/guardrail-notice.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/heat-graph.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/image-generation.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/image.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/inline-citation.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/job-progress.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/launcher-bubble.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/loading-state.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/logos.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/map-answer.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/markdown-text.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/math-block.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/mcp-config.aui.radix.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/mcp-config.aui.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/mcp-server-panel.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/memory-chips.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/mermaid-diagram.aui.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/mermaid-diagram.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/message-actions.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/message-attachment.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/message-branches.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/message-pair.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/message-queue.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/message-timing.aui.radix.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/message-timing.aui.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/message-timing.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/mobile-composer.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/model-picker.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/model-selector.aui.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/model-selector.radix.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/model-selector.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/number-ticker.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/onboarding.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/prompt-library.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/quota-banner.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/quote-reply.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/quote.aui.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/read-aloud.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/reasoning-effort.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/reasoning-panel.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/reasoning.aui.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/reasoning.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/recommendation-card.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/regenerate-menu.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/research-report.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/retrieval-chunks.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/reviewable-diff.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/schedule-card.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/score-breakdown.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/scroll-anchor.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/settings-panel.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/shared-conversation.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/shiki-highlighter.aui.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/shiki-highlighter.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/sources.aui.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/sources.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/speaker-identity.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/spec-sheet.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/stopped-run.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/streaming-text.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/subagent-list.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/suggestions.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/surfaces.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/syntax-highlighter.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/terminal-block.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/thinking-indicator.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/thread-list.aui.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/thread-list.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/thread-search.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/thread.aui.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/threadlist-sidebar.aui.radix.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/threadlist-sidebar.aui.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/timeline.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/todo-list.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/tool-call.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/tool-error.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/tool-fallback.aui.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/tool-group.aui.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/tool-group.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/tool-timeline.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/tooltip-icon-button.radix.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/tooltip-icon-button.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/trace-waterfall.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/typing-indicator.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/voice-conversation.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/voice.aui.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/voice.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/web-preview.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/elements/web-search.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/assistant-ui/utils/range.ts"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/icons/discord.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/icons/gemini.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/icons/github.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/icons/grok.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/accordion.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/avatar.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/badge.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/breadcrumb.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/button.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/callout.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/code-block.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/collapsible.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/combobox.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/command-tabs.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/command.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/definition-list.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/dialog.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/diff-viewer.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/dot-matrix.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/dropdown-menu.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/input.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/kbd.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/label.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/navigation-menu.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/number-roll.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/select.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/separator.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/sheet.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/sidebar.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/skeleton.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/sonner.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/steps.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/switch.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/table.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/tabs.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/textarea.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/base/tooltip.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/accordion.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/alert.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/aspect-ratio.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/avatar.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/badge.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/breadcrumb.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/button-group.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/button.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/calendar.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/callout.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/card.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/carousel.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/chart.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/checkbox.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/code-block.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/collapsible.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/combobox.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/command-tabs.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/command.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/context-menu.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/definition-list.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/dialog.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/diff-viewer.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/direction.radix.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/direction.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/dot-matrix.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/drawer.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/dropdown-menu.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/empty.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/field.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/form.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/hover-card.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/input-group.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/input-otp.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/input.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/item.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/kbd.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/label.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/menubar.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/native-select.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/navigation-menu.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/number-roll.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/pagination.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/popover.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/progress.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/radio-group.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/resizable.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/scroll-area.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/select.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/separator.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/sheet.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/sidebar.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/skeleton.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/slider.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/sonner.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/spinner.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/steps.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/switch.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/table.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/tabs.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/textarea.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/toggle-group.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/toggle.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/components/react/ui/radix/tooltip.tsx"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/globals.d.ts"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/hooks/use-attachment-src.ts"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/hooks/use-copy-to-clipboard.ts"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/hooks/use-mobile.ts"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/lib/generative-ui-vocabulary-css.ts"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/source/lib/utils.ts"
+    },
+    {
+      "path": "tools/ui/show/assistant-ui/tabbed-content.tsx"
+    }
+  ],
+  "preserve": [
+    "every export, prop, option and rule the files hold stays as the original wrote it"
+  ],
+  "allowed_deltas": [
+    "none: the files move byte for byte; imports keep the original's own form until a build maps it"
+  ],
+  "banned_substitutions": [
+    "a rewritten copy of any of these parts",
+    "a second copy kept in the web shell"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:cfa0d8164381949e4f026f2f4530033f80f61ff3869d52afd34a9497aa711bee",
+    "target_multihash_at_baseline": "1f:cfa0d8164381949e4f026f2f4530033f80f61ff3869d52afd34a9497aa711bee",
+    "recorded_at": "2026-11-14T05:00:00Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 1,
+    "required_mechanisms": [],
+    "test_refs": [
+      "node tools/move-code-between-trees check"
+    ]
+  }
+}

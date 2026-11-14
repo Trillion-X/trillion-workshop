@@ -1,0 +1,39 @@
+{
+  "about": "Files that no tree held any more (not trillion-apps web/parts/ui, not the Workshop, not the old Trillion tag), carried byte for byte from the bitfield-packages ui package at the commit named. Nothing was edited: imports keep the package's own `@/packages/ui/...` form, so wiring them into a build is separate work.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "a-home-folder-made-relative",
+      "find": "[/]Users[/]br[i]anakhtar[/]",
+      "replace": "",
+      "means": "A path in the maker's home folder, written from the home folder instead."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/ui/show/mvpblocks/LICENSE",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/mvpblocks/LICENSE",
+      "source_identity": "1f:96e7588eda35ebeb8e4a1118335b3108753451e963dd372cf2cd57be23703585",
+      "identity": "1f:96e7588eda35ebeb8e4a1118335b3108753451e963dd372cf2cd57be23703585"
+    },
+    {
+      "from": "packages/ui/show/mvpblocks/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/mvpblocks/README.md",
+      "source_identity": "1f:75bd91315c17e6fa05b198142c73794ec34a0920ca10161b670deb5e3bfea87e",
+      "identity": "1f:75bd91315c17e6fa05b198142c73794ec34a0920ca10161b670deb5e3bfea87e"
+    },
+    {
+      "from": "packages/ui/show/mvpblocks/provenance.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/mvpblocks/provenance.json",
+      "source_identity": "1f:1b08180531a1b48771ac340fe6507eda154441164b5aaaa409056f366c4a63b4",
+      "identity": "1f:26262f0f0750ced2aac3209de83edd2f19b03d50237f9a6afac3f46bd42f8bec",
+      "calls": [
+        "a-home-folder-made-relative"
+      ]
+    }
+  ]
+}

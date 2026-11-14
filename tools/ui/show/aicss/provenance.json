@@ -1,0 +1,30 @@
+{
+  "source": "https://www.aicss.dev/",
+  "repository": "https://github.com/kvnkld/aicss",
+  "commit": "4556a918fd8c9358d42d2b24a3866301b8ea10a2",
+  "license": "MIT",
+  "license_file": "LICENSE",
+  "components": [
+    "ThinkingState"
+  ],
+  "upstream_directory": "packages/react/src/thinking-state",
+  "retained_source": [
+    "upstream/ThinkingState.tsx",
+    "upstream/ThinkingState.module.css"
+  ],
+  "adaptation": "ActivityLabel.tsx",
+  "appearance": "packages/screen-look/show/aicss-activity.css",
+  "consumer": "../coss/workspace-controls.tsx#mountConversation",
+  "changes": [
+    "Receive the real job activity as children instead of a fixed Thinking label.",
+    "Use workspace theme colors and scoped keyframes.",
+    "Disable animation and text masking for reduced motion and forced colors."
+  ],
+  "rejected": {
+    "StreamingText": "The inspected upstream component reveals already-complete text using a timer, not provider token events."
+  },
+  "source_hashes": {
+    "upstream/ThinkingState.module.css": "0dd3017af1eebb607fbd18b4bc90c8c191a70df49d2c07c49ab78214b766b402",
+    "upstream/ThinkingState.tsx": "c8436e1266a7c2918a3053365a48a1dc94162223627a7bb694881091da85b118"
+  }
+}

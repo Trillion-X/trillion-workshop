@@ -1,0 +1,46 @@
+{
+  "about": "Files that no tree held any more (not trillion-apps web/parts/ui, not the Workshop, not the old Trillion tag), carried byte for byte from the bitfield-packages ui package at the commit named. Nothing was edited: imports keep the package's own `@/packages/ui/...` form, so wiring them into a build is separate work.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "a-social-handle-made-up",
+      "find": "j[i]bran_akh[t]ar1",
+      "replace": "example_handle",
+      "means": "A social account handle of a real person in a comment; a made-up one instead."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/ui/show/use-mark/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/use-mark/README.md",
+      "source_identity": "1f:aec0ebf08e87cbebbf3cdcccab9f6599191705ff2f321480f786c443f064f23e",
+      "identity": "1f:aec0ebf08e87cbebbf3cdcccab9f6599191705ff2f321480f786c443f064f23e"
+    },
+    {
+      "from": "packages/ui/show/use-mark/UseMark.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/use-mark/UseMark.tsx",
+      "source_identity": "1f:681d4bcd62de08b585afa1b0e2ff6873ae35951ee6e8959ef4f52771555173f8",
+      "identity": "1f:c935158d92b7999efb009713d6af206081334e70d806099e794b4052b3a57110",
+      "calls": [
+        "a-social-handle-made-up"
+      ]
+    },
+    {
+      "from": "packages/ui/show/use-mark/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/use-mark/index.ts",
+      "source_identity": "1f:f9c8a360370205e7391de505f1901ed414731c818758775e0e4c791cd39727bb",
+      "identity": "1f:f9c8a360370205e7391de505f1901ed414731c818758775e0e4c791cd39727bb"
+    },
+    {
+      "from": "packages/ui/show/use-mark/use-mark-content.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/use-mark/use-mark-content.tsx",
+      "source_identity": "1f:acf54d2edcf8b929e5e73516e47363c2211644b8e7354e3beb49f531daa5c1f0",
+      "identity": "1f:acf54d2edcf8b929e5e73516e47363c2211644b8e7354e3beb49f531daa5c1f0"
+    }
+  ]
+}

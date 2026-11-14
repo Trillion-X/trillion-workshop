@@ -1,0 +1,154 @@
+{
+  "schema": "ui.source-provenance",
+  "source": "https://github.com/pedrobalsa/balsa-ui",
+  "commit": "20115e0bb47c9ec1e7c65c0ef81a5896d520c9c7",
+  "license": "MIT",
+  "license_path": "LICENSE",
+  "components": [
+    "ColorPicker",
+    "Button",
+    "Input",
+    "Select",
+    "BalsaPortalScope"
+  ],
+  "files": [
+    {
+      "upstream_path": "packages/react/src/components/ui/ColorPicker.tsx",
+      "copied_path": "source/packages/react/src/components/ui/ColorPicker.tsx",
+      "upstream_git_blob_sha": "92ab776596c9d61815ad2cb762e11f78418ef635",
+      "sha256": "ed2e2d3c0d935fe8ad1dcfbb5a3208fa4af80d9f3b9f7c6a2d8b2f7754db60ae",
+      "copied_git_blob_sha": "92ab776596c9d61815ad2cb762e11f78418ef635"
+    },
+    {
+      "upstream_path": "packages/react/src/components/ui/BalsaPortalScope.tsx",
+      "copied_path": "source/packages/react/src/components/ui/BalsaPortalScope.tsx",
+      "upstream_git_blob_sha": "d6a9c5da52f0b17de235c9009057a6ef00f2cc36",
+      "sha256": "43b114d16b51e67ff6332f568e92757611d039cb5fdfc17205e281aa3f92eb33",
+      "copied_git_blob_sha": "d6a9c5da52f0b17de235c9009057a6ef00f2cc36"
+    },
+    {
+      "upstream_path": "packages/react/src/components/ui/Button.tsx",
+      "copied_path": "source/packages/react/src/components/ui/Button.tsx",
+      "upstream_git_blob_sha": "a7da048290180af42485836bb6d542050c8bf0ce",
+      "sha256": "23e4115cc8618bf2bc273e391f304d7b08ce01d7bbfefa6e2464f30ee853f2dd",
+      "copied_git_blob_sha": "a7da048290180af42485836bb6d542050c8bf0ce"
+    },
+    {
+      "upstream_path": "packages/react/src/components/ui/classes.ts",
+      "copied_path": "source/packages/react/src/components/ui/classes.ts",
+      "upstream_git_blob_sha": "68eecfcb833a45ecbac6efe444079e4ad466876b",
+      "sha256": "fa4972f607055a31e27682508494ae807f848ac7f62f0df5e2157563053fa57f",
+      "copied_git_blob_sha": "68eecfcb833a45ecbac6efe444079e4ad466876b"
+    },
+    {
+      "upstream_path": "packages/react/src/components/ui/form.ts",
+      "copied_path": "source/packages/react/src/components/ui/form.ts",
+      "upstream_git_blob_sha": "21f9dfc3ff9020bd0e17f66141392c6d014f6b76",
+      "sha256": "9c4daff6d61af8182443a23e9d7cef286f843be1743521650bb8a49abce407e5",
+      "copied_git_blob_sha": "21f9dfc3ff9020bd0e17f66141392c6d014f6b76"
+    },
+    {
+      "upstream_path": "packages/react/src/components/ui/Input.tsx",
+      "copied_path": "source/packages/react/src/components/ui/Input.tsx",
+      "upstream_git_blob_sha": "aa2c15ed12f36257ad29a6e204d9ddd078c4affa",
+      "sha256": "8eb91148b58a19b25cbf88f4a4abf4f3691a251c8c11ddcedf5f44383714c048",
+      "copied_git_blob_sha": "aa2c15ed12f36257ad29a6e204d9ddd078c4affa"
+    },
+    {
+      "upstream_path": "packages/react/src/components/ui/portal-core.ts",
+      "copied_path": "source/packages/react/src/components/ui/portal-core.ts",
+      "upstream_git_blob_sha": "7628bf5a0661983356a4fc5fcbdc0b0d8e320156",
+      "sha256": "a99cd555c42095b120483b2b0248643394962328fa07283bc525f85c627227db",
+      "copied_git_blob_sha": "7628bf5a0661983356a4fc5fcbdc0b0d8e320156"
+    },
+    {
+      "upstream_path": "packages/react/src/components/ui/Select.tsx",
+      "copied_path": "source/packages/react/src/components/ui/Select.tsx",
+      "upstream_git_blob_sha": "e621c48559051c36b294c32ce28657cc3ea0762f",
+      "sha256": "010ef1dfdf211f524b0449c520334148003351d57d3aee28ae75ae060c16c2a0",
+      "copied_git_blob_sha": "e621c48559051c36b294c32ce28657cc3ea0762f"
+    },
+    {
+      "upstream_path": "packages/react/src/components/ui/theme.ts",
+      "copied_path": "source/packages/react/src/components/ui/theme.ts",
+      "upstream_git_blob_sha": "d3b5dbee2a37a2e48c4f6d0e5f9a5eb98a38e819",
+      "sha256": "6e126cf3773d2aad2a9d907e7448f684eb7e3752bbba9d7ab26a9867b4769d13",
+      "copied_git_blob_sha": "d3b5dbee2a37a2e48c4f6d0e5f9a5eb98a38e819"
+    },
+    {
+      "upstream_path": "packages/react/src/components/ui/theme-context.ts",
+      "copied_path": "source/packages/react/src/components/ui/theme-context.ts",
+      "upstream_git_blob_sha": "88dad64708d851f12555cd23b8b1977645e6161b",
+      "sha256": "206f143f2b00b2afbd608237834d53ac4541ec29b3d40c1720d0a092833ca8b0",
+      "copied_git_blob_sha": "88dad64708d851f12555cd23b8b1977645e6161b"
+    },
+    {
+      "upstream_path": "packages/react/src/components/ui/types.ts",
+      "copied_path": "source/packages/react/src/components/ui/types.ts",
+      "upstream_git_blob_sha": "925bafb8b74f86f32f6b9147bb1670b40374e9d7",
+      "sha256": "c8b5ebd25a1315ac5e00955e24314ec37b258a7a2a94dabb88f29574f7a0fb9f",
+      "copied_git_blob_sha": "925bafb8b74f86f32f6b9147bb1670b40374e9d7"
+    },
+    {
+      "upstream_path": "packages/react/src/components/ui/Icon.tsx",
+      "copied_path": "source/packages/react/src/components/ui/Icon.tsx",
+      "upstream_git_blob_sha": "a13e92e232f100860337b93916a860e5b5f50d32",
+      "sha256": "4ea15c19a90732e57688a9b3e185d8cd524cabf83a70cee4f04172abd129f6b7",
+      "copied_git_blob_sha": "a13e92e232f100860337b93916a860e5b5f50d32"
+    },
+    {
+      "upstream_path": "packages/shared/src/portal-core/portal-core.ts",
+      "copied_path": "source/packages/shared/src/portal-core/portal-core.ts",
+      "upstream_git_blob_sha": "4d49aec9bc411793214a612dd2c90a76f631c638",
+      "sha256": "3ca9911d47384d23a3178b3243b2ef41998c3c62a171ec8dfa68eb896d9ca1b5",
+      "copied_git_blob_sha": "85910cd245fa967b542c9cec95044d61098daa6d",
+      "upstream_sha256": "2c661917d8eebb693a582ae2c48fee5c4208a0753e7c97693fd4178df813acfa",
+      "adaptations": [
+        "Removed upstream machine-specific review directory from JSDoc; executable behavior unchanged."
+      ]
+    },
+    {
+      "upstream_path": "packages/react/src/components/ui/theme-core.ts",
+      "copied_path": "source/packages/react/src/components/ui/theme-core.ts",
+      "upstream_git_blob_sha": "1cbfe46affc1513b7eb8d774b33ea05b75448bcc",
+      "sha256": "6151d97d2f5207437f622b96a310d9d45ee123cd5a8e3e18eb9ccdbc620817ef",
+      "copied_git_blob_sha": "1cbfe46affc1513b7eb8d774b33ea05b75448bcc"
+    },
+    {
+      "upstream_path": "packages/shared/src/theme-core/theme-core.ts",
+      "copied_path": "source/packages/shared/src/theme-core/theme-core.ts",
+      "upstream_git_blob_sha": "76636b2ae69f3ec802f8ace796272d7566a66b0e",
+      "sha256": "b9dbe8ed95164ad785df15e24e5e2103c07b2d5657f9567580dfb74b4272d70c",
+      "copied_git_blob_sha": "2fdfcbc2e2a5dddb5dbc6da0086faefc65562e27",
+      "upstream_sha256": "23489a4b0489be68fc3f398d97c5bab465a907d0bf590b9721bc452558639b3a",
+      "adaptations": [
+        "Removed upstream machine-specific review directory from JSDoc; executable behavior unchanged."
+      ]
+    },
+    {
+      "upstream_path": "packages/shared/src/theme-core/theme-component-contracts.ts",
+      "copied_path": "source/packages/shared/src/theme-core/theme-component-contracts.ts",
+      "upstream_git_blob_sha": "797bc7fce2945a1b685fcfe5cc3d9ebb09e6ff41",
+      "sha256": "15da955370c4333ce083f6977b2865bdb637dfbef4a8c12e8cd90df09503b2a1",
+      "copied_git_blob_sha": "797bc7fce2945a1b685fcfe5cc3d9ebb09e6ff41"
+    }
+  ],
+  "appearance": {
+    "owner": "packages/screen-look/show/balsa",
+    "files": [
+      "balsa-foundation.css",
+      "balsa-theme.css"
+    ],
+    "adaptations": [
+      "Original theme/foundation CSS compiled with Tailwind 4 and scoped to .balsa-color-field.",
+      "Contained panel laid out in normal form flow to fit narrow modal scroll area."
+    ]
+  },
+  "adaptations": [
+    "Source dependency closure retained with original relative paths; terminal newlines normalized by extraction.",
+    "Thin mountColorPicker adapter reuses existing shared React-root cleanup and returns getValue for imperative forms.",
+    "Uses upstream contained=true rather than a body portal; source Escape and pointer/keyboard behavior retained.",
+    "Two shared-core JSDoc comments omit an upstream machine-specific review directory; original identities remain recorded."
+  ],
+  "consumer": "Expansion project appearance settings; native color input deleted."
+}

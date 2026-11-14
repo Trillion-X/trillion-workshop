@@ -1,0 +1,9 @@
+{
+  "source": "BEUI components/agents/agent-activity/activity-row.tsx#StepRow",
+  "license": "MIT",
+  "preserve": ["status icon, wrapping label and trailing metadata", "actual current activity and explicit empty/error distinction"],
+  "adaptations": ["StepRow extraction", "shared cn import", "screen-look CSS pulse respecting reduced motion", "generic records-to-React bridge"],
+  "consumer": "Expansion Home and Live activity",
+  "verification": "tests/activity-browser.test.mjs",
+  "visual_status": "No authentic native before/after captured in this subtask"
+}

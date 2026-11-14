@@ -1,0 +1,50 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-UI-SHOW-LINE-CHART-FROM-OLD-TRILLION",
+  "status": "BASELINED",
+  "directive": {
+    "quote": "NO rewrites from scratch. Originals move wholesale (byte for byte); a rewrite that lost capability is replaced by the most complete original.",
+    "message_multihash": "1f:8f15812bab615f9bc6015ea9e6f1e3a0f496f629a0039604e482eb79dda48ce7"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "433b9b15e480f45b27a942153c69600000c1507c",
+      "path": "parts/ui/show/line-chart/LineChart.tsx",
+      "multihash": "1f:e50f0358d77bfd73c06ae6b9e6c99db2f4b52f8ac1119884c23c6f5eb77819a8",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-10-07T00:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/ui/show/line-chart/LineChart.tsx"
+    }
+  ],
+  "preserve": [
+    "every export, prop, option and rule the files hold stays as the original wrote it"
+  ],
+  "allowed_deltas": [
+    "none: the files move byte for byte; imports keep the original's own form until a build maps it"
+  ],
+  "banned_substitutions": [
+    "a rewritten copy of any of these parts",
+    "a second copy kept in the web shell"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:e50f0358d77bfd73c06ae6b9e6c99db2f4b52f8ac1119884c23c6f5eb77819a8",
+    "target_multihash_at_baseline": "1f:e50f0358d77bfd73c06ae6b9e6c99db2f4b52f8ac1119884c23c6f5eb77819a8",
+    "recorded_at": "2026-11-14T05:00:00Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 1,
+    "required_mechanisms": [],
+    "test_refs": [
+      "node tools/move-code-between-trees check"
+    ]
+  }
+}

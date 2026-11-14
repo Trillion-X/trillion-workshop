@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "strict": true,
+    "paths": {
+      "@/*": [
+        "../../../../*"
+      ]
+    },
+    "skipLibCheck": true,
+    "target": "ES2022"
+  },
+  "files": [
+    "RuleFilter.tsx",
+    "rule-tree.ts",
+    "rule-value-formats.ts",
+    "index.ts",
+    "../record-views/record-views.tsx"
+  ]
+}

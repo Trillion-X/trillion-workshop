@@ -1,0 +1,22 @@
+{
+  "about": "Files that no tree held any more (not trillion-apps web/parts/ui, not the Workshop, not the old Trillion tag), carried byte for byte from the bitfield-packages ui package at the commit named. Nothing was edited: imports keep the package's own `@/packages/ui/...` form, so wiring them into a build is separate work.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/ui/show/marquee-rail/MarqueeRail.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/marquee-rail/MarqueeRail.tsx",
+      "source_identity": "1f:afbc8665967d78967ae20247c09c6e29b455eabe8536f4904be9577b62272bf4",
+      "identity": "1f:afbc8665967d78967ae20247c09c6e29b455eabe8536f4904be9577b62272bf4"
+    },
+    {
+      "from": "packages/ui/show/marquee-rail/index.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/marquee-rail/index.ts",
+      "source_identity": "1f:f53e1a6085394f4a30dbaf0c587658be629a979def38c7ac19cea09344bd77cd",
+      "identity": "1f:f53e1a6085394f4a30dbaf0c587658be629a979def38c7ac19cea09344bd77cd"
+    }
+  ]
+}

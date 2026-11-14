@@ -1,0 +1,30 @@
+{
+  "fields": [
+    {
+      "id": "source",
+      "control": "entity-picker",
+      "label": "Source",
+      "required": true,
+      "options_source": {
+        "address": "source.offers",
+        "kind": "source.offer",
+        "value_path": "id",
+        "label_path": "label",
+        "carry_record": true,
+        "filter": {"path": "availability.is_available", "equals": true}
+      }
+    },
+    {
+      "id": "details",
+      "control": "line",
+      "label": "Details",
+      "depends_on": ["source"],
+      "enabled_when": {"path": "source.value", "equals": "source:generated"}
+    }
+  ],
+  "offers": [
+    {"kind": "source.offer", "id": "source:file", "label": "Choose a file", "availability": {"is_available": true}},
+    {"kind": "source.offer", "id": "source:connected", "label": "Saved messages", "availability": {"is_available": true}},
+    {"kind": "source.offer", "id": "source:generated", "label": "Generate a draft", "availability": {"is_available": true}}
+  ]
+}

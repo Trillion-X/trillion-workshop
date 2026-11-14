@@ -1,0 +1,63 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-UI-SHOW-HEAT-GRID-FROM-OLD-TRILLION",
+  "status": "BASELINED",
+  "directive": {
+    "quote": "NO rewrites from scratch. Originals move wholesale (byte for byte); a rewrite that lost capability is replaced by the most complete original.",
+    "message_multihash": "1f:8f15812bab615f9bc6015ea9e6f1e3a0f496f629a0039604e482eb79dda48ce7"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "433b9b15e480f45b27a942153c69600000c1507c",
+      "path": "parts/ui/show/heat-grid/HeatGrid.tsx",
+      "multihash": "1f:ac673172e5b1fea35cdd973755c4c8c8e526702338b678e79e3e3923f71337d5",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-10-07T00:00:00Z"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "433b9b15e480f45b27a942153c69600000c1507c",
+      "path": "parts/ui/show/heat-grid/index.ts",
+      "multihash": "1f:ae9a532a5733c40b6616c022802b122082649d08cc5b02aca7243230ccd4f8d4",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-10-07T00:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/ui/show/heat-grid/HeatGrid.tsx"
+    },
+    {
+      "path": "tools/ui/show/heat-grid/index.ts"
+    }
+  ],
+  "preserve": [
+    "every export, prop, option and rule the files hold stays as the original wrote it"
+  ],
+  "allowed_deltas": [
+    "none: the files move byte for byte; imports keep the original's own form until a build maps it"
+  ],
+  "banned_substitutions": [
+    "a rewritten copy of any of these parts",
+    "a second copy kept in the web shell"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:ac673172e5b1fea35cdd973755c4c8c8e526702338b678e79e3e3923f71337d5",
+    "target_multihash_at_baseline": "1f:ac673172e5b1fea35cdd973755c4c8c8e526702338b678e79e3e3923f71337d5",
+    "recorded_at": "2026-11-14T05:00:00Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 1,
+    "required_mechanisms": [],
+    "test_refs": [
+      "node tools/move-code-between-trees check"
+    ]
+  }
+}

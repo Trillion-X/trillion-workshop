@@ -1,0 +1,76 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-UI-SHOW-USE-MARK-FROM-BITFIELD-PACKAGES",
+  "status": "BASELINED",
+  "directive": {
+    "quote": "NO rewrites from scratch. Originals move wholesale (byte for byte); a rewrite that lost capability is replaced by the most complete original.",
+    "message_multihash": "1f:8f15812bab615f9bc6015ea9e6f1e3a0f496f629a0039604e482eb79dda48ce7"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/use-mark/UseMark.tsx",
+      "multihash": "1f:681d4bcd62de08b585afa1b0e2ff6873ae35951ee6e8959ef4f52771555173f8",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/use-mark/index.ts",
+      "multihash": "1f:f9c8a360370205e7391de505f1901ed414731c818758775e0e4c791cd39727bb",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/use-mark/use-mark-content.tsx",
+      "multihash": "1f:acf54d2edcf8b929e5e73516e47363c2211644b8e7354e3beb49f531daa5c1f0",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/ui/show/use-mark/UseMark.tsx"
+    },
+    {
+      "path": "tools/ui/show/use-mark/index.ts"
+    },
+    {
+      "path": "tools/ui/show/use-mark/use-mark-content.tsx"
+    }
+  ],
+  "preserve": [
+    "every export, prop, option and rule the files hold stays as the original wrote it"
+  ],
+  "allowed_deltas": [
+    "none: the files move byte for byte; imports keep the original's own form until a build maps it"
+  ],
+  "banned_substitutions": [
+    "a rewritten copy of any of these parts",
+    "a second copy kept in the web shell"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:681d4bcd62de08b585afa1b0e2ff6873ae35951ee6e8959ef4f52771555173f8",
+    "target_multihash_at_baseline": "1f:681d4bcd62de08b585afa1b0e2ff6873ae35951ee6e8959ef4f52771555173f8",
+    "recorded_at": "2026-11-14T05:00:00Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 1,
+    "required_mechanisms": [],
+    "test_refs": [
+      "node tools/move-code-between-trees check"
+    ]
+  }
+}

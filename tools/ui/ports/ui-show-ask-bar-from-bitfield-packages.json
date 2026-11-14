@@ -1,0 +1,89 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-UI-SHOW-ASK-BAR-FROM-BITFIELD-PACKAGES",
+  "status": "BASELINED",
+  "directive": {
+    "quote": "NO rewrites from scratch. Originals move wholesale (byte for byte); a rewrite that lost capability is replaced by the most complete original.",
+    "message_multihash": "1f:8f15812bab615f9bc6015ea9e6f1e3a0f496f629a0039604e482eb79dda48ce7"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/ask-bar/AskBar.tsx",
+      "multihash": "1f:11281496ee0c510a7b02f9795a8a1960858f0aa863875ba404a6cc6e913e1a7a",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/ask-bar/dom-composer.mjs",
+      "multihash": "1f:0644a35489898506840725167baa39aae8b4fd68b583b66b940117039e0215ea",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/ask-bar/index.ts",
+      "multihash": "1f:860b2d64e963568d0c72b364a3964dbeaf0c2d76a669f26d946d107cf00c1b6d",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/ask-bar/mount-ask-bar.tsx",
+      "multihash": "1f:f0a7ce69425a506d9508620a52a1c35dbdcc58d1d4753beddcff70c0c5b7e6fd",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/ui/show/ask-bar/AskBar.tsx"
+    },
+    {
+      "path": "tools/ui/show/ask-bar/dom-composer.mjs"
+    },
+    {
+      "path": "tools/ui/show/ask-bar/index.ts"
+    },
+    {
+      "path": "tools/ui/show/ask-bar/mount-ask-bar.tsx"
+    }
+  ],
+  "preserve": [
+    "every export, prop, option and rule the files hold stays as the original wrote it"
+  ],
+  "allowed_deltas": [
+    "none: the files move byte for byte; imports keep the original's own form until a build maps it"
+  ],
+  "banned_substitutions": [
+    "a rewritten copy of any of these parts",
+    "a second copy kept in the web shell"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:11281496ee0c510a7b02f9795a8a1960858f0aa863875ba404a6cc6e913e1a7a",
+    "target_multihash_at_baseline": "1f:11281496ee0c510a7b02f9795a8a1960858f0aa863875ba404a6cc6e913e1a7a",
+    "recorded_at": "2026-11-14T05:00:00Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 1,
+    "required_mechanisms": [],
+    "test_refs": [
+      "node tools/move-code-between-trees check"
+    ]
+  }
+}

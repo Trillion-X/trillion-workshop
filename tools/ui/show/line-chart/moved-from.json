@@ -1,0 +1,22 @@
+{
+  "about": "Carried byte for byte from old Trillion, the evolved copy of the bitfield-packages ui part (imports already relative to the part set). No tree held this part any more.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/ui/show/line-chart/LineChart.tsx",
+      "commit": "433b9b15e480f45b27a942153c69600000c1507c",
+      "to": "tools/ui/show/line-chart/LineChart.tsx",
+      "source_identity": "1f:e50f0358d77bfd73c06ae6b9e6c99db2f4b52f8ac1119884c23c6f5eb77819a8",
+      "identity": "1f:e50f0358d77bfd73c06ae6b9e6c99db2f4b52f8ac1119884c23c6f5eb77819a8"
+    },
+    {
+      "from": "parts/ui/show/line-chart/README.md",
+      "commit": "433b9b15e480f45b27a942153c69600000c1507c",
+      "to": "tools/ui/show/line-chart/README.md",
+      "source_identity": "1f:37842e3e4bdfd957d3e38f91f799c527c65df2a123f8bbbc8597ffa4e241d445",
+      "identity": "1f:37842e3e4bdfd957d3e38f91f799c527c65df2a123f8bbbc8597ffa4e241d445"
+    }
+  ]
+}

@@ -1,0 +1,609 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-UI-SHOW-FROM-BITFIELD-PACKAGES",
+  "status": "BASELINED",
+  "directive": {
+    "quote": "NO rewrites from scratch. Originals move wholesale (byte for byte); a rewrite that lost capability is replaced by the most complete original.",
+    "message_multihash": "1f:8f15812bab615f9bc6015ea9e6f1e3a0f496f629a0039604e482eb79dda48ce7"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/action-affordance/invoke-local-content-media-materializer-target.ts",
+      "multihash": "1f:c4f180ba9c821ba31177231fde1ada64eabfa81173cb29a490b95ea0345f6b70",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/action-feedback/index.ts",
+      "multihash": "1f:afe196e5b0e7d10489446bfda52de117ec312917bb8bd90fd83d029b2cb86a42",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/audio-clip-player/index.ts",
+      "multihash": "1f:e753aa8f4dff14d1f4a5da664e6cdf35faf3bfd1d4a9b5286fd9ac50b44a9377",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/blind-registry/index.ts",
+      "multihash": "1f:3c01fef6bd9e4ebb104b08fbab057f12677da2b6d954ba5b2b39e5e5202b4271",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/brand/BitfieldBrand.tsx",
+      "multihash": "1f:ebd1a17069fc53e5a4dc70aff1efffb8ca61e7c1e7b2613db55e63e2e794dd7b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/canvas-tools/canvas-tool-types.ts",
+      "multihash": "1f:e5c9e9bec4990901e647da84d74d58317e8e9158920bfd9caace5ae2b5c5328f",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/canvas-viewport/index.ts",
+      "multihash": "1f:6fb024038d52204b6b5f6f352222af42afddd8c86b81ed2baaa91a94285673ac",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/caption-overlay/index.ts",
+      "multihash": "1f:1b8a9f4c26d05afab683deaad11d9b8e420a5df3608abecbfc885ac18416fe02",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/coss/app-navigation.tsx",
+      "multihash": "1f:699c04ddd4951c2cdf793ea4ebfd0f84fbab0da3bab92f99232e6678d1c493b7",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/coss/ui/spinner.tsx",
+      "multihash": "1f:9462c80e28bb9c81cee01337b9b06ea2fc48f24d79ef7ab5225c70d81a657c59",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/date-picker/index.ts",
+      "multihash": "1f:55d254ef8519077ccfc3a8f655129916c931985a7f0a9431815f8379a6f5c4e8",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/divider/index.ts",
+      "multihash": "1f:a90be30ee62143d562e93bab880f4382926727c2acbcaca7c42a6b82297a49e2",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/floating-panel-opener/FloatingView.tsx",
+      "multihash": "1f:966bde40a9c8bf6c34cdae73f9e3a8e74b3af701845da649d10b007b9a3a7c91",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/format-money.ts",
+      "multihash": "1f:d49d33743b61c6eaf0f7885218a8334f394f94cc8c14f5e29671a6e5b5c3c389",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/graph-layout/index.ts",
+      "multihash": "1f:0470e43d0179625e096a44d5280d7e48cc390bb4167bb80bc6174068055c44d3",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/graph-status/index.ts",
+      "multihash": "1f:9009293fa347726e9a1b826594aace1492743a08c6d340eafa74418cb0e21861",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/group/index.ts",
+      "multihash": "1f:b8bcc446bed248e244e7ad46cc1404ef1068d4443dfe3bc3c904db7e89acba30",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/inline-edit-text/index.ts",
+      "multihash": "1f:8df99254312dc098a863e10876762e064299614df3b7ec8e83beeb6380519e78",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/kibo/upstream/snippet.tsx",
+      "multihash": "1f:c02eb52b4b83175f7833ed5a0aa1a9557aa0db9cb2a33bf703d46fa06b2541c0",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/media-bytes/index.ts",
+      "multihash": "1f:f201a299be53de4f17ee0d15dc67b8226ff8e74593cdfcd5d23f33dcae16e6a8",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/media-frame/index.ts",
+      "multihash": "1f:5ffbd1962595396bb01154caf4b9713838247569c13d5a8ffdaad359d55b8149",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/metric-row/index.ts",
+      "multihash": "1f:be4067d8518792db24779d6b845c4d157d0a5830c073c71285e41bf81a046bc9",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/overlay-layer/index.ts",
+      "multihash": "1f:5afc3575b01ca9a51711ef93cf8b92aab4a8529b6190e837a94330e19567584b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/record-views/test-layout.ts",
+      "multihash": "1f:345aa6b8b1ca6a5a775c502f51e1fb55ebba2ff77bc47298c79bdf29c9ea5ec9",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/request/safe-json-request.mjs",
+      "multihash": "1f:653a2bda825b44c340c1fad48ae88ad71032e5ab088a4018c3c9cc7796248077",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/rich-text-editor/index.ts",
+      "multihash": "1f:d563e180365e0adf5b7e3a461e0b5ecbbe5d4c17448f49a2b8c00d3f8cf2f321",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/rule-filter/formula-engine-for-tests.ts",
+      "multihash": "1f:6e4f932ecd8ca445258b989495aeb2e9021ecc3b3a1acfc1cc668d0d28b8ffcc",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/selectable-pill-bar/index.ts",
+      "multihash": "1f:8a2d71a0601ad5a60d79d15a727757d9fff473091953e1f8374cd0042b04d96f",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/selection/adjustment-editor.mjs",
+      "multihash": "1f:152f7526ac2b64f98b86eafedffcdf2e4c94d1d9bb3018593e621f5a498ae191",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/selection/context-inspector.mjs",
+      "multihash": "1f:f639abca8cd1afbe6c2441cb5d343d02fd2ebb8d199d24ab55909a7bab5d7987",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/selection/dom-action-menu.mjs",
+      "multihash": "1f:ab81863da6f7995f76eaf1775ef98cd1e0a1268caaeabebfc5ec91ad7e9e9a2d",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/selection/dom-choice-list.mjs",
+      "multihash": "1f:1ee54e7f1f2f55bee74aadf17dbbc88acff5b9218ded2c7c216cfc0f4d925896",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/selection/edit-recovery.mjs",
+      "multihash": "1f:eb04a93363903f65fa7722e26edaeb4d0c0efc8485baa29f2ad71df195cbfff0",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/selection/item-identity.mjs",
+      "multihash": "1f:ee0c576c002bbdd355e8a381efc6b954786ae5beb57e8048825f26405c6b806b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/selection/latest-preview.mjs",
+      "multihash": "1f:11975362946d747dcb104129fc9f2ed2b2ea5659da38d39863635ca80029094c",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/selection/media-shelf.mjs",
+      "multihash": "1f:ed1d08fa3a34c7e9b570391c02e452d6fcb9026303671e6accfecce2162fa27c",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/selection/timed-choice-editor.mjs",
+      "multihash": "1f:e1d1158793f13f07bb35d85ae7343af4aaa6bc64961ec419a0d895291f38bad8",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/selection/useMediaPlacement.tsx",
+      "multihash": "1f:dd513f352d0975f65873d84661e18693254eccb7412ace3d0213713cac3a1c65",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/server-rendered-page/pending-destination-html.mjs",
+      "multihash": "1f:69a22adc0203dcb8b721a2f70dc2f17cdc2e3ee4ecf8553f8cefa40d7b279ea0",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/split-dividers/mount-resizable-columns.tsx",
+      "multihash": "1f:015aa5c517f19e98f917641c3259883cb950ab9c95a94cfe8cd923027f6230a4",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/text-overlay/index.ts",
+      "multihash": "1f:f6b084fe0a7c06f096f23cee39114fd55b3eb9ca71bbcf7afd7023060b090a1d",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/tool-tile/index.ts",
+      "multihash": "1f:ecbcf01d4937b717765c8d4730130be80c589c220f982c938dea968a93bf8dd5",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/transport-bar/index.ts",
+      "multihash": "1f:d46906fd73e06ec51635034c4eec42f95606a0d59baaa668282c9392c551ebdf",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/waveform/index.ts",
+      "multihash": "1f:49066216c782df0e09d06c6faf1bffc823d91a40ae446930c2b2e6b28eb4eb74",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/ui/show/action-affordance/invoke-local-content-media-materializer-target.ts"
+    },
+    {
+      "path": "tools/ui/show/action-feedback/index.ts"
+    },
+    {
+      "path": "tools/ui/show/audio-clip-player/index.ts"
+    },
+    {
+      "path": "tools/ui/show/blind-registry/index.ts"
+    },
+    {
+      "path": "tools/ui/show/brand/BitfieldBrand.tsx"
+    },
+    {
+      "path": "tools/ui/show/canvas-tools/canvas-tool-types.ts"
+    },
+    {
+      "path": "tools/ui/show/canvas-viewport/index.ts"
+    },
+    {
+      "path": "tools/ui/show/caption-overlay/index.ts"
+    },
+    {
+      "path": "tools/ui/show/coss/app-navigation.tsx"
+    },
+    {
+      "path": "tools/ui/show/coss/ui/spinner.tsx"
+    },
+    {
+      "path": "tools/ui/show/date-picker/index.ts"
+    },
+    {
+      "path": "tools/ui/show/divider/index.ts"
+    },
+    {
+      "path": "tools/ui/show/floating-panel-opener/FloatingView.tsx"
+    },
+    {
+      "path": "tools/ui/show/format-money.ts"
+    },
+    {
+      "path": "tools/ui/show/graph-layout/index.ts"
+    },
+    {
+      "path": "tools/ui/show/graph-status/index.ts"
+    },
+    {
+      "path": "tools/ui/show/group/index.ts"
+    },
+    {
+      "path": "tools/ui/show/inline-edit-text/index.ts"
+    },
+    {
+      "path": "tools/ui/show/kibo/upstream/snippet.tsx"
+    },
+    {
+      "path": "tools/ui/show/media-bytes/index.ts"
+    },
+    {
+      "path": "tools/ui/show/media-frame/index.ts"
+    },
+    {
+      "path": "tools/ui/show/metric-row/index.ts"
+    },
+    {
+      "path": "tools/ui/show/overlay-layer/index.ts"
+    },
+    {
+      "path": "tools/ui/show/record-views/test-layout.ts"
+    },
+    {
+      "path": "tools/ui/show/request/safe-json-request.mjs"
+    },
+    {
+      "path": "tools/ui/show/rich-text-editor/index.ts"
+    },
+    {
+      "path": "tools/ui/show/rule-filter/formula-engine-for-tests.ts"
+    },
+    {
+      "path": "tools/ui/show/selectable-pill-bar/index.ts"
+    },
+    {
+      "path": "tools/ui/show/selection/adjustment-editor.mjs"
+    },
+    {
+      "path": "tools/ui/show/selection/context-inspector.mjs"
+    },
+    {
+      "path": "tools/ui/show/selection/dom-action-menu.mjs"
+    },
+    {
+      "path": "tools/ui/show/selection/dom-choice-list.mjs"
+    },
+    {
+      "path": "tools/ui/show/selection/edit-recovery.mjs"
+    },
+    {
+      "path": "tools/ui/show/selection/item-identity.mjs"
+    },
+    {
+      "path": "tools/ui/show/selection/latest-preview.mjs"
+    },
+    {
+      "path": "tools/ui/show/selection/media-shelf.mjs"
+    },
+    {
+      "path": "tools/ui/show/selection/timed-choice-editor.mjs"
+    },
+    {
+      "path": "tools/ui/show/selection/useMediaPlacement.tsx"
+    },
+    {
+      "path": "tools/ui/show/server-rendered-page/pending-destination-html.mjs"
+    },
+    {
+      "path": "tools/ui/show/split-dividers/mount-resizable-columns.tsx"
+    },
+    {
+      "path": "tools/ui/show/text-overlay/index.ts"
+    },
+    {
+      "path": "tools/ui/show/tool-tile/index.ts"
+    },
+    {
+      "path": "tools/ui/show/transport-bar/index.ts"
+    },
+    {
+      "path": "tools/ui/show/waveform/index.ts"
+    }
+  ],
+  "preserve": [
+    "every export, prop, option and rule the files hold stays as the original wrote it"
+  ],
+  "allowed_deltas": [
+    "none: the files move byte for byte; imports keep the original's own form until a build maps it"
+  ],
+  "banned_substitutions": [
+    "a rewritten copy of any of these parts",
+    "a second copy kept in the web shell"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:c4f180ba9c821ba31177231fde1ada64eabfa81173cb29a490b95ea0345f6b70",
+    "target_multihash_at_baseline": "1f:c4f180ba9c821ba31177231fde1ada64eabfa81173cb29a490b95ea0345f6b70",
+    "recorded_at": "2026-11-14T05:00:00Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 1,
+    "required_mechanisms": [],
+    "test_refs": [
+      "node tools/move-code-between-trees check"
+    ]
+  }
+}

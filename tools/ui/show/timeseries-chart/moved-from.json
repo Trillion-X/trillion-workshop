@@ -1,0 +1,22 @@
+{
+  "about": "Files that no tree held any more (not trillion-apps web/parts/ui, not the Workshop, not the old Trillion tag), carried byte for byte from the bitfield-packages ui package at the commit named. Nothing was edited: imports keep the package's own `@/packages/ui/...` form, so wiring them into a build is separate work.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/ui/show/timeseries-chart/InteractiveTimeseriesChart.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/timeseries-chart/InteractiveTimeseriesChart.tsx",
+      "source_identity": "1f:8c55a98b824aa08f6933966879efa92a8c0e975ea4b8fada0a04e47975ada85c",
+      "identity": "1f:8c55a98b824aa08f6933966879efa92a8c0e975ea4b8fada0a04e47975ada85c"
+    },
+    {
+      "from": "packages/ui/show/timeseries-chart/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/ui/show/timeseries-chart/README.md",
+      "source_identity": "1f:66a6907d18765bfa23e46711013a4fa4c058ef38a73e2ea5c5adf9105b250fcd",
+      "identity": "1f:66a6907d18765bfa23e46711013a4fa4c058ef38a73e2ea5c5adf9105b250fcd"
+    }
+  ]
+}

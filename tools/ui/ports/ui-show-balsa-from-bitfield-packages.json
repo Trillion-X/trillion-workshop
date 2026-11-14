@@ -1,0 +1,258 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-UI-SHOW-BALSA-FROM-BITFIELD-PACKAGES",
+  "status": "BASELINED",
+  "directive": {
+    "quote": "NO rewrites from scratch. Originals move wholesale (byte for byte); a rewrite that lost capability is replaced by the most complete original.",
+    "message_multihash": "1f:8f15812bab615f9bc6015ea9e6f1e3a0f496f629a0039604e482eb79dda48ce7"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/balsa/color-picker.tsx",
+      "multihash": "1f:b2fc17411228bc5824b86d2195c92882e7215bbe87de5eee583124ec36ce6e4c",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/balsa/source/packages/react/src/components/ui/BalsaPortalScope.tsx",
+      "multihash": "1f:11185d3d031c16689e513e23b453922f624023d474ae8343fd6931cf418e9e6a",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/balsa/source/packages/react/src/components/ui/Button.tsx",
+      "multihash": "1f:efb25d9bd189ae2e555ef437e9216af15b0aa95c9aaf24974549a9437b4a9ca3",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/balsa/source/packages/react/src/components/ui/ColorPicker.tsx",
+      "multihash": "1f:51a6aa8a196fec1d44671f4c6263c51181b1b0435c47fb2b4d7d73978223dfc2",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/balsa/source/packages/react/src/components/ui/Icon.tsx",
+      "multihash": "1f:85fb341ed026c73586361c570c2ea45e7c8dad0a15d77c51235be9124a189811",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/balsa/source/packages/react/src/components/ui/Input.tsx",
+      "multihash": "1f:2fe3164936a4672a0d38d49f3614d187334559573b6716d641cb62e9384ee473",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/balsa/source/packages/react/src/components/ui/Select.tsx",
+      "multihash": "1f:946548754fa0ddba0ab9e4c52259cda5de4526ec04c71b0768a9687004fa78a1",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/balsa/source/packages/react/src/components/ui/classes.ts",
+      "multihash": "1f:56cbd24458d823c9e9bc0a0f48460f7d530a93b455a97557a9b4c0f0b454d39b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/balsa/source/packages/react/src/components/ui/form.ts",
+      "multihash": "1f:bf4a000e416dae4f2e68c9903d6016124c4715d5e4100421bd68f24877802caa",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/balsa/source/packages/react/src/components/ui/portal-core.ts",
+      "multihash": "1f:d26ef88cd06928f40916e48b4e5b2146aa036f521bba6f926ffd8152c8cd7cd1",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/balsa/source/packages/react/src/components/ui/theme-context.ts",
+      "multihash": "1f:78fe5930fd039eb5641771e3274806ffbf580bfddf760f25171fe838823be880",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/balsa/source/packages/react/src/components/ui/theme-core.ts",
+      "multihash": "1f:8d8d6df775ae570b55b094c9cd5c5843a63ec393eafafbc97b03a8f65a340e20",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/balsa/source/packages/react/src/components/ui/theme.ts",
+      "multihash": "1f:79ea1cfa9de2192fea02fade0fa69a443a5b6f180485d23f3d90b54f7e1d1aa4",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/balsa/source/packages/react/src/components/ui/types.ts",
+      "multihash": "1f:fbdfc6a111517ca04984d70c0d536fc88441067c435260d213006fd9bac520df",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/balsa/source/packages/shared/src/portal-core/portal-core.ts",
+      "multihash": "1f:2c85a05c09d97c8c0a5011c9b215630fa5c7d4e6109df9ed31a3a9bc35e79193",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/balsa/source/packages/shared/src/theme-core/theme-component-contracts.ts",
+      "multihash": "1f:9b75f823d9f6a5d25ecfbc497af3bb54f1a717528c97d498c450021a4cedd1a7",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "path": "packages/ui/show/balsa/source/packages/shared/src/theme-core/theme-core.ts",
+      "multihash": "1f:56076b439f0d95fdf146d483f821c28177a5bc1a4b15f21fb7e528fb01cded38",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-20T00:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/ui/show/balsa/color-picker.tsx"
+    },
+    {
+      "path": "tools/ui/show/balsa/source/packages/react/src/components/ui/BalsaPortalScope.tsx"
+    },
+    {
+      "path": "tools/ui/show/balsa/source/packages/react/src/components/ui/Button.tsx"
+    },
+    {
+      "path": "tools/ui/show/balsa/source/packages/react/src/components/ui/ColorPicker.tsx"
+    },
+    {
+      "path": "tools/ui/show/balsa/source/packages/react/src/components/ui/Icon.tsx"
+    },
+    {
+      "path": "tools/ui/show/balsa/source/packages/react/src/components/ui/Input.tsx"
+    },
+    {
+      "path": "tools/ui/show/balsa/source/packages/react/src/components/ui/Select.tsx"
+    },
+    {
+      "path": "tools/ui/show/balsa/source/packages/react/src/components/ui/classes.ts"
+    },
+    {
+      "path": "tools/ui/show/balsa/source/packages/react/src/components/ui/form.ts"
+    },
+    {
+      "path": "tools/ui/show/balsa/source/packages/react/src/components/ui/portal-core.ts"
+    },
+    {
+      "path": "tools/ui/show/balsa/source/packages/react/src/components/ui/theme-context.ts"
+    },
+    {
+      "path": "tools/ui/show/balsa/source/packages/react/src/components/ui/theme-core.ts"
+    },
+    {
+      "path": "tools/ui/show/balsa/source/packages/react/src/components/ui/theme.ts"
+    },
+    {
+      "path": "tools/ui/show/balsa/source/packages/react/src/components/ui/types.ts"
+    },
+    {
+      "path": "tools/ui/show/balsa/source/packages/shared/src/portal-core/portal-core.ts"
+    },
+    {
+      "path": "tools/ui/show/balsa/source/packages/shared/src/theme-core/theme-component-contracts.ts"
+    },
+    {
+      "path": "tools/ui/show/balsa/source/packages/shared/src/theme-core/theme-core.ts"
+    }
+  ],
+  "preserve": [
+    "every export, prop, option and rule the files hold stays as the original wrote it"
+  ],
+  "allowed_deltas": [
+    "none: the files move byte for byte; imports keep the original's own form until a build maps it"
+  ],
+  "banned_substitutions": [
+    "a rewritten copy of any of these parts",
+    "a second copy kept in the web shell"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:b2fc17411228bc5824b86d2195c92882e7215bbe87de5eee583124ec36ce6e4c",
+    "target_multihash_at_baseline": "1f:b2fc17411228bc5824b86d2195c92882e7215bbe87de5eee583124ec36ce6e4c",
+    "recorded_at": "2026-11-14T05:00:00Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 1,
+    "required_mechanisms": [],
+    "test_refs": [
+      "node tools/move-code-between-trees check"
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "references": [
+    {
+      "source": "https://21st.dev/@victorwelander/components/expandable-tabs",
+      "registry_id": 1428,
+      "license": "MIT",
+      "use": "Per-action expansion: the hovered or focused action shows its label; timing and icon-first anatomy."
+    },
+    {
+      "source": "https://21st.dev/r/arihantcodes_1f7b8c4d/expandable-action-bar (beui.dev blocks/expandable-action-bar)",
+      "registry_id": 26780,
+      "license": "MIT",
+      "use": "Track anatomy: one rounded track with 4px padding, 32px items, a shared hover highlight."
+    }
+  ],
+  "mobbin_references": [
+    "https://mobbin.com/screens/208d8a82-6e02-4fb1-b5c6-700674050bef",
+    "https://mobbin.com/screens/aaa9a2df-dbb8-4392-a5ee-154640a026cd"
+  ],
+  "retrieved": "2026-09-27",
+  "code_copied": false,
+  "adaptations": [
+    "No upstream code copied: the row enhances buttons a non-React page already owns instead of rendering its own items.",
+    "Label expansion is CSS (max-width and opacity) so page-owned buttons need no animation library.",
+    "Colours read the page's surface, line and text custom properties."
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "about": "Carried byte for byte from old Trillion, the evolved copy of the bitfield-packages ui part (imports already relative to the part set). No tree held this part any more.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/ui/show/selectable-avatar/SelectableAvatar.tsx",
+      "commit": "433b9b15e480f45b27a942153c69600000c1507c",
+      "to": "tools/ui/show/selectable-avatar/SelectableAvatar.tsx",
+      "source_identity": "1f:ddf9d3b6f4a80504e0e5f964e5db6c8cc647ace1a5e320ddd3d5ba88e931b1d2",
+      "identity": "1f:ddf9d3b6f4a80504e0e5f964e5db6c8cc647ace1a5e320ddd3d5ba88e931b1d2"
+    },
+    {
+      "from": "parts/ui/show/selectable-avatar/index.ts",
+      "commit": "433b9b15e480f45b27a942153c69600000c1507c",
+      "to": "tools/ui/show/selectable-avatar/index.ts",
+      "source_identity": "1f:788d6dbe4ac6989e25b19fcc2ff94b86b8a4c992e83c3184a2ddb35888ebd01d",
+      "identity": "1f:788d6dbe4ac6989e25b19fcc2ff94b86b8a4c992e83c3184a2ddb35888ebd01d"
+    }
+  ]
+}

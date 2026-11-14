@@ -1,0 +1,17 @@
+{
+  "source": "https://github.com/subhadeeproy3902/mvpblocks",
+  "commit": "2c7995909230df65e134c37b36827a22a2c98da3",
+  "license": "BSD-3-Clause",
+  "original": "components/mvpblocks/chatbot-ui/working-chatbot.tsx",
+  "local_source": "dev/ui code from internet/ai-interface/mvpblocks/source",
+  "consumer": "ExpansionControls.mountChat, mountConversation, mountComposer",
+  "adaptations": [
+    "Existing Expansion transport replaces demo AI SDK endpoint; no simulated responses or response timers",
+    "Whole layout, message branches and input geometry retained; theme in screen-look",
+    "Demo avatars, brand welcome, character count and microphone omitted",
+    "Kibo clipboard error handling replaces upstream unconditional success toast",
+    "Native form IDs preserve draft, context, send, cancel and existing media result integration",
+    "Composition-aware Enter handling and reduced-motion support"
+  ],
+  "original_sha256": "16b4b771a9a8e3000bda762e3892e8ecb27d66d526efa5d85de617c72fd1f43b"
+}
