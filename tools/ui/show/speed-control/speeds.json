@@ -1,0 +1,8 @@
+{
+  "_what": "The one speed scale every voice and every player reads (parts/ui/show/speed-control, src/voices.mjs): a speed is how many times faster than natural a sound plays, with the pitch kept (1 is natural). `presets` are the steps offered as one press; anything from `min` to `max` in `step`s is set with the slider, which moves on a log scale so 0.1 to 1 gets as much room as 1 to 16. `default` is the speed of a voice or place nobody set. A player that cannot reach a speed plays the nearest one it can.",
+  "min": 0.1,
+  "max": 16,
+  "step": 0.05,
+  "default": 1,
+  "presets": [0.25, 0.5, 0.8, 1, 1.25, 1.5, 2, 3, 4, 6, 8, 12, 16]
+}

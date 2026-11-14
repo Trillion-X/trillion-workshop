@@ -1,0 +1,75 @@
+{
+  "about": "Lines that read a caught error's own words on purpose, never for a person to read. Each row: the file, the words on the line, and why no person reads them there. scripts/check-raw-error-text.mjs refuses every other such line in parts/*/show and src/workspace.",
+  "rows": [
+    {
+      "file": "parts/ui/show/safe-error-card/sanitize-error-text.ts",
+      "line": "error instanceof Error ? error.message",
+      "why": "the gate itself"
+    },
+    {
+      "file": "src/workspace/failure.ts",
+      "line": "const saidOf",
+      "why": "what Trillion answered, handed only to the person's AI in Ask your AI"
+    },
+    {
+      "file": "src/workspace/failure.ts",
+      "line": ".test(error.message)",
+      "why": "reads the browser's words to tell a dropped connection from a mistake, shows neither"
+    },
+    {
+      "file": "src/workspace/failure.ts",
+      "line": "sanitizeErrorText(error instanceof Error ? error.message",
+      "why": "reasonOf: the gate itself, read with the screen's fallback"
+    },
+    {
+      "file": "parts/record-audio/show/RecordAudioPanel.tsx",
+      "line": "error.stack || error.message",
+      "why": "diagnosticErrorDetail: the recording diagnostics log"
+    },
+    {
+      "file": "parts/record-audio/show/RecordAudioPanel.tsx",
+      "line": "return String(error);",
+      "why": "diagnosticErrorDetail: the recording diagnostics log"
+    },
+    {
+      "file": "parts/record-video/show/RecordVideoPanel.tsx",
+      "line": "error.stack || error.message",
+      "why": "diagnosticErrorDetail: the recording diagnostics log"
+    },
+    {
+      "file": "parts/record-video/show/RecordVideoPanel.tsx",
+      "line": "return String(error);",
+      "why": "diagnosticErrorDetail: the recording diagnostics log"
+    },
+    {
+      "file": "parts/addressed-marks/show/use-mark-data.ts",
+      "line": "error.message.includes(",
+      "why": "tells one refusal apart, shows nothing"
+    },
+    {
+      "file": "parts/ui/show/action-affordance/local-actor-admission.ts",
+      "line": "LocalAdmissionUnavailableError(",
+      "why": "an error for the caller, shown only through the gate"
+    },
+    {
+      "file": "parts/ui/show/ai-app-bridge/ai-app-bridge.mjs",
+      "line": "reject(new Error(String(message.error.message",
+      "why": "an error for the caller, shown only through the gate"
+    },
+    {
+      "file": "parts/ui/show/merchant-storefront/merchant-storefront.mjs",
+      "line": "error?.answered ? error.message",
+      "why": "shows only what the shop answered, already through the host's gate (src/public-app-host.mjs fail)"
+    },
+    {
+      "file": "src/workspace/process-result.ts",
+      "line": "process result is not UTF-8 JSON",
+      "why": "an error for the caller, shown only through the gate"
+    },
+    {
+      "file": "parts/ui/show/load-later/load-code.ts",
+      "line": "const message = error instanceof Error ? error.message",
+      "why": "reads the browser's words only to tell a failed module fetch (and which file) from code that failed while running; the person sees the loader's own words (load-words.json)"
+    }
+  ]
+}

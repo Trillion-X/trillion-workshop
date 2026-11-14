@@ -1,0 +1,26 @@
+{
+  "_what": "Words the weekly-hours description reader understands. Add a language by adding rows; the reader holds no words of its own.",
+  "weekdays": [
+    { "weekday": 0, "names": ["sunday", "sun"] },
+    { "weekday": 1, "names": ["monday", "mon"] },
+    { "weekday": 2, "names": ["tuesday", "tues", "tue"] },
+    { "weekday": 3, "names": ["wednesday", "weds", "wed"] },
+    { "weekday": 4, "names": ["thursday", "thurs", "thur", "thu"] },
+    { "weekday": 5, "names": ["friday", "fri"] },
+    { "weekday": 6, "names": ["saturday", "sat"] }
+  ],
+  "groups": [
+    { "names": ["weekdays", "workdays", "work days", "week days"], "weekdays": [1, 2, 3, 4, 5] },
+    { "names": ["weekends", "weekend"], "weekdays": [0, 6] },
+    { "names": ["every day", "everyday", "daily", "each day", "all days", "all week"], "weekdays": [0, 1, 2, 3, 4, 5, 6] }
+  ],
+  "rangeJoiners": ["through", "thru", "to", "until", "till", "-", "–", "—"],
+  "breakWords": ["break", "breaks", "lunch", "except", "excluding", "but not", "off for", "closed"],
+  "offWords": ["off", "unavailable", "not available", "closed", "free of work"],
+  "noonWords": ["noon", "midday"],
+  "midnightWords": ["midnight"],
+  "meridiem": { "am": ["am", "a.m.", "a.m"], "pm": ["pm", "p.m.", "p.m"] },
+  "clauseSeparators": [",", ";", "\n", " and ", " then ", " plus ", "."],
+  "defaultBreakMinutes": 60,
+  "afternoonBelowHour": 7
+}

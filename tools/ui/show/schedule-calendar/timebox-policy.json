@@ -1,0 +1,13 @@
+{
+  "_what": "How a planned task is put on the person's own calendar as an event (timebox-policy.mjs), one row per choice of the `external_display` setting. `writes`: whether an event is made at all. `transparency`: how the event shows to others ('transparent' is free, 'opaque' is busy); `busy_when_at_risk` makes it busy only for a task at risk or whose priority is in `busy_priorities`, free otherwise. `visibility` maps the person's default todo privacy (private or visible) to the calendar event visibility. A task is at risk when it is placed after its deadline, or its deadline binds and falls within `at_risk_hours` of the placed end. Add a way to show by adding a row; the screen offers each row with its `label`.",
+  "default": "off",
+  "at_risk_hours": 48,
+  "busy_priorities": ["high", "urgent"],
+  "visibility": { "private": "private", "visible": "default" },
+  "rows": {
+    "off": { "label": "Do not put planned tasks on my calendar", "writes": false },
+    "free": { "label": "Put them on my calendar as free time", "writes": true, "transparency": "transparent" },
+    "busy": { "label": "Put them on my calendar as busy", "writes": true, "transparency": "opaque" },
+    "busy_when_at_risk": { "label": "Busy with priority or deadline", "writes": true, "transparency": "transparent", "at_risk_transparency": "opaque" }
+  }
+}

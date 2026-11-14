@@ -1,0 +1,5 @@
+# Grouped panels
+
+`SectionedPanels` accepts navigation groups, a controlled selected page and caller-owned page content. It knows no product routes, records or settings. Pages mount lazily on first selection and retain drafts and pending work while hidden. With `onClose` and `words` the shell is an overlay: a close button showing its key sits above the page, Escape closes it unless a control inside took the key, and a Previous and a Next card under the page name the pages either side of this one in rail order. A rail item with an `action` is not a page: pressing it hands the item to `onAction` and the page stays. Ordinary Tab navigation reaches every page button; the selected page is exposed through `aria-current`.
+
+Appearance belongs to the existing Screen Look workspace stylesheet. Controls use the existing MIT-licensed Coss Button and shared NamedIcon. The grouped settings anatomy was observed in the supplied Amie screenshots and 21st.dev Settings Sidebar Layout 28366; registry code was inspiration only and was not copied. Mobbin tools were unavailable.

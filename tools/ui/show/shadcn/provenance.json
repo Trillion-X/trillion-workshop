@@ -1,0 +1,29 @@
+{
+  "source": "https://ui.shadcn.com/",
+  "repository": "https://github.com/shadcn-ui/ui",
+  "commit": "3ba91b1cc83e1bbe4ab35a422ff2a694849c5048",
+  "license": "MIT",
+  "license_file": "LICENSE.md",
+  "upstream_directory": "apps/v4/registry/new-york-v4/ui",
+  "retained_source": [
+    "upstream/empty.tsx",
+    "upstream/skeleton.tsx"
+  ],
+  "components": [
+    "Empty",
+    "Skeleton"
+  ],
+  "adaptations": [
+    "empty.tsx",
+    "skeleton.tsx"
+  ],
+  "changes": [
+    "Resolve cn through the existing shared utility; otherwise retain upstream source."
+  ],
+  "consumer": "../screen-state/ScreenState.tsx#ScreenState",
+  "appearance": "packages/screen-look/show/media-loading.css",
+  "source_hashes": {
+    "upstream/empty.tsx": "54f529ccf72c18c4b5abd5586a7cf1f2a4c8d207aac366029d66ed095cb2965d",
+    "upstream/skeleton.tsx": "f51ce0fcd31e5c31437382e80ea0af94b4fc3d64221d27091d36824546780a43"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "_what": "What the schedule planner (schedule-planner.mjs) reads as DATA: the order tasks are placed in, which deadline kinds bind and which may be placed late, how priorities rank, and the one precedence the reason for a task that could not be placed is chosen by. Change a row here to change planning; the planner names none of these words itself.",
+  "order_by": ["due", "priority", "duration", "input"],
+  "priority_order": ["urgent", "high", "medium", "low"],
+  "deadline_types": {
+    "hard": { "binds": true, "may_place_late": false },
+    "soft": { "binds": true, "may_place_late": true },
+    "none": { "binds": false, "may_place_late": true }
+  },
+  "default_deadline_type": "hard",
+  "statuses": {
+    "scheduled": { "late": false },
+    "late": { "late": true }
+  },
+  "capacity_levels": { "ok": "ok", "caution": "caution", "over": "over" },
+  "reason_precedence": [
+    "missing_task_id",
+    "invalid_duration",
+    "invalid_due",
+    "invalid_start",
+    "due_passed",
+    "duration_exceeds_workday",
+    "blocker_cycle",
+    "blocker_unknown",
+    "blocked_by_unscheduled",
+    "no_workdays",
+    "outside_preferred_times",
+    "over_capacity",
+    "no_free_slot_before_deadline",
+    "no_free_slot_before_horizon"
+  ],
+  "limits": { "blockers_per_task": 20, "day_overrides": 400, "blocks_per_day": 20, "shortest_slice_minutes": 5, "slices_per_task": 12 }
+}

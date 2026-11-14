@@ -1,0 +1,122 @@
+{
+  "about": "How a tool's result is shown. Each row of shapes is read top to bottom; the first whose when holds picks the designed view (a component from the catalogue, drawn by SchemaValueView). The conditions are about the data's structure, never about a tool. Field roles say which keys play which part (title, summary, state, time) and which are machine fields that are never shown (ids, hashes, cursors). Words are the plain words a person reads.",
+  "views": {
+    "status-card": { "component": "Card with StatusDot, Text", "catalogue": "preline-co:blocks/project-status-card-grid; 21st-dev status card family", "trillion_part": "parts/ui/show/status-dot, card, text" },
+    "summary-card": { "component": "Card with key and value rows", "catalogue": "21st-dev/@corr/components/key-value-list; preline-co:blocks/dashed-description-list-with-copy-actions", "trillion_part": "parts/ui/show/card, container, text" },
+    "metric-tiles": { "component": "StatStrip", "catalogue": "preline-co:blocks/attached-kpi-card-group-with-sparklines", "trillion_part": "parts/ui/show/stat-strip" },
+    "table": { "component": "Table", "catalogue": "shadcn table family listed in design-sources", "trillion_part": "parts/ui/show/table" },
+    "item-list": { "component": "Card per item with state, summary, time and a few facts", "catalogue": "preline-co:blocks/project-status-card-grid", "trillion_part": "parts/ui/show/card, container, text" },
+    "timeline": { "component": "Timeline", "catalogue": "21st-dev/@Codehagen/components/timeline", "trillion_part": "parts/ui/show/timeline" },
+    "error-card": { "component": "SafeErrorCard", "catalogue": "collectui-com/category/error-state-ui-design-inspiration", "trillion_part": "parts/ui/show/safe-error-card" },
+    "empty-state": { "component": "EmptyPlaceholder", "catalogue": "21st-dev/@serafimcloud/components/empty-state", "trillion_part": "parts/ui/show/empty-placeholder" },
+    "link-card": { "component": "Card with a link", "catalogue": "animate-ui-com/components-base-preview-link-card", "trillion_part": "parts/ui/show/card, text" },
+    "text": { "component": "Text", "catalogue": "none needed", "trillion_part": "parts/ui/show/text" }
+  },
+  "shapes": [
+    { "id": "nothing", "view": "empty-state", "when": { "empty": true } },
+    { "id": "failure", "view": "error-card", "when": { "error_field": true } },
+    { "id": "address", "view": "link-card", "when": { "web_address": true } },
+    { "id": "words", "view": "text", "when": { "words": true } },
+    { "id": "live-check", "view": "status-card", "when": { "record": true, "has": ["ok", "version"] }, "state_words": { "ok": { "true": "Live", "false": "Not live" } } },
+    { "id": "status", "view": "status-card", "when": { "record": true, "state": true } },
+    { "id": "briefing", "view": "status-card", "when": { "record": true, "headline": true } },
+    { "id": "metrics", "view": "metric-tiles", "when": { "record": true, "numbers_at_least": 2, "nothing_else": true } },
+    { "id": "events", "view": "timeline", "when": { "records": true, "times_at_least": 2, "titles": true, "no_summary": true } },
+    { "id": "table-of-records", "view": "table", "when": { "records": true, "short_columns_at_most": 5, "no_summary": true, "no_title_and_state": true } },
+    { "id": "list-of-records", "view": "item-list", "when": { "records": true } },
+    { "id": "named-records", "view": "item-list", "when": { "named_records": true } },
+    { "id": "one-record", "view": "summary-card", "when": { "record": true } }
+  ],
+  "roles": {
+    "title": ["title", "name", "label", "subject", "what", "job"],
+    "summary": ["said", "summary", "description", "detail", "about", "message", "does"],
+    "headline": ["said", "summary", "message"],
+    "state": ["ok", "healthy", "state", "status", "failing", "passed", "success", "worse", "active", "enabled", "on"],
+    "error": ["error", "what_went_wrong", "problem", "failure"],
+    "value": ["now", "value", "count", "total"],
+    "time": "(^|_)(at|on|since|date|time|timestamp|when|until|before|after)$|^(timestamp|since|when|date|time)$|^last_|_at$"
+  },
+  "state_words": {
+    "ok": { "true": "All good", "false": "Needs attention" },
+    "healthy": { "true": "Healthy", "false": "Unhealthy" },
+    "failing": { "true": "Failing", "false": "Working" },
+    "passed": { "true": "Passed", "false": "Did not pass" },
+    "success": { "true": "Worked", "false": "Did not work" },
+    "worse": { "true": "Got worse", "false": "Did not get worse" },
+    "active": { "true": "Active", "false": "Not active" },
+    "enabled": { "true": "On", "false": "Off" },
+    "on": { "true": "On", "false": "Off" }
+  },
+  "state_tone": {
+    "ok": { "true": "good", "false": "bad" },
+    "healthy": { "true": "good", "false": "bad" },
+    "failing": { "true": "bad", "false": "good" },
+    "passed": { "true": "good", "false": "bad" },
+    "success": { "true": "good", "false": "bad" },
+    "worse": { "true": "bad", "false": "good" },
+    "active": { "true": "good", "false": "neutral" },
+    "enabled": { "true": "good", "false": "neutral" },
+    "on": { "true": "good", "false": "neutral" }
+  },
+  "state_values": {
+    "good": ["ok", "done", "finished", "completed", "complete", "live", "ready", "passed", "success", "succeeded", "healthy", "met", "answered"],
+    "bad": ["failed", "error", "refused", "stuck", "broken", "unhealthy", "denied", "rejected", "unmet"],
+    "working": ["working", "running", "pending", "queued", "open", "waiting", "started", "taken", "in progress"]
+  },
+  "flag_phrases": {
+    "checks_loaded": ["checks loaded", "checks not loaded"],
+    "loaded": ["loaded", "not loaded"],
+    "ready": ["ready", "not ready"],
+    "spends": ["spends money", "does not spend money"],
+    "reaches_others": ["reaches other people", "reaches no one else"]
+  },
+  "time_phrases": {
+    "read_at": "read {time}",
+    "last_worked": "last worked {time}",
+    "since": "since {time}",
+    "started_at": "started {time}",
+    "finished_at": "finished {time}",
+    "created_at": "made {time}",
+    "updated_at": "changed {time}",
+    "default": "{label} {time}",
+    "nested": "{parent} from {time}"
+  },
+  "machine": {
+    "key": "^(id|uuid|ref|key|hash|sha|etag|cursor|nonce|digest|checksum|signature|token|request_key|execution_ref)$|(_|-)(id|ids|uuid|hash|sha|etag|cursor|nonce|digest|checksum|signature|token|ref|key)$|^(id|hash|sha)(_|-)",
+    "value": [
+      "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "^[0-9a-fA-F]{20,}$",
+      "^[a-z][a-z0-9_]*:[0-9a-f-]{16,}$",
+      "^(task|tool|execution|handoff|case|key|run|source|layout)_[0-9a-f]{12,}$",
+      "^\\s*[\\[{][\\s\\S]*[\\]}]\\s*$"
+    ],
+    "words_in_text": "\\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\b|\\b[0-9a-f]{24,}\\b"
+  },
+  "values": {
+    "moment": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(:\\d{2}(\\.\\d+)?)?(Z|[+-]\\d{2}:?\\d{2})?$",
+    "slug": "^[a-z][a-z0-9]*(-[a-z0-9]+)+$",
+    "web_address": "^https?://[^\\s]+$"
+  },
+  "limits": {
+    "words_chars": 200,
+    "headline_chars": 140,
+    "list_items_shown": 6,
+    "facts_in_item": 4,
+    "short_cell_chars": 60,
+    "table_columns": 5,
+    "tiles_per_row": 4,
+    "decimals": 2
+  },
+  "words": {
+    "nothing": "Nothing came back.",
+    "failure_title": "That did not work",
+    "yes": "yes",
+    "no": "no",
+    "more": "and {n} more",
+    "items_none": "none",
+    "open_link": "Open",
+    "items_range": "{start}–{end} of {total}",
+    "previous_items": "Previous",
+    "next_items": "Next"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "_what": "Where the sound that moves things comes from. Each row is one source a person can pick: its words, its icon, and how the browser opens it (`opens`: `microphone` asks for the microphone, `screen-sound` asks to share a tab or the whole screen with its sound, `page-media` listens to whatever plays in Trillion itself). A new source the browser can open is one row here and, only when it needs a new way of opening, one opener in sound-signal.ts. `bands` are the low, middle and high ranges the sound is split into, in Hz; `beat` says how much louder than its recent average the low band must get to count as a beat, and how long to wait before the next one.",
+  "sources": [
+    { "id": "microphone", "label": "The room", "about": "Your voice, people talking, music in the room.", "icon": "Mic", "opens": "microphone" },
+    { "id": "computer", "label": "Music on this computer", "about": "Pick the tab or screen that is playing, with its sound.", "icon": "Music", "opens": "screen-sound" },
+    { "id": "trillion", "label": "What plays in Trillion", "about": "A video or sound playing in any of your screens.", "icon": "Play", "opens": "page-media" }
+  ],
+  "bands": [
+    { "id": "low", "from_hz": 20, "to_hz": 250 },
+    { "id": "mid", "from_hz": 250, "to_hz": 2000 },
+    { "id": "high", "from_hz": 2000, "to_hz": 12000 }
+  ],
+  "beat": { "band": "low", "above_average": 1.35, "least_level": 0.08, "rest_ms": 220, "average_over_frames": 43 },
+  "quiet_level": 0.02
+}
