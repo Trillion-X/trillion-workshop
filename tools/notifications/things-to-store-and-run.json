@@ -1,0 +1,842 @@
+{
+  "package": "notifications",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::notifications::checks",
+      "path": [
+        "packages",
+        "notifications",
+        "checks"
+      ],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "do-work/save-setting.test.ts",
+          "read-data/project-setting-view.test.ts",
+          "read-data/read-notifications-policy.test.ts",
+          "show-ios-jscore/mount-notifications-jscore.test.ts",
+          "show/__tests__/notification-setting-screen.test.tsx",
+          "tests/boundary-rules-fire-on-the-thing-they-forbid.test.mjs",
+          "tests/notification-action-routes.test.mjs",
+          "tests/notification-event-contract.test.mjs",
+          "tests/notifications-boundary.test.mjs"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::notifications::rule::this-package-may-not-name-a-delivery-mechanism",
+      "path": [
+        "current-item",
+        "source-file-rule"
+      ],
+      "payload": {
+        "kind": "source-file-rule",
+        "id": "this-package-may-not-name-a-delivery-mechanism",
+        "why": "this package decides notification POLICY and records intent; something else delivers. A source that names a transport is either performing delivery or about to, and the package that owns the decision is the worst place for it, because a delivery bug then hides behind a policy surface. Case-insensitive throughout: the hand-rolled predecessor this replaces matched `APNS` and `FCM` case-sensitively and everything else case-insensitively, which was an artifact of how the list grew rather than a decision, and a lowercase `apns` names the same mechanism. Verified before widening: no in-scope file matches either spelling today.",
+        "scope": {
+          "path_matches": "^packages/notifications/.*\\.(ts|tsx|js|mjs|cjs)$",
+          "path_excludes": "(^|/)(tests|__tests__)/|\\.test\\.|/proof/harness/out/|/built-stored-bytes/|/\\.bitfield-entry-scope/|/node_modules/"
+        },
+        "violation": {
+          "unit": {
+            "split": "\\n"
+          },
+          "forbidden": [
+            {
+              "pattern": "\\bsendNotification\\b|\\bpushToken\\b|\\bAPNS\\b|\\bFCM\\b|\\bsmtp\\b|\\bsendEmail\\b",
+              "flags": "i"
+            }
+          ]
+        },
+        "message": "this source names a delivery transport, and this package owns the policy decision rather than the delivery"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::notifications::rule::this-package-may-not-name-another-domain",
+      "path": [
+        "current-item",
+        "source-file-rule"
+      ],
+      "payload": {
+        "kind": "source-file-rule",
+        "id": "this-package-may-not-name-another-domain",
+        "why": "a notification is about SOMETHING, and the moment this source can say what, it has taken a dependency on that domain's vocabulary and the next domain needs its own branch here. Calendar, campaign, CRM, lead and loss are the ones that actually leaked; the point is not the list but that the subject arrives as DATA this package never inspects. `lead`, `loss` and `crm` are ordinary English and are the highest false-positive risk in this package's rules, held back only by word boundaries, so `leading` and `lossless` are safe while a variable named `lead` is not. That is deliberate: a variable named `lead` in a package that must not know what a lead IS deserves the report.",
+        "scope": {
+          "path_matches": "^packages/notifications/.*\\.(ts|tsx|js|mjs|cjs)$",
+          "path_excludes": "(^|/)(tests|__tests__)/|\\.test\\.|/proof/harness/out/|/built-stored-bytes/|/\\.bitfield-entry-scope/|/node_modules/"
+        },
+        "violation": {
+          "unit": {
+            "split": "\\n"
+          },
+          "forbidden": [
+            {
+              "pattern": "\\bcalendarEvent\\b|\\bcampaignStage\\b|\\bcrm\\b|\\blead\\b|\\bloss\\b",
+              "flags": "i"
+            }
+          ]
+        },
+        "message": "this source names another domain's vocabulary, so that domain's next sibling needs a branch here"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::notifications::rule::a-notification-mode-is-data-not-a-branch-in-code",
+      "path": [
+        "current-item",
+        "source-file-rule"
+      ],
+      "payload": {
+        "kind": "source-file-rule",
+        "id": "a-notification-mode-is-data-not-a-branch-in-code",
+        "why": "modes are DATA rows a user or a package set can extend, so a `switch` or `case` naming them closes an open set in code and the next mode requires editing the dispatcher. This is enum dissolution applied to one package's own vocabulary, and it is the invariant most likely to be re-broken, because adding a fourth mode to an existing switch feels like following the local pattern. THIS RULE DECLARES NO `unit` ON PURPOSE, so it judges the whole file: `switch\\s*\\([^)]*` uses a negated class and `[^)]` matches a newline, so a switch head split across lines is reachable here and would be invisible to a per-line unit. Its two siblings are single-token alternations that cannot span a line, so they use line units and report a precise line; the unit shape is a per-rule decision rather than a package style. Note also what is NOT excluded: `proof/harness/` is judged and only `proof/harness/out/` is skipped, because `out/` holds an esbuild bundle that vendors React, and React's DOM event dispatch contains `case \"focus\":` for the browser focus EVENT rather than a notification mode. Scanning that bundle false-positives on third-party code nobody here authored and cannot change; the authored source is what must stay blind, and the bundle is derived from it.",
+        "scope": {
+          "path_matches": "^packages/notifications/.*\\.(ts|tsx|js|mjs|cjs)$",
+          "path_excludes": "(^|/)(tests|__tests__)/|\\.test\\.|/proof/harness/out/|/built-stored-bytes/|/\\.bitfield-entry-scope/|/node_modules/"
+        },
+        "violation": {
+          "forbidden": [
+            {
+              "pattern": "switch\\s*\\([^)]*(normal|focus|dnd|scheduled)|case\\s+['\"](normal|focus|dnd|scheduled)['\"]",
+              "flags": "i"
+            }
+          ]
+        },
+        "message": "a notification mode is named in a branch, which closes a set that DATA is supposed to keep open"
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "show-ios-jscore-readme",
+      "source_path": "show-ios-jscore/README.md"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "built-show-ios-jscore-mount-notifications-jscore",
+      "build": {
+        "sequence": {
+          "inputs": [],
+          "input_trees": [],
+          "steps": [
+            {
+              "name": "build",
+              "process": {
+                "argv": [
+                  "node",
+                  "-e",
+                  "const fs=require('fs'); const request=JSON.parse(fs.readFileSync(process.env.BITFIELD_PACKAGE_BUILD_REQUEST,'utf8')); fs.copyFileSync(request.source_file, process.env.BITFIELD_PACKAGE_BUILD_OUTPUT);"
+                ],
+                "cwd": ".",
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": ".bitfield-build-output"
+                  }
+                ],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              },
+              "workspace_bindings": {
+                "environment": [],
+                "arguments": []
+              },
+              "predecessor_outputs": []
+            }
+          ]
+        },
+        "output": {
+          "step": "build",
+          "mount_path": ".bitfield-build-output"
+        },
+        "request": {
+          "source_file": "show-ios-jscore/mount-notifications-jscore.js",
+          "source_kind": "application/javascript"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::notifications::input::notification-mode",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "notification-mode",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "subject_id",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "property_id",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "value",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ],
+            "op": "rows"
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "notification-mode"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::notifications::input::published-records",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "published-records",
+        "kind": "bitfield-input-descriptor",
+        "label": "Notification package records",
+        "is_default": true,
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "address",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "payload",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ],
+            "op": "rows"
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "package::notifications::published-records"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::notifications::published-record::setting-control::notification-mode",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "control": "single-select",
+        "description": "Choose how notifications are delivered",
+        "id": "notifications.mode",
+        "kind": "setting-control",
+        "options": [
+          {
+            "description": "All notifications enabled",
+            "icon": "Sun",
+            "label": "Normal",
+            "value": "normal"
+          },
+          {
+            "description": "Critical notifications only",
+            "icon": "Crosshair",
+            "label": "Focus",
+            "value": "focus"
+          },
+          {
+            "description": "All notifications silenced",
+            "icon": "Moon",
+            "label": "Do Not Disturb",
+            "value": "dnd"
+          },
+          {
+            "description": "Time-based notification rules",
+            "icon": "Clock",
+            "label": "Scheduled",
+            "value": "scheduled"
+          }
+        ],
+        "order": 30,
+        "title": "Notification Mode",
+        "value": {
+          "default": "normal",
+          "feed_label": "notification-mode",
+          "keys": [
+            "mode_id",
+            "modeId",
+            "value"
+          ],
+          "property_ids": [
+            "prop:notification-mode:active",
+            "prop:settings:notification_mode"
+          ],
+          "source_value": {
+            "projection": {
+              "fields": [
+                {
+                  "column": 0,
+                  "key": "subject_id",
+                  "required": true,
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "non_empty_text"
+                    }
+                  }
+                },
+                {
+                  "column": 1,
+                  "key": "property_id",
+                  "required": true,
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "non_empty_text"
+                    }
+                  }
+                },
+                {
+                  "column": 2,
+                  "key": "value",
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "json"
+                    }
+                  }
+                }
+              ],
+              "op": "rows"
+            },
+            "source_bytes": {
+              "bytes_to_value": "cell_table"
+            }
+          }
+        },
+        "write": {
+          "payload": {
+            "definition_id": "action:update-workspace-notification-mode",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "mode_id": "normal"
+            },
+            "operation": "execute_definition"
+          },
+          "target": "slot::workflow",
+          "value_path": [
+            "input",
+            "mode_id"
+          ]
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::notifications::published-record::record-policy-action-graph::settings-policy",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "id": "notifications.record-policy-action-graph.settings-policy",
+        "kind": "record-policy-action-graph",
+        "label": "Notification policy",
+        "records": [
+          {
+            "address": "package::notifications::published-record::setting-control::notification-mode",
+            "role": "policy-source"
+          }
+        ],
+        "rules": [
+          {
+            "id": "notifications.rule.current-value-is-declared-option",
+            "method": "value-is-one-of-described-options",
+            "params": {
+              "descriptor_address": "package::notifications::published-record::setting-control::notification-mode"
+            }
+          }
+        ],
+        "action_routes": [
+          {
+            "id": "notifications.action-route.update-workspace-policy",
+            "target": "slot::workflow",
+            "method": "execute_definition",
+            "bindings": {
+              "definition_id": "action:update-workspace-notification-mode",
+              "value_path": [
+                "input",
+                "mode_id"
+              ]
+            },
+            "payload_defaults": {
+              "include_steps": false,
+              "include_output": false
+            },
+            "input_schema": {
+              "mode_id": {
+                "from": "selected_option_id",
+                "required": true
+              }
+            },
+            "receipt": {
+              "owner": "workflow",
+              "address": "owner-action-event-log"
+            }
+          }
+        ],
+        "projections": [
+          {
+            "id": "notifications.projection.policy-state",
+            "method": "project-setting-policy-state",
+            "params": {
+              "descriptor_address": "package::notifications::published-record::setting-control::notification-mode",
+              "current_value_label": "notification-mode"
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::notifications::published-record::side-effect-intent-route::authority-owned-action",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "id": "notifications.side-effect-intent-route.authority-owned-action",
+        "kind": "side-effect-intent-route",
+        "label": "Authority-owned action route",
+        "intent": {
+          "idempotency_key": {
+            "from": "intent_id"
+          },
+          "single_execution_owner": "workflow"
+        },
+        "route": {
+          "target": "slot::workflow",
+          "method": "execute_definition",
+          "bindings": {
+            "definition_id": "action:update-workspace-notification-mode",
+            "value_path": [
+              "input",
+              "mode_id"
+            ]
+          }
+        },
+        "receipt": {
+          "owner": "workflow",
+          "address": "owner-action-event-log"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::notifications::native-screen-command-entry",
+      "path": [
+        "package-primitive",
+        "native-screen-command-entry"
+      ],
+      "payload": {
+        "kind": "bitfield-native-screen-command-entry",
+        "source_path": "show-ios-jscore/mount-notifications-jscore.js",
+        "readme_path": "show-ios-jscore/README.md"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::notifications::published-records",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "cell_table",
+        "columns": [
+          {
+            "column": 0,
+            "source": {
+              "path": [
+                "record",
+                "address"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "non_empty_text"
+            }
+          },
+          {
+            "column": 1,
+            "source": {
+              "path": [
+                "record",
+                "payload_json_text"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "json_text"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::notifications::notification-events-feed",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record",
+          "notification"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "notification.event"
+            },
+            {
+              "path": [
+                "payload"
+              ],
+              "not_equals": "__bitfield_never__"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::notifications::input::notification-events",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "notification-events",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "package::notifications::notification-events-feed"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::notifications::workflow-action::record-notification-event",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "kind": "action",
+        "id": "action:notifications.record-notification-event",
+        "is_active": true,
+        "name": "notifications.record-notification-event",
+        "description": "Record one audience-scoped notification event supplied by the owner of the completed effect. This action owns notification identity and history; it performs no delivery and infers no audience.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "notification_id",
+            "kind",
+            "audience_refs",
+            "conversation_ref",
+            "privacy_class",
+            "title",
+            "body",
+            "occurred_at",
+            "source_refs",
+            "proof_refs"
+          ],
+          "properties": {
+            "notification_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "kind": {
+              "const": "notification.event"
+            },
+            "audience_refs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "conversation_ref": {
+              "type": "string",
+              "minLength": 1
+            },
+            "privacy_class": {
+              "const": "private"
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1
+            },
+            "body": {
+              "type": "string",
+              "minLength": 1
+            },
+            "occurred_at": {
+              "type": "string",
+              "minLength": 1
+            },
+            "source_refs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "proof_refs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "operationId": {
+              "type": "string"
+            },
+            "transitionId": {
+              "type": "string"
+            },
+            "idempotencyKey": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "write",
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "notification_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "notification-event|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "notification_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record",
+                    "notification"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": ""
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::notifications::trigger-rule::record-declared-progression-notification",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:notifications:record-declared-progression-notification",
+        "name": "record-declared-progression-notification",
+        "description": "When an owner progression result explicitly carries a complete notification event, route that event to Notifications. Missing notification data produces no notification and no inferred audience.",
+        "is_active": true,
+        "version": 0,
+        "trigger_type": "delta",
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "table"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "progression_projection"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "notification"
+              },
+              "transform": [
+                {
+                  "op": "op:core.is_not_null"
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "is_retraction"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:notifications.record-notification-event",
+            "include_output": true,
+            "input": {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "notification"
+              }
+            }
+          }
+        },
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    }
+  ]
+}

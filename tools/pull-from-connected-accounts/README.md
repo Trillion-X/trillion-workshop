@@ -41,6 +41,7 @@ A conversation is one record, so one with a very large number of messages is one
 | `read-data/snapshot.mjs` | Record ids, `readParts` and `assemble`. Public (`part.json`). |
 | `do-work/signal-client.mjs` | The Signal client rows: `readSignalOnThisComputer` (receive, fold, hand to the `signal` pull) and `linkSignalOnThisComputer` (link and its QR code). |
 | `read-data/signal-envelopes.mjs` | `readEnvelopeLines` and `envelopesToConversations`: what `signal-cli -o json receive` prints, in the `signal` pull's contract. |
+| `do-work/connect-instagram*.py`, `do-work/graph_instagram_client.py`, `do-work/ig_snapshot_store.py` | The Instagram and Messenger Python producers moved from the package; see "What is not here". |
 | `tool-rows.json` | Eight pull rows, the two Signal client rows and `tool:read-what-i-pulled-from-an-account`. |
 | `test/` | Fold, pointer, source and row tests, and every service pulled against a stand-in in the shape the service documents. `test/fixtures/signal-client-output.json` is the Signal client's contract as a made-up output. |
 
@@ -65,7 +66,8 @@ A conversation is one record, so one with a very large number of messages is one
 
 ## What is not here
 
-- WhatsApp Web (Baileys) and Instagram by logging in as the person (instagrapi) are not pulled: each needs a session or a local daemon, not a token for a public interface.
+- WhatsApp Web (Baileys) is not pulled: it needs a session or a local daemon, not a token for a public interface.
+- Instagram by logging in as the person (instagrapi) is not a tool row yet. Its original, `do-work/connect-instagram.py` (session from held blobs, login, pull, fold, gated `direct_send` reply), is carried here byte for byte from bitfield-packages `packages/instagram-dm-connector` with the Graph producer it shares its pull with (`do-work/connect-instagram-graph.py`, `do-work/graph_instagram_client.py`: the Facebook-Login surface by `ig_user_id`, the transport retry and the page-to-fill walk) and the pure `do-work/ig_snapshot_store.py`; receipt `from-bitfield-packages-instagram-dm-connector/moved-from.json`, tests in `do-work/__tests__/` (`test_messenger_reuse.py.held` needs the package's own decoder). The instagrapi library the login needs was vendored in the package (untracked) and is not carried.
 
 ## The Signal client on this computer
 

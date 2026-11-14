@@ -1,0 +1,130 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages packages/funnel-offer-graph: each names its source path and commit, the identity of its source bytes and of its bytes here. The first commit that holds them is the byte copy; later commits change import paths.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/funnel-offer-graph/do-work/README.md",
+      "commit": "b787fa56c196a5e3f7693c76fa8058596b13b4b8",
+      "to": "tools/funnels-screen/funnel-offer-graph/do-work/README.md",
+      "source_identity": "1f:2bd355001a330ad1de27d3e21a1655ec314caeb93796ea67b969b8463725fc01",
+      "identity": "1f:2bd355001a330ad1de27d3e21a1655ec314caeb93796ea67b969b8463725fc01"
+    },
+    {
+      "from": "packages/funnel-offer-graph/do-work/create-funnel.test.ts",
+      "commit": "b787fa56c196a5e3f7693c76fa8058596b13b4b8",
+      "to": "tools/funnels-screen/funnel-offer-graph/do-work/create-funnel.test.ts",
+      "source_identity": "1f:22c61ea490e5e6cc789cf2ee8ec0232719ae47b1ca8f2a794a9c5e9ef8b1e5c1",
+      "identity": "1f:22c61ea490e5e6cc789cf2ee8ec0232719ae47b1ca8f2a794a9c5e9ef8b1e5c1"
+    },
+    {
+      "from": "packages/funnel-offer-graph/do-work/create-funnel.ts",
+      "commit": "b787fa56c196a5e3f7693c76fa8058596b13b4b8",
+      "to": "tools/funnels-screen/funnel-offer-graph/do-work/create-funnel.ts",
+      "source_identity": "1f:05e84dbce601ecaff490fc9d93a581d78faa9655e22d7dfd76f81b56cdd6d6cf",
+      "identity": "1f:05e84dbce601ecaff490fc9d93a581d78faa9655e22d7dfd76f81b56cdd6d6cf"
+    },
+    {
+      "from": "packages/funnel-offer-graph/read-data/emergent-funnels.test.ts",
+      "commit": "e9e75a3b24f2b34f76e528745328b30ec9bc9145",
+      "to": "tools/funnels-screen/funnel-offer-graph/read-data/emergent-funnels.test.ts",
+      "source_identity": "1f:dd4f441160bbedb21aeacd9082abc55ad7b77ceed31298497e730fc29b02fad9",
+      "identity": "1f:dd4f441160bbedb21aeacd9082abc55ad7b77ceed31298497e730fc29b02fad9"
+    },
+    {
+      "from": "packages/funnel-offer-graph/read-data/funnel-composition.test.ts",
+      "commit": "fe39d35349110cdaaf45b9a308e0e044f0a73bd6",
+      "to": "tools/funnels-screen/funnel-offer-graph/read-data/funnel-composition.test.ts",
+      "source_identity": "1f:eccb20df7824c9e5d5287048e3cdc1ef7a7a809a3f44a774d315ca7db4082922",
+      "identity": "1f:eccb20df7824c9e5d5287048e3cdc1ef7a7a809a3f44a774d315ca7db4082922"
+    },
+    {
+      "from": "packages/funnel-offer-graph/read-data/funnel-composition.ts",
+      "commit": "fe39d35349110cdaaf45b9a308e0e044f0a73bd6",
+      "to": "tools/funnels-screen/funnel-offer-graph/read-data/funnel-composition.ts",
+      "source_identity": "1f:22e78b013192727a16f7644ae21a2c116660488d517752379e18fc5c064c66ff",
+      "identity": "1f:5bf6f999e05fee7e4516689cf3e38f465e06c5ab00b6cef157f368b121c783df"
+    },
+    {
+      "from": "packages/funnel-offer-graph/read-data/funnel-definition.test.ts",
+      "commit": "337bd0c19b7fecdb0cc002644dfc5da67e623eb7",
+      "to": "tools/funnels-screen/funnel-offer-graph/read-data/funnel-definition.test.ts",
+      "source_identity": "1f:6c496360bcd871bd532d7fd70e9f6939c01f643d01a72e5b819fd7549b35942c",
+      "identity": "1f:6c496360bcd871bd532d7fd70e9f6939c01f643d01a72e5b819fd7549b35942c"
+    },
+    {
+      "from": "packages/funnel-offer-graph/read-data/funnel-definition.ts",
+      "commit": "337bd0c19b7fecdb0cc002644dfc5da67e623eb7",
+      "to": "tools/funnels-screen/funnel-offer-graph/read-data/funnel-definition.ts",
+      "source_identity": "1f:affbaf2caad7560cfb59d4b660d0e85372345df88f650458322b01f776be42aa",
+      "identity": "1f:affbaf2caad7560cfb59d4b660d0e85372345df88f650458322b01f776be42aa"
+    },
+    {
+      "from": "packages/funnel-offer-graph/read-data/resolve-funnel-flow.test.ts",
+      "commit": "76fd10e64ec385fee8bbd1638b637cc1d6efeb06",
+      "to": "tools/funnels-screen/funnel-offer-graph/read-data/resolve-funnel-flow.test.ts",
+      "source_identity": "1f:fb4645e3991aa39fb1a38593ed69877d0407533f45189d4c01496e89ae9a7671",
+      "identity": "1f:fb4645e3991aa39fb1a38593ed69877d0407533f45189d4c01496e89ae9a7671"
+    },
+    {
+      "from": "packages/funnel-offer-graph/read-data/resolve-funnel-flow.ts",
+      "commit": "7f449dc42a6d400b6331f37ed5f0c2d8e6dc2f5b",
+      "to": "tools/funnels-screen/funnel-offer-graph/read-data/resolve-funnel-flow.ts",
+      "source_identity": "1f:2857d7d3a595b12c19adf612984cc93c36786c2a33c088edd79e80f96b725317",
+      "identity": "1f:102a3f2ae91d8a2fcf83ee79441594c17f4a81d0b46db3544e911c36841d5d92",
+      "calls": [
+        "private-notes-path"
+      ]
+    },
+    {
+      "from": "packages/funnel-offer-graph/read-data/stage-detail-visual-database.test.ts",
+      "commit": "81b8ea9c31952ecefefdc6c15f1fe0ce467a870b",
+      "to": "tools/funnels-screen/funnel-offer-graph/read-data/stage-detail-visual-database.test.ts",
+      "source_identity": "1f:ae367da7f574157fb4391cf04ee507f1a4efafb9c621a59733037bd2147d7809",
+      "identity": "1f:ae367da7f574157fb4391cf04ee507f1a4efafb9c621a59733037bd2147d7809"
+    },
+    {
+      "from": "packages/funnel-offer-graph/read-data/stage-detail-visual-database.ts",
+      "commit": "81b8ea9c31952ecefefdc6c15f1fe0ce467a870b",
+      "to": "tools/funnels-screen/funnel-offer-graph/read-data/stage-detail-visual-database.ts",
+      "source_identity": "1f:3386aafe3b68b8c19a94f1c8252150763c8ceb6a8aa723b24b53a4d851d52f09",
+      "identity": "1f:3386aafe3b68b8c19a94f1c8252150763c8ceb6a8aa723b24b53a4d851d52f09"
+    },
+    {
+      "from": "packages/funnel-offer-graph/read-data/stage-projection.test.ts",
+      "commit": "b429098e2b228bb65ac1d430a98f163e2a202eb9",
+      "to": "tools/funnels-screen/funnel-offer-graph/read-data/stage-projection.test.ts",
+      "source_identity": "1f:9d2df304ad0890492b5d4f438376469bf13cfab9688a5f21474328b85f888363",
+      "identity": "1f:9d2df304ad0890492b5d4f438376469bf13cfab9688a5f21474328b85f888363"
+    },
+    {
+      "from": "packages/funnel-offer-graph/read-data/stage-projection.ts",
+      "commit": "e9e75a3b24f2b34f76e528745328b30ec9bc9145",
+      "to": "tools/funnels-screen/funnel-offer-graph/read-data/stage-projection.ts",
+      "source_identity": "1f:62fb7c93670fd822594fdb67c36d4b1c1d55aa50386998c10bf815254b77d9cf",
+      "identity": "1f:62fb7c93670fd822594fdb67c36d4b1c1d55aa50386998c10bf815254b77d9cf"
+    },
+    {
+      "from": "packages/funnel-offer-graph/show/mount-funnel-canvas.test.tsx",
+      "commit": "81b8ea9c31952ecefefdc6c15f1fe0ce467a870b",
+      "to": "tools/funnels-screen/funnel-offer-graph/show/mount-funnel-canvas.test.tsx",
+      "source_identity": "1f:1a0beb66d9e1ed004694fa6225327560eeb837c0c6d0585532b69cf123fca28f",
+      "identity": "1f:1a0beb66d9e1ed004694fa6225327560eeb837c0c6d0585532b69cf123fca28f"
+    },
+    {
+      "from": "packages/funnel-offer-graph/show/mount-funnel-canvas.tsx",
+      "commit": "3997518db03f1c240b1da52a2e6303b7cd7e497b",
+      "to": "tools/funnels-screen/funnel-offer-graph/show/mount-funnel-canvas.tsx",
+      "source_identity": "1f:9e335af110ac480e6dab301dd7423fe6082a5ee92f34f4a709ca0ce42a4a28bd",
+      "identity": "1f:d29dc886b53ec46720d5b0c06884266226e4117a1783044f489057d89d7235b0"
+    }
+  ]
+}

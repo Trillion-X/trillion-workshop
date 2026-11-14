@@ -1,0 +1,64 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-NOTIFICATIONS-SHOW-NOTIFICATION-SETTING-SCREEN-FROM-BITFIELD-PACKAGES",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "census-and-restore lane 1, 2026-11-13: no rewrites from scratch; originals move wholesale",
+    "message_multihash": "1f:31cfaef8fe1b095bcdda0c309aeb261d0b928f36c81425a5d444f4f86483ec45",
+    "quote": "standing order: NO rewrites from scratch. Originals move wholesale (byte for byte, with moved-from receipts)"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "bitfield-packages",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "path": "packages/notifications/show/notification-setting-screen.tsx",
+      "multihash": "1f:62051fbac5fffd8162ad2426e369a22d2acf20f5ba8c4cc90e4860b09e38394b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-17T06:38:09Z",
+        "deleted_with": "the change that lands this move: the package file leaves bitfield-packages in the same change"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/notifications/show/notification-setting-screen.tsx"
+    }
+  ],
+  "preserve": [
+    "the file is the original package file, moved with its import paths changed to this tree and nothing else",
+    "what the file did in the package: its exports, its rules and its edge cases are not rewritten here"
+  ],
+  "allowed_deltas": [
+    "import paths and the file header name the file's new place"
+  ],
+  "banned_substitutions": [
+    "a second implementation of the same job beside this file",
+    "a rewrite from scratch of what the package file does"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:62051fbac5fffd8162ad2426e369a22d2acf20f5ba8c4cc90e4860b09e38394b",
+    "target_multihash_at_baseline": "1f:62051fbac5fffd8162ad2426e369a22d2acf20f5ba8c4cc90e4860b09e38394b",
+    "recorded_at": "2026-11-14T06:39:09Z",
+    "rows": [
+      {
+        "path": "tools/notifications/show/notification-setting-screen.tsx",
+        "source_multihash": "1f:62051fbac5fffd8162ad2426e369a22d2acf20f5ba8c4cc90e4860b09e38394b",
+        "target_multihash_at_baseline": "1f:62051fbac5fffd8162ad2426e369a22d2acf20f5ba8c4cc90e4860b09e38394b"
+      }
+    ],
+    "commit": "3b90d2a6b7bda5ae93402b2fb269598ab9dc3663"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "function isRecord(value: unknown): value is Record<string, unknown>",
+      "function readSurfaceInput(props: Record<string, unknown>):"
+    ],
+    "test_refs": [],
+    "render_refs": [],
+    "originality_ref": null
+  }
+}

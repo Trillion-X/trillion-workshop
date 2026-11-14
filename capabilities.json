@@ -1347,7 +1347,7 @@
     },
     {
       "capability": "map sales funnels and offers, and run price experiments with live conversion measures",
-      "owner": ["tools/funnels-and-offers/"],
+      "owner": ["tools/funnels-and-offers/", "tools/funnels-screen/funnel-offer-graph/"],
       "entry": "tools/funnels-and-offers/tool-rows.json",
       "evidence": "funnel-offer-graph README.md:1 funnel graphs, offer nodes, transitions and A/B price experiments",
       "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/funnel-offer-graph/"]}

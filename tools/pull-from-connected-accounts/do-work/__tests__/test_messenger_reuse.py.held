@@ -1,0 +1,254 @@
+# packages/instagram-dm-connector/do-work/__tests__/test_messenger_reuse.py
+#
+# Proves agnostic-chat #9 (Meta / Facebook Messenger) rides the EXISTING generic
+# Meta-graph transport with ZERO clone (L131/L100/L069):
+#
+#   1. CAPTURE-DIR DERIVATION — the ONE generic producer connect-instagram-graph.py
+#      derives its default capture dir from the account's vendor prefix, so the
+#      SAME script serves every Meta vendor as DATA: `instagram:default` ->
+#      captures/instagram (BYTE-IDENTICAL to before this change — instagram must
+#      not regress), `messenger:default` -> captures/messenger, and an explicit
+#      --capture-dir still overrides. Vendor is DATA, never an enum.
+#   2. DECODER REUSE — the source-agnostic instagram-dm-decoder (L090) decodes a
+#      synthetic `source:messenger` snapshot into canonical atoms tagged
+#      `source:messenger`, using the EXACT decoder the instagram source uses.
+#   3. DESCRIPTOR VALIDITY — the messenger conversation_source_descriptor +
+#      both source.offer records in things-to-store-and-run.json decode to valid
+#      EEAF JSON with a valid inner value_json and the intended Messenger wiring.
+#
+# Fully offline: fake client (no network/token), a temp HOME, a fixture snapshot.
+import importlib.util
+import json
+import os
+import pathlib
+import sys
+import tempfile
+
+HERE = pathlib.Path(__file__).resolve().parent
+DOWORK = HERE.parent                                   # instagram-dm-connector/do-work
+PKGS = DOWORK.parent.parent                            # packages/
+FOLD_DIR = PKGS / "conversation-snapshot-fold" / "do-work"
+VENDOR = DOWORK.parent / "vendor"
+DECODER_DIR = PKGS / "instagram-dm-decoder" / "do-work" / "process-scripts"
+MAPPER_DIR = PKGS / "transcript-mapper" / "do-work" / "process-scripts"
+for p in (str(DOWORK), str(VENDOR), str(FOLD_DIR), str(DECODER_DIR), str(MAPPER_DIR)):
+    if p not in sys.path:
+        sys.path.insert(0, p)
+
+# The ONE generic Meta-graph producer (loaded by path — its filename is hyphenated).
+_g_spec = importlib.util.spec_from_file_location(
+    "connect_instagram_graph", str(DOWORK / "connect-instagram-graph.py"))
+graph = importlib.util.module_from_spec(_g_spec)
+_g_spec.loader.exec_module(graph)
+
+# The source-agnostic decoder (reused verbatim — no messenger decoder exists).
+_d_spec = importlib.util.spec_from_file_location(
+    "decode_instagram_dm", str(DECODER_DIR / "decode-instagram-dm.py"))
+dec = importlib.util.module_from_spec(_d_spec)
+_d_spec.loader.exec_module(dec)
+
+DESCRIPTOR_JSON = DOWORK.parent / "things-to-store-and-run.json"
+
+
+class _FakeClient:
+    """Duck-typed graph client: `.user_id` + `.direct_threads` (no network)."""
+    user_id = "999"
+
+    def direct_threads(self, amount, thread_message_limit):
+        return [{
+            "id": "mt1", "viewer_id": "999",
+            "users": [{"pk": "999", "username": "me"},
+                      {"pk": "111", "username": "pal", "full_name": "A Pal"}],
+            "messages": [
+                {"user_id": "111", "text": "hey via messenger", "item_type": "text",
+                 "timestamp": 1_699_000_000_000_000},
+                {"user_id": "999", "text": "got it", "item_type": "text",
+                 "timestamp": 1_699_000_060_000_000},
+            ],
+        }]
+
+
+def _run_pull(account_id, extra_argv=None):
+    """Run the producer with a fake client under a fresh temp HOME; return
+    (home_dir, emitted_summary_dict)."""
+    home = tempfile.mkdtemp()
+    prev_home = os.environ.get("HOME")
+    os.environ["HOME"] = home
+    try:
+        argv = ["--account", account_id] + (extra_argv or [])
+        rc = graph.main(argv, client_factory=lambda: _FakeClient())
+        assert rc == 0, f"producer exit {rc}"
+    finally:
+        if prev_home is not None:
+            os.environ["HOME"] = prev_home
+    return home
+
+
+# ---------------------------------------------------------------------------
+# 1. Capture-dir derivation (the one real wrinkle)
+# ---------------------------------------------------------------------------
+def test_instagram_default_capture_dir_is_byte_identical():
+    # instagram MUST NOT regress: default stays ~/.bitfield/captures/instagram.
+    home = _run_pull("instagram:default")
+    expect = pathlib.Path(home) / ".bitfield" / "captures" / "instagram" / "instagram_default.json"
+    assert expect.exists(), f"instagram snapshot not at {expect}"
+
+
+def test_messenger_default_capture_dir_derives_from_vendor():
+    home = _run_pull("messenger:default")
+    expect = pathlib.Path(home) / ".bitfield" / "captures" / "messenger" / "messenger_default.json"
+    assert expect.exists(), f"messenger snapshot not at {expect}"
+    # and it must NOT have leaked into the instagram dir
+    leak = pathlib.Path(home) / ".bitfield" / "captures" / "instagram"
+    assert not leak.exists(), "messenger pull leaked into captures/instagram"
+
+
+def test_explicit_capture_dir_override_still_wins():
+    home = _run_pull("messenger:default", ["--capture-dir", str(pathlib.Path(tempfile.mkdtemp()) / "override")])
+    # nothing under the vendor-derived default when overridden
+    default = pathlib.Path(home) / ".bitfield" / "captures" / "messenger"
+    assert not default.exists(), "override ignored — snapshot went to the derived default"
+
+
+def test_arbitrary_new_vendor_derives_with_zero_code_change():
+    # The mechanism is generic (L131): a vendor never seen before still works.
+    home = _run_pull("basketballchat:default")
+    expect = pathlib.Path(home) / ".bitfield" / "captures" / "basketballchat" / "basketballchat_default.json"
+    assert expect.exists(), "generic vendor derivation failed — not truly data-driven"
+
+
+# ---------------------------------------------------------------------------
+# 2. Decoder reuse proof — same decoder, source:messenger atoms
+# ---------------------------------------------------------------------------
+_MSG_SNAPSHOT = {
+    "self_pk": "999",
+    "threads": [{
+        "id": "page-thread-1", "viewer_id": "999",
+        "users": [{"pk": "111", "username": "pal", "full_name": "A Pal"},
+                  {"pk": "999", "username": "me"}],
+        "messages": [
+            {"user_id": "111", "text": "hey via messenger", "item_type": "text",
+             "timestamp": 1_699_000_000_000_000},
+            {"user_id": "999", "text": "got it", "item_type": "text",
+             "timestamp": 1_699_000_060_000_000},
+        ],
+    }],
+}
+
+
+def _write_msg_snapshot():
+    path = os.path.join(tempfile.mkdtemp(), "messenger_default.json")
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(_MSG_SNAPSHOT, fh)
+    return path
+
+
+def test_decoder_reuse_emits_source_messenger_atoms():
+    obs = {"source_ref": "source:messenger", "native_ref": _write_msg_snapshot(),
+           "batch_ref": "batch:msg1", "observed_at": "2026-07-24T00:00:00Z"}
+    out = dec.decode(obs, {"display_mark_ref": "mark:messenger"})
+    assert out["rejections"] == []
+    assert len(out["threads"]) == 1
+    thr = out["threads"][0]
+    assert thr["thread_ref"].startswith("thread:source:messenger") or "source:messenger" in thr["thread_ref"]
+    assert thr["presentation"]["mark_ref"] == "mark:messenger"
+    speakers = [a["speaker_ref"] for a in out["atoms"]]
+    assert speakers == ["speaker:source:messenger:pal", "speaker:source:messenger:me"]
+    assert [a["content"]["text"] for a in out["atoms"]] == ["hey via messenger", "got it"]
+
+
+# ---------------------------------------------------------------------------
+# 3. Descriptor validity — messenger DATA is valid EEAF + correctly wired
+# ---------------------------------------------------------------------------
+def _things():
+    return json.loads(DESCRIPTOR_JSON.read_text(encoding="utf-8"))["things"]
+
+
+def _by_address(addr):
+    return next(t for t in _things() if t.get("address") == addr)
+
+
+def _template(vendor):
+    record = next(
+        thing for thing in _things()
+        if thing.get("payload", {}).get("kind") == "service-connection-conversation-source-template-set"
+        and thing["payload"].get("vendor") == vendor
+    )
+    return record["payload"]["templates"][0]
+
+
+def test_messenger_template_is_inert_and_connection_bound():
+    assert not [
+        thing for thing in _things()
+        if thing.get("payload", {}).get("property_id") == "prop:observed_content:conversation_source_descriptor"
+    ]
+    spec = _template("facebook-messenger")["descriptor"]
+    assert spec["source_ref"] == "source:messenger"
+    assert spec["access_connection_ref"] == {"$connection": "id"}
+    assert spec["executor_route_ref"] == "facebook-messenger"
+    assert spec["decoder_capability_ref"] == "capability:decode-instagram-dm"          # REUSE
+    assert spec["decoder_process_module"]["script_address"] == \
+        "package::instagram-dm-decoder::stored-bytes::decode-instagram-dm-script"       # REUSE
+    assert spec["display_mark_ref"] == "mark:messenger"
+    assert spec["location"]["data"]["base"] == ["{home}", ".bitfield", "captures", "messenger"]
+    argv = spec["producer"]["argv"]
+    assert argv[:4] == ["python3", "connect-instagram-graph.py", "--account", {"$connection": "id"}]
+    assert "--platform" in argv and argv[argv.index("--platform") + 1] == "messenger"
+    assert argv[argv.index("--graph-base") + 1] == "https://graph.facebook.com"
+    # No user-selected account or absolute home path ships in the template.
+    serialized = json.dumps(spec)
+    assert "messenger:default" not in serialized
+    assert "/Users/" not in serialized
+    # send capability -> messenger front door
+    sc = spec["send_capability_ref"]
+    assert sc["channel"] == "facebook-messenger" and sc["account_ref"] == {"$connection": "id"}
+    # Credential mount resolves from the successful customer's connection.
+    cm = spec["producer"]["credential_mounts"][0]
+    assert cm["vault_key"] == {"$credential_field_secret": "page_access_token"}
+    assert cm["mount_path"] == "graph-token.txt"
+
+
+def test_messenger_offers_are_valid_source_offers():
+    for addr, oid, label, cat in [
+        ("package::instagram-dm-connector::offer::messenger-threads",
+         "source-offer:facebook-messenger:threads", "Messenger Threads", "threads"),
+        ("package::instagram-dm-connector::offer::messenger-messages",
+         "source-offer:facebook-messenger:messages", "Messenger Messages", "messages"),
+    ]:
+        p = _by_address(addr)["payload"]
+        assert p["kind"] == "source.offer"
+        assert p["id"] == oid
+        assert p["connection_ref"] == "service_connection:facebook-messenger"
+        assert p["label"] == label
+        assert p["selection_schema"]["query"]["payload_template"]["static_input"] == {
+            "source_ref": "source:messenger", "category_key": cat,
+        }
+        assert p["provenance"]["source_ref"] == "source:messenger"
+
+
+def test_instagram_descriptor_still_wired_to_instagram():
+    # Instagram stays wired, but only as a connection-gated template.
+    spec = _template("instagram")["descriptor"]
+    assert spec["source_ref"] == "source:instagram"
+    assert spec["location"]["data"]["base"] == ["{home}", ".bitfield", "captures", "instagram"]
+    for off in ("package::instagram-dm-connector::offer::threads",
+                "package::instagram-dm-connector::offer::messages"):
+        assert _by_address(off)["payload"]["provenance"]["source_ref"] == "source:instagram"
+
+
+def _run():
+    fns = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
+    failed = 0
+    for fn in fns:
+        try:
+            fn(); print(f"PASS {fn.__name__}")
+        except AssertionError as e:
+            failed += 1; print(f"FAIL {fn.__name__}: {e}")
+        except Exception as e:  # noqa: BLE001
+            failed += 1; print(f"ERROR {fn.__name__}: {type(e).__name__}: {e}")
+    print(f"\n{len(fns) - failed}/{len(fns)} passed")
+    return 1 if failed else 0
+
+
+if __name__ == "__main__":
+    sys.exit(_run())

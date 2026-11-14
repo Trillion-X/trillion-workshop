@@ -1,0 +1,199 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages packages/notifications: each names its source path and commit, the identity of its source bytes and of its bytes here. The first commit that holds them is the byte copy; later commits change import paths.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "a-home-folder-made-relative",
+      "find": "[/]Users[/]br[i]anakhtar[/]",
+      "replace": "",
+      "means": "A path in the maker's home folder, written from the home folder instead."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/notifications/do-work/README.md",
+      "commit": "64e2e500614832e5e7769ae2a99e165556ba620e",
+      "to": "tools/notifications/do-work/README.md",
+      "source_identity": "1f:f8ea68f144010582258a93c5c0d99033e0bc694b383ed86a0a2eb199e68737de",
+      "identity": "1f:a90b18ef38a01db8f027ff999ebc57259c7a283eb084944fef25e7c6863cf229",
+      "calls": [
+        "a-home-folder-made-relative"
+      ]
+    },
+    {
+      "from": "packages/notifications/do-work/save-setting.test.ts",
+      "commit": "4f8f13b5128d98f22ad1e97e70fe980913633d3f",
+      "to": "tools/notifications/do-work/save-setting.test.ts",
+      "source_identity": "1f:5e1d00aac613226c5e64db7fe1cf707b46f5b88f6bd929898a55b9f96aeabf54",
+      "identity": "1f:fa6c8c93638042e5f89a5e7c322bbf61072e64e99f043ffacaad1589d8c84e71"
+    },
+    {
+      "from": "packages/notifications/do-work/save-setting.ts",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "to": "tools/notifications/do-work/save-setting.ts",
+      "source_identity": "1f:d99fac780f14cdcf10d700f0adbf0825755311d88bfd50009e54d6e43f6aa193",
+      "identity": "1f:b99841ec41dad8ca1f9c36a6819e986a91ea5f91b512d17ac10e272ed7ed10ef"
+    },
+    {
+      "from": "packages/notifications/read-data/README.md",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/notifications/read-data/README.md",
+      "source_identity": "1f:91c2c77bc6e0975ceeebfcba009bb65111993970ae93a3d0f07008f0115e7df6",
+      "identity": "1f:91c2c77bc6e0975ceeebfcba009bb65111993970ae93a3d0f07008f0115e7df6"
+    },
+    {
+      "from": "packages/notifications/read-data/project-setting-view.test.ts",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "to": "tools/notifications/read-data/project-setting-view.test.ts",
+      "source_identity": "1f:a5650f89118399cb7bc958f2f937e02015d822aff2621411781f465e8def1b09",
+      "identity": "1f:a5650f89118399cb7bc958f2f937e02015d822aff2621411781f465e8def1b09"
+    },
+    {
+      "from": "packages/notifications/read-data/project-setting-view.ts",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "to": "tools/notifications/read-data/project-setting-view.ts",
+      "source_identity": "1f:2853e5f791c8437a654adcec94f3fd4ff2a0f3a8addb57ef14af86d7d0253a50",
+      "identity": "1f:2853e5f791c8437a654adcec94f3fd4ff2a0f3a8addb57ef14af86d7d0253a50"
+    },
+    {
+      "from": "packages/notifications/read-data/read-notifications-policy.test.ts",
+      "commit": "64e2e500614832e5e7769ae2a99e165556ba620e",
+      "to": "tools/notifications/read-data/read-notifications-policy.test.ts",
+      "source_identity": "1f:f44dc1d964a64e9fa0e26c51b1a3b866d6dfbf90ae0b3c06bca5852a494e0e0e",
+      "identity": "1f:f44dc1d964a64e9fa0e26c51b1a3b866d6dfbf90ae0b3c06bca5852a494e0e0e"
+    },
+    {
+      "from": "packages/notifications/read-data/read-notifications-policy.ts",
+      "commit": "64e2e500614832e5e7769ae2a99e165556ba620e",
+      "to": "tools/notifications/read-data/read-notifications-policy.ts",
+      "source_identity": "1f:c7b9a53ef5ee276abe148773deba96221078a858924e6e24a61137a5936f0910",
+      "identity": "1f:c7b9a53ef5ee276abe148773deba96221078a858924e6e24a61137a5936f0910"
+    },
+    {
+      "from": "packages/notifications/read-data/setting-copy-table.ts",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "to": "tools/notifications/read-data/setting-copy-table.ts",
+      "source_identity": "1f:92c9c1b52dad77ddaa268953834ac3d7ea0bee0e32fbfb8f57f5d472675b4350",
+      "identity": "1f:92c9c1b52dad77ddaa268953834ac3d7ea0bee0e32fbfb8f57f5d472675b4350"
+    },
+    {
+      "from": "packages/notifications/read-data/setting-live-source.ts",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "to": "tools/notifications/read-data/setting-live-source.ts",
+      "source_identity": "1f:b6d48cc27f06d735fb31ef133d234eb29c3162d94a0c0431dec2265117615f1b",
+      "identity": "1f:b6d48cc27f06d735fb31ef133d234eb29c3162d94a0c0431dec2265117615f1b"
+    },
+    {
+      "from": "packages/notifications/show-ios-jscore/README.md",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "to": "tools/notifications/show-ios-jscore/README.md",
+      "source_identity": "1f:00ac8a05e8f853c4ca12a63b4c971f87edfb234f31bf360865c6045f09c8969e",
+      "identity": "1f:00ac8a05e8f853c4ca12a63b4c971f87edfb234f31bf360865c6045f09c8969e"
+    },
+    {
+      "from": "packages/notifications/show-ios-jscore/mount-notifications-jscore.js",
+      "commit": "64e2e500614832e5e7769ae2a99e165556ba620e",
+      "to": "tools/notifications/show-ios-jscore/mount-notifications-jscore.js",
+      "source_identity": "1f:57d5da762f9df68d156e35597edbc4abdff380d9a07a04e4dc04f6598bffa024",
+      "identity": "1f:57d5da762f9df68d156e35597edbc4abdff380d9a07a04e4dc04f6598bffa024"
+    },
+    {
+      "from": "packages/notifications/show-ios-jscore/mount-notifications-jscore.test.ts",
+      "commit": "64e2e500614832e5e7769ae2a99e165556ba620e",
+      "to": "tools/notifications/show-ios-jscore/mount-notifications-jscore.test.ts",
+      "source_identity": "1f:2b140fc104614071fd3659bb6aba9a1b7f0e5f774dd585203fe653ea2837cbb7",
+      "identity": "1f:3ee595f5ee7958cf585aac53ce02308f5c1924aff2e61053b05a77ab0cd9a1fe"
+    },
+    {
+      "from": "packages/notifications/show/README.md",
+      "commit": "64e2e500614832e5e7769ae2a99e165556ba620e",
+      "to": "tools/notifications/show/README.md",
+      "source_identity": "1f:0e105bffe83b0a3878e8fc3d918b4c662d2fd093f1ee62dd887687feead02f70",
+      "identity": "1f:6609f1cdaf1a53e7cb43c68693d0f23f1ed1b51cbb91020d521c0e622924c46a",
+      "calls": [
+        "a-home-folder-made-relative"
+      ]
+    },
+    {
+      "from": "packages/notifications/show/__tests__/notification-setting-screen.test.tsx",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "to": "tools/notifications/show/__tests__/notification-setting-screen.test.tsx",
+      "source_identity": "1f:bdfee5fe3cd5502bc5fd87b7f293cd5ea02d3525b96e7ba2cfec897dc37cff54",
+      "identity": "1f:e421bd256d22c01d7f421b1b2971525d35850a4ee723b0b5b8d0b40a14099dbd"
+    },
+    {
+      "from": "packages/notifications/show/blind-setting-renderer.tsx",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "to": "tools/notifications/show/blind-setting-renderer.tsx",
+      "source_identity": "1f:dbc89c713ec63f4ba1e90f08c1a6b2bd51a0bc4298f3595e77424f7bcaefad6e",
+      "identity": "1f:f444ea790cde3972394cd77a063cfb0168ee5f8c1386e7f19ffc8a465edc8abb"
+    },
+    {
+      "from": "packages/notifications/show/notification-setting-screen.tsx",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "to": "tools/notifications/show/notification-setting-screen.tsx",
+      "source_identity": "1f:62051fbac5fffd8162ad2426e369a22d2acf20f5ba8c4cc90e4860b09e38394b",
+      "identity": "1f:c389203d4cf6a3769502b185d529418f88f8d2983e2a054c1f74a996b633208e"
+    },
+    {
+      "from": "packages/notifications/show/setting-option-card.tsx",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "to": "tools/notifications/show/setting-option-card.tsx",
+      "source_identity": "1f:b5f896e01b3ef62493f1085302ac7253d75787526a3d15958b934e0b6a0271ed",
+      "identity": "1f:f55adb2c14d4792fbb599d59aee92858b8d12cda3677eb05cf0c28ed3eac6f17"
+    },
+    {
+      "from": "packages/notifications/show/setting-save-bar.tsx",
+      "commit": "cf505a116fc14449e6d359278a60ca8827cdb97b",
+      "to": "tools/notifications/show/setting-save-bar.tsx",
+      "source_identity": "1f:1948f31a59cc8bee626f70967b5c72cf2bb0317a7098bc1eac026c4a41cef2d3",
+      "identity": "1f:b62f8cc15423e27ee4c4988e3be186122234368dd2b0666e5443502d7ba53817"
+    },
+    {
+      "from": "packages/notifications/tests/README.md",
+      "commit": "8b0f359f2798355d053afa475f92aef13c01e62d",
+      "to": "tools/notifications/tests/README.md",
+      "source_identity": "1f:3b05a3e4801e0ff53ce891f78d545226f3a3ea7fb297985f3bf9a5e036af1bac",
+      "identity": "1f:3b05a3e4801e0ff53ce891f78d545226f3a3ea7fb297985f3bf9a5e036af1bac"
+    },
+    {
+      "from": "packages/notifications/tests/boundary-rules-fire-on-the-thing-they-forbid.test.mjs",
+      "commit": "8b0f359f2798355d053afa475f92aef13c01e62d",
+      "to": "tools/notifications/tests/boundary-rules-fire-on-the-thing-they-forbid.test.mjs.held",
+      "source_identity": "1f:119e9614fce4792a166e0abe44ebedea157bca9b5b9e1da0e156a4c431f17cb5",
+      "identity": "1f:119e9614fce4792a166e0abe44ebedea157bca9b5b9e1da0e156a4c431f17cb5"
+    },
+    {
+      "from": "packages/notifications/tests/notification-action-routes.test.mjs",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/notifications/tests/notification-action-routes.test.mjs",
+      "source_identity": "1f:d599c10de0ec2eadba5ad624866a78f4a8c57ce7caaab3f799b2e6b8d97cdee1",
+      "identity": "1f:d599c10de0ec2eadba5ad624866a78f4a8c57ce7caaab3f799b2e6b8d97cdee1"
+    },
+    {
+      "from": "packages/notifications/tests/notification-event-contract.test.mjs",
+      "commit": "f015198c060bfd7185cba8f7b4878361b84010df",
+      "to": "tools/notifications/tests/notification-event-contract.test.mjs",
+      "source_identity": "1f:2314d288bc2386385ed08bd1e37424aee929a208aa8535f98a3d4e7562c52193",
+      "identity": "1f:2314d288bc2386385ed08bd1e37424aee929a208aa8535f98a3d4e7562c52193"
+    },
+    {
+      "from": "packages/notifications/tests/notifications-boundary.test.mjs",
+      "commit": "8b0f359f2798355d053afa475f92aef13c01e62d",
+      "to": "tools/notifications/tests/notifications-boundary.test.mjs",
+      "source_identity": "1f:ebd25ee809a2668509c5af46416ae9b316a19da56e816b5331704bb7fbe28835",
+      "identity": "1f:ebd25ee809a2668509c5af46416ae9b316a19da56e816b5331704bb7fbe28835"
+    },
+    {
+      "from": "packages/notifications/things-to-store-and-run.json",
+      "commit": "f015198c060bfd7185cba8f7b4878361b84010df",
+      "to": "tools/notifications/things-to-store-and-run.json",
+      "source_identity": "1f:622ee8a8150c46794c57245de73ac3a60d0ceeb180025c6777e09d00c5e6e4a7",
+      "identity": "1f:622ee8a8150c46794c57245de73ac3a60d0ceeb180025c6777e09d00c5e6e4a7"
+    }
+  ],
+  "held": {
+    "tools/notifications/tests/boundary-rules-fire-on-the-thing-they-forbid.test.mjs.held": "imports tools/check-source-files-against-declared-rules/do-work/check-source-files-against-declared-rules.mjs (violationsInFile), which this tree does not hold; named .held so a run does not fail on a missing module"
+  }
+}

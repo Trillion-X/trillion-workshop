@@ -1,0 +1,124 @@
+// Every `source-file-rule` this package declares actually fires, and is clean on compliant text.
+//
+// This is the ONLY thing standing between these three rules and silent vacuity, and here that is
+// not a general worry: ALL THREE MATCH ZERO SOURCE LINES TODAY. The walk they replaced was passing
+// too, so nothing is regressing, but it means the corpus run cannot tell a working rule from a
+// broken one for any of them. A scope regex matching no file, an alternation with a typo, and a
+// genuinely compliant package all print nothing, and the engine drops zero-finding rules from its
+// report entirely.
+//
+// That failure is not hypothetical in this lane: a migrated rule once had four `forbidden` patterns,
+// which are AND-composed, so it demanded all four tokens in one unit and forbade nothing while
+// reporting clean.
+//
+// The rules are READ FROM THE MANIFEST rather than restated here. A copy would pass forever after
+// the shipped rule was weakened, which is the failure this file exists to prevent, one level up.
+
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import test from 'node:test';
+
+import { violationsInFile } from '../../check-source-files-against-declared-rules/do-work/check-source-files-against-declared-rules.mjs';
+
+const packageRoot = dirname(dirname(fileURLToPath(import.meta.url)));
+const declared = JSON.parse(readFileSync(join(packageRoot, 'things-to-store-and-run.json'), 'utf8'));
+
+function rule(id) {
+  const found = declared.things
+    .map((thing) => thing?.payload)
+    .find((payload) => payload?.kind === 'source-file-rule' && payload.id === id);
+  assert.ok(found, `this package declares the rule ${id}`);
+  return found;
+}
+
+const delivery = rule('this-package-may-not-name-a-delivery-mechanism');
+const otherDomain = rule('this-package-may-not-name-another-domain');
+const modeBranch = rule('a-notification-mode-is-data-not-a-branch-in-code');
+
+const SOURCE = 'packages/notifications/read-data/some-reader.ts';
+
+test('a delivery transport in package source is reported', () => {
+  for (const token of ['sendNotification', 'pushToken', 'APNS', 'FCM', 'smtp', 'sendEmail']) {
+    assert.equal(
+      violationsInFile(delivery, SOURCE, `const value = ${token}(payload);`).length,
+      1,
+      `${token} is reported`,
+    );
+  }
+});
+
+test('the delivery rule is case-insensitive, which the walk it replaced was not', () => {
+  // The predecessor matched APNS and FCM case-sensitively and the other four case-insensitively.
+  // That was an artifact of how the list grew, and a lowercase `apns` names the same mechanism.
+  // Widening was checked against the corpus before landing: no in-scope file matches either spelling.
+  for (const token of ['apns', 'Fcm']) {
+    assert.equal(violationsInFile(delivery, SOURCE, `const x = '${token}';`).length, 1, `${token} is reported`);
+  }
+});
+
+test('another domain named in package source is reported', () => {
+  for (const token of ['calendarEvent', 'campaignStage', 'crm', 'lead', 'loss']) {
+    assert.equal(
+      violationsInFile(otherDomain, SOURCE, `const subject = ${token};`).length,
+      1,
+      `${token} is reported`,
+    );
+  }
+});
+
+test('the domain rule respects word boundaries, so ordinary English survives', () => {
+  // `lead`, `loss` and `crm` are the highest false-positive risk in this package. Word boundaries
+  // are the only thing making them safe, so this is the assertion that keeps them usable.
+  for (const line of ['const leading = true;', 'const lossless = compress(x);', 'const downloads = 3;']) {
+    assert.deepEqual(violationsInFile(otherDomain, SOURCE, line), [], `${line} is spared`);
+  }
+});
+
+test('a mode named in a branch is reported, including a switch head split across lines', () => {
+  assert.equal(
+    violationsInFile(modeBranch, SOURCE, "case 'focus':").length,
+    1,
+    'a single-line case is reported',
+  );
+  // THE REASON THIS RULE DECLARES NO `unit`. `switch\s*\([^)]*` uses a negated class and `[^)]`
+  // matches a newline, so the whole-file unit reaches a switch head spanning lines. Give this rule
+  // `{split: "\n"}` like its two siblings and this assertion fails, silently narrowing it.
+  assert.equal(
+    violationsInFile(modeBranch, SOURCE, 'switch (\n  normalMode\n) {').length,
+    1,
+    'a multi-line switch head is still reported',
+  );
+});
+
+test('every rule spares the vendored bundle, the tests, and other packages', () => {
+  // `proof/harness/` IS judged and only `proof/harness/out/` is skipped. That bundle vendors React,
+  // whose DOM event dispatch contains `case "focus":` for the browser focus EVENT rather than a
+  // notification mode, so scanning it false-positives on third-party code nobody here authored.
+  const spared = [
+    'packages/notifications/proof/harness/out/bundle.js',
+    'packages/notifications/tests/anything.test.mjs',
+    'packages/notifications/show/thing.test.ts',
+    'packages/notifications/built-stored-bytes/entry-bytes-x.mjs',
+    'packages/some-other-package/read-data/reader.ts',
+  ];
+  for (const file of spared) {
+    for (const declaredRule of [delivery, otherDomain, modeBranch]) {
+      assert.deepEqual(
+        violationsInFile(declaredRule, file, "sendEmail(); const lead = 1; case 'focus':"),
+        [],
+        `${file} is out of scope for ${declaredRule.id}`,
+      );
+    }
+  }
+});
+
+test('authored proof harness source stays IN scope', () => {
+  // Only the built bundle is excluded. The harness source is authored here and must stay blind.
+  assert.equal(
+    violationsInFile(delivery, 'packages/notifications/proof/harness/surface-for-state.ts', 'sendEmail();').length,
+    1,
+    'authored harness source is judged',
+  );
+});

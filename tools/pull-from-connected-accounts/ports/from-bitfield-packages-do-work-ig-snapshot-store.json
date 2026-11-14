@@ -1,0 +1,71 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PULL-FROM-CONNECTED-ACCOUNTS-DO-WORK-IG-SNAPSHOT-STORE-FROM-BITFIELD-PACKAGES",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "census-and-restore lane 1, 2026-11-13: no rewrites from scratch; originals move wholesale",
+    "message_multihash": "1f:31cfaef8fe1b095bcdda0c309aeb261d0b928f36c81425a5d444f4f86483ec45",
+    "quote": "standing order: NO rewrites from scratch. Originals move wholesale (byte for byte, with moved-from receipts)"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "bitfield-packages",
+      "commit": "03591977646187c76b677e42dcf1fe6bce2f5b17",
+      "path": "packages/instagram-dm-connector/do-work/ig_snapshot_store.py",
+      "multihash": "1f:262e20f53b193235ce94056961199e90770131600c1e86cc8bd864ab7196d96d",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-17T06:38:09Z",
+        "deleted_with": "the change that lands this move: the package file leaves bitfield-packages in the same change"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/pull-from-connected-accounts/do-work/ig_snapshot_store.py"
+    }
+  ],
+  "preserve": [
+    "the file is the original package file, moved with its import paths changed to this tree and nothing else",
+    "what the file did in the package: its exports, its rules and its edge cases are not rewritten here"
+  ],
+  "allowed_deltas": [
+    "import paths and the file header name the file's new place",
+    "one import line names the shared fold under its name in this tree (baseline.redactions)"
+  ],
+  "banned_substitutions": [
+    "a second implementation of the same job beside this file",
+    "a rewrite from scratch of what the package file does"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:262e20f53b193235ce94056961199e90770131600c1e86cc8bd864ab7196d96d",
+    "target_multihash_at_baseline": "1f:262e20f53b193235ce94056961199e90770131600c1e86cc8bd864ab7196d96d",
+    "redactions": [
+      {
+        "from": "sys\\.path\\.insert\\(0, os\\.path\\.dirname\\(os\\.path\\.abspath\\(__file__\\)\\)\\)\\nimport conversation_snapshot_fold as csf  # noqa: E402  \\(co-mounted pure leaf\\)",
+        "to": "sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'conversations', 'read-data'))\nimport snapshot_fold as csf  # noqa: E402  (the conversations tool's fold)"
+      }
+    ],
+    "recorded_at": "2026-11-14T06:39:09Z",
+    "rows": [
+      {
+        "path": "tools/pull-from-connected-accounts/do-work/ig_snapshot_store.py",
+        "source_multihash": "1f:262e20f53b193235ce94056961199e90770131600c1e86cc8bd864ab7196d96d",
+        "target_multihash_at_baseline": "1f:262e20f53b193235ce94056961199e90770131600c1e86cc8bd864ab7196d96d"
+      }
+    ],
+    "commit": "7c4824dca957ba9e81c8c45c1ead3a97a7a38afb"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "def empty_snapshot(self_pk=None):",
+      "def _first(d, *keys):"
+    ],
+    "test_refs": [],
+    "render_refs": [],
+    "originality_ref": null
+  }
+}

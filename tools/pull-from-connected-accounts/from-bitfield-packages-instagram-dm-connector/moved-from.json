@@ -1,0 +1,79 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages packages/instagram-dm-connector: each names its source path and commit, the identity of its source bytes and of its bytes here. The first commit that holds them is the byte copy; later commits change the calls the receipt names.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "fold-module-is-the-conversations-tools-copy",
+      "find": "sys\\.path\\.insert\\(0, os\\.path\\.dirname\\(os\\.path\\.abspath\\(__file__\\)\\)\\)\\nimport conversation_snapshot_fold as csf  # noqa: E402  \\(co-mounted pure leaf\\)",
+      "replace": "sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'conversations', 'read-data'))\nimport snapshot_fold as csf  # noqa: E402  (the conversations tool's fold)",
+      "means": "The shared fold is kept once, in tools/conversations/read-data/snapshot_fold.py (the same fold under that name); this store imports it from there instead of from a co-mounted copy."
+    },
+    {
+      "id": "a-username-made-up",
+      "find": "br[i]an_akh[t]ar",
+      "replace": "example_user",
+      "means": "A test account username named a real person; a made-up one instead."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/instagram-dm-connector/do-work/connect-instagram-graph.py",
+      "commit": "03f8ef77c5dde8e821c460be4fd0a0f53885b5b2",
+      "to": "tools/pull-from-connected-accounts/do-work/connect-instagram-graph.py",
+      "source_identity": "1f:f439d291e997eb778e9c6bee94ac7cbf1a84bfc41d69376a91d686c162d1eb82",
+      "identity": "1f:f439d291e997eb778e9c6bee94ac7cbf1a84bfc41d69376a91d686c162d1eb82"
+    },
+    {
+      "from": "packages/instagram-dm-connector/do-work/connect-instagram.py",
+      "commit": "e3cde6742aeb619528bb0a38c3cc8a11d8ec52e5",
+      "to": "tools/pull-from-connected-accounts/do-work/connect-instagram.py",
+      "source_identity": "1f:315799477cc927412e50fc6e0ccb981a78bc55335020d387b1462def224ca50e",
+      "identity": "1f:315799477cc927412e50fc6e0ccb981a78bc55335020d387b1462def224ca50e"
+    },
+    {
+      "from": "packages/instagram-dm-connector/do-work/graph_instagram_client.py",
+      "commit": "1a9750ef188487cf80f233a699434a128fb92b5a",
+      "to": "tools/pull-from-connected-accounts/do-work/graph_instagram_client.py",
+      "source_identity": "1f:16c50a1a02f3bd4a663be7c1c2ec3e44a5a08045abeef458d2d62f43a00c3ac5",
+      "identity": "1f:16c50a1a02f3bd4a663be7c1c2ec3e44a5a08045abeef458d2d62f43a00c3ac5"
+    },
+    {
+      "from": "packages/instagram-dm-connector/do-work/ig_snapshot_store.py",
+      "commit": "03591977646187c76b677e42dcf1fe6bce2f5b17",
+      "to": "tools/pull-from-connected-accounts/do-work/ig_snapshot_store.py",
+      "source_identity": "1f:262e20f53b193235ce94056961199e90770131600c1e86cc8bd864ab7196d96d",
+      "identity": "1f:bf526d0c72a62730281be3126917696a7a564bf61220069722374281e96d10c3",
+      "calls": [
+        "fold-module-is-the-conversations-tools-copy"
+      ]
+    },
+    {
+      "from": "packages/instagram-dm-connector/do-work/__tests__/test_graph_instagram_client.py",
+      "commit": "1a9750ef188487cf80f233a699434a128fb92b5a",
+      "to": "tools/pull-from-connected-accounts/do-work/__tests__/test_graph_instagram_client.py",
+      "source_identity": "1f:d16f996fa99ceb2e5e2429d8a22d2d767b5cbd3c2c32581b5242bb649d137553",
+      "identity": "1f:1c4cb7566dedad9acdd601b4c014cb8afe55fd5c447a29d3925d315066f6d473",
+      "calls": [
+        "a-username-made-up"
+      ]
+    },
+    {
+      "from": "packages/instagram-dm-connector/do-work/__tests__/test_ig_snapshot_store.py",
+      "commit": "03591977646187c76b677e42dcf1fe6bce2f5b17",
+      "to": "tools/pull-from-connected-accounts/do-work/__tests__/test_ig_snapshot_store.py",
+      "source_identity": "1f:50240be9d07832616fc3c6175f296ce6efcecf80629f0d036391af9ece23da34",
+      "identity": "1f:50240be9d07832616fc3c6175f296ce6efcecf80629f0d036391af9ece23da34"
+    },
+    {
+      "from": "packages/instagram-dm-connector/do-work/__tests__/test_messenger_reuse.py",
+      "commit": "db507444459b35561c8473e138f96d4d3275d5e3",
+      "to": "tools/pull-from-connected-accounts/do-work/__tests__/test_messenger_reuse.py.held",
+      "source_identity": "1f:64ba750e6031b7a835c02977685705b63ee985ff04758ad37aa7e59b23aef414",
+      "identity": "1f:64ba750e6031b7a835c02977685705b63ee985ff04758ad37aa7e59b23aef414"
+    }
+  ],
+  "held": {
+    "tools/pull-from-connected-accounts/do-work/__tests__/test_messenger_reuse.py.held": "loads the package's own decoder at tools/instagram-dm-decoder/do-work/process-scripts/decode-instagram-dm.py, which this tree does not hold under that path (the conversations tool decodes the same export through read-data/decode_source.py and the `instagram-direct-messages` source row); named .held so a run does not fail on a missing file"
+  }
+}
