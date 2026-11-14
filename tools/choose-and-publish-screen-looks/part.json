@@ -1,4 +1,5 @@
 {
+  "roles": { "screen-inputs": "inputs.json" },
   "exports": {
     "inputs.json": "src/workspace/inputs.json",
     "looks.json": "src/workspace/looks.json"
