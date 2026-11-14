@@ -145,6 +145,17 @@ test('a refusal from Stripe is said without the key', async () => {
   } finally { globalThis.fetch = realFetch; }
 });
 
+test('the connection the row names is the engine\'s, so neither read passes it to the query and both still refuse an input the read does not name', async () => {
+  const seller_connection = 'service_connection:stripe:sample';
+  const live = stripeStandIn();
+  assert.deepEqual((await readStripePromotionCodes({ seller_connection, active: true }, { readKey: held(liveKey), send: live.send })).promotion_codes, [asRead]);
+  assert.equal(live.sent[0].url, 'https://api.stripe.com/v1/promotion_codes?active=true&expand%5B0%5D=data.promotion.coupon');
+  const test = stripeStandIn();
+  assert.deepEqual((await readStripePromotionCodesInTestMode({ seller_connection, code: 'SAMPLEFRIEND25' }, { readKey: held(testKey), send: test.send })).promotion_codes, [asRead]);
+  assert.match(test.sent[0].url, /code=SAMPLEFRIEND25/);
+  await assert.rejects(readStripePromotionCodes({ seller_connection, colour: 'red' }, { readKey: held(liveKey), send: live.send }), /does not take colour/);
+});
+
 test('the test-mode read refuses a live key before any request is built, and reads with a test key', async () => {
   const { sent, send } = stripeStandIn();
   await assert.rejects(readStripePromotionCodesInTestMode({}, { readKey: held(liveKey), send }), /not a Stripe test key/);

@@ -4,9 +4,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { toolRowFindings } from '../test-helpers/tool-row-imports.mjs';
 
 const repo = resolve(import.meta.dirname, '..');
@@ -52,4 +52,48 @@ test('reading the imports of a long file takes time in proportion to its size', 
   const large = clock(8000);
   assert.ok(large < small * 10, `4x the text took ${(large / small).toFixed(1)}x the time`);
   assert.deepEqual(specsOf("import { a,\n b } from './y.mjs';\nexport * from './z.mjs';\nconst m = await import('./w.mjs');"), ['./y.mjs', './z.mjs', './w.mjs']);
+});
+
+test('type-only imports are not followed, because they are erased before the program runs', async () => {
+  const { specsOf } = await import('../test-helpers/tool-row-imports.mjs');
+  assert.deepEqual(specsOf("import type { A } from './types.ts';\nexport type { B } from './more.ts';\nimport { c } from './real.ts';"), ['./real.ts']);
+});
+
+// A tree of two tools committed into a throwaway repository: `user` reaches `shared` through a .ts program and a relative import.
+function fixtureFindings(sharedEntry) {
+  const folder = mkdtempSync(join(tmpdir(), 'tool-row-imports-fixture-'));
+  const write = (file, text) => { mkdirSync(dirname(join(folder, file)), { recursive: true }); writeFileSync(join(folder, file), text); };
+  const row = { kind: 'ai-tool-descriptor', id: 'tool:user', status: 'live', invoke: { argv: ['node', '/opt/user/do-work/run.mjs'], files: { package_files: [{ package: 'user', paths: ['do-work'], at: '/opt/user' }, sharedEntry] } } };
+  write('tools/user/tool-rows.json', JSON.stringify({ records: [{ payload: row }] }));
+  write('tools/user/do-work/run.mjs', "import { go } from './via.ts';\ngo();\n");
+  write('tools/user/do-work/via.ts', "import type { T } from './types.ts';\nexport { go } from '../../shared/read-data/go.mjs';\n");
+  write('tools/shared/read-data/go.mjs', 'export const go = () => 1;\n');
+  write('test-helpers/tool-row-imports.json', JSON.stringify({ provided_by_the_system: [] }));
+  write('package-lock.json', JSON.stringify({ packages: {} }));
+  const git = args => execFileSync('git', ['-C', folder, ...args], { env: { ...process.env, GIT_AUTHOR_NAME: 'check', GIT_AUTHOR_EMAIL: 'check@example.test', GIT_COMMITTER_NAME: 'check', GIT_COMMITTER_EMAIL: 'check@example.test' } }).toString().trim();
+  git(['init', '-q']);
+  git(['add', '-A']);
+  git(['commit', '-q', '-m', 'fixture']);
+  return toolRowFindings({ repo: folder, ref: 'HEAD' }).results.flatMap(r => r.findings).map(f => `${f.kind} ${f.needs ?? ''}`.trim());
+}
+
+test('a file reached through a .ts program is packed, and only where a relative import finds it', () => {
+  assert.deepEqual(fixtureFindings({ package: 'shared', paths: ['read-data'], at: '/opt/shared' }), []);
+  assert.deepEqual(fixtureFindings({ package: 'shared', paths: ['read-data'], at: '/opt/node_modules/trillion-workshop/tools/shared' }), ['missing-relative-import tools/shared/read-data/go.mjs']);
+  assert.deepEqual(fixtureFindings({ package: 'other', paths: ['read-data'], at: '/opt/other' }), ['missing-relative-import tools/shared/read-data/go.mjs']);
+});
+
+// The same shape one place over: a tool's part.json names the files other code reaches, `exports` by name and `public` as a list, and
+// an entry whose file is gone names something that loads nothing. Every entry names a file (or, for `<name>/*`, a folder) the tool holds.
+test('every part.json export and public entry names a file or folder its tool holds', () => {
+  const gone = [];
+  const holds = (tool, target) => existsSync(join(repo, 'tools', tool, target.replace(/\/\*$/, '')));
+  for (const tool of readdirSync(join(repo, 'tools'), { withFileTypes: true }).filter(entry => entry.isDirectory())) {
+    const file = join(repo, 'tools', tool.name, 'part.json');
+    if (!existsSync(file)) continue;
+    const part = JSON.parse(readFileSync(file, 'utf8'));
+    for (const [name, target] of Object.entries(part.exports ?? {})) if (!holds(tool.name, target)) gone.push(`tools/${tool.name}/part.json exports ${name}: ${target}`);
+    for (const target of part.public ?? []) if (typeof target === 'string' && !target.includes('*') && !holds(tool.name, target)) gone.push(`tools/${tool.name}/part.json public: ${target}`);
+  }
+  assert.deepEqual(gone, [], `\n${gone.join('\n')}\n\nPoint each entry at a file the tool holds, or remove it.`);
 });

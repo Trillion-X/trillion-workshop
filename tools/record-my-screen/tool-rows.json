@@ -212,6 +212,13 @@
                   "send-settings.json"
                 ],
                 "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "content-media-evidence",
+                "paths": [
+                  "do-work/content-media-work-loop.ts"
+                ],
+                "at": "/opt/content-media-evidence"
               }
             ]
           }

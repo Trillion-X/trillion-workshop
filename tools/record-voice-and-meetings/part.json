@@ -19,8 +19,6 @@
     "show/edit-recording.ts",
     "do-work/recording-on-device.ts",
     "do-work/send-while-recording.ts",
-    "do-work/always-recording.ts",
-    "do-work/rolling-segments.mjs",
     "show/RecordAudioPanel.tsx",
     "show/RecordingLibrary.tsx",
     "show/MeetingNoteMetadata.tsx",

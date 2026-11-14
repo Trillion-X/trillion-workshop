@@ -1016,8 +1016,8 @@ async function serve(context) {
 }
 
 
-/** `trillion update`: this program never updates itself. The Workshop installer owns the copy and updates it only when
- *  `trillion setup` runs from a newer Workshop program. */
+/** `trillion update`: this program does not fetch code. The installed copy follows the Workshop copy the engine
+ *  keeps current (workshopProgram), and `trillion setup` run from a newer Workshop program refreshes the installed files. */
 export function updateWords({ rules = settings } = {}) {
   return rules.update.workshop;
 }

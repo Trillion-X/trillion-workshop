@@ -134,7 +134,7 @@
         "paths": [
          "read-data/wall-time.mjs"
         ],
-        "at": "/opt/node_modules/trillion-workshop/tools/wall-time"
+        "at": "/opt/wall-time"
        },
        {
         "package": "records-door",

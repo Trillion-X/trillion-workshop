@@ -9,12 +9,15 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { untarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
 import { readFeed, settings, verifyEntry } from '../do-work/release-feed.mjs';
-import { buildArguments, checkProductPin, makeKey, publish } from '../do-work/publish-an-engine-release.mjs';
+import { buildArguments, checkProductPin, makeKey, publisherWith } from '../do-work/publish-an-engine-release.mjs';
 import { builderConfig, checkRequest, installBuilder, receiverUnit } from '../do-work/install-a-builder.mjs';
 import { gitSshCommand, overSsh } from '../do-work/git-ssh.mjs';
 
 const here = fileURLToPath(new URL('.', import.meta.url));
 const folder = () => mkdtempSync(join(tmpdir(), 'engine-release-client-'));
+// The publisher reads read-data/holds.json, the person's live rows, when it is handed none, and a hold whose commit is not on a made-up
+// repository's branch holds everything: a test that is not about holds takes a publisher bound to no holds.
+const { publish } = publisherWith([]);
 const BASE_TIME = 1_800_000_000;
 const git = (cwd, ...args) => {
   const extra = typeof args.at(-1) === 'object' ? args.pop().env : {};

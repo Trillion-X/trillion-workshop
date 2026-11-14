@@ -41,7 +41,6 @@
     "read-data/structural-blocks.ts",
     "read-data/composer-key-action.ts",
     "show/mount-documents.tsx",
-    "read-data/collaboration-view.ts",
     "read-data/paste-sources.ts",
     "things-to-store-and-run.json"
   ],

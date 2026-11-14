@@ -351,13 +351,6 @@
                 "at": "/opt/wall-time"
               },
               {
-                "package": "wall-time",
-                "paths": [
-                  "read-data/wall-time.mjs"
-                ],
-                "at": "/opt/node_modules/trillion-workshop/tools/wall-time"
-              },
-              {
                 "module": "@noble/hashes",
                 "paths": [
                   "LICENSE",

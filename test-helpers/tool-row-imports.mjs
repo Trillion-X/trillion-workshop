@@ -15,6 +15,10 @@
 // Non-Negotiable Invariants:
 //   1. A row's package_files covers every file the walk reaches through a relative import. A gap is a row the engine would
 //      start without a module it needs (ERR_MODULE_NOT_FOUND on the installed snapshot).
+//      The walk follows .mjs, .js, .cjs and .ts files (a .ts program the engine runs through Node's type stripping is a program
+//      like any other; a type-only import is erased and never followed). A package declared only at a module-style path
+//      (/opt/node_modules/...) is where a bare import of its name resolves, not where a relative import from a sibling lands, so it
+//      does not cover the file.
 //   2. Read from git objects at `ref`, never the working tree, so a gate judges the commit being pushed.
 //
 //   toolRowFindings({ repo, ref }) → { results: [{ row_file, id, status, package_files, findings, items }], shapes, byRow }
@@ -46,6 +50,7 @@ const KEYWORD = /import|export/g;
 const STATEMENT = new RegExp(String.raw`(?:import\s+(?:${BINDINGS}\s+from\s+)?|export\s+${BINDINGS}\s+from\s+|import\s*\()\s*['"]([^'"]+)['"]`, 'y');
 const DYNAMIC = /import\s*\(\s*['"]([^'"]+)['"]/y;
 const RUN = /[\w*{},$\s]*/y;
+const TYPE_ONLY = /^(?:import|export)\s+type\s+[{*\w]/;
 export const specsOf = (src) => {
   const out = new Set();
   let skipUntil = 0;
@@ -55,7 +60,8 @@ export const specsOf = (src) => {
     const pattern = k.index < skipUntil ? DYNAMIC : STATEMENT;
     pattern.lastIndex = k.index;
     const m = pattern.exec(src);
-    if (m) { out.add(m[1]); KEYWORD.lastIndex = pattern.lastIndex; continue; }
+    // A type-only statement is erased before the program runs: the engine never loads its module.
+    if (m) { if (!TYPE_ONLY.test(m[0])) out.add(m[1]); KEYWORD.lastIndex = pattern.lastIndex; continue; }
     if (pattern === STATEMENT) { RUN.lastIndex = k.index; RUN.exec(src); skipUntil = RUN.lastIndex; }
   }
   return [...out];
@@ -79,7 +85,7 @@ if (top !== fs.realpathSync(repo)) throw new Error(`${repo} is not the top of a 
 const allFiles = git(['ls-tree', '-r', '--name-only', REF]).toString().split('\n').filter(Boolean);
 const fileSet = new Set(allFiles);
 const toolRowFiles = allFiles.filter((f) => /^tools\/[^/]+\/tool-rows\.json$/.test(f));
-const codeFiles = allFiles.filter((f) => /^tools\/.+\.(mjs|js|cjs)$/.test(f));
+const codeFiles = allFiles.filter((f) => /^tools\/.+\.(mjs|js|cjs|ts)$/.test(f));
 
 // Batch-read the blobs we need (tool rows + all tool code files) in one git call.
 const want = [...new Set([...toolRowFiles, ...codeFiles, SYSTEM_DATA, LOCKFILE, DOOR_EXCEPTIONS])];
@@ -127,7 +133,11 @@ function coverageOf(entries) {
   return { covers, modules };
 }
 
-const coveredBy = (covers, pkg, rel) => covers.some((c) => c.pkg === pkg && (rel === c.rel || rel.startsWith(c.rel + '/') || c.rel === '.' ));
+// A file is packed when a declared entry of its package mounts it where a relative import from a sibling finds it, under /opt
+// beside the other tools. An entry for the package at a module-style path (/opt/node_modules/...) is where a bare import of the
+// package name resolves, and leaves the sibling place empty: the program starts without the file, so the package name alone does
+// not cover it.
+const mountedAt = (covers, pkg, rel) => covers.some((c) => c.pkg === pkg && !c.at.startsWith('/opt/node_modules/') && (rel === c.rel || rel.startsWith(c.rel + '/') || c.rel === '.'));
 
 // Map an installed absolute path to its workshop path via the row's declared roots,
 // falling back to the /opt/<pkg>/ convention (installed dir name == tools/<name>).
@@ -287,7 +297,7 @@ function checkRow(rowFile, desc) {
     if (w && fileSet.has(w.ws)) queue.push({ ws: w.ws, from: 'argv' });
     else if (w && !w.declared) findings.push({ kind: 'argv-target-not-in-tree', target: a });
     // An entry program is a code file in the tree; an output or input path (out, sealed.bin) is not packed.
-    if (w && fileSet.has(w.ws) && /\.(mjs|js|cjs|py|sh)$/.test(w.ws) && !coveredBy(covers, w.pkg, w.ws.split('/').slice(2).join('/'))) findings.push({ kind: 'argv-not-declared', target: a, pkg: w.pkg, needs: w.ws });
+    if (w && fileSet.has(w.ws) && /\.(mjs|js|cjs|py|sh)$/.test(w.ws) && !mountedAt(covers, w.pkg, w.ws.split('/').slice(2).join('/'))) findings.push({ kind: 'argv-not-declared', target: a, pkg: w.pkg, needs: w.ws });
   }
   const visited = new Set();
   const needed = new Map();
@@ -303,16 +313,16 @@ function checkRow(rowFile, desc) {
         const target = spec.startsWith('/') ? spec : resolveRel(installed.replace(/^\/opt\//, '/opt/'), spec);
         const w = toWorkshop(target, covers);
         if (!w) continue;
-        const candidates = [w.ws, w.ws + '.mjs', w.ws + '.js', w.ws + '/index.mjs', w.ws + '/index.js'];
+        const candidates = [w.ws, w.ws + '.mjs', w.ws + '.js', w.ws + '.ts', w.ws + '/index.mjs', w.ws + '/index.js'];
         const hit = candidates.find((c) => fileSet.has(c));
         if (!hit) { findings.push({ kind: 'dangling-in-tree', from: ws, spec, target: w.ws }); continue; }
         const rel = hit.split('/').slice(2).join('/');
-        if (!coveredBy(covers, w.pkg, rel)) {
+        if (!mountedAt(covers, w.pkg, rel)) {
           const key = `${ws}|${spec}`;
           if (!seen.has(key)) { seen.add(key); findings.push({ kind: 'missing-relative-import', from: ws, spec, needs: hit, pkg: w.pkg, declared_pkg: w.declared }); }
           // Keep walking the missing file so chains show up.
         }
-        if (!visited.has(hit) && /\.(mjs|js|cjs)$/.test(hit)) queue.push({ ws: hit, from: ws });
+        if (!visited.has(hit) && /\.(mjs|js|cjs|ts)$/.test(hit)) queue.push({ ws: hit, from: ws });
       } else if (!isBuiltin(spec)) {
         const top = spec.startsWith('@') ? spec.split('/').slice(0, 2).join('/') : spec.split('/')[0];
         if (systemNames.has(top) || modules.has(top) || modules.has(spec)) continue;
@@ -328,7 +338,7 @@ function checkRow(rowFile, desc) {
   for (const ws of [...visited].sort()) {
     const [, pkg, ...rest] = ws.split('/');
     const rel = rest.join('/');
-    if (!fileSet.has(ws) || coveredBy(covers, pkg, rel)) continue;
+    if (!fileSet.has(ws) || mountedAt(covers, pkg, rel)) continue;
     if (!extra.has(pkg)) extra.set(pkg, new Set());
     extra.get(pkg).add(rel);
   }

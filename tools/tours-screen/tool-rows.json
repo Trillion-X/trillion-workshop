@@ -55,7 +55,8 @@
                   "do-work",
                   "read-data",
                   "engine",
-                  "guided-overlay-defaults.json"
+                  "guided-overlay-defaults.json",
+                  "tour-library.json"
                 ],
                 "at": "/opt/tours-screen"
               },
@@ -84,7 +85,8 @@
               {
                 "package": "run-experiments",
                 "paths": [
-                  "read-data"
+                  "read-data",
+                  "do-work/observe.ts"
                 ],
                 "at": "/opt/run-experiments"
               },
@@ -112,7 +114,8 @@
               {
                 "package": "ui",
                 "paths": [
-                  "part.json"
+                  "part.json",
+                  "show/blind-registry/blind-registry.ts"
                 ],
                 "at": "/opt/ui"
               },
@@ -319,7 +322,8 @@
                   "do-work",
                   "read-data",
                   "engine",
-                  "guided-overlay-defaults.json"
+                  "guided-overlay-defaults.json",
+                  "tour-library.json"
                 ],
                 "at": "/opt/tours-screen"
               },
@@ -348,7 +352,8 @@
               {
                 "package": "run-experiments",
                 "paths": [
-                  "read-data"
+                  "read-data",
+                  "do-work/observe.ts"
                 ],
                 "at": "/opt/run-experiments"
               },
@@ -376,7 +381,8 @@
               {
                 "package": "ui",
                 "paths": [
-                  "part.json"
+                  "part.json",
+                  "show/blind-registry/blind-registry.ts"
                 ],
                 "at": "/opt/ui"
               },
@@ -595,7 +601,8 @@
                   "do-work",
                   "read-data",
                   "engine",
-                  "guided-overlay-defaults.json"
+                  "guided-overlay-defaults.json",
+                  "tour-library.json"
                 ],
                 "at": "/opt/tours-screen"
               },
@@ -624,7 +631,8 @@
               {
                 "package": "run-experiments",
                 "paths": [
-                  "read-data"
+                  "read-data",
+                  "do-work/observe.ts"
                 ],
                 "at": "/opt/run-experiments"
               },
@@ -652,7 +660,8 @@
               {
                 "package": "ui",
                 "paths": [
-                  "part.json"
+                  "part.json",
+                  "show/blind-registry/blind-registry.ts"
                 ],
                 "at": "/opt/ui"
               },

@@ -246,10 +246,14 @@ export async function rehearseABillingPageInTestMode(input, context) {
   return rehearseABillingPage(input, testSender(context));
 }
 
+// `seller_connection` is the engine's: it names the connection whose key the row mounts, and is not an input of the read, which
+// refuses any input its row of read-data/stripe-read-shapes.json does not name.
+const readInputOf = ({ seller_connection: _mounted, ...input }) => input;
+
 /** The promotion codes of the account (one by its code, or those active or not), with the coupon each gives. Reads only. */
-export const readStripePromotionCodes = async (input, context) => readStripeObjects('read:promotion-codes', input, { send: sender(context) });
+export const readStripePromotionCodes = async (input, context) => readStripeObjects('read:promotion-codes', readInputOf(input), { send: sender(context) });
 /** The same read against the person's Stripe test account; a key that is not a test key is refused first. */
-export const readStripePromotionCodesInTestMode = async (input, context) => readStripeObjects('read:promotion-codes', input, { send: testSender(context) });
+export const readStripePromotionCodesInTestMode = async (input, context) => readStripeObjects('read:promotion-codes', readInputOf(input), { send: testSender(context) });
 
 export { observeLiveUsage } from './live-usage.mjs';
 export { reportResourceUsage, readResourceUsageReport, reconcileResourceUsageReport, cancelPreparedResourceUsageReport } from './resource-usage-reporting.mjs';

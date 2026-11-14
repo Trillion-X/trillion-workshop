@@ -193,6 +193,14 @@
                 "at": "/opt/take-payments"
               },
               {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
                 "package": "records-door",
                 "paths": [
                   "do-work",

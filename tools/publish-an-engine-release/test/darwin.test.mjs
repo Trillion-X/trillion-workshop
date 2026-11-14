@@ -11,15 +11,17 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { untarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
 import { settings, verifyEntry } from '../do-work/release-feed.mjs';
-import { checkDeveloperId, darwinOf, makeKey, publish } from '../do-work/publish-an-engine-release.mjs';
+import { checkDeveloperId, darwinOf, makeKey, publisherWith } from '../do-work/publish-an-engine-release.mjs';
 import { builderConfig, checkRequest, developerIdentity, installBuilder, receiverUnit } from '../do-work/install-a-builder.mjs';
 import { runPublish } from '../do-work/receive-pushes.mjs';
 
 const here = fileURLToPath(new URL('.', import.meta.url));
-const PUBLISH = fileURLToPath(new URL('../do-work/publish-an-engine-release.mjs', import.meta.url));
 const MAC = 'aarch64-apple-darwin', LINUX = 'x86_64-unknown-linux-gnu', ZIG = 'aarch64-unknown-linux-gnu', TEAM = 'ABCDE12345';
 const identityCanary = 'p12-bytes-canary-0123456789', passwordCanary = 'p12-password-canary-9876543210';
 const folder = () => mkdtempSync(join(tmpdir(), 'engine-release-darwin-'));
+// The publisher reads read-data/holds.json, the person's live rows, when it is handed none, and a hold whose commit is not on a made-up
+// repository's branch holds everything: a test that is not about holds takes a publisher bound to no holds.
+const { publish, commandFile } = publisherWith([]);
 const BASE_TIME = 1_800_000_000;
 const git = (cwd, ...args) => {
   const extra = typeof args.at(-1) === 'object' ? args.pop().env : {};
@@ -202,7 +204,7 @@ test('the command exits 4 when a darwin target failed, and the receiver keeps bo
   const configFile = join(top, 'publish.json');
   writeFileSync(configFile, JSON.stringify(request));
   const ran = await new Promise(resolve => {
-    const child = spawn(process.execPath, [PUBLISH, 'publish', configFile], { stdio: ['ignore', 'pipe', 'pipe', 'pipe'], env: { ...process.env, CREDENTIALS_DIRECTORY: credentials } });
+    const child = spawn(process.execPath, [commandFile(top), 'publish', configFile], { stdio: ['ignore', 'pipe', 'pipe', 'pipe'], env: { ...process.env, CREDENTIALS_DIRECTORY: credentials } });
     let out = '', err = '';
     child.stdout.on('data', bytes => { out += bytes; });
     child.stderr.on('data', bytes => { err += bytes; });
@@ -217,7 +219,7 @@ test('the command exits 4 when a darwin target failed, and the receiver keeps bo
   const state = join(top, 'state');
   process.env.CREDENTIALS_DIRECTORY = credentials;
   try {
-    const run = await runPublish({ configFile, token: '', stateFolder: state, log: () => {} })(commits[1]);
+    const run = await runPublish({ configFile, token: '', stateFolder: state, publishFile: commandFile(top), log: () => {} })(commits[1]);
     assert.equal(run.exit, 4);
     assert.equal(run.release.target, LINUX);
     assert.match(run.error, /^aarch64-apple-darwin: .*does not chain to an Apple root/);

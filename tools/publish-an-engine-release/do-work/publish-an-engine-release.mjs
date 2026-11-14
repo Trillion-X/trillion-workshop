@@ -748,16 +748,19 @@ export async function privateInput(fd) {
   return text.trim();
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const [operation, first, ...rest] = process.argv.slice(2);
+/** The command: `argv` is what follows the program's name. The holds are the rows of read-data/holds.json read at the run, the way
+ *  publish and accept take them (left out, publish and accept read the file); a caller that runs the command in its own process with its own rows (a test) hands them in here,
+ *  and nothing on the command line, in the environment or in a request names another file. */
+export async function main(argv, { holds } = {}) {
+  const [operation, first, ...rest] = argv;
   const usage = 'usage: publish-an-engine-release.mjs publish REQUEST_FILE [--commit COMMIT] | accept REQUEST_FILE ENTRY_FILE BODY_FILE (repository token on fd 3) | make-key KEY_FILE | public-key KEY_FILE';
   try {
     let answer;
     if (operation === 'publish' && first && (rest.length === 0 || (rest.length === 2 && rest[0] === '--commit'))) {
-      answer = await publish(readRequest(resolvePath(first)), { token: await privateInput(3), commit: rest[1] });
+      answer = await publish(readRequest(resolvePath(first)), { token: await privateInput(3), commit: rest[1], holds });
     } else if (operation === 'accept' && first && rest.length === 2) {
       const entry = JSON.parse(readFileSync(resolvePath(rest[0]), 'utf8'));
-      answer = await accept(readRequest(resolvePath(first)), { token: await privateInput(3), entry, body: readFileSync(resolvePath(rest[1])) });
+      answer = await accept(readRequest(resolvePath(first)), { token: await privateInput(3), entry, body: readFileSync(resolvePath(rest[1])), holds });
     } else if (operation === 'make-key' && first && rest.length === 0) answer = makeKey(resolvePath(first));
     else if (operation === 'public-key' && first && rest.length === 0) answer = { public_key: existsSync(resolvePath(first)) ? publicKeyHex(readSigningKey(resolvePath(first))) : null };
     else throw refuse(usage, 2);
@@ -772,3 +775,21 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     process.exitCode = error.exit ?? 1;
   }
 }
+
+/** The publisher bound to holds: `publish`, `accept` and `main` as they are, taking `holds` unless a call names its own, and
+ *  `commandFile(folder)`, a program file in `folder` that runs this module's command with those holds, for a process of its own.
+ *  Whoever has rows of their own to hand (a test) takes them here, once, instead of at each call. */
+export function publisherWith(holds) {
+  return {
+    publish: (request, options = {}) => publish(request, { holds, ...options }),
+    accept: (request, options = {}) => accept(request, { holds, ...options }),
+    main: argv => main(argv, { holds }),
+    commandFile(folder) {
+      const file = join(folder, 'publish-with-own-holds.mjs');
+      writeFileSync(file, `import { main } from ${JSON.stringify(import.meta.url)};\nawait main(process.argv.slice(2), { holds: ${JSON.stringify(holds)} });\n`);
+      return file;
+    },
+  };
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) await main(process.argv.slice(2));

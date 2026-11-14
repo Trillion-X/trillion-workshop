@@ -9,12 +9,15 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { gunzipSync } from 'node:zlib';
 import { addRelease, newSigningKey, publicKeyHex, readFeed, settings, signEntry, verifyEntry } from '../do-work/release-feed.mjs';
-import { accept, crossTargetLeftToNewer, makeKey, withFeedLock } from '../do-work/publish-an-engine-release.mjs';
+import { crossTargetLeftToNewer, makeKey, publisherWith, withFeedLock } from '../do-work/publish-an-engine-release.mjs';
 import { contribute, entryHeader, packAndSign, readEntryHeader } from '../do-work/contribute-an-engine-release.mjs';
 import { makeReceiver, makeTargetQueues, readOffer } from '../do-work/receive-pushes.mjs';
 import { builderConfig, checkRequest } from '../do-work/install-a-builder.mjs';
 
 const folder = () => mkdtempSync(join(tmpdir(), 'engine-release-targets-'));
+// The publisher reads read-data/holds.json, the person's live rows, when it is handed none, and a hold whose commit is not on a made-up
+// repository's branch holds everything: a test that is not about holds takes a publisher bound to no holds.
+const { accept } = publisherWith([]);
 // A release's sequence is its commit's time in seconds; the made-up repository's commit n is made at BASE_TIME + n.
 const BASE_TIME = 1_800_000_000;
 const git = (cwd, ...args) => {

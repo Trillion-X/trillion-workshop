@@ -11,18 +11,20 @@ import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/ident
 import { untarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
 import { addRelease, checkFeedTarget, feedStatusOf, newSigningKey, publicKeyHex, readFeed, roads, settings, signEntry, signedText, verifyEntry } from '../do-work/release-feed.mjs';
 import { packageFilesByRow } from '../../../test-helpers/tool-row-imports.mjs';
-import { runInProgress, archiveRelease, CREDENTIAL_HELPER, filesUnder, makeKey, packRelease, privateInput, publish, refuseUnreadableByOldReaders, runProgram } from '../do-work/publish-an-engine-release.mjs';
+import { runInProgress, archiveRelease, CREDENTIAL_HELPER, filesUnder, makeKey, packRelease, privateInput, refuseUnreadableByOldReaders, runProgram } from '../do-work/publish-an-engine-release.mjs';
 import { tarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
 import { attemptsOf, behindFeed, catchUp, countAttempt, makeQueue, makeReceiver, readDelivery, runPublish, signatureHolds } from '../do-work/receive-pushes.mjs';
 import { builderConfig, installBuilder, receiverUnit, SHIPPED, shippedTarball } from '../do-work/install-a-builder.mjs';
-import { heldBy, readHolds } from '../do-work/publish-an-engine-release.mjs';
+import { heldBy, publisherWith, readHolds } from '../do-work/publish-an-engine-release.mjs';
 
 const here = fileURLToPath(new URL('.', import.meta.url));
-const PUBLISH = fileURLToPath(new URL('../do-work/publish-an-engine-release.mjs', import.meta.url));
 const canary = 'repository-token-canary-0123456789';
 // Each file's mode, read from its ustar header.
 const modesOf = (tar, modes = {}) => { for (let at = 0; tar[at]; at += 512 + Math.ceil(parseInt(tar.toString('latin1', at + 124, at + 135), 8) / 512) * 512) modes[tar.toString('latin1', at, at + 100).replace(/\0.*$/s, '')] = parseInt(tar.toString('latin1', at + 100, at + 107), 8); return modes; };
 const folder = () => mkdtempSync(join(tmpdir(), 'publish-an-engine-release-'));
+// The publisher reads read-data/holds.json, the person's live rows, when it is handed none, and a hold whose commit is not on a made-up
+// repository's branch holds everything: a test that is not about holds takes a publisher bound to no holds.
+const { publish, commandFile } = publisherWith([]);
 // A release's sequence is its commit's time in seconds; the made-up repository's commit n is made at BASE_TIME + n.
 const BASE_TIME = 1_800_000_000;
 const sh = (cwd, ...args) => {
@@ -381,7 +383,7 @@ test('the command reads the token on descriptor 3 and prints the entry on its la
   const file = join(top, 'publish.json');
   writeFileSync(file, JSON.stringify(request));
   const ran = await new Promise(resolve => {
-    const child = spawn(process.execPath, [PUBLISH, 'publish', file], { stdio: ['ignore', 'pipe', 'pipe', 'pipe'] });
+    const child = spawn(process.execPath, [commandFile(top), 'publish', file], { stdio: ['ignore', 'pipe', 'pipe', 'pipe'] });
     let stdout = '', stderr = '';
     child.stdout.on('data', bytes => { stdout += bytes; });
     child.stderr.on('data', bytes => { stderr += bytes; });
@@ -392,7 +394,7 @@ test('the command reads the token on descriptor 3 and prints the entry on its la
   assert.ok(!ran.stdout.includes(canary) && !ran.stderr.includes(canary));
   const last = JSON.parse(ran.stdout.trim().split('\n').at(-1));
   assert.deepEqual([last.commit, last.sequence], [commits[1], BASE_TIME + 2]);
-  const refused = spawnSync(process.execPath, [PUBLISH, 'publish', file, '--commit', commits[0]], { encoding: 'utf8' });
+  const refused = spawnSync(process.execPath, [commandFile(top), 'publish', file, '--commit', commits[0]], { encoding: 'utf8' });
   assert.equal(refused.status, 3);
   assert.match(JSON.parse(refused.stdout.trim().split('\n').at(-1)).error, /older/);
 });
@@ -566,13 +568,13 @@ test('the receiver runs publish for a pushed commit and keeps how it went in las
   const { request, top } = builder(remote);
   const configFile = join(top, 'publish.json'), stateFolder = join(top, 'state'), said = [];
   writeFileSync(configFile, JSON.stringify(request));
-  const run = await runPublish({ configFile, token: canary, stateFolder, log: line => said.push(line) })(commits[1]);
+  const run = await runPublish({ configFile, token: canary, stateFolder, publishFile: commandFile(top), log: line => said.push(line) })(commits[1]);
   assert.equal(run.exit, 0, run.error);
   assert.equal(runInProgress(stateFolder), null, 'the run marker is gone once the run is over');
   assert.deepEqual([run.release.commit, run.release.sequence], [commits[1], BASE_TIME + 2]);
   const kept = readFileSync(join(stateFolder, 'last-run.json'), 'utf8');
   assert.deepEqual(JSON.parse(kept).release.signature, run.release.signature);
-  const older = await runPublish({ configFile, token: canary, stateFolder, log: line => said.push(line) })(commits[0]);
+  const older = await runPublish({ configFile, token: canary, stateFolder, publishFile: commandFile(top), log: line => said.push(line) })(commits[0]);
   assert.equal(older.exit, 3);
   assert.match(older.error, /older than the feed's newest/);
   assert.ok(![kept, ...said].some(text => text.includes(canary)));
@@ -599,6 +601,18 @@ test('the hold is lifted only by removing its row: with the row gone the same co
   const { request } = builder(remote);
   await assert.rejects(publish(request, { commit: commits[2], holds: [HOLD(commits[1])] }), /Held:/);
   assert.equal((await publish(request, { commit: commits[2], holds: [] })).sequence, BASE_TIME + 3);
+});
+
+test('the command refuses a held commit with the hold\'s words and exit 3, and publishes it when it is handed no holds', () => {
+  const { remote, commits } = repository(3);
+  const { request, top } = builder(remote);
+  const file = join(top, 'publish.json');
+  writeFileSync(file, JSON.stringify(request));
+  const held = spawnSync(process.execPath, [publisherWith([HOLD(commits[1])]).commandFile(top), 'publish', file, '--commit', commits[2]], { encoding: 'utf8' });
+  assert.equal(held.status, 3);
+  assert.match(JSON.parse(held.stdout.trim().split('\n').at(-1)).error, /Held: Better Auth cutover not proven; nm_ removed \(owner better-auth-now/);
+  const free = spawnSync(process.execPath, [commandFile(top), 'publish', file, '--commit', commits[2]], { encoding: 'utf8' });
+  assert.equal(free.status, 0, free.stderr);
 });
 
 test('a hold names its owner, reason and end, a commit not on the branch holds everything, and the shipped DATA has the rows list', () => {
