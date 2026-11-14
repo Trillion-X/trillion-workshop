@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:check-a-post's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Say whether a post is ready for each place it is going, and what each place will refuse, before it is approved or set to go\", with {\"post_id\":\"post:that-is-not-there\"}. It runs tool:check-a-post and answers {\"post_id\":\"post:that-is-not-there\",\"status\":\"missing\",\"said\":\"There is no post post:that-is-not-there, so nothing was checked.\"}",
   "lists": [],

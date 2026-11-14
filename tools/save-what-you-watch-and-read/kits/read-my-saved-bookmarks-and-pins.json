@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-my-saved-bookmarks-and-pins's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Read the bookmarks or pins a person saved on a social site (an export file of X bookmarks or Pinterest pins and boards) from a folder they chose, and give each saved item with its words, author and time, ready to be kept and found like anything else they read\", with {\"file\":\"pull-bookmarks.json\",\"source\":\"x-bookmarks\"}. It runs tool:read-my-saved-bookmarks-and-pins and answers {\"source\":\"x-bookmarks\",\"source_ref\":\"source:x-bookmarks\",\"mode\":\"all\",\"threads\":[{\"thread_ref\":\"thread:source:x-bookmarks:2000000001\",\"session_id\":\"2000000001\",\"source_ref\":\"source:x-bookmarks\",\"native_ref\":\"2000000001\",\"presentation\":{\"mark_ref\":null,\"title\":\"Tweet 2000000001\",\"subtitle\":\"A sample saved post\",\"at\":\"2026-09-02T16:50:26.000Z\"},\"atom_count\":1 ...",
   "lists": [],

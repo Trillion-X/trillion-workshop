@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:settle-amounts-between-lists's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Apply the amount one row holds (a payment, a credit, a grant) across the open amounts of rows of another list (invoices, bills, budgets) as allocation rows, propose it first, take an allocation back, or read what is applied and open on a row\", with {\"action\":\"propose\",\"list_id\":\"payments\",\"source_kind\":\"record:settle-payment\",\"target_kind\":\"record:settle-invoice\",\"source\":{\"row_id\":\"pay-1\",\"amount_field\":\"amount\"},\"targets\":{\"list_id\":\"invoices\",\"amount_field\":\"total\",\"order_field\":\"due\"}}. It runs tool:settle-amounts-between-lists and answers {\"source\":{\"list_id\":\"payments\",\"row_id\":\"pay-1\",\"amount\":100,\"applied\":0,\"available\":100},\"order\":\"oldest_first\",\"proposals\":[{\"target_id\":\"inv-jan\",\"open\":50,\"apply\":50,\"remaining\":0},{\"target_id\":\"inv-feb\",\"open\":80.2,\"apply\":50,\"remaining\":30.2}],\"unapplied\":0}",
   "lists": [],

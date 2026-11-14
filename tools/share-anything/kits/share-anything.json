@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:share-anything's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Share anything of mine read-only, from one record or one piece of text to a whole list or any mix of records, with a person, an AI or anyone holding a link; show who has access; and stop it\", with {\"op\":\"share\",\"grant\":\"sharing:list:sample\",\"thing\":{\"list\":\"sample\"},\"with\":[\"sample-person\"],\"link\":true}. It runs tool:share-anything and answers {\"op\":\"share\",\"label\":\"list:sample\",\"grant\":\"sharing:list:sample\",\"title\":\"Sample list\",\"reach\":[{\"type\":\"list\",\"id\":\"list:sample\"},{\"type\":\"record:sample-row\"}],\"people\":[{\"principal\":\"sample-person\",\"key\":\"shr_dQ_-DfvL3dImPny61kxJRt6dMloLeHt3kdVc0VU4oJc\"}],\"link\":{\"key\":\"shr_1l0M_h8lVxP0kw1qWOe3o8NvYDzXv90R5jCKup-Tjzk\"},\"expires_at\":null,\"said\":\"Shared Sample list with sample-person. They can ...",
   "lists": [],

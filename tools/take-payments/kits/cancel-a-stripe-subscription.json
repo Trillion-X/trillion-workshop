@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:cancel-a-stripe-subscription's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Cancel a buyer Stripe subscription now, or at the end of what they have paid for\", with {\"subscription_id\":\"sub_sample0001\"}. It runs tool:cancel-a-stripe-subscription and answers {\"subscription_id\":\"sub_sample0001\",\"status\":\"canceled\",\"cancel_at_period_end\":false}",
   "lists": [],

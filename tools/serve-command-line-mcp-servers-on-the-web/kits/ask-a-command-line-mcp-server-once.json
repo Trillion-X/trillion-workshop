@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:ask-a-command-line-mcp-server-once's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Ask a command-line MCP server one request the way the web gateway answers a caller with no session: start it in a working folder of its own, initialize it, ask, and stop it\", with {\"app\":\"echo\",\"cli\":\"node\",\"args\":[\"./test/echo-mcp-server.mjs\"],\"request\":{\"method\":\"tools/call\",\"params\":{\"name\":\"echo\",\"arguments\":{\"text\":\"hello from the sample\"}}}}. It runs tool:ask-a-command-line-mcp-server-once and answers {\"app\":\"echo\",\"status\":200,\"reply\":{\"jsonrpc\":\"2.0\",\"id\":\"ask-1\",\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"hello from the sample\"}],\"structuredContent\":{\"text\":\"hello from the sample\"}}}}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:remove-a-snippet's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Remove one of my saved snippets\", with {\"snippet_id\":\"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\"}. It runs tool:remove-a-snippet and answers {\"removed\":true,\"snippet_id\":\"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\",\"said\":\"Removed the snippet \\\"Thanks\\\".\"}",
   "lists": [],

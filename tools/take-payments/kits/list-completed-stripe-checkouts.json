@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:list-completed-stripe-checkouts's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"List every completed Stripe checkout since a time, payment links included, so each buyer can be followed up once\", with {\"created_after_unix\":1793664000}. It runs tool:list-completed-stripe-checkouts and answers {\"checkouts\":[{\"provider_session_id\":\"cs_test_sample0001\",\"created\":1793750400,\"customer_email\":\"buyer@example.test\",\"offer_id\":\"offer:bread-box\",\"price_option_id\":\"price:box:monthly\",\"amount_total_cents\":1200,\"currency\":\"usd\",\"subscription_id\":\"sub_sample0001\"}],\"complete\":true,\"pages_read\":1,\"next_created_after_unix\":1793750400}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-a-thread-summary's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Read the summary kept of this conversation and whether newer messages have come since it was written\", with {\"app\":\"Email\",\"conversation_id\":\"Email:t1\",\"message_times\":[\"2026-10-19T10:00:00Z\",\"2026-10-19T10:05:00Z\",\"2026-10-19T11:00:00Z\"]}. It runs tool:read-a-thread-summary and answers {\"summary\":{\"summary_id\":\"thread-summary:Email:Email:t1\",\"app\":\"Email\",\"conversation_id\":\"Email:t1\",\"summary\":\"They ask for the Friday deck; I said yes.\",\"through_message_id\":\"message:2\",\"through_at\":\"2026-10-19T10:05:00Z\",\"set_at\":\"2026-10-19T10:06:00.000Z\"},\"newer_messages\":1,\"stale\":true,\"said\":\"1 newer message(s) since this was written. Read them with read_messages and keep a new summary with ...",
   "lists": [],

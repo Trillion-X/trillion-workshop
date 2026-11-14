@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:choose-how-each-file-is-shown's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Classify each file by its name and media type to choose how it is shown: as code, markdown, a diff, a picture, JSON or plain text, with the language, icon and label it is shown under\", with {\"files\":[{\"path\":\"notes/plan.md\"},{\"path\":\"fix.patch\"},{\"path\":\"photo.jpg\"}]}. It runs tool:choose-how-each-file-is-shown and answers {\"classified\":[{\"path\":\"notes/plan.md\",\"renderer\":\"markdown\",\"language\":\"markdown\",\"icon\":\"FileText\",\"label\":\"Markdown\",\"mime_type\":\"text/markdown\"},{\"path\":\"fix.patch\",\"renderer\":\"diff\",\"language\":\"diff\",\"icon\":\"GitCompare\",\"label\":\"Diff\",\"mime_type\":\"text/plain\"},{\"path\":\"photo.jpg\",\"renderer\":\"image\",\"language\":\"jpg\",\"icon\":\"Image\",\"label\":\"Image\",\"mime_type\":\"image/jpeg\"}] ...",
   "lists": [],

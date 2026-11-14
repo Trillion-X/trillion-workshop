@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:remove-a-saved-example's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Remove one saved example this person no longer wants\", with {\"id\":\"example:0123456789abcdef0123456789abcdef\"}. It runs tool:remove-a-saved-example and answers {\"id\":\"example:0123456789abcdef0123456789abcdef\",\"removed\":true}",
   "lists": [],

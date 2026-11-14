@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:draft-a-post's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep a post as a draft for the person to look at: its words, its video or picture, where it goes and when\", with {\"caption\":\"A sample draft that goes nowhere yet\"}. It runs tool:draft-a-post and answers {\"post\":{\"post_id\":\"post:0mwfovcxb-cac8ec6c58dc\",\"status\":\"draft\",\"approval_values\":{\"caption\":\"A sample draft that goes nowhere yet\",\"media\":null,\"caption_by_platform\":{},\"settings_by_platform\":{},\"destinations\":[],\"link\":null,\"scheduled_for\":null,\"time_zone\":null,\"source\":null,\"format_id\":null,\"reaches\":null},\"media\":null,\"caption\":\"A sample draft that goes nowhere yet\",\"caption_by_platform\":{} ...",
   "lists": [],

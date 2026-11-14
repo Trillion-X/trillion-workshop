@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:send-due-email-lessons-with-amazon-ses's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Send each email-course lesson whose time has come to the people still signed up, once each, and retry a failed one later\", with {\"provider\":\"amazon-ses\",\"region\":\"us-east-1\"}. It runs tool:send-due-email-lessons-with-amazon-ses and answers {\"results\":[],\"said\":\"0 lessons due; 0 sent, 0 failed.\"}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:choose-which-ai-answers-me's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Make the request that sets which AI answers a person, or sends them back to automatic routing, as the selected-agent part sends it to the workflow slot, without sending it\", with {\"agent_id\":\"agent:sample-writer\"}. It runs tool:choose-which-ai-answers-me and answers {\"request\":{\"target\":\"slot::workflow\",\"payload\":{\"operation\":\"execute_definition\",\"include_output\":false,\"definition_id\":\"action:update-selected-agent\",\"input\":{\"value\":\"agent:sample-writer\"}}},\"automatic\":false}",
   "lists": [],

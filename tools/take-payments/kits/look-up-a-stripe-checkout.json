@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:look-up-a-stripe-checkout's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Read a Stripe checkout and the subscription it made: whether it was paid, who by, the metadata set when it began and the real recurring amount\", with {\"provider_session_id\":\"cs_test_sample0001\"}. It runs tool:look-up-a-stripe-checkout and answers {\"provider_session_id\":\"cs_test_sample0001\",\"url\":\"\",\"status\":\"complete\",\"mode\":\"subscription\",\"amount_total\":1200,\"currency\":\"usd\",\"subscription\":\"sub_sample0001\",\"created\":1793750400,\"payment_status\":\"paid\",\"customer_email\":\"buyer@example.test\",\"offer_id\":\"offer:bread-box\",\"client_reference_id\":\"buyer-sample-1\",\"price_option_id\":\"price:box:monthly\",\"validated_amount_cents\":1200 ...",
   "lists": [],

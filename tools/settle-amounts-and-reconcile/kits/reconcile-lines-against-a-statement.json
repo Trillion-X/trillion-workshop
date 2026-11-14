@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:reconcile-lines-against-a-statement's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Close a set of cleared lines against a statement with any difference explained in words, keep a receipt of each close, find lines changed or removed after they were closed, and undo the last close\", with {\"action\":\"check\",\"list_id\":\"bank\",\"lines_kind\":\"record:settle-bank\",\"lines\":{\"amount_field\":\"amount\"}}. It runs tool:reconcile-lines-against-a-statement and answers {\"receipts_list\":\"bank-reconciliations\",\"discrepancies\":[],\"recorded\":0,\"ok\":true}",
   "lists": [],

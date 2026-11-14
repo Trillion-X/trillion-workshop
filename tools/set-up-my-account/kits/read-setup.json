@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-setup's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Gather what my account's setup is made of and draw the Get started screen from it\", with {\"account_id\":\"acct-sample\",\"user_agent\":\"Sample browser\",\"origin\":\"https://app.example.test\",\"now\":\"2026-01-01T00:00:00.000Z\"}. It runs tool:read-setup and answers {\"title\":\"Connect your AI to start\",\"ready\":false,\"requirements\":[]}",
   "lists": [],

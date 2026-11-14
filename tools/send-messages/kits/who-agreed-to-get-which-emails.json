@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:who-agreed-to-get-which-emails's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Show who agreed to get which email list, in what words, when and from where, and whether they still do\", with {}. It runs tool:who-agreed-to-get-which-emails and answers {\"people\":[],\"agreed\":[],\"said\":\"0 people; 0 can be sent to now.\"}",
   "lists": [],

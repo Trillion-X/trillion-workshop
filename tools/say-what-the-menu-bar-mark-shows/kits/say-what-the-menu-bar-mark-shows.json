@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:say-what-the-menu-bar-mark-shows's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Say what the Mac menu bar item shows right now: how many things are running, the newest one and how far along, the unread count, or the next calendar line when nothing runs\", with {\"unread_count\":2,\"records\":[{\"title\":\"Upload\",\"kind\":\"upload\",\"running\":true,\"updatedAt\":5,\"progress\":{\"value\":0.5}}]}. It runs tool:say-what-the-menu-bar-mark-shows and answers {\"kind\":\"glance\",\"count\":2,\"working\":true,\"running\":1,\"now\":{\"title\":\"Upload\",\"kind\":\"upload\",\"fraction\":0.5},\"list\":[\"Upload\"]}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:list-ended-stripe-subscriptions's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"List every Stripe subscription that ended since a time, so each customer record can be marked ended once\", with {\"ended_after_unix\":1793664000}. It runs tool:list-ended-stripe-subscriptions and answers {\"ended\":[{\"subscription_id\":\"sub_sample0002\",\"ended_at\":1793750400,\"metadata\":{\"offer_id\":\"offer:bread-box\"}}],\"complete\":true,\"pages_read\":1}",
   "lists": [],

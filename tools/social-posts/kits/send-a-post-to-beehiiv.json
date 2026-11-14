@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:send-a-post-to-beehiiv's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Send one of the person's approved posts to one of their beehiiv accounts once its time has come, and keep where it went\", with {\"post_id\":\"post:sample-1\",\"account_id\":\"service_connection:beehiiv:sample\"}. It runs tool:send-a-post-to-beehiiv and answers {\"post_id\":\"post:sample-1\",\"status\":\"posted\",\"post\":{\"post_id\":\"post:sample-1\",\"status\":\"posted\",\"approval_values\":{\"caption\":\"A made-up sample post.\",\"media\":null,\"caption_by_platform\":{},\"settings_by_platform\":{\"beehiiv\":{\"title\":\"A sample letter\"}},\"destinations\":[\"service_connection:beehiiv:sample\"],\"link\":null,\"scheduled_for\":\"2026-11-02T12:00:00.000Z\",\"time_zone\":null,\"source\":null ...",
   "lists": [],

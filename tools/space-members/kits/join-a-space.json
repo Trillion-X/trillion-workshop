@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:join-a-space's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Let a person join a shared space by the way its join rows allow: free, or by holding the access a row names\", with {\"space\":\"sample-club\",\"subject\":\"ana@example.com\"}. It runs tool:join-a-space and answers {\"space\":\"sample-club\",\"subject\":\"ana@example.com\",\"joined\":true,\"state\":\"member\",\"member_type\":\"member\",\"how\":\"free\"}",
   "lists": [],

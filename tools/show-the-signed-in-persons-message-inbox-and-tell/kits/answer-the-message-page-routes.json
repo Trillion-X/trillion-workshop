@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:answer-the-message-page-routes's own row (its words, input schema, sample run and steps); read it before relying on it",
   "start_here": "Say to your AI: \"Run tool:answer-the-message-page-routes with path, method.\" Answer the web chat's message routes (GET /work/api/messages, /messages/threads and /messages/thread, POST /work/api/messages/send and /messages/send-all) and keep each message the person sends as a message row in my own records, and wake the AI it is for",
   "lists": [],

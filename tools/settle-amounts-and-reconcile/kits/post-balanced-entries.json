@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:post-balanced-entries's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Post an entry of signed lines only when they add to zero, once per entry id, undo it by a new entry with every line negated, and list every entry in a list that does not add to zero\", with {\"action\":\"balance\",\"list_id\":\"journal\",\"lines_kind\":\"record:settle-journal\",\"lines\":{\"amount_field\":\"amount\",\"group_field\":\"entry\"}}. It runs tool:post-balanced-entries and answers {\"list_id\":\"journal\",\"groups\":1,\"unbalanced\":[],\"unplaced\":[],\"balanced\":true}",
   "lists": [],

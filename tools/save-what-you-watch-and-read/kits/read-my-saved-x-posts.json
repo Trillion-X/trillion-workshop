@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-my-saved-x-posts's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Read the posts I bookmarked or liked on X, newest first, with their full words, links and quoted posts\", with {\"which\":\"bookmarks\",\"account\":\"service_connection:x\"}. It runs tool:read-my-saved-x-posts and answers {\"which\":\"bookmarks\",\"via\":\"api\",\"pages\":1,\"read\":1,\"not_kept_yet\":1,\"posts\":[{\"id\":\"x-bookmark-2000000001\",\"saved_from\":\"X\",\"saved_as\":\"bookmark\",\"key\":\"2000000001\",\"url\":\"https://x.com/sample_maker/status/2000000001\",\"title\":\"A sample post https://t.co/aaa\",\"author\":\"sample_maker\",\"author_name\":\"Sample Maker\",\"posted_at\":\"2026-09-02T16:50:26.000Z\",\"links\":[\"https://example.org/sample-repo\"]}]}",
   "lists": [],

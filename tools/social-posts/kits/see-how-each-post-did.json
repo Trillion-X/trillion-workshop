@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:see-how-each-post-did's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Show how each of this person's published posts did in each place it went: that place's own counts, the visitors its link brought and what they bought\", with {\"post_ids\":[\"post-that-is-not-there\"]}. It runs tool:see-how-each-post-did and answers {\"posts\":[],\"places_published\":0}",
   "lists": [],

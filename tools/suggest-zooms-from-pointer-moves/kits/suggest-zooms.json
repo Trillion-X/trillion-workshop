@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:suggest-zooms's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Turn the pointer moves and clicks noted beside a screen recording into zoom suggestions (where the pointer settled, for how long, how strong), as plain rows the person can edit before the video is exported\", with {\"sidecar\":{\"space\":\"normalized-source\",\"samples\":[{\"type\":\"move\",\"t\":0,\"x\":0.2,\"y\":0.2},{\"type\":\"move\",\"t\":100,\"x\":0.5,\"y\":0.5},{\"type\":\"click\",\"t\":700,\"x\":0.5,\"y\":0.5},{\"type\":\"move\",\"t\":1500,\"x\":0.51,\"y\":0.5},{\"type\":\"move\",\"t\":2000,\"x\":0.9,\"y\":0.9}]}}. It runs tool:suggest-zooms and answers {\"zooms\":[{\"start_ms\":100,\"end_ms\":1980,\"x\":0.5,\"y\":0.5,\"strength\":\"strong\",\"zoom\":2,\"clicks\":1}]}",
   "lists": [],

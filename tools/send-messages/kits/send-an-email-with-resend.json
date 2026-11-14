@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:send-an-email-with-resend's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Send an email, to one person or a list, through my Resend account\", with {\"to\":\"reader@example.com\",\"subject\":\"Hello\",\"html\":\"<p>Hello there</p>\",\"text\":\"Hello there\"}. It runs tool:send-an-email-with-resend and answers {\"provider\":\"resend\",\"sent\":[{\"recipient\":\"reader@example.com\",\"error\":\"This account names no sender for its emails yet, so nothing was sent.\"}],\"said\":\"Sent to 0 of 1 through resend. Not sent: reader@example.com (This account names no sender for its emails yet, so nothing was sent.)\"}",
   "lists": [],

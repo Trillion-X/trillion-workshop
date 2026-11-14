@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:find-snippets's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Find the snippets I saved, by a word in them or a tag, so I can put one into what I am writing\", with {\"query\":\"thanks\"}. It runs tool:find-snippets and answers {\"snippets\":[{\"snippet_id\":\"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\",\"title\":\"Thanks\",\"text\":\"Thanks {name}!\",\"tags\":[\"replies\"],\"blanks\":[\"name\"],\"set_at\":\"2026-10-01T09:00:00.000Z\",\"uses\":0}]}",
   "lists": [],

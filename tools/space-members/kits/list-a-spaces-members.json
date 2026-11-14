@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:list-a-spaces-members's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"List who is in a shared space, by the name each chose to show, with their type; only members may ask\", with {\"space\":\"sample-club\",\"subject\":\"owner@example.com\"}. It runs tool:list-a-spaces-members and answers {\"space\":\"sample-club\",\"members\":[{\"member_id\":\"owner@example.com\",\"name\":null,\"member_type\":\"owner\",\"member_type_label\":\"Owner\",\"state\":\"member\",\"joined_at\":\"2026-01-01T00:00:00.000Z\"}]}",
   "lists": [],

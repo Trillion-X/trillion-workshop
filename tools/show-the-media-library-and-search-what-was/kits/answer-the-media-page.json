@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:answer-the-media-page's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Answer the Media page: read and save an edit of my recordings\", with {\"path\":\"/media/edit\",\"method\":\"GET\",\"query\":{\"id\":\"sample-cut\"},\"body\":{}}. It runs tool:answer-the-media-page and answers {\"status\":200,\"body\":{\"edit\":{\"title\":\"Sample cut\",\"clips\":[{\"identity\":\"1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"start\":0,\"end\":3,\"bytes\":\"/sample\"}],\"ratio\":\"9:16\",\"file\":null,\"saved_at\":\"2026-11-01T00:00:00.000Z\"}}}",
   "lists": [],

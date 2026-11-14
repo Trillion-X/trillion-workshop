@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:list-ideas-for-what-to-ask-on-a-screen's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Show the written ideas for what to ask an AI on one screen, each with the request a Do this for me button would hand over\", with {\"screen\":\"calendar\"}. It runs tool:list-ideas-for-what-to-ask-on-a-screen and answers {\"heading\":\"Ideas for Posting calendar\",\"count_words\":\"2 ideas\",\"words\":{\"heading\":\"Ideas for {screen}\",\"written\":\"An example\",\"story\":\"Someone's story\",\"do\":\"Do this for me\",\"not_copied\":\"Could not copy. Press and hold to select the request instead.\",\"handed\":\"Handed to your AI. The next AI you use with Trillion takes it.\",\"plan_copy\":\"Handing jobs to your AI comes with a paid plan, so the ...",
   "lists": [],

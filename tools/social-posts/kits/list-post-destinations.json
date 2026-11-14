@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:list-post-destinations's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"List the accounts this person can post to, each ready or not and why, and each place they have no account for yet\", with {}. It runs tool:list-post-destinations and answers {\"destinations\":[],\"not_connected\":[{\"platform\":\"youtube\",\"label\":\"YouTube\",\"connection_vendor\":\"youtube\"},{\"platform\":\"tiktok\",\"label\":\"TikTok\",\"connection_vendor\":\"tiktok\"},{\"platform\":\"instagram\",\"label\":\"Instagram\",\"connection_vendor\":\"instagram\"},{\"platform\":\"facebook\",\"label\":\"Facebook Page\",\"connection_vendor\":\"facebook-messenger\"},{\"platform\":\"instagram\",\"label\":\"Instagram through ...",
   "lists": [],

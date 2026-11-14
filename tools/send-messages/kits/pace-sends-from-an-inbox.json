@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:pace-sends-from-an-inbox's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Say when each address on a list may be emailed from one sending inbox, so a new inbox warms up slowly, sends only on chosen days and hours, and stops when its mail bounces\", with {\"pacing\":\"saturday-local\",\"time_zone\":\"America/Chicago\",\"now\":\"2026-11-04T15:00:00Z\",\"recipients\":[\"owner@example.com\",\"info@example.org\"],\"suppressed\":[\"info@example.org\"]}. It runs tool:pace-sends-from-an-inbox and answers {\"pacing\":\"saturday-local\",\"time_zone\":\"America/Chicago\",\"paused\":null,\"due_now\":[],\"schedule\":[{\"recipient\":\"owner@example.com\",\"at\":\"2026-11-07T14:00:00.000Z\",\"local\":\"saturday 2026-11-07 08:00\",\"day\":1}],\"held\":[{\"recipient\":\"info@example.org\",\"why\":\"suppressed\"}],\"said\":\"0 to send now, 1 planned under saturday-local, 1 left out.\"}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:search-one-of-my-lists's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Find the rows of one of my lists that hold the words I ask, best match first, however far down the list they are\", with {\"question\":\"launch plan\",\"type\":\"record:note\"}. It runs tool:search-one-of-my-lists and answers {\"question\":\"launch plan\",\"terms\":[\"launch\",\"plan\"],\"results\":[{\"start\":0,\"end\":0,\"id\":\"record:note:plan-7\",\"source\":\"trillion\",\"type\":\"record:note\",\"record\":\"note:plan-7\",\"found_in\":[\"written\"],\"address\":{\"resource\":\"@own-records\",\"operation\":\"records:read\",\"input\":{\"id\":\"note:plan-7\",\"type\":\"record:note\"}},\"score\":0.01639,\"places\":[{\"place\":\"written\",\"label\":\"Notes and text\",\"said\":null ...",
   "lists": [],

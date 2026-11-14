@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:search-everything-in-a-small-container's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Search every list, record and file name I keep with one question, in one ranked list, without my own computer\", with {\"question\":\"merlinfalcon\"}. It runs tool:search-everything-in-a-small-container and answers {\"question\":\"merlinfalcon\",\"terms\":[\"merlinfalcon\"],\"results\":[{\"start\":0,\"end\":0,\"id\":\"record:c1\",\"source\":\"trillion\",\"type\":\"sample-contacts\",\"record\":\"c1\",\"found_in\":[\"written\"],\"address\":{\"resource\":\"@own-records\",\"operation\":\"records:read\",\"input\":{\"id\":\"c1\",\"type\":\"sample-contacts\"}},\"score\":0.01639,\"places\":[{\"place\":\"written\",\"label\":\"Notes and text\",\"said\":null,\"score\":0.016}] ...",
   "lists": [],

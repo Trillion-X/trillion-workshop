@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:check-someone-is-in-a-space's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Say whether a person is a member of a shared space right now, and why not when they are not\", with {\"space\":\"sample-club\",\"subject\":\"owner@example.com\"}. It runs tool:check-someone-is-in-a-space and answers {\"space\":\"sample-club\",\"subject\":\"owner@example.com\",\"member\":true,\"state\":\"member\",\"reason\":null,\"member_type\":\"owner\",\"how\":\"owner\"}",
   "lists": [],

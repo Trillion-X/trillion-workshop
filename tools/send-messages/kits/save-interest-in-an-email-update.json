@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:save-interest-in-an-email-update's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep the consent of a person who asked for one email if a course becomes available, without sending anything\", with {\"email\":\"reader@example.com\",\"consent\":true,\"course\":{\"id\":\"sample-course\",\"public_origin\":\"https://example.com/\",\"consent_text\":\"Email me one update if the free lesson series becomes available.\",\"consent_version\":\"1\",\"capture_only\":true},\"source\":\"sample page\"}. It runs tool:save-interest-in-an-email-update and answers {\"status\":\"interest_saved\",\"already_saved\":false}",
   "lists": [],

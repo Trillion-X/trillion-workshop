@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:send-to-a-webhook's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Send a note, or anything picked, to a web address as JSON\", with {\"things\":[{\"kind\":\"note\",\"label\":\"Sample note\",\"address\":\"https://example.com/share/sample\"}],\"note\":\"A sample post from the publish check\",\"title\":\"Sample\",\"address\":\"https://httpbin.org/post\"}. It runs tool:send-to-a-webhook; its answer contains \"httpbin.org answered 200\".",
   "lists": [],

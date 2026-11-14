@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-a-tool-setting-through-my-door's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Read the settings I keep for one of my tools from my list:settings, trying the most specific scope first\", with {\"settings_prefix\":\"record:setting:make-a-sample~\",\"scopes\":[[\"film\",\"sample-film\"],[\"account\",\"main\"]]}. It runs tool:read-a-tool-setting-through-my-door and answers {\"folder\":\"make-a-sample\",\"found\":true,\"settings\":{\"pace\":1}}",
   "lists": [

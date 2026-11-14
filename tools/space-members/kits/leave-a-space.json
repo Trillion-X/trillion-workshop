@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:leave-a-space's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Let a member leave a shared space; what they put there stays\", with {\"space\":\"sample-club\",\"subject\":\"ana@example.com\"}. It runs tool:leave-a-space and answers {\"space\":\"sample-club\",\"subject\":\"ana@example.com\",\"left\":false,\"state\":\"none\"}",
   "lists": [],

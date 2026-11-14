@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:total-quote-lines's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Total the lines of a quote or invoice in order, where each percent line names the base it multiplies (the line above, the lines since the last subtotal, or all above) and a subtotal line resets that base\", with {\"action\":\"totals\",\"list_id\":\"quote\",\"lines_kind\":\"record:settle-quote\",\"lines\":{\"order_field\":\"pos\"}}. It runs tool:total-quote-lines and answers {\"list_id\":\"quote\",\"lines\":[{\"id\":\"a\",\"kind\":\"amount\",\"value\":200,\"amount\":200,\"running\":200},{\"id\":\"b\",\"kind\":\"amount\",\"value\":800,\"amount\":800,\"running\":1000},{\"id\":\"c\",\"kind\":\"percent\",\"value\":-10,\"base\":{\"id\":\"previous_line\",\"says\":\"The line directly above only.\",\"amount\":800},\"amount\":-80,\"running\":920}],\"total\":920}",
   "lists": [],

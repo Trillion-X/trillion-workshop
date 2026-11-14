@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:sign-someone-up-for-an-email-course-with-amazon-ses's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Sign a person up for an email course after they agreed to it, keep their consent in my records, send the first lesson now and queue the others\", with {\"email\":\"reader@example.com\",\"consent\":true,\"course\":{\"id\":\"sample-course\",\"public_origin\":\"https://example.com/\",\"checkout_url\":\"https://example.com/#pricing\",\"from\":\"Coach <coach@example.com>\",\"mailing_address\":\"1 Example Street, Example City, CA 90000\",\"consent_text\":\"Send me three lessons by email.\",\"consent_version\":\"1\",\"lessons\":[{\"delay_hours\":0,\"subject\":\"First lesson\" .... It runs tool:sign-someone-up-for-an-email-course-with-amazon-ses and answers {\"status\":\"enrolled\",\"already_enrolled\":false}",
   "lists": [],

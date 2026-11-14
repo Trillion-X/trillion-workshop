@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:answer-the-content-formats-page's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Answer the Formats page: read and save my content formats, list what can fill them, shape a thought into them and follow a script\", with {\"path\":\"/content-formats\",\"method\":\"GET\",\"query\":{},\"body\":{}}. It runs tool:answer-the-content-formats-page and answers {\"status\":200,\"body\":{\"formats\":[{\"id\":\"walk_note\",\"label\":\"Walk note\",\"spec\":\"Say it plainly.\",\"slots\":[],\"tags\":[],\"from\":\"saved\"},{\"id\":\"blog\",\"label\":\"Blog post\",\"category\":\"Writing\",\"category_id\":\"writing\",\"category_icon\":\"PenLine\",\"icon\":\"FileText\",\"content_type\":\"text/markdown\",\"input\":\"Notes, a transcript or a recording of the person talking, and the one idea this piece is about with the ...",
   "lists": [],

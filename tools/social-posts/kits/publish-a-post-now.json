@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:publish-a-post-now's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Queue an approved post for immediate sending through each destination's existing send row\", with {\"post_id\":\"post:sample-1\",\"expected_values\":{\"caption\":\"A made-up sample post.\",\"media\":null,\"caption_by_platform\":{},\"settings_by_platform\":{},\"destinations\":[\"service_connection:x:sample\"],\"link\":null,\"scheduled_for\":null,\"time_zone\":null,\"source\":null,\"format_id\":null,\"reaches\":null}}. It runs tool:publish-a-post-now and answers {\"post_id\":\"post:sample-1\",\"status\":\"scheduled\",\"post\":{\"post_id\":\"post:sample-1\",\"status\":\"scheduled\",\"approval_values\":{\"caption\":\"A made-up sample post.\",\"media\":null,\"caption_by_platform\":{},\"settings_by_platform\":{},\"destinations\":[\"service_connection:x:sample\"],\"link\":null,\"scheduled_for\":\"2026-11-14T00:50:46.770Z\",\"time_zone\":null,\"source\":null,\"format_id\":null,\"reaches\":null},\"media\":null ...",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:say-where-file-sync-stands's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Say where the sync of a person's files on one computer stands: starting, synced, syncing, offline, conflict or error, why Trillion was not reached, and how many saves are still moving\", with {\"feed\":{\"version\":7,\"reached_at\":1792404000000,\"failure\":null},\"writes\":{\"owing\":[{\"size\":10},{\"size\":5}],\"conflicts\":[],\"failed\":[]}}. It runs tool:say-where-file-sync-stands and answers {\"state\":\"syncing\",\"version\":7,\"network\":{\"checked\":true,\"reached\":true,\"last_reached_at\":\"2026-10-19T10:00:00.000Z\"},\"error\":null,\"moving\":{\"count\":2,\"bytes\":15},\"conflicts\":0,\"failed\":0,\"said\":\"Sending 2 saves to Trillion.\"}",
   "lists": [],

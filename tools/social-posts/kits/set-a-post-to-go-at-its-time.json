@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:set-a-post-to-go-at-its-time's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Set an approved post to go out at its scheduled time, once it is ready for every place it is going; nothing is sent now\", with {\"post_id\":\"post:sample-1\"}. It runs tool:set-a-post-to-go-at-its-time and answers {\"post_id\":\"post:sample-1\",\"status\":\"scheduled\",\"post\":{\"post_id\":\"post:sample-1\",\"status\":\"scheduled\",\"approval_values\":{\"caption\":\"A made-up sample post.\",\"media\":null,\"caption_by_platform\":{},\"settings_by_platform\":{},\"destinations\":[\"service_connection:x:sample\"],\"link\":null,\"scheduled_for\":\"2030-01-01T12:00:00.000Z\",\"time_zone\":null,\"source\":null,\"format_id\":null,\"reaches\":null},\"media\":null ...",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:send-a-post-to-youtube's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Send one of the person's approved posts to one of their YouTube accounts once its time has come, and keep where it went\", with {\"post_id\":\"post:sample-1\",\"account_id\":\"service_connection:youtube:sample\"}. It runs tool:send-a-post-to-youtube and answers {\"post_id\":\"post:sample-1\",\"status\":\"scheduled\",\"post\":{\"post_id\":\"post:sample-1\",\"status\":\"scheduled\",\"approval_values\":{\"caption\":\"A made-up sample post.\",\"media\":{\"identity\":\"1f:0c3986e5b1973c07ec22d81e6c8f368bb7a65e79c9f6e8455853730edbeefe6b\",\"name\":\"/Posts/sample-video.mp4\",\"media_type\":\"video/mp4\",\"byte_length\":51},\"caption_by_platform\":{},\"settings_by_platform\":{\"youtube\":{\"title\":\"A ...",
   "lists": [],

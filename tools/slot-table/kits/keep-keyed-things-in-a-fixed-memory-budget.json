@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:keep-keyed-things-in-a-fixed-memory-budget's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep many keyed things inside a fixed memory budget, each read after the first being one array index, and let the least recently used go first when the budget is full\", with {\"capacity_bytes\":40,\"steps\":[{\"op\":\"set\",\"key\":\"note:1\",\"kind\":\"note\",\"value\":{\"title\":\"Plan the week\"}},{\"op\":\"set\",\"key\":\"note:2\",\"kind\":\"note\",\"value\":{\"title\":\"Buy paint\"}},{\"op\":\"read\",\"key\":\"note:1\"},{\"op\":\"find\",\"key\":\"note:2\"}]}. It runs tool:keep-keyed-things-in-a-fixed-memory-budget and answers {\"answers\":[{\"op\":\"set\",\"key\":\"note:1\",\"slot\":0,\"version\":1},{\"op\":\"set\",\"key\":\"note:2\",\"slot\":1,\"version\":1},{\"op\":\"read\",\"key\":\"note:1\",\"held\":false},{\"op\":\"find\",\"key\":\"note:2\",\"slot\":1}],\"held\":{\"slots\":1,\"slot_space\":1024,\"bytes\":21,\"capacity_bytes\":40,\"evictions\":1,\"kinds\":1,\"words\":0}}",
   "lists": [],

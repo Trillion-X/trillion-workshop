@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:count-a-paid-installment-in-stripe's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"When a pay-in-N plan invoice is paid, count it, and stop the plan after the last one so no extra invoice is ever made\", with {\"subscription_id\":\"sub_sample0003\",\"invoice_id\":\"in_sample0002\"}. It runs tool:count-a-paid-installment-in-stripe and answers {\"subscription_id\":\"sub_sample0003\",\"handled\":true,\"installments_paid\":2,\"installment_count\":3,\"canceled\":false,\"duplicate\":false}",
   "lists": [],

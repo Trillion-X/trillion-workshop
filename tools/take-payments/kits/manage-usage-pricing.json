@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:manage-usage-pricing's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Read, list, set, supersede, retire or delete my resource pricing rules, with effective dates, resource, plan and client overrides, without changing purchased terms\", with {\"action\":\"save\",\"rule_id\":\"rule:sample\",\"request_key\":\"sample-save-rule\",\"expected_version\":0,\"rule\":{\"scope\":{},\"effective_at\":\"2026-01-01T00:00:00Z\",\"markup_bps\":\"3000\"}}. It runs tool:manage-usage-pricing and answers {\"record_id\":\"usage-pricing-rule:rule%3Asample\",\"rule\":{\"scope\":{},\"effective_at\":\"2026-01-01T00:00:00Z\",\"markup_bps\":\"3000\",\"id\":\"rule:sample\",\"version\":1,\"version_ref\":\"usage-pricing-rule:rule%3Asample:v1\",\"state\":\"active\",\"markup_percent\":\"30\"}}",
   "lists": [],

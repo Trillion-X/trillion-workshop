@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:see-what-is-left-to-set-up's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Show me what is left to set up in my account, who does each step and what to do next\", with {\"account_id\":\"acct-sample\",\"facts\":{\"aiConnected\":false,\"aiApps\":[]},\"origin\":\"https://app.example.test\",\"now\":\"2026-01-01T00:00:00.000Z\"}. It runs tool:see-what-is-left-to-set-up and answers {\"title\":\"Connect your AI to start\",\"lead\":\"Your AI connects what you already use and checks that each part works. Only something that needs your own hand asks you.\",\"ready\":false,\"workspace_ready\":false,\"setup_complete\":false,\"requirements\":[{\"id\":\"identity\",\"title\":\"Add your name\",\"done\":null,\"body\":\"Trillion is checking this. It updates by itself.\",\"audience\":\"person_only\",\"result\":\"Your name ...",
   "lists": [],

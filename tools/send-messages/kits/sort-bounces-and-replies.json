@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:sort-bounces-and-replies's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Sort the bounces, complaints, unsubscribes and replies that came back from emails I sent, and say which addresses never to send to again, which to retry and which people wrote back\", with {\"event_source\":\"mailbox-message\",\"events\":[{\"from\":\"owner@example.com\",\"kind\":\"reply\",\"subject\":\"Re: your note\",\"text\":\"Yes, call me Tuesday.\"}]}. It runs tool:sort-bounces-and-replies and answers {\"event_source\":\"mailbox-message\",\"outcomes\":[{\"recipient\":\"owner@example.com\",\"rule\":\"reply\",\"kind\":\"reply\",\"action\":\"stop-sequence\",\"says\":\"The person wrote back: stop the automatic messages and answer them yourself.\"}],\"suppress\":[],\"stop\":[\"owner@example.com\"],\"retry\":[],\"replies\":[\"owner@example.com\"],\"unmatched\":[],\"said\":\"1 sorted: 0 to suppress, 1 replied or stopped, 0 to retry; 0 ...",
   "lists": [],

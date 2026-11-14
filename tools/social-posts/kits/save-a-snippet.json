@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:save-a-snippet's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Save words I send again and again as a snippet, with blanks like {name} to fill each time, or change one I saved\", with {\"title\":\"Thanks\",\"text\":\"Thanks {name}!\"}. It runs tool:save-a-snippet and answers {\"snippet\":{\"snippet_id\":\"snippet:2026-11-14T00:50:49.853Z:ed05552cb9\",\"title\":\"Thanks\",\"text\":\"Thanks {name}!\",\"tags\":[],\"blanks\":[\"name\"],\"set_at\":\"2026-11-14T00:50:49.853Z\",\"uses\":0}}",
   "lists": [],

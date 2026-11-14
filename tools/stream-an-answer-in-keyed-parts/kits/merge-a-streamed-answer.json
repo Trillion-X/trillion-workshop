@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:merge-a-streamed-answer's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Merge the events of a streamed answer into keyed parts: text that appends, sources and related questions as parts of their own, patches to parts already sent, and a snapshot to pick up an interrupted stream\", with {\"events\":[{\"seq\":1,\"type\":\"text\",\"key\":\"answer\",\"text\":\"Hello, \"},{\"seq\":2,\"type\":\"text\",\"key\":\"answer\",\"text\":\"world.\"}]}. It runs tool:merge-a-streamed-answer and answers {\"entry\":{\"seq\":2,\"order\":[\"answer\"],\"parts\":{\"answer\":{\"type\":\"text\",\"text\":\"Hello, world.\"}},\"drift\":[],\"stalls\":0},\"resume\":{\"seq\":2,\"identity\":\"944b406a1c75a01a6b7bb6c0d766dd4678df204243de197eda1adbd762a07ba3\"}}",
   "lists": [],

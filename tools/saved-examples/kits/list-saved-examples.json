@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:list-saved-examples's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"List every example this person saved of posts, videos and pages that worked, newest first, each with its link, words, pictures and why it worked\", with {}. It runs tool:list-saved-examples and answers {\"examples\":[{\"id\":\"example:0123456789abcdef0123456789abcdef\",\"url\":\"https://example.com/posts/sample\",\"host\":\"example.com\",\"site\":\"Example\",\"title\":\"A sample post\",\"words\":\"Made-up words.\",\"pictures\":[],\"why_it_worked\":\"A made-up reason.\",\"collection\":null,\"added_from\":\"sample\",\"added_at\":\"2026-11-01T00:00:00.000Z\",\"updated_at\":\"2026-11-01T00:00:00.000Z\"}],\"count\":1}",
   "lists": [],

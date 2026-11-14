@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:check-what-a-buyer-paid's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Check that the money a buyer actually paid is a price my offer declares, before giving them what they bought\", with {\"offers\":[{\"kind\":\"commercial-offer\",\"id\":\"offer:bread-box\",\"label\":\"Bread box\",\"price_options\":[{\"id\":\"price:box:monthly\",\"label\":\"Monthly\",\"amount_cents\":1200,\"currency\":\"usd\",\"payment_timing\":\"subscription\",\"interval\":\"month\"}]}],\"offer_id\":\"offer:bread-box\",\"paid\":{\"amountCents\":1200,\"currency\":\"USD\"}}. It runs tool:check-what-a-buyer-paid and answers {\"matches\":true,\"reason\":\"\"}",
   "lists": [],
