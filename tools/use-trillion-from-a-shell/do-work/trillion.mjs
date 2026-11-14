@@ -395,18 +395,26 @@ export function answerOf(result) {
   try { return JSON.parse(text); } catch { return { text }; }
 }
 
+/** Seconds to wait before the next try after try number `attempt` (from 0): the gap doubles from retry.first_seconds up to
+ *  retry.most_seconds (a door's own retry_after_seconds, when it gave one, replaces the doubled gap, under the same top),
+ *  then is cut down by up to retry.jitter of itself. */
+export function retryGap(retry, attempt, asked = null, random = Math.random) {
+  const grown = Number.isFinite(asked) && asked >= 0 ? asked : retry.first_seconds * 2 ** attempt;
+  return Math.min(retry.most_seconds, grown) * (1 - retry.jitter * random());
+}
+
 /**
  * One account's door: `rpc(method, params)`, `tool(name, args)`, `op(address, method, input)` (one run_resource_operation
  * with one request_key, reused on every retry) and `whoami()` (MCP initialize: the account in result._meta). A refusal
  * names the door: 401 is the door refusing this credential, 404 is a route the door does not serve.
  */
-export function trillionClient({ door, credential, fetchImpl = fetch, rules = settings, wait = pause, timeoutSeconds = rules.call_timeout_seconds } = {}) {
+export function trillionClient({ door, credential, fetchImpl = fetch, rules = settings, wait = pause, random = Math.random, timeoutSeconds = rules.retry.attempt_seconds } = {}) {
   if (!credential?.bearer) throw new TrillionError(rules.words.no_credential, { status: 3 });
-  // A call waits at most this many seconds: the caller's --timeout, never more than the engine's call deadline in DATA.
-  const deadline = Math.min(timeoutSeconds, rules.call_timeout_seconds);
   const headers = { 'content-type': 'application/json', accept: 'application/json, text/event-stream', authorization: `Bearer ${credential.bearer}`, 'user-agent': 'trillion-cli' };
   let next = 0;
-  const signal = () => AbortSignal.timeout(deadline * 1000);
+  // One try waits this many seconds (--timeout); the call itself ends only when retry.count tries are spent.
+  const signal = () => AbortSignal.timeout(timeoutSeconds * 1000);
+  const gap = (attempt, asked = null) => retryGap(rules.retry, attempt, asked, random);
   const refused = () => new TrillionError(credential.kind === 'key' && !door.local && door.localMcp !== door.mcp && (door.public || door.localMcp)
     ? fill(rules.words.refused_key_at_door, { door: door.name, local: door.localMcp ? fill(rules.words.local_door_named, { mcp: door.localMcp }) : '' })
     : fill(rules.words.refused, { door: door.name }), { status: 3 });
@@ -414,13 +422,11 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
     for (let attempt = 0; ; attempt += 1) {
       let response = null, failure = null;
       try { response = await fetchImpl(door.mcp, { method: 'POST', headers, body, signal: signal() }); } catch (error) { failure = error; }
-      const later = rules.retry_seconds[attempt];
       const passing = failure || response.status === 429 || response.status >= 500;
-      // A call that already waited its whole time is not sent again: the answer is slow, not lost.
-      const timedOut = failure?.name === 'TimeoutError';
-      if (passing && !timedOut && later !== undefined) { await wait(later * 1000); continue; }
+      // Every try carries the same request_key, so a try after a lost or slow answer is answered as the first was.
+      if (passing && attempt < rules.retry.count) { await wait(gap(attempt) * 1000); continue; }
       const maybe = idempotent ? '' : ' It may have happened; read it back before trying again.';
-      if (timedOut) throw new TrillionError(`${door.name} did not answer within ${deadline} seconds.${maybe}`, { status: 4 });
+      if (failure?.name === 'TimeoutError') throw new TrillionError(fill(rules.words.no_answer, { door: door.name, tries: attempt + 1 }) + maybe, { status: 4 });
       if (failure) throw new TrillionError(fill(rules.words.unreachable, { door: door.name, why: failure.cause?.code ?? failure.message }) + maybe, { status: 4 });
       if (response.status === 401) throw refused();
       if (response.status === 404) throw new TrillionError(fill(rules.words.missing_route, { door: door.name, route: new URL(door.mcp).pathname }), { status: 4 });
@@ -444,11 +450,10 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
       const answer = answerOf(result);
       if (!result?.isError) return answer;
       const error = answer?.error ?? {};
-      const later = Number.isFinite(error.retry_after_seconds) ? error.retry_after_seconds : rules.retry_seconds[attempt];
-      // The same request_key rides on every attempt, so a retried call is answered as the first one was.
-      if (error.retryable === true && attempt < rules.retry_seconds.length && later <= 60) { await wait(later * 1000); continue; }
       // The engine names why in a code (structuredContent.code); its words say which door refused what.
       const code = answer?.code ?? error.code ?? null;
+      // The same request_key rides on every attempt, so a retried call is answered as the first one was.
+      if ((error.retryable === true || rules.retry.codes.includes(code)) && attempt < rules.retry.count) { await wait(gap(attempt, error.retry_after_seconds) * 1000); continue; }
       const words = code ? rules.words.codes[code] ?? rules.words.refused_code : null;
       // The engine names the step that refused in `cause` (file, line, and the error); the message names the door and the code.
       const cause = typeof answer?.cause === 'string' ? ` Cause: ${answer.cause}` : '';
@@ -848,7 +853,7 @@ const HELP = `trillion: see your AIs and their work, and run your Trillion's too
   trillion publish [--dry-run]                           write this AI's own record: its facts and that it was seen now
   trillion tools | call TOOL JSON|-                      your Workshop tools, and run one by its id
   trillion op ADDRESS METHOD JSON|-                      any engine operation (run_resource_operation)
-  --timeout SECONDS  wait at most this long for one call: 1 to ${settings.call_timeout_seconds} (the engine's call deadline, the default)
+  --timeout SECONDS  wait this long for one try of a call (default ${settings.retry.attempt_seconds}); a try with no answer is asked again, up to ${settings.retry.count} more times, under the same request key
   trillion update                                        who updates this command (it never updates itself)
   ${basename(settings.install.link)} records replay-from-transcripts --since TIME            list the rows this computer's AIs wrote (writes nothing)
   ${basename(settings.install.link)} records replay-from-transcripts --write --inventory DIR write that list's rows back, then read some back
@@ -868,11 +873,11 @@ const HELP = `trillion: see your AIs and their work, and run your Trillion's too
   TRILLION_AGENT or the AI running this). --json prints the answer.`;
 
 /** The door and client for this run; a run with no credential says to log in, and only then. */
-/** --timeout SECONDS: how long this call may wait, a whole number from 1 up to the engine's call deadline (trillion.json
- *  call_timeout_seconds), which is also the wait when no --timeout is given. */
+/** --timeout SECONDS: how long one try of this call waits, a whole number of at least 1 (trillion.json retry.attempt_seconds
+ *  when none is given). The call ends only when its retries are spent. */
 const timeoutOf = value => {
   const number = Number(value);
-  if (!Number.isInteger(number) || number < 1 || number > settings.call_timeout_seconds) throw new TrillionError(fill(settings.words.timeout_range, { max: settings.call_timeout_seconds }), { status: 2 });
+  if (!Number.isInteger(number) || number < 1) throw new TrillionError(settings.words.timeout_range, { status: 2 });
   return number;
 };
 

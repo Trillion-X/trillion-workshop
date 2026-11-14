@@ -17,7 +17,7 @@ const ACCOUNT = 'f'.repeat(64);
 const me = { agent_id: 'claude-code-on-mac', ai_id: 'ai:claude-code-on-mac', held_as: [], harness: 'Claude Code', app: 'Claude Code', model: null, provider: 'Anthropic', computer: 'Mac' };
 const place = () => ({ repository: 'trillion', branch: 'main' });
 const home = () => mkdtempSync(join(tmpdir(), 'trillion-cli-test-'));
-const quick = { ...settings, retry_seconds: [0, 0, 0] };
+const quick = { ...settings, retry: { ...settings.retry, count: 3, first_seconds: 0, most_seconds: 0 } };
 const noWait = async () => {};
 const noGrants = { where: 'test sign-in', read: () => null, write: () => {}, forget: () => {} };
 
@@ -296,7 +296,7 @@ test('the engine road: replies in JSON or events, one request key on every retry
     await assert.rejects(missing.whoami(), error => error.message === `the door ${fake.origin}/mcp/api/account does not serve /mcp/api/account.` && !/log ?in/i.test(error.message));
     assert.throws(() => trillionClient({ door: doorAt(fake.mcp), credential: null }), error => error.status === 3 && /Run trillion login/.test(error.message));
   } finally { await fake.close(); }
-  const gone = trillionClient({ door: doorAt('http://127.0.0.1:9/mcp'), credential: keyCredential, rules: { ...quick, retry_seconds: [] }, wait: noWait });
+  const gone = trillionClient({ door: doorAt('http://127.0.0.1:9/mcp'), credential: keyCredential, rules: { ...quick, retry: { ...quick.retry, count: 0 } }, wait: noWait });
   await assert.rejects(gone.whoami(), error => error.status === 4 && /could not be reached/.test(error.message) && !/log ?in/i.test(error.message));
 });
 

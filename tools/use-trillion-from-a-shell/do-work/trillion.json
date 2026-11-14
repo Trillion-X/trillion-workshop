@@ -36,14 +36,15 @@
   "client_name": "Trillion command line",
   "scope": "decisions",
   "sign_in_wait_seconds": 600,
-  "call_timeout_seconds": 120,
-  "call_timeout_seconds_what": "How long one engine call may wait for its answer. It is the engine's tool-run deadline: the deadline_ms of trillion-rust src/tool_runs/tools/tool-runs.json (120000 ms), which the engine gives every Workshop tool a call runs. A call that runs a tool cannot usefully outlive that deadline, so the wait is the same number. test/trillion-timeout.test.mjs checks the two agree (engine_source below), and that the door's HTTP invoke ceiling (http.max_timeout_ms) is not below it.",
-  "engine_source": { "repository": "trillion-rust", "file": "src/tool_runs/tools/tool-runs.json", "deadline_ms": 120000, "http_max_timeout_ms": 300000 },
-  "retry_seconds": [
-    2,
-    5,
-    15
-  ],
+  "retry": {
+    "_what": "One call is tried again, under the same request_key, when the door does not answer within one try, answers 429 or 5xx, or says its run is still going (`codes`). A call has no deadline of its own: `count`, the number of tries after the first, is the one number that ends it. Each gap doubles from first_seconds up to most_seconds and is then cut down by up to `jitter` of itself, so callers that failed together do not try together. `attempt_seconds` is how long one try waits (--timeout SECONDS sets it for one command); the next try asks again with the same key and is answered with the first run's recorded result (trillion-rust tool_runs: one request key, one run). A run longer than the engine's tool-run deadline (tool-runs.json deadline_ms) is a row that declares invoke.max_run_ms or invoke.session, whose run id is read with the session read method.",
+    "count": 10,
+    "first_seconds": 1,
+    "most_seconds": 60,
+    "jitter": 0.5,
+    "attempt_seconds": 120,
+    "codes": ["workshop_run_in_progress"]
+  },
   "install": {
     "folder": "~/.trillion/cli/program",
     "files": [
@@ -309,7 +310,8 @@
     "no_account": "{door} answered initialize without naming an account.",
     "pager_stuck": "{method} answered a page it already gave ({next}), so its pages would never end.",
     "too_many_pages": "{method} answered more than {pages} pages.",
-    "timeout_range": "--timeout is a whole number of seconds from 1 to {max}, the engine's call deadline.",
+    "timeout_range": "--timeout is a whole number of seconds, at least 1: how long one try waits before the next try.",
+    "no_answer": "{door} did not answer after {tries} tries with the same request key.",
     "byte_page_broken": "{method} answered a byte_page that does not hold together ({why}), so its pages were not joined and nothing was answered.",
     "byte_page_mismatch": "{method} answered pages whose joined {bytes} bytes have BLAKE3 {got}, not the {want} the door named, so the answer was refused.",
     "more_jobs": "More jobs: trillion work --limit N, or --status, --to, --from, --taker.",

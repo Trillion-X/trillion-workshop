@@ -1,12 +1,13 @@
 // tools/use-trillion-from-a-shell/test/trillion-op-request-key.test.mjs
 //
-// A `trillion op` or `trillion call` that times out names the request key it sent, and `--request-key` sends that same key
+// A `trillion op` or `trillion call` whose every try (retry.count more than the first, each under the same key) times out names the request key it sent, and `--request-key` sends that same key
 // again: the engine answers the call it already has under that key, so a retry after a timeout is never a second run.
 import assert from 'node:assert/strict';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
+import settings from '../do-work/trillion.json' with { type: 'json' };
 import { main, stateOf, TrillionError } from '../do-work/trillion.mjs';
 
 const ORIGIN = 'http://127.0.0.1:8788';
@@ -16,7 +17,7 @@ const noGrants = { where: 'test sign-in', read: () => null, write: () => {}, for
 const WRITE = ['op', '@own-records', 'records:write', '{"records":[{"id":"note:one","type":"note","value":{"words":"kept"}}]}'];
 const committed = { structuredContent: { committed: true, write_count: 1 }, content: [] };
 
-/** A fake door whose first `timeouts` asks fail as a timed-out request; every ask is kept with its request key. */
+/** A fake door whose first `timeouts` asks fail as a timed-out request (more than retry.count + 1 fail the whole call); every ask is kept with its request key. */
 function fakeDoor(timeouts) {
   const seen = [];
   const fetchImpl = async (url, init) => {
@@ -34,7 +35,7 @@ const run = (argv, door) => main([...argv, '--origin', ORIGIN], {
 });
 
 test('a timed-out op names the request key it sent, and --request-key sends that same key again', async () => {
-  const first = fakeDoor(1);
+  const first = fakeDoor(settings.retry.count + 1);
   await assert.rejects(run([...WRITE, '--request-key', 'retry-key-1'], first), error => {
     assert.ok(error instanceof TrillionError, String(error));
     assert.match(error.message, /retry-key-1/, 'the timeout names the key');
@@ -48,7 +49,7 @@ test('a timed-out op names the request key it sent, and --request-key sends that
 });
 
 test('a timed-out op with no --request-key still names the key it generated, and a short key is sent unchanged', async () => {
-  const door = fakeDoor(1);
+  const door = fakeDoor(settings.retry.count + 1);
   await assert.rejects(run(WRITE, door), error => {
     const named = error.message.match(/--request-key ([^\s:]+)/)?.[1];
     assert.ok(named, error.message);
