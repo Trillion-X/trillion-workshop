@@ -85,7 +85,7 @@ test('a tool the agent was not offered is never run, and an interrupt keeps the 
 
 test('serveOnce records each way a run ends with tool:change-an-ai-job', async () => {
   const calls = [];
-  const fake = { op: async (address, method, input) => { calls.push([input.tool, input.input]); return { result: input.tool === 'tool:take-an-ai-job' ? { taken: { id: 'ai-job:abc', job: handoff.job, status: 'taken' }, tried: 1 } : { moved: true } }; } };
+  const fake = { op: async (address, method, input) => { if (method === 'tools:list') return { input_schema: { properties: { result: { maxLength: 60000 } } } }; calls.push([input.tool, input.input]); return { result: input.tool === 'tool:take-an-ai-job' ? { taken: { id: 'ai-job:abc', job: handoff.job, status: 'taken' }, tried: 1 } : { moved: true } }; } };
   const state = { hold: () => {}, letGo: () => {} };
   for (const [ran, action] of [[{ ok: true, output: 'Done', stuck: 'Which bank?' }, 'stuck'], [{ ok: true, output: 'Done' }, 'finish'], [{ ok: false, output: 'It failed' }, 'release']]) {
     calls.length = 0;

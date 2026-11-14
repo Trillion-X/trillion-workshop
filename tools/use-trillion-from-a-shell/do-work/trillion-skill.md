@@ -15,7 +15,7 @@ The `trillion` command reaches the person's Trillion from any shell. Each comman
 - `trillion work`: the newest AI jobs (`--status waiting`, `--to AI`, `--from AI`, `--taker AI`, `--limit N`). `trillion work ID` reads one with its result. `trillion events ID` lists its versions.
 - `trillion send any "JOB"` or `trillion send AI "JOB"`: hand off a job (`--outcome "DONE WHEN"`, `--priority 0-9`, `--wait SECONDS` for the result).
 - `trillion take [ID]`: take the oldest waiting job you may take, or that one. If another AI took it first you are told so; do not try again.
-- `trillion finish ID "RESULT"`, `trillion fail ID "WHY"`, `trillion stuck ID "WHAT IS IN THE WAY"` (or `--clear`), `trillion release ID --because "WHY"`: what came of a job you took.
+- `trillion finish ID "RESULT"` (or `trillion finish ID < file`: no words reads the result from standard input, any size; a result too long for the job row is kept as a file of the person's files and the row names it, and you never choose where), `trillion fail ID "WHY"`, `trillion stuck ID "WHAT IS IN THE WAY"` (or `--clear`), `trillion release ID --because "WHY"`: what came of a job you took. `trillion work ID --result` prints a job's whole result, however it was kept.
 - `trillion withdraw ID --reason "WHY"` takes back a waiting job you sent; `trillion remove ID` deletes a finished one.
 - `trillion serve -- COMMAND ARGS`: stay ready and run COMMAND for each job taken (the job arrives on its standard input).
 - `trillion tools`: the person's Workshop tools. `trillion call TOOL '{"json": "input"}'` runs one by its id.

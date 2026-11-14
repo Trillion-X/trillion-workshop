@@ -90,6 +90,7 @@
       "ag-ui-agent.mjs",
       "ag-ui-wire.mjs",
       "local-door.mjs",
+      "keep-result.mjs",
       "replay-recorded-writes.mjs",
       "replay-recorded-writes.json"
     ],
@@ -283,6 +284,7 @@
     "list": "records:list",
     "read": "records:read",
     "history": "records:history",
+    "files": "@namespace",
     "tools": "@workshop-tools",
     "tools_list": "tools:list",
     "tools_run": "tools:run",
@@ -319,8 +321,26 @@
       "release"
     ]
   },
+  "keep": {
+    "_what": "Where a result too long for the job row is kept (keep-result.mjs): one file of the person's files, named {folder}/<job id>/result by the program, never by the caller; the job row's result then holds the `pointer` line. The inline limit is not here: it is the `maxLength` of the result input of the tool that finishes jobs, read from the door. piece_bytes is the account files' fixed span size (pages-32k-v1) a resumable upload takes at a time; read_bytes is how much one read asks for (the door answers at most its own most).",
+    "folder": "/ai-job-results",
+    "token_prefix": "ai-job-result",
+    "piece_bytes": 32768,
+    "read_bytes": 262144,
+    "text_type": "text/plain; charset=utf-8",
+    "binary_type": "application/octet-stream",
+    "pointer": "Kept as file {name} ({bytes} bytes, {identity}). Read it whole: trillion work {id} --result",
+    "pointer_pattern": "^Kept as file (\\S+) \\((\\d+) bytes, (1f:[0-9a-f]{64})\\)\\.",
+    "words": {
+      "no_limit": "The door states no most length for the result of {tool}, so nothing was kept or finished.",
+      "not_started": "The upload of {name} did not start (state {state}); nothing was finished.",
+      "mismatch": "{name} did not read back with the identity and size of the bytes sent; the job was not finished.",
+      "read_broken": "{name} could not be read back whole and exact at byte {offset}."
+    }
+  },
   "work_list_limit": 20,
   "words": {
+    "no_result": "{id} has no result to print.",
     "unknown_flag": "trillion {command} does not take --{flag}; it takes {known}. Nothing was sent.",
     "no_credential": "This computer has no Trillion key or sign-in. Run trillion login (or trillion setup) first.",
     "sign_in_ended": "This computer's sign-in to Trillion has ended. Run trillion login to sign in again.",

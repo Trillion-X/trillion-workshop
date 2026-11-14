@@ -1707,7 +1707,7 @@
             "as": { "type": "string", "pattern": "^ai:", "description": "The acting AI's record id" },
             "id": { "type": "string", "pattern": "^ai-job:", "description": "The job's record id" },
             "action": { "type": "string", "enum": ["take", "release", "finish", "fail", "stuck", "unstuck", "withdraw", "remove"] },
-            "result": { "type": "string", "minLength": 1, "description": "What was done (finish) or why it could not be (fail)" },
+            "result": { "type": "string", "minLength": 1, "maxLength": 60000, "description": "What was done (finish) or why it could not be (fail). At most this many characters fit on the job row; `trillion finish ID` keeps a longer result as a file and records the line that names it." },
             "summary": { "type": "string", "minLength": 1, "description": "One line about the result" },
             "because": { "type": "string", "minLength": 1, "description": "Why it is given back or withdrawn" },
             "words": { "type": "string", "minLength": 1, "description": "What blocks it (stuck)" }

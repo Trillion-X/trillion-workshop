@@ -269,3 +269,10 @@ test('each row runs as the container runs it, with exactly its own rights at the
   const mine = await answerOf(rowOf(ROWS, 'tool:see-my-ais'), {}, { records });
   assert.deepEqual(mine.result.ais.map(one => one.id).sort(), ['ai:east', 'ai:north', 'ai:south']);
 });
+
+test('the most characters a result takes inline is one number: the rules\' most_chars for the result of finish and of fail is the maxLength the changing tool\'s schema states (the door\'s own limit, which trillion finish reads)', () => {
+  const change = ROWS.records.map(row => row.payload).find(row => row.id === 'tool:change-an-ai-job');
+  const asked = RULES.transitions.filter(row => row.set?.result?.most_chars !== undefined).map(row => row.set.result.most_chars);
+  assert.ok(asked.length >= 2, 'finish and fail both bound the result');
+  for (const most of asked) assert.equal(change.input_schema.properties.result.maxLength, most);
+});

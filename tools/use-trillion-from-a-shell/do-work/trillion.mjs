@@ -48,6 +48,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { runOnAgUi } from './ag-ui-agent.mjs';
 import { makeHashCodeHexFromBytes, requestKeyForEngine } from './packs/read-data/identity.mjs';
 import { settledWrite } from './packs/read-data/settled-write.mjs';
+import { KeepRefused, keepResult, readResult } from './keep-result.mjs';
 import { localDoorAddress } from './local-door.mjs';
 import settings from './trillion.json' with { type: 'json' };
 
@@ -833,7 +834,7 @@ export async function serveOnce({ client, me, command, state, rules = settings, 
   log({ event: 'took', job_id: job.id });
   await refresh();
   const { ok, output, stuck = null } = await runImpl(command, job, { rules, me, client });
-  const [action, extra] = stuck ? ['stuck', { words: stuck }] : ok ? ['finish', { result: output, summary: output.split('\n')[0].slice(0, 300) }] : ['release', { because: output }];
+  const [action, extra] = stuck ? ['stuck', { words: stuck }] : ok ? ['finish', { result: await kept(keepResult(client, job.id, Buffer.from(output, 'utf8'), rules)), summary: output.split('\n')[0].slice(0, 300) }] : ['release', { because: output }];
   const moved = await workCall(client, 'change', { as: me.ai_id, id: job.id, action: rules.work.actions[action], ...extra }, { rules });
   // A job that says what is in the way stays taken (an AG-UI agent's interrupt); any other move ends this AI's hold.
   if (!stuck) state.letGo(me.agent_id, job.id);
@@ -863,7 +864,8 @@ const HELP = `trillion: see your AIs and their work, and run your Trillion's too
   trillion events ID                                     one job's versions, newest first
   trillion send any "JOB" | send AI "JOB"                hand off a job (--wait SECONDS, --priority 0-9, --outcome "DONE WHEN", --label)
   trillion take [ID] [--mine]                            take the oldest waiting job you may take (or that one)
-  trillion finish ID "RESULT" | fail ID "WHY"            record what came of a job you took
+  trillion finish ID "RESULT" | fail ID "WHY"            record what came of a job you took (no words: the result is read from standard input, any size; one too long for the job row is kept as a file of your files and the row names it)
+  trillion work ID --result                              print that job's whole result, whether on the row or kept as a file
   trillion stuck ID "WORDS" | stuck ID --clear           say what is in the way, or that nothing is now
   trillion release ID [--because WHY]                    give a job back
   trillion withdraw ID --reason "WHY" | remove ID        take back a job you sent; delete a finished one
@@ -1075,11 +1077,35 @@ export async function dryRunWrite(client, request, { rules = settings } = {}) {
   return { dry_run: true, sent: false, request, rows, engine_check: engineCheck, ...(engineCheck === null ? { note: rule.no_validate_route } : {}) };
 }
 
+/** A keep or read the door could not complete exactly is a refusal like any other (status 4: the caller may try again under the same job). */
+const kept = async work => { try { return await work; } catch (error) { throw error instanceof KeepRefused ? new TrillionError(error.message, { status: 4 }) : error; } };
+
+const readStdin = async stream => { const chunks = []; for await (const chunk of stream) chunks.push(chunk); return Buffer.concat(chunks); };
+
+/** The result of job `id` in a `work ID` answer, as text; a refusal when the job is not there or has none. */
+function jobResultOf(answer, id) {
+  const result = answer?.jobs?.[0]?.result;
+  if (typeof result !== 'string') throw new TrillionError(fill(settings.words.no_result, { id }), { status: 1 });
+  return result;
+}
+
+/** A whole result: its text, or for bytes that are not text, the raw bytes straight to standard output. */
+function printResult(bytes, stdout) {
+  const text = bytes.toString('utf8');
+  if (Buffer.from(text, 'utf8').equals(bytes)) return text;
+  stdout.write(bytes);
+  return '';
+}
+
 /** Runs one command line; answers the text to print. `seams` carries what tests replace: store, grants, state, open, env,
  *  fetchImpl, wait, place, localDoor (the local door's MCP address, or null), computerName and model. */
 export async function main(argv, seams = {}) {
   const parsed = parseArgs(argv);
-  const [command = 'help', ...words] = parsed.words;
+  const [command = 'help', ...spoken] = parsed.words;
+  // finish and fail with no result words (or `-`) take the result from standard input, as bytes of any size.
+  const fromStdin = (command === 'finish' || command === 'fail') && spoken.length > 0 && (spoken.length === 1 || (spoken.length === 2 && spoken[1] === '-'));
+  const stdinBytes = fromStdin ? await readStdin(seams.stdin ?? process.stdin) : null;
+  const words = fromStdin ? [spoken[0], stdinBytes.toString('utf8')] : spoken;
   const flags = parsed.flags;
   const env = seams.env ?? process.env;
   const asked = (flags.origin ?? env.TRILLION_ORIGIN)?.replace(/\/$/, '') || null;
@@ -1127,6 +1153,7 @@ export async function main(argv, seams = {}) {
   const call = WORK_COMMANDS.has(command) ? argumentsFor(command, { words, flags }, { me: context.me, held: context.state.held() }) : null;
   const client = await signedInClient(context);
   if (call) {
+    if (call.input.result !== undefined && call.work === 'change') call.input.result = await kept(keepResult(client, call.input.id, stdinBytes ?? Buffer.from(call.input.result, 'utf8'), settings));
     let answer = await workCall(client, call.work, call.input);
     if (command === 'take' && object(answer?.taken)) context.state.hold(context.me.agent_id, answer.taken);
     if (['finish', 'fail', 'release', 'withdraw', 'remove'].includes(command) && answer?.moved) context.state.letGo(holderOf(context.me, context.state.held(), call.input.id), call.input.id);
@@ -1146,6 +1173,7 @@ export async function main(argv, seams = {}) {
       answer = { ...answer, note: [answer.note, fill(settings.words.not_finished, { seconds, id: answer.job_id })].filter(Boolean).join(' ') };
     }
     if (command === 'send' && object(answer?.job)) answer = { ...answer, note: [answer.note, sendNote(answer)].filter(Boolean).join(' ') };
+    if (command === 'work' && flags.result === true) return printResult(await kept(readResult(client, jobResultOf(answer, call.input.id), settings)), seams.stdout ?? process.stdout);
     return print(command, answer);
   }
   if (command === 'publish') {

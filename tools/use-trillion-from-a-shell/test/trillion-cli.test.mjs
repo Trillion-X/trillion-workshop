@@ -2,9 +2,11 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { lstatSync, mkdirSync, mkdtempSync, readFileSync, readlinkSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
+import { PassThrough } from 'node:stream';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
+import { makeHashCodeHexFromBytes } from '../do-work/packs/read-data/identity.mjs';
 import settings from '../do-work/trillion.json' with { type: 'json' };
 import {
   TrillionError, agentOf, aiOf, aiRecordOf, allPages, groupsOf, argumentsFor, computerNameOf, computerOf, credentialFor, doorFor, grantStore, holdingOf, installProgram,
@@ -17,6 +19,9 @@ const ACCOUNT = 'f'.repeat(64);
 const me = { agent_id: 'claude-code-on-mac', ai_id: 'ai:claude-code-on-mac', held_as: [], harness: 'Claude Code', app: 'Claude Code', model: null, provider: 'Anthropic', computer: 'Mac' };
 const place = () => ({ repository: 'trillion', branch: 'main' });
 const home = () => mkdtempSync(join(tmpdir(), 'trillion-cli-test-'));
+// What the door's tools:list {tool} answers for the tool that finishes jobs: the most characters a result takes inline.
+const RESULT_LIMIT = 60000;
+const changeTool = { id: 'tool:change-an-ai-job', input_schema: { type: 'object', properties: { result: { type: 'string', maxLength: RESULT_LIMIT } } } };
 const quick = { ...settings, retry: { ...settings.retry, count: 3, first_seconds: 0, most_seconds: 0 } };
 const noWait = async () => {};
 const noGrants = { where: 'test sign-in', read: () => null, write: () => {}, forget: () => {} };
@@ -407,6 +412,7 @@ test('send, work, take and every move are one Workshop work tool each; a job ano
   };
   const fake = await fakeDoor({ ops: {
     '@workshop-tools tools:run': input => ran(tools[input.tool](input.input)),
+    '@workshop-tools tools:list': () => changeTool,
     '@own-records records:read': input => ({ id: input.id, type: 'ai', value: null }),
     '@own-records records:write': input => { writes.push(input.records[0]); return { changed: true, write_count: 1 }; },
   } });
@@ -430,7 +436,7 @@ test('send, work, take and every move are one Workshop work tool each; a job ano
     race = true;
     assert.match(await main(['take'], seams), /^Another AI \(ai:codex-on-mac\) moved ai-job:k1 first\.\nai-job:k1 {2}taken {2}taken by ai:codex-on-mac/);
     assert.match(await main(['finish', 'ai-job:k1', 'Built.'], seams), /^ai-job:k1 was not moved \(changed\); here it is as it now is\.\nai-job:k1 {2}done/);
-    const changes = fake.calls.filter(call => call.input?.tool === 'tool:change-an-ai-job');
+    const changes = fake.calls.filter(call => call.method === 'tools:run' && call.input?.tool === 'tool:change-an-ai-job');
     assert.equal(changes.length, 2, 'a move another AI made first is reported, never tried again');
   } finally { await fake.close(); }
 });
@@ -474,7 +480,7 @@ test('publish: this AI\'s own record, written on condition of the value just rea
 
 test('serve: a job taken is run, then finished, given back when its command fails, or said stuck, each with tool:change-an-ai-job', async () => {
   const calls = [];
-  const client = { op: async (address, method, input) => { calls.push(input); return ran(input.tool === 'tool:take-an-ai-job' ? { taken: { id: 'ai-job:1', job: 'say hi', status: 'taken' }, tried: 1 } : { moved: true }); } };
+  const client = { op: async (address, method, input) => { if (method === 'tools:list') return changeTool; calls.push(input); return ran(input.tool === 'tool:take-an-ai-job' ? { taken: { id: 'ai-job:1', job: 'say hi', status: 'taken' }, tried: 1 } : { moved: true }); } };
   const held = [];
   const state = { hold: (agent, job) => held.push(['hold', job.id]), letGo: (agent, id) => held.push(['let go', id]) };
   for (const [result, action] of [[{ ok: true, output: 'hi' }, 'finish'], [{ ok: false, output: 'failed' }, 'release'], [{ ok: true, output: 'x', stuck: 'Which bank?' }, 'stuck']]) {
@@ -632,4 +638,70 @@ test('a job shows its own words, and its label on a line of its own', () => {
   const lines = jobLines({ id: 'ai-job:k', status: 'waiting', to: 'ai:codex-on-mac', job: 'Fix the build', label: 'build-fix' });
   assert.deepEqual(lines.slice(1), ['  job: Fix the build', '  label: build-fix']);
   assert.deepEqual(jobLines({ id: 'ai-job:k', status: 'waiting', label: 'only-a-label' }).slice(1), ['  label: only-a-label']);
+});
+
+// The account files as the door answers them, in memory: a resumable upload takes sequential pieces and its finish keeps the file.
+function filesDoor() {
+  const files = new Map(), uploads = new Map(), pieces = [], identities = new Map();
+  const identityOf = name => { if (!identities.has(name)) identities.set(name, makeHashCodeHexFromBytes(files.get(name))); return identities.get(name); };
+  return {
+    files, pieces, ops: {
+      '@namespace write_file_start': input => { if (files.has(input.name)) return { state: 'finished' }; uploads.set(input.upload_id, { ...input, got: [] }); return { state: 'open' }; },
+      '@namespace write_file_piece': input => {
+        const upload = uploads.get(input.upload_id), bytes = Buffer.from(input.content_base64, 'base64');
+        assert.equal(input.offset, upload.got.reduce((sum, part) => sum + part.length, 0), 'pieces arrive in order');
+        assert.ok(bytes.length <= settings.keep.piece_bytes, 'a piece is at most the span size');
+        pieces.push(bytes.length); upload.got.push(bytes); return { accepted: true };
+      },
+      '@namespace write_file_finish': input => { const upload = uploads.get(input.upload_id); files.set(input.name, Buffer.concat(upload.got)); assert.equal(files.get(input.name).length, upload.byte_length); return { state: 'finished' }; },
+      '@namespace find_file': input => ({ identity: identityOf(input.name_or_identity), byte_length: files.get(input.name_or_identity).length }),
+      '@namespace read_file': input => {
+        const bytes = files.get(input.name_or_identity), page = bytes.subarray(input.offset, input.offset + Math.min(input.length, 262144));
+        return { identity: identityOf(input.name_or_identity), byte_length: bytes.length, offset: input.offset, bytes_returned: page.length, encoding: 'base64', content: page.toString('base64') };
+      },
+    },
+  };
+}
+
+test('keep: a 10-byte result stays on the job row and a 50 MB one is kept as a file the row names, each read back whole through one call', async () => {
+  const kept = filesDoor(), jobs = {};
+  const fake = await fakeDoor({ ops: { ...kept.ops,
+    '@workshop-tools tools:list': () => changeTool,
+    '@workshop-tools tools:run': input => ran(input.tool === 'tool:change-an-ai-job'
+      ? (jobs[input.input.id] = { id: input.input.id, status: 'done', result: input.input.result }, { job_id: input.input.id, moved: true, from: 'taken', to: 'done', job: jobs[input.input.id] })
+      : { jobs: [jobs[input.input.id]], more: false }),
+    '@own-records records:read': input => ({ id: input.id, type: 'ai', value: null }),
+    '@own-records records:write': () => ({ changed: true, write_count: 1 }),
+  } });
+  try {
+    const stdinOf = bytes => { const stream = new PassThrough(); stream.end(bytes); return stream; };
+    const seams = stdin => seamsFor(home(), { localDoor: () => fake.mcp, stdin });
+    await main(['finish', 'ai-job:small'], seams(stdinOf(Buffer.from('0123456789'))));
+    assert.equal(jobs['ai-job:small'].result, '0123456789', 'a result that fits is the row\'s own text');
+    assert.equal(kept.files.size, 0, 'nothing is kept as a file for it');
+    assert.equal(await main(['work', 'ai-job:small', '--result'], seams()), '0123456789');
+    const text = Buffer.alloc(50 * 1024 * 1024, 'abcdefghij\n');
+    await main(['finish', 'ai-job:big'], seams(stdinOf(text)));
+    assert.match(jobs['ai-job:big'].result, /^Kept as file \/ai-job-results\/ai-job-big\/result \(52428800 bytes, 1f:[0-9a-f]{64}\)\. Read it whole: trillion work ai-job:big --result$/);
+    assert.ok(jobs['ai-job:big'].result.length < 300, 'the row holds the pointer, not the bytes');
+    assert.equal(kept.files.get('/ai-job-results/ai-job-big/result').length, text.length);
+    assert.equal(kept.pieces.length, Math.ceil(text.length / settings.keep.piece_bytes));
+    const back = await main(['work', 'ai-job:big', '--result'], seams());
+    assert.equal(back.length, text.length, 'the whole 50 MB comes back through one call');
+    assert.equal(back, text.toString('utf8'));
+    const before = kept.pieces.length;
+    await main(['finish', 'ai-job:big'], seams(stdinOf(text)));
+    assert.equal(kept.pieces.length, before, 'a retried keep is the same upload: the file already kept is not sent again');
+    assert.equal(fake.calls.filter(call => call.method === 'tools:list').every(call => call.input.tool === 'tool:change-an-ai-job'), true, 'the limit is read from the finishing tool, never typed');
+  } finally { await fake.close(); }
+});
+
+test('keep: a door that states no most length for the result refuses before anything is kept or finished', async () => {
+  const kept = filesDoor();
+  const fake = await fakeDoor({ ops: { ...kept.ops, '@workshop-tools tools:list': () => ({ id: 'tool:change-an-ai-job', input_schema: { properties: { result: { type: 'string' } } } }),
+    '@workshop-tools tools:run': () => { throw new Error('finish must not run'); } } });
+  try {
+    await assert.rejects(main(['finish', 'ai-job:x', 'done'], seamsFor(home(), { localDoor: () => fake.mcp })), /states no most length/);
+    assert.equal(kept.files.size, 0);
+  } finally { await fake.close(); }
 });
