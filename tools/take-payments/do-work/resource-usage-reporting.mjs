@@ -5,7 +5,7 @@
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { addAmounts, subtractAmounts, compareAmounts, rational, exactAmount, cashClearing } from '../read-data/resource-usage.mjs';
 import { readResourceUsageSettlement } from './resource-usage.mjs';
-import { call } from './build-stripe-http-request.mjs';
+import { call } from './build-provider-request.mjs';
 import { heldKey, makeStripeSender } from './stripe-send.mjs';
 
 export const usageReportingTypes = Object.freeze({ agreement: 'usage-billing-agreement', cash: 'resource-usage-cash', applied: 'resource-usage-applied-source', report: 'resource-usage-provider-report' });

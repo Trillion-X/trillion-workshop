@@ -13,7 +13,7 @@
 //   3. No product or customer identity lives here: the name on the test product is the caller's.
 import { paymentScheduleFromTheWire } from '../read-data/when-money-is-taken.ts';
 import { howStripeTakesASchedule } from './stripe-phases-for-a-payment-schedule.ts';
-import { call } from './build-stripe-http-request.mjs';
+import { call } from './build-provider-request.mjs';
 
 const TEST_KEY = /^(sk|rk)_test_/;
 

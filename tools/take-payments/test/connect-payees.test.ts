@@ -8,14 +8,14 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from './expect.mjs';
 // eslint-disable-next-line import/extensions
-import { buildStripeHttpRequest } from '../do-work/build-stripe-http-request.mjs';
+import { buildStripeHttpRequest } from '../do-work/build-provider-request.mjs';
 // eslint-disable-next-line import/extensions
 import { destinationCheckoutSubject, feeCents, onboardingLinkSubject, payeeAccountSubject, payeeReadiness, shareTransferSubject } from '../do-work/connect-payees.mjs';
 // eslint-disable-next-line import/extensions
-import { mapStripeWebhookEvent } from '../do-work/map-stripe-webhook-event.mjs';
+import { mapStripeWebhookEvent } from '../do-work/map-webhook-event.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const EVENT_MAP = JSON.parse(readFileSync(join(HERE, '../read-data/stripe-webhook-event-map.json'), 'utf8'));
+const EVENT_MAP = JSON.parse(readFileSync(join(HERE, '../read-data/webhook-event-map.json'), 'utf8'));
 const PAYEE_EVENT_MAP = JSON.parse(readFileSync(join(HERE, '../read-data/stripe-payee-event-map.json'), 'utf8'));
 const SETTINGS = {
   country: 'US',

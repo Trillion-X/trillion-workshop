@@ -22,8 +22,8 @@
 //   5. A seller's own connection is never charged a fee (the seller store only prepares requests on the platform road).
 //   6. Requests leave only for the platform row's allowed hosts.
 import platformData from './payment-platform.json' with { type: 'json' };
-import { buildStripeHttpRequest } from '../../seller-payment-setup/process/build-stripe-http-request.mjs';
-import stripeOperations from '../../seller-payment-setup/data/stripe-operation-map.json' with { type: 'json' };
+import { buildStripeHttpRequest } from '../../take-payments/do-work/build-provider-request.mjs';
+import stripeOperations from '../../take-payments/read-data/provider-operation-map.json' with { type: 'json' };
 
 const text = value => typeof value === 'string' && value.trim() !== '';
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);

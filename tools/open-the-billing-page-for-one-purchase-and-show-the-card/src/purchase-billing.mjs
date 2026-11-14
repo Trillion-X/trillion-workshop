@@ -1,7 +1,7 @@
 // A billing session is bound to the verified customer of one subscription. A payer
 // manages each funding agreement separately; no global email-login shortcut guesses
 // which of several billing profiles with the same email should be opened.
-import { buildStripeHttpRequest } from '../../seller-payment-setup/process/build-stripe-http-request.mjs';
+import { buildStripeHttpRequest } from '../../take-payments/do-work/build-provider-request.mjs';
 
 export async function purchaseBillingSession({ send, subscription_id, origin, configuration }) {
   if (!/^sub_[A-Za-z0-9]+$/.test(subscription_id ?? '')) throw new Error('Choose a verified subscription.');

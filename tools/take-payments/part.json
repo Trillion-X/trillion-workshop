@@ -1,1 +1,1 @@
-{"public": ["read-data/resource-usage.mjs", "do-work/resource-usage-reporting.mjs"]}
+{"public": ["read-data/resource-usage.mjs", "do-work/resource-usage-reporting.mjs", "do-work/build-provider-request.mjs", "read-data/provider-operation-map.json"]}

@@ -4,7 +4,7 @@
 // the card that pays it (brand, last four, expiry only). It reads the subscription and opens one session; it changes no
 // subscription, moves no money and never answers a card number, a fingerprint or the key. `send` is the one sender
 // take-payments.mjs passes (the person's own key, read from descriptor 4 only at the moment of sending).
-import { call } from './build-stripe-http-request.mjs';
+import { call } from './build-provider-request.mjs';
 
 const SUBSCRIPTION_ID = /^sub_[A-Za-z0-9]+$/;
 const BILLING_HOST = 'billing.stripe.com';

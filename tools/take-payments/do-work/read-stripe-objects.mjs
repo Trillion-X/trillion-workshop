@@ -4,7 +4,7 @@
 // the Stripe operation, the inputs and what each may be, what to expand, and the shape of each thing returned; this
 // file names no provider, address, id shape or field. Only GET requests are ever sent (the sender handed in is wrapped
 // so a request of any other method is refused before it leaves), and the key stays in the sender: it is never here.
-import { call } from './build-stripe-http-request.mjs';
+import { call } from './build-provider-request.mjs';
 import readShapes from '../read-data/stripe-read-shapes.json' with { type: 'json' };
 
 export class StripeReadError extends Error {}

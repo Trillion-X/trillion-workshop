@@ -15,7 +15,7 @@
 // no key at all. A public address that must never hold a provider key (a fixed redirect) can still sell every
 // offer row.
 //
-// Every call is built by `call` (build-stripe-http-request.mjs) from `read-data/stripe-operation-map.json` rows and
+// Every call is built by `call` (build-provider-request.mjs) from `read-data/provider-operation-map.json` rows and
 // handed to the caller's `send`, which binds the credential and returns the decoded JSON reply (throwing on a non-2xx
 // reply). This module holds no secret and makes no network call itself.
 //
@@ -29,7 +29,7 @@
 //   → { links: [{ offer_id, price_option_id, url }], retired: [url], portal_url, portal_configuration, codes: [{ code, active, used, max }], retired_codes: [code] }
 //   ensureOfferCodes({ adjustments, offers, owner, send }) → { codes, retired }: only the codes, for a run that changes nothing else;
 //   each code comes off only the products of the offers its row's applies_to.offer_ids (read as scope.offer_ids) names.
-import { call } from './build-stripe-http-request.mjs';
+import { call } from './build-provider-request.mjs';
 import { quantityForCheckout } from './quantity-for-checkout.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 

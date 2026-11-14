@@ -6,7 +6,7 @@
 // subscription is opened by the same code the billing-page tool runs (billing-portal.mjs). The page's address is
 // returned for the caller to read; this function never opens it. Test mode is checked by the caller before anything is built
 // (take-payments.mjs, assertTestKey), so a live key never reaches here. No product or customer identity lives here.
-import { call } from './build-stripe-http-request.mjs';
+import { call } from './build-provider-request.mjs';
 import { findPortalConfiguration, httpsAddress, openBillingPage } from './billing-portal.mjs';
 
 const text = value => (typeof value === 'string' ? value.trim() : '');

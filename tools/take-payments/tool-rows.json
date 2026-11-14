@@ -2479,7 +2479,7 @@
           "placement:your-computer"
         ],
         "provenance": {
-          "source": "trillion-workshop tools/take-payments (Stripe operation map rows for read-subscription-card and create-portal-session, copied from tools/seller-payment-setup/data/stripe-operation-map.json)"
+          "source": "trillion-workshop tools/take-payments (Stripe operation map rows for read-subscription-card and create-portal-session, copied from tools/seller-payment-setup/data/provider-operation-map.json)"
         },
         "verify": [
           {

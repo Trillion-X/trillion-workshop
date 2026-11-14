@@ -38,8 +38,8 @@ import {
 } from './hosted-session.ts';
 import { ensureOfferPaymentLinks } from './ensure-offer-payment-links.mjs';
 import { destinationCheckoutSubject, onboardingLinkSubject, payeeAccountSubject, payeeReadiness, shareTransferSubject } from './connect-payees.mjs';
-import { call } from './build-stripe-http-request.mjs';
-import { admitStripeWebhook } from './compare-and-map-stripe-webhook.mjs';
+import { call } from './build-provider-request.mjs';
+import { admitStripeWebhook } from './admit-a-webhook.mjs';
 import { heldKey, makeStripeSender } from './stripe-send.mjs';
 import { assertTestKey, rehearseAPaymentSchedule } from './rehearse-a-payment-schedule.mjs';
 import { rehearseABillingPage } from './rehearse-a-billing-page.mjs';
@@ -167,7 +167,7 @@ export function checkAStripeEvent(input, context) {
     payload: input.payload,
     header: input.signature_header,
     secret,
-    eventMap: input.event_map ?? dataFile('stripe-webhook-event-map.json'),
+    eventMap: input.event_map ?? dataFile('webhook-event-map.json'),
     toleranceSeconds: input.tolerance_seconds,
     nowSeconds: input.now_seconds,
   });

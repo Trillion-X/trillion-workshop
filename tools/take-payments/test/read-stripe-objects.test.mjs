@@ -7,10 +7,10 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { call } from '../do-work/build-stripe-http-request.mjs';
+import { call } from '../do-work/build-provider-request.mjs';
 import { readOnly, readStripeObjects, project, StripeReadError } from '../do-work/read-stripe-objects.mjs';
 import { readStripePromotionCodes, readStripePromotionCodesInTestMode } from '../do-work/take-payments.mjs';
-import operationMap from '../read-data/stripe-operation-map.json' with { type: 'json' };
+import operationMap from '../read-data/provider-operation-map.json' with { type: 'json' };
 import readShapes from '../read-data/stripe-read-shapes.json' with { type: 'json' };
 
 const promotionCode = {

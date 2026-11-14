@@ -6,8 +6,8 @@
 //
 // Everything a platform chooses is DATA handed in by the caller: the payee account settings (country, controller
 // properties, requested capabilities) and the fee (`{ percent }`). Nothing here names a platform, an app, a product
-// or a price. Each function builds the subject of one Stripe operation in `read-data/stripe-operation-map.json`; the
-// caller sends it with `call` (build-stripe-http-request.mjs) and the person's own key. This module holds no secret
+// or a price. Each function builds the subject of one Stripe operation in `read-data/provider-operation-map.json`; the
+// caller sends it with `call` (build-provider-request.mjs) and the person's own key. This module holds no secret
 // and makes no network call itself.
 //
 //   payeeAccountSubject({ settings, email, owner, payee_ref })            → operation:create-connected-account subject

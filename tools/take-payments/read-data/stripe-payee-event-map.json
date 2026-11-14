@@ -1,6 +1,6 @@
 {
-  "_comment": "Maps Stripe events about payee accounts (Connect) to generic payee events: whether a payee can be paid (account.updated) and when their money arrived (payout.*). These arrive on a webhook endpoint made with connect: true, and each event's top-level `account` names the payee. Read by the same decoder as the revenue map (process/map-stripe-webhook-event.mjs); a consumer that pays payees passes this map, a revenue projection never sees these events. Adding a payee event is one rule row.",
-  "kind": "stripe-webhook-event-map",
+  "_comment": "Maps Stripe events about payee accounts (Connect) to generic payee events: whether a payee can be paid (account.updated) and when their money arrived (payout.*). These arrive on a webhook endpoint made with connect: true, and each event's top-level `account` names the payee. Read by the same decoder as the revenue map (process/map-webhook-event.mjs); a consumer that pays payees passes this map, a revenue projection never sees these events. Adding a payee event is one rule row.",
+  "kind": "webhook-event-map",
   "id": "stripe.webhook-event-map.payees",
   "rules": [
     {

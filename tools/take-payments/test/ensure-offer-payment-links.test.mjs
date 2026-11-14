@@ -4,7 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ensureOfferCodes, ensureOfferPaymentLinks, pricedOptions } from '../do-work/ensure-offer-payment-links.mjs';
-import { buildStripeHttpRequest } from '../do-work/build-stripe-http-request.mjs';
+import { buildStripeHttpRequest } from '../do-work/build-provider-request.mjs';
 
 // A small Stripe: objects kept in memory, answering the built requests by method and address.
 function fakeStripe() {

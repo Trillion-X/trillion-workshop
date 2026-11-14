@@ -1,8 +1,8 @@
-// tools/take-payments/do-work/map-stripe-webhook-event.mjs
+// tools/take-payments/do-work/map-webhook-event.mjs
 //
 // Generic Stripe-webhook-event decoder. Given a VERIFIED Stripe webhook event
 // (`{ id, type, created, data: { object: {...} } }`) and the DATA map
-// `data/stripe-webhook-event-map.json`, produce the GENERIC revenue PaymentEvent
+// `data/webhook-event-map.json`, produce the GENERIC revenue PaymentEvent
 // that revenue-ledger's projection consumes:
 //   { event_id, occurred_at, event_kind, attributes: { ...config-keyed fields } }
 //
@@ -55,7 +55,7 @@ function occurredAtFrom(created) {
  * Map a verified Stripe webhook event to a generic revenue PaymentEvent, or null
  * if no rule matches the event type (ignored / fail-closed).
  * @param {object} stripeEvent - verified Stripe event { id, type, created, data:{object} }
- * @param {object} eventMap - the stripe-webhook-event-map DATA
+ * @param {object} eventMap - the webhook-event-map DATA
  * @returns {{event_id:string, occurred_at:string, event_kind:string, attributes:Record<string,unknown>}|null}
  */
 export function mapStripeWebhookEvent(stripeEvent, eventMap) {

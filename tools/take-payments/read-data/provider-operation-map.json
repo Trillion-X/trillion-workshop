@@ -1,5 +1,5 @@
 {
-  "description": "Stripe operation wire-shape map \u2014 DATA consumed by do-work/stripe-request-mapper.mjs. Each row tells the generic mapper how one operation_id becomes an HTTP request shape: method, the vendor's published endpoint as a template ({provider_object_ref} substituted from input_facts[object_ref_key]), and which input-fact key carries the request subject, and optionally `acts_for_account` ({input_fact, header}): the header that makes the request act for the account named by that input fact. Each row carries the WHOLE address the vendor answers on rather than a fragment composed onto a base, because the vendor serves more than one versioned namespace and a shared prefix could only ever be right for some of them. Adding a Stripe operation = adding ONE row here ; the mapper enumerates nothing (L090 / enum-dissolution).",
+  "description": "Stripe operation wire-shape map — DATA consumed by do-work/provider-request-mapper.mjs. Each row tells the generic mapper how one operation_id becomes an HTTP request shape: method, the vendor's published endpoint as a template ({provider_object_ref} substituted from input_facts[object_ref_key]), and which input-fact key carries the request subject, and optionally `acts_for_account` ({input_fact, header}): the header that makes the request act for the account named by that input fact. Each row carries the WHOLE address the vendor answers on rather than a fragment composed onto a base, because the vendor serves more than one versioned namespace and a shared prefix could only ever be right for some of them. Adding a Stripe operation = adding ONE row here ; the mapper enumerates nothing (L090 / enum-dissolution).",
   "current_api_version": "2026-05-27.dahlia",
   "operations": [
     {
@@ -44,7 +44,8 @@
       "method": "POST",
       "endpoint": "https://api.stripe.com/v2/core/accounts",
       "subject_key": "operation_subject",
-      "object_ref_key": null
+      "object_ref_key": null,
+      "body_encoding": "json"
     },
     {
       "operation_id": "operation:observe-event",
@@ -301,6 +302,133 @@
       "operation_id": "operation:create-portal-session",
       "method": "POST",
       "endpoint": "https://api.stripe.com/v1/billing_portal/sessions",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:read-setup-intent",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/setup_intents/{provider_object_ref}",
+      "subject_key": null,
+      "object_ref_key": "provider_object_ref"
+    },
+    {
+      "operation_id": "operation:find-subscription-schedules",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/subscription_schedules",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:read-subscription-schedule",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/subscription_schedules/{provider_object_ref}",
+      "subject_key": null,
+      "object_ref_key": "provider_object_ref"
+    },
+    {
+      "operation_id": "operation:read-invoice",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/invoices/{provider_object_ref}",
+      "subject_key": null,
+      "object_ref_key": "provider_object_ref"
+    },
+    {
+      "operation_id": "operation:read-event",
+      "comment": "Reads one event by its id, in the API version the request names: Stripe's own copy of a delivered notice, so a notice is admitted from what Stripe says happened rather than from the delivery.",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/events/{provider_object_ref}",
+      "subject_key": "operation_subject",
+      "object_ref_key": "provider_object_ref"
+    },
+    {
+      "operation_id": "operation:find-webhook-endpoints",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/webhook_endpoints",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:create-webhook-endpoint",
+      "comment": "The signing secret is returned only in this reply, so a setup that loses it must delete and create the endpoint again.",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/webhook_endpoints",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:delete-webhook-endpoint",
+      "method": "DELETE",
+      "endpoint": "https://api.stripe.com/v1/webhook_endpoints/{provider_object_ref}",
+      "subject_key": null,
+      "object_ref_key": "provider_object_ref"
+    },
+    {
+      "operation_id": "operation:read-charge",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/charges/{provider_object_ref}",
+      "subject_key": null,
+      "object_ref_key": "provider_object_ref"
+    },
+    {
+      "operation_id": "operation:find-invoice-payments",
+      "comment": "Lists the payments of one invoice ({ invoice }), so the payment intent a subscription's first invoice was paid with can be refunded (invoices name their payments here since API version 2025-03-31.basil).",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/invoice_payments",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:create-customer-balance-transaction",
+      "comment": "Adds to or takes from a customer's balance; a negative amount is a credit Stripe takes off the customer's next invoices by itself.",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/customers/{provider_object_ref}/balance_transactions",
+      "subject_key": "operation_subject",
+      "object_ref_key": "provider_object_ref"
+    },
+    {
+      "operation_id": "operation:find-meters",
+      "comment": "Lists billing meters, so a meter an offer's usage row names is found again by its event name instead of made twice.",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/billing/meters",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:create-meter",
+      "comment": "Makes a billing meter: the events sent under its event name are summed per customer and billed through a price that names the meter.",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/billing/meters",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:create-meter-event",
+      "comment": "Sends one counted amount for one customer to a meter; Stripe takes an identifier only once, so the same count sent again is not counted twice.",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/billing/meter_events",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:create-subscription-item",
+      "comment": "Adds a price to an existing subscription, such as a counted price billed by what was used.",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/subscription_items",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
+    },
+    {
+      "operation_id": "operation:read-price",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/prices/{provider_object_ref}",
+      "subject_key": null,
+      "object_ref_key": "provider_object_ref"
+    },
+    {
+      "operation_id": "operation:find-subscriptions",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/subscriptions",
       "subject_key": "operation_subject",
       "object_ref_key": null
     }

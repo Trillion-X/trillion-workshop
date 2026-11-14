@@ -1,20 +1,20 @@
-// packages/stripe-payment-provider/tests/compare-and-map-stripe-webhook.test.ts
+// packages/stripe-payment-provider/tests/admit-a-webhook.test.ts
 //
 // No-key proof for Phase 2: compare the vault-computed signature + map. The test
 // computes the "expected" signature the SAME way the vault would (HMAC-SHA256 over
 // `${t}.${rawBody}` with a fixture secret) — simulating the vault's `sign` op
 // result — so the comparator + mapper are proven end-to-end WITHOUT a real key or
-// a live vault. Uses the REAL stripe-webhook-event-map.json DATA.
+// a live vault. Uses the REAL webhook-event-map.json DATA.
 import { readFileSync } from 'node:fs';
 import { createHmac } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { describe, expect, it } from './expect.mjs';
 // eslint-disable-next-line import/extensions
-import { compareAndMapStripeWebhook } from '../do-work/compare-and-map-stripe-webhook.mjs';
+import { compareAndMapStripeWebhook } from '../do-work/admit-a-webhook.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const EVENT_MAP = JSON.parse(readFileSync(join(HERE, '../read-data/stripe-webhook-event-map.json'), 'utf8'));
+const EVENT_MAP = JSON.parse(readFileSync(join(HERE, '../read-data/webhook-event-map.json'), 'utf8'));
 
 const SECRET = 'whsec_fixture_secret';
 const T = 1782086400;
@@ -44,7 +44,7 @@ function vaultSign(rawBody: string): string {
   return createHmac('sha256', SECRET).update(`${T}.${rawBody}`).digest('hex');
 }
 
-describe('compare-and-map-stripe-webhook (Phase 2, no key)', () => {
+describe('admit-a-webhook (Phase 2, no key)', () => {
   it('admits when the vault signature matches a v1, and maps to a PaymentEvent', () => {
     const expected = vaultSign(RAW);
     const r = compareAndMapStripeWebhook({

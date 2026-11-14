@@ -1,4 +1,4 @@
-import { call } from './build-stripe-http-request.mjs';
+import { call } from './build-provider-request.mjs';
 import { paymentScheduleFromTheWire } from '../read-data/when-money-is-taken.ts';
 import {
   howStripeTakesASchedule,

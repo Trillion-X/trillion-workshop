@@ -1,10 +1,10 @@
-// tools/take-payments/do-work/stripe-request-mapper.mjs
+// tools/take-payments/do-work/provider-request-mapper.mjs
 //
 // Generic operation→wire-shape mapper. The map of which operation_id becomes
-// which HTTP method/path/subject lives in `read-data/stripe-operation-map.json` —
+// which HTTP method/path/subject lives in `read-data/provider-operation-map.json` —
 // DATA, not code: this module enumerates nothing.
 // Adding a Stripe operation = one row in that JSON; this file never changes.
-import operationMapData from '../read-data/stripe-operation-map.json' with { type: 'json' };
+import operationMapData from '../read-data/provider-operation-map.json' with { type: 'json' };
 
 export const CURRENT_STRIPE_API_VERSION = operationMapData.current_api_version;
 
@@ -31,6 +31,8 @@ function compileOperationMap(data) {
         // Which input fact names the account this request acts for, and the header that says so. Declared, so a
         // request for a payee's balance is one row and the mapper never learns which operations act for whom.
         actsForAccount: row.acts_for_account ?? null,
+        // How the subject is written on the wire: form (the default) or json, declared per operation.
+        bodyEncoding: row.body_encoding ?? 'form',
       },
     ]),
   );
@@ -92,7 +94,7 @@ function actingAccountFor(spec, inputFacts) {
 /**
  * @param {object} request - capability invocation (operation_id, input_facts, ...)
  * @param {object} [operationMapOverride] - optional caller-supplied operation-map
- *   DATA (same shape as data/stripe-operation-map.json) — the injected-capability
+ *   DATA (same shape as data/provider-operation-map.json) — the injected-capability
  *   seam; defaults to the package's shipped DATA file.
  */
 export function mapCapabilityRequest(request, operationMapOverride) {
@@ -112,6 +114,7 @@ export function mapCapabilityRequest(request, operationMapOverride) {
     method: spec.method,
     endpoint: endpointFor(spec, inputFacts),
     hands_the_person_off: spec.handsThePersonOff,
+    body_encoding: spec.bodyEncoding,
     body: bodyFor(spec, inputFacts),
     query: queryFor(spec, inputFacts),
     acting_account: actingAccountFor(spec, inputFacts),

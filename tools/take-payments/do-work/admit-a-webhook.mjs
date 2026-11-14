@@ -1,4 +1,4 @@
-// tools/take-payments/do-work/compare-and-map-stripe-webhook.mjs
+// tools/take-payments/do-work/admit-a-webhook.mjs
 //
 // Second half of checking a Stripe webhook: timing-safe compare the signature computed with the person's signing
 // secret against the header's v1 candidates, then, only on a match, decode and DATA-map the event into admit-ready
@@ -11,8 +11,8 @@
 // The secret is used for one HMAC and goes no further: it is never returned, logged or placed in a reason.
 
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import { mapStripeWebhookEvent } from './map-stripe-webhook-event.mjs';
-import { parseStripeSignature } from './parse-stripe-signature.mjs';
+import { mapStripeWebhookEvent } from './map-webhook-event.mjs';
+import { parseStripeSignature } from './parse-webhook-signature.mjs';
 
 /** Strip a leading `0x` so the value matches Stripe's bare-hex `v1`. Lowercased for a stable compare. */
 function normalizeHex(value) {
@@ -38,7 +38,7 @@ function timingSafeHexEqual(a, b) {
  * @param {string}   args.expectedSignature the signature computed with the signing secret (hex, optionally `0x`-prefixed)
  * @param {string[]} args.signatures the header's v1 candidates (Stripe sends several during a secret rotation)
  * @param {string}   args.rawBody the EXACT raw request body (the bytes that were signed)
- * @param {object}   args.eventMap the loaded `stripe-webhook-event-map.json` DATA
+ * @param {object}   args.eventMap the loaded `webhook-event-map.json` DATA
  * @returns {{admitted:true,event_kind:string,records:Array<object>}|{admitted:false,reason:string,records:[]}}
  */
 export function compareAndMapStripeWebhook({ expectedSignature, signatures, rawBody, eventMap } = {}) {

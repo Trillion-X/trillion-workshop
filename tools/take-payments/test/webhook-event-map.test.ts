@@ -1,4 +1,4 @@
-// packages/stripe-payment-provider/tests/stripe-webhook-event-map.test.ts
+// packages/stripe-payment-provider/tests/webhook-event-map.test.ts
 //
 // No-key proof for REV-LEDGER Part A ingestion: a verified Stripe webhook event
 // maps to the GENERIC revenue PaymentEvent that revenue-ledger's projection
@@ -10,10 +10,10 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from './expect.mjs';
 // eslint-disable-next-line import/extensions
-import { mapStripeWebhookEvent, loadWebhookEventMap } from '../do-work/map-stripe-webhook-event.mjs';
+import { mapStripeWebhookEvent, loadWebhookEventMap } from '../do-work/map-webhook-event.mjs';
 
 const packageRoot = join(import.meta.dirname, '..');
-const eventMap = loadWebhookEventMap(join(packageRoot, 'read-data/stripe-webhook-event-map.json'));
+const eventMap = loadWebhookEventMap(join(packageRoot, 'read-data/webhook-event-map.json'));
 
 // Real-shaped Stripe webhook events (trimmed to the fields the map reads).
 const paymentIntentSucceeded = {
@@ -65,7 +65,7 @@ const subscriptionDeleted = {
   },
 };
 
-describe('map-stripe-webhook-event → generic revenue PaymentEvent (no key)', () => {
+describe('map-webhook-event → generic revenue PaymentEvent (no key)', () => {
   it('maps payment_intent.succeeded → payment.confirmed with config-keyed amount', () => {
     const ev = mapStripeWebhookEvent(paymentIntentSucceeded, eventMap);
     expect(ev).toMatchObject({
@@ -183,7 +183,7 @@ describe('map-stripe-webhook-event → generic revenue PaymentEvent (no key)', (
   });
 
   it('map carries no secret and names amounts in integer cents (no float math)', () => {
-    const src = readFileSync(join(packageRoot, 'read-data/stripe-webhook-event-map.json'), 'utf8');
+    const src = readFileSync(join(packageRoot, 'read-data/webhook-event-map.json'), 'utf8');
     expect(src).not.toMatch(/\bsk_(?:live|test)_/);
     expect(src).not.toMatch(/\bwhsec_/);
   });

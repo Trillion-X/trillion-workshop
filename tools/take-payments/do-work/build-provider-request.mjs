@@ -1,4 +1,4 @@
-// tools/take-payments/do-work/build-stripe-http-request.mjs
+// tools/take-payments/do-work/build-provider-request.mjs
 //
 // Assemble a ready-to-send Stripe HTTP request from a capability request ({ operation_id, input_facts,
 // idempotency_key, api_version_policy, required_credential_ref }). Everything up to the live key: the address, the
@@ -21,8 +21,8 @@
 // Each operation row carries the WHOLE address the vendor answers on, because this vendor serves more than one
 // versioned namespace and a shared prefix could only ever be right for some of them.
 
-import { mapCapabilityRequest, CURRENT_STRIPE_API_VERSION } from './stripe-request-mapper.mjs';
-import { encodeStripeForm } from './stripe-form-encode.mjs';
+import { mapCapabilityRequest, CURRENT_STRIPE_API_VERSION } from './provider-request-mapper.mjs';
+import { encodeStripeForm } from './encode-provider-form.mjs';
 
 // The name of the held value a Stripe call authenticates with. A restricted key is the least-privilege choice; the
 // person puts the key's value in their held values under this name, never in a request, a row or a file.
@@ -48,8 +48,13 @@ export function buildStripeHttpRequest(capabilityRequest) {
   };
 
   if (mapped.method !== 'GET' && mapped.method !== 'DELETE') {
-    headers['Content-Type'] = 'application/x-www-form-urlencoded';
-    request.body = encodeStripeForm(mapped.body || {});
+    if (mapped.body_encoding === 'json') {
+      headers['Content-Type'] = 'application/json';
+      request.body = JSON.stringify(mapped.body || {});
+    } else {
+      headers['Content-Type'] = 'application/x-www-form-urlencoded';
+      request.body = encodeStripeForm(mapped.body || {});
+    }
     // Idempotency makes a retried POST safe: the same key answers the object already made instead of making another.
     if (mapped.idempotency_key) {
       headers['Idempotency-Key'] = mapped.idempotency_key;

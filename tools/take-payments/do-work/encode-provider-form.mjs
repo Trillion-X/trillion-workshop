@@ -1,4 +1,4 @@
-// tools/take-payments/do-work/stripe-form-encode.mjs
+// tools/take-payments/do-work/encode-provider-form.mjs
 //
 // Stripe wire-format encoder. The Stripe REST API consumes
 // `application/x-www-form-urlencoded` bodies with BRACKET NOTATION for nested

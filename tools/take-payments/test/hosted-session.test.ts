@@ -12,7 +12,7 @@ import {
   sessionRequestBody,
   updateSubscriptionMetadata,
 } from '../do-work/hosted-session.ts';
-import { encodeStripeForm } from '../do-work/stripe-form-encode.mjs';
+import { encodeStripeForm } from '../do-work/encode-provider-form.mjs';
 
 type Sent = { method: string; url: string; headers: Record<string, string>; body?: string };
 

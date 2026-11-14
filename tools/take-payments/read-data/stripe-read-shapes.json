@@ -1,5 +1,5 @@
 {
-  "description": "The reads of Stripe a person can ask for as a list of things, one row each. A row names the operation (a GET row of stripe-operation-map.json), which inputs become which query words and what each may be, what to ask Stripe to expand, where the list sits in Stripe's answer, and the shape of each thing returned: a field is a path into what Stripe said (the first of several paths that has a value wins), a row with `from` and `shape` is a nested thing, and a field Stripe did not send answers null. Adding a read is adding a row here; read-stripe-objects.mjs names none of them.",
+  "description": "The reads of Stripe a person can ask for as a list of things, one row each. A row names the operation (a GET row of provider-operation-map.json), which inputs become which query words and what each may be, what to ask Stripe to expand, where the list sits in Stripe's answer, and the shape of each thing returned: a field is a path into what Stripe said (the first of several paths that has a value wins), a row with `from` and `shape` is a nested thing, and a field Stripe did not send answers null. Adding a read is adding a row here; read-stripe-objects.mjs names none of them.",
   "reads": [
     {
       "read_id": "read:promotion-codes",

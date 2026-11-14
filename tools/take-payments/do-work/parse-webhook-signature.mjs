@@ -1,7 +1,7 @@
-// tools/take-payments/do-work/parse-stripe-signature.mjs
+// tools/take-payments/do-work/parse-webhook-signature.mjs
 //
 // First half of checking a Stripe webhook: parse the `Stripe-Signature` header, enforce the timestamp-tolerance replay
-// window, and build the EXACT signed message. It touches no secret; `compare-and-map-stripe-webhook.mjs` applies the
+// window, and build the EXACT signed message. It touches no secret; `admit-a-webhook.mjs` applies the
 // person's signing secret and decides.
 //
 // Stripe scheme (https://docs.stripe.com/webhooks#verify-manually):

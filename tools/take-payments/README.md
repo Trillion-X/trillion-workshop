@@ -8,7 +8,7 @@ A person who sells with their own Stripe account can have their AI price a sale 
 - **Every price comes from the person's DATA.** Prices, plans, codes and rules are the person's own records (the rows of their offers list, `record:commercial-offer`; `checkout-code-adjustment`, `offer-eligibility-rule`, `usage-pricing-rule-version`), read through the records door, or passed in the request. The calculators apply those rules; the folder ships no offer, supplier tariff, retail markup or free allowance.
 - **Paying money out asks twice.** `tool:pay-someone-a-share-through-stripe` sends nothing unless `confirm_moves_money: true` is in the same request.
 - **A rehearsal can only touch test mode.** The key must start with a Stripe test prefix, checked before any request is built.
-- **A webhook is believed only after its checks.** `tool:check-a-stripe-event` checks the replay window and the signature (HMAC-SHA256 with the person's signing secret on descriptor 5), then reads the event through the data map in `read-data/stripe-webhook-event-map.json`. The payment event it keeps (type `payment-event`) is the same shape `tools/revenue-ledger` adds up.
+- **A webhook is believed only after its checks.** `tool:check-a-stripe-event` checks the replay window and the signature (HMAC-SHA256 with the person's signing secret on descriptor 5), then reads the event through the data map in `read-data/webhook-event-map.json`. The payment event it keeps (type `payment-event`) is the same shape `tools/revenue-ledger` adds up.
 - **Webhook endpoints are not made here.** Stripe shows an endpoint's signing secret only when it is created, and a tool's answer must not carry a secret; the person adds the endpoint in Stripe and keeps the secret in their held values.
 
 ## Files
@@ -22,10 +22,10 @@ A person who sells with their own Stripe account can have their AI price a sale 
 | `read-data/when-money-is-taken.ts` | One shape for when a price takes money: charges with days after signup, and a repeat. |
 | `read-data/verify-paid-amount.ts` | Money gate: the paid amount must be a price the offer declares. |
 | `read-data/offer-eligibility.ts` | Upsell and already-owns rules over what the buyer holds. |
-| `read-data/stripe-operation-map.json` | One row per Stripe operation (method, whole address, subject). Adding an operation is one row. |
+| `read-data/provider-operation-map.json` | One row per Stripe operation (method, whole address, subject). Adding an operation is one row. |
 | `read-data/stripe-read-shapes.json` | One row per list read of Stripe (see `do-work/read-stripe-objects.mjs`). |
-| `read-data/stripe-webhook-event-map.json`, `stripe-payee-event-map.json` | Stripe event type to payment event, as data. |
-| `do-work/stripe-request-mapper.mjs`, `stripe-form-encode.mjs`, `build-stripe-http-request.mjs` | Operation row to a ready-to-send request, form-encoded; `call` builds and sends one. |
+| `read-data/webhook-event-map.json`, `stripe-payee-event-map.json` | Stripe event type to payment event, as data. |
+| `do-work/provider-request-mapper.mjs`, `encode-provider-form.mjs`, `build-provider-request.mjs` | Operation row to a ready-to-send request, form-encoded; `call` builds and sends one. |
 | `do-work/stripe-send.mjs` | The only place the key is read and used. |
 | `do-work/stripe-phases-for-a-payment-schedule.ts` | A payment schedule as the part taken at the door and the Stripe subscription phases after it. |
 | `do-work/session-intent.ts` | A quote to a provider-neutral session intent and back to checkout material. |
@@ -33,7 +33,7 @@ A person who sells with their own Stripe account can have their AI price a sale 
 | `do-work/ensure-offer-payment-links.mjs` | Lasting payment links, percent- and amount-off codes scoped to the offers a code row names, and the plan page, found before made. A link carries the option's trial, its day-0 `charges` part as a one-time item, a quantity the buyer picks, and the offer's checkout note; after paying it opens the row's `post_purchase_route_path` under `after_payment_url` (its root when the row names none). |
 | `do-work/quantity-for-checkout.mjs`, `read-data/quantity-limits.json` | The count a buyer may pick for an option with `quantity` (or `seats`), cut to what one Stripe checkout can carry. |
 | `do-work/connect-payees.mjs` | Payee account, onboarding link, destination checkout, share transfer subjects, and payee readiness. |
-| `do-work/parse-stripe-signature.mjs`, `compare-and-map-stripe-webhook.mjs`, `map-stripe-webhook-event.mjs` | The webhook check. |
+| `do-work/parse-webhook-signature.mjs`, `admit-a-webhook.mjs`, `map-webhook-event.mjs` | The webhook check. |
 | `do-work/rehearse-a-payment-schedule.mjs` | Test-mode rehearsal of a schedule. |
 | `do-work/rehearse-a-billing-page.mjs` | `tool:rehearse-a-billing-page-in-stripe-test-mode`: in Stripe test mode, makes a customer, product, price and subscription, finds or makes the account's billing portal configuration, and opens the subscription's billing page with `billing-portal.mjs`; returns the page's address and never opens it. |
 | `do-work/billing-portal.mjs` | The billing page of one purchase (`tool:open-the-billing-page-for-one-purchase-and-show-the-card`): a portal session for the customer that bills the subscription, and the card that pays it. |
