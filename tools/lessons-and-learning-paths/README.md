@@ -11,6 +11,8 @@ Where a learner stands on a track of ordered steps, and the writes that accept a
 | `learning-mastery-protocol` | Absorbed | Its lifecycle (a map of which phase may follow which) is what `move-records-through-declared-states` answers. The descriptor panel stays a screen. |
 | `course-lesson` | Moved | `packages/course-lesson/show/CourseLessonSurface.tsx` moved byte for byte from bitfield-packages d926b7adb (the receipt names the unedited file); only its ui import path changed. It is the screen of `tool:show-the-courses-a-learner-is-on`, mounted by `web/course-lesson-screen-mount.tsx`, which reads one `record:lesson` row (`read-data/lesson-input.mjs` maps its title, summary, body, do_now, primary_resource_id and resources to the page). The retired package entry `mount-course-lesson.tsx` and the vitest test `CourseLessonSurface.test.tsx` are not carried: the mount module takes the entry's place and this repository has no vitest runner. |
 | `learning-home` | Screen | It only draws a surface; no logic to carry. |
+| `course-lesson` | Screens | It only draws a surface; no logic to carry. |
+| `learning-home` | Screen, carried | The Learn screen (a Lessons view and an embedded Path view that places the lesson and path surfaces it is handed) is `show/mount-learning-home.tsx`, moved byte for byte (`from-bitfield-packages/moved-from.json`); its heading names no course, since the caller gives the title. Its imports still name the old package set's shared parts, so it is not wired into a tool row yet. |
 
 ## Files
 
@@ -29,6 +31,7 @@ Where a learner stands on a track of ordered steps, and the writes that accept a
 | `part.json` | The engine file is public. |
 | `tool-rows.json` | The Workshop rows Trillion reads for this folder. |
 | `test/lessons-and-learning-paths.test.mjs` | Tests for this folder, run by `npm test` at the top of the repository. Fixtures are a made-up bakery course. |
+| `show/mount-learning-home.tsx` | The Learn screen carried from `learning-home` (see the table above); `from-bitfield-packages/moved-from.json` is its receipt. |
 
 ## Key Types / Functions
 

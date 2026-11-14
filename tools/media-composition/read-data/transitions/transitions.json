@@ -1,0 +1,155 @@
+{
+ "about": "The transition rows and the three ways a transition is drawn (xfade, expr, process), taken as they were from the original package's boundary file (things-to-store-and-run.json at bitfield-packages commit e16b89fd1f025278be1de62554b0013952d8a7d2, packages/media-composition); a `process` transition runs a script kept beside this file (see stored-bytes.json).",
+ "rows": [
+  {
+   "kind": "media-composition.transition-renderer",
+   "name": "xfade",
+   "label": "Xfade",
+   "note": "57 built-in ffmpeg xfade types via `spec`; convenience floor."
+  },
+  {
+   "kind": "media-composition.transition-renderer",
+   "name": "expr",
+   "label": "Expr",
+   "note": "per-pixel custom xfade `expr` (A,B,X,Y,W,H,P); no neighbor sampling."
+  },
+  {
+   "kind": "media-composition.transition-renderer",
+   "name": "process",
+   "label": "Process",
+   "note": "shells ANY binary via `command` template = the unbounded clay renderer (gl-transitions GLSL, RIFE/FILM AI-morph, bespoke)."
+  },
+  {
+   "kind": "media-composition.transition",
+   "name": "hard-cut",
+   "label": "Hard cut",
+   "renderer": "xfade",
+   "duration": 0.001,
+   "note": "effectively a cut",
+   "spec": "fade"
+  },
+  {
+   "kind": "media-composition.transition",
+   "name": "crossfade",
+   "label": "Crossfade",
+   "renderer": "xfade",
+   "duration": 0.5,
+   "note": "",
+   "spec": "fade"
+  },
+  {
+   "kind": "media-composition.transition",
+   "name": "film-dissolve",
+   "label": "Film dissolve",
+   "renderer": "xfade",
+   "duration": 0.6,
+   "note": "",
+   "spec": "dissolve"
+  },
+  {
+   "kind": "media-composition.transition",
+   "name": "circle-open",
+   "label": "Circle open",
+   "renderer": "xfade",
+   "duration": 0.6,
+   "note": "",
+   "spec": "circleopen"
+  },
+  {
+   "kind": "media-composition.transition",
+   "name": "luma-slide",
+   "label": "Luma slide",
+   "renderer": "xfade",
+   "duration": 0.5,
+   "note": "",
+   "spec": "smoothleft"
+  },
+  {
+   "kind": "media-composition.transition",
+   "name": "pixelize",
+   "label": "Pixelize",
+   "renderer": "xfade",
+   "duration": 0.5,
+   "note": "",
+   "spec": "pixelize"
+  },
+  {
+   "kind": "media-composition.transition",
+   "name": "zoom-in",
+   "label": "Zoom in",
+   "renderer": "xfade",
+   "duration": 0.5,
+   "note": "",
+   "spec": "zoomin"
+  },
+  {
+   "kind": "media-composition.transition",
+   "name": "ripple",
+   "label": "Ripple (custom expr)",
+   "renderer": "expr",
+   "duration": 0.6,
+   "note": "per-pixel custom",
+   "expr": "A*(1-P)+B*P+0.06*sin(Y/16+P*6.28)"
+  },
+  {
+   "kind": "media-composition.transition",
+   "name": "whip-pan",
+   "label": "Whip pan (motion blur)",
+   "renderer": "process",
+   "duration": 0.5,
+   "note": "process renderer; a transition xfade cannot make (sliding motion-blur composite). Proof of clay.",
+   "command": [
+    "bash",
+    "${SCRIPT}",
+    "${A}",
+    "${B}",
+    "${OUT}",
+    "${DUR}",
+    "${W}",
+    "${H}",
+    "${FPS}"
+   ],
+   "script_ref": "package::media-composition::stored-bytes::transition-whip-pan"
+  },
+  {
+   "kind": "media-composition.transition",
+   "name": "luma-fade",
+   "label": "Luma fade (Kolder matte)",
+   "renderer": "process",
+   "duration": 0.6,
+   "command": [
+    "bash",
+    "${SCRIPT}",
+    "${A}",
+    "${B}",
+    "${OUT}",
+    "${DUR}",
+    "${W}",
+    "${H}",
+    "${FPS}"
+   ],
+   "note": "Kolder signature luminance-matte reveal (real track-matte, not a blend). Same process slot hosts AI roto (Robust Video Matting/SAM2) by swapping the binary.",
+   "script_ref": "package::media-composition::stored-bytes::transition-luma-fade"
+  },
+  {
+   "kind": "media-composition.transition",
+   "name": "ai-matte",
+   "label": "AI object-reveal (RVM roto)",
+   "renderer": "process",
+   "duration": 0.8,
+   "command": [
+    "python3",
+    "${SCRIPT}",
+    "${A}",
+    "${B}",
+    "${OUT}",
+    "${DUR}",
+    "${W}",
+    "${H}",
+    "${FPS}"
+   ],
+   "note": "AI roto transition (Robust Video Matting): mattes the subject of A (no green screen), holds them while the background crossfades A->B, then fades the subject to full B. The Kolder masking/fly-through move automated. Proof that the process renderer hosts AI transitions with zero engine change.",
+   "script_ref": "package::media-composition::stored-bytes::transition-ai-matte"
+  }
+ ]
+}

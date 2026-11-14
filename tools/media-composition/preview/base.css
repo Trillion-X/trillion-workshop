@@ -1,0 +1,6 @@
+:root { color-scheme: dark; }
+body { background:#0b0b0d; color:#e8e8ea; font-family: system-ui, -apple-system, sans-serif; }
+* { box-sizing: border-box; }
+button { cursor: pointer; background:#1c1c22; color:#e8e8ea; border:1px solid #33333c; border-radius:8px; padding:6px 10px; font-size:13px; margin:2px; }
+button:hover { background:#26262e; }
+video { max-height: 420px; border-radius: 10px; background:#000; }

@@ -1,0 +1,207 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import Ajv from 'ajv';
+
+const here = dirname(fileURLToPath(import.meta.url));
+const manifest = JSON.parse(readFileSync(resolve(here, '../../things-to-store-and-run.json'), 'utf8')).things;
+
+function resolveBinding(binding, input) {
+  let value = binding.select.path
+    ? binding.select.path.split('.').reduce((current, key) => current?.[key], input)
+    : input;
+  for (const transform of binding.transform ?? []) {
+    if (transform.op === 'op:core.if_null') value ??= structuredClone(transform.args.fallback);
+    else if (transform.op === 'op:core.append') value = [...value, structuredClone(transform.args.value)];
+    else throw new Error(`unsupported test transform: ${transform.op}`);
+  }
+  return value;
+}
+
+test('EDL render binding targets the accepted video-compose action and its contract', () => {
+  const binding = manifest.find((thing) => thing.address === 'package::media-composition::binding::edl-render');
+  const action = manifest.find((thing) => thing.payload?.id === binding?.payload?.action_id);
+  const contract = manifest.find((thing) => thing.address === binding?.payload?.edl_contract_ref);
+
+  assert.equal(binding?.payload?.kind, 'media-composition.edl-render-binding');
+  assert.equal(action?.payload?.id, 'action:video-compose');
+  assert.deepEqual(action?.payload?.input_schema?.required, ['request_id', 'edl', 'dependency_inputs', 'runtime_alias']);
+  assert.equal(contract?.payload?.record_kind, 'media-composition.edl');
+  assert.equal(binding?.payload?.accepted_output?.media_type, 'video/mp4');
+  assert.equal(binding?.payload?.accepted_output?.process_input_source_field, 'artifacts[0].process_input_source');
+});
+
+test('video compose returns one self-consistent addressed-chunk file source', () => {
+  const action = manifest.find((thing) => thing.payload?.id === 'action:video-compose')?.payload;
+  const returned = action.steps.find((step) => step.id === 'done').config.value.artifacts[0];
+  assert.equal(returned.storage, 'addressed_chunks');
+  assert.equal(returned.process_input_source.kind, 'addressed_chunks');
+  assert.deepEqual(returned.process_input_source.chunk_manifest_hash, returned.chunk_manifest_hash);
+  assert.notDeepEqual(returned.chunk_manifest_hash, returned.cas_address);
+  assert.deepEqual(returned.process_input_source.byte_len, returned.byte_length);
+  assert.deepEqual(returned.process_input_source.integrity_hash, returned.multihash);
+});
+
+test('video compose carries the full declared dependency set without host paths', () => {
+  const action = manifest.find((thing) => thing.payload?.id === 'action:video-compose')?.payload;
+  const run = action?.steps?.find((step) => step.id === 'run');
+  const descriptor = run?.config?.input;
+
+  assert.equal(action?.input_schema?.additionalProperties, false);
+  assert.deepEqual(descriptor?.argv.slice(1), [
+    'do-work/video-compose.mjs',
+    '--edl',
+    'render-edl.json',
+    '--out',
+    'composed-video.mp4',
+    '--result',
+    'result.json',
+  ]);
+  assert.equal(descriptor?.cwd, null);
+  assert.deepEqual(descriptor?.env, {
+    PATH: '/bitfield/workspace/runtime/bin:/usr/local/bin:/usr/bin:/bin',
+    LD_LIBRARY_PATH: '/bitfield/workspace/runtime/lib',
+    FONTCONFIG_PATH: '/bitfield/workspace/runtime/etc/fonts',
+    FONTCONFIG_FILE: '/bitfield/workspace/runtime/etc/fonts/fonts.conf',
+  });
+  assert.equal(descriptor?.containment?.kind, 'descendant_effect_contained');
+  assert.deepEqual(descriptor?.containment?.publications, []);
+
+  assert.deepEqual(descriptor.argv[0].select, { from: 'input', path: 'runtime_alias' });
+  assert.deepEqual(descriptor.inputs.select, { from: 'input', path: 'dependency_inputs' });
+  const appended = descriptor.inputs.transform.map((op) => op.args.value);
+  const byMount = Object.fromEntries(appended.map((entry) => [entry.mount_path, entry]));
+  assert.deepEqual(Object.keys(byMount).sort(), [
+    'do-work/effect-registry.mjs',
+    'do-work/resolve-render-dimensions.mjs',
+    'do-work/video-compose.mjs',
+    'do-work/visual-overlay-order.mjs',
+    'render-edl.json',
+  ]);
+  assert.deepEqual(byMount['render-edl.json'].source.bytes.select, { from: 'input', path: 'edl' });
+  assert.deepEqual(byMount['render-edl.json'].source.bytes.transform, [
+    { op: 'op:core.stringify', args: { format: 'json' } },
+    { op: 'op:core.encode', args: { encoding: 'base64' } },
+  ]);
+  assert.deepEqual(descriptor.input_trees.select, { from: 'input', path: 'dependency_input_trees' });
+  assert.deepEqual(descriptor.input_trees.transform, [
+    { op: 'op:core.if_null', args: { fallback: [] } },
+    {
+      op: 'op:core.append',
+      args: {
+        value: {
+          mount_path: ['runtime'],
+          source: {
+            kind: 'addressed_chunks',
+            chunk_manifest_hash: '1f:dd5ec000e0101ead67456f31de6d3d428f1625421d8464422ec88bb9ed64b56c',
+            byte_len: 291353851,
+            integrity_hash: '1f:c45203a5c84179e60d00a1cd426582b85c1ecc8ed934562371db304d0724e354',
+          },
+        },
+      },
+    },
+  ]);
+
+  const schemaProperties = action.input_schema.properties;
+  for (const forbidden of ['edl_path', 'out', 'workdir', 'cwd', 'env', 'source_media']) {
+    assert.equal(Object.hasOwn(schemaProperties, forbidden), false, `host-controlled ${forbidden} must stay absent`);
+  }
+});
+
+test('video compose preserves generic multi-input EDL dependencies and immutable trees', () => {
+  const action = manifest.find((thing) => thing.payload?.id === 'action:video-compose')?.payload;
+  const descriptor = action.steps.find((step) => step.id === 'run').config.input;
+  const dependencyInputs = [
+    ['media/clip-a.mp4', '1f:clipa'],
+    ['media/clip-b.mp4', '1f:clipb'],
+    ['overlays/logo.png', '1f:logo'],
+    ['audio/replacement.wav', '1f:replacement'],
+    ['audio/music.flac', '1f:music'],
+    ['captions/source.ass', '1f:captions'],
+    ['fonts/SourceSans.ttf', '1f:font'],
+    ['looks/grade.cube', '1f:lut'],
+  ].map(([mount_path, hash]) => ({ mount_path, source: { kind: 'blob_ref', hash } }));
+  const dependencyInputTrees = [
+    { mount_path: ['font-bundle'], source: { kind: 'blob_ref', hash: '1f:font-tree' } },
+  ];
+
+  const resolvedInputs = resolveBinding(descriptor.inputs, { dependency_inputs: dependencyInputs });
+  assert.deepEqual(resolvedInputs.slice(0, dependencyInputs.length), dependencyInputs);
+  assert.deepEqual(
+    resolveBinding(descriptor.input_trees, { dependency_input_trees: dependencyInputTrees }).slice(0, dependencyInputTrees.length),
+    dependencyInputTrees,
+  );
+  assert.deepEqual(resolveBinding(descriptor.input_trees, { dependency_input_trees: dependencyInputTrees }).at(-1).mount_path, ['runtime']);
+
+  const inputItemSchema = action.input_schema.properties.dependency_inputs.items;
+  assert.deepEqual(inputItemSchema.required, ['mount_path', 'source']);
+  assert.deepEqual(inputItemSchema.properties.source.properties.kind.enum, ['blob_ref']);
+  assert.equal(inputItemSchema.additionalProperties, false);
+  const treeItemSchema = action.input_schema.properties.dependency_input_trees.items;
+  assert.deepEqual(treeItemSchema.required, ['mount_path', 'source']);
+  assert.deepEqual(treeItemSchema.properties.source.properties.kind.enum, ['blob_ref']);
+  assert.equal(treeItemSchema.additionalProperties, false);
+});
+
+test('caller mounts cannot replace owner-controlled EDL or renderer modules', () => {
+  const action = manifest.find((thing) => thing.payload?.id === 'action:video-compose')?.payload;
+  const descriptor = action.steps.find((step) => step.id === 'run').config.input;
+  const reserved = descriptor.inputs.transform.map((op) => op.args.value.mount_path);
+
+  for (const mount_path of reserved) {
+    const hostile = [{ mount_path, source: { kind: 'blob_ref', hash: '1f:hostile' } }];
+    const resolved = resolveBinding(descriptor.inputs, { dependency_inputs: hostile });
+    const occurrences = resolved.filter((entry) => entry.mount_path === mount_path);
+    assert.equal(occurrences.length, 2, `${mount_path} must remain an explicit duplicate for process validation to refuse`);
+    assert.notEqual(occurrences.at(-1).source.hash, '1f:hostile', `${mount_path} owner bytes must be appended last`);
+  }
+});
+
+test('video compose input schema accepts full immutable dependency graphs and rejects ambient inputs', () => {
+  const action = manifest.find((thing) => thing.payload?.id === 'action:video-compose')?.payload;
+  const validate = new Ajv({ allErrors: true, strict: true }).compile(action.input_schema);
+  const valid = {
+    request_id: 'render:portable-edl:1',
+    edl: {
+      spine: { segments: [{ kind: 'clip', source: 'media/a.mp4' }, { kind: 'clip', source: 'media/b.mp4' }] },
+      overlays: [{ source: 'overlays/logo.png' }],
+      audio_graph: { replace_audio: 'audio/replacement.wav', music_bed: { artifact: 'audio/music.flac' } },
+      subtitles: { ass: 'captions/source.ass' },
+    },
+    dependency_inputs: [
+      { mount_path: 'media/a.mp4', source: { kind: 'blob_ref', hash: '1f:a' } },
+      { mount_path: 'media/b.mp4', source: { kind: 'blob_ref', hash: '1f:b' } },
+      { mount_path: 'overlays/logo.png', source: { kind: 'blob_ref', hash: '1f:logo' } },
+      { mount_path: 'audio/replacement.wav', source: { kind: 'blob_ref', hash: '1f:voice' } },
+      { mount_path: 'audio/music.flac', source: { kind: 'blob_ref', hash: '1f:music' } },
+      { mount_path: 'captions/source.ass', source: { kind: 'blob_ref', hash: '1f:subs' } },
+    ],
+    dependency_input_trees: [
+      { mount_path: ['fonts'], source: { kind: 'blob_ref', hash: '1f:fonts' } },
+    ],
+    runtime_alias: 'local-video-renderer',
+  };
+  assert.equal(validate(valid), true, JSON.stringify(validate.errors));
+
+  for (const hostile of [
+    { ...valid, cwd: '/tmp/ambient' },
+    { ...valid, env: { PATH: '/opt/homebrew/bin' } },
+    { ...valid, dependency_inputs: [{ mount_path: '../escape', source: { kind: 'inline', bytes: 'host' } }] },
+    { ...valid, dependency_input_trees: [{ mount_path: ['fonts'], source: { kind: 'inline', archive: {} } }] },
+    { ...valid, runtime_alias: 'node' },
+  ]) {
+    assert.equal(validate(hostile), false, `hostile input unexpectedly accepted: ${JSON.stringify(hostile)}`);
+  }
+});
+
+test('caller runtime-tree collision remains explicit so native mount validation refuses it', () => {
+  const action = manifest.find((thing) => thing.payload?.id === 'action:video-compose')?.payload;
+  const descriptor = action.steps.find((step) => step.id === 'run').config.input;
+  const resolved = resolveBinding(descriptor.input_trees, {
+    dependency_input_trees: [{ mount_path: ['runtime'], source: { kind: 'blob_ref', hash: '1f:hostile' } }],
+  });
+  assert.equal(resolved.filter((tree) => tree.mount_path.join('/') === 'runtime').length, 2);
+  assert.equal(resolved.at(-1).source.integrity_hash, '1f:c45203a5c84179e60d00a1cd426582b85c1ecc8ed934562371db304d0724e354');
+});

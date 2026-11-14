@@ -1,0 +1,56 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { visualOverlayOrder, visualOverlayBatches } from '../visual-overlay-order.mjs';
+
+test('overlay ordering preserves legacy and equal-order painting without mutating inputs', () => {
+  const images = Object.freeze([Object.freeze({ id: 'a' }), Object.freeze({ id: 'b' })]);
+  const videos = Object.freeze([Object.freeze({ id: 'c' })]);
+  assert.deepEqual(visualOverlayOrder({ image_overlays: images, video_overlays: videos }).map(row => row.item.id), ['a', 'b', 'c']);
+  assert.deepEqual(visualOverlayOrder({ image_overlays: [{ id: 'image', layer_order: 2 }], video_overlays: [{ id: 'video', layer_order: 2 }] }).map(row => row.item.id), ['image', 'video']);
+});
+
+test('overlay batching preserves alternating explicit paint order', () => {
+  const edl = { image_overlays: [{ id: 'image', layer_order: 1 }], video_overlays: [{ id: 'front', layer_order: 2 }, { id: 'back', layer_order: 0 }] };
+  assert.deepEqual(visualOverlayBatches(edl).map(batch => [batch.kind, batch.items.map(item => item.id)]), [['video', ['back']], ['image', ['image']], ['video', ['front']]]);
+});
+
+const runtime = JSON.parse(readFileSync(new URL('../../runtime/local-video-renderer/runtime-artifact.json', import.meta.url)));
+const manifest = JSON.parse(readFileSync(new URL('../../things-to-store-and-run.json', import.meta.url))).things;
+
+test('local video renderer pins its provider image, private tool tree, lifecycle, and denied network', () => {
+  assert.equal(runtime.runtime_alias, 'local-video-renderer');
+  assert.match(runtime.artifact_admission.expected_immutable_runtime_artifact, /^node@sha256:[0-9a-f]{64}$/);
+  assert.match(runtime.runtime.tool_tree.process_source_archive_hash, /^1f:[0-9a-f]{64}$/);
+  assert.match(runtime.runtime.tool_tree.chunk_manifest_hash, /^1f:[0-9a-f]{64}$/);
+  assert.equal(runtime.runtime.tool_tree.process_source_archive_bytes, 291353851);
+  assert.equal(runtime.runtime.tool_tree.chunk_size_bytes, 16 * 1024 * 1024);
+  assert.deepEqual(runtime.runtime.tool_tree.mount_path, ['runtime']);
+  assert.equal(runtime.runtime.network_allowed, false);
+  assert.equal(runtime.runtime.max_runtime_ms, actionMaximumRenderMs());
+  assert.equal(runtime.provider.provider_id, 'local-oci-engine');
+  assert.equal(runtime.provider.provider_entrypoint[0], '/usr/local/bin/node');
+  assert.deepEqual(Object.values(runtime.provider.required_capabilities), [true, true, true, true, true, true]);
+  assert.equal(runtime.admission_state, 'unavailable_until_reviewed_role_projection_is_applied');
+});
+
+function actionMaximumRenderMs() {
+  const action = manifest.find((thing) => thing.payload?.id === 'action:video-compose').payload;
+  return action.input_schema.properties.timeout_ms.maximum;
+}
+
+test('video compose binds only the exact renderer alias, tool tree, and provider-workspace environment', () => {
+  const action = manifest.find((thing) => thing.payload?.id === 'action:video-compose').payload;
+  const run = action.steps.find((step) => step.id === 'run').config.input;
+  assert.deepEqual(action.input_schema.properties.runtime_alias.enum, ['local-video-renderer']);
+  assert.deepEqual(run.env, runtime.runtime.fixed_environment);
+  assert.deepEqual(run.input_trees.transform.at(-1), {
+    op: 'op:core.append',
+    args: { value: { mount_path: runtime.runtime.tool_tree.mount_path, source: {
+      kind: 'addressed_chunks',
+      chunk_manifest_hash: runtime.runtime.tool_tree.chunk_manifest_hash,
+      byte_len: runtime.runtime.tool_tree.process_source_archive_bytes,
+      integrity_hash: runtime.runtime.tool_tree.process_source_archive_hash,
+    } } },
+  });
+});

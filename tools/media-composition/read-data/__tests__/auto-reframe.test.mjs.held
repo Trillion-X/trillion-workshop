@@ -1,0 +1,96 @@
+/**
+ * #220 Auto-reframe (horizontal -> vertical reels, follow the subject): the BRIDGE producer that turns the
+ * detect-track subject path into the `reframe` DATA the compositor already renders, so a 16:9 shot retargets to
+ * 9:16 with a crop that FOLLOWS the action. Zero new render code (L069): auto-reframe is pure DATA over the
+ * existing reframe cover-crop.
+ *
+ * Proof (L155, definitive offline render): a 16:9 clip with a bright box on the LEFT third over black. (1) PURE:
+ * trackToReframe maps a left-leaning path to a reframe track with cx < 0.5 and the requested aspect; smoothTrack
+ * damps jitter. (2) OFFLINE RENDER at 9:16: rendering WITH the auto-reframe track crops around the box (the
+ * output is bright), while a STATIC center reframe (empty track -> cx 0.5) crops the middle and MISSES the box
+ * (the output is near-black). The follow is what captured the subject, which a fabricated result could not do.
+ * Output aspect is 9:16.
+ */
+import { test, before } from 'node:test';
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { trackToReframe, smoothTrack, autoReframe } from '../../do-work/auto-reframe.mjs';
+
+const here = dirname(fileURLToPath(import.meta.url));
+const SCRIPT = join(here, '..', '..', 'do-work', 'video-compose.mjs');
+const SRC_W = 640, SRC_H = 360, FPS = 24;   // 16:9 source
+const OUT_W = 270, OUT_H = 480;             // 9:16 output
+let composeTimeline, materializeExportEdl, work, leftClip;
+
+function ffmpeg(args) { execFileSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', ...args], { encoding: 'utf8' }); }
+// mean luma of a rendered file (signalstats YAVG averaged over frames).
+function meanLuma(file) {
+  const out = execFileSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-i', file, '-vf', 'fps=4,signalstats,metadata=print:file=-', '-f', 'null', '-'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  let sum = 0, n = 0; const re = /signalstats\.YAVG=([0-9.]+)/g; let m;
+  while ((m = re.exec(out)) !== null) { sum += Number(m[1]); n += 1; }
+  return n ? sum / n : 0;
+}
+function dims(file) {
+  const s = execFileSync('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'csv=p=0:s=x', file], { encoding: 'utf8' }).trim();
+  const [w, h] = s.split('x').map(Number); return { w, h };
+}
+
+before(async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'reframe-'));
+  const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
+  const ct = join(dir, 'ct.mjs'); const me = join(dir, 'me.mjs');
+  execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
+  execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'materialize-edl.ts'), `--outfile=${me}`], { encoding: 'utf8' });
+  ({ composeTimeline } = await import(ct));
+  ({ materializeExportEdl } = await import(me));
+
+  work = mkdtempSync(join(tmpdir(), 'reframe-render-'));
+  leftClip = join(work, 'left.mp4');   // bright box on the LEFT third of a 16:9 black frame
+  ffmpeg(['-f', 'lavfi', '-i', `color=black:s=${SRC_W}x${SRC_H}:d=2:r=${FPS}`, '-vf', 'drawbox=x=80:y=130:w=100:h=100:color=white:t=fill', '-pix_fmt', 'yuv420p', leftClip]);
+});
+
+const view = () => ({
+  lanes: [{ lane_id: 'video', role: 'video', label: 'Video', items: [
+    { item_id: 's1', label: 'Clip', start: 0, end: 2, source_ref: { artifact_ref: 'r.mp4', source_id: 's1' } },
+  ] }],
+  editDecisions: [], markers: [],
+});
+const renderReframe = (name, reframe) => {
+  const comp = composeTimeline(view());
+  const { edl } = materializeExportEdl(comp, () => leftClip, { width: OUT_W, height: OUT_H, fps: FPS, deterministic: true });
+  edl.spine.segments[0].reframe = reframe;
+  const f = join(work, `${name}.json`); const out = join(work, `${name}.mp4`);
+  writeFileSync(f, JSON.stringify(edl));
+  execFileSync('node', [SCRIPT, '--edl', f, '--out', out], { encoding: 'utf8' });
+  return out;
+};
+
+test('PURE: trackToReframe maps a left path to cx<0.5 + the target aspect; smoothTrack damps jitter', () => {
+  const rf = trackToReframe([{ t: 0, x: 0.2, y: 0.5 }, { t: 1, x: 0.2, y: 0.5 }], { aspectW: 9, aspectH: 16, smooth: false });
+  assert.equal(rf.aspect_w, 9); assert.equal(rf.aspect_h, 16);
+  assert.ok(rf.track.every((p) => p.cx < 0.5), 'reframe track leans left toward the subject');
+  // EMA glides from the first sample toward a jumped one instead of snapping.
+  const sm = smoothTrack([{ t: 0, x: 0.2, y: 0.5 }, { t: 1, x: 0.8, y: 0.5 }], { alpha: 0.4 });
+  assert.ok(sm[1].x > 0.2 && sm[1].x < 0.8, `smoothed x lags the jump (${sm[1].x})`);
+});
+
+test('OFFLINE RENDER: auto-reframe FOLLOWS the subject (bright), static center-crop MISSES it (dark) (L155)', () => {
+  const followed = autoReframe(leftClip, { aspectW: 9, aspectH: 16 });
+  assert.ok(followed.track.length > 0 && followed.track.every((p) => p.cx < 0.45), 'tracked crop leans to the left box');
+
+  const outFollow = renderReframe('follow', followed);
+  const outStatic = renderReframe('static', { aspect_w: 9, aspect_h: 16, track: [] }); // no track -> center crop
+
+  const d = dims(outFollow);
+  assert.ok(Math.abs(d.w / d.h - 9 / 16) < 0.02, `output is 9:16 (${d.w}x${d.h})`);
+
+  const lumaFollow = meanLuma(outFollow), lumaStatic = meanLuma(outStatic);
+  // the follow output clearly contains the white box (well above the black floor) and is far brighter than the
+  // center-crop that missed it entirely.
+  assert.ok(lumaFollow > 35, `follow output contains the white box (${lumaFollow.toFixed(1)})`);
+  assert.ok(lumaFollow > lumaStatic * 2, `follow captured the box (${lumaFollow.toFixed(1)}) vs center-crop missed it (${lumaStatic.toFixed(1)})`);
+});

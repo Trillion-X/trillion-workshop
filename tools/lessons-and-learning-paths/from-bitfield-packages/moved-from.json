@@ -1,0 +1,25 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages packages/learning-home: each names its source path and commit, the identity of its source bytes and of its bytes here. The first commit that holds them is the byte copy; later commits change import paths.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "course-title-made-up",
+      "find": "AI Harness: Newb to Pro",
+      "replace": "Learning",
+      "means": "The screen's heading named one person's course; a public tree holds made-up data only, so the heading reads Learning (the title is the caller's to give once it is adapted)."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/learning-home/show/mount-learning-home.tsx",
+      "commit": "7229c0c1d5311ff11cc55bb6ccf31843fe305b83",
+      "to": "tools/lessons-and-learning-paths/show/mount-learning-home.tsx",
+      "source_identity": "1f:2f85019658c403df97a7b5bb329723102b6445d210089172c762f7b64d48f48b",
+      "identity": "1f:8b54b0987e4315f3c649d74d77f2f58f46cb3517c92f875f503227aad8aef6ee",
+      "calls": [
+        "course-title-made-up"
+      ]
+    }
+  ]
+}

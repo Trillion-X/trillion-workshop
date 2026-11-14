@@ -1,0 +1,76 @@
+/**
+ * #71 Beat-synced cuts: beatSyncSplitTimes chooses cut times from a detected beat list
+ * (everyNth / minGap / bounds), and applying the resulting `split` decisions through
+ * composeTimeline yields clip boundaries that land exactly on those beats.
+ */
+import { test, before } from 'node:test';
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const here = dirname(fileURLToPath(import.meta.url));
+let beatSyncSplitTimes, beatSyncSplitDecisions, composeTimeline, detectBeatsFromChannel;
+
+before(async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'beatsync-'));
+  const bsOut = join(dir, 'bs.mjs');
+  const ctOut = join(dir, 'ct.mjs');
+  const bdOut = join(dir, 'bd.mjs');
+  const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
+  execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'beat-sync.ts'), `--outfile=${bsOut}`], { encoding: 'utf8' });
+  execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ctOut}`], { encoding: 'utf8' });
+  execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', '..', 'do-work', 'detect-beats-browser.ts'), `--outfile=${bdOut}`], { encoding: 'utf8' });
+  ({ beatSyncSplitTimes, beatSyncSplitDecisions } = await import(bsOut));
+  ({ composeTimeline } = await import(ctOut));
+  ({ detectBeatsFromChannel } = await import(bdOut));
+});
+
+// A ~120 BPM grid: a beat every 0.5s.
+const BEATS = [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0];
+
+test('every beat inside (start,end) becomes a cut; endpoints excluded', () => {
+  const cuts = beatSyncSplitTimes(BEATS, { start: 0, end: 4 });
+  assert.deepEqual(cuts, [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5], 'strictly-interior beats only');
+});
+
+test('everyNth downsamples to the bar downbeat', () => {
+  const cuts = beatSyncSplitTimes(BEATS, { start: 0, end: 4, everyNth: 4 });
+  // indices 0,4,8 -> times 0.0,2.0,4.0; interior only -> just 2.0
+  assert.deepEqual(cuts, [2.0], 'every 4th beat, interior');
+});
+
+test('minGap drops micro-clips', () => {
+  const dense = [0.1, 0.2, 0.9, 1.0, 1.05, 2.0];
+  const cuts = beatSyncSplitTimes(dense, { start: 0, end: 3, minGap: 0.5 });
+  assert.deepEqual(cuts, [0.1, 0.9, 2.0], 'kept cuts are >= minGap apart');
+});
+
+test('browser detector finds the beat grid of a synthetic click track', () => {
+  const sr = 22050, dur = 6;
+  const y = new Float32Array(sr * dur);
+  for (let k = 0; k < 12; k += 1) { // impulse every 0.5s = 120 BPM
+    const on = Math.round(k * 0.5 * sr);
+    for (let i = 0; i < Math.round(0.04 * sr); i += 1) y[on + i] = 0.9 * Math.sin(2 * Math.PI * 1500 * i / sr) * Math.exp(-i / (0.008 * sr));
+  }
+  const beats = detectBeatsFromChannel(y, sr, { minGap: 0.25 });
+  assert.ok(beats.length >= 10, `found ~12 beats, got ${beats.length}`);
+  const maxErr = Math.max(...beats.map((b) => Math.abs(b - Math.round(b / 0.5) * 0.5)));
+  assert.ok(maxErr < 0.06, `each detected beat within 60ms of the 0.5s grid (max ${maxErr.toFixed(3)})`);
+});
+
+test('applying the split decisions cuts the clip on every beat', () => {
+  const view = {
+    lanes: [{ lane_id: 'video', role: 'video', label: 'Video', items: [{ item_id: 's1', label: 'Main', start: 0, end: 4, source_ref: { artifact_ref: 'clip.mp4' } }] }],
+    editDecisions: beatSyncSplitDecisions(BEATS, { start: 0, end: 4 }),
+    markers: [],
+  };
+  const comp = composeTimeline(view);
+  const clips = comp.lanes[0].clips;
+  // 7 interior cuts -> 8 segments
+  assert.equal(clips.length, 8, 'one clip per beat interval');
+  const boundaries = clips.map((c) => Number(c.laneStart.toFixed(3)));
+  assert.deepEqual(boundaries, [0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5], 'each segment starts on a beat');
+});

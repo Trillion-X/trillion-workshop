@@ -1,4 +1,4 @@
-// parts/media-composition/show/components/EditTrackLanes.tsx
+// packages/media-composition/show/components/EditTrackLanes.tsx
 //
 // =============================================================================
 // PURPOSE
@@ -81,7 +81,8 @@ export type EditTrackLanesProps = {
   onMove?: (clipId: string, laneStartSeconds: number, destLaneRole?: string, destLaneId?: string, destClipId?: string) => void;
   dropType?: string;
   onMediaDrop?: (data: string, seconds: number) => void;
-  mediaDropHandlers?: Record<string, unknown>;
+  mediaDropHandlers?: Record<string, any>;
+  placementPreview?: {start:number;duration:number;label?:string;poster?:string} | null;
 };
 
 const EPSILON = 0.001;
@@ -309,6 +310,7 @@ export function EditTrackLanes({
   dropType,
   onMediaDrop,
   mediaDropHandlers,
+  placementPreview,
 }: EditTrackLanesProps) {
   const composition = React.useMemo(() => {const lanes=visibleTimelineLanes(inputComposition.lanes);return {...inputComposition,lanes:[...lanes.filter(lane=>lane.role!=='audio').reverse(),...lanes.filter(lane=>lane.role==='audio')]};}, [inputComposition]);
   const [snapping,setSnapping]=React.useState(true);
@@ -557,6 +559,7 @@ export function EditTrackLanes({
               );
             })}
 
+            {placementPreview&&<div className="timeline-placement-preview" data-placement-preview="" style={{left:`${placementPreview.start/composition.durationSeconds*100}%`,width:`${placementPreview.duration/composition.durationSeconds*100}%`}}>{placementPreview.poster&&<img src={placementPreview.poster} alt=""/>}<span>{placementPreview.label||'Media'} · {placementPreview.start.toFixed(2)}s</span></div>}
             <Playhead positionPct={playheadPct} label={playheadLabel} />
           </Container>
         </Container>

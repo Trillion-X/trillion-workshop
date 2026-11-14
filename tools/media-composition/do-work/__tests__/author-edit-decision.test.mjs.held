@@ -1,0 +1,120 @@
+/**
+ * file: packages/media-composition/do-work/__tests__/author-edit-decision.test.mjs
+ *
+ * Enum-dissolution proof (W6 emergent-composition plan, Unit 1): the FIVE named
+ * decision builders + closed discriminated union were dissolved into ONE generic
+ * `authorEditDecision` driven by DATA op-schemas. These tests prove:
+ *   1. the five original ops author byte-identical records to the old builders,
+ *   2. an UNSEEN op (transcript-cut / search-append) authors from a DATA row
+ *      with ZERO new source (the deletion test — the mechanism works for a
+ *      completely different op set injected as DATA),
+ *   3. validation rejects unknown ops + missing/mistyped required params.
+ *
+ * TS modules are bundled on the fly with esbuild (node:test runner — the
+ * package has no TS test harness), matching the sibling tests' pattern.
+ */
+import { test, before } from 'node:test';
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const here = dirname(fileURLToPath(import.meta.url));
+
+let authorEditDecision;
+let validateEditOp;
+let EditOpValidationError;
+let DEFAULT_EDIT_OP_SCHEMAS;
+
+before(async () => {
+  const outDir = mkdtempSync(join(tmpdir(), 'author-edit-'));
+  const bundle = (rel, name) => {
+    const out = join(outDir, name);
+    execFileSync('npx', ['esbuild', '--bundle', '--format=esm',
+      '--alias:@=' + join(here, '..', '..', '..', '..'),
+      join(here, '..', rel), `--outfile=${out}`], { encoding: 'utf8' });
+    return out;
+  };
+  ({ authorEditDecision } = await import(bundle('build-edit-decisions.ts', 'a.mjs')));
+  ({ validateEditOp, EditOpValidationError, DEFAULT_EDIT_OP_SCHEMAS } =
+    await import(bundle('edit-op-schemas.ts', 's.mjs')));
+});
+
+const CTX = { sourceRef: { kind: 'video', id: 'src-1' }, createdAt: '2026-07-23T00:00:00.000Z' };
+
+test('the five original ops author a well-formed self-describing decision record', () => {
+  const trim = authorEditDecision('trim',
+    { clip_id: 'clip-1', in_point: 2, out_point: 10 }, CTX);
+  assert.equal(trim.payload.kind, 'media-composition.edit-decision');
+  assert.equal(trim.payload.action, 'trim');
+  assert.equal(trim.payload.label, 'Trim');
+  assert.deepEqual(trim.payload.parameters, { clip_id: 'clip-1', in_point: 2, out_point: 10 });
+  assert.deepEqual(trim.payload.source_ref, CTX.sourceRef);
+  assert.equal(trim.payload.created_at, CTX.createdAt);
+  assert.ok(String(trim.address).startsWith('package::media-composition::edit-decision::'));
+
+  for (const [action, params, label] of [
+    ['split', { clip_id: 'c', at_time: 5 }, 'Split'],
+    ['move', { clip_id: 'c', lane_start: 1, lane_role: 'video' }, 'Move'],
+    ['delete', { clip_id: 'c' }, 'Delete'],
+    ['set-transform', { clip_id: 'c', transform: { width: 320 } }, 'Set transform'],
+  ]) {
+    const rec = authorEditDecision(action, params, CTX);
+    assert.equal(rec.payload.action, action);
+    assert.equal(rec.payload.label, label);
+    assert.deepEqual(rec.payload.parameters, params);
+  }
+});
+
+test('DELETION TEST — an UNSEEN op set injected as DATA authors with zero new source', () => {
+  // Delete every named example; drop a completely different op set as DATA.
+  const schemas = {
+    'transcript-cut': {
+      action: 'trim', // reuses the reducer fold; a modality, not a new engine op
+      label: 'Cut sentence',
+      params: [
+        { name: 'clip_id', kind: 'clip_id', required: true },
+        { name: 'in_point', kind: 'time', required: true },
+        { name: 'out_point', kind: 'time', required: true },
+      ],
+    },
+    'search-append': {
+      action: 'move',
+      label: 'Add from search',
+      params: [
+        { name: 'clip_id', kind: 'clip_id', required: true },
+        { name: 'lane_start', kind: 'time', required: true },
+        { name: 'lane_role', kind: 'string', required: true },
+      ],
+    },
+  };
+  const cut = authorEditDecision('transcript-cut',
+    { clip_id: 'w-42', in_point: 3.1, out_point: 3.9 },
+    { ...CTX, span: { start: 3.1, end: 3.9 } }, schemas);
+  assert.equal(cut.payload.action, 'trim');
+  assert.equal(cut.payload.label, 'Cut sentence');
+  assert.deepEqual(cut.payload.span, { start: 3.1, end: 3.9 });
+
+  const appended = authorEditDecision('search-append',
+    { clip_id: 'found-7', lane_start: 12, lane_role: 'b-roll' }, CTX, schemas);
+  assert.equal(appended.payload.action, 'move');
+  assert.equal(appended.payload.label, 'Add from search');
+  // The default op set is untouched — no source knows these two op names exist.
+  assert.equal(DEFAULT_EDIT_OP_SCHEMAS['transcript-cut'], undefined);
+});
+
+test('validation rejects unknown ops and missing/mistyped required params', () => {
+  assert.throws(() => authorEditDecision('mystery-op', { clip_id: 'c' }, CTX),
+    /Unknown edit operation "mystery-op"/);
+  // EditOpValidationError is the exported error type modalities catch.
+  assert.equal(typeof EditOpValidationError, 'function');
+  assert.throws(() => authorEditDecision('trim', { clip_id: 'c' }, CTX),
+    /missing required parameter "in_point"/);
+  assert.throws(() => authorEditDecision('trim',
+    { clip_id: 'c', in_point: 'nope', out_point: 4 }, CTX),
+    /parameter "in_point" must be a time/);
+  // validateEditOp is the reusable gate other modalities call directly.
+  assert.equal(validateEditOp('delete', { clip_id: 'c' }).action, 'delete');
+});

@@ -1,0 +1,125 @@
+/**
+ * file: packages/media-composition/do-work/__tests__/author-decisions-from-records.test.mjs
+ *
+ * W6 Unit 2/3: the GENERIC record-driven decision author. Every non-pointer
+ * editing modality (transcript, search-assembly, future domains) is a ruleset
+ * DATA row over a self-describing item stream — proven here:
+ *   - transcript filler-word removal  = select word by token → emit remove-span
+ *   - transcript gap shortening        = derive gaps → select by duration → remove-span
+ *   - search assembly                  = select hit by score → emit add-source
+ *   - DELETION TEST: a totally different domain (pose faults → split) authors
+ *     from DATA with ZERO source change.
+ * Every emission goes through authorEditDecision (validated), so invalid ops
+ * are structurally impossible.
+ */
+import { test, before } from 'node:test';
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const here = dirname(fileURLToPath(import.meta.url));
+
+let authorDecisionsFromRecords;
+let deriveWordAndGapSpans;
+let itemMatches;
+
+before(async () => {
+  const out = join(mkdtempSync(join(tmpdir(), 'author-rec-')), 'a.mjs');
+  execFileSync('npx', ['esbuild', '--bundle', '--format=esm',
+    '--alias:@=' + join(here, '..', '..', '..', '..'),
+    join(here, '..', 'author-decisions-from-records.ts'), `--outfile=${out}`], { encoding: 'utf8' });
+  ({ authorDecisionsFromRecords, deriveWordAndGapSpans, itemMatches } = await import(out));
+});
+
+const CTX = { sourceRef: { kind: 'video', id: 'clip-main' }, createdAt: '2026-07-23T00:00:00.000Z' };
+
+// audio-transcription word records: {t,start,end,confidence,...}
+const WORDS = [
+  { t: 'So', start: 0.0, end: 0.30 },
+  { t: 'um', start: 0.30, end: 0.55 },
+  { t: 'the', start: 0.55, end: 0.80 },
+  { t: 'forehand', start: 0.80, end: 1.40 },
+  { t: 'you', start: 2.40, end: 2.70 },   // 1.0s gap before this word
+  { t: 'know', start: 2.70, end: 3.00 },
+];
+
+test('transcript filler-word removal: select word token → emit remove-span (Descript-class)', () => {
+  const spans = deriveWordAndGapSpans(WORDS);
+  const ruleset = {
+    select: [
+      { field: 'kind', op: 'eq', value: 'word' },
+      { field: 'text', op: 'text_in_tokens', value: ['um', 'uh', 'you know', 'like'] },
+    ],
+    emit: {
+      op: 'remove-span',
+      span: { start_from: 'start', end_from: 'end' },
+      bindings: [{ param: 'start', from: 'start' }, { param: 'end', from: 'end' }],
+      label: 'Remove filler word',
+    },
+  };
+  const recs = authorDecisionsFromRecords({ items: spans, ruleset, ctx: CTX });
+  assert.equal(recs.length, 1, 'only "um" matches (case/punct-insensitive token match)');
+  assert.equal(recs[0].payload.action, 'remove-span');
+  assert.equal(recs[0].payload.label, 'Remove filler word');
+  assert.deepEqual(recs[0].payload.parameters, { start: 0.30, end: 0.55 });
+  assert.deepEqual(recs[0].payload.span, { start: 0.30, end: 0.55 });
+});
+
+test('transcript gap shortening: derive gaps → select by duration → remove-span the excess', () => {
+  const spans = deriveWordAndGapSpans(WORDS);
+  const gaps = spans.filter((s) => s.kind === 'gap');
+  assert.equal(gaps.length, 1);
+  assert.equal(gaps[0].duration, 1.0);
+  const ruleset = {
+    select: [{ field: 'kind', op: 'eq', value: 'gap' }, { field: 'duration', op: 'gt', value: 0.3 }],
+    emit: { op: 'remove-span', bindings: [{ param: 'start', from: 'start' }, { param: 'end', from: 'end' }] },
+  };
+  const recs = authorDecisionsFromRecords({ items: spans, ruleset, ctx: CTX });
+  assert.equal(recs.length, 1);
+  assert.equal(recs[0].payload.action, 'remove-span');
+  assert.equal(recs[0].payload.parameters.start, 1.40);
+  assert.equal(recs[0].payload.parameters.end, 2.40);
+});
+
+test('search assembly: select find-similar hit by score → emit add-source, capped by limit', () => {
+  const hits = [
+    { address: 'cas:a', score: 0.91, role: 'b-roll' },
+    { address: 'cas:b', score: 0.62, role: 'b-roll' },
+    { address: 'cas:c', score: 0.41, role: 'b-roll' }, // below min
+  ];
+  const ruleset = {
+    select: [{ field: 'score', op: 'gte', value: 0.5 }],
+    emit: { op: 'add-source', params: { lane_role: 'b-roll' }, bindings: [{ param: 'lane_role', from: 'role' }] },
+    limit: 5,
+  };
+  const recs = authorDecisionsFromRecords({ items: hits, ruleset, ctx: CTX });
+  assert.equal(recs.length, 2, 'only hits ≥ 0.5');
+  assert.equal(recs[0].payload.action, 'add-source');
+  assert.equal(recs[0].payload.parameters.lane_role, 'b-roll');
+});
+
+test('DELETION TEST — a different domain (pose faults → split) authors from DATA, zero source change', () => {
+  const faults = [
+    { kind: 'fault', name: 'late-takeback', at: 4.2 },
+    { kind: 'fault', name: 'clean', at: 6.0 },
+  ];
+  const ruleset = {
+    select: [{ field: 'kind', op: 'eq', value: 'fault' }, { field: 'name', op: 'ne', value: 'clean' }],
+    emit: { op: 'split', params: { clip_id: 'clip-main' }, bindings: [{ param: 'at_time', from: 'at' }] },
+  };
+  const recs = authorDecisionsFromRecords({ items: faults, ruleset, ctx: CTX });
+  assert.equal(recs.length, 1);
+  assert.equal(recs[0].payload.action, 'split');
+  assert.equal(recs[0].payload.parameters.at_time, 4.2);
+});
+
+test('invalid emission is structurally rejected (goes through authorEditDecision)', () => {
+  const ruleset = { select: [], emit: { op: 'not-a-real-op', params: {} } };
+  assert.throws(() => authorDecisionsFromRecords({ items: [{}], ruleset, ctx: CTX }),
+    /Unknown edit operation/);
+  // itemMatches is exported for reuse by modality surfaces.
+  assert.equal(itemMatches({ score: 0.7 }, [{ field: 'score', op: 'gte', value: 0.5 }]), true);
+});

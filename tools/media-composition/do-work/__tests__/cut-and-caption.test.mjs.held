@@ -1,0 +1,67 @@
+/**
+ * file: packages/media-composition/do-work/__tests__/cut-and-caption.test.mjs
+ *
+ * Tests cut-and-caption: a transcript of any accepted shape becomes caption lines timed from the start of the cut,
+ * the cut becomes one EDL clip with the karaoke subtitle, and (where ffmpeg is installed) the CLI renders a real
+ * video of the cut's length with the captions burned in.
+ */
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, statSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { captionLinesForCut, cutCaptionEdl, wordsOf } from '../cut-and-caption.mjs';
+
+const whisperShape = { text: 'one two three four', segments: [{ start: 0, end: 4, words: [{ word: 'one', start: 0.5, end: 0.9 }, { word: 'two', start: 1.2, end: 1.6 }] }, { start: 4, end: 9, words: [{ word: 'three', start: 4.1, end: 4.6 }, { word: 'four', start: 8.2, end: 8.8 }] }] };
+
+test('a transcript is read by shape: whisper segments, a words list, or a bare list', () => {
+  assert.deepEqual(wordsOf(whisperShape).map(word => word.text), ['one', 'two', 'three', 'four']);
+  assert.deepEqual(wordsOf({ words: [{ text: 'hi', start: 0, end: 1 }] }), [{ text: 'hi', start: 0, end: 1 }]);
+  assert.deepEqual(wordsOf([{ word: 'x', start: 2, end: 1 }, { word: '', start: 0, end: 1 }, { text: 'y', start: 3, end: 4 }]).map(word => word.text), ['y']);
+  assert.deepEqual(wordsOf(null), []);
+});
+
+test('caption lines hold only the words spoken inside the cut, timed from the cut\'s start', () => {
+  const lines = captionLinesForCut(wordsOf(whisperShape), 1, 5);
+  const words = lines.flatMap(line => line.words);
+  assert.deepEqual(words.map(word => word.text), ['two', 'three']);
+  assert.deepEqual(words.map(word => Math.round(word.start * 10) / 10), [0.2, 3.1]);
+  assert.ok(lines.every(line => line.start >= 0 && line.end <= 4));
+  // A transcript of the cut's own audio starts at the cut: its 0.2 s word is 1.2 s into the video.
+  const own = captionLinesForCut([{ text: 'two', start: 0.2, end: 0.6 }], 1, 5, {}, 1);
+  assert.deepEqual(own.flatMap(line => line.words.map(word => Math.round(word.start * 10) / 10)), [0.2]);
+});
+
+test('the cut is one clip of the video, with the karaoke subtitle only when there are lines', () => {
+  const lines = captionLinesForCut(wordsOf(whisperShape), 0, 2);
+  const edl = cutCaptionEdl({ video: 'https://example.org/v.mp4', from: 0, to: 2, lines, width: 640, height: 360 });
+  assert.deepEqual(edl.spine.segments, [{ kind: 'clip', id: 'cut', source: 'https://example.org/v.mp4', in: 0, out: 2 }]);
+  assert.deepEqual(edl.encode, { width: 640, height: 360 });
+  assert.match(edl.subtitles.ass, /PlayResX: 640\nPlayResY: 360/);
+  assert.match(edl.subtitles.ass, /\\k\d+\}one/);
+  assert.equal(cutCaptionEdl({ video: 'v.mp4', from: 1, to: 3 }).subtitles, undefined);
+  assert.throws(() => cutCaptionEdl({ video: 'v.mp4', from: 3, to: 3 }), /end after it starts/);
+  assert.throws(() => cutCaptionEdl({ video: '', from: 0, to: 1 }), /video address/);
+});
+
+let ffmpeg = true;
+try { execFileSync('ffmpeg', ['-version'], { stdio: 'ignore' }); } catch { ffmpeg = false; }
+
+test('the CLI renders the cut with its captions burned in', { skip: !ffmpeg && 'ffmpeg is not installed here' }, () => {
+  const work = mkdtempSync(join(tmpdir(), 'cut-and-caption-'));
+  const source = join(work, 'source.mp4');
+  execFileSync('ffmpeg', ['-v', 'error', '-f', 'lavfi', '-i', 'testsrc=size=640x360:rate=25:duration=6', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=6', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-shortest', source]);
+  const output = join(work, 'cut.mp4');
+  const script = join(dirname(fileURLToPath(import.meta.url)), '..', 'cut-and-caption.mjs');
+  const printed = execFileSync(process.execPath, [script, '--video', source, '--from', '1', '--to', '4', '--output', output, '--transcript', JSON.stringify(whisperShape)], { encoding: 'utf8' });
+  const result = JSON.parse(printed.trim().split('\n').at(-1));
+  assert.equal(result.captions > 0, true);
+  assert.ok(Math.abs(result.duration_seconds - 3) < 0.2, `the cut is 3 seconds long, it was ${result.duration_seconds}`);
+  assert.equal(result.expected_duration_seconds, 3);
+  assert.deepEqual([result.width, result.height], [640, 360], 'the cut keeps the video\'s own frame size');
+  assert.ok(statSync(output).size > 1000);
+  const failed = (() => { try { execFileSync(process.execPath, [script, '--video', source, '--from', '4', '--to', '2', '--output', output], { encoding: 'utf8', stdio: 'pipe' }); return null; } catch (error) { return String(error.stderr); } })();
+  assert.match(failed, /end after it starts/);
+});

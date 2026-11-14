@@ -1,0 +1,65 @@
+/**
+ * #97 Scene-detect auto-split. A detector (ffmpeg producer detect-scenes.mjs at export, or the browser
+ * frame-diff twin) finds hard cuts and emits split-decision DATA, so a long recording auto-segments
+ * into shots via the SAME `split` fold op the timeline already uses (L069). This proves the pure core:
+ * (1) detectCutsFromFrameSignatures finds the boundary in synthetic frame data, (2) splitDecisionsFromCuts
+ * turns cuts into split decisions that compose to N+1 timeline segments.
+ */
+import { test, before } from 'node:test';
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const here = dirname(fileURLToPath(import.meta.url));
+let composeTimeline, detectCutsFromFrameSignatures, splitDecisionsFromCuts;
+
+before(async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'scene-'));
+  const alias = '--alias:@=' + join(here, '..', '..', '..', '..');
+  const ct = join(dir, 'ct.mjs'); const sd = join(dir, 'sd.mjs');
+  execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', 'compose-timeline.ts'), `--outfile=${ct}`], { encoding: 'utf8' });
+  execFileSync('npx', ['esbuild', '--bundle', '--format=esm', alias, join(here, '..', '..', 'do-work', 'detect-scenes-browser.ts'), `--outfile=${sd}`], { encoding: 'utf8' });
+  ({ composeTimeline } = await import(ct));
+  ({ detectCutsFromFrameSignatures, splitDecisionsFromCuts } = await import(sd));
+});
+
+// 24 red frames then 24 blue frames (RGB signature per 1-cell grid), sampled at 24fps: a hard cut at 1.0s.
+const redSig = [255, 0, 0]; const blueSig = [0, 0, 255];
+const sequence = [...Array(24).fill(redSig), ...Array(24).fill(blueSig)];
+
+test('detectCutsFromFrameSignatures finds the hard cut at the boundary', () => {
+  const cuts = detectCutsFromFrameSignatures(sequence, 24, { threshold: 0.3 });
+  assert.equal(cuts.length, 1, 'exactly one cut');
+  assert.ok(Math.abs(cuts[0] - 1.0) < 0.05, `cut near 1.0s, got ${cuts[0]}`);
+});
+
+test('a uniform sequence yields no cuts', () => {
+  const cuts = detectCutsFromFrameSignatures(Array(30).fill(redSig), 24, { threshold: 0.3 });
+  assert.equal(cuts.length, 0);
+});
+
+test('minGap debounces cuts that are too close', () => {
+  const flicker = [redSig, blueSig, redSig, blueSig, redSig];
+  const cuts = detectCutsFromFrameSignatures(flicker, 24, { threshold: 0.3, minGap: 0.5 });
+  assert.equal(cuts.length, 1, 'the 0.5s min gap collapses the flicker to one cut');
+});
+
+test('splitDecisionsFromCuts turns cuts into split decisions that segment the timeline', () => {
+  const cuts = detectCutsFromFrameSignatures(sequence, 24, { threshold: 0.3 });
+  const splits = splitDecisionsFromCuts(cuts, { item_id: 's1' }, '2026-08-05T00:00:00.000Z');
+  assert.equal(splits.length, 1);
+  assert.equal(splits[0].action, 'split');
+  assert.equal(splits[0].parameters.time, cuts[0]);
+  // a single 2s source clip split at the cut folds into 2 timeline segments.
+  const view = {
+    lanes: [{ lane_id: 'video', role: 'video', label: 'Video', items: [{ item_id: 's1', label: 'Main', start: 0, end: 2, source_ref: { artifact_ref: 'rb.mp4', source_id: 's1' } }] }],
+    editDecisions: splits,
+    markers: [],
+  };
+  const comp = composeTimeline(view);
+  const videoLane = comp.lanes.find((l) => l.role === 'video');
+  assert.equal(videoLane.clips.length, 2, 'the source clip is split into 2 segments at the scene cut');
+});

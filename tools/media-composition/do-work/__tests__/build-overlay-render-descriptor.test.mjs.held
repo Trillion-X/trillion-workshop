@@ -1,0 +1,42 @@
+/**
+ * file: packages/media-composition/do-work/__tests__/build-overlay-render-descriptor.test.mjs
+ * T6 (plan 2026-07-18): the documents overlay decoder step is a
+ * PURE compute.process descriptor builder — document as opaque inline JSON,
+ * renderer script mounted by blob_ref content hash, PNG output to CAS.
+ */
+import { test, before } from 'node:test';
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const here = dirname(fileURLToPath(import.meta.url));
+let buildOverlayRenderDescriptor;
+before(async () => {
+  const out = join(mkdtempSync(join(tmpdir(), 'ovl-')), 'b.mjs');
+  execFileSync('npx', ['esbuild', '--bundle', '--format=esm',
+    join(here, '..', 'build-overlay-render-descriptor.ts'), `--outfile=${out}`], { encoding: 'utf8' });
+  ({ buildOverlayRenderDescriptor } = await import(out));
+});
+
+test('descriptor mounts renderer by blob_ref + doc as inline bytes; PNG output to addressed_chunks', () => {
+  const d = buildOverlayRenderDescriptor({ documentJson: '{"doc":1}', rendererScriptHash: '0x12:abc', width: 1920, height: 1080 });
+  assert.deepEqual(d.argv, ['node', 'render-overlay.mjs', 'doc.json', 'overlay.png', '1920', '1080']);
+  assert.deepEqual(d.inputs[0].source, { kind: 'blob_ref', hash: '0x12:abc' });
+  assert.equal(d.inputs[1].source.kind, 'inline');
+  assert.equal(typeof d.inputs[1].source.bytes, 'string');
+  assert.deepEqual(d.outputs, [{ mount_path: 'overlay.png', content_type: 'image/png', storage: 'addressed_chunks' }]);
+});
+
+test('fails loudly on missing document, missing hash, or non-positive dims', () => {
+  assert.throws(() => buildOverlayRenderDescriptor({ documentJson: '', rendererScriptHash: 'x', width: 1, height: 1 }), /required/);
+  assert.throws(() => buildOverlayRenderDescriptor({ documentJson: '{}', rendererScriptHash: '', width: 1, height: 1 }), /required/);
+  assert.throws(() => buildOverlayRenderDescriptor({ documentJson: '{}', rendererScriptHash: 'x', width: 0, height: 1 }), /positive/);
+});
+
+test('pure: identical requests produce identical descriptors', () => {
+  const req = { documentJson: '{"a":1}', rendererScriptHash: '0x12:ff', width: 640, height: 360 };
+  assert.equal(JSON.stringify(buildOverlayRenderDescriptor(req)), JSON.stringify(buildOverlayRenderDescriptor(req)));
+});

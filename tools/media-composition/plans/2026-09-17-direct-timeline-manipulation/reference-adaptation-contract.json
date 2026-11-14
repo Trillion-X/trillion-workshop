@@ -1,0 +1,50 @@
+{
+  "schema": "bitfield.reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-DIRECT-TIMELINE-MANIPULATION",
+  "status": "VERIFIED",
+  "directive": {
+    "quote": "when i drag an image or aset or whtever over the itmeline or hte preview thing i dont se it being inserted preview while i hold it and move it around",
+    "message_multihash": "1f:066699347bb9d79e8bfe6770f175f5e19bf2fe6479d872b9342ce34532703ca9"
+  },
+  "mode": "INSPIRATION_ONLY",
+  "sources": [
+    {
+      "path": "Downloads/ChatGPT Image Sep 16, 2026, 01_05_21 AM (4).png",
+      "multihash": "1f:cdefc4f2f5bf36229a9979f9820a1d4b94f1d2cfd7c7859608b0c11b9e501ce1",
+      "ownership": "user-owned"
+    }
+  ],
+  "targets": [
+    {
+      "path": "bitfield-packages/packages/media-composition/show/components/EditTrackLanes.tsx"
+    }
+  ],
+  "preserve": [
+    "The timeline remains data-driven across visual, text, adjustment, and audio clips.",
+    "Held drag and trim feedback reflects the position that release will use.",
+    "Selection, reorder, split, and snap behavior remain keyboard and pointer accessible."
+  ],
+  "allowed_deltas": [
+    "Apply reference-informed density and hierarchy without copying source code.",
+    "Use shared timeline primitives and data-defined lane identities."
+  ],
+  "banned_substitutions": [
+    "No fake placement preview that differs from the committed drop.",
+    "No product-specific media identity inside the reusable timeline.",
+    "No extra toolbar in place of direct manipulation."
+  ],
+  "baseline": {
+    "copied_before_adaptation": false,
+    "note": "The image is visual direction only; the timeline behavior is original package source."
+  },
+  "proof": {
+    "originality_ref": "bitfield-packages/packages/media-composition/plans/2026-09-17-direct-timeline-manipulation/originality.md",
+    "test_refs": [
+      "bitfield-packages/packages/media-composition/show/__tests__/EditTrackLanes.test.tsx",
+      "bitfield-packages/packages/media-composition/show/__tests__/installed-timeline.browser.test.mjs"
+    ],
+    "render_refs": [
+      "/tmp/expansion-timeline-installed-corrected/recording.webm"
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {assTime,karaokeAss} from '../../do-work/author-karaoke-captions.mjs';
+test('subtitle timestamps round through second, minute and hour boundaries',()=>{
+ assert.equal(assTime(.999),'0:00:01.00');assert.equal(assTime(59.999),'0:01:00.00');assert.equal(assTime(3599.999),'1:00:00.00');
+});
+test('word highlighting follows source onset across leading silence and pauses',()=>{
+ const lines=[{start:0,end:3,words:[{text:'One',start:.5,end:1},{text:'Two',start:2,end:3}]}];
+ const ass=karaokeAss(lines);assert.match(ass,/\{\\k50\}\u200b\{\\k150\}One \{\\k100\}Two/);
+ const plain=karaokeAss(lines,{reveal:'line'});assert.match(plain,/,,One Two/);assert.doesNotMatch(plain,/\\k\d/);
+});
+test('caption appearance accepts a shadow-free italic style without changing defaults',()=>{
+ const line=[{start:0,end:1,words:[{text:'Real',start:0,end:1}]}];
+ const style=ass=>ass.match(/^Style: K,(.*)$/m)[1].split(',');
+ const original=style(karaokeAss(line));
+ const chosen=style(karaokeAss(line,{font:'Apple Garamond',italic:true,shadow:0,outlineW:0}));
+ assert.equal(original[7],'0');assert.equal(original[16],'1');
+ assert.equal(chosen[0],'Apple Garamond');assert.equal(chosen[7],'-1');
+ assert.equal(chosen[15],'0');assert.equal(chosen[16],'0');
+});
