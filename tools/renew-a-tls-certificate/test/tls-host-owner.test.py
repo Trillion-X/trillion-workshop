@@ -24,6 +24,11 @@ def made_up_layout(state):
                              'environment': {'EXAMPLE_LISTEN': '{listen}', 'EXAMPLE_ORIGIN': 'https://{hostname}'}}}
 
 
+def pwd_entry():
+    import pwd
+    return pwd.getpwuid(os.getuid())
+
+
 class TLS(unittest.TestCase):
     def test_activation_requires_real_canonical_metadata_readback(self):
         good = {'resource': 'https://app.example.com/mcp', 'authorization_servers': ['https://app.example.com']}
@@ -92,6 +97,122 @@ class TLS(unittest.TestCase):
             self.assertEqual(json.loads((owned / 'receptionist.json').read_text())['hostname'], 'app.example.com')
             self.assertIn(['systemctl', 'enable', '--now', 'example-public-tls.service'], calls)
             self.assertEqual(os.stat(owned / 'nginx.conf').st_mode & 0o777, 0o600)
+
+    def followed_layout(self, root):
+        layout = made_up_layout(Path(root) / 'owner')
+        layout['receptionist']['account'] = 'example-mcp'
+        layout['receptionist']['releases'] = {
+            'folder': str(Path(root) / 'releases'), 'program': 'example-forwarder', 'target': 'x86_64-unknown-linux-gnu', 'body_max_bytes': 1 << 20,
+            'feed': {'urls': ['https://releases.example.com/forwarder-feed.json'], 'public_keys': ['a' * 64]},
+            'retire': {'folder': str(Path(root) / 'source'), 'name': '[a-f0-9]{40}'}}
+        return layout
+
+    def test_the_program_a_host_starts_is_the_release_current_names_else_the_seed(self):
+        import tempfile
+        me = pwd_entry()
+        with tempfile.TemporaryDirectory() as root, patch.object(owner.pwd, 'getpwnam', lambda name: me):
+            layout = self.followed_layout(root)['receptionist']
+            self.assertIsNone(owner.followed_binary(layout), 'no current yet: the seed starts')
+            release = Path(root) / 'releases' / 'example-forwarder' / ('c' * 40)
+            release.mkdir(parents=True)
+            (release / 'example-forwarder').write_bytes(b'#!/bin/sh\n')
+            (release / 'example-forwarder').chmod(0o755)
+            os.symlink('c' * 40, Path(root) / 'releases' / 'example-forwarder' / 'current')
+            self.assertEqual(owner.followed_binary(layout), str(Path(root) / 'releases' / 'example-forwarder' / 'current' / 'example-forwarder'))
+            (release / 'example-forwarder').chmod(0o644)
+            self.assertIsNone(owner.followed_binary(layout), 'a release that cannot be run is not started')
+            (release / 'example-forwarder').chmod(0o755)
+            self.assertIsNone(owner.followed_binary({**layout, 'releases': None}), 'a host with no releases layout follows nothing')
+
+    def test_a_host_that_follows_releases_writes_its_feed_file_and_lets_the_service_write_only_its_own_folder(self):
+        import tempfile
+        me = pwd_entry()
+        with tempfile.TemporaryDirectory() as root:
+            units, layout = Path(root) / 'units', self.followed_layout(root)
+            units.mkdir()
+            calls, real_path = [], owner.Path
+            path = lambda value, *more: units if str(value) == '/etc/systemd/system' else real_path(value, *more)
+            with patch.object(owner, 'layout', lambda: layout), patch.object(owner, 'run', lambda args, **k: calls.append(args)), \
+                 patch.object(owner, 'certificate_status', lambda host: None), patch.object(owner, 'startable', lambda binary: binary), \
+                 patch.object(owner.pwd, 'getpwnam', lambda name: me), patch.object(owner.os, 'chown', lambda *a: None), patch.object(owner, 'Path', path):
+                owner.configure({'hostname': 'app.example.com', 'nginx': 'events {}',
+                                 'receptionistBinary': '/opt/example/source/' + 'b' * 40 + '/target/release/example-receptionist'})
+            unit = (units / 'example-receptionist.service').read_text()
+            folder = Path(root) / 'releases' / 'example-forwarder'
+            self.assertIn(f'ProtectSystem=strict\nReadWritePaths={folder}\n', unit)
+            feed = json.loads((Path(root) / 'releases' / 'release-feed.json').read_text())
+            self.assertEqual(feed, {'urls': ['https://releases.example.com/forwarder-feed.json'], 'public_keys': ['a' * 64], 'releases': str(Path(root) / 'releases')})
+            self.assertEqual(os.stat(Path(root) / 'releases' / 'release-feed.json').st_mode & 0o777, 0o644)
+        # A host with no releases layout keeps the read-only system and no extra path.
+        self.assertNotIn('ReadWritePaths', owner.receptionist_unit(made_up_layout('/x')['receptionist'], None))
+
+    def test_a_seed_is_the_newest_release_for_the_target_with_the_program_alone_at_its_root(self):
+        import io, tarfile, tempfile
+        def archive(names):
+            raw = io.BytesIO()
+            with tarfile.open(fileobj=raw, mode='w:gz') as tar:
+                for name in names:
+                    info = tarfile.TarInfo(name); info.size = 4
+                    tar.addfile(info, io.BytesIO(b'prog'))
+            return raw.getvalue()
+        def serving(body, held=None):
+            entry = {'commit': 'd' * 40, 'sequence': 9, 'target': 'x86_64-unknown-linux-gnu', 'url': 'https://releases.example.com/body.tar.gz', 'bytes': len(body)}
+            older = {**entry, 'commit': 'e' * 40, 'sequence': 3}
+            feed = json.dumps({'releases': [older, entry, {**entry, 'sequence': 99, 'target': 'aarch64-unknown-linux-gnu'}]}).encode()
+            class Response(io.BytesIO):
+                __enter__ = lambda self: self
+                __exit__ = lambda self, *a: None
+            return lambda request, timeout: Response(feed if request.full_url.endswith('feed.json') else body)
+        with tempfile.TemporaryDirectory() as root:
+            layout = self.followed_layout(root)
+            (Path(root) / 'releases' / 'example-forwarder').mkdir(parents=True)
+            with patch.object(owner, 'layout', lambda: layout), patch.object(owner.urllib.request, 'urlopen', serving(archive(['example-forwarder']))):
+                answer = owner.seed({})
+            self.assertEqual((answer['commit'], answer['sequence']), ('d' * 40, 9), 'the newest release of this target, not another target\'s')
+            placed = Path(answer['binary'])
+            self.assertEqual((placed.read_bytes(), placed.stat().st_mode & 0o777), (b'prog', 0o755))
+            with patch.object(owner, 'layout', lambda: layout), patch.object(owner.urllib.request, 'urlopen', serving(archive(['example-forwarder', 'extra']))):
+                with self.assertRaises(ValueError):
+                    owner.seed({})
+            with patch.object(owner, 'layout', lambda: layout), patch.object(owner.urllib.request, 'urlopen', serving(archive(['example-forwarder']))):
+                layout['receptionist']['releases']['feed']['urls'] = ['http://releases.example.com/forwarder-feed.json']
+                with self.assertRaises(ValueError):
+                    owner.seed({})
+
+    def test_retiring_the_hand_road_removes_old_build_folders_but_the_one_the_seed_runs_from(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as root:
+            layout = self.followed_layout(root)
+            source = Path(root) / 'source'
+            for name in ['a' * 40, 'b' * 40, 'not-a-build']:
+                (source / name / 'target').mkdir(parents=True)
+            owned = Path(root) / 'owner'
+            owned.mkdir()
+            (owned / 'receptionist.json').write_text(json.dumps({'hostname': 'app.example.com', 'binary': f"{source / ('b' * 40)}/target/release/x"}))
+            with patch.object(owner, 'layout', lambda: layout):
+                self.assertEqual(owner.retire({}), {'retired': 1})
+            self.assertEqual(sorted(one.name for one in source.iterdir()), ['b' * 40, 'not-a-build'])
+
+    def test_a_rollback_runs_the_programs_own_verb_as_its_account_and_refuses_a_name_that_is_not_a_commit(self):
+        import tempfile
+        me = pwd_entry()
+        with tempfile.TemporaryDirectory() as root:
+            layout = self.followed_layout(root)
+            calls = []
+            def run(args, **kwargs):
+                calls.append((args, kwargs))
+                return subprocess.CompletedProcess(args, 0, b'{"current":"%s"}' % (b'f' * 40) if args[1:2] == ['release'] else b'', b'')
+            with patch.object(owner, 'layout', lambda: layout), patch.object(owner, 'run', run), patch.object(owner.pwd, 'getpwnam', lambda name: me), \
+                 patch.object(owner, 'followed_binary', lambda receptionist: '/r/current/example-forwarder'), patch.object(owner, 'verify_receptionist', lambda host: None):
+                answer = owner.roll_back({'hostname': 'app.example.com', 'commit': 'c' * 40})
+                with self.assertRaises(ValueError):
+                    owner.roll_back({'hostname': 'app.example.com', 'commit': '../etc'})
+            self.assertEqual(answer, {'rolled_back': 'c' * 40, 'current': 'f' * 40})
+            args, kwargs = calls[0]
+            self.assertEqual(args[:3], ['/r/current/example-forwarder', 'release', 'roll-back'])
+            self.assertEqual((args[4], args[5:]), ('c' * 40, ['a' * 64]))
+            self.assertEqual((kwargs['user'], kwargs['group']), (me.pw_uid, me.pw_gid), 'run as the service account that owns the folder')
+            self.assertEqual(calls[1][0], ['systemctl', 'restart', 'example-receptionist.service'])
 
     def test_certificate_hostname_is_not_shell_or_path(self):
         for name in ['etc/passwd', 'good.com\n', 'good.com;false', '-bad.com']:

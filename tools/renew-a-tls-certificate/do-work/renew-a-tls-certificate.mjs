@@ -18,6 +18,13 @@ const hostnamePattern = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}
 const safePath = /^\/[A-Za-z0-9._/-]+$/;
 const unitName = /^[a-z][a-z0-9-]{0,62}$/;
 const urlPaths = list => Array.isArray(list) && list.every(path => typeof path === 'string' && /^\/[A-Za-z0-9._/-]*$/.test(path));
+// The receptionist's release layout: the folder its releases and its feed file live in, the program's name, the feed it follows
+// (https addresses, 64-hex public keys), the target it runs, a body bound, and optionally the build folders of the retired hand road.
+const releasesOk = x => safePath.test(x?.folder ?? '') && unitName.test(x?.program ?? '') && Array.isArray(x?.feed?.urls) && x.feed.urls.length > 0
+  && x.feed.urls.every(url => typeof url === 'string' && /^https:\/\/[A-Za-z0-9.-]+(?::[0-9]{1,5})?\/[A-Za-z0-9._/-]*$/.test(url))
+  && Array.isArray(x.feed.public_keys) && x.feed.public_keys.length > 0 && x.feed.public_keys.every(key => /^[0-9a-f]{64}$/.test(key))
+  && /^[a-z0-9_]+(-[a-z0-9_.]+){1,4}$/.test(x.target ?? '') && Number.isInteger(x.body_max_bytes) && x.body_max_bytes > 0
+  && (x.retire === undefined || (safePath.test(x.retire?.folder ?? '') && typeof x.retire?.name === 'string' && x.retire.name.length > 0 && x.retire.name.length < 100));
 export function checkedHost(h, { diagnostics = false } = {}) {
   const i = h?.ingress, r = h?.receptionist;
   const ok = h && [h.owner, h.state, h.downloads, i?.pid_file, i?.error_log].every(path => safePath.test(path ?? '')) && h.owner.endsWith('.py')
@@ -25,8 +32,9 @@ export function checkedHost(h, { diagnostics = false } = {}) {
     && typeof r?.binary_pattern === 'string' && r.binary_pattern.length > 0 && /^127\.0\.0\.1:[0-9]{1,5}$/.test(r?.listen ?? '') && urlPaths(r?.paths)
     && r?.environment !== null && typeof r?.environment === 'object' && Object.entries(r.environment).every(([name, value]) => /^[A-Z][A-Z0-9_]{0,63}$/.test(name) && typeof value === 'string' && !/[\n\0]/.test(value))
     && (!diagnostics || (safePath.test(i?.diagnostics_log ?? '') && urlPaths(i?.diagnostics_paths)))
-    && (h.site === undefined || (hostnamePattern.test(h.site?.hostname ?? '') && urlPaths(h.site?.paths)));
-  if (!ok) throw new Error('The server layout (host) was refused: owner (a .py path), state, downloads, ingress {service, pid_file, error_log}, receptionist {service, account, binary_pattern, listen 127.0.0.1:<port>, paths, environment} and, optionally, site {hostname, paths}; diagnostics need ingress.diagnostics_log and diagnostics_paths.');
+    && (h.site === undefined || (hostnamePattern.test(h.site?.hostname ?? '') && urlPaths(h.site?.paths)))
+    && (r.releases === undefined || releasesOk(r.releases));
+  if (!ok) throw new Error('The server layout (host) was refused: owner (a .py path), state, downloads, ingress {service, pid_file, error_log}, receptionist {service, account, binary_pattern, listen 127.0.0.1:<port>, paths, environment, releases?: {folder, program, feed: {urls, public_keys}, target, body_max_bytes, retire?}} and, optionally, site {hostname, paths}; diagnostics need ingress.diagnostics_log and diagnostics_paths.');
   return h;
 }
 export function checkedTLS(c) {
@@ -66,7 +74,7 @@ export function publishDownload(c, file, name, { run = execFileSync } = {}) {
 }
 export function hostCommand(c, action, input, { run = execFileSync } = {}) {
   checkedTLS(c);
-  if (!['setup', 'issue', 'renew', 'configure', 'activate', 'status'].includes(action)) throw new Error('The TLS action was refused.');
+  if (!['setup', 'issue', 'renew', 'configure', 'activate', 'status', 'seed', 'roll-back', 'retire'].includes(action)) throw new Error('The TLS action was refused.');
   const remoteOwner = c.host.owner;
   try {
     const answer = JSON.parse(run('/usr/bin/ssh', [...administrationArguments(c), '/usr/bin/python3', remoteOwner, action], { input: JSON.stringify(input ?? { hostname: c.hostname }), encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'], timeout: 600000, maxBuffer: 1024 * 1024 }));
@@ -85,7 +93,7 @@ export function hostCommand(c, action, input, { run = execFileSync } = {}) {
 // What the host owner reads beside itself (tls-host-owner.py layout()): the facts it acts on, and nothing else.
 export const layoutFile = owner => owner.replace(/\.py$/, '.json');
 export function hostLayout({ state, ingress, receptionist }) {
-  return { state, ingress: { service: ingress.service }, receptionist: { service: receptionist.service, account: receptionist.account, binary_pattern: receptionist.binary_pattern, listen: receptionist.listen, environment: receptionist.environment } };
+  return { state, ingress: { service: ingress.service }, receptionist: { service: receptionist.service, account: receptionist.account, binary_pattern: receptionist.binary_pattern, listen: receptionist.listen, environment: receptionist.environment, ...(receptionist.releases ? { releases: receptionist.releases } : {}) } };
 }
 export function installHostOwner(c, { run = execFileSync, prepare = true } = {}) {
   checkedTLS(c);
@@ -145,6 +153,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       if (typeof token !== 'string' || !/^[A-Za-z0-9_-]{20,256}$/.test(token)) throw new Error('The DNS API token shape was refused; name its existing field in tokenField.');
       result = hostCommand(c, action, { hostname: c.hostname, token, dryRun: action === 'renew' && c.dryRun === true });
     } else if (action === 'configure') result = configureHost(c);
+    else if (action === 'roll-back') result = hostCommand(c, action, { hostname: c.hostname, commit: request.commit });
     else result = hostCommand(c, action);
     process.stdout.write(`${JSON.stringify(result)}\n`);
   } catch (error) { process.stderr.write(`${error.message}\n`); process.exitCode = 1; }

@@ -26,6 +26,9 @@ Every row runs one process on the person's computer that reaches the server as i
 | `tool:update-a-servers-tls-owner` | `update-owner`: owner and layout only | administration key |
 | `tool:write-a-public-hosts-paths` | `configure` | administration key |
 | `tool:switch-on-a-servers-receptionist` | `activate` | administration key |
+| `tool:seed-a-servers-receptionist` | `seed`: the newest release the receptionist's feed names for the server's target, placed as the program a host with no `current` starts | administration key |
+| `tool:roll-back-a-servers-receptionist` | `roll-back`: refuse one release and go back to the one that was ready | administration key |
+| `tool:retire-a-servers-old-builds` | `retire`: remove the build folders the hand road left, but the one the seed runs from | administration key |
 | `tool:check-a-servers-tls-owner-on-the-server` | `host-test` | administration key |
 
 `publishDownload` has no row yet: it reads a file the person names, which is a `computer` row's job (a granted folder), and a computer run's sandbox does not let ssh look up its own user (`No user exists for uid`), so the server cannot be reached from one. It runs once the engine has a computer capability that reaches a server over SSH.
@@ -74,3 +77,15 @@ The person declares a wake (a `wake-declaration` record in their own records, th
 **Depends on:** `tools/administer-a-rented-host` (`administrationArguments`, `knownHostsLine` and `heldKeyFile`, packed in every row at `/opt/administer-a-rented-host`), Node's standard library, `/usr/bin/ssh` and `/usr/bin/nc` on the person's computer; on the server, Python 3, certbot with `python3-certbot-dns-cloudflare`, nginx, openssl, curl and systemd.
 
 **Depended on by:** `tool-rows.json`, run by Trillion's local engine (a `container` row with `internet: true`, `credential_mounts` and `max_run_ms`).
+
+## A receptionist that follows a signed release feed
+
+`host.receptionist.releases` (optional) is `{ folder, program, feed: { urls, public_keys }, target, body_max_bytes, retire? }`. With it the server never gets a program by hand:
+
+- The program (the forwarder, `trillion-mcp-forwarder`) reads `<folder>/release-feed.json` (this owner writes it: the feed's https addresses, its public keys and `folder`, public data) and follows the feed itself. It takes a release only when the signature is by a listed key, the target is its own, the sequence is above its own, and the length and BLAKE3 are the entry's; an older commit never wins; a release marked refused is never taken again. It keeps its releases in `<folder>/<program>/`, switches `current` atomically, then ends so the service restarts it on `current`, and prunes: `current`, the ready one, the running one and the newest three stay (trillion-rust src/native_entry/computer/releases.rs).
+- This owner only starts the program: `launch` runs `<folder>/<program>/current/<program>` when that is a file the service account owns and may run, and otherwise the seed (`receptionistBinary`, which `binary_pattern` must allow, for a host with no release yet or one whose `current` was rolled back). The unit makes the system read-only but for `<folder>/<program>`, which `configure` creates and gives to the service account.
+- A release that is not marked ready (it served for `release_ready_after_ms`) within `release_boot_attempts` starts is marked refused by the program, and `current` goes back to the ready release: a release that cannot start never keeps the server down. `roll-back` is the lever for one that starts and is wrong.
+- `seed` fetches the newest release the feed names for `target` over https, bounded by the entry's own length, and checks that the archive holds the program alone at its root. It does not check the signature (that is the program's job on every release it takes), so the seed is trusted only for the seconds before the program replaces itself by a release it verified. A host that has any program already needs no seed.
+- `retire` removes the build folders of the retired hand road (`retire: { folder, name }`) but the one the seed runs from. Releases the program followed are pruned by the program, never by this owner.
+
+The releases themselves come from the builder: every engine publish also signs the forwarder it built into `forwarder-feed.json` (tools/publish-an-engine-release, kind row `also_publishes`), so a fix that lands reaches the server on the next poll.

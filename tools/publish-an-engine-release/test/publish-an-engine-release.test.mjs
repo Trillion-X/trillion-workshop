@@ -127,6 +127,26 @@ test('a commit with no product/ folder publishes a release that holds only the e
   assert.deepEqual(untarGz(bytes).map(file => file.name), ['product/bin/trillion-mcp-forwarder', 'trillion-local']);
 });
 
+test('an engine publish also signs the forwarder it built into the forwarder feed, so the relay that follows that feed gets every landed fix', async () => {
+  const { remote, commits } = repository(3);
+  const { key, request } = builder(remote);
+  const answer = await publish(request);
+  assert.equal(answer.also_published.length, 1);
+  const feed = JSON.parse(readFileSync(join(request.feed_folder, 'forwarder-feed.json'), 'utf8'));
+  assert.deepEqual(feed.releases.map(one => [one.commit, one.sequence, one.target]), [[commits[2], BASE_TIME + 3, 'x86_64-unknown-linux-gnu']]);
+  assert.ok(verifyEntry(feed.releases[0], key.public_key), 'signed with the engine key');
+  assert.equal(feed.releases[0].url, `https://releases.example.com/engine-releases/forwarder/${commits[2]}/x86_64-unknown-linux-gnu.tar.gz`);
+  const bytes = readFileSync(join(request.feed_folder, 'forwarder', commits[2], 'x86_64-unknown-linux-gnu.tar.gz'));
+  assert.deepEqual(untarGz(bytes).map(file => file.name), ['trillion-mcp-forwarder'], 'the binary alone, at the root');
+  assert.equal(feed.releases[0].content, makeHashCodeHexFromBytes(new Uint8Array(bytes)));
+  const engine = JSON.parse(readFileSync(join(request.feed_folder, 'feed.json'), 'utf8'));
+  assert.ok(engine.releases.every(one => one.url.startsWith('https://releases.example.com/engine-releases/') && !one.url.includes('/forwarder/')), 'the engine feed names no forwarder body');
+  // The same commit again signs nothing twice, in either feed.
+  const again = await publish(request);
+  assert.equal(again.already_published, true);
+  assert.equal(JSON.parse(readFileSync(join(request.feed_folder, 'forwarder-feed.json'), 'utf8')).releases.length, 1);
+});
+
 test('the forwarder kind publishes its program alone at the root of its own feed, under its own folder, and the engine feed is untouched', async () => {
   const { remote, commits } = repository(2);
   const { key, request } = builder(remote);

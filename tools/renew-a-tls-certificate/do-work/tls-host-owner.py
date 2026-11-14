@@ -9,6 +9,11 @@ Every fact about the product this host serves (its state folder, the ingress and
 receptionist services, the receptionist's account, build pattern, listen address
 and environment) is the layout file installed beside this owner (same name, .json),
 written by the Mac side's installHostOwner from the run's input.
+
+The receptionist's program follows a signed release feed (layout receptionist.releases): the program checks each release's
+signature, content and target itself and switches `<folder>/<program>/current`; this owner only starts `current` (or the
+seed, the one program the host started with, while `current` is absent or was rolled back), gives the program its own folder
+to write, and keeps the feed's address in a file beside it. Nothing here builds or copies a release.
 """
 import fcntl
 from datetime import datetime, timezone
@@ -18,9 +23,11 @@ from pathlib import Path
 import re
 import pwd
 import secrets
+import shutil
 import stat
 import subprocess
 import sys
+import tarfile
 import tempfile
 import time
 import urllib.parse
@@ -201,6 +208,143 @@ def receptionist_binary(binary):
     return binary
 
 
+def releases():
+    """The receptionist's release layout (`receptionist.releases`): {folder, program, feed: {urls, public_keys}, target,
+    body_max_bytes, retire?}; None for a host whose receptionist is a fixed program."""
+    return layout()['receptionist'].get('releases')
+
+
+def release_program_folder(layout_releases):
+    return Path(layout_releases['folder']) / layout_releases['program']
+
+
+def release_feed_file(layout_releases):
+    return Path(layout_releases['folder']) / 'release-feed.json'
+
+
+def followed_binary(receptionist):
+    """`<folder>/<program>/current/<program>` when the program has switched to a release it may start: a regular file the
+    service account owns and may run. None otherwise: no `current` yet (or it was rolled back), so the seed starts."""
+    layout_releases = receptionist.get('releases')
+    if not layout_releases:
+        return None
+    program = release_program_folder(layout_releases) / 'current' / layout_releases['program']
+    try:
+        status, account = program.stat(), pwd.getpwnam(receptionist['account'])
+    except (OSError, KeyError):
+        return None
+    if stat.S_ISREG(status.st_mode) and status.st_uid == account.pw_uid and status.st_mode & 0o100:
+        return str(program)
+    return None
+
+
+def prepare_releases(receptionist):
+    """The folder the program writes its releases into (its own, owned by the service account), and the feed file it reads
+    (public: addresses and public keys, root-owned, readable by the service account)."""
+    layout_releases = receptionist['releases']
+    account = pwd.getpwnam(receptionist['account'])
+    folder = Path(layout_releases['folder'])
+    folder.mkdir(mode=0o755, parents=True, exist_ok=True)
+    program = release_program_folder(layout_releases)
+    program.mkdir(mode=0o755, exist_ok=True)
+    os.chown(program, account.pw_uid, account.pw_gid)
+    feed = release_feed_file(layout_releases)
+    candidate = feed.with_suffix('.next')
+    candidate.write_text(json.dumps({'urls': layout_releases['feed']['urls'], 'public_keys': layout_releases['feed']['public_keys'], 'releases': str(folder)}))
+    candidate.chmod(0o644)
+    candidate.replace(feed)
+    return str(program)
+
+
+def receptionist_unit(receptionist, writable):
+    """The receptionist's unit. The system is read-only to it but for the one folder its releases are written in."""
+    allowed = f'ReadWritePaths={writable}\n' if writable else ''
+    return (f'[Unit]\nDescription=MCP receptionist\nAfter=network-online.target\nWants=network-online.target\n[Service]\nType=simple\nExecStart=/usr/bin/python3 {SCRIPT} launch\n'
+            f'Restart=on-failure\nRestartSec=3\nUMask=0077\nLimitCORE=0\nNoNewPrivileges=true\nProtectSystem=strict\n{allowed}ProtectHome=true\nPrivateTmp=true\n[Install]\nWantedBy=multi-user.target\n')
+
+
+def seed(data):
+    """Put the newest release the feed names for this host's target at `<folder>/<program>/seed/<program>`: the program a host
+    with no `current` starts, which then follows the feed itself and replaces it by a release it has verified. The fetch is
+    https only and bounded by the entry's own length; the archive must hold the program alone, at its root. The seed's
+    signature is not checked here (the program checks every release it takes); it is trusted only for the seconds before it does."""
+    layout_releases = releases()
+    if not layout_releases:
+        raise ValueError('This host follows no release feed')
+    def fetch(url, limit):
+        if not url.startswith('https://'):
+            raise ValueError('The release feed address is not https')
+        with urllib.request.urlopen(urllib.request.Request(url), timeout=60) as response:
+            body = response.read(limit + 1)
+        if len(body) > limit:
+            raise ValueError('A release download is larger than its bound')
+        return body
+    wanted = [entry for url in layout_releases['feed']['urls'] for entry in json.loads(fetch(url, 1 << 20))['releases'] if entry['target'] == layout_releases['target']]
+    if not wanted:
+        raise ValueError('The feed names no release for this host')
+    entry = max(wanted, key=lambda one: one['sequence'])
+    body = fetch(entry['url'], min(int(entry['bytes']), layout_releases['body_max_bytes']))
+    if len(body) != int(entry['bytes']):
+        raise ValueError('The release download is not the length its entry names')
+    program = layout_releases['program']
+    folder = release_program_folder(layout_releases) / 'seed'
+    with tempfile.TemporaryDirectory(dir=release_program_folder(layout_releases)) as scratch:
+        archive = Path(scratch) / 'body.tar.gz'
+        archive.write_bytes(body)
+        with tarfile.open(archive) as tar:
+            members = tar.getmembers()
+            if [member.name for member in members] != [program] or not members[0].isreg():
+                raise ValueError('The release holds more than the program at its root')
+            placed = Path(scratch) / program
+            placed.write_bytes(tar.extractfile(members[0]).read())
+        folder.mkdir(mode=0o755, parents=True, exist_ok=True)
+        placed.chmod(0o755)
+        placed.replace(folder / program)
+    return {'seeded': True, 'commit': entry['commit'], 'sequence': entry['sequence'], 'binary': str(folder / program)}
+
+
+def retire(data):
+    """Remove the build folders the retired hand road left (`receptionist.releases.retire`: {folder, name}): each folder under
+    it whose name matches `name`, but the one the seed runs from. Answers how many were removed."""
+    layout_releases = releases()
+    rule = (layout_releases or {}).get('retire')
+    if not rule:
+        raise ValueError('This host names no build folders to retire')
+    holding = None
+    try:
+        holding = json.loads((owner_folder() / 'receptionist.json').read_text())['binary']
+    except (OSError, ValueError, KeyError):
+        pass
+    removed = 0
+    for folder in sorted(Path(rule['folder']).iterdir()):
+        if folder.is_symlink() or not folder.is_dir() or not re.fullmatch(rule['name'], folder.name):
+            continue
+        if holding and (holding == str(folder) or holding.startswith(f'{folder}/')):
+            continue
+        shutil.rmtree(folder)
+        removed += 1
+    return {'retired': removed}
+
+
+def roll_back(data):
+    """Refuse the release `commit` (a 40-hex name) the program is running: the program's own `release roll-back` marks it so no
+    host takes it again and points `current` at the release that was ready (or removes `current`, so the seed starts), run as
+    the service account that owns the folder; then the receptionist restarts on what `current` names."""
+    commit = data.get('commit')
+    if not isinstance(commit, str) or not re.fullmatch(r'[a-f0-9]{40}', commit):
+        raise ValueError('The release to roll back must be a 40-hex commit')
+    receptionist = layout()['receptionist']
+    layout_releases = releases()
+    if not layout_releases:
+        raise ValueError('This host follows no release feed')
+    binary = followed_binary(receptionist) or startable(receptionist_binary(json.loads((owner_folder() / 'receptionist.json').read_text())['binary']))
+    account = pwd.getpwnam(receptionist['account'])
+    answer = run([binary, 'release', 'roll-back', str(release_program_folder(layout_releases)), commit, *layout_releases['feed']['public_keys']], user=account.pw_uid, group=account.pw_gid, timeout=60)
+    run(['systemctl', 'restart', f"{receptionist['service']}.service"])
+    verify_receptionist(hostname(data['hostname']))
+    return {'rolled_back': commit, **json.loads(answer.stdout.decode() or '{}')}
+
+
 def configure(data):
     host = hostname(data['hostname'])
     # Checked before anything is replaced, so a receptionist that cannot start never takes the public paths.
@@ -223,7 +367,7 @@ def configure(data):
     if binary:
         (OWNER / 'receptionist.json').write_text(json.dumps({'hostname': host, 'binary': binary}))
         (OWNER / 'receptionist.json').chmod(0o600)
-        (units / f'{receptionist}.service').write_text(f'[Unit]\nDescription=MCP receptionist\nAfter=network-online.target\nWants=network-online.target\n[Service]\nType=simple\nExecStart=/usr/bin/python3 {SCRIPT} launch\nRestart=on-failure\nRestartSec=3\nUMask=0077\nLimitCORE=0\nNoNewPrivileges=true\nProtectSystem=strict\nProtectHome=true\nPrivateTmp=true\n[Install]\nWantedBy=multi-user.target\n')
+        (units / f'{receptionist}.service').write_text(receptionist_unit(layout()['receptionist'], prepare_releases(layout()['receptionist']) if releases() else None))
     run(['systemctl', 'daemon-reload'])
     run(['systemctl', 'enable', '--now', f'{ingress}.service'])
     run(['systemctl', 'reload', f'{ingress}.service'])
@@ -232,9 +376,10 @@ def configure(data):
 
 def launch():
     data = json.loads((owner_folder() / 'receptionist.json').read_text())
-    host, binary = hostname(data['hostname']), receptionist_binary(data['binary'])
-    startable(binary)
+    host, seed_binary = hostname(data['hostname']), receptionist_binary(data['binary'])
     receptionist = layout()['receptionist']
+    # The release the program switched to, else the seed it started with.
+    binary = followed_binary(receptionist) or startable(seed_binary)
     password = secrets.token_urlsafe(48).encode()
     password_fd = memory_file('tls-password', password)
     live = Path('/etc/letsencrypt/live') / host
@@ -247,6 +392,8 @@ def launch():
         os.lseek(second, 0, os.SEEK_SET)
         os.dup2(first, 3, inheritable=True); os.dup2(second, 4, inheritable=True)
         env = {**os.environ, **{name: value.replace('{listen}', receptionist['listen']).replace('{hostname}', host) for name, value in receptionist['environment'].items()}}
+        if receptionist.get('releases'):
+            env['TRILLION_MCP_RELEASE_FEED'] = str(release_feed_file(receptionist['releases']))
         account = pwd.getpwnam(receptionist['account'])
         os.fchown(3, account.pw_uid, account.pw_gid); os.fchown(4, account.pw_uid, account.pw_gid)
         os.setgroups([]); os.setgid(account.pw_gid); os.setuid(account.pw_uid)
@@ -264,6 +411,9 @@ def main():
     if action == 'setup': result = setup()
     elif action in ('issue', 'renew'): result = certificate(action, data)
     elif action == 'configure': result = configure(data)
+    elif action == 'seed': result = seed(data)
+    elif action == 'roll-back': result = roll_back(data)
+    elif action == 'retire': result = retire(data)
     elif action == 'activate':
         receptionist = layout()['receptionist']['service']
         run(['systemctl', 'enable', f'{receptionist}.service'])

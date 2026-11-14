@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { checkedTLS, hostCommand, publicProxy, publishDownload, installHostOwner, hostLayout, layoutFile, pinnedHost, heldValue } from '../do-work/renew-a-tls-certificate.mjs';
+import { checkedHost, checkedTLS, hostCommand, publicProxy, publishDownload, installHostOwner, hostLayout, layoutFile, pinnedHost, heldValue } from '../do-work/renew-a-tls-certificate.mjs';
 import { administrationArguments, proxied } from '../../administer-a-rented-host/do-work/administration-arguments.mjs';
 
 // A made-up server: every fact below is the run's input, none is the tool's.
@@ -162,4 +162,26 @@ test('optional connection diagnostics log only exact path and status, never head
 test('the host owner\'s own tests pass here (the Linux-only descriptor tests run on the server, by host-test)', () => {
   const ran = spawnSync('python3', ['-I', new URL('./tls-host-owner.test.py', import.meta.url).pathname], { encoding: 'utf8' });
   assert.equal(ran.status, 0, ran.stderr);
+});
+
+test('a receptionist that follows a signed release feed names its folder, program, https feed, keys and target, and the owner is given them', () => {
+  const releases = { folder: '/var/lib/example/releases', program: 'example-forwarder', feed: { urls: ['https://releases.example.com/forwarder-feed.json'], public_keys: ['a'.repeat(64)] }, target: 'x86_64-unknown-linux-gnu', body_max_bytes: 268435456, retire: { folder: '/opt/example/source', name: '[a-f0-9]{40}' } };
+  const following = { ...host, receptionist: { ...host.receptionist, releases } };
+  assert.doesNotThrow(() => checkedHost(following));
+  assert.deepEqual(hostLayout(following).receptionist.releases, releases, 'the owner reads the release layout beside itself');
+  assert.equal(hostLayout(host).receptionist.releases, undefined, 'a host with none gets none');
+  for (const bad of [{ folder: 'releases' }, { program: 'Bad Program' }, { feed: { urls: ['http://releases.example.com/f.json'], public_keys: releases.feed.public_keys } }, { feed: { urls: releases.feed.urls, public_keys: ['short'] } }, { target: 'x' }, { body_max_bytes: 0 }, { retire: { folder: '/opt/x y', name: 'a' } }]) {
+    assert.throws(() => checkedHost({ ...following, receptionist: { ...following.receptionist, releases: { ...releases, ...bad } } }), /refused/, JSON.stringify(bad));
+  }
+});
+
+test('seed, roll-back and retire are actions of the one owner, sent with the run\'s own input', () => {
+  const seen = [];
+  const run = (cmd, args, options) => { seen.push({ args, input: JSON.parse(options.input) }); return '{}'; };
+  hostCommand(c, 'seed', { hostname: c.hostname }, { run });
+  hostCommand(c, 'roll-back', { hostname: c.hostname, commit: 'c'.repeat(40) }, { run });
+  hostCommand(c, 'retire', { hostname: c.hostname }, { run });
+  assert.deepEqual(seen.map(one => one.args.at(-1)), ['seed', 'roll-back', 'retire']);
+  assert.equal(seen[1].input.commit, 'c'.repeat(40));
+  assert.throws(() => hostCommand(c, 'rm-everything', {}, { run }), /refused/);
 });

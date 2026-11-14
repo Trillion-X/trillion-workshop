@@ -40,6 +40,10 @@ Publish a signed engine release on every merge, so an engine fix reaches every a
 
 The build gets `TRILLION_RELEASE_COMMIT` and `TRILLION_RELEASE_SEQUENCE` in its environment. A sequence older than the feed's newest for the same target is refused before the build and again under the lock, so a delivery that arrives late never replaces a newer release; the same commit again answers the entry already there.
 
+## The relay's forwarder is published with every engine release
+
+The engine's host build also makes `trillion-mcp-forwarder`. The engine kind's row in `read-data/settings.json` names `"also_publishes": ["forwarder"]`: after the engine release is signed, the same run packs that one program alone at the root, signs it with the same key at the same commit and sequence, and adds it to `forwarder-feed.json` (its tar.gz under `forwarder/<commit>/`). No second build runs. The relay follows that feed (tools/renew-a-tls-certificate, `host.receptionist.releases`), so a fix that lands on the branch reaches it on the next poll, with the feed's rules: an older commit never wins, and `keep_releases` bounds what the feed holds. A request of kind `forwarder` still publishes it alone. A commit the engine feed already holds is not built again, so a forwarder feed that is behind catches up at the next engine publish.
+
 ## The web client
 
 A release can carry the engine's web client, so a change to it reaches every computer through the signed feed like an engine change, with no Mac app release. The engine repository holds `product-client.json` (the name is `settings.product_client.pin_file`) at the commit: `{ repository, commit, into, checkout_folder, engine_folder, build }`. `commit` is a commit of the client repository, so the engine commit and the client it serves are one signed unit; a client change is a commit that moves the pin.

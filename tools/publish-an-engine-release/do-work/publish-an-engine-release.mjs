@@ -272,8 +272,11 @@ export async function layProductClient({ request, source, work, env, token, log 
 }
 
 /** The publish kind a request names (settings.kinds, one row each): the engine when it names none. */
-export function kindOf(request) {
-  const name = request.kind ?? 'engine', kind = settings.kinds.find(row => row.kind === name);
+export function kindOf(request) { return kindNamed(request.kind ?? 'engine'); }
+
+/** The publish kind settings.kinds names. */
+function kindNamed(name) {
+  const kind = settings.kinds.find(row => row.kind === name);
   if (!kind) throw refuse(`${JSON.stringify(name)} is not a publish kind: ${settings.kinds.map(row => row.kind).join(', ')}.`, 2);
   return kind;
 }
@@ -383,7 +386,12 @@ export async function publish(request, { token = '', commit: asked, credentials 
         for (const name of linuxBinaries) if (!existsSync(join(dirname(program), name))) throw refuse(`cargo finished but made no ${name} in ${dirname(program)}: the repository's package must have each of ${linuxBinaries.join(', ')}.`);
         pack = part => packRelease({ program, source, file: part, names: linuxBinaries, body, client });
       } else pack = part => archiveRelease({ source, commit, prefix: `${target}-${commit}`, file: part });
-      return packSignAndAdd({ request, feedFolder, pack, privateKey, publicKey, fields: { commit, sequence, target, urgent } });
+      const published = await packSignAndAdd({ request, feedFolder, pack, privateKey, publicKey, fields: { commit, sequence, target, urgent } });
+      // The programs this kind's one build also makes (its row's `also_publishes`): each is signed into its own feed from the
+      // binary just built, so a landed fix reaches the relay that follows that feed with no second build.
+      const also = [];
+      for (const name of kind.also_publishes ?? []) also.push(await publishBuilt({ request, kind: kindNamed(name), program: join(targetDirOf(work, target), 'release'), source, feedFolder, privateKey, publicKey, fields: { commit, sequence, target, urgent } }));
+      return also.length ? { ...published, also_published: also } : published;
     };
     const darwinTargets = darwin?.targets ?? [];
     const builds = [
@@ -460,9 +468,20 @@ export function refuseUnreadableByOldReaders(bytes, { binary = settings.binary, 
   if (bad.length) throw refuse(`A release the running engines cannot unpack: ${bad.join(', ')}. ${binary} goes at the root alone; everything else goes under ${folder}/.`, 3);
 }
 
-async function packSignAndAdd({ request, feedFolder, pack, privateKey, publicKey, fields }) {
+/** Sign into `kind`'s own feed the program of `kind` that a build already made in `program` (a folder): the program alone at the
+ *  root. Answers what the feed says, as a publish of that kind does; a commit the feed holds is answered, not signed again. */
+async function publishBuilt({ request, kind, program, source, feedFolder, privateKey, publicKey, fields }) {
+  const { commit, sequence, target } = fields;
+  const binary = binaryOf(kind), held = readFeed(readText(feedFile(feedFolder, kind)), kind.feed_file);
+  const before = mayPublish(held, { commit, sequence, target });
+  if (before.already) return answerOf(before.already, { publicKey, already: true, dropped: 0, held: held.releases.length });
+  if (!existsSync(join(program, binary))) throw refuse(`cargo finished but made no ${binary} in ${program}: the repository's package must have it for the ${kind.kind} feed.`);
+  const pack = part => packRelease({ program: join(program, binary), source, file: part, names: [binary], body: kind.body ?? 'engine' });
+  return packSignAndAdd({ request, feedFolder, pack, privateKey, publicKey, fields, kind });
+}
+
+async function packSignAndAdd({ request, feedFolder, pack, privateKey, publicKey, fields, kind = kindOf(request) }) {
   const { commit, target } = fields;
-  const kind = kindOf(request);
   const file = tarballOf(feedFolder, kind, commit, target), part = `${file}.${process.pid}.part`;
   mkdirSync(dirname(file), { recursive: true, mode: 0o755 });
   const { content, bytes } = await pack(part);
@@ -471,7 +490,7 @@ async function packSignAndAdd({ request, feedFolder, pack, privateKey, publicKey
     catch (error) { rmSync(part, { force: true }); throw error; }
   }
   const entry = signEntry({ commit, sequence: fields.sequence, target, url: `${request.base_url}${folderPrefixOf(kind)}${commit}/${target}.tar.gz`, content, bytes, urgent: fields.urgent }, privateKey);
-  return addUnderLock({ request, feedFolder, entry, part, file, publicKey });
+  return addUnderLock({ request, feedFolder, entry, part, file, publicKey, kind });
 }
 
 const D = settings.darwin;
@@ -647,8 +666,8 @@ export async function publishProvided(request, kind) {
 }
 
 /** Add a signed entry whose tar.gz is at `part` to the feed under its lock, and remove what no longer fits. */
-async function addUnderLock({ request, feedFolder, entry, part, file, publicKey }) {
-  const kind = kindOf(request), keep = request.keep_releases ?? settings.keep_releases;
+async function addUnderLock({ request, feedFolder, entry, part, file, publicKey, kind = kindOf(request) }) {
+  const keep = request.keep_releases ?? settings.keep_releases;
   return withFeedLock(feedFolder, async () => {
     const now = readFeed(readText(feedFile(feedFolder, kind)), kind.feed_file);
     let result;

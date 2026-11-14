@@ -391,6 +391,221 @@
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"]
       }
+    },
+    {
+      "id": "package::renew-a-tls-certificate::tool::seed-a-servers-receptionist",
+      "address": "package::renew-a-tls-certificate::tool::seed-a-servers-receptionist",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:seed-a-servers-receptionist",
+        "label": "Seed a server's receptionist from its release feed",
+        "job": "Put the newest signed-feed release of the receptionist on my public server, so it starts with no build made by hand",
+        "description": "Downloads, over https only and within the entry's own length, the newest release the receptionist's feed (host.receptionist.releases.feed) names for the server's target, and places its one program at <releases folder>/<program>/seed/<program>. The program then follows the feed itself: it checks the signature, length, content and target of every release it takes, and switches to it, so the seed is trusted only for the seconds before it does. Pass that path as receptionistBinary to tool:write-a-public-hosts-paths (its binary_pattern must allow it).",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["hostname", "address", "ssh_port", "admin_user", "knownHost", "host"],
+          "additionalProperties": false,
+          "properties": {
+            "hostname": {"type": "string", "maxLength": 253},
+            "address": {"type": "string", "maxLength": 15},
+            "ssh_port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535,
+              "description": "The server's SSH port (22 for a pinned key written as \"<address> ssh-ed25519 <key>\")"
+            },
+            "admin_user": {"type": "string", "maxLength": 32, "description": "The administrator the run signs in as"},
+            "knownHost": {"type": "string", "maxLength": 200},
+            "host": {"type": "object"},
+            "remotePort": {"type": "integer", "minimum": 1, "maximum": 65535},
+            "receptionistBinary": {"type": "string", "maxLength": 300},
+            "connectionDiagnostics": {"type": "boolean"}
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["seeded", "binary"],
+          "properties": {
+            "seeded": {"type": "boolean"},
+            "commit": {"type": "string"},
+            "sequence": {"type": "integer"},
+            "binary": {"type": "string"}
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/renew-a-tls-certificate",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs",
+            "seed",
+            "/held/server-administration-key"
+          ],
+          "stdin": {"fill": {"from": "input"}},
+          "files": {
+            "package_files": [
+              {"package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate"},
+              {"package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host"}
+            ]
+          },
+          "credential_mounts": [{"secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key"}]
+        },
+        "result_selector": "$",
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "a rented Linux server the person administers, reached over SSH with their held administration key and the host key the request pins (each run signs in to that server and reads or changes it; the tests here hold no stand-in server)",
+            "proved_on": null
+          }
+        ],
+        "needs": {"expected_seconds": 20, "network_egress": true},
+        "maker": "maker:renew-a-tls-certificate",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    },
+    {
+      "id": "package::renew-a-tls-certificate::tool::roll-back-a-servers-receptionist",
+      "address": "package::renew-a-tls-certificate::tool::roll-back-a-servers-receptionist",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:roll-back-a-servers-receptionist",
+        "label": "Roll back a server's receptionist release",
+        "job": "Refuse a release of the receptionist on my public server and go back to the one that was ready",
+        "description": "Runs the receptionist program's own `release roll-back` on the server as its service account: the release is marked refused (no host takes it again, and a release no older than it is still never preferred), `current` goes back to the release that was ready or is removed (the seed then starts), and the receptionist restarts and is checked through verified public TLS. A release that never becomes ready falls back by itself; this is the lever for one that starts and is wrong.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["hostname", "address", "ssh_port", "admin_user", "knownHost", "host", "commit"],
+          "additionalProperties": false,
+          "properties": {
+            "hostname": {"type": "string", "maxLength": 253},
+            "address": {"type": "string", "maxLength": 15},
+            "ssh_port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535,
+              "description": "The server's SSH port (22 for a pinned key written as \"<address> ssh-ed25519 <key>\")"
+            },
+            "admin_user": {"type": "string", "maxLength": 32, "description": "The administrator the run signs in as"},
+            "knownHost": {"type": "string", "maxLength": 200},
+            "host": {"type": "object"},
+            "remotePort": {"type": "integer", "minimum": 1, "maximum": 65535},
+            "receptionistBinary": {"type": "string", "maxLength": 300},
+            "connectionDiagnostics": {"type": "boolean"},
+            "commit": {"type": "string", "pattern": "^[a-f0-9]{40}$"}
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["rolled_back"],
+          "properties": {"rolled_back": {"type": "string"}, "current": {"type": ["string", "null"]}}
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/renew-a-tls-certificate",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs",
+            "roll-back",
+            "/held/server-administration-key"
+          ],
+          "stdin": {"fill": {"from": "input"}},
+          "files": {
+            "package_files": [
+              {"package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate"},
+              {"package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host"}
+            ]
+          },
+          "credential_mounts": [{"secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key"}]
+        },
+        "result_selector": "$",
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "a rented Linux server the person administers, reached over SSH with their held administration key and the host key the request pins (each run signs in to that server and reads or changes it; the tests here hold no stand-in server)",
+            "proved_on": null
+          }
+        ],
+        "needs": {"expected_seconds": 60, "network_egress": true},
+        "maker": "maker:renew-a-tls-certificate",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    },
+    {
+      "id": "package::renew-a-tls-certificate::tool::retire-a-servers-old-builds",
+      "address": "package::renew-a-tls-certificate::tool::retire-a-servers-old-builds",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:retire-a-servers-old-builds",
+        "label": "Remove a server's old hand-built receptionist folders",
+        "job": "Free the disk on my public server of the receptionist build folders the retired hand road left",
+        "description": "Removes every folder under host.receptionist.releases.retire.folder whose name matches its `name` pattern, except the one the receptionist's seed runs from. The followed releases are pruned by the program itself (the newest kept, `current`, the ready one and the running one), never by this row.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["hostname", "address", "ssh_port", "admin_user", "knownHost", "host"],
+          "additionalProperties": false,
+          "properties": {
+            "hostname": {"type": "string", "maxLength": 253},
+            "address": {"type": "string", "maxLength": 15},
+            "ssh_port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535,
+              "description": "The server's SSH port (22 for a pinned key written as \"<address> ssh-ed25519 <key>\")"
+            },
+            "admin_user": {"type": "string", "maxLength": 32, "description": "The administrator the run signs in as"},
+            "knownHost": {"type": "string", "maxLength": 200},
+            "host": {"type": "object"},
+            "remotePort": {"type": "integer", "minimum": 1, "maximum": 65535},
+            "receptionistBinary": {"type": "string", "maxLength": 300},
+            "connectionDiagnostics": {"type": "boolean"}
+          }
+        },
+        "output_schema": {"type": "object", "required": ["retired"], "properties": {"retired": {"type": "integer"}}},
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/renew-a-tls-certificate",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs",
+            "retire",
+            "/held/server-administration-key"
+          ],
+          "stdin": {"fill": {"from": "input"}},
+          "files": {
+            "package_files": [
+              {"package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate"},
+              {"package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host"}
+            ]
+          },
+          "credential_mounts": [{"secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key"}]
+        },
+        "result_selector": "$",
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "a rented Linux server the person administers, reached over SSH with their held administration key and the host key the request pins (each run signs in to that server and reads or changes it; the tests here hold no stand-in server)",
+            "proved_on": null
+          }
+        ],
+        "needs": {"expected_seconds": 20, "network_egress": true},
+        "maker": "maker:renew-a-tls-certificate",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
     }
   ]
 }
