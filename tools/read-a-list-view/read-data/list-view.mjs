@@ -356,7 +356,11 @@ async function refreshChangedSource({ door, type, source, paths, removedPaths, m
     signal?.throwIfAborted();
     const held = await heldDocumentRows(door, type, source.id, path, signal);
     const seen = new Set(), writes = [];
-    for await (const page of sourcePages(door, { ...source, paths: [path] }, mostBytes, signal)) {
+    // A source read from a catalogue file (paths_file) answers one changed path by that path alone: the document reader takes
+    // paths or a paths_file, never both. The caller names only paths its catalogue lists, from a catalogue that did not change;
+    // a path the catalogue stopped listing, or a catalogue that changed, is a whole-source refresh, never a delta here.
+    const { paths_file: catalogue, ...scoped } = source;
+    for await (const page of sourcePages(door, { ...scoped, paths: [path] }, mostBytes, signal)) {
       for (const row of page) {
         if (row.id !== path && !row.id.startsWith(`${path}#`)) {
           throw say('source_changed_path_mismatch', `The source answered ${row.id} for the changed document ${path}.`);

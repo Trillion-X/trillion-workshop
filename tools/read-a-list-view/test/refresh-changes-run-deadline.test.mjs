@@ -92,6 +92,21 @@ test('a changed long document reconciles its linked text-part rows: written when
   assert.equal(removedAnswer.sources[0].removed, 1);
 });
 
+test('a changed document of a source read from a catalogue file is asked for by its path alone, and the whole-source refresh still uses the catalogue', async () => {
+  const folder = [recipe('bread', 40), recipe('buns', 25)];
+  const { door, records } = bakery(folder);
+  records.get('list:chores').row_sources = [{ source: 'documents', of: '/recipes', paths_file: '/catalogue.json' }];
+  await refresh(door, {});
+  assert.equal(door.asked.at(-1).input.paths_file, '/catalogue.json', 'a whole refresh reads the catalogue');
+  door.asked.length = 0;
+  folder[0] = recipe('bread', 45);
+  const answer = await refresh(door, { changes: { documents: { paths: ['/bread.md'], removed: [] } } });
+  assert.deepEqual(answer.sources, [{ source: 'documents', rows: 1, written: 1, removed: 0, unchanged: 0, refused: [] }]);
+  assert.deepEqual(door.asked.map(call => [call.input.paths, call.input.paths_file]), [[['/bread.md'], undefined]], 'the document reader gets paths or a catalogue, never both');
+  assert.deepEqual(recordOf(records, '/buns.md'), { 'note.chore': 'bake buns', 'note.minutes': 25 }, 'another document is untouched');
+  await assert.rejects(refresh(door, { changes: { documents: { paths: ['/bread.md'], removed: [] } }, source_ids: ['documents'], paths: ['/bread.md'] }), /bad_input|paths and dry_run|narrow/);
+});
+
 test('a changed document whose row is unchanged writes nothing', async () => {
   const folder = [recipe('bread', 40)];
   const { door, writes } = bakery(folder);
