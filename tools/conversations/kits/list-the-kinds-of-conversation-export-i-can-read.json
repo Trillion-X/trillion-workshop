@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:list-the-kinds-of-conversation-export-i-can-read's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"List the kinds of conversation export that can be read (chat apps, email, the Messages database, AI assistant logs, captured web chats), what each one's files look like and what the run must say for it\", with {}. It runs tool:list-the-kinds-of-conversation-export-i-can-read and answers {\"said\":\"16 kinds of export can be read: discord-messages, slack-messages, telegram-messages, signal-messages, instagram-direct-messages, whatsapp-messages, gemini-cli-logs, agent-session-lines, imessage-database, mail-message, gmail-page, agent-session-events, web-conversation-capture, claude-ai-export, grok-export, google-activity\",\"sources\":[{\"id\":\"discord-messages\",\"label\":\"Discord channel ...",
   "lists": [],

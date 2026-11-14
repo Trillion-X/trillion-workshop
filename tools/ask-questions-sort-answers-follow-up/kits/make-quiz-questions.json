@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:make-quiz-questions's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Make fill-in-the-blank quiz questions from a piece of text, such as notes, a lesson or an article\", with {\"text\":\"The Pacific Ocean is the largest and deepest ocean on Earth. Photosynthesis converts sunlight into chemical energy in plants.\"}. It runs tool:make-quiz-questions and answers {\"questions\":[{\"id\":\"q-0-18oeg30\",\"kind\":\"question\",\"questionId\":\"q-0-18oeg30\",\"questionTypeId\":\"text\",\"label\":\"The _____ Ocean is the largest and deepest ocean on Earth.\",\"required\":true,\"answer\":\"Pacific\",\"sourceRef\":\"\"},{\"id\":\"q-1-1vomqzw\",\"kind\":\"question\",\"questionId\":\"q-1-1vomqzw\",\"questionTypeId\":\"text\",\"label\":\"_____ converts sunlight into chemical energy in plants.\",\"required\":true ...",
   "lists": [],

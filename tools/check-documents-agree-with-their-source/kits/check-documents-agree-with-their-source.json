@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:check-documents-agree-with-their-source's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Check that documents which each claim to reflect one source (summaries, translations, copies for other readers) still carry the source's newest numbered item, and the markers each must hold, and say which have fallen behind\", with {\"sets\":[{\"set_id\":\"guide-translations\",\"source\":\"guide.en.md\",\"unit_pattern\":\"RFC-(\\\\d+)\",\"required_markers\":[\"TRANSLATION STATUS\"],\"mirrors\":[{\"document\":\"guide.fr.md\"}]}]}. It runs tool:check-documents-agree-with-their-source and answers {\"schema\":\"document-mirror-agreement\",\"agrees\":true,\"reports\":[{\"source\":\"guide.en.md\",\"newest_unit\":\"RFC-42\",\"source_carries_no_unit\":false,\"behind\":[],\"missing_markers\":[],\"agrees\":true,\"set_id\":\"guide-translations\",\"missing_documents\":[]}]}",
   "lists": [],

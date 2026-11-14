@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:show-how-far-my-conversation-import-is's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Show how far bringing in my conversations has got: for each source, files done, conversations and messages kept, and whether it stopped\", with {}. It runs tool:show-how-far-my-conversation-import-is and answers {\"sources\":[]}",
   "lists": [],

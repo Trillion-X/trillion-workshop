@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:next-decision-question's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"See the next question my method asks about a decision, or, when all are answered, the options and my similar past decisions\", with {\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\"}. It runs tool:next-decision-question and answers {\"case_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"source_id\":\"sample:class-price-1\",\"question\":{\"step_id\":\"scope\",\"question\":\"What kind of decision is this?\",\"fields\":[\"decision_context\",\"omission_reasons\"],\"requires\":[\"evidence_refs\"],\"optional\":[\"scratchpad\"],\"answer_schema\":{\"type\":\"object\",\"required\":[\"evidence_refs\",\"decision_context\"],\"properties\":{\"evidence_refs\":{\"type\":\"array\" ...",
   "lists": [],

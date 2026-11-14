@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:save-a-form's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep a form, a list of questions people answer, as one of the person's own records so it can be asked and its answers checked\", with {\"form_id\":\"sample-intake\",\"title\":\"Sample intake\",\"questions\":[{\"questionId\":\"budget\",\"questionTypeId\":\"number\",\"label\":\"Budget\"}]}. It runs tool:save-a-form and answers {\"saved\":true,\"form_id\":\"sample-intake\",\"record_id\":\"question-sequence:sample-intake\",\"question_count\":1}",
   "lists": [],

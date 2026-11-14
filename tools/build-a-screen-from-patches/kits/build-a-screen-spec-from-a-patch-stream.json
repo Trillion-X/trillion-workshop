@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:build-a-screen-spec-from-a-patch-stream's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Build a screen made of shared parts from the lines of JSON changes an AI wrote for it, and say which lines or parts did not fit\", with {\"text\":\"{\\\"op\\\":\\\"add\\\",\\\"path\\\":\\\"/root\\\",\\\"value\\\":\\\"main\\\"}\\n{\\\"op\\\":\\\"add\\\",\\\"path\\\":\\\"/elements/main\\\",\\\"value\\\":{\\\"type\\\":\\\"Text\\\",\\\"props\\\":{\\\"text\\\":\\\"Hello\\\"}}}\\n\"}. It runs tool:build-a-screen-spec-from-a-patch-stream and answers {\"spec\":{\"root\":\"main\",\"elements\":{\"main\":{\"type\":\"Text\",\"props\":{\"text\":\"Hello\"}}},\"state\":{},\"reads\":{}},\"said\":[],\"fixes\":[],\"problems\":[]}",
   "lists": [],

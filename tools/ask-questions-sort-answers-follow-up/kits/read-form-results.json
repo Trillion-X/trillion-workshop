@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-form-results's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment\", with {}. It runs tool:read-form-results and answers {\"rows\":[],\"summary\":{\"total\":0,\"bySegment\":{}}}",
   "lists": [],

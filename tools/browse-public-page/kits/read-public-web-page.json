@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-public-web-page's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Open one public web page and return its title, readable text, links, the card it describes itself with, every picture and video it declares and its structured data; or walk an outlet's archive from a start address, following its older pages and reading a chosen, dated sample of its entries\", with {\"url\":\"https://example.com\"}. It runs tool:read-public-web-page and answers {\"url\":\"https://example.com\",\"final_url\":\"https://example.com/\",\"status\":200,\"title\":\"Example Domain\",\"text\":\"Example Domain\\nThis domain is for use in illustrative examples.\",\"links\":[],\"description\":\"A made-up page for a sample run.\",\"image\":null,\"images\":[],\"videos\":[],\"site\":null,\"icon\":null,\"data\":[]}",
   "lists": [],

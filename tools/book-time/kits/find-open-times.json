@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:find-open-times's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Find the times someone can book with me, from my weekly hours, minus what is already booked and what my calendar shows busy\", with {\"timezone\":\"America/Chicago\",\"windows\":[{\"weekday\":1,\"start\":\"09:00\",\"end\":\"11:00\"}],\"from_date\":\"2026-08-10\",\"duration_minutes\":45,\"step_minutes\":30}. It runs tool:find-open-times and answers {\"timezone\":\"America/Chicago\",\"count\":3,\"slots\":[{\"start\":\"2026-08-10T14:00:00.000Z\",\"end\":\"2026-08-10T14:45:00.000Z\",\"date\":\"2026-08-10\",\"time\":\"09:00\"},{\"start\":\"2026-08-10T14:30:00.000Z\",\"end\":\"2026-08-10T15:15:00.000Z\",\"date\":\"2026-08-10\",\"time\":\"09:30\"},{\"start\":\"2026-08-10T15:00:00.000Z\",\"end\":\"2026-08-10T15:45:00.000Z\",\"date\":\"2026-08-10\",\"time\":\"10:00\"}]}",
   "lists": [],

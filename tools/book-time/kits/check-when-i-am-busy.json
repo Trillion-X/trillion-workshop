@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:check-when-i-am-busy's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Read when my own calendar shows me busy between two times\", with {\"from\":\"2030-08-12T00:00:00Z\",\"to\":\"2030-08-13T00:00:00Z\"}. It runs tool:check-when-i-am-busy and answers {\"status\":\"read\",\"busy\":[{\"start\":\"2030-08-12T15:00:00.000Z\",\"end\":\"2030-08-12T16:00:00.000Z\"}]}",
   "lists": [],

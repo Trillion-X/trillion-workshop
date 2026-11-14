@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:choose-the-feed-each-widget-shows's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Say which feed each widget on my phone or Mac shows: the one I picked for it, or else the feed its size takes from the surface's feeds in order\", with {\"surface\":\"widgets\",\"rows\":{\"waiting\":2,\"today\":1},\"widgets\":[{\"widget_id\":\"w1\",\"size\":\"small\"},{\"widget_id\":\"w2\",\"size\":\"medium\",\"picked_feed\":\"decisions\"}]}. It runs tool:choose-the-feed-each-widget-shows and answers {\"surface\":\"widgets\",\"feeds_in_order\":[\"waiting\",\"today\"],\"widgets\":[{\"widget_id\":\"w1\",\"size\":\"small\",\"feed\":\"waiting\",\"source\":\"unpicked\"},{\"widget_id\":\"w2\",\"size\":\"medium\",\"feed\":\"decisions\",\"source\":\"picked\"}]}",
   "lists": [],

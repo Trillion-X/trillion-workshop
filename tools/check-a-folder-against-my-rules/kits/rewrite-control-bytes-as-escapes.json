@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:rewrite-control-bytes-as-escapes's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Rewrite a raw control character hiding in source files (which makes search tools skip the file as binary) as the escape that means the same character, so the file stays exactly the program it was\", with {\"files\":[\"src/keys.mjs\"]}. It runs tool:rewrite-control-bytes-as-escapes and answers {\"rewritten\":1,\"left_alone\":0,\"each\":[{\"path\":\"src/keys.mjs\",\"changed\":true,\"found\":1,\"codes\":[\"\\\\u0001\"]}]}",
   "lists": [],

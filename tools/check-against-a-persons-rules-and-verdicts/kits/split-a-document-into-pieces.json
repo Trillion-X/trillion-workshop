@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:split-a-document-into-pieces's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Split a document into its smallest self-contained pieces and keep each as the row a person keeps, so every check can name the piece it came from\", with {\"name\":\"/Notes/made-up.md\"}. It runs tool:split-a-document-into-pieces and answers {\"file\":\"/Notes/made-up.md\",\"file_identity\":\"1f:393dcf23d9f40c8aba2be50e569fe45c4ea5165bda8cc4ee929a6a4486b688d0\",\"pieces\":3,\"new\":3,\"sources_added\":0,\"unchanged\":0,\"writes\":1,\"ids\":[\"piece-2b9c2c8048714f88800da9bc\",\"piece-49276434f35d7072ac561e5b\",\"piece-8ce1971051ac141b58d7b28c\"],\"more_ids\":0,\"too_large\":[],\"lines\":[\"/Notes/made-up.md: 3 pieces, 3 kept as new rows, 0 found again as a source of ...",
   "lists": [],

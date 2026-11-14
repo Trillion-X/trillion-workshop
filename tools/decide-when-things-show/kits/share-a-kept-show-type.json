@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:share-a-kept-show-type's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Share one of my show-rule presets with people so they see Trillion that way\", with {\"type\":\"sample-preset\",\"principal\":\"sample-account\",\"grant\":\"sharing:show-types-shared:sample-preset\"}. It runs tool:share-a-kept-show-type and answers {\"shared\":\"show-types-shared:sample-preset\",\"people\":[\"sample-account\"],\"key\":\"shr_f-j1O_BhjVBLDqrGKRJCHHTE4oLV76b0BPCHV7JfvCM\",\"keep\":[{\"label\":\"show-types-shared:sample-preset\",\"value\":{\"label\":\"Sample preset\",\"types\":[{\"id\":\"sample-preset\",\"label\":\"Sample preset\",\"inherits\":[],\"rules\":[]}]}},{\"label\":\"sharing:show-types-shared:sample-preset\",\"value\":{\"record\":\"show-types-shared:sample-preset\" ...",
   "lists": [],

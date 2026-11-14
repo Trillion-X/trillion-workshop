@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:work-a-session-catalog's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Offer my sessions in a catalog: publish an entry, read what is current, change it, withdraw it, replace it, or point it to a related offer\", with {\"operation\":\"publish\",\"entry\":{\"catalog_entry_id\":\"catalog:sample\",\"owning_group_refs\":[\"group:sample\"],\"session_refs\":[\"session:sample\"],\"catalog_visibility_predicate\":{\"policy_ref\":\"visibility:members\"},\"recommendation_policy_ref\":\"recommend:sample\",\"cross_offer_policy\":[],\"presentation_surface_refs\":[]}}. It runs tool:work-a-session-catalog and answers {\"entry\":{\"catalog_entry_id\":\"catalog:sample\",\"owning_group_refs\":[\"group:sample\"],\"session_refs\":[\"session:sample\"],\"catalog_visibility_predicate\":{\"policy_ref\":\"visibility:members\"},\"recommendation_policy_ref\":\"recommend:sample\",\"cross_offer_policy\":[],\"presentation_surface_refs\":[]}}",
   "lists": [],

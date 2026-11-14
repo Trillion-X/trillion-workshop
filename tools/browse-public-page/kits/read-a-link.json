@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-a-link's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Read one public link into a card: its title, picture, description, site and the words on the page\", with {\"url\":\"https://example.com\"}. It runs tool:read-a-link and answers {\"url\":\"https://example.com/\",\"final_url\":\"https://example.com/\",\"host\":\"example.com\",\"site\":null,\"title\":\"Example Domain\",\"description\":\"A made-up page for a sample run.\",\"image\":null,\"images\":[],\"videos\":[],\"icon\":null,\"data\":[],\"text\":\"Example Domain\\nThis domain is for use in illustrative examples.\",\"unread\":null}",
   "lists": [],

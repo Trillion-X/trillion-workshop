@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:check-every-piece-is-covered's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Say, for each of a person's source files, how many of its pieces have a check, how many a recorded reason, and which are uncovered\", with {}. It runs tool:check-every-piece-is-covered and answers {\"status\":\"failed\",\"totals\":{\"files\":1,\"pieces\":3,\"with_check\":1,\"with_reason\":1,\"uncovered\":1},\"files\":[{\"file\":\"made-up.md\",\"pieces\":3,\"with_check\":1,\"with_reason\":1,\"uncovered_count\":1,\"uncovered\":[{\"id\":\"piece-dddddddddddddddddddddddd\",\"section\":\"Made-up / Open\",\"says\":\"Open\"}]}],\"missing_checks\":[],\"missing_covered_by\":[],\"missing_count\":{\"checks\":0,\"covered_by\":0},\"lines\":[\"1 files, 3 ...",
   "lists": [],

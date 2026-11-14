@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:list-connected-drives's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"List the drives connected to this person's computer: each drive's name, where it is mounted, its size and free space, its kind (USB, disk image, internal) and whether it can be ejected\", with {}. It runs tool:list-connected-drives and answers {\"devices\":[{\"name\":\"1TB SSD\",\"mount\":\"/Volumes/1TB SSD\",\"size_bytes\":1024175767552,\"free_bytes\":541486219264,\"kind\":\"External SSD\",\"internal\":false,\"ejectable\":true,\"state\":\"connected\"},{\"name\":\"Macintosh HD\",\"mount\":\"/Volumes/Macintosh HD\",\"size_bytes\":3996276899840,\"free_bytes\":126877024256,\"kind\":\"Internal\",\"internal\":true,\"ejectable\":false,\"state\":\"connected\"}]}",
   "lists": [],

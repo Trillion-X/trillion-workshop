@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:say-what-was-done's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Tell Trillion my AI did the next step of a decision, or the exact wall it reached\", with {\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"state\":\"done\",\"what_happened\":\"Sent the made-up email to the sample families\",\"by\":\"sample-ai\"}. It runs tool:say-what-was-done and answers {\"case_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"carried_out\":{\"decision_generation\":1,\"state\":\"done\",\"what_happened\":\"Sent the made-up email to the sample families\",\"by\":\"sample-ai\",\"at\":\"2026-11-14T00:50:20.177Z\"},\"status\":\"needs_outcome\"}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-a-bulk-answer-run's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"How far is my bulk question run, and give me its answers\", with {\"job_id\":\"1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"page\":0}. It runs tool:read-a-bulk-answer-run and answers {\"job_id\":\"1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"status\":\"finished\",\"states_done\":2,\"states\":2,\"pages\":1,\"layout\":\"independent\",\"question_ids\":[\"warm\"],\"classifier_answers_as\":\"made-up\",\"seconds\":{\"wall\":0.01},\"started_at\":\"2026-11-06T00:00:00.000Z\",\"updated_at\":\"2026-11-06T00:00:01.000Z\",\"page\":{\"index\":0,\"answers\":[{\"state\":\"record:line:sample~1\",\"index\":0 ...",
   "lists": [],

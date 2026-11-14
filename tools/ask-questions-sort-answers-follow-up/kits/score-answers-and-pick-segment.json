@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:score-answers-and-pick-segment's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Score a lead's or respondent's answers with your rules and pick their segment and follow-up, such as hot, warm or not ready\", with {\"answers\":{\"budget\":2500,\"timeline\":\"this month\",\"role\":\"owner\"},\"score_rules\":[{\"readKey\":\"budget\",\"points\":40,\"match\":{\"gte\":1000}},{\"readKey\":\"timeline\",\"match\":{\"value_map\":{\"this month\":30,\"this quarter\":15}}},{\"readKey\":\"role\",\"points\":20,\"match\":{\"equals\":\"owner\"}}],\"segment_rules\":[{\"min\":0,\"segmentId\":\"not-ready\"},{\"min\":60,\"segmentId\":\"ready-to-buy\",\"nextStep\":\"Book a call today\"}]}. It runs tool:score-answers-and-pick-segment and answers {\"score\":90,\"breakdown\":{\"budget\":40,\"timeline\":30,\"role\":20},\"by_label\":{},\"segment\":{\"segmentId\":\"ready-to-buy\",\"title\":null,\"meaning\":null,\"next_step\":\"Book a call today\"},\"follow_up\":null}",
   "lists": [],

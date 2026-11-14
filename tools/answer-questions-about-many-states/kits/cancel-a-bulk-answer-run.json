@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:cancel-a-bulk-answer-run's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Stop my bulk question run\", with {\"job_id\":\"1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}. It runs tool:cancel-a-bulk-answer-run and answers {\"job_id\":\"1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"status\":\"cancelled\",\"states_done\":0,\"states\":2,\"pages\":0}",
   "lists": [],

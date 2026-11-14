@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:make-examples-from-where-a-person-stands's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Turn the verdicts a person already gave into good and bad examples, to tune a model that answers their reading rules\", with {\"verdict_rules\":{\"fold\":{\"lowercase\":true,\"collapse_space\":true,\"strip_trailing\":\"[.!?]+\"},\"stage\":{\"default\":\"final\"},\"stance_rule\":\"their-stance\",\"novel\":{\"rule\":\"novel\",\"says\":\"Nothing of theirs judges this.\"},\"agree_clears\":{\"rules\":[]},\"rows\":[{\"id\":\"reads-well\",\"kinds\":[\"title\"],\"says\":\"Reads well.\",\"ask\":{\"question\":\"Does it read well?\",\"options\":[\"yes\",\"no\"],\"fail\":\"no\"} .... It runs tool:make-examples-from-where-a-person-stands and answers {\"items\":[{\"text\":\"Zorblax rising\",\"kind\":\"title\",\"good\":false,\"bad_for\":[\"reads-well\"],\"ref\":\"1f:51988b9dacb1a1b6cb7ff6d83665b2e5ab85919fdc9e0041b6d15d2157828366\"}],\"rows\":[\"reads-well\"]}",
   "lists": [],

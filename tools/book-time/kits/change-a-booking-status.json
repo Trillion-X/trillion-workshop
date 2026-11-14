@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:change-a-booking-status's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Confirm, cancel, complete or mark a booking as a no-show, only in the ways a booking may move\", with {\"booking_id\":\"booking:sample-booking-1\",\"to\":\"cancelled\",\"reason\":\"Sample reason\"}. It runs tool:change-a-booking-status and answers {\"changed\":true,\"booking\":{\"id\":\"booking:sample-booking-1\",\"status\":\"cancelled\",\"scheduled_start\":\"2030-08-12T14:00:00.000Z\",\"scheduled_end\":\"2030-08-12T14:30:00.000Z\",\"timezone\":\"UTC\",\"attendees\":[{\"name\":\"Sample Person\",\"email\":\"sample.person@example.test\"}],\"updated_at\":\"2026-11-14T00:50:15.612Z\",\"cancelled_at\":\"2026-11-14T00:50:15.612Z\",\"cancellation_reason\":\"Sample reason\"}}",
   "lists": [],

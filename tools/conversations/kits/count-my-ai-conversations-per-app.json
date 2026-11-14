@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:count-my-ai-conversations-per-app's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Count the AI conversations in my records per app, and how many messages each app's conversations hold\", with {}. It runs tool:count-my-ai-conversations-per-app and answers {\"conversations\":0,\"apps\":[]}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:list-every-connection's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Show every service I can connect to Trillion and every place on my own computer it can read (notes, voice memos, messages, photos, downloads), in one list grouped by kind\", with {\"category\":\"Messages\",\"looked\":{\"sources\":[{\"id\":\"messages\",\"state\":\"found\"}]}}. It runs tool:list-every-connection and answers {\"said\":\"14 services and 2 places on your computer in Messages.\",\"connections\":[{\"id\":\"service:agentmail\",\"kind\":\"service\",\"label\":\"AgentMail\",\"category\":\"Messages\",\"how\":\"key\",\"about\":\"Give Trillion its own email address to send and answer mail.\"},{\"id\":\"service:agentphone\",\"kind\":\"service\",\"label\":\"AgentPhone\",\"category\":\"Messages\",\"how\":\"key\",\"about\":\"Give Trillion its own phone number to call ...",
   "lists": [],

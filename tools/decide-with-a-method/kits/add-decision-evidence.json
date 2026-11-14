@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:add-decision-evidence's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Add evidence to a decision I am making, at any time, so that its answers can cite it, or bring it in from another of my decisions\", with {\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"evidence\":[{\"ref\":\"e3\",\"claim\":\"A made-up nearby class costs a little more\"}]}. It runs tool:add-decision-evidence and answers {\"case_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"added\":[{\"ref\":\"e3\",\"claim\":\"A made-up nearby class costs a little more\",\"added_at\":\"2026-11-14T00:50:19.853Z\"}],\"evidence\":3}",
   "lists": [],

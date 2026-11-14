@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:put-a-booking-on-my-calendar's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Make the event for a booking on my own calendar and invite the people booked\", with {\"title\":\"Sample session\",\"start_local\":\"2030-08-12T09:00\",\"end_local\":\"2030-08-12T09:30\",\"timezone\":\"UTC\",\"attendees\":[{\"email\":\"sample.person@example.test\",\"displayName\":\"Sample Person\"}],\"booking_id\":\"booking:sample-booking-1\"}. It runs tool:put-a-booking-on-my-calendar and answers {\"status\":\"created\",\"external_event_id\":\"sampleevent1\",\"html_link\":\"https://calendar.example.test/event?eid=sampleevent1\"}",
   "lists": [],

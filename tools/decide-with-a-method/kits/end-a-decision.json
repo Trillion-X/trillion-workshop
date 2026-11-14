@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:end-a-decision's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Close decisions that will never be carried on, and keep why\", with {\"decisions\":[{\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"because\":\"A made-up sample decision no longer needed\"}],\"by\":\"sample-person\"}. It runs tool:end-a-decision and answers {\"ended\":1,\"not_ended\":0,\"decisions\":[{\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"ended\":true,\"previous_status\":\"needs_outcome\",\"ended_at\":\"2026-11-14T00:50:19.904Z\"}]}",
   "lists": [],

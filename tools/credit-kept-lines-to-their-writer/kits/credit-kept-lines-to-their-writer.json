@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:credit-kept-lines-to-their-writer's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Credit each line of a text's newest version to whoever first wrote it, an AI or a person, from its versions, and count how many kept lines are each writer's\", with {\"versions\":[{\"by\":\"ai\",\"text\":\"Intro\\nBody\"},{\"by\":\"person\",\"text\":\"Intro\\nBody rewritten\"}]}. It runs tool:credit-kept-lines-to-their-writer and answers {\"by\":{\"ai\":1,\"person\":1},\"kept\":2,\"versions\":2}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:check-a-bundle-against-package-boundaries's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Stop a build that takes a file from a package that did not declare it public: read the bundler's own list of what went into the finished bundle and report every import that reaches into a package's private files\", with {\"metafile_file\":\"meta.json\",\"packages_root\":\"packages\",\"declaration\":{\"file\":\"public-files.json\",\"entries_at\":\"things\",\"kind_at\":\"payload.kind\",\"kind\":\"public-source\",\"path_at\":\"payload.source_path\"}}. It runs tool:check-a-bundle-against-package-boundaries and answers {\"ok\":true,\"edges_checked\":1,\"packages_reached\":[\"ledger\"],\"findings\":[]}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:switch-a-kept-show-type's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Switch one of my show-rule presets on or off\", with {\"use\":{\"type\":\"sample-preset\",\"on\":true}}. It runs tool:switch-a-kept-show-type and answers {\"in_use\":[\"simple-workspace\",\"sample-preset\"],\"rules\":[{\"id\":\"setup-require-assigned-devices\",\"label\":\"Require the devices assigned to this account\",\"subject\":\"setup-step\",\"effect\":\"change\",\"when\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"owner\",\"operator\":\"is_any_of\",\"params\":{\"values\":[\"device\"]}},{\"kind\":\"rule\",\"field\":\"required_for_account\" ...",
   "lists": [],

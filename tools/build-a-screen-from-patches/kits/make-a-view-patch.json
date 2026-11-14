@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:make-a-view-patch's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Turn the next JSON answer a screen will read into just the changes from the answer it already holds, when that is smaller\", with {\"previous\":\"{\\\"a\\\":1}\",\"next\":\"{\\\"a\\\":2}\"}. It runs tool:make-a-view-patch and answers {\"status\":200,\"content_type\":\"application/json\",\"text\":\"{\\\"a\\\":2}\"}",
   "lists": [],

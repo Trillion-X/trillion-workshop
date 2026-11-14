@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:look-for-the-places-on-this-computer's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Find which places on my computer (notes, voice memos, messages, mail, calendar, photos, downloads, AI apps, browsers) are there for Trillion to read, and which need a switch turned on first\", with {\"places\":[\"messages\",\"downloads\",\"screenshots\",\"drives\"]}. It runs tool:look-for-the-places-on-this-computer and answers {\"said\":\"2 found, 0 need a switch, 1 not checked, of 4 places.\",\"sources\":[{\"id\":\"messages\",\"label\":\"Messages\",\"category\":\"Messages\",\"state\":\"found\"},{\"id\":\"downloads\",\"label\":\"Downloads\",\"category\":\"Files\",\"state\":\"found\",\"detail\":\"2 files\"},{\"id\":\"drives\",\"label\":\"Drive\",\"category\":\"Drives\",\"state\":\"could_not_check\",\"detail\":\"It lives outside the folder this look was given.\"}] ...",
   "lists": [],

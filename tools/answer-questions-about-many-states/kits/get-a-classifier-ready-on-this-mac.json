@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:get-a-classifier-ready-on-this-mac's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Get my question classifier model ready to run on my Mac\", with {\"model\":{\"type\":\"record:classifier-model\",\"id\":\"record:classifier-model:sample\"}}. It runs tool:get-a-classifier-ready-on-this-mac and answers {\"model\":{\"type\":\"record:classifier-model\",\"id\":\"record:classifier-model:sample\"},\"classifier\":\"questions-first-decider\",\"identity\":\"1f:0000000000000000000000000000000000000000000000000000000000000000\",\"files\":[{\"name\":\"config.json\",\"bytes\":2,\"blake3\":\"0000000000000000000000000000000000000000000000000000000000000000\"}],\"ready_at\":\"2026-11-14T00:50:14.300Z\",\"ready\":true ...",
   "lists": [],

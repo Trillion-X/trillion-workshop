@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:check-a-check-rows-fixtures's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Check that each check row a person is about to write judges what it says: every text it should pass passes it, and every text it should refuse is refused\", with {\"rows\":[{\"id\":\"made-up-literals\",\"kind\":\"check\",\"kinds\":[\"git-commit\"],\"says\":\"A literal is a bounded namespace, or one this row names.\",\"path\":\"capabilities.*.protocol_literals.*\",\"where_pattern\":\"^(?![a-z][a-z0-9_.-]*:)\",\"allow_exact\":[\"made-up-literal\"],\"fixtures\":{\"pass\":[\"made-up-literal\",\"ns:thing\"],\"refuse\":[\"thing\"]}}]}. It runs tool:check-a-check-rows-fixtures and answers {\"holds\":true,\"rows\":[{\"id\":\"made-up-literals\",\"holds\":true,\"checked\":3,\"wrong\":[]}],\"lines\":[]}",
   "lists": [],

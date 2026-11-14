@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:report-a-decision-result's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Tell Trillion how a decision actually turned out, in my words\", with {\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"result\":\"met\",\"summary\":\"Twelve made-up families signed up\",\"answered_by\":\"person\"}. It runs tool:report-a-decision-result and answers {\"case_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"report\":{\"result\":\"met\",\"summary\":\"Twelve made-up families signed up\",\"answered_by\":\"person\",\"reported_for\":\"person\",\"attribution_basis\":\"caller_claim\",\"source_ref\":\"report:source:c2FtcGxlOmNsYXNzLXByaWNlLTE:1:1\",\"observed_at\":\"2026-11-14T00:50:19.967Z\",\"reported_at\":\"2026-11-14T00:50:19.967Z\",\"decision_generation\":1,\"outcome_revision\":1} ...",
   "lists": [],

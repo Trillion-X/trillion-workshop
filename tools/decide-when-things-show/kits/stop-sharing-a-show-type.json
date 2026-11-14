@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:stop-sharing-a-show-type's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Stop sharing one of my show-rule presets with someone\", with {\"type\":\"sample-preset\",\"principal\":\"sample-account\",\"grant\":\"sharing:show-types-shared:sample-preset\"}. It runs tool:stop-sharing-a-show-type and answers {\"people\":[],\"keep\":[{\"label\":\"sharing:show-types-shared:sample-preset\",\"value\":{\"record\":\"show-types-shared:sample-preset\",\"people\":[],\"changed_at\":\"2026-11-14T00:50:19.519Z\"},\"expected\":{\"record\":\"show-types-shared:sample-preset\",\"people\":[{\"principal\":\"sample-account\",\"key_blake3\":\"0000000000000000000000000000000000000000000000000000000000000000\"}],\"changed_at\":\"2026-01-01T00:00:00.000Z\"}}] ...",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:check-a-page-for-search-and-answer-engines's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Read one public page the way a search or answer engine does, from the HTML it is served with and no script run, and say which checks it passes, which it misses and how to fix each\", with {\"url\":\"https://example.com\"}. It runs tool:check-a-page-for-search-and-answer-engines and answers {\"url\":\"https://example.com\",\"final_url\":\"https://example.com/\",\"status\":200,\"indexable\":true,\"score\":67,\"passed\":10,\"failed\":5,\"missing\":[{\"id\":\"facts-in-served-html\",\"says\":\"The page's words are in the HTML it is served with, not added by a script\",\"fix\":\"Draw the page's text on the server; a script may add to it, never be the only source.\",\"examples\":[]},{\"id\":\"page-has-title-and-description\" ...",
   "lists": [],

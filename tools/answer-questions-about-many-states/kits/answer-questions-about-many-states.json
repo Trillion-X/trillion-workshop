@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:answer-questions-about-many-states's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Ask the same set of questions about every one of these lines or records, all at once, with my classifier model\", with {\"model\":{\"type\":\"record:classifier-model\",\"id\":\"record:classifier-model:sample\"},\"questions\":{\"type\":\"record:question-set\",\"id\":\"record:question-set:sample\"},\"settings\":{\"type\":\"record:setting\",\"id\":\"record:setting:bulk-answer~sample\"},\"states\":{\"type\":\"record:line\",\"prefix\":\"record:line:sample~\",\"field\":\"text\"}}. It runs tool:answer-questions-about-many-states and answers {\"job_id\":\"1f:aecd92c9a6235a1b105566298cce91253a4a4c43925b2ce97f65e80bfad198dc\",\"status\":\"finished\",\"states_done\":2,\"states\":2,\"pages\":1}",
   "lists": [],

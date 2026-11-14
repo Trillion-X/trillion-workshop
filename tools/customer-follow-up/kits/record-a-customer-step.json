@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:record-a-customer-step's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Write down a step with a customer, such as outreach, a reply, a booked call, a purchase, onboarding, a follow-up or feedback, as a record to keep\", with {\"contact_id\":\"contact:ben\",\"product_id\":\"product:coaching\",\"step\":\"call-booked\",\"outcome\":\"Tuesday 3pm\",\"at\":\"2026-09-27T10:00:00Z\"}. It runs tool:record-a-customer-step and answers {\"step_id\":\"customer-step:13bfc1e0-47a9-43b2-8768-496da54a8cc6\",\"step_record\":{\"kind\":\"customer-step\",\"stepId\":\"customer-step:13bfc1e0-47a9-43b2-8768-496da54a8cc6\",\"contactId\":\"contact:ben\",\"productId\":\"product:coaching\",\"stepKind\":\"call-booked\",\"label\":\"Call booked\",\"outcome\":\"Tuesday 3pm\",\"evidenceRefs\":[],\"ownerRefs\":[],\"createdAt\":\"2026-09-27T10:00:00.000Z\"}}",
   "lists": [],

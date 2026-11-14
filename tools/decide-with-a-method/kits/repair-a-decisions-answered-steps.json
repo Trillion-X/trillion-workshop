@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:repair-a-decisions-answered-steps's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Put back the answered steps of a decision whose case lost them, so the decision reads as answered as far as it was\", with {\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\"}. It runs tool:repair-a-decisions-answered-steps and answers {\"case_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"repaired\":[],\"answered_before\":1,\"answered_after\":1,\"answered_steps\":1}",
   "lists": [],

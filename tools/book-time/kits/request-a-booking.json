@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:request-a-booking's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Book someone into one of my open times and keep the booking\", with {\"idempotency_key\":\"sample-booking-1\",\"start\":\"2030-08-12T14:00:00Z\",\"timezone\":\"UTC\",\"windows\":[{\"weekday\":1,\"start\":\"09:00\",\"end\":\"17:00\"}],\"duration_minutes\":30,\"title\":\"Sample session\",\"attendees\":[{\"name\":\"Sample Person\",\"email\":\"sample.person@example.test\"}]}. It runs tool:request-a-booking and answers {\"already_requested\":false,\"booking\":{\"id\":\"booking:sample-booking-1\",\"title\":\"Sample session\",\"status\":\"confirmed\",\"scheduled_start\":\"2030-08-12T14:00:00.000Z\",\"scheduled_end\":\"2030-08-12T14:30:00.000Z\",\"timezone\":\"UTC\",\"attendees\":[{\"name\":\"Sample Person\",\"email\":\"sample.person@example.test\"}],\"time_rules\":{\"seats_per_slot\":1,\"per_day_max\":null,\"horizon_days\":null,\"pending_blocks_slot\":true ...",
   "lists": [],

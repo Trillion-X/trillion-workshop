@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:bring-back-similar-decisions's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"When I am about to decide something, show what I decided in similar decisions before, what came next and how each turned out\", with {\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\"}. It runs tool:bring-back-similar-decisions and answers {\"similar_decisions\":[]}",
   "lists": [],

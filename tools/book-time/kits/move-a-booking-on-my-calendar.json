@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:move-a-booking-on-my-calendar's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Move a booking's event on my own calendar to a new time\", with {\"event_id\":\"sampleevent1\",\"start\":\"2030-08-12T10:00:00Z\",\"end\":\"2030-08-12T10:30:00Z\"}. It runs tool:move-a-booking-on-my-calendar and answers {\"status\":\"changed\"}",
   "lists": [],

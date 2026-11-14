@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:install-the-built-receptionist's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Install the receptionist I just built on my rented Linux server so it can run\", with {\"host\":{\"address\":\"192.0.2.10\",\"ssh_port\":22,\"admin_user\":\"builder\",\"host_key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample\"},\"dry_run\":true,\"source_root\":\"/srv/receptionist/source\",\"commit\":\"0123456789abcdef0123456789abcdef01234567\",\"install_path\":\"/srv/receptionist/bin/trillion-mcp-receptionist\"}. It runs tool:install-the-built-receptionist; its answer contains \"chmod 0755\".",
   "lists": [],

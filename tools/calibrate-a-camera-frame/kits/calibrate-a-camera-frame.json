@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:calibrate-a-camera-frame's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Calibrate a camera's view of a court, table or screen once from four corners, so every later point is measured in that frame\", with {\"min_confidence\":0.8,\"detected\":{\"corners\":[[100,50],[500,80],[540,400],[60,380]],\"confidence\":0.95},\"points\":[[100,50]]}. It runs tool:calibrate-a-camera-frame and answers {\"state\":\"calibrated\",\"source\":\"auto\",\"confidence\":0.95,\"h\":[0.002415578823559963,0.0002927974331587834,-0.25619775401393546,-0.0002757098857977818,0.003676131810637091,-0.15623560195207636,-0.0001480900621827622,0.000613256043876624,1],\"failures\":[],\"points\":[[0,0]]}",
   "lists": [],

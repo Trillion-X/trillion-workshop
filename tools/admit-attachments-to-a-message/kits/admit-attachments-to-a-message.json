@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:admit-attachments-to-a-message's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Decide how many of the files sent with a message are accepted, and which limit stopped the rest, in words to show the person\", with {\"files\":[{\"name\":\"a.png\",\"size\":1000},{\"name\":\"b.png\",\"size\":1000},{\"name\":\"c.png\",\"size\":1000}],\"limits\":{\"per_turn_cap\":2}}. It runs tool:admit-attachments-to-a-message and answers {\"accepted\":[0,1],\"left_out\":[{\"index\":2,\"because\":\"per_turn\"}],\"binding\":\"per_turn\",\"banner\":\"Only the first 2 of 3 files were attached: one message holds up to 2.\",\"blocked\":false}",
   "lists": [],

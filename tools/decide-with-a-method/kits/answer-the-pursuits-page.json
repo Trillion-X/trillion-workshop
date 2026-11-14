@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:answer-the-pursuits-page's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"List what I am pursuing now, and keep a goal I add or change from the page\", with {\"path\":\"/pursuits\",\"method\":\"GET\",\"query\":{},\"body\":{}}. It runs tool:answer-the-pursuits-page and answers {\"status\":200,\"body\":{\"pursuits\":[{\"id\":\"pursuit:grow-a-sample-newsletter\",\"kind\":\"pursuit\",\"title\":\"Grow a sample newsletter\",\"now\":\"100 readers\",\"after\":\"1,000 readers\",\"status\":\"active\"}]}}",
   "lists": [],

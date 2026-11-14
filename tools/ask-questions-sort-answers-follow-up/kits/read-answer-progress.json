@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-answer-progress's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Show one person's answers to a form across every time they answered, in order, and the trend of one numeric answer\", with {\"form_id\":\"sample-intake\",\"respondent_id\":\"respondent-1\",\"field_map\":{\"budget\":\"budget\"}}. It runs tool:read-answer-progress and answers {\"rows\":[{\"id\":\"session-1\",\"label\":\"2026-06-26T00:00:00Z\",\"fields\":{\"budget\":5,\"answeredAt\":\"2026-06-26T00:00:00Z\"}}],\"trend\":{\"field\":\"budget\",\"points\":[5]},\"latest\":{\"budget\":5,\"answeredAt\":\"2026-06-26T00:00:00Z\"},\"count\":1}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:check-declared-places-keep-what-is-written-there's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Check that every place declared writable (on the promise that something keeps what is written there, such as a version history) really keeps it, and say which keep nothing\", with {\"declaration\":{\"rules\":{\"deeper\":{\"may_write_here\":[{\"path_contains\":\"kept\"}]}}},\"places_key\":\"may_write_here\",\"id_key\":\"path_contains\",\"bases\":[\"projects\"],\"retention_kinds\":[{\"kind\":\"history\",\"marker\":\".history\"}]}. It runs tool:check-declared-places-keep-what-is-written-there and answers {\"passed\":true,\"places_declared\":1,\"examined_count\":1,\"keeps_nothing_count\":0,\"unresolved_count\":0,\"examined\":[{\"place\":\"kept\",\"directory\":\"projects/kept\",\"kept\":[\"history\"],\"exemptFor\":null}],\"keeps_nothing\":[],\"unresolved\":[],\"remedy_hint\":null}",
   "lists": [],

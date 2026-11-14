@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:check-an-action-policy's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Check my AI action policy before I rely on it: rules it cannot evaluate, unknown behaviours, repeated ids and rules that can never decide because an earlier rule always does\", with {\"fields\":[{\"id\":\"tool\",\"kind\":\"choice\"}],\"policy\":{\"rules\":[{\"id\":\"allow-reads\",\"when\":{\"kind\":\"rule\",\"field\":\"tool\",\"operator\":\"is_any_of\",\"params\":{\"values\":[\"read-a-file\"]}},\"then\":\"allow\"},{\"id\":\"ask-reads\",\"when\":{\"kind\":\"rule\",\"field\":\"tool\",\"operator\":\"is_any_of\",\"params\":{\"values\":[\"read-a-file\"]}},\"then\":\"ask\"}]}}. It runs tool:check-an-action-policy and answers {\"ok\":false,\"problems\":[{\"rule\":\"ask-reads\",\"problem\":\"never-decides\",\"says\":\"Rule ask-reads can never decide: rule allow-reads holds whenever it does and is looked at first.\"}]}",
   "lists": [],

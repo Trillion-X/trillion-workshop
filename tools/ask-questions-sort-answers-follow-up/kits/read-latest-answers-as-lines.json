@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-latest-answers-as-lines's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Give the latest answers to a form as plain lines, each starting with the question it answers, ready to hand to a writer or a summary\", with {\"form_id\":\"sample-intake\",\"respondent_id\":\"respondent-1\"}. It runs tool:read-latest-answers-as-lines and answers {\"lines\":[\"Budget: 5\"]}",
   "lists": [],

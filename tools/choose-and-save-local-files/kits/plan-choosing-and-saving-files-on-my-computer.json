@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:plan-choosing-and-saving-files-on-my-computer's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Make the requests the Mac's local files target gets when a person chooses files on their computer or saves a copy back, and read what the picker answered into the files chosen, without touching any computer\", with {\"operation\":\"save\",\"file_name\":\"notes.txt\",\"content_base64\":\"U2FtcGxlIG5vdGVz\",\"copy_id\":\"copy-1\",\"directory\":\"/sample-home/Downloads\"}. It runs tool:plan-choosing-and-saving-files-on-my-computer and answers {\"operation\":\"save\",\"requests\":[{\"target\":\"local.files\",\"payload\":{\"operation\":\"write_new_file\",\"path\":\"/sample-home/Downloads/notes-copy-1.txt\",\"content_base64\":\"12 bytes\"}},{\"target\":\"local.files\",\"payload\":{\"operation\":\"read_file\",\"path\":\"/sample-home/Downloads/notes-copy-1.txt\",\"include_bytes\":true}}],\"path\":\"/sample-home/Downloads/notes-copy-1.txt\"}",
   "lists": [],

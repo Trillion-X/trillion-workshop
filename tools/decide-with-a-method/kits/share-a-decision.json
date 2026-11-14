@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:share-a-decision's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Make a decided decision safe to show strangers: the plain privacy pass with the person's own private terms, then a second model's re-identification check bound to the exact words\", with {\"decision_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\"}. It runs tool:share-a-decision and answers {\"case_id\":\"source:c2FtcGxlOmNsYXNzLXByaWNlLTE\",\"next\":\"rewrite\",\"ai_instructions\":[\"Rewrite this decision so no one could tell who made it. Remove or generalize every name, nickname, company, product, brand, place, event, date, month, age, number, job title, and any unusual detail that could point to one person. Say sizes and shares in words, never as figures, and never write [removed]; write ...",
   "lists": [],

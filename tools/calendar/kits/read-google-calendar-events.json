@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-google-calendar-events's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Read the events in a time range from one of the person's own Google calendars and give them back as time blocks\", with {\"range_start\":\"2030-08-12T00:00:00Z\",\"range_end\":\"2030-08-13T00:00:00Z\",\"connection_ref\":\"sample-account\"}. It runs tool:read-google-calendar-events and answers {\"blocks\":[{\"id\":\"google-calendar:sampleevent1\",\"source\":{\"lensId\":\"events\",\"inputAddress\":\"google-calendar.primary.events\",\"ownerRef\":\"google-calendar\",\"rowRef\":\"sampleevent1\"},\"interval\":{\"start\":\"2030-08-12T15:00:00Z\",\"end\":\"2030-08-12T16:00:00Z\",\"allDay\":false,\"timezone\":\"UTC\"},\"display\":{\"title\":\"Sample meeting\",\"color\":\"\",\"ownerLabel\":\"Google Calendar\"},\"state\":{\"ref\":\"ready\" ...",
   "lists": [],

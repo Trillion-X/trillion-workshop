@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:check-a-folder-against-my-rules's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Check the source files of a project folder against rules the person wrote down, and say which files break which rule, where, and why the rule exists\", with {\"rules\":[{\"kind\":\"source-file-rule\",\"id\":\"no-fixme-marker\",\"why\":\"a fixme marker left in a file means unfinished work was shipped\",\"scope\":{\"path_matches\":\"\\\\.txt$\"},\"violation\":{\"unit\":{\"split\":\"\\\\n\"},\"forbidden\":\"FIXME\"},\"message\":\"a fixme marker\"}]}. It runs tool:check-a-folder-against-my-rules and answers {\"passed\":false,\"said\":\"1 finding(s) from 1 rule(s) over 1 file(s).\",\"rules\":1,\"files\":1,\"content_files\":1,\"scanned_from\":\"working tree: every file in the folder (it is not a git repository, or git could not list it)\",\"in_scope_untracked_judged\":0,\"in_scope_untracked_paths\":[],\"in_scope_tracked_but_gone_from_disk\":0,\"refused_paths\":[],\"dangling_paths\":[] ...",
   "lists": [],

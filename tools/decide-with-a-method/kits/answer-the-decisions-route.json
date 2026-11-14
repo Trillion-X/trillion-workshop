@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:answer-the-decisions-route's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Answer the Trillion page route GET /work/api/decisions: the Decisions screen's rows, as old Trillion answered them\", with {\"path\":\"/decisions\",\"method\":\"GET\",\"query\":{},\"body\":{},\"browser\":{}}. It runs tool:answer-the-decisions-route and answers {\"status\":200,\"body\":{\"free\":false,\"summaries\":[],\"pursuits\":[],\"space_pursuits\":[],\"plans\":[],\"access\":{\"capabilities\":[],\"limits\":{}},\"allowance\":null,\"pursuits_words\":{\"text\":\"Every decision is weighed against what you are working toward and what it changes beyond you. Tell your AI, and it adds it for you.\",\"measured\":false},\"helped\":{\"decisions\":0,\"goal\":{\"hit_goal\":0,\"with_result\":0 ...",
   "lists": [],

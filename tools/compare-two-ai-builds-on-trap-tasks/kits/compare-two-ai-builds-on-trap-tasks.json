@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:compare-two-ai-builds-on-trap-tasks's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Score two builds of an AI's behaviour on the same trap tasks from the calls each run recorded, and say on which tasks they differ\", with {\"left\":{\"arm\":\"new\",\"runs\":[{\"task_id\":\"read-before-write\",\"state\":\"done\",\"calls\":[{\"tool\":\"read_space_record\"},{\"tool\":\"write_space_record\"}]}]},\"right\":{\"arm\":\"old\",\"runs\":[]}}. It runs tool:compare-two-ai-builds-on-trap-tasks and answers {\"arms\":[{\"arm\":\"new\",\"score\":1,\"of\":3,\"ran\":1,\"classes\":{\"wasted-effect\":{\"score\":1,\"of\":1},\"wasted-reads\":{\"score\":0,\"of\":1},\"unchecked-effect\":{\"score\":0,\"of\":1}},\"tasks\":[{\"task_id\":\"read-before-write\",\"class\":\"wasted-effect\",\"ran\":true,\"score\":1},{\"task_id\":\"no-repeat-search\",\"class\":\"wasted-reads\",\"ran\":false,\"score\":0},{\"task_id\":\"stop-at-unknown\",\"class\":\"unchecked-effect\",\"ran\":false ...",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:keep-what-i-said-to-an-ai's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep the messages of a turn with an AI that keeps its chats on its own service (Muse, Grok Bot), my words and its replies, as my messages\", with {\"app\":\"Muse\",\"conversation_id\":\"bakery-1\",\"messages\":[{\"id\":\"m1\",\"speaker\":\"person\",\"text\":\"How long does rye proof?\",\"at\":\"2026-11-13T17:00:00Z\"},{\"id\":\"m2\",\"speaker\":\"ai\",\"text\":\"About two hours.\",\"at\":\"2026-11-13T17:00:05Z\"}]}. It runs tool:keep-what-i-said-to-an-ai; its answer contains \"added\".",
   "lists": [

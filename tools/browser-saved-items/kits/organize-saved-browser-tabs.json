@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:organize-saved-browser-tabs's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Sort the tabs a person pinned in their browser into folders by rules they wrote, keep every tab and a backup of the file, and undo it\", with {\"file\":\"StorableSidebar.json\",\"rules\":{\"space\":\"Shop\",\"root_folder\":\"Kitchen\",\"folders\":{\"Reading\":[]},\"fallback\":[\"Reading\"],\"relevant_words\":[\"bread\"]},\"apply\":false}. It runs tool:organize-saved-browser-tabs and answers {\"space_id\":\"space-1\",\"tab_count\":1,\"organized_tab_count\":1,\"moved_from_outside_root\":1,\"kept_in_place_count\":0,\"category_counts\":{\"Reading\":1},\"tabs\":[{\"id\":\"t-1\",\"title\":\"Sourdough starter guide\",\"url\":\"https://www.bread.example/starter\",\"host\":\"bread.example\",\"original_path\":[\"Shop\",\"Pinned\",\"Pinned\",\"Sourdough starter guide\"],\"decision\":\"organize\",\"basis\":\"covered_by_rules\" ...",
   "lists": [],

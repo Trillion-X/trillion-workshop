@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:keep-a-show-rule's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep a rule about when something shows, hides or stays quiet for me, or switch a starting rule off or on\", with {\"rule\":{\"label\":\"Sample: quiet notices\",\"subject\":\"notification\",\"when\":null,\"effect\":\"silence\"},\"now\":\"2026-01-01T00:00:00.000Z\"}. It runs tool:keep-a-show-rule and answers {\"rule\":{\"label\":\"Sample: quiet notices\",\"subject\":\"notification\",\"when\":null,\"effect\":\"silence\",\"id\":\"rule-mjuohs00-n2aedk\",\"on\":true,\"made_at\":\"2026-01-01T00:00:00.000Z\"},\"rules\":[{\"id\":\"setup-require-assigned-devices\",\"label\":\"Require the devices assigned to this account\",\"subject\":\"setup-step\",\"effect\":\"change\",\"when\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\" ...",
   "lists": [],

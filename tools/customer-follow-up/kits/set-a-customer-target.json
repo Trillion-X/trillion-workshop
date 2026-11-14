@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:set-a-customer-target's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Set how many customers I want for a product, so progress toward that target can be tracked\", with {\"product_id\":\"product:coaching\",\"product_name\":\"Coaching\",\"customers\":10}. It runs tool:set-a-customer-target and answers {\"target_id\":\"target:product:coaching\",\"target_record\":{\"kind\":\"customer-product-target\",\"targetId\":\"target:product:coaching\",\"productId\":\"product:coaching\",\"productLabel\":\"Coaching\",\"targetCount\":10,\"active\":true}}",
   "lists": [],

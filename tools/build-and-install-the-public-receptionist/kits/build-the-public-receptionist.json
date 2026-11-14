@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:build-the-public-receptionist's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Build the public receptionist on my rented Linux server from one committed version of its source\", with {\"host\":{\"address\":\"192.0.2.10\",\"ssh_port\":22,\"admin_user\":\"builder\",\"host_key\":\"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample\"},\"dry_run\":true,\"source_root\":\"/srv/receptionist/source\",\"rust\":{\"toolchain\":\"1.93.0\",\"cargo_home\":\"/srv/rust/cargo\",\"rustup_home\":\"/srv/rust/rustup\"},\"repository\":\"/home/person/trillion-rust\" .... It runs tool:build-the-public-receptionist; its answer contains \"cargo' +1.93.0 build --locked --release --bin trillion-mcp-receptionist\".",
   "lists": [],

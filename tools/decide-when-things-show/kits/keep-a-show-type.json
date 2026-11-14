@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:keep-a-show-type's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep a preset of show rules I can switch on, or change one I keep\", with {\"type\":{\"id\":\"sample-preset\",\"label\":\"Sample preset\",\"rules\":[]}}. It runs tool:keep-a-show-type and answers {\"rules\":[{\"id\":\"setup-require-assigned-devices\",\"label\":\"Require the devices assigned to this account\",\"subject\":\"setup-step\",\"effect\":\"change\",\"when\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"owner\",\"operator\":\"is_any_of\",\"params\":{\"values\":[\"device\"]}},{\"kind\":\"rule\",\"field\":\"required_for_account\",\"operator\":\"is_true\",\"params\":{}}]} ...",
   "lists": [],

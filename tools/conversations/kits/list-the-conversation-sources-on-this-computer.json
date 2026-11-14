@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:list-the-conversation-sources-on-this-computer's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Find every app's conversations on this computer (AI chat exports, Google Takeout activity, and the sessions local AI apps keep) and say how many files of each there are\", with {}. It runs tool:list-the-conversation-sources-on-this-computer and answers {\"sources\":[{\"source\":\"chatgpt-export\",\"label\":\"ChatGPT account export\",\"app\":\"ChatGPT\",\"kind\":\"account-export\",\"files\":0,\"bytes\":0,\"found\":[]},{\"source\":\"claude-ai-export\",\"label\":\"Claude.ai account export\",\"app\":\"Claude\",\"kind\":\"account-export\",\"files\":0,\"bytes\":0,\"found\":[]},{\"source\":\"grok-export\",\"label\":\"Grok account export\",\"app\":\"Grok\",\"kind\":\"account-export\",\"files\":0,\"bytes\":0 ...",
   "lists": [],

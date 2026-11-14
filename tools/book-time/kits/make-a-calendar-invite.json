@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:make-a-calendar-invite's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Make an invitation file that any mail client turns into a calendar event, or into a cancellation\", with {\"uid\":\"booking-1\",\"start\":\"2026-08-12T15:00:00Z\",\"end\":\"2026-08-12T15:30:00Z\",\"summary\":\"Intro call\",\"organizer\":{\"email\":\"host@example.test\"}}. It runs tool:make-a-calendar-invite and answers {\"filename\":\"booking-1.ics\",\"text\":\"BEGIN:VCALENDAR\\r\\nVERSION:2.0\\r\\nPRODID:-//book-time//EN\\r\\nCALSCALE:GREGORIAN\\r\\nMETHOD:REQUEST\\r\\nBEGIN:VEVENT\\r\\nUID:booking-1\\r\\nDTSTAMP:20261114T005015Z\\r\\nDTSTART:20260812T150000Z\\r\\nDTEND:20260812T153000Z\\r\\nSUMMARY:Intro call\\r\\nORGANIZER:mailto:host@example.test\\r\\nSTATUS:CONFIRMED\\r\\nSEQUENCE:0\\r\\nTRANSP:OPAQUE\\r\\nEND:VEVENT\\r\\nEND:VCALENDAR\\r\\n\"}",
   "lists": [],

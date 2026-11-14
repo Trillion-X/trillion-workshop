@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:see-my-decisions's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Show my decisions, what I am working toward, my plans and what has helped me decide\", with {\"metadata_only\":true,\"access\":{\"capabilities\":[],\"limits\":{}}}. It runs tool:see-my-decisions and answers {\"free\":false,\"access\":{\"capabilities\":[],\"limits\":{}},\"allowance\":null,\"space_pursuits\":[],\"pursuits_words\":{\"text\":\"Every decision is weighed against what you are working toward and what it changes beyond you. Tell your AI, and it adds it for you.\",\"measured\":false}}",
   "lists": [],
