@@ -58,6 +58,14 @@
       "to": "tools/start-a-new-account-with-the-rules-and-catalog-items/from-old-trillion/records/workshop-event-source-records.json",
       "source_identity": "1f:6321eddd71634df4505a798a36727c717153e194d2302552f83d0d2b6e8b78f7",
       "identity": "1f:6321eddd71634df4505a798a36727c717153e194d2302552f83d0d2b6e8b78f7"
+    },
+    {
+      "from": "records/workshop-event-source-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/start-a-new-account-with-the-rules-and-catalog-items/event-sources.json",
+      "source_identity": "1f:6321eddd71634df4505a798a36727c717153e194d2302552f83d0d2b6e8b78f7",
+      "identity": "1f:6321eddd71634df4505a798a36727c717153e194d2302552f83d0d2b6e8b78f7",
+      "live": true
     }
   ]
 }

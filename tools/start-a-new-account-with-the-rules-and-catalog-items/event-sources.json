@@ -1,0 +1,1910 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-event-source-records",
+  "records": [
+    {
+      "id": "package::ai-tool-catalog::event-source::instagram",
+      "address": "package::ai-tool-catalog::event-source::instagram",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-event-source",
+        "id": "events:instagram",
+        "label": "Comments and messages on an Instagram professional account",
+        "signature": {
+          "header": "x-hub-signature-256",
+          "prefix": "sha256=",
+          "hmac": "SHA-256",
+          "encoding": "hex",
+          "secret_name": "instagram-login-client-secret",
+          "notes": "Meta signs each delivery with the secret of the app the webhook belongs to; for Instagram Login that is the Instagram app secret, the same value the sign-in exchange uses, so it is held once."
+        },
+        "handshake": {
+          "query": {
+            "mode": "hub.mode",
+            "check": "hub.verify_token",
+            "challenge": "hub.challenge"
+          },
+          "mode": "subscribe",
+          "expected": "trillion-events",
+          "notes": "Meta confirms the callback address with a GET carrying these query fields; the expected value is typed into the Meta app's webhook settings as its Verify Token. It is not what keeps deliveries honest: every POST must carry the app's signature."
+        },
+        "delivery_where": [
+          {
+            "path": [
+              "object"
+            ],
+            "equals": "instagram"
+          }
+        ],
+        "events": [
+          {
+            "name": "comment",
+            "each": [
+              {
+                "field": "entry",
+                "as": "entry"
+              },
+              {
+                "field": "changes",
+                "as": "change"
+              }
+            ],
+            "where": [
+              {
+                "path": [
+                  "change",
+                  "field"
+                ],
+                "equals": "comments"
+              }
+            ],
+            "fields": {
+              "route_key": [
+                "entry",
+                "id"
+              ],
+              "event_id": [
+                "change",
+                "value",
+                "id"
+              ],
+              "comment_id": [
+                "change",
+                "value",
+                "id"
+              ],
+              "text": [
+                "change",
+                "value",
+                "text"
+              ],
+              "from_id": [
+                "change",
+                "value",
+                "from",
+                "id"
+              ],
+              "from_name": [
+                "change",
+                "value",
+                "from",
+                "username"
+              ],
+              "media_id": [
+                "change",
+                "value",
+                "media",
+                "id"
+              ],
+              "parent_id": [
+                "change",
+                "value",
+                "parent_id"
+              ],
+              "at_seconds": [
+                "entry",
+                "time"
+              ]
+            },
+            "required": [
+              "route_key",
+              "event_id",
+              "comment_id",
+              "from_id"
+            ],
+            "skip_when_same": [
+              [
+                "from_id",
+                "route_key"
+              ]
+            ]
+          },
+          {
+            "name": "message",
+            "each": [
+              {
+                "field": "entry",
+                "as": "entry"
+              },
+              {
+                "field": "messaging",
+                "as": "m"
+              }
+            ],
+            "where": [
+              {
+                "path": [
+                  "m",
+                  "message",
+                  "text"
+                ],
+                "present": true
+              },
+              {
+                "path": [
+                  "m",
+                  "message",
+                  "is_echo"
+                ],
+                "equals": true,
+                "not": true
+              }
+            ],
+            "fields": {
+              "route_key": [
+                "entry",
+                "id"
+              ],
+              "event_id": [
+                "m",
+                "message",
+                "mid"
+              ],
+              "text": [
+                "m",
+                "message",
+                "text"
+              ],
+              "from_id": [
+                "m",
+                "sender",
+                "id"
+              ],
+              "at_milliseconds": [
+                "m",
+                "timestamp"
+              ]
+            },
+            "required": [
+              "route_key",
+              "event_id",
+              "text",
+              "from_id"
+            ],
+            "skip_when_same": [
+              [
+                "from_id",
+                "route_key"
+              ]
+            ]
+          }
+        ],
+        "route_key": "route_key",
+        "event_id": "event_id",
+        "route_key_proof": {
+          "tool_id": "tool:instagram-find-my-account",
+          "output_selector": "$.user_id"
+        },
+        "listen_tool_id": "tool:instagram-listen-for-comments-and-messages",
+        "source": {
+          "read_on": "2026-09-26",
+          "from": [
+            "https://developers.facebook.com/docs/instagram-platform/webhooks",
+            "https://github.com/diwenne/openreply/blob/main/lib/meta/webhook.ts (MIT)"
+          ]
+        },
+        "delivery_policy": {
+          "by_event": {
+            "comment": {
+              "answer_within_seconds": 604800,
+              "max_per_hour": 750
+            },
+            "message": {
+              "answer_within_seconds": 86400
+            }
+          },
+          "retry": {
+            "when_error_contains": [
+              "\"code\":4,",
+              "\"code\":17,",
+              "\"code\":32,",
+              "\"code\":613,",
+              "\"code\":80002,",
+              "\"code\":80006,",
+              "\"is_transient\":true"
+            ],
+            "after_seconds": 900,
+            "max_attempts": 4
+          },
+          "source": {
+            "read_on": "2026-09-26",
+            "from": [
+              "https://developers.facebook.com/docs/instagram-platform/private-replies (7 days, one message per comment)",
+              "https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/messaging-api (24 hours)",
+              "https://developers.facebook.com/docs/graph-api/overview/rate-limiting (750 private replies per hour per Instagram professional account; throttle codes 4, 17, 32, 613, 80002, 80006)"
+            ]
+          }
+        },
+        "connects_with": {
+          "vendor": "instagram"
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::event-source::facebook-page",
+      "address": "package::ai-tool-catalog::event-source::facebook-page",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-event-source",
+        "id": "events:facebook-page",
+        "label": "Comments, messages and leads on a Facebook Page",
+        "signature": {
+          "header": "x-hub-signature-256",
+          "prefix": "sha256=",
+          "hmac": "SHA-256",
+          "encoding": "hex",
+          "secret_name": "facebook-login-client-secret",
+          "notes": "Meta signs each delivery with the secret of the app the webhook belongs to; for Page deliveries that is the Facebook app secret, the same value the Facebook sign-in exchange uses, so it is held once."
+        },
+        "handshake": {
+          "query": {
+            "mode": "hub.mode",
+            "check": "hub.verify_token",
+            "challenge": "hub.challenge"
+          },
+          "mode": "subscribe",
+          "expected": "trillion-events",
+          "notes": "Meta confirms the callback address with a GET carrying these query fields; the expected value is typed into the Meta app's webhook settings as its Verify Token. It is not what keeps deliveries honest: every POST must carry the app's signature."
+        },
+        "delivery_where": [
+          {
+            "path": [
+              "object"
+            ],
+            "equals": "page"
+          }
+        ],
+        "events": [
+          {
+            "name": "comment",
+            "each": [
+              {
+                "field": "entry",
+                "as": "entry"
+              },
+              {
+                "field": "changes",
+                "as": "change"
+              }
+            ],
+            "where": [
+              {
+                "path": [
+                  "change",
+                  "field"
+                ],
+                "equals": "feed"
+              },
+              {
+                "path": [
+                  "change",
+                  "value",
+                  "item"
+                ],
+                "equals": "comment"
+              },
+              {
+                "path": [
+                  "change",
+                  "value",
+                  "verb"
+                ],
+                "equals": "add"
+              }
+            ],
+            "fields": {
+              "route_key": [
+                "entry",
+                "id"
+              ],
+              "event_id": [
+                "change",
+                "value",
+                "comment_id"
+              ],
+              "comment_id": [
+                "change",
+                "value",
+                "comment_id"
+              ],
+              "text": [
+                "change",
+                "value",
+                "message"
+              ],
+              "from_id": [
+                "change",
+                "value",
+                "from",
+                "id"
+              ],
+              "from_name": [
+                "change",
+                "value",
+                "from",
+                "name"
+              ],
+              "media_id": [
+                "change",
+                "value",
+                "post_id"
+              ],
+              "parent_id": [
+                "change",
+                "value",
+                "parent_id"
+              ],
+              "at_seconds": [
+                "entry",
+                "time"
+              ]
+            },
+            "required": [
+              "route_key",
+              "event_id",
+              "comment_id",
+              "from_id"
+            ],
+            "skip_when_same": [
+              [
+                "from_id",
+                "route_key"
+              ]
+            ]
+          },
+          {
+            "name": "message",
+            "each": [
+              {
+                "field": "entry",
+                "as": "entry"
+              },
+              {
+                "field": "messaging",
+                "as": "m"
+              }
+            ],
+            "where": [
+              {
+                "path": [
+                  "m",
+                  "message",
+                  "text"
+                ],
+                "present": true
+              },
+              {
+                "path": [
+                  "m",
+                  "message",
+                  "is_echo"
+                ],
+                "equals": true,
+                "not": true
+              }
+            ],
+            "fields": {
+              "route_key": [
+                "entry",
+                "id"
+              ],
+              "event_id": [
+                "m",
+                "message",
+                "mid"
+              ],
+              "text": [
+                "m",
+                "message",
+                "text"
+              ],
+              "from_id": [
+                "m",
+                "sender",
+                "id"
+              ],
+              "at_milliseconds": [
+                "m",
+                "timestamp"
+              ]
+            },
+            "required": [
+              "route_key",
+              "event_id",
+              "text",
+              "from_id"
+            ],
+            "skip_when_same": [
+              [
+                "from_id",
+                "route_key"
+              ]
+            ]
+          },
+          {
+            "name": "lead",
+            "each": [
+              {
+                "field": "entry",
+                "as": "entry"
+              },
+              {
+                "field": "changes",
+                "as": "change"
+              }
+            ],
+            "where": [
+              {
+                "path": [
+                  "change",
+                  "field"
+                ],
+                "equals": "leadgen"
+              }
+            ],
+            "fields": {
+              "route_key": [
+                "entry",
+                "id"
+              ],
+              "event_id": [
+                "change",
+                "value",
+                "leadgen_id"
+              ],
+              "leadgen_id": [
+                "change",
+                "value",
+                "leadgen_id"
+              ],
+              "form_id": [
+                "change",
+                "value",
+                "form_id"
+              ],
+              "ad_id": [
+                "change",
+                "value",
+                "ad_id"
+              ],
+              "at_seconds": [
+                "change",
+                "value",
+                "created_time"
+              ]
+            },
+            "required": [
+              "route_key",
+              "event_id",
+              "form_id"
+            ]
+          }
+        ],
+        "route_key": "route_key",
+        "event_id": "event_id",
+        "route_key_proof": {
+          "tool_id": "tool:facebook-messenger-find-my-page",
+          "output_selector": "$.id"
+        },
+        "listen_tool_id": "tool:facebook-messenger-listen-for-comments-and-messages",
+        "source": {
+          "read_on": "2026-09-26",
+          "from": [
+            "https://developers.facebook.com/docs/graph-api/webhooks/getting-started/webhooks-for-pages",
+            "https://developers.facebook.com/docs/messenger-platform/discovery/private-replies",
+            "https://developers.facebook.com/docs/graph-api/webhooks/getting-started/webhooks-for-leadgen"
+          ]
+        },
+        "delivery_policy": {
+          "by_event": {
+            "comment": {
+              "answer_within_seconds": 604800
+            },
+            "message": {
+              "answer_within_seconds": 86400
+            }
+          },
+          "retry": {
+            "when_error_contains": [
+              "\"code\":4,",
+              "\"code\":17,",
+              "\"code\":32,",
+              "\"code\":613,",
+              "\"code\":80002,",
+              "\"code\":80006,",
+              "\"is_transient\":true"
+            ],
+            "after_seconds": 900,
+            "max_attempts": 4
+          },
+          "source": {
+            "read_on": "2026-09-26",
+            "from": [
+              "https://developers.facebook.com/docs/instagram-platform/private-replies (7 days, one message per comment)",
+              "https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/messaging-api (24 hours)",
+              "https://developers.facebook.com/docs/graph-api/overview/rate-limiting (750 private replies per hour per Instagram professional account; throttle codes 4, 17, 32, 613, 80002, 80006)"
+            ]
+          }
+        },
+        "connects_with": {
+          "vendor": "facebook-messenger"
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::event-source::gmail",
+      "address": "package::ai-tool-catalog::event-source::gmail",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-event-source",
+        "id": "events:gmail",
+        "label": "New mail in a Gmail inbox",
+        "connects_with": {
+          "vendor": "google-account"
+        },
+        "events": [
+          {
+            "name": "mail",
+            "each": [
+              {
+                "field": "history",
+                "as": "h"
+              },
+              {
+                "field": "messagesAdded",
+                "as": "added"
+              }
+            ],
+            "fields": {
+              "message_id": [
+                "added",
+                "message",
+                "id"
+              ],
+              "thread_id": [
+                "added",
+                "message",
+                "threadId"
+              ]
+            },
+            "required": [
+              "message_id"
+            ]
+          }
+        ],
+        "route_key": "mailbox",
+        "event_id": "message_id",
+        "route_key_proof": {
+          "tool_id": "tool:google-account-find_my_mailbox",
+          "output_selector": "$.emailAddress"
+        },
+        "poll": {
+          "tool_id": "tool:google-account-list_new_mail",
+          "every_minutes": 2,
+          "cursor": {
+            "input_field": "since",
+            "start": {
+              "tool_id": "tool:google-account-find_my_mailbox",
+              "output_selector": "$.historyId"
+            },
+            "next": {
+              "output_selector": "$.historyId"
+            }
+          },
+          "restart_when_error_contains": [
+            "404"
+          ],
+          "detail": {
+            "tool_id": "tool:google-account-read_mail_headers",
+            "input": {
+              "message_id": {
+                "fill": {
+                  "from": "event",
+                  "field": "message_id"
+                }
+              }
+            },
+            "fields": {
+              "from": [
+                "payload",
+                "headers",
+                {
+                  "find": {
+                    "name": "From"
+                  }
+                },
+                "value"
+              ],
+              "to": [
+                "payload",
+                "headers",
+                {
+                  "find": {
+                    "name": "To"
+                  }
+                },
+                "value"
+              ],
+              "subject": [
+                "payload",
+                "headers",
+                {
+                  "find": {
+                    "name": "Subject"
+                  }
+                },
+                "value"
+              ],
+              "sent": [
+                "payload",
+                "headers",
+                {
+                  "find": {
+                    "name": "Date"
+                  }
+                },
+                "value"
+              ],
+              "text": [
+                "snippet",
+                {
+                  "decode": "html-entities"
+                }
+              ]
+            }
+          }
+        },
+        "source": {
+          "read_on": "2026-09-29",
+          "from": [
+            "https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.history/list",
+            "https://developers.google.com/workspace/gmail/api/guides/sync"
+          ]
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::event-source::notion",
+      "address": "package::ai-tool-catalog::event-source::notion",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-event-source",
+        "id": "events:notion",
+        "label": "Pages in a Notion workspace",
+        "connects_with": {
+          "vendor": "notion"
+        },
+        "events": [
+          {
+            "name": "page-added",
+            "each": [
+              {
+                "field": "results",
+                "as": "page"
+              }
+            ],
+            "newer_than_cursor": "created_at",
+            "fields": {
+              "page_id": [
+                "page",
+                "id"
+              ],
+              "address": [
+                "page",
+                "url"
+              ],
+              "created_at": [
+                "page",
+                "created_time"
+              ],
+              "edited_at": [
+                "page",
+                "last_edited_time"
+              ],
+              "by": [
+                "page",
+                "created_by",
+                "id"
+              ]
+            },
+            "required": [
+              "page_id",
+              "created_at",
+              "edited_at"
+            ]
+          },
+          {
+            "name": "page-edited",
+            "each": [
+              {
+                "field": "results",
+                "as": "page"
+              }
+            ],
+            "newer_than_cursor": "edited_at",
+            "fields": {
+              "page_id": [
+                "page",
+                "id"
+              ],
+              "address": [
+                "page",
+                "url"
+              ],
+              "created_at": [
+                "page",
+                "created_time"
+              ],
+              "edited_at": [
+                "page",
+                "last_edited_time"
+              ],
+              "by": [
+                "page",
+                "last_edited_by",
+                "id"
+              ]
+            },
+            "required": [
+              "page_id",
+              "created_at",
+              "edited_at"
+            ],
+            "skip_when_same": [
+              [
+                "created_at",
+                "edited_at"
+              ]
+            ]
+          }
+        ],
+        "route_key": "workspace",
+        "event_id": [
+          "page_id",
+          "edited_at"
+        ],
+        "route_key_proof": {
+          "tool_id": "tool:notion-find_my_workspace",
+          "output_selector": "$.id"
+        },
+        "poll": {
+          "tool_id": "tool:notion-list_recently_edited_pages",
+          "every_minutes": 5,
+          "cursor": {
+            "input_field": "since",
+            "next": {
+              "newest_of_field": "edited_at"
+            }
+          }
+        },
+        "source": {
+          "read_on": "2026-09-29",
+          "from": [
+            "https://developers.notion.com/reference/post-search",
+            "https://developers.notion.com/reference/page"
+          ]
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::event-source::github",
+      "address": "package::ai-tool-catalog::event-source::github",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-event-source",
+        "id": "events:github",
+        "label": "Notifications on a GitHub account",
+        "connects_with": {
+          "vendor": "github"
+        },
+        "events": [
+          {
+            "name": "notification",
+            "each": [
+              {
+                "field": "items",
+                "as": "n"
+              }
+            ],
+            "newer_than_cursor": "updated_at",
+            "fields": {
+              "thread_id": [
+                "n",
+                "id"
+              ],
+              "updated_at": [
+                "n",
+                "updated_at"
+              ],
+              "reason": [
+                "n",
+                "reason"
+              ],
+              "title": [
+                "n",
+                "subject",
+                "title"
+              ],
+              "kind": [
+                "n",
+                "subject",
+                "type"
+              ],
+              "repository": [
+                "n",
+                "repository",
+                "full_name"
+              ],
+              "address": [
+                "n",
+                "subject",
+                "url"
+              ]
+            },
+            "required": [
+              "thread_id",
+              "updated_at"
+            ]
+          }
+        ],
+        "route_key": "account",
+        "event_id": [
+          "thread_id",
+          "updated_at"
+        ],
+        "route_key_proof": {
+          "tool_id": "tool:github-find_my_account",
+          "output_selector": "$.login"
+        },
+        "poll": {
+          "tool_id": "tool:github-list_new_notifications",
+          "every_minutes": 5,
+          "cursor": {
+            "input_field": "since",
+            "next": {
+              "newest_of_field": "updated_at"
+            }
+          }
+        },
+        "source": {
+          "read_on": "2026-09-29",
+          "from": [
+            "https://docs.github.com/en/rest/activity/notifications"
+          ]
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::event-source::stripe",
+      "address": "package::ai-tool-catalog::event-source::stripe",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-event-source",
+        "id": "events:stripe",
+        "label": "Payments and subscriptions on a Stripe account",
+        "connects_with": {
+          "vendor": "stripe"
+        },
+        "events": [
+          {
+            "name": "paid",
+            "each": [
+              {
+                "field": "data",
+                "as": "ev"
+              }
+            ],
+            "where": [
+              {
+                "path": [
+                  "ev",
+                  "type"
+                ],
+                "equals": "checkout.session.completed"
+              },
+              {
+                "path": [
+                  "ev",
+                  "data",
+                  "object",
+                  "metadata",
+                  "trillion_activity"
+                ],
+                "equals": "automated-proof",
+                "not": true
+              }
+            ],
+            "fields": {
+              "stripe_event_id": [
+                "ev",
+                "id"
+              ],
+              "type": [
+                "ev",
+                "type"
+              ],
+              "at_seconds": [
+                "ev",
+                "created"
+              ],
+              "object_id": [
+                "ev",
+                "data",
+                "object",
+                "id"
+              ],
+              "amount": [
+                "ev",
+                "data",
+                "object",
+                "amount_total"
+              ],
+              "currency": [
+                "ev",
+                "data",
+                "object",
+                "currency"
+              ],
+              "customer": [
+                "ev",
+                "data",
+                "object",
+                "customer"
+              ],
+              "email": [
+                "ev",
+                "data",
+                "object",
+                "customer_details",
+                "email"
+              ]
+            },
+            "required": [
+              "stripe_event_id"
+            ]
+          },
+          {
+            "name": "payment-failed",
+            "each": [
+              {
+                "field": "data",
+                "as": "ev"
+              }
+            ],
+            "where": [
+              {
+                "path": [
+                  "ev",
+                  "type"
+                ],
+                "equals": "invoice.payment_failed"
+              }
+            ],
+            "fields": {
+              "stripe_event_id": [
+                "ev",
+                "id"
+              ],
+              "type": [
+                "ev",
+                "type"
+              ],
+              "at_seconds": [
+                "ev",
+                "created"
+              ],
+              "object_id": [
+                "ev",
+                "data",
+                "object",
+                "id"
+              ],
+              "amount": [
+                "ev",
+                "data",
+                "object",
+                "amount_total"
+              ],
+              "currency": [
+                "ev",
+                "data",
+                "object",
+                "currency"
+              ],
+              "customer": [
+                "ev",
+                "data",
+                "object",
+                "customer"
+              ],
+              "email": [
+                "ev",
+                "data",
+                "object",
+                "customer_details",
+                "email"
+              ]
+            },
+            "required": [
+              "stripe_event_id"
+            ]
+          },
+          {
+            "name": "subscription-ended",
+            "each": [
+              {
+                "field": "data",
+                "as": "ev"
+              }
+            ],
+            "where": [
+              {
+                "path": [
+                  "ev",
+                  "type"
+                ],
+                "equals": "customer.subscription.deleted"
+              },
+              {
+                "path": [
+                  "ev",
+                  "data",
+                  "object",
+                  "metadata",
+                  "trillion_activity"
+                ],
+                "equals": "automated-proof",
+                "not": true
+              }
+            ],
+            "fields": {
+              "stripe_event_id": [
+                "ev",
+                "id"
+              ],
+              "type": [
+                "ev",
+                "type"
+              ],
+              "at_seconds": [
+                "ev",
+                "created"
+              ],
+              "object_id": [
+                "ev",
+                "data",
+                "object",
+                "id"
+              ],
+              "amount": [
+                "ev",
+                "data",
+                "object",
+                "amount_total"
+              ],
+              "currency": [
+                "ev",
+                "data",
+                "object",
+                "currency"
+              ],
+              "customer": [
+                "ev",
+                "data",
+                "object",
+                "customer"
+              ],
+              "email": [
+                "ev",
+                "data",
+                "object",
+                "customer_details",
+                "email"
+              ]
+            },
+            "required": [
+              "stripe_event_id"
+            ]
+          },
+          {
+            "name": "dispute",
+            "each": [
+              {
+                "field": "data",
+                "as": "ev"
+              }
+            ],
+            "where": [
+              {
+                "path": [
+                  "ev",
+                  "type"
+                ],
+                "equals": "charge.dispute.created"
+              }
+            ],
+            "fields": {
+              "stripe_event_id": [
+                "ev",
+                "id"
+              ],
+              "type": [
+                "ev",
+                "type"
+              ],
+              "at_seconds": [
+                "ev",
+                "created"
+              ],
+              "object_id": [
+                "ev",
+                "data",
+                "object",
+                "id"
+              ],
+              "amount": [
+                "ev",
+                "data",
+                "object",
+                "amount_total"
+              ],
+              "currency": [
+                "ev",
+                "data",
+                "object",
+                "currency"
+              ],
+              "customer": [
+                "ev",
+                "data",
+                "object",
+                "customer"
+              ],
+              "email": [
+                "ev",
+                "data",
+                "object",
+                "customer_details",
+                "email"
+              ]
+            },
+            "required": [
+              "stripe_event_id"
+            ]
+          },
+          {
+            "name": "refund",
+            "each": [
+              {
+                "field": "data",
+                "as": "ev"
+              }
+            ],
+            "where": [
+              {
+                "path": [
+                  "ev",
+                  "type"
+                ],
+                "equals": "charge.refunded"
+              }
+            ],
+            "fields": {
+              "stripe_event_id": [
+                "ev",
+                "id"
+              ],
+              "type": [
+                "ev",
+                "type"
+              ],
+              "at_seconds": [
+                "ev",
+                "created"
+              ],
+              "object_id": [
+                "ev",
+                "data",
+                "object",
+                "id"
+              ],
+              "amount": [
+                "ev",
+                "data",
+                "object",
+                "amount_total"
+              ],
+              "currency": [
+                "ev",
+                "data",
+                "object",
+                "currency"
+              ],
+              "customer": [
+                "ev",
+                "data",
+                "object",
+                "customer"
+              ],
+              "email": [
+                "ev",
+                "data",
+                "object",
+                "customer_details",
+                "email"
+              ]
+            },
+            "required": [
+              "stripe_event_id"
+            ]
+          }
+        ],
+        "route_key": "account",
+        "event_id": "stripe_event_id",
+        "route_key_proof": {
+          "tool_id": "tool:stripe-events-find_my_account",
+          "output_selector": "$.id"
+        },
+        "default_rule": {
+          "skip": [
+            {
+              "field": "email",
+              "matches": "^[a-z0-9-]+[+-][0-9]{10,}@gettrillion\\.ai$"
+            }
+          ],
+          "batch": {
+            "every_minutes": 1440
+          }
+        },
+        "poll": {
+          "tool_id": "tool:stripe-events-list_new_events",
+          "every_minutes": 5,
+          "cursor": {
+            "input_field": "since",
+            "start": {
+              "tool_id": "tool:stripe-events-read_latest_event",
+              "output_selector": "$.data[0].id"
+            },
+            "next": {
+              "output_selector": "$.data[0].id"
+            }
+          }
+        },
+        "source": {
+          "read_on": "2026-09-29",
+          "from": [
+            "https://docs.stripe.com/api/events/list",
+            "https://docs.stripe.com/api/events/types"
+          ]
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::event-source::google-calendar",
+      "address": "package::ai-tool-catalog::event-source::google-calendar",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-event-source",
+        "id": "events:google-calendar",
+        "label": "Events on a Google Calendar",
+        "connects_with": {
+          "vendor": "google-calendar"
+        },
+        "events": [
+          {
+            "name": "event-changed",
+            "each": [
+              {
+                "field": "items",
+                "as": "ev"
+              }
+            ],
+            "newer_than_cursor": "updated_at",
+            "fields": {
+              "calendar_event_id": [
+                "ev",
+                "id"
+              ],
+              "updated_at": [
+                "ev",
+                "updated"
+              ],
+              "status": [
+                "ev",
+                "status"
+              ],
+              "title": [
+                "ev",
+                "summary"
+              ],
+              "starts": [
+                "ev",
+                "start",
+                "dateTime"
+              ],
+              "starts_on": [
+                "ev",
+                "start",
+                "date"
+              ],
+              "organizer": [
+                "ev",
+                "organizer",
+                "email"
+              ],
+              "address": [
+                "ev",
+                "htmlLink"
+              ]
+            },
+            "required": [
+              "calendar_event_id",
+              "updated_at"
+            ]
+          }
+        ],
+        "route_key": "calendar",
+        "event_id": [
+          "calendar_event_id",
+          "updated_at"
+        ],
+        "route_key_proof": {
+          "tool_id": "tool:google-calendar-find_my_calendar",
+          "output_selector": "$.id"
+        },
+        "poll": {
+          "tool_id": "tool:google-calendar-list_changed_events",
+          "every_minutes": 5,
+          "cursor": {
+            "input_field": "since",
+            "next": {
+              "newest_of_field": "updated_at"
+            }
+          }
+        },
+        "source": {
+          "read_on": "2026-09-29",
+          "from": [
+            "https://developers.google.com/workspace/calendar/api/v3/reference/events/list"
+          ]
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::event-source::x-bookmarks",
+      "address": "package::ai-tool-catalog::event-source::x-bookmarks",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-event-source",
+        "id": "events:x-bookmarks",
+        "label": "Bookmarks on an X account",
+        "connects_with": {
+          "vendor": "x"
+        },
+        "events": [
+          {
+            "name": "bookmark",
+            "each": [
+              {
+                "field": "items",
+                "as": "b"
+              }
+            ],
+            "fields": {
+              "bookmark_id": [
+                "b",
+                "key"
+              ],
+              "url": [
+                "b",
+                "url"
+              ],
+              "text": [
+                "b",
+                "title"
+              ],
+              "author": [
+                "b",
+                "author"
+              ],
+              "author_name": [
+                "b",
+                "author_name"
+              ],
+              "posted_at": [
+                "b",
+                "posted_at"
+              ]
+            },
+            "required": [
+              "bookmark_id",
+              "url"
+            ]
+          }
+        ],
+        "route_key": "account",
+        "event_id": "bookmark_id",
+        "route_key_proof": {
+          "tool_id": "tool:x-find_my_account",
+          "output_selector": "$.data.id"
+        },
+        "poll": {
+          "tool_id": "tool:save-x-bookmarks",
+          "every_minutes": 30,
+          "cursor": {
+            "input_field": "since",
+            "start": {
+              "tool_id": "tool:save-x-bookmarks",
+              "output_selector": "$.newest"
+            },
+            "next": {
+              "output_selector": "$.newest"
+            }
+          }
+        },
+        "notes": "X keeps no time a bookmark was made and has no address to send new ones to, so Trillion reads them: listening starts by saving every bookmark X hands out into the person's files (tool:save-x-bookmarks without since), which names the newest; each later read saves and returns only the bookmarks above that one. Every read is billed to the X app's credits, so it runs every 30 minutes.",
+        "source": {
+          "read_on": "2026-09-29",
+          "from": [
+            "https://docs.x.com/x-api/bookmarks/get-bookmarks"
+          ]
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::event-source::x-likes",
+      "address": "package::ai-tool-catalog::event-source::x-likes",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-event-source",
+        "id": "events:x-likes",
+        "label": "Posts an X account liked",
+        "connects_with": {
+          "vendor": "x"
+        },
+        "events": [
+          {
+            "name": "like",
+            "each": [
+              {
+                "field": "items",
+                "as": "b"
+              }
+            ],
+            "fields": {
+              "post_id": [
+                "b",
+                "key"
+              ],
+              "url": [
+                "b",
+                "url"
+              ],
+              "text": [
+                "b",
+                "title"
+              ],
+              "author": [
+                "b",
+                "author"
+              ],
+              "author_name": [
+                "b",
+                "author_name"
+              ],
+              "posted_at": [
+                "b",
+                "posted_at"
+              ]
+            },
+            "required": [
+              "post_id",
+              "url"
+            ]
+          }
+        ],
+        "route_key": "account",
+        "event_id": "post_id",
+        "route_key_proof": {
+          "tool_id": "tool:x-find_my_account",
+          "output_selector": "$.data.id"
+        },
+        "poll": {
+          "tool_id": "tool:save-x-likes",
+          "every_minutes": 30,
+          "cursor": {
+            "input_field": "since",
+            "start": {
+              "tool_id": "tool:save-x-likes",
+              "output_selector": "$.newest"
+            },
+            "next": {
+              "output_selector": "$.newest"
+            }
+          }
+        },
+        "notes": "X keeps no time a like was made and has no address to send new ones to, so Trillion reads them: listening starts by saving every like X hands out into the person's files (tool:save-x-likes without since), which names the newest; each later read saves and returns only the likes above that one. Every read is billed to the X app's credits, so it runs every 30 minutes.",
+        "source": {
+          "read_on": "2026-10-03",
+          "from": [
+            "https://docs.x.com/x-api/users/get-liked-posts"
+          ]
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::event-source::resend",
+      "address": "package::ai-tool-catalog::event-source::resend",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-event-source",
+        "id": "events:resend",
+        "label": "New mail to any address on a domain kept with Resend",
+        "connects_with": {
+          "vendor": "resend"
+        },
+        "events": [
+          {
+            "name": "mail",
+            "each": [
+              {
+                "field": "data",
+                "as": "mail"
+              }
+            ],
+            "fields": {
+              "mail_id": [
+                "mail",
+                "id"
+              ],
+              "from": [
+                "mail",
+                "from"
+              ],
+              "to": [
+                "mail",
+                "to"
+              ],
+              "subject": [
+                "mail",
+                "subject"
+              ],
+              "created_at": [
+                "mail",
+                "created_at"
+              ],
+              "message_id": [
+                "mail",
+                "message_id"
+              ],
+              "mailbox": [
+                "mail",
+                "to",
+                0
+              ]
+            },
+            "required": [
+              "mail_id"
+            ],
+            "newer_than_cursor": "created_at"
+          }
+        ],
+        "route_key": "domain",
+        "event_id": "mail_id",
+        "route_key_proof": {
+          "tool_id": "tool:resend-list_domains",
+          "output_selector": "$.data[0].name"
+        },
+        "poll": {
+          "tool_id": "tool:resend-list_received_mail",
+          "every_minutes": 1,
+          "cursor": {
+            "input_field": "since",
+            "next": {
+              "newest_of_field": "created_at"
+            }
+          },
+          "detail": {
+            "tool_id": "tool:resend-read_received_mail",
+            "input": {
+              "mail_id": {
+                "fill": {
+                  "from": "event",
+                  "field": "mail_id"
+                }
+              }
+            },
+            "fields": {
+              "text": [
+                "text"
+              ],
+              "html_text": [
+                "html",
+                {
+                  "decode": "html-text"
+                }
+              ],
+              "cc": [
+                "cc"
+              ],
+              "reply_to": [
+                "reply_to"
+              ],
+              "in_reply_to": [
+                "headers",
+                "in-reply-to"
+              ],
+              "references": [
+                "headers",
+                "references"
+              ]
+            }
+          }
+        },
+        "source": {
+          "read_on": "2026-10-03",
+          "from": [
+            "https://resend.com/docs/api-reference/emails/retrieve-received-email",
+            "https://resend.com/docs/dashboard/receiving/introduction"
+          ]
+        }
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::event-source::whatsapp-business",
+      "address": "package::ai-tool-catalog::event-source::whatsapp-business",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "tool-event-source",
+        "id": "events:whatsapp-business",
+        "label": "Messages to WhatsApp Business accounts",
+        "signature": {
+          "header": "x-hub-signature-256",
+          "prefix": "sha256=",
+          "hmac": "SHA-256",
+          "encoding": "hex",
+          "secret_name": "facebook-login-client-secret",
+          "notes": "Meta signs each delivery with the secret of the app the webhook belongs to; for Page deliveries that is the Facebook app secret, the same value the Facebook sign-in exchange uses, so it is held once."
+        },
+        "handshake": {
+          "query": {
+            "mode": "hub.mode",
+            "check": "hub.verify_token",
+            "challenge": "hub.challenge"
+          },
+          "mode": "subscribe",
+          "expected": "trillion-events",
+          "notes": "Meta confirms the callback address with a GET carrying these query fields; the expected value is typed into the Meta app's webhook settings as its Verify Token. It is not what keeps deliveries honest: every POST must carry the app's signature."
+        },
+        "delivery_where": [
+          {
+            "path": [
+              "object"
+            ],
+            "equals": "whatsapp_business_account"
+          }
+        ],
+        "events": [
+          {
+            "name": "message",
+            "each": [
+              {
+                "field": "entry",
+                "as": "entry"
+              },
+              {
+                "field": "changes",
+                "as": "change"
+              },
+              {
+                "field": [
+                  "value",
+                  "messages"
+                ],
+                "as": "message"
+              }
+            ],
+            "where": [
+              {
+                "path": [
+                  "change",
+                  "field"
+                ],
+                "equals": "messages"
+              },
+              {
+                "path": [
+                  "change",
+                  "value",
+                  "messaging_product"
+                ],
+                "equals": "whatsapp"
+              }
+            ],
+            "fields": {
+              "route_key": [
+                "entry",
+                "id"
+              ],
+              "message_id": [
+                "message",
+                "id"
+              ],
+              "from_id": [
+                "message",
+                "from"
+              ],
+              "text": [
+                "message",
+                "text",
+                "body"
+              ],
+              "message_type": [
+                "message",
+                "type"
+              ],
+              "content": [
+                "message"
+              ],
+              "contacts": [
+                "change",
+                "value",
+                "contacts"
+              ],
+              "phone_number_id": [
+                "change",
+                "value",
+                "metadata",
+                "phone_number_id"
+              ],
+              "at_seconds": [
+                "message",
+                "timestamp"
+              ]
+            },
+            "required": [
+              "route_key",
+              "message_id",
+              "from_id",
+              "phone_number_id"
+            ]
+          }
+        ],
+        "route_key": "route_key",
+        "event_id": [
+          "route_key",
+          "message_id"
+        ],
+        "route_key_proof": {
+          "collection": {
+            "tool_id": "tool:whatsapp-business-list-business-portfolios",
+            "items_selector": "$.data",
+            "id_selector": "$.id",
+            "cursor": {
+              "input_field": "after",
+              "output_selector": "$.paging.cursors.after",
+              "more_selector": "$.paging.has_next"
+            },
+            "children": [
+              {
+                "tool_id": "tool:whatsapp-business-list-owned-whatsapp-accounts",
+                "items_selector": "$.data",
+                "id_selector": "$.id",
+                "cursor": {
+                  "input_field": "after",
+                  "output_selector": "$.paging.cursors.after",
+                  "more_selector": "$.paging.has_next"
+                },
+                "input": {
+                  "business_id": {
+                    "fill": {
+                      "from": "parent",
+                      "field": "id"
+                    }
+                  }
+                }
+              },
+              {
+                "tool_id": "tool:whatsapp-business-list-shared-whatsapp-accounts",
+                "items_selector": "$.data",
+                "id_selector": "$.id",
+                "cursor": {
+                  "input_field": "after",
+                  "output_selector": "$.paging.cursors.after",
+                  "more_selector": "$.paging.has_next"
+                },
+                "input": {
+                  "business_id": {
+                    "fill": {
+                      "from": "parent",
+                      "field": "id"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "route_subscription": {
+          "tool_id": "tool:whatsapp-business-listen-for-messages",
+          "input": {
+            "waba_id": {
+              "fill": {
+                "from": "route",
+                "field": "route_key"
+              }
+            }
+          },
+          "success_selector": "$.success",
+          "recheck_minutes": 15
+        },
+        "connects_with": {
+          "vendor": "whatsapp-business",
+          "connection_id": "service_connection:whatsapp-business"
+        },
+        "source": {
+          "read_on": "2026-10-08",
+          "from": [
+            "https://www.postman.com/meta/whatsapp-business-platform/folder/tduohwq/webhook-payload-reference",
+            "https://www.postman.com/meta/whatsapp-business-platform/documentation/du6gzjv/embedded-signup",
+            "https://whatsapp.github.io/WhatsApp-Nodejs-SDK/api-reference/webhooks/start/"
+          ]
+        }
+      }
+    }
+  ]
+}
