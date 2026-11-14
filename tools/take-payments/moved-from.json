@@ -1,0 +1,49 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/checkout/show/CheckoutFlow.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/packages/checkout/show/CheckoutFlow.tsx",
+      "source_identity": "1f:40a4978ddb7978ff73795c4ffcf209c796a65773e6809d37feb99aa27048290a",
+      "identity": "1f:0817b5d53a174cf2e1253d89d0b9e3a0eb81f8cb5c204521e92c74a10f68ca35",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
+    },
+    {
+      "from": "packages/checkout/show/CheckoutPaymentSlot.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/packages/checkout/show/CheckoutPaymentSlot.tsx",
+      "source_identity": "1f:477fdaa7e03fc8e1515f79f70bb31d47b3fe0925d0f44889694ee3bf907b02b5",
+      "identity": "1f:4b2fdfb83a28b11d711a2dc9a47799812d8a77e2d4ca5ad078f57006dc8202bf"
+    },
+    {
+      "from": "packages/checkout/show/mount-checkout.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/packages/checkout/show/mount-checkout.tsx",
+      "source_identity": "1f:aa76f1374f198804e515f9f9a22e28acf175468fe49bfe87476ac81028a6a227",
+      "identity": "1f:aa76f1374f198804e515f9f9a22e28acf175468fe49bfe87476ac81028a6a227"
+    },
+    {
+      "from": "packages/checkout/read-data/checkout-contract.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/read-data/checkout-contract.ts",
+      "source_identity": "1f:b1afc6abcc4a6b09f12dd35fd9166a94adb3431b0cd56a2e12225353023f10db",
+      "reused": true,
+      "adapted": "take-payments holds this file in its evolved form; the old copy is not moved a second time",
+      "identity_at_move": "1f:79eb37f24bbe5b4868dac0cfabfadd7338941bc996e2e30058aa34ba8c9405bd",
+      "byte_copy_commit": "d16386dff5539945d36c18db281e54b752b8b8f3"
+    },
+    {
+      "from": "packages/checkout/read-data/offer-eligibility.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-payments/read-data/offer-eligibility.ts",
+      "source_identity": "1f:5c2478c815e9c163b1febe65acdde084b202fd8f67897d7cfb7f92e31819e695",
+      "identity": "1f:902e38a7f0fdced9167a1bbaa8a85e9635822f0d4d03734048b598c6025a2414",
+      "reused": true,
+      "adapted": "take-payments holds this file in its evolved form; the old copy is not moved a second time"
+    }
+  ]
+}

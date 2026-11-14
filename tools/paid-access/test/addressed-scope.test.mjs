@@ -17,15 +17,21 @@ const ask = (input, ctx) => checkABuyerMayOpen(input, { nowMs: NOW, ...ctx });
 
 test('a thing that requires nothing is open to any named buyer, with no access looked up', async () => {
   const unreadable = { async *list() { throw new Error('must not be read'); } };
-  assert.deepEqual(await ask({ subject: 'anyone', scope: scope() }, { door: unreadable }), { authorized: true });
+  assert.deepEqual(await ask({ subject: 'anyone', scope: scope() }, { door: unreadable }), { authorized: true, membership_revision: 'membership-revision:ungated' });
   assert.deepEqual(await ask({ subject: ' ', scope: scope() }, { door: unreadable }), { authorized: false });
 });
 
 test('a gated thing opens on ANY intersection with what the buyer holds, and a refund closes it on the next ask', async () => {
   const gated = scope(['access:other', 'access:bread-class', 'access:bread-class']);
-  assert.deepEqual(await ask({ subject: 'ana@example.com', scope: gated }, { door: door([paid], offers) }), { authorized: true });
-  assert.deepEqual(await ask({ subject: 'bo@example.com', scope: gated }, { door: door([paid], offers) }), { authorized: false });
-  assert.deepEqual(await ask({ subject: 'ana@example.com', scope: gated }, { door: door([paid, refunded], offers) }), { authorized: false });
+  const opened = await ask({ subject: 'ana@example.com', scope: gated }, { door: door([paid], offers) });
+  assert.equal(opened.authorized, true);
+  assert.equal(await ask({ subject: 'bo@example.com', scope: gated }, { door: door([paid], offers) }).then(answer => answer.authorized), false);
+  const closed = await ask({ subject: 'ana@example.com', scope: gated }, { door: door([paid, refunded], offers) });
+  assert.equal(closed.authorized, false);
+  // The revision follows what the buyer holds: the refund that closes the thing changes it, and asking again changes nothing.
+  assert.match(opened.membership_revision, /^1f:[0-9a-f]{64}$/);
+  assert.notEqual(closed.membership_revision, opened.membership_revision);
+  assert.equal((await ask({ subject: 'ana@example.com', scope: gated }, { door: door([paid], offers) })).membership_revision, opened.membership_revision);
 });
 
 test('access that cannot be worked out is not authorized, and the answer says nothing else', async () => {
@@ -52,5 +58,5 @@ test('one value_ref contract serves a page, a publication and a thing no one has
 
 test('a buyer\'s own claim of access is not read: only the scope and the subject are', async () => {
   const answer = await ask({ subject: 'bo@example.com', scope: scope(['access:bread-class']), granted_access_refs: ['access:bread-class'] }, { door: door([], offers) });
-  assert.deepEqual(answer, { authorized: false });
+  assert.equal(answer.authorized, false);
 });

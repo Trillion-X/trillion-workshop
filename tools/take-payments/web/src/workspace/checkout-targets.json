@@ -1,0 +1,26 @@
+{
+  "about": "Which Workshop tool answers each target the checkout screen asks, and which of the screen's fields each tool takes. Adding or moving an answer is one row here; no tool is named in the code beside this file.",
+  "seller_connection": "service_connection:stripe",
+  "prepare": {
+    "target": "checkout.prepare-checkout",
+    "tool": "tool:price-a-sale",
+    "takes": ["checkoutAttemptId", "checkoutStartedAt", "offerId", "priceOptionId", "checkoutCode", "customerSelectedAmountCents", "unitCount", "chargeDimensions"]
+  },
+  "start": {
+    "target": "checkout.start-checkout",
+    "tool": "tool:start-a-stripe-checkout",
+    "takes": ["checkoutAttemptId", "checkoutStartedAt", "offerId", "priceOptionId", "checkoutCode", "customerSelectedAmountCents", "unitCount", "chargeDimensions", "consent", "customer"],
+    "return_query": { "checkout": "success", "session_id": "{CHECKOUT_SESSION_ID}" }
+  },
+  "complete": {
+    "target": "checkout.complete-hosted-session",
+    "tool": "tool:look-up-a-stripe-checkout",
+    "paid_status": "paid"
+  },
+  "held": {
+    "tool": "tool:see-who-holds-paid-access"
+  },
+  "offers": { "type": "record:commercial-offer", "kind": "commercial-offer" },
+  "eligibility": { "type": "record:offer-eligibility-rule", "kind": "offer-eligibility-rule" },
+  "amount_choices": { "type": "record:offer-amount-choice", "kind": "offer-amount-choice" }
+}

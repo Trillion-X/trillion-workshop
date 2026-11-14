@@ -180,8 +180,19 @@
         "placements": [
           "placement:small-container"
         ],
+        "screen": {
+          "group": "sell",
+          "kind": "module",
+          "module": {
+            "package": "take-payments",
+            "entry": "web/src/workspace/checkout-screen-mount.tsx"
+          },
+          "icon": "CreditCard",
+          "label": "Checkout",
+          "about": "Choose a plan or an amount, agree, and pay through Stripe."
+        },
         "provenance": {
-          "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
+          "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout (pure decisions, and its buyer screen CheckoutFlow, moved byte for byte)"
         },
         "verify": [
           {

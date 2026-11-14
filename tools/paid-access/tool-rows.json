@@ -164,7 +164,7 @@
         "label": "Check a buyer may open something",
         "status": "active",
         "job": "Decide whether a buyer may open one gated thing (a page, a lesson, a publication) from the access it requires",
-        "description": "Takes the scope the thing is gated by ({ schema: \"addressed-expiring-value-scope/v1\", value_ref, instance_ref, required_access_refs }) and the buyer. A thing that requires no access is open to any named buyer; otherwise the buyer must hold any one of the required access refs now (tool:see-who-holds-paid-access works that out). Answers only authorized true or false: a scope that is not exactly that schema, no buyer, or access that cannot be worked out is false.",
+        "description": "Takes the scope the thing is gated by ({ schema: \"addressed-expiring-value-scope/v1\", value_ref, instance_ref, required_access_refs }) and the buyer. A thing that requires no access is open to any named buyer; otherwise the buyer must hold any one of the required access refs now (tool:see-who-holds-paid-access works that out). Answers authorized true or false: a scope that is not exactly that schema, no buyer, or access that cannot be worked out is false with no revision. Otherwise the answer carries membership_revision, which changes when the buyer's access changes, so an action admitted on it can fail closed when membership moves.",
         "input_schema": {
           "type": "object",
           "required": ["subject", "scope"],
@@ -174,7 +174,7 @@
             "scope": { "type": "object", "description": "{ schema, value_ref, instance_ref, required_access_refs }" }
           }
         },
-        "output_schema": { "type": "object", "required": ["authorized"], "properties": { "authorized": { "type": "boolean" } } },
+        "output_schema": { "type": "object", "required": ["authorized"], "properties": { "authorized": { "type": "boolean" }, "membership_revision": { "type": "string", "description": "membership-revision:ungated for a thing that requires nothing, else a hash of what the buyer holds; it changes when a grant, revoke, payment or refund changes it" } } },
         "invoke": {
           "kind": "container",
           "files": {

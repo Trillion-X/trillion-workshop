@@ -16,6 +16,7 @@ With no `access-effect-rule` and no `effect-lifecycle` record, it reads `read-da
 
 - **The gate is the thing's own record.** A sold file is one `paid-file` record (id = the name buyers ask for it by) naming the access refs that open it. A request only names the file; it can never say which access the file needs.
 - **One entitlement rule.** The buyer holds ANY of the required refs; a thing that requires none is open to any named buyer (`read-data/holds-any-required-access-ref.ts`).
+- **An authorized answer names the membership it was given on.** `tool:check-a-buyer-may-open` returns `membership_revision`: `membership-revision:ungated` for a thing that requires nothing, else a hash of the grants and the refs held, so a grant, revoke, payment or refund that changes what the buyer holds changes it (restored from the old `product-access` scope authority).
 - **Fail closed.** Records that cannot be read answer unavailable (never "holds nothing", never a grant); no subject answers denied; a scope that is not exactly the schema is not authorized.
 - **The run's clock is the time.** A caller cannot choose it.
 - **No key in a row, a record or an answer.** The `paid-file` record names its key (`enc_key_ref`); the key stays in the person's held values and reaches only the run that seals (descriptor 4, `paid-files-key`) and the door that decrypts.

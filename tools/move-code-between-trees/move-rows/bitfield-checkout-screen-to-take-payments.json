@@ -1,0 +1,208 @@
+{
+  "id": "move:bitfield-checkout-to-take-payments",
+  "about": "The retired bitfield-packages checkout package's buyer screen (packages/checkout/show) and the money display function (packages/ui/show/format-money.ts) move byte for byte into tools/take-payments and tools/ui, with the account reads the screen imports. Files the Workshop already holds in evolved form are named in adapted_homes and not copied again. The engine (gate-checkout, the targets, payment-adapter) is not carried: each of its calls has a Workshop owner, listed in tools/take-payments/README.md.",
+  "source": {
+    "name": "Trillion-X/bitfield-packages",
+    "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+    "test_folders": []
+  },
+  "destination": {
+    "name": "Trillion-X/trillion-workshop",
+    "package": "trillion-workshop",
+    "shared_folder": "tools/shared-code"
+  },
+  "keep": [],
+  "provider_calls": [],
+  "calls": [],
+  "host_provides": [
+    "@/components",
+    "@/hooks",
+    "@/lib",
+    "@/packages",
+    "@/tests",
+    "@assistant-ui/ai-sdk",
+    "@assistant-ui/react",
+    "@assistant-ui/react-generative-ui",
+    "@assistant-ui/react-markdown",
+    "@assistant-ui/react-mcp",
+    "@assistant-ui/react-syntax-highlighter",
+    "@assistant-ui/store",
+    "@aws-sdk/client-ses",
+    "@aws-sdk/signature-v4-crt",
+    "@aws-sdk/signature-v4a",
+    "@base-ui/react",
+    "@bitfield-package-entry-scope/keep-the-last-good-answer",
+    "@bitfield/runtime-kit",
+    "@bitfield/slot-protocol",
+    "@codemirror/lang-css",
+    "@codemirror/lang-html",
+    "@codemirror/lang-javascript",
+    "@codemirror/lang-json",
+    "@codemirror/lang-markdown",
+    "@codemirror/lang-python",
+    "@codemirror/language",
+    "@codemirror/search",
+    "@codemirror/state",
+    "@codemirror/view",
+    "@floating-ui/dom",
+    "@kobalte/core",
+    "@lezer/highlight",
+    "@opal/layouts",
+    "@opal/types",
+    "@radix-ui/react-popover",
+    "@radix-ui/react-tooltip",
+    "@remotion/bundler",
+    "@remotion/renderer",
+    "@tanstack/react-virtual",
+    "@testing-library/react",
+    "@testing-library/user-event",
+    "@whiskeysockets/baileys",
+    "ajv",
+    "beautiful-mermaid",
+    "class-variance-authority",
+    "clsx",
+    "cmdk",
+    "codemirror",
+    "diff",
+    "embla-carousel-react",
+    "framer-motion",
+    "googleapis",
+    "input-otp",
+    "jsdom",
+    "lucide-react",
+    "next",
+    "next-themes",
+    "onnxruntime-web",
+    "parse-diff",
+    "playwright-core",
+    "pngjs",
+    "pyodide",
+    "qrcode",
+    "radix-ui",
+    "react",
+    "react-day-picker",
+    "react-dom",
+    "react-dropzone",
+    "react-hook-form",
+    "react-markdown",
+    "react-resizable-panels",
+    "react-rnd",
+    "react-shiki",
+    "react-syntax-highlighter",
+    "recharts",
+    "remark-gfm",
+    "remotion",
+    "rollup",
+    "shiki",
+    "solid-js",
+    "sonner",
+    "tailwind-merge",
+    "tailwindcss",
+    "three",
+    "vaul",
+    "vite",
+    "vitest",
+    "ws",
+    "zod",
+    "zustand"
+  ],
+  "adapted_homes": [
+    {
+      "from": "packages/ui/index.ts",
+      "home": "tools/ui/index.ts",
+      "why": "tools/ui holds the barrel of browser-local screen parts in its own shape; the old barrel is not copied a second time"
+    },
+    {
+      "from": "packages/sidebar/read-data/read-sidebar-placement.ts",
+      "home": "tools/organize-the-sidebar/read-data/read-sidebar-placement.ts",
+      "why": "organize-the-sidebar holds this file rewritten; the old copy is not moved a second time"
+    },
+    {
+      "from": "packages/sidebar/read-data/read-surface-collections.ts",
+      "home": "tools/organize-the-sidebar/read-data/read-surface-collections.ts",
+      "why": "organize-the-sidebar holds this file rewritten; the old copy is not moved a second time"
+    },
+    {
+      "from": "packages/sidebar/show/ProjectedCollectionNav.ts",
+      "home": "tools/organize-the-sidebar/show/ProjectedCollectionNav.ts",
+      "why": "organize-the-sidebar holds this file rewritten; the old copy is not moved a second time"
+    },
+    {
+      "from": "packages/sidebar/show/SidebarContent.tsx",
+      "home": "tools/organize-the-sidebar/show/SidebarContent.tsx",
+      "why": "organize-the-sidebar holds this file rewritten; the old copy is not moved a second time"
+    },
+    {
+      "from": "packages/sidebar/show/useSidebarPlacement.ts",
+      "home": "tools/organize-the-sidebar/show/useSidebarPlacement.ts",
+      "why": "organize-the-sidebar holds this file rewritten; the old copy is not moved a second time"
+    },
+    {
+      "from": "packages/screen-arrangement/show/CompanionMounts.tsx",
+      "home": "tools/arrange-screens-in-panes/show/CompanionMounts.tsx",
+      "why": "arrange-screens-in-panes holds this file rewritten; the old copy is not moved a second time"
+    },
+    {
+      "from": "packages/checkout/read-data/charge-dimensions.ts",
+      "home": "tools/take-payments/read-data/charge-dimensions.ts",
+      "why": "take-payments holds this file in its evolved form; the old copy is not moved a second time"
+    },
+    {
+      "from": "packages/checkout/read-data/unit-price-curve.ts",
+      "home": "tools/take-payments/read-data/unit-price-curve.ts",
+      "why": "take-payments holds this file in its evolved form; the old copy is not moved a second time"
+    },
+    {
+      "from": "packages/checkout/read-data/verify-paid-amount.ts",
+      "home": "tools/take-payments/read-data/verify-paid-amount.ts",
+      "why": "take-payments holds this file in its evolved form; the old copy is not moved a second time"
+    },
+    {
+      "from": "packages/checkout/read-data/checkout-contract.ts",
+      "home": "tools/take-payments/read-data/checkout-contract.ts",
+      "why": "take-payments holds this file in its evolved form; the old copy is not moved a second time"
+    },
+    {
+      "from": "packages/checkout/read-data/offer-eligibility.ts",
+      "home": "tools/take-payments/read-data/offer-eligibility.ts",
+      "why": "take-payments holds this file in its evolved form; the old copy is not moved a second time"
+    },
+    {
+      "from": "packages/checkout/read-data/read-code-adjustments.ts",
+      "home": "tools/take-payments/read-data/read-code-adjustments.ts",
+      "why": "take-payments holds this file in its evolved form; the old copy is not moved a second time"
+    },
+    {
+      "from": "packages/checkout/read-data/read-offers.ts",
+      "home": "tools/funnels-and-offers/read-data/read-offers.ts",
+      "why": "funnels-and-offers holds this file in its evolved form; the old copy is not moved a second time"
+    },
+    {
+      "from": "packages/product-access/read-data/read-granted-access-refs.ts",
+      "home": "tools/paid-access/read-data/read-granted-access-refs.ts",
+      "why": "paid-access holds this file in its evolved form; the old copy is not moved a second time"
+    }
+  ],
+  "groups": [
+    {
+      "id": "checkout",
+      "owner": [
+        "packages/checkout/show/CheckoutFlow.tsx",
+        "packages/checkout/show/CheckoutPaymentSlot.tsx",
+        "packages/checkout/show/mount-checkout.tsx"
+      ],
+      "to": "tools/take-payments",
+      "capability": "the buyer checkout screen",
+      "joins_tool": "the buyer checkout screen of the old checkout package, which take-payments does not hold"
+    },
+    {
+      "id": "format-money",
+      "owner": [
+        "packages/ui/show/format-money.ts"
+      ],
+      "to": "tools/ui",
+      "capability": "money display primitive",
+      "joins_tool": "the money display function (minor units and a currency code to one localized string), which tools/ui does not hold"
+    }
+  ]
+}

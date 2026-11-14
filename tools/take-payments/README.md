@@ -44,6 +44,11 @@ A person who sells with their own Stripe account can have their AI price a sale 
 | `do-work/resource-usage.mjs` | Records-backed pricing configuration, immutable physical observations, supplier settlement/corrections and paged readback. Re-exported by `take-payments.mjs`, through the same records-door runner. |
 | `do-work/live-usage.mjs` | `tool:observe-live-usage`: reads the account's own usage day rows (the engine's counts of stored bytes, tool work milliseconds and source bytes, files door `usage_days`) and keeps each closed day as one `resource-usage-observation` per billed resource, for the existing settlement. Its readers are the older owner's `usageReadings` (REF-LIVE-USAGE-READINGS). |
 | `read-data/usage-meters.json` | The billed meters and the default +30% rule, ported one to one from old trillion `src/usage-meters.json`, and which engine row field each reading reads. |
+| `packages/checkout/show/CheckoutFlow.tsx`, `CheckoutPaymentSlot.tsx`, `mount-checkout.tsx` | The buyer checkout screen, moved byte for byte from the old checkout package (`moved-from.json`) and edited only where it called the retired Bitfield runtime (listed under "The checkout screen's swapped calls"): plan choice, pay-what-you-want with suggested and custom amounts and their limits, compare-at price, benefits and detail groups, billing and legal consent, customer fields, offers filtered by what the buyer holds, a checkout attempt that survives a reload, the route to open after paying. It is the screen of `tool:price-a-sale` (`screen.module.entry` `web/src/workspace/checkout-screen-mount.tsx`). |
+| `web/src/workspace/checkout-screen-mount.tsx` | The screen's module entry: answers the targets the screen asks, then mounts it. Its input may name `seller_connection` and `subject` (the buyer, as the person's access rules name one). |
+| `web/src/workspace/checkout-targets.ts`, `checkout-targets.json` | The web shell's answers to the three targets, read from the tools the DATA names, and the hooks that read the person's offer, eligibility and amount-choice rows through the records door. |
+| `web/src/workspace/checkout-answers.ts` | What each target answers, taking the tool run as a parameter. |
+| `read-data/suggestion-lists.mjs` | The rows of each suggestion list an offer names (`suggestionListsOf`), read by the tools and by the screen. |
 | `tool-rows.json` | The eighteen rows. |
 | `test/` | The ported cases (curve, dimensions, price discovery, voluntary amounts, verify, phases, webhook, request builder, Connect, links) and new ones for the quote, hosted session, listing completed checkouts and ended subscriptions (answers shaped like Stripe test mode), rows and money rules. `expect.mjs` is a vitest-shaped helper that compares whole-cent bigint amounts. |
 
@@ -139,10 +144,42 @@ account. Customer-facing views project only that customer's authorized lines.
 
 - A buyer who comes back from checkout before their account has a passkey: the older owner answered a signed-out visit to the root, carrying the buyer cookie of a payment its signed event confirmed, with the account page's paid step (`/account?paid`; older owner src/worker.mjs:4225, `confirmedBuyer` :365-371, `heldBuyer` :335). The engine's signed-out root now goes to its sign-in page; the buyer cookie, the confirmed-payment check and that redirect have no owner yet. `post_purchase_route_path` already opens the row's page after paying.
 
+## The checkout screen's swapped calls
+
+The screen was moved byte for byte; these are the only edits, and each replaces a call of the retired runtime or of a package that is not here.
+
+| Where in `CheckoutFlow.tsx` | Was | Now |
+|---|---|---|
+| `sendCheckoutTarget` (one call) | `sendRequestToBitfieldTarget` from `@bitfield/runtime-kit` | the same function from `#workspace-records`, whose targets `checkout-targets.ts` answers |
+| `checkout.prepare-checkout` | the old gate's `prepareCheckout` | `tool:price-a-sale`, its `material` |
+| `checkout.start-checkout`, paid | the old gate's `startCheckout` with a signed quote | `tool:start-a-stripe-checkout`, naming `seller_connection`, a return that carries `session_id`, and the buyer's consent |
+| `checkout.start-checkout`, free | the old gate's free completion event | no provider: a choice that asks for nothing today and nothing later completes at once; what a free offer gives is held by everyone (`tools/paid-access`) |
+| `checkout.complete-hosted-session` | the old gate's `completeHostedCheckout` | `tool:look-up-a-stripe-checkout`: paid only when Stripe says `paid`; access follows the signature-checked payment event, never the return |
+| `useBitfieldData('commercial-offers')` | the runtime's projection | `useCheckoutOffers`: the rows of `record:commercial-offer` and the person's `record:offer-amount-choice` rows, through the records door |
+| `useBitfieldData('offer-eligibility')` | the runtime's projection | `useEligibilityRows`: the rows of `record:offer-eligibility-rule` |
+| `useBitfieldData('offer-scoping')` | the runtime's projection | none: no row of the Workshop keeps a visitor's selection surfaces for a screen to read, so the list is returned unchanged, as the old screen did with no projection. Per-visitor choice is `tools/run-experiments`' `tool:choose-what-a-visitor-sees`; a screen that asks it is not wired yet. |
+| `readAccountPortalBrowserSession` and `readAccountGrantedAccessRefs` | the old account-session and product-access reads | `readHeldAccessRefs`: `tool:see-who-holds-paid-access` for the buyer the screen's input names |
+| `scopeRecordsForObserver`, `formatMoneyCents`, `LoadingOverlay` | `@/packages/...` imports | the files that moved to `tools/run-experiments/read-data/scope-records.ts`, `tools/ui/packages/ui/show/format-money.ts` (moved with this screen) and `tools/ui` |
+
+Not wired and said so: nothing observed a live checkout through these answers; Stripe test mode was not run.
+
+## The old checkout engine, call by call
+
+`do-work/gate-checkout.ts`, the target files and `payment-adapter.ts` asked the retired runtime for these. Each has an owner here; the engine itself is not carried.
+
+| Old call | Owner now |
+|---|---|
+| `payment-adapter.prepare-provider-session`, `.start-provider-session`, `.read-provider-session` | `tool:price-a-sale`, `tool:start-a-stripe-checkout`, `tool:look-up-a-stripe-checkout` |
+| `stripe-payment-provider.read-hosted-session`, `.update-subscription-metadata` | `tool:look-up-a-stripe-checkout`, `tool:tag-a-stripe-subscription` |
+| `engine.operation.label-addressed` read of offers, code adjustments and eligibility policies | `record:commercial-offer`, `record:checkout-code-adjustment` and `record:offer-eligibility-rule` rows through the records door |
+| the grant and revoke events (`capability_access_granted`, `..._revoked`) and the revocation audit write | access is worked out from payment events each time (`tools/paid-access`); a gift or pass is an `access-grant` record by `tool:grant-paid-access-to-people`, and its `revoke` ends one |
+| `account-identity.derive`, the signed-event author and authority (`sign-event`, `admit-event`, `list-effects`), the signed quote reservation | no owner: a payment is believed from Stripe's own record (`tool:check-a-stripe-event`, `tool:check-what-a-buyer-paid`), the buyer is the account the door verified, and no quote is reserved, so a paid amount is checked against the offer instead of a signed quote |
+| `slot::workflow` email contact-point capture at signup | no owner here: capturing a buyer's email into the contact points is the contacts and workflow owners' job, and nothing calls it from checkout now |
+
 ## Not carried, with the reason
 
 - `stripe-payment-elements`: the secure-field mount, the section list for a screen and the browser Stripe.js confirmation are drawing and browser glue; they belong with the screens, and the only logic in them (redacting key-shaped words) is in `stripe-response-redactor.mjs`.
-- `checkout/show/*`, the iOS JSCore mounts, the descriptor readers (`checkout-descriptors`, `checkout-fields`, `checkout-rules`, `event-templates`) and the old signed-quote, account-identity and signed-event sends in `gate-checkout.ts` belong to the old engine's plumbing.
+- The old checkout's iOS JSCore mounts, the descriptor readers (`checkout-descriptors`, `checkout-fields`, `checkout-rules`, `event-templates`, `read-funnel`, `validate-funnel-coverage`), the carried targets (`prepare-checkout-target` and the other target files), `payment-adapter.ts` and `gate-checkout.ts`. The engine's calls each have a Workshop owner, listed under "The old checkout engine, call by call" below; none is carried because none could run here without the retired Bitfield runtime.
 - `payment-adapter` route descriptors (`operation-routes.ts`, the spend-rail descriptors): old-engine routing; spend rails are `tools/guard-ai-spending`.
 
 ### Report an exact settlement to the payment provider
