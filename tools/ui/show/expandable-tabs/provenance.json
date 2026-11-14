@@ -1,0 +1,23 @@
+{
+  "source": "https://21st.dev/@victorwelander/components/expandable-tabs",
+  "registry_id": 1428,
+  "author": "victorwelander",
+  "license": "MIT",
+  "retrieved": "2026-09-26",
+  "retrieved_through": "21st.dev get_component",
+  "original_files": [
+    {
+      "upstream_path": "components/ui/expandable-tabs.tsx"
+    }
+  ],
+  "adaptations": [
+    "Items carry an id and a NamedIcon name as DATA instead of a LucideIcon component, so DOM pages can pass plain JSON.",
+    "Added mode 'choice' (controlled value stays expanded, radiogroup) and mode 'action' (hovered or focused item expands, toolbar, press fires onSelect).",
+    "usehooks-ts useOnClickOutside replaced with one document pointerdown listener, active only while an action item is expanded.",
+    "Upstream Tailwind shadcn colors replaced with screen-look custom properties.",
+    "Added size 'sm' for list rows; size 'md' keeps the upstream geometry.",
+    "Reduced motion swaps state instantly; upstream spring timing is otherwise unchanged.",
+    "Added frame 'none': the items are drawn bare (no border, glass or shadow) on whatever holds them, for the message box's bottom row; 'group' keeps the upstream group look.",
+    "Added labelDisplay 'tooltip' for constrained toolbars: pinned and keyboard-focused items retain compact geometry; the existing shared hover label also names keyboard focus."
+  ]
+}

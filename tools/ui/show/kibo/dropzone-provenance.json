@@ -1,0 +1,31 @@
+{
+  "source": "https://www.kibo-ui.com/components/dropzone",
+  "repository": "https://github.com/shadcnblocks/kibo",
+  "commit": "3d63cdb15b79d972e3dc38a10997987672f9b263",
+  "license": "MIT",
+  "license_file": "LICENSE.md",
+  "upstream_path": "packages/dropzone/index.tsx",
+  "retained_source": "upstream/dropzone.tsx",
+  "retained_sha256": "87bcb4740b9789243cae072c60bb4fa38b968040be6817635f6410694f22d5a3",
+  "components": [
+    "Dropzone",
+    "DropzoneEmptyState"
+  ],
+  "adaptation": "file-dropzone.tsx",
+  "consumer": "ExpansionControls.mountFileDropzone and mountWorkspaceFileDropzone",
+  "changes": [
+    "Actual source retained byte-identical in upstream; executable dropzone.tsx supplies button role and caller aria-label because react-dropzone defaults to presentation. Button/cn aliases resolve to licensed Coss owners.",
+    "Generic imperative mount/update/destroy bridge with async submission state and duplicate suppression.",
+    "Caller-owned labels, accepted formats, callback and batches.",
+    "Transient workspace-wide external-file drag presence and imperative picker opener; Kibo owns file extraction and validation."
+  ],
+  "appearance": "../../../screen-look/show/file-dropzone.css",
+  "dependency": "react-dropzone@14.3.8 (MIT)",
+  "verification": "tests/file-dropzone.test.mjs",
+  "adapted_source": "dropzone.tsx",
+  "source_hashes": {
+    "upstream/dropzone.tsx": "87bcb4740b9789243cae072c60bb4fa38b968040be6817635f6410694f22d5a3",
+    "dropzone.tsx": "1cd6e178f42e58cf292341308ec9c8457622b26bad3bb403c529b0f6087c3aaa",
+    "file-dropzone.tsx": "9abedca500566944127d9e496572d06e78d4769f1aa2493122ce435db295c4b2"
+  }
+}

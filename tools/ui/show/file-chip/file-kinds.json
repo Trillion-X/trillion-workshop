@@ -1,0 +1,18 @@
+{
+  "_what": "How a file chip (FileChip.tsx) and any file tile draw one file's kind and its folder, as DATA. `families` maps the start of a file's media type to the named icon its kind shows (parts/ui/show/icon NamedIcon); `endings` names the family of a file with no media type by the ending of its name; `fallback` is the icon of any other file. `folder_colours` are the screen-look palette hues (parts/screen-look/show/coss-workspace.css `--record-kind-<id>`, the ids of src/space-settings.json colours) a folder's badge is drawn in: each folder always gets the same one, picked by its name. Red is left out, since red is kept for notifications. A new kind of file is one row here.",
+  "families": [
+    { "prefix": "image/", "icon": "Image" },
+    { "prefix": "video/", "icon": "Film" },
+    { "prefix": "audio/", "icon": "AudioLines" },
+    { "prefix": "text/", "icon": "FileText" },
+    { "prefix": "application/pdf", "icon": "FileText" }
+  ],
+  "endings": {
+    "jpg": "image/", "jpeg": "image/", "png": "image/", "gif": "image/", "webp": "image/", "heic": "image/",
+    "mp4": "video/", "mov": "video/", "m4v": "video/", "webm": "video/",
+    "mp3": "audio/", "m4a": "audio/", "wav": "audio/", "aac": "audio/",
+    "txt": "text/", "md": "text/", "pdf": "application/pdf"
+  },
+  "fallback": "File",
+  "folder_colours": ["blue", "turquoise", "green", "yellow", "orange", "pink", "purple", "grey"]
+}

@@ -1,0 +1,26 @@
+{
+  "references": [
+    {
+      "source": "https://21st.dev/r/preetsuthar17/chip",
+      "registry_id": 3259,
+      "license": "MIT",
+      "use": "Chip anatomy: leading icon, rounded pill, compact height."
+    },
+    {
+      "source": "https://21st.dev/r/shadcn/hover-card",
+      "registry_id": 1481,
+      "license": "MIT",
+      "use": "Details that open on hover of the chip."
+    }
+  ],
+  "mobbin_references": [
+    "https://mobbin.com/screens/208d8a82-6e02-4fb1-b5c6-700674050bef",
+    "https://mobbin.com/screens/4576e54c-4053-4e03-a744-d645b3adc755"
+  ],
+  "retrieved": "2026-09-27",
+  "code_copied": false,
+  "adaptations": [
+    "No upstream code copied; the popover is the shared coss Base UI popover with openOnHover.",
+    "Chips are chosen, ordered and given actions by field DATA instead of props per chip."
+  ]
+}

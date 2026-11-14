@@ -1,0 +1,15 @@
+export type CalendarParts = {year: number; month: number; day: number};
+export function parseDay(value: unknown): CalendarParts | null;
+export function calendarDay(value: unknown): string | null;
+export function formatDay(year: number, month: number, day: number): string;
+export function localDay(value?: Date): string;
+export function shiftDay(value: string, days: number): string | null;
+export function dayInRange(value: unknown, min?: unknown, max?: unknown): boolean;
+export function boundedDay(value: unknown, min?: unknown, max?: unknown): string | null;
+export function localDayBounds(value: unknown): {min: number; max: number} | null;
+export function normalizeTime(value: unknown): string | null;
+export function timeInRange(value: unknown, min?: unknown, max?: unknown): boolean;
+export function splitLocalDateTime(value: unknown): {day: string | null; time: string | null};
+export function dateTimeInRange(value: unknown, min?: unknown, max?: unknown): boolean;
+export function isLocalDateTimeValid(day: unknown, time: unknown): boolean;
+export function combineLocalDateTime(day: unknown, time: unknown, min?: unknown, max?: unknown): string | null;

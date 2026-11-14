@@ -1,0 +1,273 @@
+{
+  "schema": "ui.file-viewers",
+  "about": "Which viewer FilePreview draws a file with. Rows are read in order and the first match wins. A row with `type_prefix` matches a file whose media type (lower case) starts with it; a type that names nothing (empty or application/octet-stream) matches no `type_prefix` row. A row with `extensions` matches a file whose type names nothing and whose name ends in one of them; a named type decides alone. A row naming neither matches every file. `viewer` names an entry of FILE_VIEWERS in FilePreview.tsx; an unknown name draws `file`. A row's `settings` go to its viewer as they are (the table viewer reads `separator`). A new kind of file is one row here, and a new way of showing one is one entry there.",
+  "unnamed_types": [
+    "",
+    "application/octet-stream",
+    "binary/octet-stream"
+  ],
+  "rows": [
+    {
+      "type_prefix": "video/",
+      "viewer": "video"
+    },
+    {
+      "type_prefix": "audio/",
+      "viewer": "sound"
+    },
+    {
+      "type_prefix": "image/",
+      "viewer": "picture"
+    },
+    {
+      "type_prefix": "application/pdf",
+      "viewer": "pdf"
+    },
+    {
+      "type_prefix": "application/vnd.openxmlformats-officedocument.",
+      "viewer": "office"
+    },
+    {
+      "type_prefix": "text/csv",
+      "viewer": "table",
+      "settings": {
+        "separator": ","
+      }
+    },
+    {
+      "type_prefix": "application/csv",
+      "viewer": "table",
+      "settings": {
+        "separator": ","
+      }
+    },
+    {
+      "type_prefix": "text/tab-separated-values",
+      "viewer": "table",
+      "settings": {
+        "separator": "\t"
+      }
+    },
+    {
+      "type_prefix": "text/markdown",
+      "viewer": "markdown"
+    },
+    {
+      "type_prefix": "text/",
+      "viewer": "text"
+    },
+    {
+      "type_prefix": "application/json",
+      "viewer": "text"
+    },
+    {
+      "type_prefix": "application/ld+json",
+      "viewer": "text"
+    },
+    {
+      "type_prefix": "application/xml",
+      "viewer": "text"
+    },
+    {
+      "type_prefix": "application/javascript",
+      "viewer": "text"
+    },
+    {
+      "type_prefix": "application/typescript",
+      "viewer": "text"
+    },
+    {
+      "type_prefix": "application/x-yaml",
+      "viewer": "text"
+    },
+    {
+      "type_prefix": "application/yaml",
+      "viewer": "text"
+    },
+    {
+      "type_prefix": "application/toml",
+      "viewer": "text"
+    },
+    {
+      "type_prefix": "application/sql",
+      "viewer": "text"
+    },
+    {
+      "type_prefix": "application/x-sh",
+      "viewer": "text"
+    },
+    {
+      "type_prefix": "application/x-ndjson",
+      "viewer": "text"
+    },
+    {
+      "type_prefix": "application/x-subrip",
+      "viewer": "text"
+    },
+    {
+      "extensions": [
+        "mp4",
+        "m4v",
+        "mov",
+        "webm",
+        "mkv",
+        "ogv"
+      ],
+      "viewer": "video"
+    },
+    {
+      "extensions": [
+        "mp3",
+        "m4a",
+        "aac",
+        "wav",
+        "flac",
+        "ogg",
+        "oga",
+        "opus",
+        "aiff",
+        "aif"
+      ],
+      "viewer": "sound"
+    },
+    {
+      "extensions": [
+        "png",
+        "jpg",
+        "jpeg",
+        "gif",
+        "webp",
+        "avif",
+        "svg",
+        "bmp",
+        "ico",
+        "heic",
+        "heif"
+      ],
+      "viewer": "picture"
+    },
+    {
+      "extensions": [
+        "pdf"
+      ],
+      "viewer": "pdf"
+    },
+    {
+      "extensions": [
+        "docx",
+        "docm",
+        "dotx",
+        "xlsx",
+        "xlsm",
+        "xltx",
+        "pptx",
+        "pptm",
+        "potx"
+      ],
+      "viewer": "office"
+    },
+    {
+      "extensions": [
+        "csv"
+      ],
+      "viewer": "table",
+      "settings": {
+        "separator": ","
+      }
+    },
+    {
+      "extensions": [
+        "tsv",
+        "tab"
+      ],
+      "viewer": "table",
+      "settings": {
+        "separator": "\t"
+      }
+    },
+    {
+      "extensions": [
+        "psv"
+      ],
+      "viewer": "table",
+      "settings": {
+        "separator": "|"
+      }
+    },
+    {
+      "extensions": [
+        "md",
+        "markdown"
+      ],
+      "viewer": "markdown"
+    },
+    {
+      "extensions": [
+        "txt",
+        "text",
+        "mdx",
+        "rtf",
+        "log",
+        "json",
+        "jsonl",
+        "ndjson",
+        "yaml",
+        "yml",
+        "toml",
+        "ini",
+        "cfg",
+        "conf",
+        "env",
+        "xml",
+        "html",
+        "htm",
+        "css",
+        "scss",
+        "js",
+        "mjs",
+        "cjs",
+        "jsx",
+        "ts",
+        "tsx",
+        "py",
+        "rb",
+        "go",
+        "rs",
+        "java",
+        "kt",
+        "swift",
+        "c",
+        "h",
+        "cc",
+        "cpp",
+        "hpp",
+        "cs",
+        "php",
+        "sh",
+        "bash",
+        "zsh",
+        "fish",
+        "sql",
+        "graphql",
+        "proto",
+        "lua",
+        "r",
+        "dart",
+        "vue",
+        "svelte",
+        "srt",
+        "vtt",
+        "ics",
+        "vcf",
+        "tex",
+        "bib",
+        "diff",
+        "patch"
+      ],
+      "viewer": "text"
+    },
+    {
+      "viewer": "file"
+    }
+  ]
+}
