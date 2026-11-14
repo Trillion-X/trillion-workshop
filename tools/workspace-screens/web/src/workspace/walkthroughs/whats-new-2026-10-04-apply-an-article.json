@@ -1,0 +1,80 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-apply-an-article",
+  "revision": 1,
+  "order": 5,
+  "title": "New: Apply an article to your work",
+  "summary": "Every Trillion article now ends with Apply this to my work. Your AI reads what you are pursuing, finds where the article fits and does the first step for you.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-apply-an-article",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T01:58:02Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-apply-an-article"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Apply an article to your work",
+          "body": "Every article on gettrillion.ai now ends with Apply this to my work. Press it and the article comes here, ready for your AI."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "make-it-mine",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Make this mine",
+          "body": "It starts on Make this mine. Your AI reads what you are pursuing, finds where the piece fits, says it in one line and does the first step. You can pick another action or add a note before you send, and any page link works the same way."
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

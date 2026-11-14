@@ -1,0 +1,84 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-file-opens-at-once",
+  "revision": 1,
+  "order": 10,
+  "title": "A file opens at once, with its name",
+  "summary": "Opening a recording from Media, Files, Recent or a search now shows it straight away, titled with its name. Its words read like a transcript, each line starting with its time, and a video shows its first frame until you press play.",
+  "entry_step": "media",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "board": {
+    "subject": "source:bWVkaWEtY2FyZC1mdWxsLXBvcnQtMjAyNi0xMC0wNA",
+    "title": "Files open at once"
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-file-opens-at-once",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T06:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-file-opens-at-once"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "media",
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tool-screen\"]"
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.media"
+        }
+      },
+      "centered_when_target_missing": true,
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Open any recording",
+          "body": "We're opening Media now. Point at a recording to see its first frame, or open it: it shows at once with its name above it, and what was said reads line by line with the time at the start of each."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Done"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-recording-page",
+  "revision": 1,
+  "order": 10,
+  "title": "A saved video opens on its picture",
+  "summary": "A video you record now shows its first picture as soon as it is saved, its details as tidy rows, Share, New recording and Remove under one … menu, and your Notes and Transcript as tabs under it.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-recording-page",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T20:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-recording-page"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your recordings got a proper page",
+          "body": "A video you record shows its first picture the moment it is saved. Its details sit in tidy rows, everything you can do with it is under one … menu, and your notes and its transcript open as tabs right under it."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "record-video",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Record a video, then open it",
+          "body": "Record a short video and press Stop. It opens on its picture, with Notes for your own words and Transcript for what was said. Share, Download, New recording and Remove are in the … menu beside its name. The waveform while you record now fades the same at both edges."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"record-video\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.record-video"
+        }
+      }
+    }
+  ]
+}

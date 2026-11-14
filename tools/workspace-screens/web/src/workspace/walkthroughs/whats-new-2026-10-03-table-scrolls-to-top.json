@@ -1,0 +1,57 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-table-scrolls-to-top",
+  "revision": 1,
+  "order": 8,
+  "title": "New: Tables scroll back to the top",
+  "summary": "You can scroll a table in a pane all the way back to its top without resizing the pane.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-table-scrolls-to-top",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T21:38:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-table-scrolls-to-top"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Tables in a narrow pane scroll back to the top",
+          "body": "A table in a narrow pane now scrolls all the way back up to its top, so you no longer need to resize the pane."
+        }
+      }
+    }
+  ]
+}

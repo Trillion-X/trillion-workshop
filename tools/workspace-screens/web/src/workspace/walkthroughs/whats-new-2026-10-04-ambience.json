@@ -1,0 +1,179 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-ambience",
+  "revision": 1,
+  "order": 6,
+  "title": "Your screen moves with the music",
+  "summary": "Ambience makes your screen, the space behind your panes and your lights move with the music or the sound in the room, in a look you pick.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-ambience",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T16:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-ambience"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Let your screen move with the music",
+          "body": "Ambience paints a look that moves with the sound around you: music on this computer, or the room through your microphone. Your lights can follow it too."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "stage",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "This is Ambience",
+          "body": "The look fills the screen. Use the arrows to try the next look, or tune its colour, strength and speed on the side."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-moves-with-sound][role=\"img\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 0,
+            "radius": 12
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.ambience"
+        }
+      },
+      "centered_when_target_missing": true,
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "sound",
+      "content": {
+        "content_kind": "interactive-gate",
+        "payload": {
+          "title": "Press The room",
+          "body": "Allow the microphone and talk, clap or play a song: the look answers. Pick Music on this computer instead to share the tab that plays.",
+          "gesture_hint": "Press The room to go on"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "button[aria-label=\"The room\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "left",
+        "auto_flip": true,
+        "gap": 12
+      },
+      "centered_when_target_missing": true,
+      "advance_condition": {
+        "op": "target-interacted"
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          }
+        ]
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.ambience"
+        }
+      }
+    },
+    {
+      "id": "behind",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Behind your panes too",
+          "body": "Press Put behind my screens on Ambience and the look moves behind every pane; Take it away removes it. Connect LIFX smart bulbs or Govee light strips in Connections and your lights follow along."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "done",
+            "label": "Done"
+          }
+        ]
+      }
+    }
+  ]
+}

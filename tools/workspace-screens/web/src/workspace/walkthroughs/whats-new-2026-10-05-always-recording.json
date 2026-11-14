@@ -1,0 +1,127 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-always-recording",
+  "revision": 1,
+  "order": 10,
+  "title": "Cameras that record without you pressing record",
+  "summary": "Connect your cameras and microphones once, press Start, and they keep recording into your Files, lined up by time.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-always-recording",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T19:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-always-recording"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Always recording",
+          "body": "A camera over USB, your phone and this computer record together without end once you press Start. Nobody presses record again."
+        }
+      },
+      "centered_when_target_missing": true,
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "inputs",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your cameras and microphones",
+          "body": "Each one shows what it sees or hears. Switch on the ones to record, then press Start."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.always-recording"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"always-recording\"] [data-always-input]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true,
+      "nav": {
+        "buttons": [
+          {
+            "role": "back",
+            "label": "Back"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "files",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "In your Files, lined up by time",
+          "body": "Every few minutes each camera's piece lands in Files under Recordings, Cameras, by day. Pieces from the same moment sit side by side, and your AI gets each one."
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

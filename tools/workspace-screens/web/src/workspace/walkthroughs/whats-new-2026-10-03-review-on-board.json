@@ -1,0 +1,137 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-review-on-board",
+  "revision": 1,
+  "order": 10,
+  "title": "New: Review a site on your pursuit's board",
+  "summary": "Put a site, a draft or one of your Trillion screens on a pursuit's board at every size, so the people you work with can comment, vote and share it before it ships.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-review-on-board",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T21:05:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-review-on-board"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Review before it goes live",
+          "body": "Someone on your team can now review a site before it goes live: every size goes onto your pursuit's board, where everyone comments, votes and shares it."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "site",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your site at every size",
+          "body": "This puts the page you are editing on your pursuit's board as desktop, tablet and phone frames, each at the page's own shape. Unsaved changes are saved as a draft first, and the draft is what goes up. On the board, choose frames and Draw again to see the page as it is now."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.public-apps"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-tour=\"put-sizes-on-board\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 4,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 12
+      }
+    },
+    {
+      "id": "screens",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your Trillion screens too",
+          "body": "Under Review on a board, choose any screen you use and put it on the board the same way, drawn as you see it."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.public-apps"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[aria-label=\"Screen\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 4,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 12
+      }
+    }
+  ]
+}

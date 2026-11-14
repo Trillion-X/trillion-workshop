@@ -1,0 +1,80 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-stay-signed-in",
+  "revision": 1,
+  "order": 5,
+  "title": "New: You stay signed in for 30 days",
+  "summary": "You stay signed in, and after you connect an account, the page that confirms it can take you back into Trillion or close the tab.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-stay-signed-in",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T19:22:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-stay-signed-in"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You stay signed in",
+          "body": "If you open the sign-in page while you are signed in, it takes you straight in, and setting a password no longer signs your other devices out. You stay signed in for 30 days after you last used Trillion."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "connected",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "After you connect an account",
+          "body": "When you sign in to Gmail, Facebook or another service from Connections, the page that says it is connected offers Open Trillion to bring you back here, and Close this tab."
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

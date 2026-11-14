@@ -1,0 +1,112 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-ambience-behind-everything",
+  "revision": 1,
+  "order": 61,
+  "title": "Ambience shows behind everything",
+  "summary": "Put behind my screens now shows the moving look behind the whole page, the sidebar and every pane, with your screens turned just see-through enough that the words stay easy to read. It never shows while Trillion is opening, and the look name on the stage is readable in every screen look.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-ambience-behind-everything",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T21:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-ambience-behind-everything"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Ambience behind everything",
+          "body": "The moving look now shows behind your sidebar and every pane, not just the empty space between them. Your screens turn just see-through enough that words stay easy to read."
+        }
+      },
+      "centered_when_target_missing": true,
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "put-behind",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Put it behind your screens",
+          "body": "Press Put behind my screens. Take it away removes it. Nothing moves behind the screen while Trillion is opening."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tool-screen\"] [data-put-behind]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 12
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "above",
+        "auto_flip": true,
+        "gap": 12
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.ambience"
+        }
+      },
+      "centered_when_target_missing": true,
+      "nav": {
+        "buttons": [
+          {
+            "role": "done",
+            "label": "Done"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-tours-do-it-with-you",
+  "revision": 1,
+  "order": 9,
+  "title": "New: Tours do it with you",
+  "summary": "A tour step can now do the thing it shows. Next types into the real search or opens the real menu, so you watch it work.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-tours-do-it-with-you",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T23:06:17Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-tours-do-it-with-you"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Tours do it with you",
+          "body": "When a step shows a search or a menu, its button really does it. It types or opens, and you watch the screen answer."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "search",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Find a file",
+          "body": "Press Search for me and the tour types into the real search."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.files"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tool-screen\"] input[aria-label=\"Search files\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true,
+      "act": {
+        "do": "type",
+        "text": "video"
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "done",
+            "label": "Search for me"
+          }
+        ]
+      }
+    }
+  ]
+}

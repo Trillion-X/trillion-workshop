@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-one-look-everywhere",
+  "revision": 1,
+  "order": 1,
+  "title": "Everything in your look",
+  "summary": "Buttons, quotes and the cards that need you now all wear your look: the same button face everywhere, quotes in your title font, and no coloured bars down the side of cards.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-one-look-everywhere",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-07T06:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-one-look-everywhere"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Everything wears your look",
+          "body": "Every button now has the same face as the rest of Trillion, quotes are set in your look's title font, and the cards that need you are tinted instead of edged with a coloured bar. It holds on the web, your iPhone, your Mac and your watch."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "needs-you",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "What needs you",
+          "body": "The things only you can do sit in one tinted card, each with the same button as everywhere else."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": ".attention-stack"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 14
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.home"
+        }
+      }
+    }
+  ]
+}

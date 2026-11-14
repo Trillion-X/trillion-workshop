@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-sites-own-domain",
+  "revision": 1,
+  "order": 10,
+  "title": "Sites have a domain of their own",
+  "summary": "Sites you publish now open at your-site.trillion.run, and every earlier address still gets there.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-sites-own-domain",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T21:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-sites-own-domain"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your site, on its own domain",
+          "body": "Every site now opens at name.trillion.run, like field-notes.trillion.run. A domain just for sites keeps what any site runs apart from your Trillion sign-in. Links to the earlier sites.gettrillion.ai address go to the new one by themselves."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "address",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Where it lives",
+          "body": "The address at the top of Sites is the live site. Press it to open it, or connect a domain you own in Settings."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.public-apps"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"public-apps\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ]
+}

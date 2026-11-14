@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-business-email-in-a-space",
+  "revision": 1,
+  "order": 10,
+  "title": "Your business email, answered together",
+  "summary": "Mail to support@ or any address on your business's domain can arrive in a pursuit: anyone there takes it, marks it done, and replies go out from that address.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-business-email-in-a-space",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T08:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-business-email-in-a-space"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Answer your business email with your team",
+          "body": "Mail to support@, hello@ or any address on your domain can now arrive in one of your pursuits. Ask your AI to connect your domain's mail to the pursuit."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "spaces",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Open the pursuit, then Inbox",
+          "body": "Conversations sit beside the one you open. Press Take it so nobody answers twice, write your reply, and press Done. Replies go out from the address the mail came to."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"spaces\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.pursuits"
+        }
+      }
+    }
+  ]
+}

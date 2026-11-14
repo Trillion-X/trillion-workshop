@@ -1,0 +1,49 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-waiting-answers-sooner",
+  "revision": 1,
+  "order": 10,
+  "title": "What waits on you opens sooner",
+  "summary": "Finding where an unnamed voice was heard now looks for its words in your transcripts, so What waits on you opens sooner.",
+  "entry_step": "voices",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-waiting-answers-sooner",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T19:45:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-waiting-answers-sooner"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "voices",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "What waits on you opens sooner",
+          "body": "To show you where someone nobody has named was heard, Trillion looks for the last thing they said. It now looks for those words in your transcripts instead of comparing their meaning against everything you keep, so What waits on you, and Home, open sooner."
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

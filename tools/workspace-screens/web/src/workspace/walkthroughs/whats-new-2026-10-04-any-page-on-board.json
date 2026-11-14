@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-any-page-on-board",
+  "revision": 1,
+  "order": 10,
+  "title": "Put any page on a board",
+  "summary": "Put any page on a pursuit's board at every size by its address, gettrillion.ai and your own sites included, and boards now fill their whole pane.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-any-page-on-board",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T06:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-any-page-on-board"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Review any page with your team",
+          "body": "Paste a page's address and every size goes onto your pursuit's board, which now fills its whole pane."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "any-page",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Any page, by its address",
+          "body": "Under Review on a board, paste a page's address (your site, a docs page, an email's web view) and put it on the board at desktop, tablet and phone sizes, drawn as anyone sees it."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.public-apps"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "input[placeholder=\"https://gettrillion.ai\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 4,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 12
+      }
+    }
+  ]
+}

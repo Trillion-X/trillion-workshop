@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-pinch-every-view",
+  "revision": 2,
+  "order": 9,
+  "title": "New: Pinch every view of a list",
+  "summary": "Pinching a list now works in every view, Tree and Outline included.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-pinch-every-view",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T23:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-pinch-every-view"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Pinch to see more or less",
+          "body": "Pinch any view of a list to see more or less about each item."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "lists",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Pinch in Tree and Outline too",
+          "body": "In a list's Tree, Outline, Timeline or any other view, pinch in to see every detail of each item, or out to see names only. Ctrl or Cmd with plus and minus does the same."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"lists\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.lists"
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

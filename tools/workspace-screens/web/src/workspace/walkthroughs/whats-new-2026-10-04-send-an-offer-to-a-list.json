@@ -1,0 +1,98 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-send-an-offer-to-a-list",
+  "revision": 1,
+  "order": 11,
+  "title": "Send one offer to a whole list",
+  "summary": "Sales contracts now sends to everyone in a list or view, by email and text, now, at a time or to each new person who joins, and can test two prices.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-send-an-offer-to-a-list",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T16:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-send-an-offer-to-a-list"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "One offer, a whole list",
+          "body": "Your deals can now go to everyone in one of your lists, or just a view of it like Beginners. Each person gets their own link, once, however often it runs."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "sales-contracts",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Send it at Send",
+          "body": "In Sales contracts, at Send choose A list. Pick email, text or both, send now, at a time or to each new person who joins, and try two prices. Each person keeps one price, and How it went shows who opened, signed and paid at each. Your AI can do the same with Send to an audience."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-section-id=\"trillion-new\"], [data-sidebar-open-toggle]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ]
+}

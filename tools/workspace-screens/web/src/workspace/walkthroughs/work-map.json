@@ -1,0 +1,206 @@
+{
+ "kind": "walkthrough-definition",
+ "id": "work-map",
+ "revision": 1,
+ "order": 47,
+ "title": "Work map",
+ "summary": "Everything being worked on, as one map you can zoom into.",
+ "entry_step": "map",
+ "progress_style": {
+  "style": "segmented"
+ },
+ "triggers": [
+  {
+   "reason": "screen-first-opened",
+   "on_event": {
+    "event_kind": "screen-opened",
+    "match": {
+     "entry": "tool-screen",
+     "tool_id": "tool:screen-work-map"
+    }
+   },
+   "once_key": "work-map",
+   "requires": [
+    {
+     "once_key": "first-run"
+    }
+   ]
+  },
+  {
+   "reason": "replay",
+   "on_event": {
+    "event_kind": "walkthrough-requested",
+    "match": {
+     "walkthrough_id": "work-map"
+    }
+   }
+  }
+ ],
+ "steps": [
+  {
+   "id": "map",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "All the work in one picture",
+     "body": "Each box is a piece of work, with what it is part of above it. Drag to move around and use + and − to zoom."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.work-map"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"tool-screen\"] [data-node-graph]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "advance",
+      "label": "Show me"
+     }
+    ]
+   }
+  },
+  {
+   "id": "views",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "See it another way",
+     "body": "Switch to a list or a board when that is easier to read."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.work-map"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"tool-screen\"] [role=\"radiogroup\"][aria-label=\"View\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "back",
+      "label": "Back"
+     },
+     {
+      "role": "advance",
+      "label": "Next"
+     }
+    ]
+   }
+  },
+  {
+   "id": "search",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Find one piece of work",
+     "body": "Type a word and the map shows only what matches."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.work-map"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"tool-screen\"] input[aria-label=\"Search work map\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "back",
+      "label": "Back"
+     },
+     {
+      "role": "advance",
+      "label": "Next"
+     }
+    ]
+   }
+  },
+  {
+   "id": "find-again",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Find Work map again",
+     "body": "Work map is always in the sidebar. Press it to come back here."
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-sidebar-surface-id=\"trillion.work-map\"], [data-sidebar-open-toggle]"
+   },
+   "placement": {
+    "prefer": "right",
+    "auto_flip": true,
+    "gap": 14
+   }
+  }
+ ]
+}

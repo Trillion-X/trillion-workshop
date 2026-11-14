@@ -1,0 +1,128 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-plug-it-in",
+  "revision": 1,
+  "order": 3,
+  "title": "New: Plug it in",
+  "summary": "Share any link with Plug it in or Absorb it and your AI connects what stands behind it, reads it from where it lives, lists it in the Marketplace with its licence, and tries it on your work.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-plug-it-in",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-one-marketplace"
+        }
+      },
+      "match": {
+        "walkthrough_id": "whats-new-2026-10-05-plug-it-in"
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Plug it in",
+          "body": "Share a link, a repository, an MCP server or an API with Plug it in (or Absorb it). Your AI finds the real source, connects it as one row read from where it lives, and lists everything in it in the Marketplace."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "marketplace",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Reference only when the licence says so",
+          "body": "Each card shows the licence and a link to the original. A skill whose licence does not allow use in something you sell is listed as a reference: your AI reads it at its home instead of copying it."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"marketplace\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.marketplace"
+        }
+      }
+    },
+    {
+      "id": "yours",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Tried on your work at once",
+          "body": "After connecting, your AI uses it on your own screens or jobs, fixes what it finds, and shows you before and after, then names what it combines with."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ],
+  "board": {
+    "subject": "source:c2tpbGwtc291cmNlcy1mcm9tLXB1YmxpYy1yZXBvc2l0b3JpZXMtMjAyNi0xMC0wNQ",
+    "title": "Plug it in"
+  }
+}

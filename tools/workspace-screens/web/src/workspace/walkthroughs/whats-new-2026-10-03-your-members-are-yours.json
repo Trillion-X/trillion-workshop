@@ -1,0 +1,132 @@
+{
+  "kind": "walkthrough-definition",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "id": "whats-new-2026-10-03-your-members-are-yours",
+  "revision": 2,
+  "order": 6,
+  "title": "New: The people in your pursuits are yours",
+  "summary": "The people in your pursuits and communities are yours: they join on your terms, in your name, and never see Trillion's plans.",
+  "entry_step": "intro",
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-your-members-are-yours",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T23:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-your-members-are-yours"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "They join you, not Trillion",
+          "body": "People you invite join your pursuit, not Trillion: the invite, the sign-up page and the emails carry your pursuit's name. Members of your community are never shown Trillion's plans or prices; people in your team pursuits work on Trillion with a plan or a seat you pay for."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "spaces",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your pursuits and communities",
+          "body": "Invite anyone from a pursuit. A community can be free, by invite, or open to people who bought your membership: only what you sold them lets them in."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.pursuits"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"spaces\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      }
+    },
+    {
+      "id": "sell",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Charge your members yourself",
+          "body": "Sell a membership with Sales contracts on your own Stripe. The money is yours, and what they bought opens only your community."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-section-id=\"trillion-new\"], [data-sidebar-open-toggle]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 12
+      }
+    }
+  ]
+}

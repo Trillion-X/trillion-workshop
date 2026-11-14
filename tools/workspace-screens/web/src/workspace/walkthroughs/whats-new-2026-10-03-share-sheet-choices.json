@@ -1,0 +1,124 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-share-sheet-choices",
+  "revision": 2,
+  "order": 10,
+  "title": "New: Share to many places from your iPhone",
+  "summary": "On the iPhone Share sheet, pick any number of places, actions and AIs; the note box grows to eight lines; shake or screenshot the app to report a bug or idea.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-share-sheet-choices",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T22:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-share-sheet-choices"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Share to as many places as you like",
+          "body": "On the iPhone Share sheet, Send to, What your AI should do and Who takes it each open the same list of cards: tick as many as you want, each with the line that says what it is. Tell the people who make Trillion is one of the places, so a bug or an idea reaches them from your phone."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "note",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "A bigger note box that keeps your place",
+          "body": "Your note grows to eight lines, with Expand from the fifth. Leave for another app and come back: the keyboard is up and the cursor is where you left it. In the Trillion app, shake your phone or take a screenshot to report a bug or idea with a picture of the screen."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "devices",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Arrives with the next iPhone update",
+          "body": "The App Store update brings it to your phone. Trillion on your devices has the iPhone app and the Mac app."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"ai\"] [data-guide-section=\"devices\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.ai"
+        }
+      }
+    }
+  ]
+}

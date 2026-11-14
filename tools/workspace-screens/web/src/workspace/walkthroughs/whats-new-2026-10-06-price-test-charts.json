@@ -1,0 +1,81 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-price-test-charts",
+  "revision": 1,
+  "order": 66,
+  "title": "Your price tests, as charts",
+  "summary": "Price tests is its own screen now: how many people saw each price, the share who paid, the money each brought in per person shown, and each price's chance of being the best. Pick a price and everyone sees it from then on.",
+  "entry_step": "charts",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-price-test-charts",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T19:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-price-test-charts"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "charts",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your price tests, as charts",
+          "body": "Each bar is one price. The chance of being the best price fills in once someone pays; when one is clear, open its row and choose Show everyone this price."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.price-tests"
+        }
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true,
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-record-set=\"price-tests\"]"
+      }
+    }
+  ],
+  "audience": "operator"
+}

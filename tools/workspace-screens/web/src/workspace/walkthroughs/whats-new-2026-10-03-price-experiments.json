@@ -1,0 +1,99 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-price-experiments",
+  "revision": 1,
+  "order": 6,
+  "title": "New: Test two prices for one offer",
+  "summary": "Your AI can test two prices for one of your offers, show you which brings in more money, and then show everyone the winning price.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-price-experiments",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T17:50:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-price-experiments"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You can test which price earns more",
+          "body": "Ask your AI to try two prices for one of your offers. Each person always sees the same one of the two, and you see which price brings in more money."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "price-experiments",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Run price experiments",
+          "body": "You start one from New. Say, \"Test $12 against $16 for my candle set.\" Your AI uses your real prices from Stripe and counts who saw each price and who paid, and your funnel shows the result. When one price wins, everyone sees that price. Trillion's own plan prices are tested the same way."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-section-id=\"trillion-new\"], [data-sidebar-open-toggle]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ],
+  "audience": "operator"
+}

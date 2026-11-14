@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-saved-logins",
+  "revision": 1,
+  "order": 5,
+  "title": "New: Keep your logins in Trillion",
+  "summary": "You can keep your logins on Connections and see or copy any of them once you confirm it is you.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-saved-logins",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T05:07:36Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-saved-logins"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You can keep your logins in Trillion",
+          "body": "Save a site, user name, password and notes on Connections, or paste in a list of logins you already keep. Only you can see them."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "saved-logins",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Saved logins",
+          "body": "To see a password, sign in again, then copy it. Each login shows when it was last shown, and your AIs can read one only if you turn that on."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.connections"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"connections\"] [data-guide-section=\"saved-logins\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "left",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ]
+}

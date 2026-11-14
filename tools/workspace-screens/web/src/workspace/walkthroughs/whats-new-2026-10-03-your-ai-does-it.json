@@ -1,0 +1,80 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-your-ai-does-it",
+  "revision": 1,
+  "order": 11,
+  "title": "New: Your AI does the work from an empty screen",
+  "summary": "An empty screen and a failed one now hand the job to the AI connected to your Trillion with one press.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-your-ai-does-it",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T00:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-your-ai-does-it"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Hand it to your AI",
+          "body": "When a screen is empty or something went wrong, the AI connected to your Trillion can now do the work for you."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "one-press",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "One press",
+          "body": "Press Have Claude do this (or whichever AI you connected) under Decisions, Formats, Marketplace, Automations, Workshop or Pursuits when they are empty, or Have Claude fix this when something fails. It starts on the job and you see it in AI work when it is done."
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

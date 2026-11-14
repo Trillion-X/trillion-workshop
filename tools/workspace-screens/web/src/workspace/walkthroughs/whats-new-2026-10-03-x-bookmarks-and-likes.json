@@ -1,0 +1,137 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-x-bookmarks-and-likes",
+  "revision": 1,
+  "order": 11,
+  "title": "New: Your X bookmarks and likes are in your files",
+  "summary": "Your X bookmarks and likes are in your files where you can search them, with interface and motion examples tagged, and new ones keep arriving.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-x-bookmarks-and-likes",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T22:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-x-bookmarks-and-likes"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your X bookmarks and likes are in Trillion",
+          "body": "Every post you bookmarked or liked on X, up to today, is in your files. Search finds them by their words, so you or any of your AIs can pull up that swipe card or menu you saved months ago."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "files",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Saved links",
+          "body": "You will find them in Saved links, in X - Bookmarks and X - Likes, newest first. Posts showing an interface, motion or screen design are tagged ui-example, so your design work can start from what you already liked."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tool-screen\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.files"
+        }
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "keep",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "New ones keep arriving",
+          "body": "Once X is connected, Trillion reads new bookmarks and likes every 30 minutes and hands each one to your rules."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"connections\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.connections"
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

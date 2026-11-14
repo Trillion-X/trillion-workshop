@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-site-addresses",
+  "revision": 1,
+  "order": 10,
+  "title": "Every site has a name you can read",
+  "summary": "Sites you publish open at your-site.sites.gettrillion.ai instead of a long code, and old links still work.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-site-addresses",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T17:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-site-addresses"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your site, at a name",
+          "body": "Every site you publish now opens at a readable address like field-notes.sites.gettrillion.ai, named from its own title. Links people already have go to the new address by themselves."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "address",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Rename it or use your own domain",
+          "body": "Open Address on a site in Public apps to give it another name, or connect a domain you own. The earlier name keeps working and sends visitors on."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.public-apps"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"public-apps\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-recordings-show-at-once",
+  "revision": 1,
+  "order": 1,
+  "title": "Recordings show at once",
+  "summary": "A recording your Mac copies from a camera card shows its picture, its frames and its sound the moment it arrives in Files, because your Mac makes them while it copies.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-recordings-show-at-once",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T08:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-recordings-show-at-once"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Its picture is there first",
+          "body": "When you plug in a camera card, your Mac makes each video's picture about a second after it starts copying it, then the strip of frames you can skim and the shape of its sound. They are in Files before the video finishes arriving, on every device."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "checks",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Made once, on your Mac",
+          "body": "Nothing opens the video again to draw it: not your browser, not your phone. Long recordings now show their sound too, even ones too big for a browser to read."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

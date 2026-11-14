@@ -1,0 +1,137 @@
+{
+  "kind": "walkthrough-definition",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "id": "whats-new-2026-10-04-team-or-customers",
+  "revision": 1,
+  "order": 10,
+  "title": "Teams pay, customers never do",
+  "summary": "Every pursuit says who its people are: your team, who work in it on Trillion with a plan or a seat you pay for, or your members and customers, who join on your terms and never see Trillion's plans.",
+  "entry_step": "intro",
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-team-or-customers",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T12:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-team-or-customers"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "A team pursuit or a community",
+          "body": "A pursuit now says who its people are. A team pursuit is for people working with you on Trillion: each one has a paid plan, or a seat you pay for, which they take as they join. A community is for your members or customers: they join on your terms and never see Trillion's plans or prices."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "spaces",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Team or customers, per pursuit",
+          "body": "Projects and groups start as team pursuits and communities as members or customers. Ask your AI to change either one for any pursuit you run."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.pursuits"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"spaces\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      }
+    },
+    {
+      "id": "sell",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Pay for your team in one bill",
+          "body": "Buy seats on Plan. Anyone you invite into a team pursuit takes a free seat as they join, so they never need their own plan."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"plan\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.plan"
+        }
+      }
+    }
+  ]
+}

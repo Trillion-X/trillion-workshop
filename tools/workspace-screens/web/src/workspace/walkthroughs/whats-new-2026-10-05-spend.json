@@ -1,0 +1,117 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-spend",
+  "revision": 6,
+  "order": 54,
+  "title": "Your service cost estimates, in one place",
+  "summary": "Spend estimates costs from usage for your API accounts (Google AI, OpenAI, Anthropic) and connected services (Cloudflare, Fly.io) today and in this billing cycle. It also shows each account's own day budget, which stops sending once it is reached. The total, each service and each budget can also sit in an iPhone widget. Each line says when it was read; Trillion reads each service on its own schedule, so looking never asks the service again.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-spend",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T03:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-spend"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "See your usage estimates",
+          "body": "Spend estimates the cost of each connected API account and service's usage today and in this billing cycle. These estimates are not provider invoices."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "spend",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Each account has a daily budget",
+          "body": "An API account billed by use is sent nothing until you give it a day budget, so a key can never run up a bill you did not choose. Once a budget is reached, nothing more goes to that account until the next day and one of your AIs moves to the next AI you picked. Ask your AI to set one."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.spend"
+        }
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "connect",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Estimate a service's cost",
+          "body": "Connect Cloudflare with an API token that has Account Analytics: Read, or Fly.io with a read-only token from: fly tokens create readonly personal. Fly.io is priced machine by machine for its size and region, and every volume kept. If a service needs a detail such as an account ID, ask your AI to set it on the connection; the key stays as it is. Trillion reads them every 15 minutes. Each service is read on its own schedule and every line says when it was read, so opening Spend, a widget or asking your AI never asks the service again."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.connections"
+        }
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "anywhere",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Keep it in view",
+          "body": "Add a Trillion widget to your iPhone Home Screen or Lock Screen and pick Service cost estimates, Spend by service or Spend budgets. It shows the same estimates as this screen."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.spend"
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

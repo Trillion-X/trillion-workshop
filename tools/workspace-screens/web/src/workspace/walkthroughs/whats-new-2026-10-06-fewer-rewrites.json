@@ -1,0 +1,49 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-fewer-rewrites",
+  "revision": 1,
+  "order": 10,
+  "title": "Saving your work costs less",
+  "summary": "Trillion no longer copies large stretches of what you keep again each time it saves something new.",
+  "entry_step": "save",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-fewer-rewrites",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T21:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-fewer-rewrites"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "save",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Saving costs less",
+          "body": "Each small save could copy a large, older stretch of everything you keep again, thousands of pages every few minutes. Small saves now gather with each other first, so your account does far less work, and costs less, as it grows."
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

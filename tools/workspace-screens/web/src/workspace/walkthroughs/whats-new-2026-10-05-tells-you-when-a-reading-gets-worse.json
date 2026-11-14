@@ -1,0 +1,87 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-tells-you-when-a-reading-gets-worse",
+  "revision": 1,
+  "order": 5,
+  "title": "Trillion tells you when a daily reading gets worse",
+  "summary": "A schedule can read something every day and tell you only when it got worse than the day before.",
+  "entry_step": "worse",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-tells-you-when-a-reading-gets-worse",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T17:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-tells-you-when-a-reading-gets-worse"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "worse",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Told only when it got worse",
+          "body": "Your AI can compare any reading with the one before it, like store restarts today against yesterday, and tell you only when a number moved the wrong way, with which parts moved most."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "window",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Reads that name their own day",
+          "body": "A tool run by a schedule can now ask for the last day or the day before it, counted from when it runs, so a daily check needs nothing saved between runs."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

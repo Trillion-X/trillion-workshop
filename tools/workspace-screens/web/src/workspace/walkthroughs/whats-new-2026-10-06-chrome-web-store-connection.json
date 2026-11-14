@@ -1,0 +1,65 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-chrome-web-store-connection",
+  "revision": 1,
+  "order": 8,
+  "title": "Trillion can publish your browser extension",
+  "summary": "Connect Chrome Web Store once and your AIs can see whether a new version passed review, upload the next one and publish it, by themselves or on a schedule.",
+  "entry_step": "connect",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-chrome-web-store-connection",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T22:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-chrome-web-store-connection"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "connect",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Connect Chrome Web Store",
+          "body": "In Connections, press Connect on Chrome Web Store and choose the Google account that publishes your extensions. Then ask any of your AIs to check a review, or let Trillion upload and publish the next version itself the day the last one passes or is turned down."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

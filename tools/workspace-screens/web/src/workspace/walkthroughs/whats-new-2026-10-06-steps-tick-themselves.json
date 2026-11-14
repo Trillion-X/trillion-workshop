@@ -1,0 +1,81 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-steps-tick-themselves",
+  "revision": 1,
+  "order": 10,
+  "title": "Steps your devices can see tick themselves",
+  "summary": "What waits on you clears by itself when your Mac sees the camera you were asked to plug in, or your iPhone says a switch you were asked to turn on is on.",
+  "entry_step": "tick",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-steps-tick-themselves",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-07T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-steps-tick-themselves"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "tick",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Steps your devices can see tick themselves",
+          "body": "When your AIs ask you to plug in a camera or turn on a switch on your iPhone, you no longer press Done. As soon as your Mac sees the camera, or your iPhone says the switch is on, it leaves what is waiting on you by itself."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.home"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"home\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

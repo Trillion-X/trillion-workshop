@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-voices-stay-together",
+  "revision": 1,
+  "order": 10,
+  "title": "New: Your Mac tells voices apart better",
+  "summary": "A room of three people now reads as three voices, not a new voice for every sentence, and your own words read as yours.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-voices-stay-together",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T21:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-voices-stay-together"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "One voice per person",
+          "body": "While your Mac listens, everything one person says is judged together, and two numbers that turn out to be the same person are joined into one. Ten minutes of a real meeting went from 84 voices to 8, and what you say reads as yours."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "where",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Name them once",
+          "body": "Each person who is not you shows up as one \"Someone (voice 2)\". Tell any of your AIs who it was once they agree, and everything they said reads under their name."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.messages"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"messages\"] .chat-panes-list"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+ "kind": "walkthrough-definition",
+ "id": "write",
+ "revision": 1,
+ "order": 44,
+ "title": "Write",
+ "summary": "Pages you write yourself or with your AI, kept with everything else.",
+ "entry_step": "pages",
+ "progress_style": {
+  "style": "segmented"
+ },
+ "triggers": [
+  {
+   "reason": "screen-first-opened",
+   "on_event": {
+    "event_kind": "screen-opened",
+    "match": {
+     "entry": "tool-screen",
+     "tool_id": "tool:screen-write"
+    }
+   },
+   "once_key": "write",
+   "requires": [
+    {
+     "once_key": "first-run"
+    }
+   ]
+  },
+  {
+   "reason": "replay",
+   "on_event": {
+    "event_kind": "walkthrough-requested",
+    "match": {
+     "walkthrough_id": "write"
+    }
+   }
+  }
+ ],
+ "steps": [
+  {
+   "id": "pages",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Your pages",
+     "body": "Start a new page or bring one in. Every page you write is listed here."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.write"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"tool-screen\"] aside[aria-label=\"Sidebar\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "advance",
+      "label": "Show me"
+     }
+    ]
+   }
+  },
+  {
+   "id": "search",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Find a page",
+     "body": "Type a few words and the pages that hold them show."
+    }
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.write"
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"tool-screen\"] input[aria-label=\"Search pages\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "centered_when_target_missing": true,
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "back",
+      "label": "Back"
+     },
+     {
+      "role": "advance",
+      "label": "Next"
+     }
+    ]
+   }
+  },
+  {
+   "id": "find-again",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Find Write again",
+     "body": "Write is always in the sidebar. Press it to come back here."
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-sidebar-surface-id=\"trillion.write\"], [data-sidebar-open-toggle]"
+   },
+   "placement": {
+    "prefer": "right",
+    "auto_flip": true,
+    "gap": 14
+   }
+  }
+ ]
+}

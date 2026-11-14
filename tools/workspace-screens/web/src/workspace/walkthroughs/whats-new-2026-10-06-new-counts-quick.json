@@ -1,0 +1,49 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-new-counts-quick",
+  "revision": 1,
+  "order": 10,
+  "title": "New-work counts keep up quickly",
+  "summary": "The counts beside each screen and the New for you strip now update from only what your AIs did since you last looked.",
+  "entry_step": "counts",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-new-counts-quick",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T23:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-new-counts-quick"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "counts",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Only what is new is read",
+          "body": "Every refresh used to go back over two weeks of everything your AIs did to count what is new on each screen. Trillion now keeps those counts and adds only what happened since, so your sidebar and Home stay quick on a busy account."
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

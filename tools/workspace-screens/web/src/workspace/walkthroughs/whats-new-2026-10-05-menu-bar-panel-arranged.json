@@ -1,0 +1,65 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-menu-bar-panel-arranged",
+  "revision": 1,
+  "order": 4,
+  "title": "Your menu bar panel shows what matters now",
+  "summary": "The Trillion panel in your Mac's menu bar now opens on your greeting, the message box to all your AIs with voice, video and screen recording, what waits for you and what your AIs are working on, with tabs for notifications, recording, your tray and what your AIs did.",
+  "entry_step": "panel",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-menu-bar-panel-arranged",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T17:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-menu-bar-panel-arranged"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "panel",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Everything at a glance from the menu bar",
+          "body": "Click the Trillion needle in your Mac's menu bar. Write or speak to all your AIs, see what waits for you and what your AIs are doing, and switch tabs for notifications, recording and your tray. Arrange it like any screen: move, add or remove tabs from the … menu."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

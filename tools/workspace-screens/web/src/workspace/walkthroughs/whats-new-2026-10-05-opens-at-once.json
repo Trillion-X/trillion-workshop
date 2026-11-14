@@ -1,0 +1,56 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-opens-at-once",
+  "revision": 2,
+  "order": 10,
+  "title": "New: Trillion opens at once",
+  "summary": "Your workspace now opens straight away from what this device already has, and catches up by itself.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-opens-at-once",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T12:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-opens-at-once"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "No more waiting to open",
+          "body": "Trillion now opens straight away from what this device already knows, then quietly brings in anything newer. You did not wait for this screen."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

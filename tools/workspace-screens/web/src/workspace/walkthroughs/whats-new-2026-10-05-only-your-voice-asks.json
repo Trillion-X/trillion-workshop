@@ -1,0 +1,87 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-only-your-voice-asks",
+  "revision": 1,
+  "order": 1,
+  "title": "Only your own voice asks for things",
+  "summary": "Words heard near your Mac count as yours only when your Mac is sure the voice is yours. Anyone else, or a voice it is unsure of, is kept as notes and never acted on.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-only-your-voice-asks",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T07:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-only-your-voice-asks"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Only your voice asks",
+          "body": "Trillion acts on something said near your Mac only when your Mac is sure it was you: your enrolled voice, closely matched. Someone else's words, or a voice it could not tell, are kept as notes under 'Not sure who said this' and nothing is done with them."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "checks",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "How sure it has to be",
+          "body": "Your Mac sends how sure it is of each voice. You can change how sure it has to be in your attention rules."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

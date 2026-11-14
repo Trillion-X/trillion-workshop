@@ -1,0 +1,102 @@
+{
+ "kind": "walkthrough-definition",
+ "id": "whats-new-2026-10-04-links-open-what-they-name",
+ "revision": 1,
+ "order": 9,
+ "title": "New: A Trillion link opens what it names",
+ "summary": "A link to a list, a file or a meeting opens right there, on your phone or computer, even when you sign in first, and no tour covers it.",
+ "entry_step": "intro",
+ "progress_style": {
+  "style": "segmented"
+ },
+ "look": {
+  "targeting": {
+   "retry_timeout_ms": 6000,
+   "retry_interval_ms": 100,
+   "scroll_behavior": "smooth",
+   "scroll_block": "center",
+   "scroll_inline": "nearest"
+  }
+ },
+ "triggers": [
+  {
+   "reason": "changed-since-first-tour",
+   "on_event": {
+    "event_kind": "app-opened"
+   },
+   "once_key": "whats-new-2026-10-04-links-open-what-they-name",
+   "requires": [
+    {
+     "once_key": "first-run",
+     "consumed_before": "2026-10-04T09:30:00Z"
+    }
+   ]
+  },
+  {
+   "reason": "replay",
+   "on_event": {
+    "event_kind": "walkthrough-requested",
+    "match": {
+     "walkthrough_id": "whats-new-2026-10-04-links-open-what-they-name"
+    }
+   }
+  }
+ ],
+ "steps": [
+  {
+   "id": "intro",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Links open where they point",
+     "body": "Tap a Trillion link on your phone or open it on your computer: the list, file or meeting it names opens straight away. If you need to sign in first, you come back to it after. Tours wait until you open Trillion yourself, so nothing covers what you came for."
+    }
+   },
+   "nav": {
+    "buttons": [
+     {
+      "role": "skip",
+      "label": "Skip"
+     },
+     {
+      "role": "advance",
+      "label": "Show me"
+     }
+    ]
+   }
+  },
+  {
+   "id": "meeting",
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Meeting links join the meeting",
+     "body": "Record with others gives a link. Whoever opens it, from any screen, lands on Record already in the meeting, with your list or file still open beside it."
+    }
+   },
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"record\"]"
+   },
+   "cutout": {
+    "shapes": [
+     {
+      "shape": "rounded-rect",
+      "padding": 6,
+      "radius": 10
+     }
+    ]
+   },
+   "placement": {
+    "prefer": "right",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.record"
+    }
+   }
+  }
+ ]
+}

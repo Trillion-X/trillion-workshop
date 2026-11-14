@@ -1,0 +1,135 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-questions-and-your-path",
+  "revision": 1,
+  "order": 12,
+  "title": "Trillion asks only what your data cannot show",
+  "summary": "Trillion learns you from what you already do, asks the few things it cannot tell in a short form you answer when you like, and shows people and pursuits on the same pursuits as you.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-questions-and-your-path",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T20:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-questions-and-your-path"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "A few questions, never a wall of them",
+          "body": "Trillion learns your values, skills, passions, goals and pursuits from your messages, recordings and files. When something matters and your data does not show it, it asks you, one question at a time."
+        }
+      }
+    },
+    {
+      "id": "progress",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your questions wait on Progress",
+          "body": "We're opening Progress now. When Trillion has questions for you, they wait here, with its own guess beside each one."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"progress\"] [data-guide-section=\"awareness\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 12
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.progress"
+        }
+      }
+    },
+    {
+      "id": "network",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "People on the same path",
+          "body": "We're opening Network now. People who show their pursuits, and open pursuits close to yours, appear at the top with both pursuits named, so you can ask to connect or join."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"network\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 12
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.network"
+        }
+      }
+    },
+    {
+      "id": "your-ais",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Answer to any of your AIs",
+          "body": "Answer in the form, or just tell ChatGPT or Claude. Your answers count more than anything Trillion guessed."
+        }
+      }
+    }
+  ]
+}

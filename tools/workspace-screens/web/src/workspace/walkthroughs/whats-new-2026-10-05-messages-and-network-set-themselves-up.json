@@ -1,0 +1,116 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-messages-and-network-set-themselves-up",
+  "revision": 1,
+  "order": 12,
+  "title": "Your conversations are in the sidebar, and your Network profile writes itself",
+  "summary": "Each conversation with your AIs is now a row in the sidebar, under Talk to and see Trillion, and Messages shows just the conversation you opened. Your Network profile is filled in from what Trillion already knows about you: your name, what you do, what you offer and what you are looking for. Anything you write yourself stays yours. The sidebar no longer tucks everything inside Your work, and the ideas at the top of each screen are plain rows.",
+  "entry_step": "conversations",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "board": {
+    "subject": "source:bWVzc2FnZToyMDI2LTA5LTI5VDE4OjM4OjM5LjQ2NVo6MDNmYWYwYzIzM2U2NjJjMzMzMTcxMjEz",
+    "title": "Network and Messages"
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-messages-and-network-set-themselves-up",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T13:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-messages-and-network-set-themselves-up"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "conversations",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your conversations, in the sidebar",
+          "body": "All your AIs comes first, then each conversation with an AI, newest first. Press one and Messages opens on it, with nothing else beside it."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "aside [data-sidebar-section-id=\"collection:trillion-talk-to-and-see-trillion\"], [data-sidebar-open-toggle]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.messages"
+        }
+      }
+    },
+    {
+      "id": "profile",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your profile is already written",
+          "body": "Trillion filled in your name, what you do, what you offer and what you are looking for, and gave you a handle. People in the network can find you and message you. Change anything here and Trillion leaves it as you wrote it, or turn off being found."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"network\"]"
+      },
+      "placement": {
+        "prefer": "left",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.network"
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

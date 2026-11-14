@@ -1,0 +1,113 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-video-editor",
+  "revision": 1,
+  "order": 8,
+  "title": "New: A video editor that fits any pane",
+  "summary": "The video editor fits any pane by setting clips, player and tools side by side when there is room and stacking them when there is not, and each timeline tool tells you its name when you point at it.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-video-editor",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T21:28:11Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-video-editor"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your video editor fits any pane now",
+          "body": "Your clips sit in a column with a picture and their length, with the player in the middle and the tools on the right. In a narrow pane they stack instead of overlapping."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "suggestion",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Start from three clips",
+          "body": "Media suggests three of your recordings. Point at a picture to watch it, then press Edit these. The editor opens at once with the clips on the timeline."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": ".next-step-card"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 12
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.media"
+        }
+      }
+    },
+    {
+      "id": "timeline",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Point at a tool to see its name",
+          "body": "Split, mark, take out, move and remove are icons above the timeline. Point at one to see what it does."
+        }
+      }
+    }
+  ]
+}

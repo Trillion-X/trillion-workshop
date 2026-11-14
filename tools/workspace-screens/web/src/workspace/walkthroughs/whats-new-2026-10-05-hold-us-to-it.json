@@ -1,0 +1,112 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-hold-us-to-it",
+  "revision": 2,
+  "order": 55,
+  "title": "Trillion holds your team to what it agreed",
+  "summary": "When people agree to something (a daily meeting, a habit, a deadline), Trillion puts it on everyone's calendar, reminds them, checks who came and keeps each person's scorecard in the shared pursuit. Your AI can also run a locked-in work session on your needle mover, and anything you keep getting wrong comes back as practice until it sticks.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-hold-us-to-it",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T21:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-hold-us-to-it"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Agreed means it happens",
+          "body": "Say 'let's meet every day' in a meeting, a chat or a voice note and everyone says yes: your AI keeps it in your shared pursuit, and Trillion books the next meeting for real."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "space",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Everyone sees the same record",
+          "body": "The agreement, the next meeting and the scorecard rules are in the pursuit. Ten minutes before, everyone is reminded and listening turns on, so who came is known."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.pursuits"
+        }
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "scorecard",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Who kept it, said plainly",
+          "body": "After each meeting Trillion marks each person: came, missed, or nobody set it up. It says it in the pursuit to everyone who agreed, never only to you, and keeps a running scorecard."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.pursuits"
+        }
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "practice",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Lock in, then practise",
+          "body": "Ask your AI to lock in: it picks the block from your needle mover and calendar, turns Focus on and closes what pulls you away for that long. Anything you keep getting wrong comes back as practice the next day, then less often as it sticks."
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-space-files",
+  "revision": 1,
+  "order": 10,
+  "title": "Every pursuit has its own Files",
+  "summary": "Every pursuit has a Files place: the pictures and files shared there, or dropped on its board, in one list you can see as cards, a table, a board or a timeline.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-space-files",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T06:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-space-files"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "A Files place in every pursuit",
+          "body": "The pictures your team shares in a pursuit, or drops on its board, now have their own place: Files, beside Messages."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "files",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Files in every pursuit",
+          "body": "Open a pursuit and choose Files. Its number is how many files the pursuit holds. See them as cards, a table, a board or by when they arrived, and open, share or hand any of them to your AI from its menu."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.pursuits"
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

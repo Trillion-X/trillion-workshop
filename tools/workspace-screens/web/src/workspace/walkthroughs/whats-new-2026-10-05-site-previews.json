@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-site-previews",
+  "revision": 1,
+  "order": 11,
+  "title": "See a change before it goes live",
+  "summary": "Every saved draft and every earlier version of a site opens at its own address, so you can look, share it and decide before anyone else sees it.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-site-previews",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-site-previews"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your draft has its own link",
+          "body": "Save a change to a site and it opens at its own address, like 3f9a12c07b44--field-notes.sites.gettrillion.ai, while the live site stays as it is. Send that link to whoever should look before you publish."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "versions",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Every earlier version, one click away",
+          "body": "Each version you published keeps its own address too, so you can see exactly what it looked like before you bring it back."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.public-apps"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"public-apps\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ]
+}

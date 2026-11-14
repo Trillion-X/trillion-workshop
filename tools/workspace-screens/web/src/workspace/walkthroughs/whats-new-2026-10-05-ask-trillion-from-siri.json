@@ -1,0 +1,109 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-ask-trillion-from-siri",
+  "revision": 1,
+  "order": 3,
+  "title": "Ask Trillion from Siri, Spotlight and Shortcuts",
+  "summary": "On your iPhone and Mac, Siri, Spotlight and Shortcuts now reach Trillion: ask it what your needle mover is, tell it anything for your AIs, hand off a job, or run any tool or workflow.",
+  "entry_step": "ask",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-ask-trillion-from-siri",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T17:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-ask-trillion-from-siri"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "ask",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Ask Trillion what your needle mover is",
+          "body": "Update the Trillion app, then say \"Hey Siri, ask Trillion what my needle mover is\". Siri answers with your needle mover, where it is now and where you want it. You can also ask what you are pursuing, what you decided last, or what is new in your pursuits."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "tell",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Tell Trillion anything",
+          "body": "Say \"Hey Siri, tell Trillion\" and then your words: they go to every AI you use with Trillion, the same as the Home box. \"Hand off to Trillion\" gives a job to the first of your AIs that is free, and you can follow it in AI work."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "shortcuts",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Any tool, in Shortcuts and Spotlight",
+          "body": "In the Shortcuts app and in Spotlight, Run in Trillion runs any tool or workflow from the Marketplace, and Open in Trillion opens any of your pursuits, decisions, pursuits or files. New tools show up there by themselves. You can put Ask Trillion on the Action button too."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

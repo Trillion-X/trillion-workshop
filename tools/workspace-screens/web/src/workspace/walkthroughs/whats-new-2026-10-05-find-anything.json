@@ -1,0 +1,95 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-find-anything",
+  "revision": 1,
+  "order": 14,
+  "title": "Find anything finds everything",
+  "summary": "Cmd+K now searches your files, decisions, pursuits, messages, screens, pursuits, people, AIs and tools in one list, with the same search your AI uses, and answers as you type. A notification card that pops up opens what it is about when you press it.",
+  "entry_step": "find",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "board": {
+    "subject": "source:dWktYnVncy1zaWRlYmFyLXNjcm9sbC12aWV3LWxhYmVscy1jaGF0LWhlaWdodC0yMDI2LTEwLTA1",
+    "title": "Find anything"
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-find-anything",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-find-anything"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "find",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Type to find anything",
+          "body": "Press Cmd+K and type. Files, decisions, pursuits and messages come from the same search your AI uses; screens, pursuits, people, AIs and tools show beside them. Pick one and it opens."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.command-palette"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-command-palette]"
+      },
+      "centered_when_target_missing": true,
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      }
+    },
+    {
+      "id": "toast",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Press a pop-up notice to open it",
+          "body": "When a notice pops up in the corner, press anywhere on it to open what it is about. Its buttons still do their own thing, and dragging it away still dismisses it."
+        }
+      },
+      "centered_when_target_missing": true,
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

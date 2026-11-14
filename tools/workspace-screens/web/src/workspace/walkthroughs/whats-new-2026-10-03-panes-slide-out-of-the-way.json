@@ -1,0 +1,79 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-panes-slide-out-of-the-way",
+  "revision": 1,
+  "order": 9,
+  "title": "New: Drag a pane down to a sliver",
+  "summary": "A pane can be dragged down to a sliver at any screen size, phones keep panes side by side, and the sidebar bar between panes resizes them from either side or its empty room.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-panes-slide-out-of-the-way",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T00:35:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-panes-slide-out-of-the-way"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Panes slide out of the way",
+          "body": "Your panes can now slide almost out of the way."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "panes-slide",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Drag a pane down to a sliver",
+          "body": "Drag the edge between two panes as far as you like: a pane can shrink to a thin strip and fades at its cut edge, on a phone too, where panes now stay side by side. With the sidebar between panes, drag either side of it or its empty space."
+        }
+      }
+    }
+  ]
+}

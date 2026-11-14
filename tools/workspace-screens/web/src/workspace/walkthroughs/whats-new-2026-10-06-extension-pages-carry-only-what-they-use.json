@@ -1,0 +1,65 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-extension-pages-carry-only-what-they-use",
+  "revision": 1,
+  "order": 7,
+  "title": "Send to Trillion opens lighter",
+  "summary": "Every page of the Send to Trillion browser extension now carries only what it uses: the popup, Mark up, Attach files and the reply window are half the size or less, and nothing in them talks to anything but Trillion.",
+  "entry_step": "lighter",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-extension-pages-carry-only-what-they-use",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T21:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-extension-pages-carry-only-what-they-use"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "lighter",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Same extension, less to load",
+          "body": "Send to Trillion 1.3.1 works exactly as before: sign in, add the page, attach files, mark up a picture, reply to a notice. Each page now loads less than half of what it did (the popup 0.88 MB, was 1.97 MB), and a page that grows past its limit can no longer be built."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

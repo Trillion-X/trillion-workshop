@@ -1,0 +1,49 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-plan-check-kept",
+  "revision": 1,
+  "order": 10,
+  "title": "Pages answer faster on an account with a long payment history",
+  "summary": "What your plan lets you do is worked out once each time your payments change, not again on every page.",
+  "entry_step": "plan",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-plan-check-kept",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T19:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-plan-check-kept"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "plan",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Faster with a long payment history",
+          "body": "Almost every page checks what your plan lets you do. That used to read your whole payment history each time; now it is worked out once and again only when a payment changes, so decisions, messages and work answer sooner."
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

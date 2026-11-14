@@ -1,0 +1,91 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-iphone-board-and-widgets",
+  "revision": 1,
+  "order": 12,
+  "title": "Everything running, on one Lock Screen card",
+  "summary": "Your iPhone shows everything Trillion is doing on one Lock Screen card you page through, and you can add Trillion widgets that show what you pick.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-iphone-board-and-widgets",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T15:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-iphone-board-and-widgets"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "One card for all your work",
+          "body": "Copies, exports and anything else running now share one card on your Lock Screen and in the Dynamic Island. Tap Next to see the next one."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ends",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "It never sits frozen",
+          "body": "When work stops reporting, the card says when it last heard from it. When nothing is running, the card goes away by itself."
+        }
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "widgets",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Pick what your widgets show",
+          "body": "Press and hold your Home Screen or Lock Screen, add the Trillion widget, then press and hold it to pick what it shows: running work, what Trillion told you, your pursuits, decisions waiting or work for your AIs. It wears the look you wear in Trillion."
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

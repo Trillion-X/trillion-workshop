@@ -1,0 +1,65 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-siri-never-loses-what-you-said",
+  "revision": 1,
+  "order": 6,
+  "title": "Siri keeps what you say when Trillion is busy",
+  "summary": "Tell Trillion, hand off or run something with Siri while Trillion is busy or you have no signal: Siri answers at once, your words wait on your iPhone or Mac and reach your AIs as soon as Trillion answers.",
+  "entry_step": "kept",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-siri-never-loses-what-you-said",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T15:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-siri-never-loses-what-you-said"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "kept",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Say it now, it arrives when Trillion answers",
+          "body": "When Trillion is slow, busy or out of reach, \"Send to Trillion\", \"Give Trillion a job\" or \"Run something in Trillion\" still answers within seconds: \"Sent to your AIs\". Your words wait on this device and reach your AIs as soon as Trillion answers, even if you never open the app. If Trillion turns one down, you get a notice saying why. With no sign-in on this device, Siri says to open Trillion once to sign in."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

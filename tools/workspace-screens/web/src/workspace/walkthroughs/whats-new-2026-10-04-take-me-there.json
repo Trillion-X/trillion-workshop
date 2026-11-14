@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-take-me-there",
+  "revision": 1,
+  "order": 10,
+  "title": "New: Your AI takes you to the thing",
+  "summary": "Instead of telling you what to do, your AI opens the screen around the thing that needs you and shows you your part.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-take-me-there",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T21:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-take-me-there"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your AI takes you there",
+          "body": "When something needs you, like a client email to send or a video to approve, your AI does everything it can first, then opens your screen around it and points at the one thing left for you."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "where",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "It shows up here too",
+          "body": "You also get a notice. Open it on any device and the same screen comes up there with the same steps. Your quiet times hold it until they end."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.notifications"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"notifications\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

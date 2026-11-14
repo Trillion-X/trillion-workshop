@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-checklist-is-a-task-list",
+  "revision": 1,
+  "order": 13,
+  "title": "Your checklist is a real task list",
+  "summary": "Every list's Checklist now shows tasks inside tasks, how much is done, and notes you write like a document.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-checklist-is-a-task-list",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T06:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-checklist-is-a-task-list"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Checklists got serious",
+          "body": "Open any list as a Checklist: tasks sit inside tasks as deep as you like, the top shows how much is done, and every task has notes."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "checklist",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Notes are a document",
+          "body": "Open Lists, pick a list and choose Checklist. Click a task to open it: write its notes with headings, lists and checkboxes, and add sub-tasks right under it. Every list gets this, even ones that had no notes before."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"lists\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.lists"
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-one-whats-new-card",
+  "revision": 1,
+  "order": 1,
+  "title": "One card for what's new",
+  "summary": "Opening Trillion shows only the newest update; closing it means you are caught up, on every device, and every update stays in the What's new list.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-one-whats-new-card",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T21:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-one-whats-new-card"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You're caught up",
+          "body": "Opening Trillion now shows one card with the newest change instead of a different one every time. Close it and you are caught up on every device. Everything that changed is still in the What's new list."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

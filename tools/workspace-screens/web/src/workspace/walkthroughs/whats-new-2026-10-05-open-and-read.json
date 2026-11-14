@@ -1,0 +1,121 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-open-and-read",
+  "revision": 1,
+  "order": 13,
+  "title": "Notices open where you press, posts read as written",
+  "summary": "Press anywhere on a notification to open what it is about; its buttons still do their own thing. A post shows its words the way you wrote them, with paragraphs, line breaks, #tags, @names and links. A long name shown on hover inside ChatGPT or Claude now reads as lines of words.",
+  "entry_step": "notices",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "board": {
+    "subject": "source:dWktYnVncy1zaWRlYmFyLXNjcm9sbC12aWV3LWxhYmVscy1jaGF0LWhlaWdodC0yMDI2LTEwLTA1",
+    "title": "Open and read"
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-open-and-read",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-open-and-read"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "notices",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Press a notice to open it",
+          "body": "Anywhere on a notification opens what it is about: the pursuit, the work your AI did, the request. Accept, Reply and Undo stay buttons of their own, and Enter on its title opens it from the keyboard. Your phone and Mac open it from a tap the same way."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.notifications"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"notifications\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "posts",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Posts read the way you wrote them",
+          "body": "Open a post on Posts and its words keep their paragraphs and line breaks, with #tags as tags, @names marked and links you can open. Emails, notes and anything else you read in Trillion show the same way."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-posts-screen]"
+      },
+      "centered_when_target_missing": true,
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.use-tool",
+          "surface_input": {
+            "tool_id": "tool:check-a-post"
+          }
+        }
+      }
+    }
+  ]
+}

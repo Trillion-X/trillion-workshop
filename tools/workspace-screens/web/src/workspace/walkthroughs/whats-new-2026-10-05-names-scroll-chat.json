@@ -1,0 +1,112 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-names-scroll-chat",
+  "revision": 1,
+  "order": 12,
+  "title": "Names on hover, a sidebar that scrolls, smaller screens in chats",
+  "summary": "Rest the pointer on any icon above a list and its name shows beside it, staying on that icon even when the row resizes. The folded sidebar scrolls to every screen it holds. And a Trillion screen inside ChatGPT or Claude is as tall as what it shows, up to a compact size, with Show more and Full screen under it.",
+  "entry_step": "names",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "board": {
+    "subject": "source:dWktYnVncy1zaWRlYmFyLXNjcm9sbC12aWV3LWxhYmVscy1jaGF0LWhlaWdodC0yMDI2LTEwLTA1",
+    "title": "Names, scrolling and chat sizes"
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-names-scroll-chat",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-names-scroll-chat"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "names",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Rest on an icon to read its name",
+          "body": "Point at Gallery, Board or any view here and its name shows above it after a moment. Moving along the row names each one at once, and nothing in the row moves while you point."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": ".record-views-switch"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.decisions"
+        }
+      }
+    },
+    {
+      "id": "sidebar",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "The folded sidebar scrolls",
+          "body": "When your sidebar is folded to its thin bar, every screen stays on it: scroll the bar to reach the rest. Your screen's icon is scrolled into view, and in a ChatGPT or Claude chat a Trillion screen now opens compact, with Show more and Full screen under it."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-bar-rows], [data-sidebar-open-toggle]"
+      },
+      "centered_when_target_missing": true,
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-reading-limit",
+  "revision": 1,
+  "order": 61,
+  "title": "Runaway reading pauses too",
+  "summary": "If one kind of work in your account starts reading far more than usual (more than half a billion rows in an hour), Trillion pauses just that work until the hour ends, tells you, and starts it again by itself. It now notices while the work is still running, so work that would have crashed your account is paused first.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-reading-limit",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T21:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-reading-limit"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Runaway reading pauses by itself",
+          "body": "If one kind of work reads far more than usual in an hour, Trillion pauses just that work until the hour ends and tells you here. Everything else keeps working, and it starts again by itself. Trillion now counts work while it runs, so a loop is paused before it can crash your account or run up a bill."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "See Spend"
+          }
+        ]
+      }
+    },
+    {
+      "id": "spend",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "See the latest estimate",
+          "body": "Spend shows the latest usage estimates and budgets. Other work can still add usage while this loop is paused."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.spend"
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

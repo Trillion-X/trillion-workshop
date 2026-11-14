@@ -1,0 +1,81 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-price-tests",
+  "revision": 1,
+  "order": 63,
+  "title": "Your prices are being tested",
+  "summary": "Trillion's plan is now a live price test: each new person sees $100 or $150 a spot, usage at cost plus 30% or 50%, or the button Start 7 days free, the same one every time. Business shows each price's results.",
+  "entry_step": "tests",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-price-tests",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T06:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-price-tests"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "tests",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your price tests",
+          "body": "Each row is one price people are shown: how many saw it, how many paid, and the money per person shown, the number a test is judged by. End a test on any price with Show everyone this."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.business"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"business\"] [data-guide-section=\"price-test-0\"]"
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true,
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ],
+  "audience": "operator"
+}

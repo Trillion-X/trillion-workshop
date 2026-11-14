@@ -1,0 +1,87 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-your-devices-keep-what-they-hold",
+  "revision": 1,
+  "order": 6,
+  "title": "Your devices keep what they hold",
+  "summary": "A device that catches up with your Trillion now keeps its newer changes, and anything that arrives damaged on the way is turned away instead of saved.",
+  "entry_step": "kept",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-your-devices-keep-what-they-hold",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T00:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-your-devices-keep-what-they-hold"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "kept",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Newer changes are never undone",
+          "body": "When a device catches up, whichever change was made last stays, on the device or online. If your online copy ever had to be put back from its saved history, your devices fill in everything since instead of being emptied to match it."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "turned-away",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Damaged copies are turned away",
+          "body": "Notes, lists and anything else that changes on the way between your devices, and saved history that was changed, cut short or put out of order, are refused before anything is saved, and the device tries again later."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

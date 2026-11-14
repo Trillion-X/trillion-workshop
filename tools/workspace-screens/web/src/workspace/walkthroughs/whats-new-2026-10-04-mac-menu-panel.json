@@ -1,0 +1,135 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-mac-menu-panel",
+  "revision": 1,
+  "order": 11,
+  "title": "New: the Mac menu bar opens Trillion itself",
+  "summary": "Click Trillion in your Mac's menu bar and a panel opens at once with your next step, notices you can answer, your tray and what is done.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-mac-menu-panel",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T05:40:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-mac-menu-panel"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Trillion in your menu bar",
+          "body": "Click Trillion in your Mac's menu bar and a panel opens straight away, without switching apps. It holds the same Trillion you see here."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "panel",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "This is what it shows",
+          "body": "Now has your next step and the work your AIs are doing. Notices you can reply to right there, your tray, and what is done. Right click it for Open Trillion or Quit."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-board-of=\"trillion.menu-bar\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "left",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.menu-bar"
+        }
+      }
+    },
+    {
+      "id": "devices",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Get it on your Mac",
+          "body": "Download Trillion for Mac here. Once it is open, Trillion sits in your menu bar."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"ai\"] [data-guide-section=\"devices\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.ai"
+        }
+      }
+    }
+  ]
+}

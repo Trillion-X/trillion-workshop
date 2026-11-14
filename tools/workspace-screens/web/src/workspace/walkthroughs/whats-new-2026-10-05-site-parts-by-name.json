@@ -1,0 +1,56 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-site-parts-by-name",
+  "revision": 1,
+  "order": 1,
+  "title": "Your AI can change one part of your site",
+  "summary": "Every heading, picture and button on your sites now keeps its own name, so your AI can change exactly that part, its words, link or look, without touching the rest of the page.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-site-parts-by-name",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T01:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-site-parts-by-name"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Change one part, by name",
+          "body": "Every heading, picture and button on your sites keeps its own name from now on, even after you edit the page. Ask your AI to change “the big heading on the home page” and it changes that one part, nothing else."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

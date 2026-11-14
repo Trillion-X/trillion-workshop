@@ -1,0 +1,49 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-blur-who-did-not-agree",
+  "revision": 2,
+  "order": 10,
+  "title": "Blur anyone who did not agree to be filmed",
+  "summary": "Your AI can make a copy of any video with every face blurred except the people who agreed.",
+  "entry_step": "blur",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-blur-who-did-not-agree",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T07:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-blur-who-did-not-agree"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "blur",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Blur anyone who did not agree",
+          "body": "Ask your AI to blur everyone but the people who agreed, and give it a picture and a short recording of each of them. You get a copy with every other face blurred and every other voice silenced; the original stays as it was."
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

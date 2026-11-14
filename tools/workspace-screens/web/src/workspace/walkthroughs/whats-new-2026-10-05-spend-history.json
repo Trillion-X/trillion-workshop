@@ -1,0 +1,115 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-spend-history",
+  "revision": 1,
+  "order": 3,
+  "title": "Spend shows your past month",
+  "summary": "Spend's estimated cost per day now reaches back a month from the first time you open it, priced from what each connected service and Trillion counted, against your budget.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-spend-history",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T23:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-spend-history"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your usage estimates are already there",
+          "body": "Open Spend: each day of the last month shows an estimated cost by service, with your day budget drawn across it."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "chart",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Point at a day to read it",
+          "body": "Hover or drag across the chart to see each day's cost and what it was made of. Connect a service later and its past days fill in too."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"spend\"] .chart-card"
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.spend"
+        }
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "back",
+            "label": "Back"
+          },
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

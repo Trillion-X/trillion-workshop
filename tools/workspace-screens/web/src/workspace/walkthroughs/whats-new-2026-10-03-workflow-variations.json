@@ -1,0 +1,137 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-workflow-variations",
+  "revision": 2,
+  "order": 9,
+  "title": "New: See where a workflow came from",
+  "summary": "A workflow made from another one now shows where it came from, and the original shows how many were made from it.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-workflow-variations",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T20:45:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-workflow-variations"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Workflows now show where they came from",
+          "body": "When your AI finishes something it would do again, it keeps how it did it as a workflow. When it changes someone else's workflow for you, yours says where it came from."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "cards",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Made from and Variations",
+          "body": "In the Marketplace, a workflow card shows Made from with the workflow it started from, and Variations with how many were made from it."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.marketplace"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"marketplace\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "corrections",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Corrections that stick",
+          "body": "Tell your AI what it got wrong and it can run Turn a correction into workflows: it fixes the work, then keeps each fix as a workflow every AI can find. Four more come with it: Put it where it belongs, Keep what you find in your lists, Port a screen without losing anything, and Same abilities on every device."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.marketplace"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"marketplace\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

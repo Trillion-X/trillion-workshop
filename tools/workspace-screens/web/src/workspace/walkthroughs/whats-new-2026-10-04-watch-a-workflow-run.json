@@ -1,0 +1,115 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-watch-a-workflow-run",
+  "revision": 1,
+  "order": 6,
+  "title": "Watch a workflow run",
+  "summary": "A workflow run now plays out on a canvas: each step lights up while it works, checks off when done and opens to show what it handed back. Ask your AI to show a run and it appears right in the chat.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-watch-a-workflow-run",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T16:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-watch-a-workflow-run"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Watch your workflows work",
+          "body": "Each step of a workflow is a card. While it runs, the step being done glows, the line into it flows, and each step checks off as it finishes. No refreshing."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "automations",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Open any workflow or run",
+          "body": "Your workflows and their runs are here. Open one to see it as a canvas, press Run to start it, and open a step to see what it handed back or the checks inside it."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.workflows"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"workflows\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "in-chat",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Right inside your AI chat",
+          "body": "Ask ChatGPT or Claude to start or show a workflow run and the same canvas appears in the chat. A step waiting on an AI has Ask my AI on its card; a step that failed has Try again."
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

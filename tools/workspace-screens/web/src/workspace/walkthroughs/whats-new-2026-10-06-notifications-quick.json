@@ -1,0 +1,49 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-notifications-quick",
+  "revision": 1,
+  "order": 10,
+  "title": "Notifications keep up without recounting",
+  "summary": "How far each job has got in your notifications now counts only the steps taken since you last looked.",
+  "entry_step": "steps",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-notifications-quick",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T23:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-notifications-quick"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "steps",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Only new steps are counted",
+          "body": "Each time your notifications refreshed, Trillion counted every step of the last fifty jobs again. It now keeps those counts and adds only the steps taken since, so the bell opens quickly."
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

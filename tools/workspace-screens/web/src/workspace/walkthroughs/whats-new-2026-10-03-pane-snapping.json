@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-pane-snapping",
+  "revision": 1,
+  "order": 10,
+  "title": "Panes snap into place",
+  "summary": "Pane edges snap to quarters, thirds and halves, and you choose how narrow a pane gets and how much a new one takes.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-pane-snapping",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T02:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-pane-snapping"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Pane edges snap into place",
+          "body": "Dragging the edge between panes now snaps to quarters, thirds and halves, and settles in softly. You choose how."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "panes",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Panes",
+          "body": "Drag the edge in this little window to feel it. Turn snapping off, pick the marks, and set how narrow a pane gets and how much a new one takes. Your panes change as you go."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.account"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-tuning-split-preview]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 12
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "above",
+        "auto_flip": true,
+        "gap": 12
+      }
+    }
+  ]
+}

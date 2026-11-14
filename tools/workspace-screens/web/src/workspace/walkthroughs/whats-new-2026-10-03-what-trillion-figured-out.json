@@ -1,0 +1,147 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-what-trillion-figured-out",
+  "revision": 1,
+  "order": 8,
+  "title": "New: See what Trillion has figured out about you",
+  "summary": "Trillion reads everything that comes in and shows you on Progress what it has figured out about you, so you and your AIs work from the same picture.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-what-trillion-figured-out",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T05:54:53Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-what-trillion-figured-out"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You can see what Trillion has figured out about you",
+          "body": "Trillion reads your messages with every AI, your recordings and files, and what your AIs do. From all of it, it keeps one picture of you."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "where",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You will find it on Progress",
+          "body": "Open Progress to see what Trillion has figured out about you."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"progress\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.progress"
+        }
+      }
+    },
+    {
+      "id": "picture",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Where you are heading",
+          "body": "It shows your trajectory and your values, passions, skills and goals. For each pursuit it sees, it says whether it is worth it for you and good for people, and whether what you are doing right now is on your path."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"progress\"] [data-guide-section=\"awareness\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 12
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.progress"
+        }
+      }
+    },
+    {
+      "id": "your-ais",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your AIs read it too",
+          "body": "Every AI you connect can read this picture before it advises you or picks what to work on."
+        }
+      }
+    }
+  ]
+}

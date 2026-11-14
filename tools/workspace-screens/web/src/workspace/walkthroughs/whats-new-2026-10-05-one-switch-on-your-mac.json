@@ -1,0 +1,87 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-one-switch-on-your-mac",
+  "revision": 1,
+  "order": 1,
+  "title": "One Trillion on your Mac",
+  "summary": "Everything Trillion runs on your Mac now runs inside the Trillion app, so your Mac asks for permission once, for Trillion.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-one-switch-on-your-mac",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T08:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-one-switch-on-your-mac"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Runs inside the app",
+          "body": "Waking your AI chats, your Mac's tools and its local models now run inside the Trillion app instead of a separate background program. They start when Trillion opens and stop when it quits."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "checks",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "One switch",
+          "body": "Full Disk Access needs only the switch named Trillion. A second program named node no longer asks."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

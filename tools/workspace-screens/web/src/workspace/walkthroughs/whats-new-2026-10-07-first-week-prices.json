@@ -1,0 +1,81 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-07-first-week-prices",
+  "revision": 1,
+  "order": 68,
+  "title": "Three first-week prices in your plan test",
+  "summary": "The plan test now also tries $10 today and $90 next week, $5 and $95, and $2 and $98: the first month still comes to $100 a spot, the part paid at checkout taken off the next week's charge. They show on Price tests beside the others.",
+  "entry_step": "first-week",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-07-first-week-prices",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-07T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-07-first-week-prices"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "first-week",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Three first-week prices",
+          "body": "$10, $5 or $2 today, the rest of the first month next week, then $100 a month. Each person sees one price, always the same one."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.price-tests"
+        }
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true,
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-record-set=\"price-tests\"]"
+      }
+    }
+  ],
+  "audience": "operator"
+}

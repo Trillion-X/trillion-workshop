@@ -1,0 +1,74 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-your-ai-brings-its-connections",
+  "revision": 1,
+  "order": 12,
+  "title": "Your AI brings in the services it can reach",
+  "summary": "Your AI checks the services its own app already offers, connects what Trillion can use and leaves only outside sign-ins on Waiting on you.",
+  "entry_step": "intro",
+  "progress_style": { "style": "segmented" },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": { "event_kind": "app-opened" },
+      "once_key": "whats-new-2026-10-05-your-ai-brings-its-connections",
+      "requires": [
+        { "once_key": "first-run", "consumed_before": "2026-10-05T00:00:00Z" }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": { "walkthrough_id": "whats-new-2026-10-05-your-ai-brings-its-connections" }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your AI checks what it can connect",
+          "body": "Your AI checks the services its own app already offers. Trillion connects each one it can and keeps any outside sign-in it cannot finish on Waiting on you."
+        }
+      },
+      "nav": {
+        "buttons": [
+          { "role": "skip", "label": "Skip" },
+          { "role": "advance", "label": "Show me" }
+        ]
+      }
+    },
+    {
+      "id": "search",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Search for another service",
+          "body": "Type a service or tool your AI already uses. Trillion asks its public catalogs for a matching tool server."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-guide-section=\"find-connector\"] input"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [ { "shape": "rounded-rect", "padding": 6, "radius": 10 } ]
+      },
+      "placement": { "prefer": "right", "auto_flip": true, "gap": 14 },
+      "target_preparation": { "surface": { "id": "trillion.connections" } }
+    }
+  ]
+}

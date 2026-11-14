@@ -1,0 +1,121 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "workflow",
+  "revision": 2,
+  "order": 42,
+  "title": "Workflow",
+  "summary": "You can see one automation, either a trigger or schedule with its switch and words you can edit, or a workflow or one of its runs drawn as a graph of its steps.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": {
+        "event_kind": "screen-opened",
+        "match": {
+          "entry": "tool-screen",
+          "tool_id": "tool:screen-workflow"
+        }
+      },
+      "once_key": "workflow",
+      "requires": [
+        {
+          "once_key": "first-run"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "workflow"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "One automation up close",
+          "body": "A trigger or schedule shows its switch and words you can edit. A workflow, or one run of it, shows as a graph of its steps."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.workflow"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"workflow\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "graph",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Its steps",
+          "body": "Each step of this workflow is shown with what it handed on. Press a step to read what it made."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.workflow"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"workflow\"] [data-workflow-graph] > :last-child"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "above",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

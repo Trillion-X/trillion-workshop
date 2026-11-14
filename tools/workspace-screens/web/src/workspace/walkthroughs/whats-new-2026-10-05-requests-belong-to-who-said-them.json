@@ -1,0 +1,87 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-requests-belong-to-who-said-them",
+  "revision": 1,
+  "order": 1,
+  "title": "Requests belong to whoever said them",
+  "summary": "When someone near your Mac asks for something, it is kept as their request, not yours. Your AIs keep it for them or tell you, and ask you who said it when your Mac can't tell.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-requests-belong-to-who-said-them",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T08:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-requests-belong-to-who-said-them"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Their request, not yours",
+          "body": "If Sam says \"remind me to call the dentist\" near your Mac, it is kept as Sam's reminder. Your AIs put it in a pursuit you share with them, or tell you \"Sam asked to be reminded to call the dentist\". Only what you surely said is done as yours."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "checks",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Who said this?",
+          "body": "When your Mac can't tell whose voice it was, the request comes to you as \"Who said this?\". A voice nobody has named yet is a person of its own: what it asks is kept as \"Someone (voice-3) asked ...\", and when you name the voice, that person and everything they asked follow the name."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

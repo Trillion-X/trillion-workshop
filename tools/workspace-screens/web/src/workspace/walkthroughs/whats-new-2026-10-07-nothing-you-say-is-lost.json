@@ -1,0 +1,49 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-07-nothing-you-say-is-lost",
+  "revision": 1,
+  "order": 10,
+  "title": "What you say reaches your AIs, even when something breaks",
+  "summary": "Trillion looks every hour for anything you said or wrote that never reached one of your AIs, and hands it on.",
+  "entry_step": "words",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-07-nothing-you-say-is-lost",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-07T08:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-07-nothing-you-say-is-lost"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "words",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Nothing you say gets lost",
+          "body": "If a voice memo, something Trillion heard or a message to an AI arrived while Trillion was being updated, or while your computer could not tell whether it asked for something, it could sit unread for good. Now Trillion checks every hour, asks again, and hands anything still waiting to one of your AIs, once. Automations also stops showing a source as failing once what arrives after the failure reaches your AIs again."
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

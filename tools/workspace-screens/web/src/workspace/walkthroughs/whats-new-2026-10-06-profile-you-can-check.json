@@ -1,0 +1,87 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-profile-you-can-check",
+  "revision": 1,
+  "order": 1,
+  "title": "A profile you can check",
+  "summary": "Your AI keeps personal facts in a private, editable list with the exact words and source for each one.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-profile-you-can-check",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-profile-you-can-check"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "A profile with sources you can check",
+          "body": "Your AI reads what this Trillion account already knows, then keeps supported facts in a private, editable About me list with the exact words and place each one came from."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "evidence",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Facts keep their source",
+          "body": "If sources disagree, both stay visible until you decide what is right. Your AI asks only about what it cannot settle. A folder name on your computer is not used as your name, and your profile list stays private unless you choose to share it."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

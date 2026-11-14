@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-sign-in-ready-to-post",
+  "revision": 1,
+  "order": 10,
+  "title": "Connected means ready to post",
+  "summary": "Signing in to Instagram, X or YouTube now keeps your account and its name, so your posts can go there straight away.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-sign-in-ready-to-post",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T21:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-sign-in-ready-to-post"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Sign in once, then post",
+          "body": "When you connect Instagram, X or YouTube, Trillion now keeps which account it is and shows its name. Nothing more to fill in before your posts can go there."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "posts",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your accounts, by name",
+          "body": "Each connected account shows its own name here. If one ever says to connect again, checking it fills in what it was missing."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"connections\"] .guide-header"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.connections"
+        }
+      }
+    }
+  ]
+}

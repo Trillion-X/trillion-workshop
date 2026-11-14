@@ -1,0 +1,65 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-use-is-what-you-do",
+  "revision": 1,
+  "order": 1,
+  "title": "Use means you and your AIs",
+  "summary": "Your account counts as in use when you or one of your AIs reach it, not when Trillion runs its own checks in the background.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-use-is-what-you-do",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T07:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-use-is-what-you-do"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "In use means used by you",
+          "body": "Trillion checks your account on its own every hour. Those checks no longer count as you using it: only signing in, your browser and your AIs reaching your account do. Test accounts nobody uses can now be cleared away."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

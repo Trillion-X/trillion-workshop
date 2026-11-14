@@ -1,0 +1,179 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-note-is-a-document",
+  "revision": 2,
+  "order": 10,
+  "title": "New: A board note can be a document",
+  "summary": "A note on a board can be a document: the card and Write show the same words, and everyone in the pursuit sees each change in both.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-note-is-a-document",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T23:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-note-is-a-document"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "A note can be a document",
+          "body": "Turn a board note into a document. The card and Write then show the same words, and a change in one shows in the other for everyone in the pursuit. Let's do one now."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pick-note",
+      "content": {
+        "content_kind": "interactive-gate",
+        "payload": {
+          "title": "Pick a note",
+          "body": "Press any note on your board. No note yet? Double-press the board to write one.",
+          "gesture_hint": "Press a note to go on"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-graph-node]"
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.board"
+        }
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 12
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 12
+      },
+      "advance_condition": {
+        "op": "target-interacted"
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          }
+        ]
+      }
+    },
+    {
+      "id": "as-document",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Right-click it, then Open as document",
+          "body": "Write opens on the note's words as a document. With the note picked, Open as document is also in the selection tools at the top right."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-graph-node]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 4,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 12
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.board"
+        }
+      }
+    },
+    {
+      "id": "same-words",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "One document, two places",
+          "body": "Type in Write and watch the card change, or type in the card and watch Write. On a pursuit's board, everyone in the pursuit sees it too."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

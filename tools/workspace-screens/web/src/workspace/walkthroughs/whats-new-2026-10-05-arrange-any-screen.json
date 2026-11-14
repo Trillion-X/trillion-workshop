@@ -1,0 +1,128 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-arrange-any-screen",
+  "revision": 1,
+  "order": 1,
+  "title": "Arrange any screen",
+  "summary": "Every screen can now be arranged like Home: place any other screen beside it or under it, at any width and height, and it stays that way on every device. Home itself is one, and fits to a single column on a phone.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-arrange-any-screen",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T12:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-arrange-any-screen"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Any screen, your way",
+          "body": "Put Spend beside Files, your messages under Home, or anything you use together on one screen. Each piece keeps the width and height you drag it to."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "menu",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Start from …",
+          "body": "Open … on any screen, then With it and Arrange this screen. Add a pane beside or below, pick any screen, and drag its edges. Done arranging hides the edges again."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "button[aria-label=\"More for this pane\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "back",
+            "label": "Back"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ai",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Or ask your AI",
+          "body": "Your AI can arrange a screen for you too, and Put this screen back returns it to how it started."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

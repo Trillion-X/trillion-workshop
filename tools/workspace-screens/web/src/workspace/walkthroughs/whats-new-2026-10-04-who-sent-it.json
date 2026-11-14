@@ -1,0 +1,31 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-who-sent-it",
+  "revision": 1,
+  "order": 5,
+  "title": "See which AI sent it",
+  "summary": "In a pursuit, everything an AI added or shared shows which AI sent it, with its mark, and a file's Download saves one copy.",
+  "entry_step": "intro",
+  "progress_style": { "style": "segmented" },
+  "look": { "targeting": { "retry_timeout_ms": 6000, "retry_interval_ms": 100, "scroll_behavior": "smooth", "scroll_block": "center", "scroll_inline": "nearest" } },
+  "triggers": [
+    { "reason": "changed-since-first-tour", "on_event": { "event_kind": "app-opened" }, "once_key": "whats-new-2026-10-04-who-sent-it", "requires": [ { "once_key": "first-run", "consumed_before": "2026-10-04T08:00:00Z" } ] },
+    { "reason": "replay", "on_event": { "event_kind": "walkthrough-requested", "match": { "walkthrough_id": "whats-new-2026-10-04-who-sent-it" } } }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": { "content_kind": "text", "payload": { "title": "Which AI sent it", "body": "When ChatGPT, Claude, Muse or any AI you connected posts or shares something in a pursuit, its name and mark now sit beside yours, so everyone can see which AI sent it." } },
+      "nav": { "buttons": [ { "role": "skip", "label": "Skip" }, { "role": "advance", "label": "Show me" } ] }
+    },
+    {
+      "id": "spaces",
+      "content": { "content_kind": "text", "payload": { "title": "Open a pursuit", "body": "In Messages, the Table's From column lets you sort and group by which AI sent each thing. Open a file to read it right there. Download saves it once, and the button shows Downloading while it works." } },
+      "target_ref": { "from": "selector", "query": "[data-trillion-screen=\"spaces\"]" },
+      "centered_when_target_missing": true,
+      "cutout": { "shapes": [ { "shape": "rounded-rect", "padding": 6, "radius": 12 } ] },
+      "placement": { "prefer": "right", "auto_flip": true, "gap": 14 },
+      "target_preparation": { "surface": { "id": "trillion.pursuits" } }
+    }
+  ]
+}

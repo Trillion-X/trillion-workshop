@@ -1,0 +1,87 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-your-mac-hears-your-recordings",
+  "revision": 1,
+  "order": 1,
+  "title": "Your Mac hears your recordings",
+  "summary": "Voice memos and videos from your phone or browser are turned into words by your own Mac while it is awake, not by a service Trillion pays for.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-your-mac-hears-your-recordings",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T08:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-your-mac-hears-your-recordings"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Heard on your Mac",
+          "body": "When you record on your phone or in the browser, your Mac turns it into words with its own speech model while it is awake and connected to Trillion. The words show beside the recording, the same as before."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "checks",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "When your Mac is asleep",
+          "body": "The recording waits and is heard once your Mac wakes, for up to about a day. Trillion's machines hear it instead only if you set a daily budget for them in Spend."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

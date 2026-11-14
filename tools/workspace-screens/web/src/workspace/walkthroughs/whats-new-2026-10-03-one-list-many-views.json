@@ -1,0 +1,40 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-one-list-many-views",
+  "revision": 2,
+  "order": 5,
+  "title": "New: Read one list in many ways",
+  "summary": "You can read a pursuit's messages as a feed, a chat, a table or a board, and use any layout you like on every list.",
+  "entry_step": "intro",
+  "progress_style": { "style": "segmented" },
+  "look": { "targeting": { "retry_timeout_ms": 6000, "retry_interval_ms": 100, "scroll_behavior": "smooth", "scroll_block": "center", "scroll_inline": "nearest" } },
+  "triggers": [
+    { "reason": "changed-since-first-tour", "on_event": { "event_kind": "app-opened" }, "once_key": "whats-new-2026-10-03-one-list-many-views", "requires": [ { "once_key": "first-run", "consumed_before": "2026-10-03T18:30:00Z" } ] },
+    { "reason": "replay", "on_event": { "event_kind": "walkthrough-requested", "match": { "walkthrough_id": "whats-new-2026-10-03-one-list-many-views" } } }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": { "content_kind": "text", "payload": { "title": "You can read your messages any way you like", "body": "In a pursuit, Messages is one list you can read as a Feed, a Chat, a Table or a Board. Replies sit under what they answer, however deep the talk goes." } },
+      "nav": { "buttons": [ { "role": "skip", "label": "Skip" }, { "role": "advance", "label": "Show me" } ] }
+    },
+    {
+      "id": "views",
+      "content": { "content_kind": "text", "payload": { "title": "You pick how a list reads", "body": "Tours is a list too. It opens in Rows, and Table, Cards and Board show the same tours. Rows works on every list you keep." } },
+      "target_ref": { "from": "selector", "query": "[data-trillion-screen=\"tours\"] [role=\"radiogroup\"][aria-label=\"View\"]" },
+      "centered_when_target_missing": true,
+      "cutout": { "shapes": [ { "shape": "rounded-rect", "padding": 6, "radius": 12 } ] },
+      "placement": { "prefer": "below", "auto_flip": true, "gap": 14 },
+      "target_preparation": { "surface": { "id": "trillion.tours" } }
+    },
+    {
+      "id": "keep",
+      "content": { "content_kind": "text", "payload": { "title": "You can keep a layout for every list", "body": "In Saved views, Use this layout on every list saves the look you are in under your own name. From then on, every list offers it." } },
+      "target_ref": { "from": "selector", "query": "[data-trillion-screen=\"tours\"] .record-views-bar" },
+      "centered_when_target_missing": true,
+      "cutout": { "shapes": [ { "shape": "rounded-rect", "padding": 6, "radius": 12 } ] },
+      "placement": { "prefer": "below", "auto_flip": true, "gap": 14 },
+      "target_preparation": { "surface": { "id": "trillion.tours" } }
+    }
+  ]
+}

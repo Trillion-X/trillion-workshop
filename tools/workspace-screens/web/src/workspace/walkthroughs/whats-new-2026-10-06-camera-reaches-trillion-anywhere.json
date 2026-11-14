@@ -1,0 +1,81 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-camera-reaches-trillion-anywhere",
+  "revision": 1,
+  "order": 10,
+  "title": "Your camera reaches Trillion anywhere",
+  "summary": "Always recording keeps going with no internet and catches up later; a camera's card goes up when it is in your Mac; your iPhone can send the videos a camera app puts in Photos.",
+  "entry_step": "anywhere",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-camera-reaches-trillion-anywhere",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T16:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-camera-reaches-trillion-anywhere"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "anywhere",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your camera reaches Trillion anywhere",
+          "body": "Plug a camera into your Mac and press Start once. If the Wi-Fi drops, every piece waits on the Mac and goes up by itself when you are back online. Put the camera's card in your Mac and everything on it goes up too. In the Trillion iPhone app, turn on Send new videos from this iPhone's Photos and the clips your camera's app puts on the phone arrive here, on any connection."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.always-recording"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"always-recording\"] [data-always-input]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

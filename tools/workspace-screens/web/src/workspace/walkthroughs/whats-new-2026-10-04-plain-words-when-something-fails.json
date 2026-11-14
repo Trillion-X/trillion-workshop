@@ -1,0 +1,80 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-plain-words-when-something-fails",
+  "revision": 1,
+  "order": 6,
+  "title": "Failures in plain words",
+  "summary": "Every screen now says what went wrong in plain words: no codes, no computer messages, and a lost connection is told apart from a problem on our side.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-plain-words-when-something-fails",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T06:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-plain-words-when-something-fails"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "No more computer messages",
+          "body": "When something does not work, every screen now says so in plain words. No codes, no computer messages to copy."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "told-apart",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Is it you or us?",
+          "body": "If your connection drops, Trillion tells you to check it. If the problem is on our side, it says so, tries again by itself, and Ask your AI is right there with what went wrong already written."
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

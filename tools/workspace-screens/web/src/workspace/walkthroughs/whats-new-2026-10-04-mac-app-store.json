@@ -1,0 +1,102 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-mac-app-store",
+  "revision": 1,
+  "order": 10,
+  "title": "New: Trillion is on its way to the Mac App Store",
+  "summary": "The Mac app is with Apple's review for the Mac App Store, as the same app as the iPhone one: get it once and you have both.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-mac-app-store",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T05:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-mac-app-store"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Trillion on the Mac App Store",
+          "body": "The Mac app is with Apple's review for the Mac App Store. It is the same app as the iPhone one, Trillion Workspace, so getting it on one gives you both."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "devices",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Until then, it is here",
+          "body": "The Mac app is already in Trillion on your devices. Once Apple approves it, the Mac App Store has it too and updates it for you."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"ai\"] [data-guide-section=\"devices\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.ai"
+        }
+      }
+    }
+  ]
+}

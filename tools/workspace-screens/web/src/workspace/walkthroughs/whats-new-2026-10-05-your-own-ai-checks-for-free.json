@@ -1,0 +1,87 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-your-own-ai-checks-for-free",
+  "revision": 1,
+  "order": 1,
+  "title": "Checks run on your own computer",
+  "summary": "What Trillion hears in the room is kept as notes and handed to no AI unless it asks for something, checks and readings run on the model on your own Mac, and a key billed by the word is asked only up to the daily amount you set (none set: never).",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-your-own-ai-checks-for-free",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T06:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-your-own-ai-checks-for-free"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Talk in the room stays as notes",
+          "body": "Trillion still hears and keeps everything said near your Mac, so you can search it. Only what asks for something (a task, a reminder, a request) is handed to your AIs; the small model on your Mac tells the two apart, for free."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "checks",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "No surprise bills",
+          "body": "Checking answers and reading what came in now run on the model on your own Mac. A key billed by the word (Claude, ChatGPT, Gemini) is asked only when you set the most it may cost you a day, and stops there. With none set, the work waits for the AIs you already pay for."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

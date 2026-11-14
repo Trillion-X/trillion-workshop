@@ -1,0 +1,98 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-corners-fit",
+  "revision": 1,
+  "order": 12,
+  "title": "Corners that fit together",
+  "summary": "Rounded things inside rounded things now curve together: tabs and their close buttons, choices and their tracks, a window and what fills it, a notice and its picture.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-corners-fit",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T06:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-corners-fit"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Rounded corners line up",
+          "body": "When something rounded sits inside something rounded, its corner now follows the one around it, on every screen and every size."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "tab-close",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Curves that run together",
+          "body": "The close button in a tab, a choice in its track and a notice's picture are each as round as the pursuit around them allows, so the inner curve follows the outer one instead of bulging into it."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-tab-draggable]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 12
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 12
+      }
+    }
+  ]
+}

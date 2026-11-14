@@ -1,0 +1,31 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-every-ask-explained",
+  "revision": 1,
+  "order": 68,
+  "title": "Nothing is left for you in a chat",
+  "summary": "When an AI needs your help, it does everything it can first. Waiting on you shows why only you can finish the task, what your part makes possible, what the AI tried, and exactly how to finish.",
+  "entry_step": "intro",
+  "progress_style": { "style": "segmented" },
+  "look": { "targeting": { "retry_timeout_ms": 6000, "retry_interval_ms": 100, "scroll_behavior": "smooth", "scroll_block": "center", "scroll_inline": "nearest" } },
+  "triggers": [
+    { "reason": "changed-since-first-tour", "on_event": { "event_kind": "app-opened" }, "once_key": "whats-new-2026-10-06-every-ask-explained", "requires": [ { "once_key": "first-run", "consumed_before": "2026-10-06T19:00:00Z" } ] },
+    { "reason": "replay", "on_event": { "event_kind": "walkthrough-requested", "match": { "walkthrough_id": "whats-new-2026-10-06-every-ask-explained" } } }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": { "content_kind": "text", "payload": { "title": "Your step never hides in a chat", "body": "If an AI's answer would leave you something to do, Trillion first does every part it can. Only what is truly yours is kept, and it reaches every device until it is done." } },
+      "nav": { "buttons": [ { "role": "skip", "label": "Skip" }, { "role": "advance", "label": "Show me" } ] }
+    },
+    {
+      "id": "explained",
+      "content": { "content_kind": "text", "payload": { "title": "Each one explains itself", "body": "Each one explains why it needs you, why only you can do it, what you can do once it is done, and what your AIs tried first. It shows the exact way to finish or tells you when Trillion will check for you." } },
+      "target_ref": { "from": "selector", "query": ".attention-stack" },
+      "centered_when_target_missing": true,
+      "cutout": { "shapes": [ { "shape": "rounded-rect", "padding": 6, "radius": 14 } ] },
+      "placement": { "prefer": "below", "auto_flip": true, "gap": 14 },
+      "target_preparation": { "surface": { "id": "trillion.home" } }
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-iphone-opens-and-live-board",
+  "revision": 1,
+  "order": 1,
+  "title": "The iPhone app opens straight away",
+  "summary": "The iPhone app shows the Trillion mark the moment it opens instead of a black screen, and the lock screen shows what is running now, never yesterday's work.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-iphone-opens-and-live-board",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T16:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-iphone-opens-and-live-board"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Opens straight away, shows what runs now",
+          "body": "Opening Trillion on your iPhone shows the Trillion mark until your workspace is ready, and offers Try again if it takes long. The board on your lock screen and in the Dynamic Island now ends by itself when it goes stale or the work finishes, and a new one starts for today's work."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-file-card",
+  "revision": 1,
+  "order": 10,
+  "title": "Every recording shows what you can do with it",
+  "summary": "Point at a recording, picture or document anywhere in Trillion and its card shows its details, buttons for the tools you can use on it (Edit video, Post or schedule, Show in its folder, and every other tool under More), who is in it, what each person said, and the files beside it.",
+  "entry_step": "media",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "board": {
+    "subject": "source:bWVkaWEtY2FyZC1mdWxsLXBvcnQtMjAyNi0xMC0wNA",
+    "title": "The full recording card"
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-file-card",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T06:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-file-card"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "media",
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tool-screen\"]"
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.media"
+        }
+      },
+      "centered_when_target_missing": true,
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Rest the pointer on a recording",
+          "body": "We're opening Media now. Rest the pointer on any recording: under the video you see how long it is and when it was filmed, then buttons for what you can do with it, like Edit video and Post or schedule. Everything else you can do is under More."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "people",
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tool-screen\"]"
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.media"
+        }
+      },
+      "centered_when_target_missing": true,
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Who is in it and what they said",
+          "body": "Once a recording has been heard, its card names who speaks and shows what each person said, with the time to jump to. A voice Trillion is not sure of says so. The buttons come from the tools you can use, so a tool you add shows here too."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "back",
+            "label": "Back"
+          },
+          {
+            "role": "advance",
+            "label": "Done"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-menu-bar-card",
+  "revision": 1,
+  "order": 53,
+  "title": "New: your menu bar shows what is running",
+  "summary": "Trillion in your Mac's menu bar is now a small card: what your AIs, uploads or drives are doing right now, how far each has got, and how many things are new. Your counts on Home are tiles you can open.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-menu-bar-card",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T21:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-menu-bar-card"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Look at your menu bar",
+          "body": "While anything runs, Trillion's menu bar card names it and fills a red ring as it goes. The red number is what is new for you. Hover it to see everything running; click it to open Trillion right there."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "tiles",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your counts, one press away",
+          "body": "What waits on you, what is being decided and your goals are tiles now. Press one to open it."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": ".dashboard-glance"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.home"
+        }
+      }
+    }
+  ]
+}

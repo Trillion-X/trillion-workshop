@@ -1,0 +1,128 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-hardcore-research",
+  "revision": 1,
+  "order": 1,
+  "title": "New: claims get attacked, research goes wide",
+  "summary": "Every claim a decision rests on is now attacked where it would most likely break, with each source and how it found out; three new Marketplace workflows research what everyone says, find unexplored ground that fits you, and sell what your pursuit already makes.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-hardcore-research",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T00:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-hardcore-research"
+        }
+      },
+      "match": {
+        "walkthrough_id": "whats-new-2026-10-06-hardcore-research"
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Every claim gets attacked",
+          "body": "When a decision rests on something said to be true, your AI now tries to break it where it would most likely fail, and shows every source with how that source found out: its own trial, a survey, a post or an opinion. Leaning on a study no longer counts until its method holds up."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "marketplace",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Three new workflows",
+          "body": "Research what everyone says reads people, companies, the very best and every complaint, then names the least obvious insights. Find unexplored ground that fits you lists what nobody has looked into and matches it to your skills and aims. Sell what your pursuit already makes prices your byproducts with real price tests."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"marketplace\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.marketplace"
+        }
+      }
+    },
+    {
+      "id": "yours",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Decisions ask two new things",
+          "body": "Does this move get the most result for the time, money and attention it costs, including whether hiring someone beats a tool or your AI? And does the result show up where you already are, ready when you need to see it?"
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ],
+  "board": {
+    "subject": "whats-new-2026-10-06-hardcore-research",
+    "title": "Claims attacked, research wide"
+  }
+}

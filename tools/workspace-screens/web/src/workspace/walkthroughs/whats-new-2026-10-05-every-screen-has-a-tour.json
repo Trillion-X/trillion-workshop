@@ -1,0 +1,117 @@
+{
+ "kind": "walkthrough-definition",
+ "id": "whats-new-2026-10-05-every-screen-has-a-tour",
+ "revision": 1,
+ "order": 10,
+ "title": "Every screen shows you around, and every service says how to connect it",
+ "summary": "The first time you open any of 21 more screens, from Lists and Notifications to Write, Sites and Spend, a short tour shows what it does. Every service on Connections now has its own steps, including Spotify, X, Google Calendar, Philips Hue, Apple Notes, Photos and Voice Memos, and the music apps.",
+ "entry_step": "tours",
+ "progress_style": {
+  "style": "segmented"
+ },
+ "look": {
+  "targeting": {
+   "retry_timeout_ms": 6000,
+   "retry_interval_ms": 100,
+   "scroll_behavior": "smooth",
+   "scroll_block": "center",
+   "scroll_inline": "nearest"
+  }
+ },
+ "board": {
+  "subject": "source:dG91cnMtYW5kLWNvbm5lY3Rvci1ndWlkZXMtMjAyNi0xMC0wNQ",
+  "title": "A tour on every screen"
+ },
+ "triggers": [
+  {
+   "reason": "changed-since-first-tour",
+   "on_event": {
+    "event_kind": "app-opened"
+   },
+   "once_key": "whats-new-2026-10-05-every-screen-has-a-tour",
+   "requires": [
+    {
+     "once_key": "first-run",
+     "consumed_before": "2026-10-05T12:00:00Z"
+    }
+   ]
+  },
+  {
+   "reason": "replay",
+   "on_event": {
+    "event_kind": "walkthrough-requested",
+    "match": {
+     "walkthrough_id": "whats-new-2026-10-05-every-screen-has-a-tour"
+    }
+   }
+  }
+ ],
+ "steps": [
+  {
+   "id": "tours",
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"tours\"]"
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.tours"
+    }
+   },
+   "centered_when_target_missing": true,
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "A tour for every screen",
+     "body": "We opened Tours. Every screen now has its own short tour, and it starts the first time you open that screen. Take any of them again from here."
+    }
+   },
+   "nav": {
+    "buttons": [
+     {
+      "role": "advance",
+      "label": "Next"
+     }
+    ]
+   }
+  },
+  {
+   "id": "connections",
+   "target_ref": {
+    "from": "selector",
+    "query": "[data-trillion-screen=\"connections\"] .guide-catalog"
+   },
+   "target_preparation": {
+    "surface": {
+     "id": "trillion.connections"
+    }
+   },
+   "centered_when_target_missing": true,
+   "placement": {
+    "prefer": "below",
+    "auto_flip": true,
+    "gap": 14
+   },
+   "content": {
+    "content_kind": "text",
+    "payload": {
+     "title": "Every service says how to connect it",
+     "body": "Open any service here and its steps are numbered, from the first click to Connected. Pursuits now has a Community tour too."
+    }
+   },
+   "nav": {
+    "buttons": [
+     {
+      "role": "advance",
+      "label": "Got it"
+     }
+    ]
+   }
+  }
+ ]
+}

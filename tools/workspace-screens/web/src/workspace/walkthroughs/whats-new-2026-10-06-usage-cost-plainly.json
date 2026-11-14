@@ -1,0 +1,80 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-usage-cost-plainly",
+  "revision": 1,
+  "order": 62,
+  "title": "How your usage is priced",
+  "summary": "Billing now shows the listed base rate for your storage and Trillion's work, the margin, and the rate you pay.",
+  "entry_step": "deal",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-usage-cost-plainly",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T06:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-usage-cost-plainly"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "deal",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "See the rates in your deal",
+          "body": "Each part of your deal shows its listed base rate, our margin and the rate you pay. Work is priced from measured rows at published rates; the base rate is not a provider invoice."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.billing"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"billing\"] [data-guide-section=\"deal\"]"
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true,
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

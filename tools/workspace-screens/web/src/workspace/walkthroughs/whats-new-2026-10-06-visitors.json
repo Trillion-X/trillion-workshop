@@ -1,0 +1,104 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-visitors",
+  "revision": 1,
+  "order": 6,
+  "title": "New: See every visitor and click",
+  "summary": "Visitors shows everyone who visits gettrillion.ai, your public pages and the app, what they click, how far they read, and how many go on to pay.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-visitors",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T00:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-visitors"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Every visit and click is counted now",
+          "body": "Every page view, click and how far people read on gettrillion.ai, your public pages and the app, plus every tool an AI runs and every checkout. Nobody's address is kept: visitors are counted, never followed."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "visitors",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Visitors",
+          "body": "Visitors per page over time, the most clicked things, where people came from, and how many went from a first visit to paying. Open any page to see what was clicked on it."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.visitors"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"visitors\"] .record-set-charts"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    }
+  ],
+  "audience": "operator"
+}

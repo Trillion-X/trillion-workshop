@@ -1,0 +1,121 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "workshop-run",
+  "revision": 2,
+  "order": 47,
+  "title": "Run",
+  "summary": "You can see how one run of a tool ended, what it returned and the files it made.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "screen-first-opened",
+      "on_event": {
+        "event_kind": "screen-opened",
+        "match": {
+          "entry": "tool-screen",
+          "tool_id": "tool:screen-workshop-run"
+        }
+      },
+      "once_key": "workshop-run",
+      "requires": [
+        {
+          "once_key": "first-run"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "workshop-run"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "One run of a tool",
+          "body": "See how this run ended, what it returned and the files it made."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.workshop-run"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"workshop-run\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "result",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "What happened",
+          "body": "See when it ran, what it said and the files it made."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.workshop-run"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"workshop-run\"] .guide-section"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

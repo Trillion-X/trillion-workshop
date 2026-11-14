@@ -1,0 +1,104 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-visits-count-in-prices-and-funnels",
+  "revision": 1,
+  "order": 7,
+  "title": "New: Visits count in price tests and funnels",
+  "summary": "A price test now counts everyone who saw each price, signed in or not, and a funnel can count the visits and clicks at each step.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-visits-count-in-prices-and-funnels",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T00:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-visits-count-in-prices-and-funnels"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Everyone who saw a price counts",
+          "body": "Price tests used to count only people with an account. Now every visitor shown a price counts, so money per person shown reads true from the first visit."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "funnels",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Funnels count visits and clicks",
+          "body": "A funnel step can now count the people who visited a page or clicked a button, read from the same counts as Visitors. The first click into the app no longer loses the page it came from."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.funnels"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-surface-id=\"trillion.funnels\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    }
+  ],
+  "audience": "operator"
+}

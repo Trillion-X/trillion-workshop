@@ -1,0 +1,133 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-charts",
+  "revision": 1,
+  "order": 1,
+  "title": "Charts on Spend and Home",
+  "summary": "Spend now draws estimated costs each day against your budget, this month by service, and each service day by day. Point at a day to read it, press it to see it hour by hour, and switch between days, weeks and months. Home's charts and every list's new Chart view use the same charts.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-charts",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T19:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-charts"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your cost estimates, drawn",
+          "body": "Spend shows each day's estimated cost stacked by service with your daily budget as a line, so a day over it stands out."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "charts",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Read any day, go down to the hour",
+          "body": "Point at or scrub across the chart to read a day. Press a day to see it by the hour, and Back to go up. Day, Week and Month add the same costs up differently."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"spend\"] .record-set-charts"
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.spend"
+        }
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "back",
+            "label": "Back"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ai",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Any list can be a chart",
+          "body": "Choose Chart in a list's views, then pick what it is drawn as, which number, how it adds up and what it is split by. It stays that way on every device."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

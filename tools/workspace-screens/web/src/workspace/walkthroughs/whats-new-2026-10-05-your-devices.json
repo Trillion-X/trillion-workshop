@@ -1,0 +1,101 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-your-devices",
+  "revision": 1,
+  "order": 55,
+  "title": "See whether every device is caught up",
+  "summary": "A small mark now says when you are working offline, how many changes wait on this device, and when another device is catching up. Your devices lists each one with when it last caught up, and anything two devices changed apart is kept as two versions until you pick.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-your-devices",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T09:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-your-devices"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your work is kept, even offline",
+          "body": "When this device is offline or still sending, a small mark says so beside your work: Working offline, 3 changes waiting, or Catching up with how far it got. When everything is caught up, it goes away."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "devices",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your devices",
+          "body": "Every device you use Trillion on, with when it last caught up and what is still waiting on it. A device that has not caught up in days says so. Press Send now to send this device's waiting changes straight away."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.catch-up"
+        }
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "versions",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Two versions, nothing lost",
+          "body": "If two devices change the same thing apart, both versions are kept. Pick one, keep both, or pick field by field and keep your picks. You can do it from Your devices, from the thing's … menu, or ask your AI to settle it."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.catch-up"
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

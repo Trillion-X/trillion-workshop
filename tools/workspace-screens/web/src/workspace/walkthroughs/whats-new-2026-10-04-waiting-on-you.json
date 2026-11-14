@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-waiting-on-you",
+  "revision": 1,
+  "order": 11,
+  "title": "Your AIs tell you what waits on you",
+  "summary": "Every AI you use now starts and ends its work by showing you what only you can do: sign-ins, approvals, payments and clicks, each with where to do it. Open Waiting for you in Start; Home keeps the same card.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-waiting-on-you",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T06:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-waiting-on-you"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your AIs tell you what they need",
+          "body": "When an AI can not do something without you, like signing in, approving, topping up credit or pressing a button on another site, it keeps it on your Waiting on you list and shows it to you in the chat, at the start and after its work."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "home",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "The same list on Home",
+          "body": "Waiting for you in Start shows every one of them with where to do it. Press one to open the place to do it. Home keeps the same card; mark an item Done and it leaves the list."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-dashboard-card=\"waiting\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.home"
+        }
+      }
+    }
+  ]
+}

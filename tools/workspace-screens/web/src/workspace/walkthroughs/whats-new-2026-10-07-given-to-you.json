@@ -1,0 +1,49 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-07-given-to-you",
+  "revision": 1,
+  "order": 10,
+  "title": "Things given to you reach you",
+  "summary": "When someone in one of your pursuits gives you something to do, it now waits on you with your other things, with where to do it.",
+  "entry_step": "given",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-07-given-to-you",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-07T04:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-07-given-to-you"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "given",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Things given to you reach you",
+          "body": "When someone in one of your pursuits gives you something to do, it now shows under Given to you in your pursuits, with your other things, and opens where you do it. Press Done and everyone in the pursuit sees it done."
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

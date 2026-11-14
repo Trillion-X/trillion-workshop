@@ -1,0 +1,113 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-screens-in-your-ai",
+  "revision": 1,
+  "order": 10,
+  "title": "New: Your Trillion screens inside ChatGPT and Claude",
+  "summary": "Your AI can show your Trillion screens right inside ChatGPT and Claude, so you can use them without leaving the chat.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-screens-in-your-ai",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T19:20:11Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-screens-in-your-ai"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You can open your Trillion screens inside your AI",
+          "body": "Ask ChatGPT or Claude to show your decisions, your files or any Trillion screen. It draws the real screen right in the chat, in your look, and you can use it there."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "where",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Connect your AI here",
+          "body": "Connect ChatGPT or Claude on this screen. Once it is connected, ask it to show you any Trillion screen."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"ai\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.ai"
+        }
+      }
+    },
+    {
+      "id": "try-it",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Ask for your decisions",
+          "body": "In ChatGPT or Claude, type Show me my decisions in Trillion, and your decisions open right in the chat."
+        }
+      }
+    }
+  ]
+}

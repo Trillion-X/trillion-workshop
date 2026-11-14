@@ -1,0 +1,186 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-screen-dims-in-the-evening",
+  "revision": 1,
+  "order": 60,
+  "title": "Your screen dims in the evening",
+  "summary": "Screen look over the day moves your screen gradually from Trillion to Trillion Black in the evening and back in the morning, on every device in its own time zone. Start from Evening dims to black, follow the sun where you are, or set your own times. Ambience also puts its look behind your screens with one button, shows where your music plays and keeps looks you save.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-screen-dims-in-the-evening",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T18:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-screen-dims-in-the-evening"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your screen can dim in the evening",
+          "body": "From 7pm your screen moves slowly from Trillion to Trillion Black, there by 10pm, and back in the morning. Nothing flashes: it changes a little every minute."
+        }
+      },
+      "centered_when_target_missing": true,
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "turn-on",
+      "content": {
+        "content_kind": "interactive-gate",
+        "payload": {
+          "title": "Turn it on",
+          "body": "Turn on the switch and Evening dims to black starts. The strip under it shows your screen's colour through today, with now marked.",
+          "gesture_hint": "Turn on the switch to go on"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[role=\"switch\"][aria-label=\"Change my screen look over the day\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 12
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 12
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.look-over-the-day"
+        }
+      },
+      "centered_when_target_missing": true,
+      "advance_condition": {
+        "op": "target-interacted"
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          }
+        ]
+      }
+    },
+    {
+      "id": "plan",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Make it yours",
+          "body": "Pick Follow the sun to dim around sunset where you are, or change any time and look in Your plan. Hold this look keeps the screen as it is until the next change. You can also tell your AI: dim the screen after 9pm."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.look-over-the-day"
+        }
+      },
+      "centered_when_target_missing": true,
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ambience",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Ambience, fixed",
+          "body": "On Ambience, Put behind my screens moves the look behind every pane, and Take it away removes it. Press where your music plays to hear it and save a look you tuned with Save as my look."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-moves-with-sound][role=\"img\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 12
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 12
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.ambience"
+        }
+      },
+      "centered_when_target_missing": true,
+      "nav": {
+        "buttons": [
+          {
+            "role": "done",
+            "label": "Done"
+          }
+        ]
+      }
+    }
+  ]
+}

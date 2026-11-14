@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-opens-while-your-account-is-busy",
+  "revision": 1,
+  "order": 1,
+  "title": "Trillion opens at once, even when it is busy",
+  "summary": "Opening Trillion, or tapping a notice on your phone, now shows your screens straight away from what this device last saw, and brings them up to date when your Trillion answers. A screen that still waits tells you so, with Try again.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-opens-while-your-account-is-busy",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T16:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-opens-while-your-account-is-busy"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Trillion opens at once",
+          "body": "When you open Trillion, or tap a notice or your work on the lock screen, your screens show straight away from what this device last saw, then update when your Trillion answers. If a screen is still waiting after a little while, it says so and offers Try again."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "notices",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your notifications are ready too",
+          "body": "The bell and Notifications show what you last saw here at once, and any new ones join as they arrive."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.notifications"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"notifications\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "left",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ]
+}

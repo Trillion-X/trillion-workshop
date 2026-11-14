@@ -1,0 +1,65 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-fault-says-fault",
+  "revision": 1,
+  "order": 1,
+  "title": "A fault is called a fault",
+  "summary": "When something Trillion started fails because of a fault on Trillion's side, Automations now says so, instead of blaming an update.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-fault-says-fault",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T07:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-fault-says-fault"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Plain about what went wrong",
+          "body": "Earlier today some of the work Trillion starts for you stopped at its first step, and Automations said Trillion was being updated. It was a fault in Trillion, now fixed. When that happens, Automations now says it was a fault, so it is not mistaken for something that passes by itself."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-one-price-plan-in-seconds",
+  "revision": 1,
+  "order": 67,
+  "title": "Your plan turns on in seconds",
+  "summary": "After you pay, your plan is on within seconds instead of up to a minute, and every screen and every AI quotes you the same price for Trillion.",
+  "entry_step": "seconds",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-one-price-plan-in-seconds",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T19:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-one-price-plan-in-seconds"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "seconds",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your plan turns on in seconds",
+          "body": "Pay, and your plan is on almost at once, here and in every AI you use. The price you see is the same everywhere."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.billing"
+        }
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true,
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-sites-together-on-canvas",
+  "revision": 2,
+  "order": 1,
+  "title": "Edit a site together, and change all like it at once",
+  "summary": "Everyone editing a site sees each other on the canvas, with what each person or AI is changing outlined in their colour, and their saved changes appear in your page at once. A change can reach this one part, the parts you picked, or every part like it.",
+  "entry_step": "canvas",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-sites-together-on-canvas",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T06:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-sites-together-on-canvas"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "canvas",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "See who is here",
+          "body": "Everyone on this site shows on the canvas: where they point, and what they are changing outlined in their colour with their name, in every size of the page. When someone else or an AI saves a change, it appears in your page at once, and whatever you have not saved stays."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.public-apps"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": ".trillion-visual-editor__stage"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "scope",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "One, picked, or all like it",
+          "body": "Choose a part, then choose whether a change reaches this one, the ones you picked with Shift, or every part like it on the page."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.public-apps"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": ".trillion-visual-editor__inspector"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

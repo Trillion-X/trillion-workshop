@@ -1,0 +1,147 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-what-it-sees-as-lists",
+  "revision": 1,
+  "order": 11,
+  "title": "What Trillion sees in you, as tables",
+  "summary": "What Trillion has figured out about you and your pursuits are now tables you can sort, filter and group, like any list.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-what-it-sees-as-lists",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T07:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-what-it-sees-as-lists"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "What Trillion sees in you, as a list",
+          "body": "Your values, passions, skills and goals, the pursuits it sees and what it noticed are now tables, the same as any list you keep."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "where",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "It is on Progress",
+          "body": "Open Progress to see them."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"progress\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.progress"
+        }
+      }
+    },
+    {
+      "id": "picture",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Sort, filter and group them",
+          "body": "Group what it sees by kind, filter the pursuits that are worth it for you, or switch any of them to a list, gallery or board."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"progress\"] [data-guide-section=\"awareness\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 12
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.progress"
+        }
+      }
+    },
+    {
+      "id": "your-ais",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "In your AI too",
+          "body": "Ask ChatGPT or Claude what Trillion has figured out about you, and the same tables open right in the chat."
+        }
+      }
+    }
+  ]
+}

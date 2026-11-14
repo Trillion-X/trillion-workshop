@@ -1,0 +1,131 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-files-at-memory-speed",
+  "revision": 3,
+  "order": 3,
+  "title": "Your files open and search faster",
+  "summary": "Searching your file names, opening big folders and playing large videos again are faster, and on a Mac your files are in Finder.",
+  "entry_step": "search",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-files-at-memory-speed",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T12:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-files-at-memory-speed"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "search",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Search your names instantly",
+          "body": "Looking for a file by its name now reads every name you keep from memory, about 10 to 25 billionths of a second per name, instead of reading them one by one from storage. Try Find anything and type part of a clip's name."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "folders",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Big folders open faster",
+          "body": "A folder page now reads your files' details in three reads in all instead of several for every file, so a folder of a thousand clips comes back sooner."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "videos",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Large videos keep their place nearby",
+          "body": "Once part of a large video has been played, that part, the next parts and its end are kept close to you, checked against the file's fingerprint. Playing again, seeking and sharing it start from nearby instead of the archive."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "finder",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your files are in Finder",
+          "body": "With the Trillion app for Mac open, your files show in Finder's sidebar under Locations as Trillion, with a cloud mark on each file not yet on this Mac. Any app on your Mac can open them in place, a large video plays without downloading it first, what you have opened stays on this Mac so it still opens without a connection, and a file added or moved anywhere shows up in Finder within about half a minute."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

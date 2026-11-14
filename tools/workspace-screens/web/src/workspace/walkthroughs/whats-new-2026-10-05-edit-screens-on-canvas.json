@@ -1,0 +1,185 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-edit-screens-on-canvas",
+  "revision": 2,
+  "order": 1,
+  "title": "Rename any screen, give it an icon or a colour",
+  "summary": "Every screen opens on the canvas as it is drawn in your sidebar and as a tab. Change its name, icon or colour there, for this screen or every screen, and it changes everywhere at once.",
+  "entry_step": "canvas",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-edit-screens-on-canvas",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T21:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-edit-screens-on-canvas"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "canvas",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Every screen, as it is drawn",
+          "body": "Each screen is laid out here as its row in your sidebar. Any screen's … menu opens it here too, beside its tab."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.canvas-edit",
+          "surface_input": {
+            "id": "screen:all"
+          }
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"canvas-edit\"] [data-canvas-piece]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "pick",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Press one to change it",
+          "body": "Its name, icon and colour open beside the canvas, and what you type shows at once. Shift-drag around several to change them together."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.canvas-edit",
+          "surface_input": {
+            "id": "screen:all"
+          }
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"canvas-edit\"] [data-canvas-piece] [data-canvas-part-surface]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "act": {
+        "do": "press"
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Press it for me"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "scope",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "This screen or every screen",
+          "body": "Keep the change for this one screen or for all of them. Your sidebar, tabs and search show it right away, and Undo takes it back."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.canvas-edit",
+          "surface_input": {
+            "id": "screen:all"
+          }
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"canvas-edit\"] [data-canvas-edit-panel]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-rules-engines-start-when-asked",
+  "revision": 1,
+  "order": 1,
+  "title": "Your rules wait until they are needed",
+  "summary": "The engines that run your rules, schedules and workflows now start only when one of them runs, so your Trillion has less to prepare when you come back after a quiet spell.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-rules-engines-start-when-asked",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T07:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-rules-engines-start-when-asked"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Less to prepare when you come back",
+          "body": "Your rules, schedules and workflows run on three engines. They used to be prepared every time your Trillion woke up, whether anything needed them or not. Now they start only when one of your rules or workflows runs."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

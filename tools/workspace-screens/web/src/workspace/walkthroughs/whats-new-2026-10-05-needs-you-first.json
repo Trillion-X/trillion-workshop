@@ -1,0 +1,31 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-needs-you-first",
+  "revision": 1,
+  "order": 5,
+  "title": "What needs you comes first",
+  "summary": "Home now opens with everything only you can do, counted and in order, each with one button, and Trillion reminds you until it is done.",
+  "entry_step": "intro",
+  "progress_style": { "style": "segmented" },
+  "look": { "targeting": { "retry_timeout_ms": 6000, "retry_interval_ms": 100, "scroll_behavior": "smooth", "scroll_block": "center", "scroll_inline": "nearest" } },
+  "triggers": [
+    { "reason": "changed-since-first-tour", "on_event": { "event_kind": "app-opened" }, "once_key": "whats-new-2026-10-05-needs-you-first", "requires": [ { "once_key": "first-run", "consumed_before": "2026-10-05T18:00:00Z" } ] },
+    { "reason": "replay", "on_event": { "event_kind": "walkthrough-requested", "match": { "walkthrough_id": "whats-new-2026-10-05-needs-you-first" } } }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": { "content_kind": "text", "payload": { "title": "What only you can do, first", "body": "Voices to name, posts to approve, new things to look at and decisions waiting on you now sit at the top of Home, counted, until you have done them." } },
+      "nav": { "buttons": [ { "role": "skip", "label": "Skip" }, { "role": "advance", "label": "Show me" } ] }
+    },
+    {
+      "id": "stack",
+      "content": { "content_kind": "text", "payload": { "title": "One button each", "body": "Play a voice and type who it is, and every word they said is put under their name. Each other thing has one button that does it. Until they are done, Trillion reminds you a few times a day." } },
+      "target_ref": { "from": "selector", "query": ".attention-stack" },
+      "centered_when_target_missing": true,
+      "cutout": { "shapes": [ { "shape": "rounded-rect", "padding": 6, "radius": 14 } ] },
+      "placement": { "prefer": "below", "auto_flip": true, "gap": 14 },
+      "target_preparation": { "surface": { "id": "trillion.home" } }
+    }
+  ]
+}

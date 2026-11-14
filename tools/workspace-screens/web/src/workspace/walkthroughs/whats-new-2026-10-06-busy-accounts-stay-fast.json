@@ -1,0 +1,49 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-busy-accounts-stay-fast",
+  "revision": 1,
+  "order": 10,
+  "title": "Busy accounts stay fast",
+  "summary": "Every update to Trillion is now tried on an account as busy as the busiest real one before it reaches you.",
+  "entry_step": "guard",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-busy-accounts-stay-fast",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T20:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-busy-accounts-stay-fast"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "guard",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Busy accounts stay fast",
+          "body": "Before any update to Trillion goes out, it now runs against an account with hundreds of AIs, thousands of open jobs and a long payment history. An update that would make such an account read everything again on each request is stopped, so yours stays quick as it grows."
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-task-tree",
+  "revision": 1,
+  "order": 8,
+  "title": "New: Put tasks inside tasks",
+  "summary": "You can nest tasks as deep as you like by adding sub-tasks under any task or dragging one task inside or beside another.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-task-tree",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T16:40:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-task-tree"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your tasks can nest as deep as you like",
+          "body": "Your lists of tasks now nest as deep as you like in the Tree view."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "lists",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Tasks inside tasks",
+          "body": "Give a list a field that links to the list itself, then open Tree. You can add a sub-task under any task, tick it done or rename it in place. Drag a task onto another to put it inside, or above or below one to put it beside it, and it stays that way when you come back."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"lists\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.lists"
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

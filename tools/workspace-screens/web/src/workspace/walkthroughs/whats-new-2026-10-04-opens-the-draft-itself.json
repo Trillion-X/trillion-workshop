@@ -1,0 +1,106 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-opens-the-draft-itself",
+  "revision": 1,
+  "order": 10,
+  "title": "New: Your AI opens the draft itself",
+  "summary": "When your AI takes you to something, it opens that exact draft with its Approve button in view and points right at it.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-opens-the-draft-itself",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T05:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-opens-the-draft-itself"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "It opens the thing, not just the screen",
+          "body": "When a post or anything else waits for you, your AI opens that exact one beside your work and points at its Approve. If it hasn't made it yet, it doesn't open anything."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "where",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your drafts open here",
+          "body": "A post your AI wrote opens right here, with Approve in view. You only read it and press."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.use-tool",
+          "surface_input": {
+            "tool_id": "check-a-post"
+          }
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-posts-screen]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

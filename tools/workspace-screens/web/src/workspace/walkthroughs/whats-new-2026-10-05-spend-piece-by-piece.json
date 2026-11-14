@@ -1,0 +1,133 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-spend-piece-by-piece",
+  "revision": 1,
+  "order": 2,
+  "title": "Spend, piece by piece",
+  "summary": "Spend now adds its cost estimates by service, and a line opens into what it is made of: each store or worker, hour by hour, with its share of today's estimate. Every place you put a list keeps its own filters, grouping and depth.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-spend-piece-by-piece",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T12:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-spend-piece-by-piece"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "From the total down to the hour",
+          "body": "Spend groups estimated costs by service with a total on each. Open a line such as Rows written to see each store and each hour it came from, and go back up from the path at the top."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "spend",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Each place keeps its own view",
+          "body": "Group, filter or open a line and that place remembers it, so Spend beside Files can stay on one store while Spend on its own shows everything."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"spend\"] [data-record-set=\"trillion-spend\"]"
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.spend"
+        }
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "back",
+            "label": "Back"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ai",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your AI can place it too",
+          "body": "Ask your AI to put Spend somewhere already opened to the line or grouping you want."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

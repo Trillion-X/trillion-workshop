@@ -1,0 +1,107 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-tell-us",
+  "revision": 1,
+  "order": 11,
+  "title": "New: Tell us about a bug or an idea",
+  "summary": "You can report a bug, send feedback or share an idea from Tell us at the top of the sidebar, and the people who make Trillion read every one.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-tell-us",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T21:26:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-tell-us"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You can tell us what went wrong or what you want",
+          "body": "If something went wrong, something should change or you have an idea, tell us from the top of your sidebar."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "list",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Tell us",
+          "body": "It sits above Start, so it is there whenever something comes up."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-section-id=\"collection:trillion-tell-us\"], [data-sidebar-open-toggle]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      }
+    },
+    {
+      "id": "form",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Pick what it is and say it",
+          "body": "Open Report a bug or share an idea and choose Something went wrong, Something to change or An idea. Write it, add a picture if it helps, and press Send. The people who make Trillion read every one."
+        }
+      }
+    }
+  ]
+}

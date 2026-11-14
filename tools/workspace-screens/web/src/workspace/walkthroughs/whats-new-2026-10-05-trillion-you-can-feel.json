@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-trillion-you-can-feel",
+  "revision": 1,
+  "order": 1,
+  "title": "Trillion you can feel",
+  "summary": "Work done, a message sent, a notice arriving, something dropped in place: each now has its own touch on your iPhone and Mac trackpad, a soft sound and a small motion. Try each one and change any of them in Look.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-trillion-you-can-feel",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T22:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-trillion-you-can-feel"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Trillion now has a feel",
+          "body": "When your work is done, a message leaves, a notice arrives or you drop something in place, you feel it: a touch on your iPhone and on your Mac's trackpad, a soft sound and a small motion on the thing itself. Sounds stay quiet on your phone at night."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "feel",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Feel each one, and change any",
+          "body": "Press play beside a moment to feel it. Choose another feel for it, or switch its touch, sound or motion off. The switches at the top turn one of them off everywhere."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-feel-moment]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "left",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.look"
+        }
+      }
+    }
+  ]
+}

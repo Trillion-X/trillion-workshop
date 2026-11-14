@@ -1,0 +1,118 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-one-way-out",
+  "revision": 1,
+  "order": 13,
+  "title": "New: every tour card has one button and one way out",
+  "summary": "Each tour card now has one button that does the step for you and one way to close the tour. Skip is gone, and a step that waits for you can do it for you.",
+  "entry_step": "one-button",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "paper": "sticky-note",
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-one-way-out",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T21:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-one-way-out"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "one-button",
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tours\"]"
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.tours"
+        }
+      },
+      "centered_when_target_missing": true,
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "One button does the step",
+          "body": "We're opening Tours now. Each card has one button: press it and the tour does that step with you. When a step waits for you, Do it for me presses it for you."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "one-way-out",
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tours\"]"
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.tours"
+        }
+      },
+      "centered_when_target_missing": true,
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "One way out",
+          "body": "The small close button at the top of the card ends the tour. Every tour is kept here in Tours, so you can take it again any time."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "back",
+            "label": "Back"
+          },
+          {
+            "role": "advance",
+            "label": "Done"
+          }
+        ]
+      }
+    }
+  ]
+}

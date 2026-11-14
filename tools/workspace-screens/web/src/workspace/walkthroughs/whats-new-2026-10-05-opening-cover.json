@@ -1,0 +1,56 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-opening-cover",
+  "revision": 2,
+  "order": 11,
+  "title": "New: the thread while Trillion opens",
+  "summary": "While Trillion opens, on the web, your iPhone, your Mac and in Chrome, the red thread from gettrillion.ai plays with a quote that changes every time, then melts away the moment Trillion is ready.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-opening-cover",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T20:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-opening-cover"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "A thread while it opens",
+          "body": "Each time Trillion opens, the needle draws its red thread all over the page, pulls it in until it bunches up, pulls it straight and sets off again, with a different quote in the middle. When your workspace is ready it melts away through a soft wash of colour. It is the same on the web, your iPhone, your Mac and the Chrome extension, and it only shows while Trillion is really opening."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

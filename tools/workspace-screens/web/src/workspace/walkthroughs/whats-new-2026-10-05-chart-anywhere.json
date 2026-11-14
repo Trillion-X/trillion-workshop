@@ -1,0 +1,133 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-chart-anywhere",
+  "revision": 1,
+  "order": 2,
+  "title": "Put a chart anywhere",
+  "summary": "A chart is now a piece you can place on any screen and size, like any other: put Spend's cost per day on Home, or any list as a chart beside it. Each placed chart keeps its own day, week or month and how far you went into it.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-chart-anywhere",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T21:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-chart-anywhere"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Charts are pieces now",
+          "body": "Add Chart to Home or any screen you arrange, then drag its edge to size it. It starts as Spend's cost per day against your budget."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "charts",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Each one keeps its own view",
+          "body": "Pick which chart it shows, switch Day, Week or Month, or press a day to see it by the hour. That placement remembers it on every device."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"chart\"]"
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.chart"
+        }
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "back",
+            "label": "Back"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ai",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your AI can place one too",
+          "body": "Ask your AI to put a chart of any list or reading on a screen, already on the week or day you want."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

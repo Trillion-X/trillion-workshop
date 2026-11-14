@@ -1,0 +1,108 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-pane-heights-and-add-beside",
+  "revision": 1,
+  "order": 10,
+  "title": "Panes any height, and beside yours",
+  "summary": "A pane can be its own height, and Add a pane beside opens a new pane without shrinking yours.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-pane-heights-and-add-beside",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-pane-heights-and-add-beside"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Size a pane both ways",
+          "body": "Panes side by side can each be their own height now, and a new pane can open beside yours without making it smaller."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pane-height",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Drag a pane's bottom edge",
+          "body": "Drag the bottom edge of a pane to make it shorter or taller; it snaps to the same thirds and halves as the edges between panes. The arrow keys move it to the next size, and Home lets it fill again."
+        }
+      }
+    },
+    {
+      "id": "add-beside",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Add a pane beside or below",
+          "body": "Open this menu on any pane. Split in half shares its room; Add a pane beside or below opens a new pane at its own size while every pane keeps its size, and the panes scroll. Choose that size in Account, Panes."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "button[aria-label=\"More for this pane\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 12
+      }
+    }
+  ]
+}

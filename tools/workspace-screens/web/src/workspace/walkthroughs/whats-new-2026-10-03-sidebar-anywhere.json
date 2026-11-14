@@ -1,0 +1,98 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-sidebar-anywhere",
+  "revision": 1,
+  "order": 7,
+  "title": "New: Put the sidebar anywhere",
+  "summary": "You can drop the sidebar between two panes as a thin bar or fold it into a handle you drag anywhere, and it shows as many icons as fit.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-sidebar-anywhere",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T16:39:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-sidebar-anywhere"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your sidebar can go anywhere now",
+          "body": "Your sidebar can now sit wherever you want, take less room and show only the icons that fit."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "sidebar-bar",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Drag the sidebar by its grip",
+          "body": "Drop it on the line between two panes and it turns into a thin bar there, running down or across. Drop it anywhere else and it folds into a small handle that opens it when you need it. Icons that do not fit go under More, where you can also set how many show. Add an Empty space row to push icons apart."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-bar-grip], [data-sidebar-handle], [data-sidebar-open-toggle]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 12
+      }
+    }
+  ]
+}

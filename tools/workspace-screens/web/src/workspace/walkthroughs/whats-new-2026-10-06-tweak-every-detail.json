@@ -1,0 +1,173 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-tweak-every-detail",
+  "revision": 1,
+  "order": 1,
+  "title": "Tweak every detail in one inspector",
+  "summary": "Captions, a shape on a board and any part of a site now open in the same inspector: drag a number to change it, set a shadow's position, blur and spread, pick a timing curve, and see the change at once.",
+  "entry_step": "captions",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-tweak-every-detail",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-07T06:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-tweak-every-detail"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "captions",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your captions, detail by detail",
+          "body": "In a video's Captions, pick a style, then change its font, size, colours, shadow, place and how words light up. White words light up is white words with a soft halo behind them, grey until each is said. The player shows every change at once, and the video is made the same way."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.media-edit"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-media-edit-panel=\"captions\"] [data-tuning-panel]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "left",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "site",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Any part of a site",
+          "body": "Select a part of a page to change its type, fill, corners, shadow and motion. Drag a number's letter sideways, type it, or use the arrow keys; Shift moves ten at a time."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.public-apps"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": ".trillion-visual-editor__inspector"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "left",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "board",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "A shape on a board",
+          "body": "Open a shape's menu on a board and choose Edit details for its fill, corners, opacity, rotation, shadow and words, in the same controls."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.board"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-inspector-section]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "left",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

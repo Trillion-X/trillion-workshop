@@ -1,0 +1,87 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-every-update-is-looked-at",
+  "revision": 1,
+  "order": 5,
+  "title": "Every update is looked at before it reaches you",
+  "summary": "Before a new version of Trillion goes live, the sidebar, Home, a list under the mouse and a tour are opened and compared with how they looked before.",
+  "entry_step": "looked-at",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-every-update-is-looked-at",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T22:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-every-update-is-looked-at"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "looked-at",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Looked at before it goes live",
+          "body": "Each new version opens the sidebar, Home, a list with the mouse on a row and a tour, on a phone-wide and a desktop-wide window, and is held back if any of them looks different from before without meaning to."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "still",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Lists hold still under the mouse",
+          "body": "A version where a list moves or changes size while you rest the mouse on a row is held back, so rows stop jumping as you point at them."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

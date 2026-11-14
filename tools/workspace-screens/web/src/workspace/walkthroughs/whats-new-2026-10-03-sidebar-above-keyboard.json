@@ -1,0 +1,98 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-sidebar-above-keyboard",
+  "revision": 1,
+  "order": 9,
+  "title": "New: The sidebar stays above the keyboard",
+  "summary": "On a phone, the sidebar ends right above the keyboard, upright or sideways, so you can tap every row you see.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-sidebar-above-keyboard",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T16:58:04Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-sidebar-above-keyboard"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You can tap every sidebar row you see",
+          "body": "On a phone, with the keyboard up, the sidebar now stops right above the keyboard, so every row you can see is one you can tap. It works with the phone upright or turned sideways."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "sidebar",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your sidebar stays above the keyboard",
+          "body": "Tap into any box to type, then open the sidebar. Its list ends where the keyboard begins, never under it."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "aside, [data-sidebar-open-toggle]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 12
+      }
+    }
+  ]
+}

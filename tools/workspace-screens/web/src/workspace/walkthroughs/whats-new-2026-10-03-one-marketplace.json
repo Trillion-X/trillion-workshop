@@ -1,0 +1,137 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-one-marketplace",
+  "revision": 2,
+  "order": 12,
+  "title": "New: One Marketplace for everything your AI can use",
+  "summary": "Everything your AI can use is in one place, the Marketplace: yours and everyone's. Every run of a tool is in Runs.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-one-marketplace",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T00:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-one-marketplace"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "One Marketplace",
+          "body": "Tools, workflows, screens and looks now live in one place, the Marketplace. Yours shows what you have and made; Everyone's shows what anyone published. The Workshop is gone: its runs are now called Runs."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "marketplace",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Find it in the Marketplace",
+          "body": "Press Yours to see your own tools and workflows, or Everyone's to find one someone else made. Your AI finds tools here too, so the words you hear from it match what you see."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"marketplace\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.marketplace"
+        }
+      }
+    },
+    {
+      "id": "runs",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Runs",
+          "body": "Every time your AI runs a tool, the run is here: how it ended, what it was for and the files it made."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"workshop\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.workshop"
+        }
+      }
+    }
+  ]
+}

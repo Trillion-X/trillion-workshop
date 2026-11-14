@@ -1,0 +1,87 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-camera-copies-stay-off-your-files",
+  "revision": 1,
+  "order": 2,
+  "title": "Camera proxy copies stay out of your files",
+  "summary": "The smaller copies and thumbnails a camera writes beside each clip are no longer kept. Your originals play straight away, and every word said in a proxy copy is kept on its original.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-camera-copies-stay-off-your-files",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T08:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-camera-copies-stay-off-your-files"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Only your real clips",
+          "body": "When you plug in a camera card, Trillion keeps your clips and passes over a camera's proxy copies and thumbnails, the small copies it makes beside each clip. If one arrives another way, its words move onto the original clip and the copy goes to Recently Deleted."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "only-copy",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "A copy that is the only one stays",
+          "body": "If a camera recorded only the proxy, with no original beside it, that copy is kept, because it is your only recording of that moment. Anything taken out can be put back from Recently Deleted."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

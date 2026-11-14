@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-trillion-on-your-watch",
+  "revision": 1,
+  "order": 1,
+  "title": "Trillion on your Apple Watch",
+  "summary": "Your needle mover on your wrist and on your watch face, one press to tell your AIs something, and what is waiting for you, each opening to itself with its own buttons. It signs in with your iPhone and has the same feel.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-trillion-on-your-watch",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T06:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-trillion-on-your-watch"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Trillion is on your Apple Watch",
+          "body": "Raise your wrist to see your needle mover, press Tell your AIs and say what is on your mind, and tap anything waiting for you to open it with its own buttons. Add Trillion to your watch face to keep your needle mover in sight. Your watch taps you when work is done or a notice arrives."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "get",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "It comes with the iPhone app",
+          "body": "Install Trillion on your iPhone from Trillion on your devices, then open Trillion on your watch. It signs in with your iPhone, no password."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.ai"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"ai\"] [data-guide-section=\"devices\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "left",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ]
+}

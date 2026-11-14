@@ -1,0 +1,151 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-your-ai-sees-what-you-did",
+  "revision": 1,
+  "order": 5,
+  "title": "Your AI sees what you did",
+  "summary": "When you ask your AI for something, it now sees the steps you took just before (what you opened, pressed and typed into, never what you typed), and the card shows you the same steps first.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-your-ai-sees-what-you-did",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T06:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-your-ai-sees-what-you-did"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "No more explaining what you were doing",
+          "body": "Ask your AI to change something and it sees the steps you just took: what you opened, what you pressed, which box you typed in. What you typed stays with you. Let's try it."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Try it"
+          }
+        ]
+      }
+    },
+    {
+      "id": "open-more",
+      "content": {
+        "content_kind": "interactive-gate",
+        "payload": {
+          "title": "Press …",
+          "body": "Point at something to change it is in every pane's … menu.",
+          "gesture_hint": "Press … to go on"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "button[aria-label=\"More for this pane\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 12
+      },
+      "advance_condition": {
+        "op": "target-interacted"
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          }
+        ]
+      }
+    },
+    {
+      "id": "point",
+      "content": {
+        "content_kind": "interactive-gate",
+        "payload": {
+          "title": "Press Point at something to change it",
+          "body": "Then press anything on the screen. The card that opens lists what you did just before, the same steps your AI sees when you ask it.",
+          "gesture_hint": "Press it, then press anything"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-draw-row=\"point\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 4,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "left",
+        "auto_flip": true,
+        "gap": 12
+      },
+      "advance_condition": {
+        "op": "target-interacted"
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          }
+        ]
+      }
+    }
+  ]
+}

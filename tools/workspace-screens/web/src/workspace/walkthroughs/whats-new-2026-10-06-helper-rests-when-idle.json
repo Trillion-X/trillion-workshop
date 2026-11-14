@@ -1,0 +1,49 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-helper-rests-when-idle",
+  "revision": 1,
+  "order": 10,
+  "title": "Your computer checks in less when nothing waits",
+  "summary": "The Trillion helper on your computer hears about new work as it arrives, and looks over everything less often when nothing is waiting.",
+  "entry_step": "rest",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-helper-rests-when-idle",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T23:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-helper-rests-when-idle"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "rest",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Quieter when nothing waits",
+          "body": "Your computer used to go over every waiting job every ten minutes, even when nothing had changed. New work still reaches it the moment it arrives; when a check finds nothing to do, the next one waits longer, up to an hour, so your account stays quick."
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

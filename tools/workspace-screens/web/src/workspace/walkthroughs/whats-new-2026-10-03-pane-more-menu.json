@@ -1,0 +1,117 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-pane-more-menu",
+  "revision": 2,
+  "order": 6,
+  "title": "New: Every pane control in one … menu",
+  "summary": "You can find every control for a pane, Hide sidebar included, in one … menu, whatever the size of your screen.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-pane-more-menu",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T05:13:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-pane-more-menu"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your pane controls are all under … now",
+          "body": "Each pane keeps its controls in one … menu, and it works the same on a phone as on a big screen."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pane-more",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Everything for this pane is under …",
+          "body": "Point at … beside your tabs, or tap it. Its first row opens a new tab, splits, maximizes, floats, moves or closes the pane; below it, Hide sidebar, and Draw, Tabs, Move to layer, Pane mode and Layouts each open beside the menu. Back and Forward sit beside your tabs."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "button[aria-label=\"More for this pane\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 12
+      },
+      "act": {
+        "do": "press"
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "back",
+            "label": "Back"
+          },
+          {
+            "role": "done",
+            "label": "Open it"
+          }
+        ]
+      }
+    }
+  ]
+}

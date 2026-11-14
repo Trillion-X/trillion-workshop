@@ -1,0 +1,87 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-listening-keeps-its-sound",
+  "revision": 1,
+  "order": 1,
+  "title": "Listening keeps the sound",
+  "summary": "Every moment your Mac or iPhone hears is kept as a recording in Files, with each line placed in it, so you can play back or clip anything said.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-listening-keeps-its-sound",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T10:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-listening-keeps-its-sound"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Every moment, kept as sound",
+          "body": "Each moment your Mac or iPhone hears is now kept as a recording in Files, under Recordings, Listening, one folder a day. Every line said is placed in it with who said it, so searching a line takes you to that moment, ready to play or cut as a clip."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "how-long",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Kept until you delete it",
+          "body": "The sound stays in your own files until you delete it, like any recording. Say \"stop listening\" or turn listening off in Record whenever you want it to stop."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

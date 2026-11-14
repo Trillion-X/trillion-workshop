@@ -1,0 +1,91 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-words-and-moments",
+  "revision": 1,
+  "order": 5,
+  "title": "New: Tours that say what changed, and a moment when you finish",
+  "summary": "Every tour now names what changed in plain words, and finishing a tour or reaching a milestone shows a small moment to mark it.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-words-and-moments",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T05:45:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-words-and-moments"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Every tour says what changed",
+          "body": "Each tour title now names the change itself, so you can tell at a glance which ones you want to take. You will find them all in Tours."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "moment",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "A small moment when you finish",
+          "body": "Finish this tour and watch the bottom of your screen. You will see another when your first action is done, and again at each milestone after that."
+        }
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "hidden",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "A few are hidden",
+          "body": "Some moments only show up when you go looking for them. Try typing trillion x anywhere in Trillion."
+        }
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

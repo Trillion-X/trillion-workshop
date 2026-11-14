@@ -1,0 +1,108 @@
+/* src/workspace/workspace.css: the page around the shared screens. The look (screen-look look-bridges.css) paints the
+   page and its text; the sidebar and the arrangement place themselves, the arrangement filling what the sidebar
+   leaves. Panes are the arrangement's own cards (glass-surface) with its gutters between them; the stage keeps the
+   same gap from the window's edge. */
+html, body { height: 100%; margin: 0; }
+/* The page under the workspace never moves: the window does not scroll or rubber-band (only areas inside the screens
+   scroll), and what shows around the workspace (under the status bar, while a keyboard opens) is the look's own page
+   colour, never the browser's white or the app's black. */
+html:has(.trillion-workspace), html:has(.trillion-workspace) body { overflow: hidden; overscroll-behavior: none; background: var(--bg-primary); }
+/* Inside the iPhone app the page runs under the status bar and home indicator (viewport-fit=cover): the workspace sits
+   inside them, and holds exactly the area a person can see (visible-viewport bind-visible-viewport.ts), so a keyboard
+   shrinks it from below instead of sliding it up under the status bar. It is the box every fixed part inside it (the
+   sidebar, the stage) places itself in (contain: layout), so their top 0 is the safe top. The insets are 0 everywhere
+   else, and without the visible-area values it fills the window. */
+.trillion-workspace {
+  position: fixed; display: flex; contain: layout;
+  left: env(safe-area-inset-left); right: env(safe-area-inset-right);
+  top: calc(var(--visible-viewport-top, 0px) + env(safe-area-inset-top));
+  height: calc(var(--visible-viewport-height, 100dvh) - env(safe-area-inset-top) - env(safe-area-inset-bottom) * (1 - var(--visible-viewport-keyboard, 0)));
+}
+.trillion-workspace-sidebar { flex: none; height: 100%; }
+.trillion-workspace-arrangement { flex: 1 1 auto; min-width: 0; height: 100%; }
+.trillion-files, .trillion-decisions, .trillion-guide { height: 100%; min-height: 0; overflow: auto; }
+/* Every pane: its ideas strip on top (screen-examples.ts), the screen filling the rest; the strip scrolls on its own
+   when open so the screen under it keeps at least half the pane. */
+.trillion-pane-with-examples { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.trillion-screen-examples { flex: none; max-height: 50%; overflow: auto; }
+.trillion-screen-examples:empty { display: none; }
+/* The screen scrolls inside its own body, whatever pane or tile holds it: a tiled pane does not scroll for it. */
+/* A column, so a screen whose root asks to fill (flex 1) fills the pane below the examples strip. */
+.trillion-screen-body { flex: 1 1 auto; min-height: 0; position: relative; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; }
+/* One file in its own tab (file-screen.tsx): its path on top, then the file with its card and, beside it on a wide
+   pane or under it on a narrow one, what was said about it with the box to say more (say-about-this.tsx). The tab is
+   its own size container, so the layout follows the pane, never the window. */
+.trillion-file { display: flex; flex-direction: column; height: 100%; min-height: 0; container-type: size; }
+.trillion-file-path { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px 10px; }
+.trillion-file-crumbs { min-width: 0; }
+.trillion-file-actions { display: flex; align-items: center; gap: 4px; flex: none; }
+/* Narrow: one scrolling column (the file's column dissolves into it): the file, then its notes, then its card. */
+.trillion-file-body { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; overflow-y: auto; overscroll-behavior: contain; }
+.trillion-file-main { display: contents; }
+.trillion-file-stage { flex: none; height: clamp(220px, 62cqw, 58cqh); display: flex; flex-direction: column; justify-content: center; padding: 0 18px 18px; overflow: hidden; }
+/* A recording's note holds its player as one row (the Audio row), not a stage of its own. */
+.trillion-file .trillion-file-stage--note { flex: none; height: 132px; min-height: 0; padding: 0; overflow: hidden; justify-content: center; }
+.trillion-file-card { flex: none; order: 1; padding: 0 18px 18px; }
+.trillion-file-card:empty { display: none; }
+.trillion-file-carousel { flex: 1 1 auto; min-height: 0; }
+.trillion-file-carousel__preview { height: min(52vh, 440px); min-height: 180px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #101714; }
+.trillion-file-carousel__preview > * { max-width: 100%; max-height: 100%; }
+.trillion-file-say { flex: none; padding: 0 18px 18px; min-width: 0; }
+.trillion-file-say:empty { display: none; }
+/* Wide: the file and its card on the left, the notes in their own column on the right, each scrolling on its own. */
+@container (min-width: 900px) {
+  .trillion-file-body { flex-direction: row; overflow: hidden; }
+  .trillion-file-main { flex: 1 1 auto; min-height: 0; min-width: 0; display: flex; flex-direction: column; }
+  .trillion-file-stage { flex: 1 1 auto; height: auto; min-height: 0; }
+  .trillion-file-card { flex: 0 1 auto; max-height: 45%; overflow: auto; }
+  .trillion-file-say { flex: 0 0 clamp(300px, 32cqw, 420px); overflow-y: auto; padding: 0 18px 18px 16px; border-left: 1px solid var(--border-primary); }
+}
+/* A file opened in place anywhere else (media-with-notes.tsx: a space, a post): the file, then its notes under it; on a
+   wide place the notes take their own column beside it. */
+.trillion-media-notes { container-type: inline-size; min-width: 0; }
+.trillion-media-notes__row { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.trillion-media-notes__stage { flex: none; height: clamp(220px, 56cqw, 520px); display: flex; flex-direction: column; justify-content: center; overflow: hidden; min-width: 0; }
+.trillion-media-notes__say { flex: none; min-width: 0; }
+@container (min-width: 900px) {
+  .trillion-media-notes__row { flex-direction: row; align-items: flex-start; }
+  .trillion-media-notes__stage { flex: 1 1 auto; height: clamp(320px, 42cqw, 640px); }
+  .trillion-media-notes__say { flex: 0 0 clamp(300px, 32cqw, 420px); max-height: clamp(320px, 42cqw, 640px); overflow-y: auto; padding-left: 16px; border-left: 1px solid var(--border-primary); }
+}
+/* The file view an AI app draws (file-view.tsx), on the look's own page colour: the file at a height the chat can show; a sound needs less. */
+html:has(.trillion-file-view), html:has(.trillion-file-view) body { height: auto; }
+.trillion-file-view { height: 440px; padding: 4px; box-sizing: border-box; }
+.trillion-file-view[data-viewer="sound"] { height: 260px; }
+/* Text and markdown take their own height, up to what a chat shows well, and scroll inside it beyond that. */
+.trillion-file-view:is([data-viewer="text"], [data-viewer="markdown"]) { height: auto; }
+.trillion-file-view:is([data-viewer="text"], [data-viewer="markdown"]) .file-preview-text { max-height: 560px; }
+/* A workflow or a funnel in its own tab (workflows-screen.tsx, funnels-screen.tsx): the canvas fills the pane. */
+.trillion-workflow, .trillion-funnels { height: 100%; min-height: 0; display: flex; flex-direction: column; }
+.trillion-workspace-failed { max-width: 960px; margin: 48px auto; padding: 0 24px; }
+/* A tab whose build the store moved past (client-version.ts): one reload screen over the whole window. */
+.trillion-workspace-locked { position: fixed; inset: 0; z-index: 2147483000; display: grid; place-items: center; padding: 24px; background: var(--color-background); }
+
+/* One screen shown alone in its page (alone-page.tsx): a host app's small window, such as the Mac menu bar panel. A
+   screen opened from it sits under a bar with Back and its name, held at the top while the screen scrolls. */
+.trillion-alone { display: flex; flex-direction: column; min-width: 0; }
+/* Back sits at the leading edge and the name is centred on the same line, like a window's title bar. Two classes so the
+   shared Container's own layout utilities can never stack them into a column again (the owner 2026-10-06 screenshot). */
+.trillion-alone-bar-host .trillion-alone-bar { position: sticky; top: 0; z-index: 10; display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 0.25rem; padding: 0.375rem 0.5rem;
+  background: var(--color-background); border-bottom: 1px solid var(--color-border); }
+.trillion-alone-bar-host .trillion-alone-bar > :first-child { justify-self: start; }
+.trillion-alone-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.875rem; font-weight: 600; text-align: center; }
+.trillion-alone-screen { min-width: 0; container: pane / inline-size; }
+/* A screen made of screens (Home, the menu bar panel) is an arrangement that fills the window and scrolls inside its panes;
+   it has no height of its own to grow the page to. */
+.trillion-alone:has(> .trillion-alone-screen[data-arranged-screen]) { height: 100dvh; }
+.trillion-alone-screen[data-arranged-screen] { flex: 1 1 0; min-height: 0; }
+/* Trillion inside an AI app's chat: the workspace and its controls share the host's finite height. */
+.trillion-screen-stage[data-scrolls=true] { overflow-y: auto; overscroll-behavior: contain; }
+.trillion-screen-size-row { justify-content: center; flex-wrap: wrap; padding: 4px 8px; border-top: 1px solid var(--border-primary); }
+.trillion-screen-catalog-status { flex-basis: 100%; text-align: center; font-size: 0.75rem; color: var(--text-secondary); }
+@media (max-width: 480px) { .trillion-screen-refresh-label { display: none; } }
+/* Trillion itself inside an AI app's chat (screen-view.tsx invariant 7): the whole workspace fills the box the view
+ * gives it instead of the window, its panes scrolling inside it. */
+.trillion-screen-view[data-whole=true] .trillion-screen-stage { overflow: hidden; }
+.trillion-screen-view[data-whole=true] .trillion-screen-content { height: 100%; }
+.trillion-screen-view .trillion-workspace { position: relative; left: 0; right: 0; top: 0; height: 100%; }

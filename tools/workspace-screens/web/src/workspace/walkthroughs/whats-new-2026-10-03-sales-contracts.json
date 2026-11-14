@@ -1,0 +1,98 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-sales-contracts",
+  "revision": 2,
+  "order": 5,
+  "title": "New: Send an offer to anyone",
+  "summary": "Build a deal from your own offers and send it to one person, a list, or everyone who joins one, by email or text, with two prices tested.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-sales-contracts",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T05:33:47Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-sales-contracts"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Send an offer to one person or a whole list",
+          "body": "Make a deal once and send it to one person, a list of people, or each new person who joins that list. Each person gets their own link to sign and pay."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "sales-contracts",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Sales contracts",
+          "body": "Open Sales contracts from New, choose one of your offers, and at Send pick One person or A list. For a list, pick email, text or both, now, at a time or each new person, and one price or two to see which sells. How it went shows sent, opened, signed and paid for each price."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-section-id=\"trillion-new\"], [data-sidebar-open-toggle]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ]
+}

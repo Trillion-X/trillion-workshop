@@ -1,0 +1,65 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-opens-without-waiting",
+  "revision": 1,
+  "order": 1,
+  "title": "Trillion opens at once after a break",
+  "summary": "Coming back after a while, your workspace shows what you had straight away and updates as your account catches up.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-opens-without-waiting",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T20:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-opens-without-waiting"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "No waiting when you come back",
+          "body": "When you open Trillion after a break, it no longer waits for your account to get ready before showing anything. It shows your sidebar, Home and lists as they were last time, then brings in anything that changed since, a moment later. This works even on a browser that cleared what it kept."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

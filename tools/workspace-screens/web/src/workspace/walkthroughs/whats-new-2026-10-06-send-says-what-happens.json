@@ -1,0 +1,93 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-send-says-what-happens",
+  "revision": 1,
+  "order": 5,
+  "title": "Send tells you what happens next",
+  "summary": "When no AI is connected yet, sending says so where you wrote it, with Connect your AI as a button, and nothing is lost or faked.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-send-says-what-happens",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T17:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-send-says-what-happens"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Send never goes quiet",
+          "body": "Write to your AIs before one is connected and Trillion says so right under the box, in view even on a phone, with a Connect your AI button. Your words stay in the box, and no reply is made up."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": ".composer"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 14
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "above",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.home"
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

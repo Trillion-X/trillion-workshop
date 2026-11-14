@@ -1,0 +1,98 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-thin-sidebar-bar",
+  "revision": 1,
+  "order": 9,
+  "title": "New: A thinner sidebar that lines up with your panes",
+  "summary": "Your sidebar stays a thin bar on any edge or between panes, opens into a list you can read on a phone, and keeps the same gap and rounded corners as the panes beside it.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-thin-sidebar-bar",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T22:35:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-thin-sidebar-bar"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your sidebar takes less room now",
+          "body": "Your sidebar takes up less room and sits evenly beside your panes."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "sidebar-bar",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "A thin bar, wherever it sits",
+          "body": "When it is collapsed on any edge or between two panes, the sidebar is a slim bar of icons. Open it and its list shows as a column you can read, even on a phone. It keeps the same gap from the edge and the same rounded corners as your panes."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-sidebar-bar-grip], [data-sidebar-handle], [data-sidebar-open-toggle]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 12
+      }
+    }
+  ]
+}

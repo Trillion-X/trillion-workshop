@@ -1,0 +1,115 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-records-on-this-device",
+  "revision": 1,
+  "order": 10,
+  "title": "Find your things instantly, even offline",
+  "summary": "This browser now keeps its own copy of your decisions, notes and messages, so finding them is instant and works with no internet.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-records-on-this-device",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T11:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-records-on-this-device"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your things, kept right here",
+          "body": "This browser keeps its own copy of your decisions, notes and messages, and catches up with your Trillion in one quick step when you open it or come back online."
+        }
+      },
+      "centered_when_target_missing": true,
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "find",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Type @ to find anything, even offline",
+          "body": "In any message box, type @ and a few letters: your decisions, notes and other things you keep are found on this device at once, and still found when the internet is off."
+        }
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "choose",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You choose which devices keep a copy",
+          "body": "Kept on this device is a rule in When things show: hide it for a phone or a shared computer, and that device keeps no copy."
+        }
+      },
+      "centered_when_target_missing": true,
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.notification-settings"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-show-rules-settings]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ]
+}

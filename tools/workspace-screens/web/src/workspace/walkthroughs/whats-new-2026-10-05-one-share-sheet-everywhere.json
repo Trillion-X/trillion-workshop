@@ -1,0 +1,195 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-one-share-sheet-everywhere",
+  "revision": 1,
+  "order": 20,
+  "title": "One Share for everything",
+  "summary": "Every … in Trillion now has Share, and it opens the same sheet everywhere: a file, a decision, a whole list, one row of a list, a contract or a pursuit. Invite someone by email or phone with what they may do, see who has access and stop it, choose who else can open it, and set until when, from when and how many opens.",
+  "entry_step": "files",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "board": {
+    "subject": "source:b25lLXNoYXJpbmctZXZlcnl3aGVyZS0yMDI2LTEwLTA1",
+    "title": "One sharing sheet everywhere"
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-one-share-sheet-everywhere",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T16:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-one-share-sheet-everywhere"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "files",
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tool-screen\"] table, [data-trillion-screen=\"tool-screen\"]"
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.files"
+        }
+      },
+      "centered_when_target_missing": true,
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Share is on every …",
+          "body": "We're opening Files. Press … on any file, decision, list or row and choose Share. It is the same sheet wherever you are."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "invite",
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tool-screen\"] table, [data-trillion-screen=\"tool-screen\"]"
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.files"
+        }
+      },
+      "centered_when_target_missing": true,
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Invite with what they may do",
+          "body": "Type an email or phone number, choose Can view, Can sign or Can pay, and press Invite. They open it with a code sent to them. No account needed."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "back",
+            "label": "Back"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "who",
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"lists\"] [data-slot=\"table\"], [data-trillion-screen=\"lists\"]"
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.lists"
+        }
+      },
+      "centered_when_target_missing": true,
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Who has access, and who else can open it",
+          "body": "Each person shows with their role, which you can change or stop. Below, choose Only people you add, Anyone with the link, or Anyone and found in search."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "back",
+            "label": "Back"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "spaces",
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"spaces\"], body"
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.pursuits"
+        }
+      },
+      "centered_when_target_missing": true,
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Pursuits share the same way",
+          "body": "A pursuit's Share invites people with their type, shows who is in it, and copies an invite link. More choices sets until when, from when and how many opens."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "back",
+            "label": "Back"
+          },
+          {
+            "role": "advance",
+            "label": "Done"
+          }
+        ]
+      }
+    }
+  ]
+}

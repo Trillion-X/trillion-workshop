@@ -1,0 +1,140 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-bring-your-website",
+  "revision": 1,
+  "order": 10,
+  "title": "Bring your website into Trillion",
+  "summary": "Copy a website copies any site you already have, its pages, pictures and styles, into a site Trillion serves on your own address.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-bring-your-website",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T08:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-bring-your-website"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your website, in Trillion",
+          "body": "Copy a website brings a site you already have into Trillion: every page as visitors see it, with its pictures, styles and fonts, ready to put on your own address."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "tool",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Give it your site's address",
+          "body": "Ask your AI to run Copy a website with your site's address. It follows your site's own links, keeps each page, and publishes the copy as a site you can edit and connect to your domain."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.workshop-tool",
+          "surface_input": {
+            "id": "tool:copy-a-site"
+          }
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"workshop-tool\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      }
+    },
+    {
+      "id": "sites",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Edit it and put it on your domain",
+          "body": "The copy opens in Public apps, where you change words and pictures on the page and connect your own address. Folder pages like /articles keep their addresses."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.public-apps"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"public-apps\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ]
+}

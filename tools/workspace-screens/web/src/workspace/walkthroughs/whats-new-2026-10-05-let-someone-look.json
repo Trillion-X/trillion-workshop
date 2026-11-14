@@ -1,0 +1,31 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-let-someone-look",
+  "revision": 1,
+  "order": 6,
+  "title": "Let someone see your Trillion",
+  "summary": "Let a teammate or a helper see your Trillion exactly as you do, read only, for a few days. You are told every time they look.",
+  "entry_step": "intro",
+  "progress_style": { "style": "segmented" },
+  "look": { "targeting": { "retry_timeout_ms": 6000, "retry_interval_ms": 100, "scroll_behavior": "smooth", "scroll_block": "center", "scroll_inline": "nearest" } },
+  "triggers": [
+    { "reason": "changed-since-first-tour", "on_event": { "event_kind": "app-opened" }, "once_key": "whats-new-2026-10-05-let-someone-look", "requires": [ { "once_key": "first-run", "consumed_before": "2026-10-05T23:00:00Z" } ] },
+    { "reason": "replay", "on_event": { "event_kind": "walkthrough-requested", "match": { "walkthrough_id": "whats-new-2026-10-05-let-someone-look" } } }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": { "content_kind": "text", "payload": { "title": "Show someone your Trillion", "body": "Type the email their Trillion account uses and pick 1, 3 or 7 days. They see what you see and cannot change anything. Stop it any time." } },
+      "nav": { "buttons": [ { "role": "skip", "label": "Skip" }, { "role": "advance", "label": "Show me" } ] }
+    },
+    {
+      "id": "form",
+      "content": { "content_kind": "text", "payload": { "title": "Here, on Privacy", "body": "Everyone you let look is listed here with a Stop button, and so is everyone who looked. The Trillions others let you see are here too, each with a Look button." } },
+      "target_ref": { "from": "selector", "query": "[data-guide-section=\"let-someone-look\"]" },
+      "centered_when_target_missing": true,
+      "cutout": { "shapes": [ { "shape": "rounded-rect", "padding": 6, "radius": 14 } ] },
+      "placement": { "prefer": "below", "auto_flip": true, "gap": 14 },
+      "target_preparation": { "surface": { "id": "trillion.privacy" } }
+    }
+  ]
+}

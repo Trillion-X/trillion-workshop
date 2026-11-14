@@ -1,0 +1,128 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-skills-from-their-source",
+  "revision": 1,
+  "order": 2,
+  "title": "New: skills read from where their authors keep them",
+  "summary": "Emil Kowalski's design skills, Break UI and Mobile native among them, are now workflows in the Marketplace, read from his repository with his licence and a link to the original. When he changes one, it changes here.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-skills-from-their-source",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T09:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-one-marketplace"
+        }
+      },
+      "match": {
+        "walkthrough_id": "whats-new-2026-10-05-skills-from-their-source"
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Skills from their source",
+          "body": "Fourteen of Emil Kowalski's design skills, among them Break UI, Mobile native, Animate and Apple design, are now workflows your AI can find and run. They are read from his public repository, never copied, so a change he makes shows up here by itself."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "marketplace",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Credited on every card",
+          "body": "Search the Marketplace for a skill: its card shows who wrote it, its licence, and See the original, which opens the folder it was read from."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"marketplace\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.marketplace"
+        }
+      }
+    },
+    {
+      "id": "yours",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Bring in any skill repository",
+          "body": "Ask your AI to add a public repository of skills, like 'add the skills in github.com/someone/skills'. Its licensed skills join your workflows, kept current from the repository."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ],
+  "board": {
+    "subject": "source:c2tpbGwtc291cmNlcy1mcm9tLXB1YmxpYy1yZXBvc2l0b3JpZXMtMjAyNi0xMC0wNQ",
+    "title": "Skills from their source"
+  }
+}

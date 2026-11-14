@@ -1,0 +1,77 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-06-codes-come-off-the-plan",
+  "revision": 1,
+  "order": 65,
+  "title": "Discount codes come off the plan alone",
+  "summary": "A checkout code now takes money off only the offers it was made for. The directory-review code and the $25 friend code come off the Trillion plan and nothing else, and a friend's first payment on the plan earns the $25 for whoever invited them.",
+  "entry_step": "codes",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-06-codes-come-off-the-plan",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-06T17:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-06-codes-come-off-the-plan"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "codes",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Codes come off the plan alone",
+          "body": "Before, the free review code worked at any checkout, the $1,500 call included. Each code now comes off only the offers it names, so nothing is free by accident."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.business"
+        }
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true,
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ],
+  "audience": "operator"
+}

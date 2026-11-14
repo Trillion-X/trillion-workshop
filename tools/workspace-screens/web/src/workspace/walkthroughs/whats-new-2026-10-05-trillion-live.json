@@ -1,0 +1,131 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-trillion-live",
+  "revision": 1,
+  "order": 1,
+  "title": "See Trillion working, live",
+  "summary": "Every tool in the Marketplace now shows itself working in a real Trillion with throwaway data, and anyone can watch it move or try it on the spot. Tours can play by themselves, type letter by letter, and leave the page clear so you can click what they point at.",
+  "entry_step": "marketplace",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-trillion-live",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T23:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-trillion-live"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "marketplace",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Every tool, working live",
+          "body": "Open any tool's page in the Marketplace and watch it work in a real Trillion, then try it yourself. Share that page with anyone."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"marketplace\"] .record-views-search"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true,
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.marketplace"
+        }
+      }
+    },
+    {
+      "id": "tours",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Tours that do it with you",
+          "body": "A tour can now play by itself and type letter by letter, and you can click whatever it points at."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tours\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true,
+      "nav": {
+        "buttons": [
+          {
+            "role": "done",
+            "label": "Got it"
+          }
+        ]
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.tours"
+        }
+      }
+    }
+  ]
+}

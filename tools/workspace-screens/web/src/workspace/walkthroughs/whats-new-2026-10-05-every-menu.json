@@ -1,0 +1,116 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-every-menu",
+  "revision": 1,
+  "order": 11,
+  "title": "Every … holds everything you can do",
+  "summary": "The … on a recording, a file, a list row, a screen in your sidebar or a pane now holds everything you can do with that thing, nested as deep as it goes: your tools in their folders, Send to your AI with your saved actions or a message with a voice note, a video or a screen recording, and Make it into any of your formats. A tool or saved action added anywhere shows up in every … it fits, and a rule can hide any row for a file type, a time of day or a device.",
+  "entry_step": "pane",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "board": {
+    "subject": "source:b25lLWFjdGlvbnMtZXZlcnl3aGVyZS0yMDI2LTEwLTA1",
+    "title": "One menu for everything"
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-every-menu",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T08:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-every-menu"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "pane",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Point at any …",
+          "body": "This pane's … now has a row named after what it shows. Inside it: Send to your AI, with your saved actions in their folders and Write to your AI, a message box where you can type, talk, film yourself or record your screen, all without leaving the menu."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-pane-more-control]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.home"
+        }
+      }
+    },
+    {
+      "id": "media",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "A recording's … goes deeper",
+          "body": "Point at a recording here and open its …: every tool you can run on it sits in the folder you keep it in, then Send to your AI and Make it into a reel, a thread or any of your formats. Add a tool or a saved action anywhere and it shows up here by itself."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tool-screen\"]"
+      },
+      "placement": {
+        "prefer": "left",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.media"
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-say-something-at-a-moment",
+  "revision": 1,
+  "order": 1,
+  "title": "Notes and your AI, right on the video",
+  "summary": "Open any recording, in Files, a pursuit or a post, and say something at the moment you are on: it is kept there, plays from there, and reaches your AI. Reframed videos now hold steady, cut when the person jumps, and blur as they move, like a real camera.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-say-something-at-a-moment",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T17:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-say-something-at-a-moment"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Say something at the moment you are on",
+          "body": "Open any recording and write beside it. Your note is kept at that moment, pressing the moment plays from there, and your AI reads it, so \"no reframe here\" or \"slow this part down\" is all it takes."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "media",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Open any recording from Media",
+          "body": "Every recording opens with its notes and the box to say more beside it. Reframed videos now hold still while you stay in frame, pan smoothly when you move, and cut when you jump across."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tool-screen\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.media"
+        }
+      }
+    }
+  ]
+}

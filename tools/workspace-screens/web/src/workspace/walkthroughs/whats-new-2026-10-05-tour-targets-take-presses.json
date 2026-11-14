@@ -1,0 +1,107 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-tour-targets-take-presses",
+  "revision": 1,
+  "order": 1,
+  "title": "Press what a tour points at",
+  "summary": "The thing a tour lights up now works like it always does: press it or use the keyboard on it, and the tour moves on by itself.",
+  "entry_step": "press",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-tour-targets-take-presses",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T23:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-tour-targets-take-presses"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "press",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Press what is lit up",
+          "body": "Tours used to cover everything, even the thing they pointed at. Pick a different view here, and this tour moves on by itself."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"tours\"] [role=\"radiogroup\"][aria-label=\"View\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 4,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      },
+      "centered_when_target_missing": true,
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.tours"
+        }
+      }
+    },
+    {
+      "id": "moved",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "It moved on because you used it",
+          "body": "Every tour works this way now, and Tours keeps the view you picked."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Done"
+          }
+        ]
+      }
+    }
+  ]
+}

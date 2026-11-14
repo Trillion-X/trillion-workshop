@@ -1,0 +1,65 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-open-any-file-with-trillion",
+  "revision": 1,
+  "order": 5,
+  "title": "Open any file with Trillion",
+  "summary": "Right-click any file on your Mac and choose Open With > Trillion: it lands in Message your AIs in the menu bar panel, ready to send with a note or your voice. A big file is kept in your Trillion files instead.",
+  "entry_step": "open-with",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-open-any-file-with-trillion",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T17:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-open-any-file-with-trillion"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "open-with",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Right-click, Open With, Trillion",
+          "body": "In Finder, right-click any file and choose Open With > Trillion, or drop it on Trillion in the Dock. The menu bar panel opens with the file in Message your AIs; add a few words or record your voice, then send. A file too big to send this way is kept in your Trillion files and the panel opens them."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,137 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-visual-tuning",
+  "revision": 1,
+  "order": 9,
+  "title": "New: Change how things look by dragging",
+  "summary": "Change how things look by dragging: colours, sizes and corners change on the page while you move them.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-visual-tuning",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T21:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-visual-tuning"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Drag, do not type",
+          "body": "Looks and page styles are now things you drag, not codes you type. The page changes while you move them."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "looks",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Edit a look",
+          "body": "Press Edit under your looks. Each colour is a swatch that opens a wheel, each size a track with a small picture of it, each font drawn in its own face."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.account"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-screen-look-choices]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 12
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "above",
+        "auto_flip": true,
+        "gap": 12
+      }
+    },
+    {
+      "id": "pages",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Style a page the same way",
+          "body": "In Public apps, choose part of a page: its colours, text size, pursuit inside and corners are the same controls, and the canvas changes as you drag."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.public-apps"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": ".trillion-visual-editor__inspector"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "left",
+        "auto_flip": true,
+        "gap": 12
+      }
+    }
+  ]
+}

@@ -1,0 +1,171 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-site-canvas",
+  "revision": 1,
+  "order": 9,
+  "title": "New: Edit your site on a canvas",
+  "summary": "Public apps opens your site on a canvas, so you can see every size side by side, find any part of the page in a named tree, and see who else is working on it.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-site-canvas",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T16:45:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-site-canvas"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your sites now open on a canvas",
+          "body": "Your sites now open on a canvas the way a design tool shows them, with desktop, tablet and phone side by side, all showing the same page."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "frames",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You see every size at once",
+          "body": "Change something in any frame and every size shows the change. Scroll or drag to move around, and pinch or Ctrl-scroll to zoom. Anyone else working on the page, or any of your AIs, shows as a named cursor."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.public-apps"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": ".trillion-visual-editor__stage"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 4,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "left",
+        "auto_flip": true,
+        "gap": 12
+      }
+    },
+    {
+      "id": "layers",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Layers shows the page as a tree",
+          "body": "Layers shows the page nested the way it is built, with each part named by its own words. Choose a part to select it on the canvas, or drag it to move it."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.public-apps"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": ".layer-tree"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 12
+      }
+    },
+    {
+      "id": "site",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Pick a site by its name",
+          "body": "Each site is listed once by name, with live ones first. Domains and adding a new site sit just below, folded away until you need them."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.public-apps"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[aria-label=\"Site\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 12
+      }
+    }
+  ]
+}

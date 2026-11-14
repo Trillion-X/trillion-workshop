@@ -1,0 +1,185 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-edit-on-canvas",
+  "revision": 1,
+  "order": 1,
+  "title": "Edit any tour on the canvas",
+  "summary": "Open a tour on the canvas to see every step as its card, change any words or button right there, and choose if the change is for this step, the whole tour or every tour.",
+  "entry_step": "canvas",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-edit-on-canvas",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T16:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-edit-on-canvas"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "canvas",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "This tour, as its cards",
+          "body": "Every step of this tour is laid out here as the card you are reading now. Any tour opens this way from Tours."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.canvas-edit",
+          "surface_input": {
+            "id": "tour:whats-new-2026-10-05-edit-on-canvas"
+          }
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"canvas-edit\"] [data-canvas-piece]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "pick",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Press any words",
+          "body": "Press a title, its words or a button to change it. Its words and look open beside the canvas."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.canvas-edit",
+          "surface_input": {
+            "id": "tour:whats-new-2026-10-05-edit-on-canvas"
+          }
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"canvas-edit\"] [data-canvas-piece] [data-walkthrough-copy=\"title\"]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "act": {
+        "do": "press"
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Press it for me"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "scope",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Choose who it is for",
+          "body": "Keep the change for this step, every step of this tour, or every tour you take. Shift-press to change several at once, and Undo takes it back."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.canvas-edit",
+          "surface_input": {
+            "id": "tour:whats-new-2026-10-05-edit-on-canvas"
+          }
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"canvas-edit\"] [data-canvas-edit-panel]"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

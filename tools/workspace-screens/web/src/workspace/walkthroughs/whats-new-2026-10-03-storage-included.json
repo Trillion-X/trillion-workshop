@@ -1,0 +1,137 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-03-storage-included",
+  "revision": 1,
+  "order": 7,
+  "title": "New: See the storage your plan includes",
+  "summary": "Your plan shows how much storage it includes and what more costs, and if you already pay, nothing changes until your next renewal.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-03-storage-included",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-03T21:30:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-storage-included"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your plan shows how much storage you get",
+          "body": "Your plan now says how much room it gives your files, and what more costs. You never pay for storage during your free trial."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "plans",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "You pay only for what you keep above your plan",
+          "body": "Each plan shows what it includes and the price of anything above that. You are charged only for what you keep above it, counted each day."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.plan"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"plan\"] .guide-rows"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      }
+    },
+    {
+      "id": "kept",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "See how much you keep now",
+          "body": "This month shows how much you keep. If you already pay, nothing changes until your next renewal."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.plan"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"plan\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      }
+    }
+  ]
+}

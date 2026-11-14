@@ -1,0 +1,81 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-07-price-tests-counted-fresh",
+  "revision": 1,
+  "order": 70,
+  "title": "Price tests count only real people from today",
+  "summary": "People shown a price and checkouts started are now counted from today, with our own test accounts never counted at all, so each price shows how many real people saw it.",
+  "entry_step": "counted",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-07-price-tests-counted-fresh",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-07T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-07-price-tests-counted-fresh"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "counted",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Counted fresh, real people only",
+          "body": "Each price now shows the real people who saw it since today, and our own test accounts apart. Older counts mixed in test accounts we had since deleted."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.price-tests"
+        }
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true,
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-record-set=\"price-tests\"]"
+      }
+    }
+  ],
+  "audience": "operator"
+}

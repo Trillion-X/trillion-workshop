@@ -1,0 +1,162 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-calm-pane-menu",
+  "revision": 1,
+  "order": 12,
+  "title": "New: A calmer … menu, and Back on every pane",
+  "summary": "Each pane has Back and Forward beside its tabs, and its … menu is one short list that opens more beside it.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-calm-pane-menu",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T21:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-calm-pane-menu"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Back, Forward and a calmer …",
+          "body": "Every pane remembers what it showed, and its … menu is one short list now."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "arrows",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Go back to what this pane showed",
+          "body": "Back and Forward step through everything this pane showed, in order, whichever way it opened. Point at an arrow, or hold it, to see the whole list and jump to any of it."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-nav-arrows]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 12
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "back",
+            "label": "Back"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "more",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Point at … and it opens",
+          "body": "It stays open while you move into it, and pressing it keeps it open. The pane's own actions are one row of icons; Draw, Tabs, Move to layer, Pane mode and Layouts open beside the menu, and on a phone they open in place with Back."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "button[aria-label=\"More for this pane\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 12
+      },
+      "act": {
+        "do": "press"
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "back",
+            "label": "Back"
+          },
+          {
+            "role": "done",
+            "label": "Open it"
+          }
+        ]
+      }
+    }
+  ]
+}

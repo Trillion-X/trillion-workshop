@@ -1,0 +1,87 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-mark-up-from-chrome",
+  "revision": 1,
+  "order": 3,
+  "title": "Mark up a page before you send it from Chrome",
+  "summary": "Send to Trillion in Chrome can now mark up the picture of the page: draw, circle or box what matters, then send it to your AIs. Trillion for Mac also offers Send to Trillion in Chrome, Brave and Edge, so you never have to find it in a store.",
+  "entry_step": "mark-up",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-mark-up-from-chrome",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T17:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-mark-up-from-chrome"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "mark-up",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Draw on the page, then send it",
+          "body": "Open Send to Trillion on any page. Next to the picture of the page, press Mark up: draw with the pen, a line, a box or a circle in any colour, undo what you do not want, and press Done. The marked picture goes with your next Send."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "in-your-browsers",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Already in your browsers",
+          "body": "With Trillion for Mac running, Chrome, Brave and Edge offer to add Send to Trillion the next time you open them. Say yes once; if you say no, it is not offered again. Voice notes, recording the tab and Trillion's notices come with this version."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

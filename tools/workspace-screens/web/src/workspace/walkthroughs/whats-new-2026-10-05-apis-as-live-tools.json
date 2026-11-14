@@ -1,0 +1,128 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-apis-as-live-tools",
+  "revision": 1,
+  "order": 4,
+  "title": "New: any API is a set of tools",
+  "summary": "Point your AI at an API's description or a tool server and you can run everything it does as a tool, read from the source and kept current when it changes.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-apis-as-live-tools",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T12:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-03-one-marketplace"
+        }
+      },
+      "match": {
+        "walkthrough_id": "whats-new-2026-10-05-apis-as-live-tools"
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Any API, as tools",
+          "body": "Give your AI the address of an API's description. Each thing that API can do shows in the Marketplace as a tool, and when the API adds or changes something, your tools follow by themselves."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "marketplace",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Credited and linked",
+          "body": "Each tool shows which API it comes from, the licence its description declares, and a link to that description."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"marketplace\"]"
+      },
+      "centered_when_target_missing": true,
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 6,
+            "radius": 10
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.marketplace"
+        }
+      }
+    },
+    {
+      "id": "yours",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your own account, your own key",
+          "body": "When an API needs a key, it comes from the account you connected, placed in each request by your locked box. Tool servers you add are read the same way."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ],
+  "board": {
+    "subject": "source:c2tpbGwtc291cmNlcy1mcm9tLXB1YmxpYy1yZXBvc2l0b3JpZXMtMjAyNi0xMC0wNQ",
+    "title": "Any API, as tools"
+  }
+}

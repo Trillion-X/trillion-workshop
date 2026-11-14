@@ -1,0 +1,159 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-billing",
+  "revision": 1,
+  "order": 55,
+  "title": "Billing has its own screen",
+  "summary": "Billing shows every spot you pay for, the card each purchase uses, your usage day by day at the listed rates plus a small margin, and each part of your deal, which you can switch off. Account & security now holds only your sign-in; AI apps, Privacy, Look and Invite friends each have their own screen in Settings.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-billing",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T20:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-billing"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Everything you pay, in one place",
+          "body": "Each spot is $100 a month, for a person or an organization. Usage is priced from measured amounts at the listed rates plus 30%."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.billing"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"billing\"] [data-guide-section=\"glance\"]"
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true,
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "usage",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Usage, day by day",
+          "body": "Each line is a part of your usage, charged at the listed rates plus the margin."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.billing"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"billing\"] [data-guide-section=\"usage\"]"
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "deal",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Switch parts of your deal off",
+          "body": "Turn off a part and Trillion stops that work for you, so it is not charged."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.billing"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"billing\"] [data-guide-section=\"deal\"]"
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    },
+    {
+      "id": "cards",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "A card for each purchase",
+          "body": "Several people can pay, each from their own card. Each purchase shows its card and who it pays for."
+        }
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.billing"
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": "[data-trillion-screen=\"billing\"] [data-guide-section=\"pays\"]"
+      },
+      "placement": {
+        "prefer": "below",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "centered_when_target_missing": true
+    }
+  ]
+}

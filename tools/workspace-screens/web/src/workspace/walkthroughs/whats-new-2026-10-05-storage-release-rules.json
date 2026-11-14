@@ -1,0 +1,87 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-storage-release-rules",
+  "revision": 1,
+  "order": 4,
+  "title": "Choose when deleted files give back storage",
+  "summary": "Recently Deleted now shows how much storage your files use, what is waiting to leave and when, and lets you give storage back sooner for a folder, a kind of file, big files, or when storage passes a size.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-storage-release-rules",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T08:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-storage-release-rules"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Your storage at a glance",
+          "body": "At the top of Recently Deleted: what you keep, what is deleted and waiting, and a chart of storage over the next days as it leaves."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rules",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Rules of your own",
+          "body": "Add a rule to give storage back sooner, for example camera proxies after 1 day, or the oldest deleted files while storage is above 500 GB. Your AI can set the same rules, and your schedules can run them."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}

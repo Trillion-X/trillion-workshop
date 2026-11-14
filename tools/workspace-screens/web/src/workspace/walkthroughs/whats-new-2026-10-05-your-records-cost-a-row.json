@@ -1,0 +1,87 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-05-your-records-cost-a-row",
+  "revision": 2,
+  "order": 1,
+  "title": "Trillion keeps your things for less",
+  "summary": "Your decisions, messages and pursuits are saved in a smaller way now, so keeping them costs much less. Nothing you kept changed.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-05-your-records-cost-a-row",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-05T09:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-05-your-records-cost-a-row"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Saved in a smaller way",
+          "body": "Everything Trillion keeps for you now takes a small part of the room it took before. It was all copied across and checked against the original first."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "skip",
+            "label": "Skip"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "same",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Nothing to do",
+          "body": "Your decisions, messages and pursuits open just as before. You can see the saving on the Spend screen."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Got it"
+          }
+        ]
+      }
+    }
+  ]
+}
