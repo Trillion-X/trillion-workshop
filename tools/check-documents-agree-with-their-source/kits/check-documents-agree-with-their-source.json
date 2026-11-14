@@ -1,0 +1,51 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-documents-agree-with-their-source's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-documents-agree-with-their-source with sets.\" Check that documents which each claim to reflect one source (summaries, translations, copies for other readers) still carry the source's newest numbered item, and the markers each must hold, and say which have fallen behind",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-documents-agree-with-their-source"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-documents-agree-with-their-source\", and give it sets.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-documents-agree-with-their-source and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields schema, agrees, reports."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check my documents have not fallen behind their source on a sample input",
+      "ask": "Run tool:check-documents-agree-with-their-source.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-documents-agree-with-their-source",
+            "input": {
+              "sets": [
+                {
+                  "set_id": "guide-translations",
+                  "source": "guide.en.md",
+                  "unit_pattern": "RFC-(\\d+)",
+                  "required_markers": [
+                    "TRANSLATION STATUS"
+                  ],
+                  "mirrors": [
+                    {
+                      "document": "guide.fr.md"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields schema, agrees, reports."
+    }
+  ]
+}

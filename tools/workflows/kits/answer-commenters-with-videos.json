@@ -1,0 +1,64 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:answer-commenters-with-videos's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:answer-commenters-with-videos.\" Watch the accounts the person names on any platform so each new post is pulled in, read the comments under those posts (questions, disagreements, the newest), pick the commenters whose words are worth a video, make a video that answers each one in the person's voice, reply on the comment with the video once the person says yes, and read how it did.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:answer-commenters-with-videos",
+    "workflow:make-one-piece-of-content-from-audience-to-publish",
+    "workflow:make-the-piece-without-waiting-for-the-person",
+    "workflow:read-the-week-and-make-more-of-what-won"
+  ],
+  "tools": [
+    "tool:call-a-treg-endpoint",
+    "tool:decide-an-agent-action",
+    "tool:decide-the-replies",
+    "tool:keep-channels-latest-videos-and-captions",
+    "tool:keep-forum-posts-from-a-public-archive",
+    "tool:keep-public-posts-by-link",
+    "tool:pull-my-instagram-comments",
+    "tool:read-a-treg-endpoint-and-its-price",
+    "tool:read-my-treg-balance",
+    "tool:read-voice",
+    "tool:read-youtube-comments",
+    "tool:search-the-treg-catalog",
+    "tool:see-how-each-post-did",
+    "tool:send-a-reply-on-instagram",
+    "tool:send-a-reply-on-youtube",
+    "tool:start-a-recipe-run",
+    "tool:watch-my-sources"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:answer-commenters-with-videos\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:answer-commenters-with-videos) and works through its steps in order: set-watched-accounts, watch, keep-posts-and-comments, pick-commenters, make-the-answer-video, reply-with-the-video, measure-and-feed-back.",
+    "3. Read what each step hands back; the last step is measure-and-feed-back."
+  ],
+  "worked_examples": [
+    {
+      "title": "Answer commenters with videos from its first step",
+      "ask": "Run workflow:answer-commenters-with-videos.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:answer-commenters-with-videos",
+              "accounts": [],
+              "pursuit": "<pursuit: string>",
+              "owner_list": "<owner_list: string>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:answer-commenters-with-videos",
+      "step": "set-watched-accounts",
+      "hands_back": "Step set-watched-accounts answers with watched.",
+      "given": "The person gives: pursuit, owner_list (shown as <name> in the input)."
+    }
+  ]
+}

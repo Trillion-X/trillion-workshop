@@ -1,0 +1,64 @@
+{
+  "draft": true,
+  "drafted_from": "tool:calibrate-a-camera-frame's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:calibrate-a-camera-frame with min_confidence.\" Calibrate a camera's view of a court, table or screen once from four corners, so every later point is measured in that frame",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:calibrate-a-camera-frame"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:calibrate-a-camera-frame\", and give it min_confidence.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:calibrate-a-camera-frame and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.source contains \"auto\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Calibrate a camera frame on a sample input",
+      "ask": "Run tool:calibrate-a-camera-frame.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:calibrate-a-camera-frame",
+            "input": {
+              "min_confidence": 0.8,
+              "detected": {
+                "corners": [
+                  [
+                    100,
+                    50
+                  ],
+                  [
+                    500,
+                    80
+                  ],
+                  [
+                    540,
+                    400
+                  ],
+                  [
+                    60,
+                    380
+                  ]
+                ],
+                "confidence": 0.95
+              },
+              "points": [
+                [
+                  100,
+                  50
+                ]
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.source contains \"auto\"."
+    }
+  ]
+}

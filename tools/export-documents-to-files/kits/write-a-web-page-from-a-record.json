@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:write-a-web-page-from-a-record's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:write-a-web-page-from-a-record with envelope, output.\" Turn one record and a publication descriptor into a finished web page: its words, its address, its search and sharing tags, its structured data and a proof of what it was made from",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:write-a-web-page-from-a-record"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:write-a-web-page-from-a-record\", and give it envelope, output.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:write-a-web-page-from-a-record and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields artifact, proof, written."
+  ],
+  "worked_examples": [
+    {
+      "title": "Write a web page from one record and a description of how to publish it (runs on your computer) on a sample input",
+      "ask": "Run tool:write-a-web-page-from-a-record.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:write-a-web-page-from-a-record",
+            "input": {
+              "envelope": "<envelope: Path of the JSON envelope file>",
+              "output": "<output: Path of the HTML file to write>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields artifact, proof, written.",
+      "given": "The person gives: envelope, output (shown as <name> in the input)."
+    }
+  ]
+}

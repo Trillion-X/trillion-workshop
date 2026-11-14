@@ -1,0 +1,55 @@
+{
+  "draft": true,
+  "drafted_from": "tool:fade-live-ink-marks's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:fade-live-ink-marks with now, fade, marks.\" Work out how visible each ink mark drawn live on a canvas or screen is at a given instant, so live marks fade instead of piling up, and when each is gone",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:fade-live-ink-marks",
+    "tool:export-a-document-to-a-file",
+    "tool:find-the-ink-mark-to-erase",
+    "tool:see-the-ink-marks-on-a-space",
+    "tool:turn-a-drawn-stroke-into-a-mark-shape"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:fade-live-ink-marks\", and give it now, fade, marks.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:fade-live-ink-marks and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields marks, shown, gone."
+  ],
+  "worked_examples": [
+    {
+      "title": "Fade live ink marks on a sample input",
+      "ask": "Run tool:fade-live-ink-marks.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:fade-live-ink-marks",
+            "input": {
+              "now": "2026-01-05T10:00:06Z",
+              "fade": {
+                "hold_ms": 3000,
+                "fade_ms": 4000
+              },
+              "marks": [
+                {
+                  "ref": "mark:circle",
+                  "created_at": "2026-01-05T10:00:00Z"
+                },
+                {
+                  "ref": "mark:old",
+                  "created_at": "2026-01-05T09:59:00Z"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields marks, shown, gone."
+    }
+  ]
+}

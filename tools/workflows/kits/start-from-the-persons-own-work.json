@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:start-from-the-persons-own-work's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:start-from-the-persons-own-work.\" Plan something for a person (their week, a training season, a launch, a trip), design something for them (a screen, a programme, a logo) or advise them on a choice (keep or sell, which offer, what to do next), starting from their own work: find what their own body of work already says on the topic (their own frameworks, philosophy, notes, recordings, past AI conversations, files and pursuits), apply each of their frameworks and principles to the request, and give the result citing their own words with where each is kept, so the person never has to point an AI to their own material.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:start-from-the-persons-own-work"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:start-from-the-persons-own-work\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:start-from-the-persons-own-work) and works through its steps in order: search, gather, apply, answer.",
+    "3. Read what each step hands back; the last step is answer."
+  ],
+  "worked_examples": [
+    {
+      "title": "Plan, design or advise from the person's own work from its first step",
+      "ask": "Run workflow:start-from-the-persons-own-work.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:start-from-the-persons-own-work",
+              "request": "<request: What you are about to plan, design, build or advise on, in the words it was asked>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:start-from-the-persons-own-work",
+      "step": "search",
+      "hands_back": "Step search answers with looked_in.",
+      "given": "The person gives: request (shown as <name> in the input)."
+    }
+  ]
+}

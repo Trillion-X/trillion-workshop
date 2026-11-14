@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:resolve-a-brand's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:resolve-a-brand with request.\" Pick the logo variant (wordmark or mark, SVG or PNG) a light or a dark page draws, from a brand kept as list rows",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:resolve-a-brand"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:resolve-a-brand\", and give it request.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:resolve-a-brand and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields family, tone, variants, chosen."
+  ],
+  "worked_examples": [
+    {
+      "title": "Resolve a brand on a sample input",
+      "ask": "Run tool:resolve-a-brand.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:resolve-a-brand",
+            "input": {
+              "request": "<request: The request JSON file: {rows, tone?, files_at?}, put where {request} is in the command>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields family, tone, variants, chosen.",
+      "given": "The person gives: request (shown as <name> in the input)."
+    }
+  ]
+}

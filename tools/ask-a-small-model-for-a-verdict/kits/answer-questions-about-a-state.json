@@ -1,0 +1,43 @@
+{
+  "draft": true,
+  "drafted_from": "tool:answer-questions-about-a-state's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:answer-questions-about-a-state with state, questions, endpoint, model, timeout_seconds.\" Ask a model several questions about one piece of state at once and get one answer for each, in the type I asked for, or a refusal if any is missing or the wrong type",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:answer-questions-about-a-state",
+    "tool:ask-a-small-model-for-a-verdict"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:answer-questions-about-a-state\", and give it state, questions, endpoint, model, timeout_seconds.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:answer-questions-about-a-state and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields model, answers."
+  ],
+  "worked_examples": [
+    {
+      "title": "Answer several typed questions about one thing in one request (runs on your computer) on a sample input",
+      "ask": "Run tool:answer-questions-about-a-state.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:answer-questions-about-a-state",
+            "input": {
+              "state": "<state: What the questions are about>",
+              "questions": {},
+              "endpoint": "<endpoint: Where the model server is, for example the address Ollama listens on>",
+              "model": "<model: string>",
+              "timeout_seconds": "<timeout_seconds: How many seconds the model server may take; a value that is not a number above zero is refused>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields model, answers.",
+      "given": "The person gives: state, endpoint, model, timeout_seconds (shown as <name> in the input)."
+    }
+  ]
+}

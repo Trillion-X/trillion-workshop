@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:make-it-once-for-everyone's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:make-it-once-for-everyone.\" Build a feature, tool, page, footer, email look or design someone asks for, in one pass: treat what they said as raw material rather than the answer (is it worthwhile, how far each constraint can go), check whether it already works by combining what exists or is built but not shown, build what is truly new as a tool or workflow everyone building on the platform gets and use it yourself, carry its deep principle into each of their pursuits and into unrelated fields, and make every surface it touches show the exact state at once.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:make-it-once-for-everyone"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:make-it-once-for-everyone\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:make-it-once-for-everyone) and works through its steps in order: raw-material, already-there, for-everyone, carry-the-principle, state-at-once, answer.",
+    "3. Read what each step hands back; the last step is answer."
+  ],
+  "worked_examples": [
+    {
+      "title": "Build a feature, tool or page once, for everyone from its first step",
+      "ask": "Run workflow:make-it-once-for-everyone.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:make-it-once-for-everyone",
+              "request": "<request: What is asked for, in the words it was asked>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:make-it-once-for-everyone",
+      "step": "raw-material",
+      "hands_back": "Step raw-material answers with asked, constraints, serves, change.",
+      "given": "The person gives: request (shown as <name> in the input)."
+    }
+  ]
+}

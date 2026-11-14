@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:make-marketplace-tiles-with-their-icons's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:make-marketplace-tiles-with-their-icons with tools, workflows, icons.\" Make tiles of my Marketplace tools and workflows, each with its own icon drawn, for a page or a film to show",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:make-marketplace-tiles-with-their-icons",
+    "tool:read-rows-as-marketplace-shelf-items"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:make-marketplace-tiles-with-their-icons\", and give it tools, workflows, icons.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-marketplace-tiles-with-their-icons and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Make tiles of my Marketplace tools and workflows, each with its own icon drawn, for a page or a film to show"
+  ],
+  "worked_examples": [
+    {
+      "title": "Make Marketplace tiles with their icons (runs on your computer) on a sample input",
+      "ask": "Run tool:make-marketplace-tiles-with-their-icons.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:make-marketplace-tiles-with-their-icons",
+            "input": {
+              "tools": "<tools: The JSON file of tool items, put where {tools} is in the command>",
+              "workflows": "<workflows: The JSON file of workflow items, put where {workflows} is in the command>",
+              "icons": "<icons: The dist/esm/icons folder of an installed lucide-react, put where {icons} is in the command>"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Make tiles of my Marketplace tools and workflows, each with its own icon drawn, for a page or a film to show",
+      "given": "The person gives: tools, workflows, icons (shown as <name> in the input)."
+    }
+  ]
+}

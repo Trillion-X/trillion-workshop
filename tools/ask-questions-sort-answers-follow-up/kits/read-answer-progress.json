@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-answer-progress's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-answer-progress with form_id, respondent_id, field_map.\" Show one person's answers to a form across every time they answered, in order, and the trend of one numeric answer",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-answer-progress"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-answer-progress\", and give it form_id, respondent_id, field_map.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-answer-progress and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields rows, trend, latest, count."
+  ],
+  "worked_examples": [
+    {
+      "title": "Answers over time on a sample input",
+      "ask": "Run tool:read-answer-progress.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-answer-progress",
+            "input": {
+              "form_id": "sample-intake",
+              "respondent_id": "respondent-1",
+              "field_map": {
+                "budget": "budget"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields rows, trend, latest, count."
+    }
+  ]
+}

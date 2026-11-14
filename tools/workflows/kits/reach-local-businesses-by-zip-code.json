@@ -1,0 +1,64 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:reach-local-businesses-by-zip-code's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:reach-local-businesses-by-zip-code.\" Find the local businesses of one kind in a zip code from the person's map data connection, score them on what their reviews say (complaints about slow quotes, a spike in new reviews in the last 90 days), write to the addresses the person keeps (by default their gmail or info@ address) from a separate sending identity with one local detail in the first line, send on Saturday, then call the same list, with replies, bounces and calls recorded and the two openings compared.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:reach-local-businesses-by-zip-code"
+  ],
+  "tools": [
+    "tool:choose-what-a-visitor-sees",
+    "tool:classify-a-record",
+    "tool:judge-against-rules",
+    "tool:keep-a-prospect",
+    "tool:list-email-sending-domains",
+    "tool:pace-sends-from-an-inbox",
+    "tool:read-an-exchange",
+    "tool:read-experiment-results",
+    "tool:read-public-web-page",
+    "tool:read-voice",
+    "tool:record-a-customer-step",
+    "tool:send-an-email-with-amazon-ses",
+    "tool:sort-bounces-and-replies",
+    "tool:start-an-exchange",
+    "tool:write-a-message-body-from-a-document"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:reach-local-businesses-by-zip-code\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:reach-local-businesses-by-zip-code) and works through its steps in order: identity, find, addresses, local-detail, versions, style, write, judge, pace, send, outcomes, record, call, call-outcomes, compare.",
+    "3. Read what each step hands back; the last step is compare."
+  ],
+  "worked_examples": [
+    {
+      "title": "Reach local businesses by zip code from its first step",
+      "ask": "Run workflow:reach-local-businesses-by-zip-code.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:reach-local-businesses-by-zip-code",
+              "zip_code": "<zip_code: The zip or postal code to look in>",
+              "category": "<category: The kind of business, as the map data names it>",
+              "items": [],
+              "from": "<from: The separate sending identity: an address on a domain that is not the person's main domain>",
+              "main_domain": "<main_domain: The person's main domain, which outreach never sends from>",
+              "time_zone": "<time_zone: The businesses' IANA time zone; Saturday and the calling hours are read in it>",
+              "product_id": "<product_id: string>",
+              "region": "<region: The Amazon SES region the sending identity is verified in>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:reach-local-businesses-by-zip-code",
+      "step": "identity",
+      "hands_back": "Step identity answers with tool, sending_domain, verified, separate_from_main.",
+      "given": "The person gives: zip_code, category, from, main_domain, time_zone, product_id, region (shown as <name> in the input)."
+    }
+  ]
+}

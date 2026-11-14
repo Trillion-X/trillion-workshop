@@ -1,0 +1,72 @@
+{
+  "draft": true,
+  "drafted_from": "tool:find-the-ink-mark-to-erase's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:find-the-ink-mark-to-erase with operations, target, point, radius.\" Find which showing ink mark lies nearest a point, so it can be erased without changing any mark",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:find-the-ink-mark-to-erase"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:find-the-ink-mark-to-erase\", and give it operations, target, point, radius.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-the-ink-mark-to-erase and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.ref contains \"one:set:0\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find the ink mark under an eraser on a sample input",
+      "ask": "Run tool:find-the-ink-mark-to-erase.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-the-ink-mark-to-erase",
+            "input": {
+              "operations": [
+                {
+                  "id": "one",
+                  "target": {
+                    "address": "poster"
+                  },
+                  "body": {
+                    "coordinate_sets": [
+                      {
+                        "points": [
+                          {
+                            "values": [
+                              0,
+                              0
+                            ]
+                          },
+                          {
+                            "values": [
+                              10,
+                              0
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              "target": {
+                "address": "poster"
+              },
+              "point": [
+                5,
+                1
+              ],
+              "radius": 2
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.ref contains \"one:set:0\"."
+    }
+  ]
+}

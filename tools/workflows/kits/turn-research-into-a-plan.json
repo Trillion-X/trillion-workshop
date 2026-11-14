@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:turn-research-into-a-plan's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:turn-research-into-a-plan.\" Research a missing or weak capability across the whole industry and turn it into a facts-only plan document: current state, sourced findings, deepest cause, the constraint stack, and what everyone still gets wrong.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:turn-research-into-a-plan"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:turn-research-into-a-plan\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:turn-research-into-a-plan) and works through its steps in order: scope, current_state, research, per_system, root_cause, constraint_stack, plan, audit.",
+    "3. Read what each step hands back; the last step is audit."
+  ],
+  "worked_examples": [
+    {
+      "title": "Turn research into a plan from its first step",
+      "ask": "Run workflow:turn-research-into-a-plan.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:turn-research-into-a-plan",
+              "capability": "<capability: What is missing or needs hardening>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:turn-research-into-a-plan",
+      "step": "scope",
+      "hands_back": "Step scope answers with capability, affects, constraints.",
+      "given": "The person gives: capability (shown as <name> in the input)."
+    }
+  ]
+}

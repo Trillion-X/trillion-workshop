@@ -1,0 +1,52 @@
+{
+  "draft": true,
+  "drafted_from": "tool:work-a-session-catalog's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:work-a-session-catalog with operation.\" Offer my sessions in a catalog: publish an entry, read what is current, change it, withdraw it, replace it, or point it to a related offer",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:work-a-session-catalog"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:work-a-session-catalog\", and give it operation.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:work-a-session-catalog and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.entry.catalog_entry_id contains \"catalog:sample\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Work a session catalog on a sample input",
+      "ask": "Run tool:work-a-session-catalog.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:work-a-session-catalog",
+            "input": {
+              "operation": "publish",
+              "entry": {
+                "catalog_entry_id": "catalog:sample",
+                "owning_group_refs": [
+                  "group:sample"
+                ],
+                "session_refs": [
+                  "session:sample"
+                ],
+                "catalog_visibility_predicate": {
+                  "policy_ref": "visibility:members"
+                },
+                "recommendation_policy_ref": "recommend:sample",
+                "cross_offer_policy": [],
+                "presentation_surface_refs": []
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.entry.catalog_entry_id contains \"catalog:sample\"."
+    }
+  ]
+}

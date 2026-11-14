@@ -1,0 +1,45 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-a-bundle-against-package-boundaries's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-a-bundle-against-package-boundaries with metafile_file, packages_root, declaration.\" Stop a build that takes a file from a package that did not declare it public: read the bundler's own list of what went into the finished bundle and report every import that reaches into a package's private files",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-a-bundle-against-package-boundaries"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-a-bundle-against-package-boundaries\", and give it metafile_file, packages_root, declaration.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-bundle-against-package-boundaries and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields ok, edges_checked, packages_reached, findings."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check my app's bundle only uses what each package made public on a sample input",
+      "ask": "Run tool:check-a-bundle-against-package-boundaries.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-a-bundle-against-package-boundaries",
+            "input": {
+              "metafile_file": "meta.json",
+              "packages_root": "packages",
+              "declaration": {
+                "file": "public-files.json",
+                "entries_at": "things",
+                "kind_at": "payload.kind",
+                "kind": "public-source",
+                "path_at": "payload.source_path"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields ok, edges_checked, packages_reached, findings."
+    }
+  ]
+}

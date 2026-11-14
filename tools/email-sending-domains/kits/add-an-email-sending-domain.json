@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:add-an-email-sending-domain's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:add-an-email-sending-domain with name.\" Add a domain my email-sending account should send from, and see the DNS records it needs",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:add-an-email-sending-domain",
+    "tool:check-an-email-sending-domain"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:add-an-email-sending-domain\", and give it name.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:add-an-email-sending-domain and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields id, name, status, records."
+  ],
+  "worked_examples": [
+    {
+      "title": "Add an email sending domain on a sample input",
+      "ask": "Run tool:add-an-email-sending-domain.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:add-an-email-sending-domain",
+            "input": {
+              "name": "<name: string>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields id, name, status, records.",
+      "given": "The person gives: name (shown as <name> in the input)."
+    }
+  ]
+}

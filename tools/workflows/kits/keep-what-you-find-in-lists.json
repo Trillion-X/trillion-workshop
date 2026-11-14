@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:keep-what-you-find-in-lists's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:keep-what-you-find-in-lists.\" Before looking anything up about the people, customers or things a person works with, read what their records already keep; then keep every fact you find (an email, a role, who someone is linked to) as rows of the person's lists, linked to each other, so it is never found again from scratch.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:keep-what-you-find-in-lists"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:keep-what-you-find-in-lists\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:keep-what-you-find-in-lists) and works through its steps in order: read, find, keep.",
+    "3. Read what each step hands back; the last step is keep."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep what you find in the person's lists from its first step",
+      "ask": "Run workflow:keep-what-you-find-in-lists.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:keep-what-you-find-in-lists",
+              "need": "<need: What you need to know, such as the emails of the founding members>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-what-you-find-in-lists",
+      "step": "read",
+      "hands_back": "Step read answers with searched, found.",
+      "given": "The person gives: need (shown as <name> in the input)."
+    }
+  ]
+}

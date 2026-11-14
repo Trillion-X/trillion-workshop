@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:export-browser-login-cookies-for-yt-dlp's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:export-browser-login-cookies-for-yt-dlp with browser, profile, output.\" Let yt-dlp download as me: export my browser's YouTube login to a cookies file",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:export-browser-login-cookies-for-yt-dlp"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:export-browser-login-cookies-for-yt-dlp\", and give it browser, profile, output.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:export-browser-login-cookies-for-yt-dlp and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Let yt-dlp download as me: export my browser's YouTube login to a cookies file"
+  ],
+  "worked_examples": [
+    {
+      "title": "Give yt-dlp my browser's YouTube login (runs on your Mac) on a sample input",
+      "ask": "Run tool:export-browser-login-cookies-for-yt-dlp.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:export-browser-login-cookies-for-yt-dlp",
+            "input": {
+              "browser": "arc",
+              "profile": "<profile: The profile's folder name under the browser's user data (Default, or Profile 1, Profile 2 ...), put where {profile} is in the command>",
+              "output": "<output: The cookies.txt to write, put where {output} is in the command; keep it outside any shared or synced folder>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Let yt-dlp download as me: export my browser's YouTube login to a cookies file",
+      "given": "The person gives: profile, output (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-a-bulk-answer-run's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-a-bulk-answer-run with job_id.\" How far is my bulk question run, and give me its answers",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-a-bulk-answer-run"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-a-bulk-answer-run\", and give it job_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-a-bulk-answer-run and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: How far is my bulk question run, and give me its answers"
+  ],
+  "worked_examples": [
+    {
+      "title": "Read how far a bulk answer run is, and its answers on a sample input",
+      "ask": "Run tool:read-a-bulk-answer-run.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-a-bulk-answer-run",
+            "input": {
+              "job_id": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "page": 0
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: How far is my bulk question run, and give me its answers"
+    }
+  ]
+}

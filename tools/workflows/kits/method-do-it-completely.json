@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:method-do-it-completely's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:method-do-it-completely.\" Hold the work to the full result on the first pass: no stopgaps, no partial versions, nothing left for later, every claim checked against what is actually there.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:method-do-it-completely"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:method-do-it-completely\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-do-it-completely) and works through its steps in order: delete, owner, smallest-change, production, proof.",
+    "3. Read what each step hands back; the last step is proof."
+  ],
+  "worked_examples": [
+    {
+      "title": "Do it completely and correctly the first time from its first step",
+      "ask": "Run workflow:method-do-it-completely.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:method-do-it-completely",
+              "request": "<request: What you are deciding, designing or building, in plain words>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:method-do-it-completely",
+      "step": "delete",
+      "hands_back": "Step delete answers with answer, checks.",
+      "given": "The person gives: request (shown as <name> in the input)."
+    }
+  ]
+}

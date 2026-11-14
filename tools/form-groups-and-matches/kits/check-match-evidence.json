@@ -1,0 +1,86 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-match-evidence's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-match-evidence with operation, contract.\" Turn people's intake answers into scoped profiles and check that a proposed match's scores cite what both people actually said before anyone is matched",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-match-evidence"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-match-evidence\", and give it operation, contract.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-match-evidence and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.status contains \"grounded\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check that a match rests on what people actually said on a sample input",
+      "ask": "Run tool:check-match-evidence.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-match-evidence",
+            "input": {
+              "operation": "build-profile",
+              "contract": {
+                "factors": [
+                  "fit"
+                ],
+                "primitives": [
+                  "goal"
+                ],
+                "scope_fields": [
+                  "goal_ref"
+                ],
+                "questions": [
+                  {
+                    "question_id": "goal",
+                    "claim_kinds": [
+                      "scope.goal"
+                    ],
+                    "primitive_ids": [
+                      "goal"
+                    ],
+                    "scope_field": "goal_ref"
+                  }
+                ],
+                "citation_requirements": {
+                  "fit": [
+                    {
+                      "side": "subject",
+                      "any_of": [
+                        "scope.goal"
+                      ]
+                    }
+                  ]
+                },
+                "authority": [
+                  {
+                    "name": "forbidden",
+                    "claim_kind": "scope.goal",
+                    "list": true
+                  }
+                ],
+                "forbidden_interventions": "forbidden"
+              },
+              "participant_ref": "ana",
+              "answer_facts": [
+                {
+                  "question_id": "goal",
+                  "answer_fact_ref": "answer:ana:goal",
+                  "value": "goal:sourdough"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.status contains \"grounded\"."
+    }
+  ]
+}

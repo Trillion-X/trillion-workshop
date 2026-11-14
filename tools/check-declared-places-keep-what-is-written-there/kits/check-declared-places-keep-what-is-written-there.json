@@ -1,0 +1,58 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-declared-places-keep-what-is-written-there's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-declared-places-keep-what-is-written-there with places_key, id_key, retention_kinds.\" Check that every place declared writable (on the promise that something keeps what is written there, such as a version history) really keeps it, and say which keep nothing",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-declared-places-keep-what-is-written-there"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-declared-places-keep-what-is-written-there\", and give it places_key, id_key, retention_kinds.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-declared-places-keep-what-is-written-there and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields passed, places_declared, examined_count, keeps_nothing_count, unresolved_count, examined, keeps_nothing, unresolved."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check the places I let my AI write in keep a history on a sample input",
+      "ask": "Run tool:check-declared-places-keep-what-is-written-there.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-declared-places-keep-what-is-written-there",
+            "input": {
+              "declaration": {
+                "rules": {
+                  "deeper": {
+                    "may_write_here": [
+                      {
+                        "path_contains": "kept"
+                      }
+                    ]
+                  }
+                }
+              },
+              "places_key": "may_write_here",
+              "id_key": "path_contains",
+              "bases": [
+                "projects"
+              ],
+              "retention_kinds": [
+                {
+                  "kind": "history",
+                  "marker": ".history"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields passed, places_declared, examined_count, keeps_nothing_count, unresolved_count, examined, keeps_nothing, unresolved."
+    }
+  ]
+}

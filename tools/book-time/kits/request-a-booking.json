@@ -1,0 +1,55 @@
+{
+  "draft": true,
+  "drafted_from": "tool:request-a-booking's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:request-a-booking with idempotency_key, start, timezone, windows, duration_minutes.\" Book someone into one of my open times and keep the booking",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:request-a-booking",
+    "tool:find-open-times"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:request-a-booking\", and give it idempotency_key, start, timezone, windows, duration_minutes.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:request-a-booking and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields already_requested, booking."
+  ],
+  "worked_examples": [
+    {
+      "title": "Request a booking on a sample input",
+      "ask": "Run tool:request-a-booking.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:request-a-booking",
+            "input": {
+              "idempotency_key": "sample-booking-1",
+              "start": "2030-08-12T14:00:00Z",
+              "timezone": "UTC",
+              "windows": [
+                {
+                  "weekday": 1,
+                  "start": "09:00",
+                  "end": "17:00"
+                }
+              ],
+              "duration_minutes": 30,
+              "title": "Sample session",
+              "attendees": [
+                {
+                  "name": "Sample Person",
+                  "email": "sample.person@example.test"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields already_requested, booking."
+    }
+  ]
+}

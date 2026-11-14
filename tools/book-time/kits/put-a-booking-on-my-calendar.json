@@ -1,0 +1,47 @@
+{
+  "draft": true,
+  "drafted_from": "tool:put-a-booking-on-my-calendar's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:put-a-booking-on-my-calendar with title, start_local, end_local, timezone.\" Make the event for a booking on my own calendar and invite the people booked",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:put-a-booking-on-my-calendar"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:put-a-booking-on-my-calendar\", and give it title, start_local, end_local, timezone.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:put-a-booking-on-my-calendar and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields status, external_event_id, html_link, video_link, error."
+  ],
+  "worked_examples": [
+    {
+      "title": "Put a booking on my calendar on a sample input",
+      "ask": "Run tool:put-a-booking-on-my-calendar.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:put-a-booking-on-my-calendar",
+            "input": {
+              "title": "Sample session",
+              "start_local": "2030-08-12T09:00",
+              "end_local": "2030-08-12T09:30",
+              "timezone": "UTC",
+              "attendees": [
+                {
+                  "email": "sample.person@example.test",
+                  "displayName": "Sample Person"
+                }
+              ],
+              "booking_id": "booking:sample-booking-1"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields status, external_event_id, html_link, video_link, error."
+    }
+  ]
+}

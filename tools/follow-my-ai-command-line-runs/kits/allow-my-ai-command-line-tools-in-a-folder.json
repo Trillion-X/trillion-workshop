@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:allow-my-ai-command-line-tools-in-a-folder's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:allow-my-ai-command-line-tools-in-a-folder with verb.\" Keep, read or clear the tools I allow my own AI command line in one workspace folder, passed as that command line's own allow-list flag",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:allow-my-ai-command-line-tools-in-a-folder"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:allow-my-ai-command-line-tools-in-a-folder\", and give it verb.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:allow-my-ai-command-line-tools-in-a-folder and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Keep, read or clear the tools I allow my own AI command line in one workspace folder, passed as that command line's own allow-list flag"
+  ],
+  "worked_examples": [
+    {
+      "title": "Allow my AI command line some tools in one folder (runs on your computer) on a sample input",
+      "ask": "Run tool:allow-my-ai-command-line-tools-in-a-folder.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:allow-my-ai-command-line-tools-in-a-folder",
+            "input": {
+              "verb": "--allow-tools"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Keep, read or clear the tools I allow my own AI command line in one workspace folder, passed as that command line's own allow-list flag"
+    }
+  ]
+}

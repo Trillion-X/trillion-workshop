@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:tell-the-person-what-waits's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:tell-the-person-what-waits.\" At the start of a chat and after finishing work, show the person in the chat everything that only they can do (sign in somewhere, approve, pay or top up, press a button on another site, answer), each with where to do it; and keep anything this AI could not do itself in their Waiting on you list, so no AI leaves the person not knowing what it needs from them.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:tell-the-person-what-waits"
+  ],
+  "tools": [
+    "tool:what-is-waiting-on-me"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:tell-the-person-what-waits\".",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:tell-the-person-what-waits) and works through its steps in order: read, add, show.",
+    "3. Read what each step hands back; the last step is show."
+  ],
+  "worked_examples": [
+    {
+      "title": "Tell the person what is waiting on them from its first step",
+      "ask": "Run workflow:tell-the-person-what-waits.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:tell-the-person-what-waits"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:tell-the-person-what-waits",
+      "step": "read",
+      "hands_back": "Step read answers with sections, said."
+    }
+  ]
+}

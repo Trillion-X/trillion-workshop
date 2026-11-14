@@ -1,0 +1,51 @@
+{
+  "draft": true,
+  "drafted_from": "tool:find-pictures-by-colour-and-likeness's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:find-pictures-by-colour-and-likeness with rows.\" Find my pictures by a colour I type or name, or find pictures like one I pick",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:find-pictures-by-colour-and-likeness"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:find-pictures-by-colour-and-likeness\", and give it rows.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-pictures-by-colour-and-likeness and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.ids contains \"sea\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find pictures by colour or likeness on a sample input",
+      "ask": "Run tool:find-pictures-by-colour-and-likeness.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-pictures-by-colour-and-likeness",
+            "input": {
+              "rows": [
+                {
+                  "id": "sea",
+                  "palette": [
+                    "#1e5aa8"
+                  ]
+                },
+                {
+                  "id": "fire",
+                  "palette": [
+                    "#d02010"
+                  ]
+                }
+              ],
+              "colour": "#1f5ba9"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.ids contains \"sea\"."
+    }
+  ]
+}

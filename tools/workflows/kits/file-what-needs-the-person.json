@@ -1,0 +1,47 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:file-what-needs-the-person's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:file-what-needs-the-person.\" Take any sentence or plan that has the person doing something, do every step the host can, weigh what is left (a last resort, or truly better from them), keep each remaining step as one fully explained row on their Waiting on you list with how they finish it and what was tried, then take them to the oldest one.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:file-what-needs-the-person"
+  ],
+  "tools": [
+    "tool:start-a-recipe-run",
+    "tool:take-me-there",
+    "tool:what-can-trillion-do",
+    "tool:what-is-waiting-on-me",
+    "tool:who-does-each-step"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:file-what-needs-the-person\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:file-what-needs-the-person) and works through its steps in order: steps, weigh, do, judge, file, tell, take-there.",
+    "3. Read what each step hands back; the last step is take-there."
+  ],
+  "worked_examples": [
+    {
+      "title": "File what needs the person from its first step",
+      "ask": "Run workflow:file-what-needs-the-person.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:file-what-needs-the-person",
+              "said": "<said: The sentence or plan that has the person doing something, as written>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:file-what-needs-the-person",
+      "step": "steps",
+      "hands_back": "Step steps answers with steps.",
+      "given": "The person gives: said (shown as <name> in the input)."
+    }
+  ]
+}

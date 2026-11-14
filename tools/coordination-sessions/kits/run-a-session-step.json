@@ -1,0 +1,75 @@
+{
+  "draft": true,
+  "drafted_from": "tool:run-a-session-step's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:run-a-session-step with operation.\" Create, change, reschedule, fork, merge, cancel, supersede, confirm, close or ask feedback of a gathering I organize, keeping who came from where",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:run-a-session-step"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:run-a-session-step\", and give it operation.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:run-a-session-step and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.session.fork_merge_provenance.operation contains \"create\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Run a session step on a sample input",
+      "ask": "Run tool:run-a-session-step.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-a-session-step",
+            "input": {
+              "operation": "create",
+              "session": {
+                "session_id": "session:sample",
+                "purpose_contract": {
+                  "key": "baking-morning",
+                  "descriptor_ref": "purpose:baking-morning"
+                },
+                "candidate_occurrences": [
+                  {
+                    "occurrence_id": "occurrence:sample:1",
+                    "starts_at": "2026-09-12T09:00",
+                    "ends_at": "2026-09-12T11:00",
+                    "time_zone": "America/Chicago",
+                    "calendar_system": "gregorian"
+                  }
+                ],
+                "candidate_places": [],
+                "candidate_modes": [
+                  {
+                    "key": "mode:in-person",
+                    "descriptor_ref": "mode:in-person"
+                  }
+                ],
+                "capacity_plan": {
+                  "capacity_policy_ref": "capacity-policy:sample",
+                  "seat_ledger_ref": "ledger:sample"
+                },
+                "participation_policy": {
+                  "visibility_predicate_ref": "visibility:members",
+                  "eligibility_predicate_ref": "eligible:members"
+                },
+                "lifecycle_state": {
+                  "key": "draft",
+                  "descriptor_ref": "lifecycle:draft"
+                },
+                "workflow_definition_ref": "workflow:sample",
+                "participant_provenance": [],
+                "preference_provenance": []
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.session.fork_merge_provenance.operation contains \"create\"."
+    }
+  ]
+}

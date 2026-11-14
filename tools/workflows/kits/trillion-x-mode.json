@@ -1,0 +1,53 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:trillion-x-mode's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:trillion-x-mode.\" Apply the full execution standard to an authorized objective, with checked evidence, scope and reusable mechanisms.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:trillion-x-mode",
+    "workflow:combine-several-ai-answers",
+    "workflow:describe-what-happens-before-naming-it",
+    "workflow:possibility-to-proof",
+    "workflow:question-the-belief-until-it-holds",
+    "workflow:turn-something-shared-into-what-you-can-use",
+    "workflow:turn-what-you-said-into-content",
+    "workflow:write-a-research-prompt-without-the-answer-in-it"
+  ],
+  "tools": [
+    "tool:start-a-recipe-run"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:trillion-x-mode\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:trillion-x-mode) and works through its steps in order: scope, reuse, design, action-lifecycle-inventory, build, proof, action-lifecycle-proof, release, learn.",
+    "3. Read what each step hands back; the last step is learn."
+  ],
+  "worked_examples": [
+    {
+      "title": "Trillion X mode from its first step",
+      "ask": "Run workflow:trillion-x-mode.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:trillion-x-mode",
+              "request": "<request: string>",
+              "scope": "<scope: string>",
+              "constraints": [],
+              "authorized_actions": []
+            }
+          }
+        }
+      },
+      "workflow": "workflow:trillion-x-mode",
+      "step": "scope",
+      "hands_back": "Step scope answers with summary, evidence, requirements.",
+      "given": "The person gives: request, scope (shown as <name> in the input)."
+    }
+  ]
+}

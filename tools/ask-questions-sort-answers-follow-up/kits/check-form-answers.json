@@ -1,0 +1,59 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-form-answers's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-form-answers with questions, answers.\" Check a person's answers to a form's questions and say which are missing or not valid, and why",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-form-answers"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-form-answers\", and give it questions, answers.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-form-answers and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.first_invalid contains \"budget\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check answers to a form on a sample input",
+      "ask": "Run tool:check-form-answers.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-form-answers",
+            "input": {
+              "questions": [
+                {
+                  "questionId": "email",
+                  "questionTypeId": "text",
+                  "label": "Email",
+                  "required": true,
+                  "validation": {
+                    "pattern": "^[^@]+@[^@]+$"
+                  }
+                },
+                {
+                  "questionId": "budget",
+                  "questionTypeId": "number",
+                  "label": "Monthly budget",
+                  "validation": {
+                    "min": 100
+                  }
+                }
+              ],
+              "answers": {
+                "email": "sam@example.com",
+                "budget": "50"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.first_invalid contains \"budget\"."
+    }
+  ]
+}

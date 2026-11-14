@@ -1,0 +1,64 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-challenge-definitions's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-challenge-definitions with definitions.\" Check my time-boxed challenge definitions are complete before I enroll anyone in them",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-challenge-definitions"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-challenge-definitions\", and give it definitions.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-challenge-definitions and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.results[1].errors contains \"engagement_window.length must be a positive number\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check my challenge definitions on a sample input",
+      "ask": "Run tool:check-challenge-definitions.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-challenge-definitions",
+            "input": {
+              "definitions": [
+                {
+                  "kind": "challenge-definition",
+                  "id": "bake-week",
+                  "label": "Bake week",
+                  "engagement_window": {
+                    "unit": "day",
+                    "length": 7
+                  },
+                  "audience_decider_ref": "rule:everyone",
+                  "feed_ref": "feed:bake-week",
+                  "enrollment_policy": {
+                    "min_score": 0.5
+                  }
+                },
+                {
+                  "kind": "challenge-definition",
+                  "id": "broken",
+                  "label": "",
+                  "engagement_window": {
+                    "unit": "day",
+                    "length": 0
+                  },
+                  "audience_decider_ref": "",
+                  "feed_ref": "feed:x",
+                  "enrollment_policy": {}
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.results[1].errors contains \"engagement_window.length must be a positive number\"."
+    }
+  ]
+}

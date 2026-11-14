@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-transcript-files-and-captions-into-timed-words's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-transcript-files-and-captions-into-timed-words with nothing more.\" Read a folder of transcript files (srt, vtt, txt, json) or a channel's downloaded YouTube captions into one timed-words shape, and check that quotes really are in the transcripts at the times they cite",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-transcript-files-and-captions-into-timed-words",
+    "tool:hear-a-link",
+    "tool:keep-channels-latest-videos-and-captions"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-transcript-files-and-captions-into-timed-words\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-transcript-files-and-captions-into-timed-words and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Read a folder of transcript files (srt, vtt, txt, json) or a channel's downloaded YouTube captions into one timed-words shape, and check that quotes really are in the transcripts at the times they cite"
+  ],
+  "worked_examples": [
+    {
+      "title": "Read transcript and caption files into timed words, and check quotes against them (runs on your computer) on a sample input",
+      "ask": "Run tool:read-transcript-files-and-captions-into-timed-words.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-transcript-files-and-captions-into-timed-words",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Read a folder of transcript files (srt, vtt, txt, json) or a channel's downloaded YouTube captions into one timed-words shape, and check that quotes really are in the transcripts at the times they cite"
+    }
+  ]
+}

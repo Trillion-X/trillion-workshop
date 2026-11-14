@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:screen-actions's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:screen-actions with nothing more.\" List the actions this computer keeps for operating its screen, what each needs, and how to describe a target",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:screen-actions"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:screen-actions\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:screen-actions and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.actions contains \"\"press\"\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "List what can be done on the person's computer screen on a sample input",
+      "ask": "Run tool:screen-actions.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:screen-actions",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The answer's $.actions contains \"\"press\"\"."
+    }
+  ]
+}

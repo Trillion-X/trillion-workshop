@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:say-if-it-is-known-new-or-rechecked's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:say-if-it-is-known-new-or-rechecked.\" Before answering any question about what exists, what was decided or what was found, read everything already held about it, then label every claim as known before (since when, linked to where), a new finding, or re-checked now (still true or changed).",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:say-if-it-is-known-new-or-rechecked"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:say-if-it-is-known-new-or-rechecked\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:say-if-it-is-known-new-or-rechecked) and works through its steps in order: read, label, write_back, answer.",
+    "3. Read what each step hands back; the last step is answer."
+  ],
+  "worked_examples": [
+    {
+      "title": "Say whether it is known, new or re-checked from its first step",
+      "ask": "Run workflow:say-if-it-is-known-new-or-rechecked.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:say-if-it-is-known-new-or-rechecked",
+              "question": "<question: The question being answered, in the words it was asked>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:say-if-it-is-known-new-or-rechecked",
+      "step": "read",
+      "hands_back": "Step read answers with looked_in.",
+      "given": "The person gives: question (shown as <name> in the input)."
+    }
+  ]
+}

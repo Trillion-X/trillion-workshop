@@ -1,0 +1,60 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:keep-pages-cited-by-answer-engines's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:keep-pages-cited-by-answer-engines.\" Every 90 days, measure every planned page × question × answer engine cell, preserve the complete answers and their exact links and context, find stale facts on those pages, refresh only facts confirmed by current sources, and run changed words through the person's rules.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:keep-pages-cited-by-answer-engines"
+  ],
+  "tools": [
+    "tool:check-against-a-persons-rules-and-verdicts",
+    "tool:measure-page-citation-coverage",
+    "tool:read-a-page-in-my-browser",
+    "tool:read-public-web-page"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:keep-pages-cited-by-answer-engines\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:keep-pages-cited-by-answer-engines) and works through its steps in order: plan-cells, ask, measure-citations, read-pages, find-current, rewrite, check-words, approve-and-publish, record.",
+    "3. Read what each step hands back; the last step is record."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep your pages cited by answer engines from its first step",
+      "ask": "Run workflow:keep-pages-cited-by-answer-engines.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:keep-pages-cited-by-answer-engines",
+              "pages": [
+                {
+                  "url": "<url: string>",
+                  "questions": [
+                    "<questions: string>"
+                  ]
+                }
+              ],
+              "answer_engines": [
+                "<answer_engines: The search address of an answer engine with {question} where the question goes>"
+              ],
+              "freshness_days": "<freshness_days: A fact dated longer ago than this many days is refreshed>",
+              "rules": [
+                {}
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-pages-cited-by-answer-engines",
+      "step": "plan-cells",
+      "hands_back": "Step plan-cells answers with cells.",
+      "given": "The person gives: url, questions, answer_engines, freshness_days (shown as <name> in the input)."
+    }
+  ]
+}

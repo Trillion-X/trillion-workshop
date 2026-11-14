@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-app-distribution's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-app-distribution with source_id, bundle_identifier.\" Check with Apple which TestFlight and App Store routes a released app can be installed from right now, without changing anything",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-app-distribution"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-app-distribution\", and give it source_id, bundle_identifier.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-app-distribution and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields source_id, observation, published."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read an app's TestFlight availability on a sample input",
+      "ask": "Run tool:read-app-distribution.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-app-distribution",
+            "input": {
+              "source_id": "native-ios",
+              "bundle_identifier": "com.example.sample",
+              "testflight_groups": []
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields source_id, observation, published."
+    }
+  ]
+}

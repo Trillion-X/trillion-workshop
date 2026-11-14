@@ -1,0 +1,60 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:make-a-brand-book-and-decks's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:make-a-brand-book-and-decks.\" Make a brand book that shows every settled brand decision with its source, a pitch deck and a sales deck in that brand, and a copy of each deck for each buyer where only the buyer's own facts change, every claim and price read from the person's own records",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:make-a-brand-book-and-decks"
+  ],
+  "tools": [
+    "tool:check-words-against-a-word-template",
+    "tool:fill-a-word-template",
+    "tool:make-a-word-template",
+    "tool:resolve-a-brand",
+    "tool:resolve-a-look",
+    "tool:turn-frames-into-slides"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:make-a-brand-book-and-decks\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:make-a-brand-book-and-decks) and works through its steps in order: brand, look, decisions, claims, brand-book, decks, per-buyer, check-public-copy, approve.",
+    "3. Read what each step hands back; the last step is approve."
+  ],
+  "worked_examples": [
+    {
+      "title": "Make a brand book and decks from its first step",
+      "ask": "Run workflow:make-a-brand-book-and-decks.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:make-a-brand-book-and-decks",
+              "brand_list": "<brand_list: The id of the person's brand list (one row per logo variant and one selection row)>",
+              "look": "<look: The look the brand wears: its record id, or a file holding the look record>",
+              "faces": [
+                {
+                  "family": "<family: string>",
+                  "file": "<file: string>"
+                }
+              ],
+              "claims": "<claims: Where the person's verified claims are kept (a list or a file): each claim's exact words, its source and whether it is verified>",
+              "price": "<price: The record or file that holds the price the decks quote>",
+              "buyers": [],
+              "out": "<out: The folder on the person's computer the PDFs and pictures go into>",
+              "copy_check": "<copy_check: The person's own command that checks the public words of a folder of documents and exits 0 only when they pass, with {out} where the folder goes>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:make-a-brand-book-and-decks",
+      "step": "brand",
+      "hands_back": "Step brand answers with family, light, dark, missing.",
+      "given": "The person gives: brand_list, look, family, file, claims, price, out, copy_check (shown as <name> in the input)."
+    }
+  ]
+}

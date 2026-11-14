@@ -1,0 +1,55 @@
+{
+  "draft": true,
+  "drafted_from": "tool:route-to-the-owner-that-answers's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:route-to-the-owner-that-answers with looking_for, owners, providers, pass_when_share_correct, confidence_bands, band_when_confidence_unknown.\" Given something I am looking for and a list of places an answer could live, say which place most likely holds it, how sure that is, and which to try next",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:route-to-the-owner-that-answers"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:route-to-the-owner-that-answers\", and give it looking_for, owners, providers, pass_when_share_correct, confidence_bands, band_when_confidence_unknown.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:route-to-the-owner-that-answers and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields looking_for, go_to, confidence, what_to_do, how, then_try."
+  ],
+  "worked_examples": [
+    {
+      "title": "Pick which of my places holds the answer to what I am looking for (runs on your computer) on a sample input",
+      "ask": "Run tool:route-to-the-owner-that-answers.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:route-to-the-owner-that-answers",
+            "input": {
+              "looking_for": "<looking_for: string>",
+              "owners": [
+                {
+                  "id": "<id: string>",
+                  "holds": "<holds: string>"
+                }
+              ],
+              "providers": [
+                {}
+              ],
+              "pass_when_share_correct": "<pass_when_share_correct: The share of the owners' own examples a model must file back under the right owner>",
+              "confidence_bands": [
+                {
+                  "at_least": "<at_least: number>",
+                  "then": "<then: string>"
+                }
+              ],
+              "band_when_confidence_unknown": "<band_when_confidence_unknown: What to do when a model answers with no probability>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields looking_for, go_to, confidence, what_to_do, how, then_try.",
+      "given": "The person gives: looking_for, id, holds, pass_when_share_correct, at_least, then, band_when_confidence_unknown (shown as <name> in the input)."
+    }
+  ]
+}

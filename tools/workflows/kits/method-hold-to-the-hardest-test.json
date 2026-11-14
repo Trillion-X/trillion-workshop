@@ -1,0 +1,49 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:method-hold-to-the-hardest-test's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:method-hold-to-the-hardest-test.\" Walk any decision, plan or claim through the method's hardest questions: attack every claim and say how each source found it out, hear every voice and name the least obvious insights, find unexplored ground that fits the person, pick the move with the most result for its time, money and attention (hiring included), let what the pursuit already makes pay for it, have the next need ready before it is asked, and show the result where the person already is.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:method-hold-to-the-hardest-test",
+    "workflow:find-unexplored-ground",
+    "workflow:research-what-everyone-says",
+    "workflow:sell-what-the-pursuit-makes",
+    "workflow:test-a-finding"
+  ],
+  "tools": [
+    "tool:choose-what-a-visitor-sees",
+    "tool:read-experiment-results",
+    "tool:who-does-each-step"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:method-hold-to-the-hardest-test\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-hold-to-the-hardest-test) and works through its steps in order: alignment, question, baseline, root, delete, rule-out, owner, combine, smallest-change, accelerate, automate, risk, naming, production, proof.",
+    "3. Read what each step hands back; the last step is proof."
+  ],
+  "worked_examples": [
+    {
+      "title": "Hold any plan to the hardest test from its first step",
+      "ask": "Run workflow:method-hold-to-the-hardest-test.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:method-hold-to-the-hardest-test",
+              "request": "<request: What you are deciding, designing or building, in plain words>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:method-hold-to-the-hardest-test",
+      "step": "alignment",
+      "hands_back": "Step alignment answers with answer, checks.",
+      "given": "The person gives: request (shown as <name> in the input)."
+    }
+  ]
+}

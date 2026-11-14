@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-google-calendar-events's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-google-calendar-events with range_start, range_end.\" Read the events in a time range from one of the person's own Google calendars and give them back as time blocks",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-google-calendar-events"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-google-calendar-events\", and give it range_start, range_end.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-google-calendar-events and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields blocks, issues, range_start, range_end, source."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read events from my Google calendar on a sample input",
+      "ask": "Run tool:read-google-calendar-events.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-google-calendar-events",
+            "input": {
+              "range_start": "2030-08-12T00:00:00Z",
+              "range_end": "2030-08-13T00:00:00Z",
+              "connection_ref": "sample-account"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields blocks, issues, range_start, range_end, source."
+    }
+  ]
+}

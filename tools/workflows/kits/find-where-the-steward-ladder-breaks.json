@@ -1,0 +1,42 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:find-where-the-steward-ladder-breaks's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:find-where-the-steward-ladder-breaks.\" When a person, team, AI or running system keeps not getting a result, walk the whole path from what it could do to a lasting result (before acting, initiative, continuity, durability, reliability, effectiveness, adapting, predicting, learning and reuse, stewardship), find the one stage that fails with evidence, aim the fix at that stage, and check the stage again once the fix is in.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:find-where-the-steward-ladder-breaks"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:find-where-the-steward-ladder-breaks\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:find-where-the-steward-ladder-breaks) and works through its steps in order: stages, failing, done.",
+    "3. Read what each step hands back; the last step is done."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find where the steward ladder breaks from its first step",
+      "ask": "Run workflow:find-where-the-steward-ladder-breaks.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:find-where-the-steward-ladder-breaks",
+              "subject": "<subject: Who or what keeps not getting the result>",
+              "outcome": "<outcome: The result it should be getting>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:find-where-the-steward-ladder-breaks",
+      "step": "stages",
+      "hands_back": "Step stages answers with stages.",
+      "given": "The person gives: subject, outcome (shown as <name> in the input)."
+    }
+  ]
+}

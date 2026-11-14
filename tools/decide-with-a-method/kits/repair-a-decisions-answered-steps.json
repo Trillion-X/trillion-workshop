@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:repair-a-decisions-answered-steps's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:repair-a-decisions-answered-steps with decision_id.\" Put back the answered steps of a decision whose case lost them, so the decision reads as answered as far as it was",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:repair-a-decisions-answered-steps"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:repair-a-decisions-answered-steps\", and give it decision_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:repair-a-decisions-answered-steps and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields case_id, repaired, answered_before, answered_after, answered_steps."
+  ],
+  "worked_examples": [
+    {
+      "title": "Put back a decision's answered steps on a sample input",
+      "ask": "Run tool:repair-a-decisions-answered-steps.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:repair-a-decisions-answered-steps",
+            "input": {
+              "decision_id": "source:c2FtcGxlOmNsYXNzLXByaWNlLTE"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields case_id, repaired, answered_before, answered_after, answered_steps."
+    }
+  ]
+}

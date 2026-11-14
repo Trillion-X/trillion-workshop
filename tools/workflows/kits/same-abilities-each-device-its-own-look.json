@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:same-abilities-each-device-its-own-look's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:same-abilities-each-device-its-own-look.\" When a person asks for something to be the same everywhere (phone, browser, computer, share sheet), make every device offer the same abilities in the same order, each drawn in that device's own native way, instead of putting one device's page inside another.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:same-abilities-each-device-its-own-look"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:same-abilities-each-device-its-own-look\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:same-abilities-each-device-its-own-look) and works through its steps in order: abilities, devices, match.",
+    "3. Read what each step hands back; the last step is match."
+  ],
+  "worked_examples": [
+    {
+      "title": "Same abilities on every device, each in its own look from its first step",
+      "ask": "Run workflow:same-abilities-each-device-its-own-look.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:same-abilities-each-device-its-own-look",
+              "feature": "<feature: string>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:same-abilities-each-device-its-own-look",
+      "step": "abilities",
+      "hands_back": "Step abilities answers with abilities.",
+      "given": "The person gives: feature (shown as <name> in the input)."
+    }
+  ]
+}

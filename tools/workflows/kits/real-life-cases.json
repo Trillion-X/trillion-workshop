@@ -1,0 +1,49 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:real-life-cases's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:real-life-cases.\" Discover real situations, people’s actual jobs and recurring friction that reveal a valuable outcome to improve.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:real-life-cases",
+    "workflow:answer-commenters-with-videos",
+    "workflow:trillion-x-mode",
+    "workflow:turn-something-shared-into-what-you-can-use"
+  ],
+  "tools": [
+    "tool:start-a-recipe-run"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:real-life-cases\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:real-life-cases) and works through its steps in order: case, evidence, opportunity.",
+    "3. Read what each step hands back; the last step is opportunity."
+  ],
+  "worked_examples": [
+    {
+      "title": "Real Life Cases Mode from its first step",
+      "ask": "Run workflow:real-life-cases.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:real-life-cases",
+              "request": "<request: string>",
+              "scope": "<scope: string>",
+              "constraints": [],
+              "authorized_actions": []
+            }
+          }
+        }
+      },
+      "workflow": "workflow:real-life-cases",
+      "step": "case",
+      "hands_back": "Step case answers with summary, evidence, requirements.",
+      "given": "The person gives: request, scope (shown as <name> in the input)."
+    }
+  ]
+}

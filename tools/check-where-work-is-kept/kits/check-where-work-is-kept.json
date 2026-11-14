@@ -1,0 +1,125 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-where-work-is-kept's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-where-work-is-kept with rules, call.\" Check whether a file an AI is about to write belongs on disk or in the person's Trillion lists, and say which list and which records:write call keeps it instead",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-where-work-is-kept"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-where-work-is-kept\", and give it rules, call.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-where-work-is-kept and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.refused[0].list contains \"list:notes\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check that an AI keeps its work in Trillion, not on disk on a sample input",
+      "ask": "Run tool:check-where-work-is-kept.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-where-work-is-kept",
+            "input": {
+              "rules": {
+                "source_repositories": [
+                  "Trillion-X/trillion-workshop",
+                  "Trillion-X/trillion-apps",
+                  "Trillion-X/trillion-rust",
+                  "Trillion-X/trillion"
+                ],
+                "scratch": ".git/scratch",
+                "new_files_refused": [
+                  {
+                    "why": "Markdown note",
+                    "pattern": "\\.md$",
+                    "except": "(^|/)(README|CONTRIBUTING|CHANGELOG|LICENSE|SECURITY|CLAUDE|AGENTS)\\.md$|(^|/)docs/",
+                    "list": "list:notes"
+                  }
+                ],
+                "list_copies": [],
+                "list_copy_sync": "read-list-view\\.mjs[^\\n]*--refresh",
+                "refused_places": [
+                  {
+                    "place": "/tmp",
+                    "why": "a temporary file, outside every repository",
+                    "list": "list:notes"
+                  },
+                  {
+                    "place": "/private/tmp",
+                    "why": "a temporary file, outside every repository",
+                    "list": "list:notes"
+                  },
+                  {
+                    "place": "/private/var/folders",
+                    "why": "a temporary file, outside every repository",
+                    "list": "list:notes"
+                  },
+                  {
+                    "place": "/var/folders",
+                    "why": "a temporary file, outside every repository",
+                    "list": "list:notes"
+                  },
+                  {
+                    "place": "~",
+                    "why": "a file in the home folder, outside every declared repository",
+                    "list": "list:notes"
+                  },
+                  {
+                    "place": "~/.ai-orchestra",
+                    "why": "the .ai-orchestra folder, which keeps work off the lists",
+                    "list": "list:notes"
+                  },
+                  {
+                    "place": "~/source-folderdata",
+                    "why": "the .ai-orchestra data folder, which keeps work off the lists",
+                    "list": "list:notes"
+                  },
+                  {
+                    "place": "~/.claude/**/memory",
+                    "why": "a Claude memory file, which only that one app reads",
+                    "list": "list:memories"
+                  },
+                  {
+                    "place": "**/.claude/**/memory",
+                    "why": "a Claude memory file, which only that one app reads",
+                    "list": "list:memories"
+                  }
+                ],
+                "lists": {
+                  "list:notes": {
+                    "type": "record:note",
+                    "value": {
+                      "name": "{name}",
+                      "text": "<what you were writing>"
+                    }
+                  },
+                  "list:memories": {
+                    "type": "record:memory",
+                    "value": {
+                      "name": "{name}",
+                      "text": "<what to remember>"
+                    }
+                  }
+                },
+                "default_list": "list:notes"
+              },
+              "call": {
+                "tool_name": "Write",
+                "tool_input": {
+                  "file_path": "/tmp/kept-plan.md"
+                }
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.refused[0].list contains \"list:notes\"."
+    }
+  ]
+}

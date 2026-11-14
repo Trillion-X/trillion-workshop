@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:make-a-sending-key-with-resend's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:make-a-sending-key-with-resend with name, keep_as.\" Make a new key that can only send email from my email-sending account, kept under its own name",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:make-a-sending-key-with-resend"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:make-a-sending-key-with-resend\", and give it name, keep_as.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-a-sending-key-with-resend and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields id, token."
+  ],
+  "worked_examples": [
+    {
+      "title": "Make a sending key with Resend on a sample input",
+      "ask": "Run tool:make-a-sending-key-with-resend.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:make-a-sending-key-with-resend",
+            "input": {
+              "name": "<name: string>",
+              "keep_as": "<keep_as: string>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields id, token.",
+      "given": "The person gives: name, keep_as (shown as <name> in the input)."
+    }
+  ]
+}

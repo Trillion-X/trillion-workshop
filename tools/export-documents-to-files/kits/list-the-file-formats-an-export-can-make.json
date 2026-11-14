@@ -1,0 +1,36 @@
+{
+  "draft": true,
+  "drafted_from": "tool:list-the-file-formats-an-export-can-make's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:list-the-file-formats-an-export-can-make with nothing more.\" Show every format a document can be exported to, with its file ending, its media type and the block kinds it writes itself",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:list-the-file-formats-an-export-can-make",
+    "tool:export-a-document-to-a-file"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:list-the-file-formats-an-export-can-make\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-the-file-formats-an-export-can-make and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.formats[*].id contains \"docx\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "List the file formats an export can be written in on a sample input",
+      "ask": "Run tool:list-the-file-formats-an-export-can-make.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-the-file-formats-an-export-can-make",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The answer's $.formats[*].id contains \"docx\"."
+    }
+  ]
+}

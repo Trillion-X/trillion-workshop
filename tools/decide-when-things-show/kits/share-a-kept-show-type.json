@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:share-a-kept-show-type's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:share-a-kept-show-type with type, principal, grant.\" Share one of my show-rule presets with people so they see Trillion that way",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:share-a-kept-show-type"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:share-a-kept-show-type\", and give it type, principal, grant.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:share-a-kept-show-type and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $ contains \"show-types-shared:sample-preset\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Share a kept show type on a sample input",
+      "ask": "Run tool:share-a-kept-show-type.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:share-a-kept-show-type",
+            "input": {
+              "type": "sample-preset",
+              "principal": "sample-account",
+              "grant": "sharing:show-types-shared:sample-preset"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $ contains \"show-types-shared:sample-preset\"."
+    }
+  ]
+}

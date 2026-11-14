@@ -1,0 +1,70 @@
+{
+  "draft": true,
+  "drafted_from": "tool:plan-what-a-sent-deal-sets-up's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:plan-what-a-sent-deal-sets-up with contract, follow_ups.\" Turn a sales contract's follow-ups into the rules and schedules that run them once the deal is sent: a paid follow-up for this deal only, a dated one at its time, with the deal's own words filled in",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:plan-what-a-sent-deal-sets-up"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:plan-what-a-sent-deal-sets-up\", and give it contract, follow_ups.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:plan-what-a-sent-deal-sets-up and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.offered contains \"welcome-email\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Plan what a sent deal sets up on a sample input",
+      "ask": "Run tool:plan-what-a-sent-deal-sets-up.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:plan-what-a-sent-deal-sets-up",
+            "input": {
+              "contract": {
+                "id": "deal-1",
+                "name": "Spring coaching"
+              },
+              "facts": {
+                "to": "client-1",
+                "address": "https://shop.example/d/deal-1"
+              },
+              "follow_ups": [
+                {
+                  "label": "Send the welcome email",
+                  "on": "paid",
+                  "then": {
+                    "tool_id": "tool:send-an-email",
+                    "input": {
+                      "to": "{to}",
+                      "subject": "Welcome to {contract_name}"
+                    }
+                  }
+                },
+                {
+                  "label": "Check in",
+                  "on": {
+                    "once_at": "2026-11-11T10:00:00Z"
+                  },
+                  "then": {
+                    "tool_id": "tool:send-an-email",
+                    "input": {
+                      "to": "{to}",
+                      "subject": "How is {contract_name} going?"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.offered contains \"welcome-email\"."
+    }
+  ]
+}

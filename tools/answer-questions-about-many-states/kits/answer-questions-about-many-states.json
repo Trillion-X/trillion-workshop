@@ -1,0 +1,56 @@
+{
+  "draft": true,
+  "drafted_from": "tool:answer-questions-about-many-states's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:answer-questions-about-many-states with model, questions, settings, states.\" Ask the same set of questions about every one of these lines or records, all at once, with my classifier model",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:answer-questions-about-many-states",
+    "tool:cancel-a-bulk-answer-run",
+    "tool:get-a-classifier-ready-on-this-mac",
+    "tool:read-a-bulk-answer-run"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:answer-questions-about-many-states\", and give it model, questions, settings, states.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:answer-questions-about-many-states and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Ask the same set of questions about every one of these lines or records, all at once, with my classifier model"
+  ],
+  "worked_examples": [
+    {
+      "title": "Answer the same questions about many states, in bulk, on this Mac on a sample input",
+      "ask": "Run tool:answer-questions-about-many-states.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:answer-questions-about-many-states",
+            "input": {
+              "model": {
+                "type": "record:classifier-model",
+                "id": "record:classifier-model:sample"
+              },
+              "questions": {
+                "type": "record:question-set",
+                "id": "record:question-set:sample"
+              },
+              "settings": {
+                "type": "record:setting",
+                "id": "record:setting:bulk-answer~sample"
+              },
+              "states": {
+                "type": "record:line",
+                "prefix": "record:line:sample~",
+                "field": "text"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Ask the same set of questions about every one of these lines or records, all at once, with my classifier model"
+    }
+  ]
+}

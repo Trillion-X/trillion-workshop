@@ -1,0 +1,60 @@
+{
+  "draft": true,
+  "drafted_from": "tool:export-a-document-to-a-file's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:export-a-document-to-a-file with document, format.\" Turn one document made of headings, words, lists, tables, graphs, calendar events and pictures into a file in the format asked for, and give the file back",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:export-a-document-to-a-file",
+    "tool:list-the-file-formats-an-export-can-make"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:export-a-document-to-a-file\", and give it document, format.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:export-a-document-to-a-file and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.text contains \"\"Acme, Inc.\",1200.5\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Save anything as a file: a list, a table, a document, a board, words or a picture, as PDF, Word, Excel, CSV, Markdown, text, web page, SVG and more on a sample input",
+      "ask": "Run tool:export-a-document-to-a-file.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:export-a-document-to-a-file",
+            "input": {
+              "document": {
+                "title": "Money",
+                "blocks": [
+                  {
+                    "kind": "table",
+                    "columns": [
+                      "Name",
+                      "Amount"
+                    ],
+                    "rows": [
+                      [
+                        "Acme, Inc.",
+                        1200.5
+                      ],
+                      [
+                        "Birch",
+                        300
+                      ]
+                    ]
+                  }
+                ]
+              },
+              "format": "csv"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.text contains \"\"Acme, Inc.\",1200.5\"."
+    }
+  ]
+}

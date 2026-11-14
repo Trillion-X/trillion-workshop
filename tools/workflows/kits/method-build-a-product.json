@@ -1,0 +1,52 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:method-build-a-product's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:method-build-a-product.\" Build a product people reach, use and pay for: research the field, name the change, find the constraints, test the design against every case, build the real running thing with its free extras, name it plainly, do it completely, and prove it with real people.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:method-build-a-product",
+    "workflow:method-build-the-real-thing",
+    "workflow:method-contact-reality",
+    "workflow:method-do-it-completely",
+    "workflow:method-find-the-constraints",
+    "workflow:method-name-question-delete",
+    "workflow:method-name-things-by-what-they-do",
+    "workflow:method-plan-only-what-helps",
+    "workflow:method-research-plan-build",
+    "workflow:method-test-a-design-against-every-case"
+  ],
+  "tools": [
+    "tool:start-a-recipe-run"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:method-build-a-product\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-build-a-product) and works through its steps in order: research-plan-build, name-question-delete, contact-reality, find-the-constraints, test-a-design-against-every-case, build-the-real-thing, name-things-by-what-they-do, do-it-completely, plan-only-what-helps.",
+    "3. Read what each step hands back; the last step is plan-only-what-helps."
+  ],
+  "worked_examples": [
+    {
+      "title": "Build a product from its first step",
+      "ask": "Run workflow:method-build-a-product.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:method-build-a-product",
+              "request": "<request: What you are deciding, designing or building, in plain words>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:method-build-a-product",
+      "step": "research-plan-build",
+      "hands_back": "Step research-plan-build answers with run_id, changed.",
+      "given": "The person gives: request (shown as <name> in the input)."
+    }
+  ]
+}

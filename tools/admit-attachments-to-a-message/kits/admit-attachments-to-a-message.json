@@ -1,0 +1,53 @@
+{
+  "draft": true,
+  "drafted_from": "tool:admit-attachments-to-a-message's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:admit-attachments-to-a-message with files.\" Decide how many of the files sent with a message are accepted, and which limit stopped the rest, in words to show the person",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:admit-attachments-to-a-message"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:admit-attachments-to-a-message\", and give it files.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:admit-attachments-to-a-message and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.banner contains \"first 2 of 3\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Admit the files sent with a message on a sample input",
+      "ask": "Run tool:admit-attachments-to-a-message.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:admit-attachments-to-a-message",
+            "input": {
+              "files": [
+                {
+                  "name": "a.png",
+                  "size": 1000
+                },
+                {
+                  "name": "b.png",
+                  "size": 1000
+                },
+                {
+                  "name": "c.png",
+                  "size": 1000
+                }
+              ],
+              "limits": {
+                "per_turn_cap": 2
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.banner contains \"first 2 of 3\"."
+    }
+  ]
+}

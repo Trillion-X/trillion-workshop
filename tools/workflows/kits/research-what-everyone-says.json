@@ -1,0 +1,44 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:research-what-everyone-says's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:research-what-everyone-says.\" Research any subject, market, product or claim the way a hardcore researcher does: read what people out there say about it (social posts, threads, forums, reviews), what the companies in the field do, what the very best do, and every complaint and gap in all of them; lay the findings side by side to see what every source agrees on and where they contradict; rebuild the answer from first principles; and finish with the least obvious insights that would change the result most.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:research-what-everyone-says",
+    "workflow:test-a-finding"
+  ],
+  "tools": [
+    "tool:read-public-web-page"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:research-what-everyone-says\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:research-what-everyone-says) and works through its steps in order: people, companies, best, complaints, synthesis, insights.",
+    "3. Read what each step hands back; the last step is insights."
+  ],
+  "worked_examples": [
+    {
+      "title": "Research what everyone says, then see past it from its first step",
+      "ask": "Run workflow:research-what-everyone-says.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:research-what-everyone-says",
+              "subject": "<subject: What to research, in plain words>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:research-what-everyone-says",
+      "step": "people",
+      "hands_back": "Step people answers with sources.",
+      "given": "The person gives: subject (shown as <name> in the input)."
+    }
+  ]
+}

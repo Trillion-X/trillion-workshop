@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:build-a-screen-spec-from-a-patch-stream's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:build-a-screen-spec-from-a-patch-stream with text.\" Build a screen made of shared parts from the lines of JSON changes an AI wrote for it, and say which lines or parts did not fit",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:build-a-screen-spec-from-a-patch-stream"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:build-a-screen-spec-from-a-patch-stream\", and give it text.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:build-a-screen-spec-from-a-patch-stream and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.spec.root contains \"main\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Build a screen from lines of changes on a sample input",
+      "ask": "Run tool:build-a-screen-spec-from-a-patch-stream.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:build-a-screen-spec-from-a-patch-stream",
+            "input": {
+              "text": "{\"op\":\"add\",\"path\":\"/root\",\"value\":\"main\"}\n{\"op\":\"add\",\"path\":\"/elements/main\",\"value\":{\"type\":\"Text\",\"props\":{\"text\":\"Hello\"}}}\n"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.spec.root contains \"main\"."
+    }
+  ]
+}

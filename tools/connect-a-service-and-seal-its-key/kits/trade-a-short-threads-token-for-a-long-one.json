@@ -1,0 +1,42 @@
+{
+  "draft": true,
+  "drafted_from": "tool:trade-a-short-threads-token-for-a-long-one's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:trade-a-short-threads-token-for-a-long-one with connection.\" Trade the connection's short-lived Threads token for its 60-day token, kept sealed in the vault",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:trade-a-short-threads-token-for-a-long-one",
+    "tool:connect-an-account-by-signing-in-to-the-service",
+    "tool:trade-a-threads-sign-in-code-for-its-short-token"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:trade-a-short-threads-token-for-a-long-one\", and give it connection.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:trade-a-short-threads-token-for-a-long-one and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $ holds the result: Trade the connection's short-lived Threads token for its 60-day token, kept sealed in the vault"
+  ],
+  "worked_examples": [
+    {
+      "title": "Trade a short-lived Threads token for a long-lived one on a sample input",
+      "ask": "Run tool:trade-a-short-threads-token-for-a-long-one.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:trade-a-short-threads-token-for-a-long-one",
+            "input": {
+              "connection": {
+                "connection_id": "<connection_id: The new connection the sign-in fills: service_connection:<vendor>:<account>, made by tool:connect-an-account-by-signing-in-to-the-service when the sign-in started>"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $ holds the result: Trade the connection's short-lived Threads token for its 60-day token, kept sealed in the vault",
+      "given": "The person gives: connection_id (shown as <name> in the input)."
+    }
+  ]
+}

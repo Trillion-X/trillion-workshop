@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-a-videos-motion-against-a-reference's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-a-videos-motion-against-a-reference with reference, render, end_card_start_seconds, bar.\" Tell me whether the video I made is as lively as the video I am copying, or holds still too long",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-a-videos-motion-against-a-reference"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-a-videos-motion-against-a-reference\", and give it reference, render, end_card_start_seconds, bar.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-videos-motion-against-a-reference and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Tell me whether the video I made is as lively as the video I am copying, or holds still too long"
+  ],
+  "worked_examples": [
+    {
+      "title": "Check that my video moves as much as the one I copied (runs on your computer) on a sample input",
+      "ask": "Run tool:check-a-videos-motion-against-a-reference.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-a-videos-motion-against-a-reference",
+            "input": {
+              "reference": "<reference: The video file being copied, put where {reference} is in the command>",
+              "render": "<render: The video file made, put where {render} is in the command>",
+              "end_card_start_seconds": "<end_card_start_seconds: The second the made video's end card begins; the piece is measured from 0 to there>",
+              "bar": "<bar: A JSON file holding a motion-bar record, put where {bar} is in the command: { kind: 'motion-bar', rows: [{ name, bar_key, measure, relation, times_reference | value }] }>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Tell me whether the video I made is as lively as the video I am copying, or holds still too long",
+      "given": "The person gives: reference, render, end_card_start_seconds, bar (shown as <name> in the input)."
+    }
+  ]
+}

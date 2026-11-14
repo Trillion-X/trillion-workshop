@@ -18,7 +18,7 @@ const nonempty = value => typeof value === 'string' && value.trim().length > 0;
 const words = value => (nonempty(value) ? value.trim().split(/\s+/).length : 0);
 const LIST = /\blist:[a-z0-9][a-z0-9-]*[a-z0-9]/g;
 const WORKFLOW = /\bworkflow:[a-z0-9][a-z0-9-]*[a-z0-9]/g;
-const TOOL = /\btool:[a-z0-9][a-z0-9.:-]*[a-z0-9]/g;
+const TOOL = /\btool:[a-z0-9][a-z0-9._:-]*[a-z0-9]/g;
 
 // Every id of one kind the item's own steps (or written definition) name, its own id left out.
 function named(body, pattern, own) {
@@ -31,6 +31,13 @@ function named(body, pattern, own) {
   visit(body);
   found.delete(own);
   return [...found].sort();
+}
+
+/** The lists, workflows and tools an item's own words and steps name, its own id left out: what its kit must carry. */
+export function itemNames({ recipe = null, tool = null }) {
+  const own = recipe?.id ?? tool?.id;
+  const body = recipe ? recipe.steps ?? recipe.definition : { job: tool?.job, description: tool?.description, invoke: tool?.invoke, input_schema: tool?.input_schema };
+  return { lists: named(body, LIST, null), workflows: named(body, WORKFLOW, own), tools: named(body, TOOL, tool ? null : own).filter(id => id !== tool?.id) };
 }
 
 function listProblems(list, at, rules) {
@@ -112,7 +119,7 @@ export function kitProblems(kit, { recipe = null, tool = null, template = KIT_TE
   const kitLists = new Set(lists.map(list => list?.list));
   for (const id of named(body, LIST, null)) if (!kitLists.has(id)) problems.push(`kit.lists must carry ${id}, which the item's steps name, with example rows.`);
 
-  for (const [part, pattern, whole] of [['workflows', WORKFLOW, /^workflow:[a-z0-9][a-z0-9-]*$/], ['tools', TOOL, /^tool:[a-z0-9][a-z0-9.:-]*$/]]) {
+  for (const [part, pattern, whole] of [['workflows', WORKFLOW, /^workflow:[a-z0-9][a-z0-9-]*$/], ['tools', TOOL, /^tool:[a-z0-9][a-z0-9._:-]*$/]]) {
     const given = kit[part];
     if (!(Array.isArray(given) && given.every(id => typeof id === 'string' && whole.test(id)))) { problems.push(`kit.${part} must list ${part === 'tools' ? '"tool:..."' : '"workflow:..."'} ids.`); continue; }
     const needed = named(body, pattern, part === 'tools' && tool ? null : own);

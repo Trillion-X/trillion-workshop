@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:share-a-decision's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:share-a-decision with decision_id.\" Make a decided decision safe to show strangers: the plain privacy pass with the person's own private terms, then a second model's re-identification check bound to the exact words",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:share-a-decision",
+    "tool:add-a-shared-situation",
+    "tool:ask-a-small-model-for-a-verdict"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:share-a-decision\", and give it decision_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:share-a-decision and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields case_id, next, facts, check, shared, send."
+  ],
+  "worked_examples": [
+    {
+      "title": "Make a decision safe to share on a sample input",
+      "ask": "Run tool:share-a-decision.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:share-a-decision",
+            "input": {
+              "decision_id": "source:c2FtcGxlOmNsYXNzLXByaWNlLTE"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields case_id, next, facts, check, shared, send."
+    }
+  ]
+}

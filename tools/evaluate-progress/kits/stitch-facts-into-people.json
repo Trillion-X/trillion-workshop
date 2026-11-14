@@ -1,0 +1,94 @@
+{
+  "draft": true,
+  "drafted_from": "tool:stitch-facts-into-people's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:stitch-facts-into-people with facts, config.\" Link records that share a key into one person and give each person the highest stage their records reach",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:stitch-facts-into-people"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:stitch-facts-into-people\", and give it facts, config.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:stitch-facts-into-people and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.ledger[0].stage contains \"customer\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Link records into people and stage each on a sample input",
+      "ask": "Run tool:stitch-facts-into-people.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:stitch-facts-into-people",
+            "input": {
+              "facts": [
+                {
+                  "member": "m-17",
+                  "visit": "first",
+                  "source": "flyer",
+                  "at": "2026-01-01"
+                },
+                {
+                  "member": "m-17",
+                  "visit": "bought",
+                  "source": "shop",
+                  "at": "2026-01-02"
+                }
+              ],
+              "config": {
+                "keyPaths": [
+                  [
+                    "member"
+                  ]
+                ],
+                "strongKeyPaths": [
+                  [
+                    "member"
+                  ]
+                ],
+                "stageRules": [
+                  {
+                    "when": {
+                      "field": [
+                        "visit"
+                      ],
+                      "equals": "first"
+                    },
+                    "stage": "visited",
+                    "rank": 1
+                  },
+                  {
+                    "when": {
+                      "field": [
+                        "visit"
+                      ],
+                      "equals": "bought"
+                    },
+                    "stage": "customer",
+                    "rank": 2
+                  }
+                ],
+                "sourcePath": [
+                  "source"
+                ],
+                "timePath": [
+                  "at"
+                ],
+                "confidence": {
+                  "identified": "known",
+                  "anonymous": "unknown"
+                }
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.ledger[0].stage contains \"customer\"."
+    }
+  ]
+}

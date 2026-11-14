@@ -1,0 +1,42 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-a-packages-declared-permissions's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-a-packages-declared-permissions with manifest.\" Say whether a package's manifest names only permissions the host has a row for, and what each permission it names lets it do",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-a-packages-declared-permissions"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-a-packages-declared-permissions\", and give it manifest.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-packages-declared-permissions and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields ok, unknown, needs, why."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check a package's declared permissions on a sample input",
+      "ask": "Run tool:check-a-packages-declared-permissions.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-a-packages-declared-permissions",
+            "input": {
+              "manifest": {
+                "permissions": [
+                  "network_egress",
+                  "read_files"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields ok, unknown, needs, why."
+    }
+  ]
+}

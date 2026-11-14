@@ -1,0 +1,99 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:make-one-piece-of-content-from-audience-to-publish's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:make-one-piece-of-content-from-audience-to-publish.\" Make one piece of content (a video, a talk, a carousel, a post or an article) the way a careful studio would, in this order and never skipping ahead to the edit: read the person's own records, their purpose record first; describe any library row that has no crossing fields yet; find what the audience is really asking, in their own words and with where they said it, and whether they would want this; cross ALL of the person's technique, principle and format rows with that goal to get cited ideas; find what the person has already said or written that answers it; choose a format by that material and by measured references; write packages (title, cover, opening) with at least 3 hook variants to test against each other, and show them to people from the audience before making anything; build the script from those filmed points first; check every word against the person's rules and verdicts; write a shoot sheet for only what is still missing; after the person films, grade the sound, colour and cut the piece through the Workshop's tools; run every check before the person sees anything; publish; and read the numbers back to learn.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:make-one-piece-of-content-from-audience-to-publish"
+  ],
+  "tools": [
+    "tool:add-captions",
+    "tool:approve-a-post",
+    "tool:assemble-a-plan-into-a-cut",
+    "tool:break-down-visits-and-sales",
+    "tool:check-a-post",
+    "tool:check-a-rendered-video",
+    "tool:check-a-videos-motion-against-a-reference",
+    "tool:check-against-a-persons-rules-and-verdicts",
+    "tool:check-words-against-a-word-template",
+    "tool:clone-speech-that-repair-could-not-fix",
+    "tool:cross-techniques-with-a-goal",
+    "tool:draft-a-post",
+    "tool:file-spoken-moments-into-topic-buckets",
+    "tool:fill-a-word-template",
+    "tool:find-beats",
+    "tool:find-scene-changes",
+    "tool:find-similar-by-meaning",
+    "tool:find-similar-to-a-vector",
+    "tool:gate-a-piece-against-a-checklist",
+    "tool:generate-a-checklist-from-my-text",
+    "tool:github:yt-dlp-yt-dlp",
+    "tool:grade-and-repair-speech-audio",
+    "tool:keep-where-you-stand",
+    "tool:list-a-drive-folder",
+    "tool:list-post-destinations",
+    "tool:make-a-lut-for-log-footage",
+    "tool:make-a-word-template",
+    "tool:make-tracked-link",
+    "tool:measure-loudness",
+    "tool:pick-cover-frame",
+    "tool:pick-the-cleanest-speech-to-clone-from",
+    "tool:read-a-page-in-my-browser",
+    "tool:read-back-repaired-speech",
+    "tool:read-public-web-page",
+    "tool:read-where-you-stand",
+    "tool:reframe-video",
+    "tool:say-why-a-technique-works",
+    "tool:send-a-post-to-x",
+    "tool:send-a-post-to-youtube",
+    "tool:set-a-post-to-go-at-its-time",
+    "tool:tell-the-person",
+    "tool:transcribe-audio-and-repair-whisper-loops"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:make-one-piece-of-content-from-audience-to-publish\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:make-one-piece-of-content-from-audience-to-publish) and works through its steps in order: read-records, describe-library, audience, idea, filmed-points, format, titles-and-hooks, pretest, script, check-words, shoot-sheet, film, sound, edit, checks, person-sees, publish, learn.",
+    "3. Read what each step hands back; the last step is learn."
+  ],
+  "worked_examples": [
+    {
+      "title": "Make one piece of content from audience to publish from its first step",
+      "ask": "Run workflow:make-one-piece-of-content-from-audience-to-publish.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:make-one-piece-of-content-from-audience-to-publish",
+              "purpose": "<purpose: The id of the person's own purpose record: their mission statement, kept verbatim in their words, and the tests that statement names, each a question a piece must answer (for example what it questions, what it tests and where it could be wrong, what others can use from it)>",
+              "goal": "<goal: The goal of the piece, in the person's words>",
+              "destinations": [
+                {
+                  "platform": "<platform: string>",
+                  "account": "<account: The person's own account on that platform>"
+                }
+              ],
+              "records": {
+                "library_kinds": [
+                  "<library_kinds: string>"
+                ],
+                "audience_kinds": [
+                  "<audience_kinds: string>"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:make-one-piece-of-content-from-audience-to-publish",
+      "step": "read-records",
+      "hands_back": "Step read-records answers with purpose, library_rows, audience_records, footage_indexes, stances_read, missing.",
+      "given": "The person gives: purpose, goal, platform, account, library_kinds, audience_kinds (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:method-test-a-design-against-every-case's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:method-test-a-design-against-every-case.\" Test a proposed design or feature from outside the box it was drawn in: the underlying building block it is one case of, what it gives for free combined with everything already there, how it holds for any number of people in completely different fields, and what breaks first.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:method-test-a-design-against-every-case"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:method-test-a-design-against-every-case\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-test-a-design-against-every-case) and works through its steps in order: outcome, baseline, root, delete, rule-out, owner, combine, smallest-change, risk, naming, production, proof.",
+    "3. Read what each step hands back; the last step is proof."
+  ],
+  "worked_examples": [
+    {
+      "title": "Test a design against every case it will meet from its first step",
+      "ask": "Run workflow:method-test-a-design-against-every-case.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:method-test-a-design-against-every-case",
+              "request": "<request: What you are deciding, designing or building, in plain words>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:method-test-a-design-against-every-case",
+      "step": "outcome",
+      "hands_back": "Step outcome answers with answer, checks.",
+      "given": "The person gives: request (shown as <name> in the input)."
+    }
+  ]
+}

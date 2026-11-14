@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:turn-a-correction-into-workflows's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:turn-a-correction-into-workflows.\" When the person corrects how you worked, name each thing you did wrong in their words, find what made you do it, apply the fix to every part of the work it touches, and keep each fix as a workflow on the marketplace (improving the one that already does that job, or saving a variation that names where it came from), so no AI on any account repeats it.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:turn-a-correction-into-workflows"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:turn-a-correction-into-workflows\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:turn-a-correction-into-workflows) and works through its steps in order: name, cause, apply, keep.",
+    "3. Read what each step hands back; the last step is keep."
+  ],
+  "worked_examples": [
+    {
+      "title": "Turn a correction into workflows from its first step",
+      "ask": "Run workflow:turn-a-correction-into-workflows.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:turn-a-correction-into-workflows",
+              "correction": "<correction: The person's words, exactly as they wrote or said them>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:turn-a-correction-into-workflows",
+      "step": "name",
+      "hands_back": "Step name answers with wrongs.",
+      "given": "The person gives: correction (shown as <name> in the input)."
+    }
+  ]
+}

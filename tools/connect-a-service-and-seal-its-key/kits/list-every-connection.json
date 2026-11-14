@@ -1,0 +1,46 @@
+{
+  "draft": true,
+  "drafted_from": "tool:list-every-connection's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:list-every-connection with nothing more.\" Show every service I can connect to Trillion and every place on my own computer it can read (notes, voice memos, messages, photos, downloads), in one list grouped by kind",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:list-every-connection",
+    "tool:look-for-the-places-on-this-computer"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:list-every-connection\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-every-connection and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields said, connections."
+  ],
+  "worked_examples": [
+    {
+      "title": "List everything I can connect, services and my computer's places together on a sample input",
+      "ask": "Run tool:list-every-connection.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-every-connection",
+            "input": {
+              "category": "Messages",
+              "looked": {
+                "sources": [
+                  {
+                    "id": "messages",
+                    "state": "found"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields said, connections."
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:build-records-to-write's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:build-records-to-write with mapping, source_type, source_prefix.\" Take records I keep in files and prepare everything to put them into my lists as records, each value with where it came from and how sure we are, in batches I can send",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:build-records-to-write"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:build-records-to-write\", and give it mapping, source_type, source_prefix.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:build-records-to-write and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields counts, pending, commands, merged, extra_links."
+  ],
+  "worked_examples": [
+    {
+      "title": "Prepare records for my lists with their sources and basis (runs on your computer) on a sample input",
+      "ask": "Run tool:build-records-to-write.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:build-records-to-write",
+            "input": {
+              "mapping": "{grant:read-a-folder}/mapping.json",
+              "source_type": "sample-source",
+              "source_prefix": "sample-source:"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields counts, pending, commands, merged, extra_links."
+    }
+  ]
+}

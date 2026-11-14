@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:publish-a-list-view-as-a-file's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:publish-a-list-view-as-a-file with read, config, out.\" Put the rows one saved view of my list shows (a changelog, the articles I marked public) into a file my website renders when it is next deployed, without opening my account to the internet",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:publish-a-list-view-as-a-file",
+    "tool:read-a-list-view"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:publish-a-list-view-as-a-file\", and give it read, config, out.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:publish-a-list-view-as-a-file and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Put the rows one saved view of my list shows (a changelog, the articles I marked public) into a file my website renders when it is next deployed, without opening my account to the internet"
+  ],
+  "worked_examples": [
+    {
+      "title": "Publish what a saved view of my list shows into a file my site shows (runs on your computer) on a sample input",
+      "ask": "Run tool:publish-a-list-view-as-a-file.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:publish-a-list-view-as-a-file",
+            "input": {
+              "read": "<read: The file holding tool:read-a-list-view's answer for the view, put where {read} is in the command>",
+              "config": "<config: The config file (view, and media when the rows' pictures are carried into the site), put where {config} is in the command>",
+              "out": "<out: The file the site renders, put where {out} is in the command>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Put the rows one saved view of my list shows (a changelog, the articles I marked public) into a file my website renders when it is next deployed, without opening my account to the internet",
+      "given": "The person gives: read, config, out (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:port-without-losing-anything's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:port-without-losing-anything.\" When a screen, app or feature moves to a new home, list everything the old one let a person do and see (actions on hover, metadata, layouts, shortcuts, data), check each in the new home, bring back what is missing there, and show the old and new side by side.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:port-without-losing-anything"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:port-without-losing-anything\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:port-without-losing-anything) and works through its steps in order: inventory, check, restore.",
+    "3. Read what each step hands back; the last step is restore."
+  ],
+  "worked_examples": [
+    {
+      "title": "Port a screen without losing anything from its first step",
+      "ask": "Run workflow:port-without-losing-anything.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:port-without-losing-anything",
+              "old": "<old: Where the old one is>",
+              "new": "<new: Where it moves to>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:port-without-losing-anything",
+      "step": "inventory",
+      "hands_back": "Step inventory answers with capabilities.",
+      "given": "The person gives: old, new (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:method-contact-reality's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:method-contact-reality.\" Hold any decision, design or test to contact with reality: assume no limit before investigating it, say what is being optimized before choosing any dimension, describe what happens before naming it, keep your opinion out of the person's words, reconcile disagreeing answers, test against real outcomes with predictions written first and counted in tiers, fold what is learned into the person's life automatically, run the platform's own copy from the marketplace, and improve the method itself every run.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:method-contact-reality",
+    "workflow:combine-several-ai-answers",
+    "workflow:describe-what-happens-before-naming-it",
+    "workflow:possibility-to-proof",
+    "workflow:question-the-belief-until-it-holds",
+    "workflow:write-a-research-prompt-without-the-answer-in-it"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:method-contact-reality\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-contact-reality) and works through its steps in order: alignment, question, root, rule-out, combine, automate, production, proof.",
+    "3. Read what each step hands back; the last step is proof."
+  ],
+  "worked_examples": [
+    {
+      "title": "Make contact with reality from its first step",
+      "ask": "Run workflow:method-contact-reality.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:method-contact-reality",
+              "request": "<request: What you are deciding, designing or building, in plain words>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:method-contact-reality",
+      "step": "alignment",
+      "hands_back": "Step alignment answers with answer, checks.",
+      "given": "The person gives: request (shown as <name> in the input)."
+    }
+  ]
+}

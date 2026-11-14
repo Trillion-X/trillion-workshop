@@ -1,0 +1,73 @@
+{
+  "draft": true,
+  "drafted_from": "tool:enroll-an-observer-in-challenges's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:enroll-an-observer-in-challenges with definitions, scores, observer_id, started_at, status_key.\" Decide which time-boxed challenges one person joins from their scores, and build their enrollment records",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:enroll-an-observer-in-challenges"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:enroll-an-observer-in-challenges\", and give it definitions, scores, observer_id, started_at, status_key.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:enroll-an-observer-in-challenges and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.enrollments[0].address contains \"challenge::bake-week::enrollment::observer-1\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Enroll someone in the challenges that fit them on a sample input",
+      "ask": "Run tool:enroll-an-observer-in-challenges.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:enroll-an-observer-in-challenges",
+            "input": {
+              "definitions": [
+                {
+                  "kind": "challenge-definition",
+                  "id": "bake-week",
+                  "label": "Bake week",
+                  "engagement_window": {
+                    "unit": "day",
+                    "length": 7
+                  },
+                  "audience_decider_ref": "rule:everyone",
+                  "feed_ref": "feed:bake-week",
+                  "enrollment_policy": {
+                    "min_score": 0.5
+                  }
+                },
+                {
+                  "kind": "challenge-definition",
+                  "id": "rye-month",
+                  "label": "Rye month",
+                  "engagement_window": {
+                    "unit": "week",
+                    "length": 4
+                  },
+                  "audience_decider_ref": "rule:rye-fans",
+                  "feed_ref": "feed:rye-month",
+                  "enrollment_policy": {
+                    "min_score": 0.5
+                  }
+                }
+              ],
+              "scores": {
+                "bake-week": 1,
+                "rye-month": 0.2
+              },
+              "observer_id": "observer-1",
+              "started_at": "2026-01-01T09:00:00Z",
+              "status_key": "started"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.enrollments[0].address contains \"challenge::bake-week::enrollment::observer-1\"."
+    }
+  ]
+}

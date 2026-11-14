@@ -1,0 +1,52 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-copy's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-copy with nothing more.\" Check text, Markdown, pages, JSON, decks and picture readings against the rules you send, and the whole set against your required lines, audience, offers and counts, and say pass, fail, held or uncertain for each unit",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-copy",
+    "tool:judge-against-rules"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-copy\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-copy and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.status contains \"failed\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check copy before a person reads it on a sample input",
+      "ask": "Run tool:check-copy.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-copy",
+            "input": {
+              "rules": [
+                {
+                  "id": "no-sparkle",
+                  "words": [
+                    "sparkle"
+                  ],
+                  "says": "No sparkle."
+                }
+              ],
+              "units": [
+                {
+                  "kind": "page",
+                  "text": "Our sparkle is the best."
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.status contains \"failed\"."
+    }
+  ]
+}

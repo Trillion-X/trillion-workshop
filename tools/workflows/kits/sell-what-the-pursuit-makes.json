@@ -1,0 +1,43 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:sell-what-the-pursuit-makes's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:sell-what-the-pursuit-makes.\" Find what a pursuit already produces along the way (footage, notes, a method, a tool, a product, a book), pick what people would pay for without bending the pursuit toward whatever sells, offer it, and test several prices so as many people as possible can get in while the money funds the pursuit.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:sell-what-the-pursuit-makes"
+  ],
+  "tools": [
+    "tool:choose-what-a-visitor-sees",
+    "tool:credit-outcomes-to-candidates",
+    "tool:read-experiment-results"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:sell-what-the-pursuit-makes\".",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:sell-what-the-pursuit-makes) and works through its steps in order: find, pick, prices.",
+    "3. Read what each step hands back; the last step is prices."
+  ],
+  "worked_examples": [
+    {
+      "title": "Sell what your pursuit already makes from its first step",
+      "ask": "Run workflow:sell-what-the-pursuit-makes.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:sell-what-the-pursuit-makes"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:sell-what-the-pursuit-makes",
+      "step": "find",
+      "hands_back": "Step find answers with byproducts."
+    }
+  ]
+}

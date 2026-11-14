@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:replace-one-piece-of-text-in-a-file's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:replace-one-piece-of-text-in-a-file with file, find, replace.\" Change one exact piece of text in a text or code file without sending the whole file: give the words to find and the words to put there",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:replace-one-piece-of-text-in-a-file"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:replace-one-piece-of-text-in-a-file\", and give it file, find, replace.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:replace-one-piece-of-text-in-a-file and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields file, bytes_before, bytes_after, replaced."
+  ],
+  "worked_examples": [
+    {
+      "title": "Change one piece of text in a file on a sample input",
+      "ask": "Run tool:replace-one-piece-of-text-in-a-file.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:replace-one-piece-of-text-in-a-file",
+            "input": {
+              "file": "notes/greeting.txt",
+              "find": "Hello world",
+              "replace": "Hello there"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields file, bytes_before, bytes_after, replaced."
+    }
+  ]
+}

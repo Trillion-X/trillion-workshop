@@ -1,0 +1,44 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:combine-several-ai-answers's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:combine-several-ai-answers.\" Take several answers to the same question (from different AIs, people or runs), pull out every claim, group the ones that mean the same thing, find the different assumption behind each disagreement, check the disputed claims against a primary source or a test, and write one answer that shows how many agree, what is still disputed and what none of them established.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:combine-several-ai-answers"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:combine-several-ai-answers\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:combine-several-ai-answers) and works through its steps in order: collect, claims, agree-and-differ, check, answer.",
+    "3. Read what each step hands back; the last step is answer."
+  ],
+  "worked_examples": [
+    {
+      "title": "Combine several answers to one question into one answer from its first step",
+      "ask": "Run workflow:combine-several-ai-answers.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:combine-several-ai-answers",
+              "question": "<question: string>",
+              "answers": [
+                "<answers: string>"
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:combine-several-ai-answers",
+      "step": "collect",
+      "hands_back": "Step collect answers with answers.",
+      "given": "The person gives: question, answers (shown as <name> in the input)."
+    }
+  ]
+}

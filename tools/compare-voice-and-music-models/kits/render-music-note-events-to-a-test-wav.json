@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:render-music-note-events-to-a-test-wav's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:render-music-note-events-to-a-test-wav with events, output.\" Hear what a music transcription model wrote down: turn its notes into a test audio file I can measure",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:render-music-note-events-to-a-test-wav"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:render-music-note-events-to-a-test-wav\", and give it events, output.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:render-music-note-events-to-a-test-wav and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Hear what a music transcription model wrote down: turn its notes into a test audio file I can measure"
+  ],
+  "worked_examples": [
+    {
+      "title": "Play back a music model's note transcription as a plain test WAV (runs on your computer) on a sample input",
+      "ask": "Run tool:render-music-note-events-to-a-test-wav.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:render-music-note-events-to-a-test-wav",
+            "input": {
+              "events": "<events: The transcription's JSON list of note events, put where {events} is in the command>",
+              "output": "<output: The WAV to write, put where {output} is in the command>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Hear what a music transcription model wrote down: turn its notes into a test audio file I can measure",
+      "given": "The person gives: events, output (shown as <name> in the input)."
+    }
+  ]
+}

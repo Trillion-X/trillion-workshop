@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:send-list-row-batches's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:send-list-row-batches with config, batches, status.\" Put the batches of rows I prepared into my lists one at a time, wait and retry when the list is busy, split a batch that is too big, and remember what was already sent",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:send-list-row-batches"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:send-list-row-batches\", and give it config, batches, status.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:send-list-row-batches and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Put the batches of rows I prepared into my lists one at a time, wait and retry when the list is busy, split a batch that is too big, and remember what was already sent"
+  ],
+  "worked_examples": [
+    {
+      "title": "Send prepared batches into my lists, resuming where I stopped (runs on your computer) on a sample input",
+      "ask": "Run tool:send-list-row-batches.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:send-list-row-batches",
+            "input": {
+              "config": "<config: The config file, put where {config} is in the command>",
+              "batches": "<batches: The folder an export wrote, put where {batches} is in the command>",
+              "status": "<status: The progress file, put where {status} is in the command>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Put the batches of rows I prepared into my lists one at a time, wait and retry when the list is busy, split a batch that is too big, and remember what was already sent",
+      "given": "The person gives: config, batches, status (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "draft": true,
+  "drafted_from": "tool:replace-several-pieces-of-text-in-files's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:replace-several-pieces-of-text-in-files with edits.\" Make several exact text changes across one or more text or code files in one go, so either every change is made or none is",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:replace-several-pieces-of-text-in-files",
+    "tool:replace-one-piece-of-text-in-a-file"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:replace-several-pieces-of-text-in-files\", and give it edits.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:replace-several-pieces-of-text-in-files and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields files, replaced."
+  ],
+  "worked_examples": [
+    {
+      "title": "Change several pieces of text in files, all or nothing on a sample input",
+      "ask": "Run tool:replace-several-pieces-of-text-in-files.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:replace-several-pieces-of-text-in-files",
+            "input": {
+              "edits": [
+                {
+                  "file": "src/a.txt",
+                  "find": "alpha",
+                  "replace": "apple"
+                },
+                {
+                  "file": "src/b.txt",
+                  "find": "beta",
+                  "replace": "banana"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields files, replaced."
+    }
+  ]
+}

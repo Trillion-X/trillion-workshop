@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:voice-the-lines-of-my-plans's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:voice-the-lines-of-my-plans with input.\" Make a voice recording of every line in my plans that a voice reads aloud, with the voice I choose, and keep each one so it is made only once",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:voice-the-lines-of-my-plans",
+    "tool:assemble-a-plan-into-a-cut"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:voice-the-lines-of-my-plans\", and give it input.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:voice-the-lines-of-my-plans and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Make a voice recording of every line in my plans that a voice reads aloud, with the voice I choose, and keep each one so it is made only once"
+  ],
+  "worked_examples": [
+    {
+      "title": "Record a voice take of every line my plans have a voice read (runs on your computer) on a sample input",
+      "ask": "Run tool:voice-the-lines-of-my-plans.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:voice-the-lines-of-my-plans",
+            "input": {
+              "input": "<input: The request file (pieces, plans {folder}, voice {folder, say}), put where {input} is>"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Make a voice recording of every line in my plans that a voice reads aloud, with the voice I choose, and keep each one so it is made only once",
+      "given": "The person gives: input (shown as <name> in the input)."
+    }
+  ]
+}

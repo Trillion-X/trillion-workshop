@@ -1,0 +1,42 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:question-the-belief-until-it-holds's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:question-the-belief-until-it-holds.\" Turn a broad belief, strategy or claim into a checked one: say the decision it would change, list every limit it assumes and where each came from, name what would show each limit is wrong, look for evidence far outside the original field, revise both the belief and the question, propose the smallest real test that could overturn it, then run the same questioning on the method itself and repeat at every level it applies to.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:question-the-belief-until-it-holds",
+    "workflow:possibility-to-proof"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:question-the-belief-until-it-holds\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:question-the-belief-until-it-holds) and works through its steps in order: state, limits, evidence, revise, test, recurse.",
+    "3. Read what each step hands back; the last step is recurse."
+  ],
+  "worked_examples": [
+    {
+      "title": "Question the belief until it holds from its first step",
+      "ask": "Run workflow:question-the-belief-until-it-holds.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:question-the-belief-until-it-holds",
+              "belief": "<belief: string>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:question-the-belief-until-it-holds",
+      "step": "state",
+      "hands_back": "Step state answers with belief, decision.",
+      "given": "The person gives: belief (shown as <name> in the input)."
+    }
+  ]
+}

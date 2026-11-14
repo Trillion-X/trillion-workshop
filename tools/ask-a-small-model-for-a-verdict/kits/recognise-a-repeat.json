@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:recognise-a-repeat's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:recognise-a-repeat with memory_file, rubric_id, excerpt, keep_characters.\" When something is flagged again, file it under the earlier flag it repeats, or as a new kind, and say how many times and in how many sessions it has come up",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:recognise-a-repeat"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:recognise-a-repeat\", and give it memory_file, rubric_id, excerpt, keep_characters.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:recognise-a-repeat and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields shape, times, sessions, first_seen, repeat."
+  ],
+  "worked_examples": [
+    {
+      "title": "Count how often the same kind of thing has been flagged, even in different words (runs on your computer) on a sample input",
+      "ask": "Run tool:recognise-a-repeat.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:recognise-a-repeat",
+            "input": {
+              "memory_file": "<memory_file: string>",
+              "rubric_id": "<rubric_id: string>",
+              "excerpt": "<excerpt: string>",
+              "keep_characters": "<keep_characters: How many characters of a new flagged text to store>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields shape, times, sessions, first_seen, repeat.",
+      "given": "The person gives: memory_file, rubric_id, excerpt, keep_characters (shown as <name> in the input)."
+    }
+  ]
+}

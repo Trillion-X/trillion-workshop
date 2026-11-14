@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-an-ai-command-line-run-as-events's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-an-ai-command-line-run-as-events with harness, stream.\" Turn the JSON event stream of my own AI command line's run into the same text, thinking, tool started, tool done and reply events, whichever command line it is",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-an-ai-command-line-run-as-events"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-an-ai-command-line-run-as-events\", and give it harness, stream.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-an-ai-command-line-run-as-events and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Turn the JSON event stream of my own AI command line's run into the same text, thinking, tool started, tool done and reply events, whichever command line it is"
+  ],
+  "worked_examples": [
+    {
+      "title": "Read a run of my AI command line as live events (runs on your computer) on a sample input",
+      "ask": "Run tool:read-an-ai-command-line-run-as-events.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-an-ai-command-line-run-as-events",
+            "input": {
+              "harness": "<harness: The command line's row id in read-data/ai-command-lines.json (claude-code, codex), put where {harness} is>",
+              "stream": "<stream: The file holding the run's event stream, put where {stream} is>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Turn the JSON event stream of my own AI command line's run into the same text, thinking, tool started, tool done and reply events, whichever command line it is",
+      "given": "The person gives: harness, stream (shown as <name> in the input)."
+    }
+  ]
+}

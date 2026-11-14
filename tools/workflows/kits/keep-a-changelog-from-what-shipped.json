@@ -1,0 +1,51 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:keep-a-changelog-from-what-shipped's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:keep-a-changelog-from-what-shipped.\" Every time the person ships, put one row for that release into the list they keep their work in: read their newest release (from the release program or git ref they name) with the subjects of the commits since the release before it, make the row with their own mapping, and write it only when the list lacks it, so a row someone already edited stays as they left it.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:keep-a-changelog-from-what-shipped"
+  ],
+  "tools": [
+    "tool:build-records-to-write",
+    "tool:put-records-into-my-account",
+    "tool:read-what-shipped"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:keep-a-changelog-from-what-shipped\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:keep-a-changelog-from-what-shipped) and works through its steps in order: read-release, make-rows, write-new-rows.",
+    "3. Read what each step hands back; the last step is write-new-rows."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep a changelog from what shipped from its first step",
+      "ask": "Run workflow:keep-a-changelog-from-what-shipped.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:keep-a-changelog-from-what-shipped",
+              "repository": "<repository: The person's repository folder>",
+              "settings": "<settings: The read-what-shipped settings file: where the newest release is read and which keys hold its commit, name and time>",
+              "staged": "<staged: The staged file of releases the reader keeps>",
+              "mapping": "<mapping: The person's build-records-to-write mapping that makes one row of their list from each staged release>",
+              "payload": "<payload: Where the built payload is written>",
+              "door_config": "<door_config: The sender config for the person's door, with keep_held true>",
+              "work": "<work: A folder for the sender's plan, result and status files>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-a-changelog-from-what-shipped",
+      "step": "read-release",
+      "hands_back": "Step read-release answers with releases, added.",
+      "given": "The person gives: repository, settings, staged, mapping, payload, door_config, work (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-corroboration's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-corroboration with checks, need.\" Check that a value has enough independent support before my AI acts on it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-corroboration"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-corroboration\", and give it checks, need.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-corroboration and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.reason contains \"required + quorum met\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check a value has enough support on a sample input",
+      "ask": "Run tool:check-corroboration.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-corroboration",
+            "input": {
+              "checks": [
+                {
+                  "name": "two-shops-agree",
+                  "passed": true,
+                  "required": true
+                },
+                {
+                  "name": "matches-last-month",
+                  "passed": true
+                },
+                {
+                  "name": "matches-the-till",
+                  "passed": false
+                }
+              ],
+              "need": 1
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.reason contains \"required + quorum met\"."
+    }
+  ]
+}

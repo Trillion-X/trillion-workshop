@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:edit-a-copy-of-a-premiere-project's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:edit-a-copy-of-a-premiere-project with plan, written.\" Make a new copy of my Premiere Pro project with these edits done on the timeline: put these files or placeholders in at these points, cut these stretches, move this part, or rebuild the sequence in a new order",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:edit-a-copy-of-a-premiere-project"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:edit-a-copy-of-a-premiere-project\", and give it plan, written.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:edit-a-copy-of-a-premiere-project and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Make a new copy of my Premiere Pro project with these edits done on the timeline: put these files or placeholders in at these points, cut these stretches, move this part, or rebuild the sequence in a new order"
+  ],
+  "worked_examples": [
+    {
+      "title": "Edit a copy of my Premiere project from a plan: insert, cut, move, reorder (runs on your computer) on a sample input",
+      "ask": "Run tool:edit-a-copy-of-a-premiere-project.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:edit-a-copy-of-a-premiere-project",
+            "input": {
+              "plan": "<plan: The plan JSON file, put where {plan} is in the command: {project, output, sequence?, timecodes?, create_tracks?, ops: [{op: insert|cut|move|assemble, ...}]}>",
+              "written": "<written: The JSON record of outputs this tool wrote (path -> BLAKE3), put where {written} is>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Make a new copy of my Premiere Pro project with these edits done on the timeline: put these files or placeholders in at these points, cut these stretches, move this part, or rebuild the sequence in a new order",
+      "given": "The person gives: plan, written (shown as <name> in the input)."
+    }
+  ]
+}

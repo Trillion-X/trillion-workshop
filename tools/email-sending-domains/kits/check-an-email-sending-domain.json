@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-an-email-sending-domain's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-an-email-sending-domain with domain_id.\" Ask my email-sending account to check a domain's DNS records again so it can be verified",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-an-email-sending-domain",
+    "tool:read-an-email-sending-domain"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-an-email-sending-domain\", and give it domain_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-an-email-sending-domain and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields id."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check an email sending domain on a sample input",
+      "ask": "Run tool:check-an-email-sending-domain.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-an-email-sending-domain",
+            "input": {
+              "domain_id": "<domain_id: string>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields id.",
+      "given": "The person gives: domain_id (shown as <name> in the input)."
+    }
+  ]
+}

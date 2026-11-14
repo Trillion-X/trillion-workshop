@@ -1,0 +1,79 @@
+{
+  "draft": true,
+  "drafted_from": "tool:plan-a-column-fill's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:plan-a-column-fill with records, id_path, field, sources.\" Fill one column of my list row by row by asking my sources in my order until one gives an answer that passes my check, paying only for the sources each row needs: tell me the next calls to run, and turn what they answered into values",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:plan-a-column-fill"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:plan-a-column-fill\", and give it records, id_path, field, sources.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:plan-a-column-fill and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.filled[0].value contains \"https://rye.example\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Fill a column by asking my sources in order on a sample input",
+      "ask": "Run tool:plan-a-column-fill.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:plan-a-column-fill",
+            "input": {
+              "records": [
+                {
+                  "id": "p1",
+                  "name": "Rye Bakery",
+                  "city": "Eastham"
+                }
+              ],
+              "id_path": [
+                "id"
+              ],
+              "field": {
+                "id": "website"
+              },
+              "sources": [
+                {
+                  "id": "guess",
+                  "tool": "tool:guess-a-website",
+                  "input": {
+                    "name": {
+                      "from": [
+                        "name"
+                      ]
+                    },
+                    "city": {
+                      "from": [
+                        "city"
+                      ]
+                    }
+                  },
+                  "answer_path": [
+                    "site"
+                  ]
+                }
+              ],
+              "attempts": [
+                {
+                  "row": "p1",
+                  "source": "guess",
+                  "answer": {
+                    "site": "https://rye.example"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.filled[0].value contains \"https://rye.example\"."
+    }
+  ]
+}

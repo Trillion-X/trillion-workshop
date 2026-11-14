@@ -1,0 +1,47 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:turn-notes-into-finished-content's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:turn-notes-into-finished-content.\" Turn a person's notes, a recording or a principle into one finished piece in one of their formats (a post, thread, newsletter, article, script or talk): start from what they have already said, tell it as a story that changes the reader, write it in their format citing their own words, check every line against their copywriting laws and aloud, and run the copy judge before the draft is kept.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:turn-notes-into-finished-content",
+    "workflow:method-tell-a-story",
+    "workflow:write-product-words"
+  ],
+  "tools": [
+    "tool:check-copy",
+    "tool:start-a-recipe-run"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:turn-notes-into-finished-content\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:turn-notes-into-finished-content) and works through its steps in order: own-work, story, write, laws, judge.",
+    "3. Read what each step hands back; the last step is judge."
+  ],
+  "worked_examples": [
+    {
+      "title": "Turn notes into finished content from its first step",
+      "ask": "Run workflow:turn-notes-into-finished-content.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:turn-notes-into-finished-content",
+              "material": "<material: The notes, words or principle the piece is made from, word for word>",
+              "format": "<format: The format it becomes (an id from the person's content formats, or its name)>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:turn-notes-into-finished-content",
+      "step": "own-work",
+      "hands_back": "Step own-work answers with their_words, found_in, angle.",
+      "given": "The person gives: material, format (shown as <name> in the input)."
+    }
+  ]
+}

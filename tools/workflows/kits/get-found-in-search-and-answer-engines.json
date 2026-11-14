@@ -1,0 +1,52 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:get-found-in-search-and-answer-engines's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:get-found-in-search-and-answer-engines.\" For the person's own site: list its pages, check the served pages, prepare changes grounded in the existing page and verified facts, then use only the destination's currently available declared tools to save a draft, preview it, publish under that destination's existing authority and read the live result back.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:get-found-in-search-and-answer-engines"
+  ],
+  "tools": [
+    "tool:check-a-page-for-search-and-answer-engines",
+    "tool:read-a-page-in-my-browser",
+    "tool:read-public-web-page",
+    "tool:tell-the-person"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:get-found-in-search-and-answer-engines\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:get-found-in-search-and-answer-engines) and works through its steps in order: list-pages, check-pages, fix-site, fix-pages, approve-and-publish, measure, record.",
+    "3. Read what each step hands back; the last step is record."
+  ],
+  "worked_examples": [
+    {
+      "title": "Get found in search and answer engines from its first step",
+      "ask": "Run workflow:get-found-in-search-and-answer-engines.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:get-found-in-search-and-answer-engines",
+              "site": "<site: The address of the person's own site, for example the home page; its sitemap is read from /sitemap.xml or from the Sitemap line of its robots.txt>",
+              "questions": [
+                "<questions: string>"
+              ],
+              "engines": [
+                "<engines: string>"
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:get-found-in-search-and-answer-engines",
+      "step": "list-pages",
+      "hands_back": "Step list-pages answers with sitemap, pages.",
+      "given": "The person gives: site, questions, engines (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:trace-to-first-principles's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:trace-to-first-principles.\" Walk a feature, decision, claim or plan back through a person's own chain of first principles (kept as a framework file whose stages run from the most basic to the change it should make in the world), saying at each stage how the thing shows up there with evidence, which stage is its deepest root, whether it reaches a real change, and which stages it skips, then what to change so it does.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:trace-to-first-principles"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:trace-to-first-principles\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:trace-to-first-principles) and works through its steps in order: read, walk, root.",
+    "3. Read what each step hands back; the last step is root."
+  ],
+  "worked_examples": [
+    {
+      "title": "Trace something back to first principles from its first step",
+      "ask": "Run workflow:trace-to-first-principles.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:trace-to-first-principles",
+              "subject": "<subject: The feature, decision, claim or plan to trace, in plain words or by its id>",
+              "framework": "<framework: The chain's framework file in the person's files (name or identity): kind framework with items in order from the most basic stage to the last>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:trace-to-first-principles",
+      "step": "read",
+      "hands_back": "Step read answers with framework_id, stages, subject.",
+      "given": "The person gives: subject, framework (shown as <name> in the input)."
+    }
+  ]
+}

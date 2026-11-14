@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:assemble-a-plan-into-a-cut's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:assemble-a-plan-into-a-cut with input, step.\" Cut my recordings into a video following my plan: which stretch of which recording goes where, lines a voice reads over a held frame, my look on every shot, my graphics laid over it, and only show me the cut once every check I name passes",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:assemble-a-plan-into-a-cut",
+    "tool:check-a-rendered-video"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:assemble-a-plan-into-a-cut\", and give it input, step.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:assemble-a-plan-into-a-cut and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Cut my recordings into a video following my plan: which stretch of which recording goes where, lines a voice reads over a held frame, my look on every shot, my graphics laid over it, and only show me the cut once every check I name passes"
+  ],
+  "worked_examples": [
+    {
+      "title": "Cut my recordings into a video from a plan (runs on your computer) on a sample input",
+      "ask": "Run tool:assemble-a-plan-into-a-cut.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:assemble-a-plan-into-a-cut",
+            "input": {
+              "input": "<input: The request file (JSON) on the person's computer, put where {input} is in the command: pieces (the piece table), plans {folder, skip} or plan_file, clips {words_folder}, looks, grades, voice {folder, word_timer, say}, face_reader {argv}, overlay_renderer, devices, checks, plan_checks, advisory_stops, folders {work, seen, specs, holds_log}, refs, rules>",
+              "step": "timeline"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Cut my recordings into a video following my plan: which stretch of which recording goes where, lines a voice reads over a held frame, my look on every shot, my graphics laid over it, and only show me the cut once every check I name passes",
+      "given": "The person gives: input (shown as <name> in the input)."
+    }
+  ]
+}

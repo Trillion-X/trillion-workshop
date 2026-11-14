@@ -1,0 +1,51 @@
+{
+  "draft": true,
+  "drafted_from": "tool:organize-saved-browser-tabs's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:organize-saved-browser-tabs with file.\" Sort the tabs a person pinned in their browser into folders by rules they wrote, keep every tab and a backup of the file, and undo it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:organize-saved-browser-tabs"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:organize-saved-browser-tabs\", and give it file.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:organize-saved-browser-tabs and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields file, applied, backup, tab_count, organized_tab_count, moved_from_outside_root, kept_in_place_count, category_counts."
+  ],
+  "worked_examples": [
+    {
+      "title": "Sort my saved browser tabs into folders by my rules on a sample input",
+      "ask": "Run tool:organize-saved-browser-tabs.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:organize-saved-browser-tabs",
+            "input": {
+              "file": "StorableSidebar.json",
+              "rules": {
+                "space": "Shop",
+                "root_folder": "Kitchen",
+                "folders": {
+                  "Reading": []
+                },
+                "fallback": [
+                  "Reading"
+                ],
+                "relevant_words": [
+                  "bread"
+                ]
+              },
+              "apply": false
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields file, applied, backup, tab_count, organized_tab_count, moved_from_outside_root, kept_in_place_count, category_counts."
+    }
+  ]
+}

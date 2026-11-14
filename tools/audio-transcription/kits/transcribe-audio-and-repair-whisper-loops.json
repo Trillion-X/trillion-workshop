@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:transcribe-audio-and-repair-whisper-loops's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:transcribe-audio-and-repair-whisper-loops with nothing more.\" Turn a recording into a transcript with a time for every word, and fix the places where the transcription got stuck repeating one sentence",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:transcribe-audio-and-repair-whisper-loops"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:transcribe-audio-and-repair-whisper-loops\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:transcribe-audio-and-repair-whisper-loops and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Turn a recording into a transcript with a time for every word, and fix the places where the transcription got stuck repeating one sentence"
+  ],
+  "worked_examples": [
+    {
+      "title": "Transcribe a recording with a time for every word, and repair Whisper loops (runs on your computer) on a sample input",
+      "ask": "Run tool:transcribe-audio-and-repair-whisper-loops.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:transcribe-audio-and-repair-whisper-loops",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Turn a recording into a transcript with a time for every word, and fix the places where the transcription got stuck repeating one sentence"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-a-cuts-speech-against-its-plan's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-a-cuts-speech-against-its-plan with input, timeline, output, kinds.\" Listen to the cut you made from my plan: how loud it is, where it goes silent too long, whether every line I planned is heard and starts and ends where it should, and show me a few frames",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-a-cuts-speech-against-its-plan",
+    "tool:assemble-a-plan-into-a-cut"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-a-cuts-speech-against-its-plan\", and give it input, timeline, output, kinds.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-cuts-speech-against-its-plan and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Listen to the cut you made from my plan: how loud it is, where it goes silent too long, whether every line I planned is heard and starts and ends where it should, and show me a few frames"
+  ],
+  "worked_examples": [
+    {
+      "title": "Hear a made cut against its plan: loudness, long silences and every spoken line (runs on your computer) on a sample input",
+      "ask": "Run tool:check-a-cuts-speech-against-its-plan.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-a-cuts-speech-against-its-plan",
+            "input": {
+              "input": "<input: The made cut, put where {input} is>",
+              "timeline": "<timeline: Its timeline.json, put where {timeline} is>",
+              "output": "<output: The folder the frames and the report (verify.json) go to, put where {output} is>",
+              "kinds": "<kinds: Comma list of the spoken segment kinds to read, put where {kinds} is>"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Listen to the cut you made from my plan: how loud it is, where it goes silent too long, whether every line I planned is heard and starts and ends where it should, and show me a few frames",
+      "given": "The person gives: input, timeline, output, kinds (shown as <name> in the input)."
+    }
+  ]
+}

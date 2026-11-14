@@ -1,0 +1,80 @@
+{
+  "draft": true,
+  "drafted_from": "tool:list-my-recordings-and-media's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:list-my-recordings-and-media with files.\" List a person's recordings and the videos, sounds and pictures their tools made or they saved, newest first, each with what is known about it, as the Media screen shows a page",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:list-my-recordings-and-media"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:list-my-recordings-and-media\", and give it files.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-my-recordings-and-media and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields rows, next_after, origin_labels, revision."
+  ],
+  "worked_examples": [
+    {
+      "title": "List my recordings and media on a sample input",
+      "ask": "Run tool:list-my-recordings-and-media.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-my-recordings-and-media",
+            "input": {
+              "files": [
+                {
+                  "name": "/Recordings/standup.webm",
+                  "identity": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                  "modified_at_ms": 1762000000000
+                },
+                {
+                  "name": "/made by tools/cut.mp4",
+                  "identity": "1f:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                  "modified_at_ms": 1762100000000
+                },
+                {
+                  "name": "/Notes/plan.md",
+                  "identity": "1f:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                  "modified_at_ms": 1762200000000
+                },
+                {
+                  "name": "/Photos/old.jpg",
+                  "identity": "1f:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+                  "modified_at_ms": 1762300000000
+                }
+              ],
+              "results": [
+                {
+                  "identity": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                  "kind": "library-entry",
+                  "value": {
+                    "name": "Standup",
+                    "media_kind": "video"
+                  }
+                },
+                {
+                  "identity": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                  "kind": "title",
+                  "value": {
+                    "title": "Monday standup"
+                  }
+                }
+              ],
+              "set_aside": [
+                {
+                  "name": "/Photos/old.jpg"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields rows, next_after, origin_labels, revision."
+    }
+  ]
+}

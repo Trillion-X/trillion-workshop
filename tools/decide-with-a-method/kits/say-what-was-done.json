@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:say-what-was-done's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:say-what-was-done with decision_id, state, what_happened.\" Tell Trillion my AI did the next step of a decision, or the exact wall it reached",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:say-what-was-done"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:say-what-was-done\", and give it decision_id, state, what_happened.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:say-what-was-done and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields case_id."
+  ],
+  "worked_examples": [
+    {
+      "title": "Say what was done about a decision on a sample input",
+      "ask": "Run tool:say-what-was-done.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:say-what-was-done",
+            "input": {
+              "decision_id": "source:c2FtcGxlOmNsYXNzLXByaWNlLTE",
+              "state": "done",
+              "what_happened": "Sent the made-up email to the sample families",
+              "by": "sample-ai"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields case_id."
+    }
+  ]
+}

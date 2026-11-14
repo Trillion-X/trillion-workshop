@@ -1,0 +1,43 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:write-product-words's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:write-product-words.\" Write copy a person will read (a tour, a what is new note, a notice, an error, a button, a landing section, an email or a post) in plain, true, warm sentences, checked by the copy judge before anyone sees it.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:write-product-words"
+  ],
+  "tools": [
+    "tool:check-copy"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:write-product-words\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:write-product-words) and works through its steps in order: facts, draft, judge.",
+    "3. Read what each step hands back; the last step is judge."
+  ],
+  "worked_examples": [
+    {
+      "title": "Write product words people enjoy reading from its first step",
+      "ask": "Run workflow:write-product-words.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:write-product-words",
+              "what": "<what: What changed or what the words are for, with every true fact you have>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:write-product-words",
+      "step": "facts",
+      "hands_back": "Step facts answers with facts, reader, gets.",
+      "given": "The person gives: what (shown as <name> in the input)."
+    }
+  ]
+}

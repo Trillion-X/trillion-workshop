@@ -1,0 +1,42 @@
+{
+  "draft": true,
+  "drafted_from": "tool:insert-frame-holds-into-a-filmcraft-project-copy's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:insert-frame-holds-into-a-filmcraft-project-copy with project, output, shots, out, shot_ids.\" Make a new copy of my FilmCraft project with each rendered correction put in at its freeze frame: a frame hold of the same clip, the overlay on the third video track, the voice and the music and sound effects on the second and third audio tracks",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:insert-frame-holds-into-a-filmcraft-project-copy"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:insert-frame-holds-into-a-filmcraft-project-copy\", and give it project, output, shots, out, shot_ids.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:insert-frame-holds-into-a-filmcraft-project-copy and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Make a new copy of my FilmCraft project with each rendered correction put in at its freeze frame: a frame hold of the same clip, the overlay on the third video track, the voice and the music and sound effects on the second and third audio tracks"
+  ],
+  "worked_examples": [
+    {
+      "title": "Insert my rendered corrections into a copy of my FilmCraft project as editable clips (runs on your computer) on a sample input",
+      "ask": "Run tool:insert-frame-holds-into-a-filmcraft-project-copy.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:insert-frame-holds-into-a-filmcraft-project-copy",
+            "input": {
+              "project": "<project: The input .fcproj, put where {project} is in the command>",
+              "output": "<output: The new .fcproj to write, put where {output} is>",
+              "shots": "<shots: The folder of <shot id>.json files, put where {shots} is>",
+              "out": "<out: The folder holding <shot id>/<shot id>-overlay-prores4444.mov, <shot id>-narrator.wav and <shot id>-sfx-music.wav, put where {out} is>",
+              "shot_ids": []
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Make a new copy of my FilmCraft project with each rendered correction put in at its freeze frame: a frame hold of the same clip, the overlay on the third video track, the voice and the music and sound effects on the second and third audio tracks",
+      "given": "The person gives: project, output, shots, out (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "draft": true,
+  "drafted_from": "tool:build-the-public-receptionist's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:build-the-public-receptionist with host, source_root, rust, repository.\" Build the public receptionist on my rented Linux server from one committed version of its source",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:build-the-public-receptionist"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:build-the-public-receptionist\", and give it host, source_root, rust, repository.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:build-the-public-receptionist and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.remote_command contains \"cargo' +1.93.0 build --locked --release --bin trillion-mcp-receptionist\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Build the public receptionist on a sample input",
+      "ask": "Run tool:build-the-public-receptionist.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:build-the-public-receptionist",
+            "input": {
+              "host": {
+                "address": "192.0.2.10",
+                "ssh_port": 22,
+                "admin_user": "builder",
+                "host_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample"
+              },
+              "dry_run": true,
+              "source_root": "/srv/receptionist/source",
+              "rust": {
+                "toolchain": "1.93.0",
+                "cargo_home": "/srv/rust/cargo",
+                "rustup_home": "/srv/rust/rustup"
+              },
+              "repository": "/home/person/trillion-rust",
+              "revision": "0123456789abcdef0123456789abcdef01234567"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.remote_command contains \"cargo' +1.93.0 build --locked --release --bin trillion-mcp-receptionist\"."
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-an-app's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-an-app with app.\" Read how an installed macOS app is hardened, from its files and the system's codesign without launching it, and say in words what falls short: Electron fuses left weak, a missing hardened runtime, forbidden entitlements, an integrity hash nothing enforces",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-an-app"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-an-app\", and give it app.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-an-app and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields app, findings, ok."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check how an installed app is hardened on a sample input",
+      "ask": "Run tool:check-an-app.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-an-app",
+            "input": {
+              "app": "{grant:read-a-folder}/Applications/Sample.app"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields app, findings, ok."
+    }
+  ]
+}

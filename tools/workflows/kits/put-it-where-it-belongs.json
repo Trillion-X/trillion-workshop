@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:put-it-where-it-belongs's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:put-it-where-it-belongs.\" Check where a part of a system lives (a file, a folder, a setting, a feature, a tool) against the job it does, move it to the owner that should hold that job, and remove it from the old place, because where something already is never shows it belongs there.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:put-it-where-it-belongs"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:put-it-where-it-belongs\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:put-it-where-it-belongs) and works through its steps in order: job, owner, move.",
+    "3. Read what each step hands back; the last step is move."
+  ],
+  "worked_examples": [
+    {
+      "title": "Put it where it belongs, not where it is from its first step",
+      "ask": "Run workflow:put-it-where-it-belongs.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:put-it-where-it-belongs",
+              "part": "<part: The part to check: a file, folder, feature, setting or tool>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:put-it-where-it-belongs",
+      "step": "job",
+      "hands_back": "Step job answers with job, needed_by.",
+      "given": "The person gives: part (shown as <name> in the input)."
+    }
+  ]
+}

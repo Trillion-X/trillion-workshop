@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:list-sending-keys-with-resend's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:list-sending-keys-with-resend with nothing more.\" See the keys my email-sending account has: each one's id, name and when it was made",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:list-sending-keys-with-resend"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:list-sending-keys-with-resend\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-sending-keys-with-resend and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields data."
+  ],
+  "worked_examples": [
+    {
+      "title": "List sending keys with Resend on a sample input",
+      "ask": "Run tool:list-sending-keys-with-resend.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-sending-keys-with-resend",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "An answer with the fields data."
+    }
+  ]
+}

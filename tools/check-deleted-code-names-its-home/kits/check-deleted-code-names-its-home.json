@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-deleted-code-names-its-home's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-deleted-code-names-its-home with range.\" Check a span of commits in a checkout: every source or test file they delete names its new home (a moved-from receipt) or the decision that retired it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-deleted-code-names-its-home"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-deleted-code-names-its-home\", and give it range.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-deleted-code-names-its-home and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields valid, judged, errors, unread."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check that the code my commits delete names where it went on a sample input",
+      "ask": "Run tool:check-deleted-code-names-its-home.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-deleted-code-names-its-home",
+            "input": {
+              "range": "<range: Two commits of the granted checkout, <from>..<to>>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields valid, judged, errors, unread.",
+      "given": "The person gives: range (shown as <name> in the input)."
+    }
+  ]
+}

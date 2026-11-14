@@ -1,0 +1,80 @@
+{
+  "draft": true,
+  "drafted_from": "tool:regroup-a-tree's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:regroup-a-tree with operation, records.\" Move folders under other folders by their names, the way I describe it, or turn a tree of folders into groups",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:regroup-a-tree",
+    "tool:change-my-groups"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:regroup-a-tree\", and give it operation, records.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:regroup-a-tree and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.created[0] contains \"baking\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Regroup a folder tree the way I say, or turn it into groups on a sample input",
+      "ask": "Run tool:regroup-a-tree.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:regroup-a-tree",
+            "input": {
+              "operation": "nest-by-intent",
+              "records": [
+                {
+                  "node_id": "root",
+                  "parent_id": null,
+                  "role": "container",
+                  "title": ""
+                },
+                {
+                  "node_id": "bread",
+                  "parent_id": "root",
+                  "ordinal": 0,
+                  "role": "group",
+                  "title": "Bread"
+                },
+                {
+                  "node_id": "cakes",
+                  "parent_id": "root",
+                  "ordinal": 1,
+                  "role": "group",
+                  "title": "Cakes"
+                }
+              ],
+              "intent": {
+                "nest": [
+                  {
+                    "parent_title": "Baking",
+                    "child_titles": [
+                      "Bread",
+                      "Cakes"
+                    ]
+                  }
+                ],
+                "materialize_missing_parents": {
+                  "kind": "list"
+                },
+                "scope": {
+                  "root_node_id": "root"
+                }
+              },
+              "new_parent_ids": {
+                "Baking": "baking"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.created[0] contains \"baking\"."
+    }
+  ]
+}

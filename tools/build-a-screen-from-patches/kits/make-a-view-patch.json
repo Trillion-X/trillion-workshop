@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:make-a-view-patch's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:make-a-view-patch with previous, next.\" Turn the next JSON answer a screen will read into just the changes from the answer it already holds, when that is smaller",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:make-a-view-patch"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:make-a-view-patch\", and give it previous, next.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-a-view-patch and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.text contains \"\"a\":2\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Send only what changed in an answer on a sample input",
+      "ask": "Run tool:make-a-view-patch.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:make-a-view-patch",
+            "input": {
+              "previous": "{\"a\":1}",
+              "next": "{\"a\":2}"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.text contains \"\"a\":2\"."
+    }
+  ]
+}

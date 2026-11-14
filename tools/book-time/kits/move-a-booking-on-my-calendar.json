@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:move-a-booking-on-my-calendar's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:move-a-booking-on-my-calendar with event_id, start, end.\" Move a booking's event on my own calendar to a new time",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:move-a-booking-on-my-calendar",
+    "tool:put-a-booking-on-my-calendar"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:move-a-booking-on-my-calendar\", and give it event_id, start, end.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:move-a-booking-on-my-calendar and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields status, error."
+  ],
+  "worked_examples": [
+    {
+      "title": "Move a booking on my calendar on a sample input",
+      "ask": "Run tool:move-a-booking-on-my-calendar.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:move-a-booking-on-my-calendar",
+            "input": {
+              "event_id": "sampleevent1",
+              "start": "2030-08-12T10:00:00Z",
+              "end": "2030-08-12T10:30:00Z"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields status, error."
+    }
+  ]
+}

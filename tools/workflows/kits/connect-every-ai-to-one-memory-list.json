@@ -1,0 +1,53 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:connect-every-ai-to-one-memory-list's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:connect-every-ai-to-one-memory-list.\" Make one list in the person's account the original of every AI's memories: any AI on a computer, in a web chat, on a phone or in a service writes a memory there and reads it back, and a folder on the person's computer holds a copy for apps that read only files.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:connect-every-ai-to-one-memory-list",
+    "workflow:set-up-your-checks"
+  ],
+  "tools": [
+    "tool:change-a-document-row",
+    "tool:check-against-a-persons-rules-and-verdicts",
+    "tool:read-documents-as-list-rows"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:connect-every-ai-to-one-memory-list\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:connect-every-ai-to-one-memory-list) and works through its steps in order: the-list, computer-door, harness-hooks, web-chats, phones, services, copies, proof.",
+    "3. Read what each step hands back; the last step is proof."
+  ],
+  "worked_examples": [
+    {
+      "title": "Connect every AI to one memory list from its first step",
+      "ask": "Run workflow:connect-every-ai-to-one-memory-list.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:connect-every-ai-to-one-memory-list",
+              "list_id": "<list_id: The id of the memory list, lowercase words and dashes, for example ai-memories>",
+              "copy_root": "<copy_root: The full absolute path of a folder on the person's computer that holds the copy folder, for example the notes folder in their home folder, written out in full>",
+              "copy_folder": "<copy_folder: The copy folder under copy_root, starting with /, for example /memories>",
+              "public_door": "<public_door: The account's public MCP address that web and phone apps connect to, as the account's own connect screen shows it, ending in /mcp>",
+              "local_door": "<local_door: The address of the account's door on the person's own computer, ending in /mcp, for example http://127.0.0.1:8788/mcp>",
+              "ais": [
+                "<ais: string>"
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:connect-every-ai-to-one-memory-list",
+      "step": "the-list",
+      "hands_back": "Step the-list answers with list_id, row_type, original, read_back.",
+      "given": "The person gives: list_id, copy_root, copy_folder, public_door, local_door, ais (shown as <name> in the input)."
+    }
+  ]
+}

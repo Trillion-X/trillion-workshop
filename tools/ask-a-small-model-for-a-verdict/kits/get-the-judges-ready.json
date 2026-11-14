@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:get-the-judges-ready's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:get-the-judges-ready with rubrics_file, remember_file.\" Calibrate every question in my rubrics file against the models I can ask, once and away from the moment of asking, and keep which model passed each so a later question is one fast call",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:get-the-judges-ready"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:get-the-judges-ready\", and give it rubrics_file, remember_file.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:get-the-judges-ready and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields outcomes."
+  ],
+  "worked_examples": [
+    {
+      "title": "Test my models on my questions ahead of time and keep who passed (runs on your computer) on a sample input",
+      "ask": "Run tool:get-the-judges-ready.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:get-the-judges-ready",
+            "input": {
+              "rubrics_file": "<rubrics_file: string>",
+              "remember_file": "<remember_file: string>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields outcomes.",
+      "given": "The person gives: rubrics_file, remember_file (shown as <name> in the input)."
+    }
+  ]
+}

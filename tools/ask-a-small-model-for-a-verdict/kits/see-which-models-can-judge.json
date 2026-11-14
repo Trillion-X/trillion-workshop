@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:see-which-models-can-judge's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:see-which-models-can-judge with rubrics_file.\" Score every model I can ask against every question in my rubrics file and show who agrees with the answers I already know, how long it took and who did not answer",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:see-which-models-can-judge"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:see-which-models-can-judge\", and give it rubrics_file.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-which-models-can-judge and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Score every model I can ask against every question in my rubrics file and show who agrees with the answers I already know, how long it took and who did not answer"
+  ],
+  "worked_examples": [
+    {
+      "title": "See which of my models can judge each of my questions (runs on your computer) on a sample input",
+      "ask": "Run tool:see-which-models-can-judge.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:see-which-models-can-judge",
+            "input": {
+              "rubrics_file": "<rubrics_file: string>"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Score every model I can ask against every question in my rubrics file and show who agrees with the answers I already know, how long it took and who did not answer",
+      "given": "The person gives: rubrics_file (shown as <name> in the input)."
+    }
+  ]
+}

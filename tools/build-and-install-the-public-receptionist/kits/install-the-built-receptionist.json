@@ -1,0 +1,46 @@
+{
+  "draft": true,
+  "drafted_from": "tool:install-the-built-receptionist's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:install-the-built-receptionist with host, source_root, commit.\" Install the receptionist I just built on my rented Linux server so it can run",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:install-the-built-receptionist"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:install-the-built-receptionist\", and give it host, source_root, commit.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:install-the-built-receptionist and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.remote_command contains \"chmod 0755\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Install the built receptionist on a sample input",
+      "ask": "Run tool:install-the-built-receptionist.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:install-the-built-receptionist",
+            "input": {
+              "host": {
+                "address": "192.0.2.10",
+                "ssh_port": 22,
+                "admin_user": "builder",
+                "host_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample"
+              },
+              "dry_run": true,
+              "source_root": "/srv/receptionist/source",
+              "commit": "0123456789abcdef0123456789abcdef01234567",
+              "install_path": "/srv/receptionist/bin/trillion-mcp-receptionist"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.remote_command contains \"chmod 0755\"."
+    }
+  ]
+}

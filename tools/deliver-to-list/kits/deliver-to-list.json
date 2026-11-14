@@ -1,0 +1,44 @@
+{
+  "draft": true,
+  "drafted_from": "tool:deliver-to-list's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:deliver-to-list with config, row_type, to, subject, text, kind, idempotencyKey.\" Write a message (to, subject, text, kind) as one row of a list in my records, with the row's id set to an idempotency key, so a send again writes the same row",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:deliver-to-list"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:deliver-to-list\", and give it config, row_type, to, subject, text, kind, idempotencyKey.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:deliver-to-list and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields sent, unknown."
+  ],
+  "worked_examples": [
+    {
+      "title": "Write a message as a row of a list on a sample input",
+      "ask": "Run tool:deliver-to-list.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:deliver-to-list",
+            "input": {
+              "config": "<config: The person's door config file (the read-a-list-view README describes its keys)>",
+              "row_type": "<row_type: The list's row type; the row's type is record:<row_type>>",
+              "to": "<to: The address the message is for>",
+              "subject": "<subject: string>",
+              "text": "<text: string>",
+              "kind": "<kind: What the message is, such as sign-in-code>",
+              "idempotencyKey": "<idempotencyKey: The row's id; the same key writes the same row>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields sent, unknown.",
+      "given": "The person gives: config, row_type, to, subject, text, kind, idempotencyKey (shown as <name> in the input)."
+    }
+  ]
+}

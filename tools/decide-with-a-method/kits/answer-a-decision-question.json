@@ -1,0 +1,58 @@
+{
+  "draft": true,
+  "drafted_from": "tool:answer-a-decision-question's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:answer-a-decision-question with decision_id, step_id.\" Answer the question my method is asking about a decision, with each of its checks; change an answer I gave before with its reason, which reopens a decided decision; confirm an answer that must be asked again, or add the judge's verdicts to an answer I have; or bring in an answer from another of my decisions",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:answer-a-decision-question",
+    "tool:make-the-decision"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:answer-a-decision-question\", and give it decision_id, step_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:answer-a-decision-question and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields case_id."
+  ],
+  "worked_examples": [
+    {
+      "title": "Answer a decision's question on a sample input",
+      "ask": "Run tool:answer-a-decision-question.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:answer-a-decision-question",
+            "input": {
+              "decision_id": "source:c2FtcGxlOmNsYXNzLXByaWNlLTE",
+              "step_id": "scope",
+              "answer": {
+                "decision_context": {
+                  "worth_weighing": true,
+                  "compare_existing": false
+                },
+                "omission_reasons": {
+                  "compare_existing": {
+                    "searched": [
+                      "the sample price list"
+                    ],
+                    "evidence_refs": [
+                      "e1"
+                    ]
+                  }
+                },
+                "evidence_refs": [
+                  "e1"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields case_id."
+    }
+  ]
+}

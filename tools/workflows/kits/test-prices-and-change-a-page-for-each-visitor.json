@@ -1,0 +1,56 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:test-prices-and-change-a-page-for-each-visitor's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:test-prices-and-change-a-page-for-each-visitor.\" Run price tests and A/B tests on a page for as long as the person wants, and change the page per visitor: write each part of the page that changes (a price card, a headline, an offer) as a set of versions with a rule that picks one, make a tracked link for every place the page is shared so each visit says where it came from, show each visitor one version and keep showing them the same one, credit sign-ups and payments to the version each person saw, and every week read which version did best by source.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:test-prices-and-change-a-page-for-each-visitor"
+  ],
+  "tools": [
+    "tool:break-down-visits-and-sales",
+    "tool:choose-what-a-visitor-sees",
+    "tool:credit-outcomes-to-candidates",
+    "tool:make-tracked-link",
+    "tool:read-experiment-results",
+    "tool:tell-the-person"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:test-prices-and-change-a-page-for-each-visitor\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:test-prices-and-change-a-page-for-each-visitor) and works through its steps in order: write-the-versions, make-tracked-links, choose-per-visitor, credit-and-read, next-round.",
+    "3. Read what each step hands back; the last step is next-round."
+  ],
+  "worked_examples": [
+    {
+      "title": "Test prices and change a page for each visitor from its first step",
+      "ask": "Run workflow:test-prices-and-change-a-page-for-each-visitor.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:test-prices-and-change-a-page-for-each-visitor",
+              "page": "<page: The address of the page that changes>",
+              "parts": [
+                {
+                  "part": "<part: The part of the page that changes, for example the plan card or the headline>",
+                  "versions": [
+                    "<versions: string>"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:test-prices-and-change-a-page-for-each-visitor",
+      "step": "write-the-versions",
+      "hands_back": "Step write-the-versions answers with surfaces, approved.",
+      "given": "The person gives: page, part, versions (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:put-a-households-money-in-order's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:put-a-households-money-in-order.\" Take a vague request about money (a bill past due, a debt, a refund owed, a subscription not used, money given or owed) and put the household's money in order without further instruction: find or open the pursuit, inventory every bill, debt, subscription, refund and transfer from the person's own sources, reconcile them against money that has moved, research each item's rules with sources, decide the order in a decision case, draft every message, file every movement for the person's approval, act only on approvals with readbacks, follow each item until a readback closes it, and repeat monthly.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:put-a-households-money-in-order",
+    "workflow:file-what-needs-the-person"
+  ],
+  "tools": [
+    "tool:check-copy",
+    "tool:drive-the-screen",
+    "tool:google-account-create_draft",
+    "tool:google-account-find_my_mailbox",
+    "tool:google-account-list_new_mail",
+    "tool:google-account-read_a_mail",
+    "tool:google-account-read_mail_headers",
+    "tool:google-account-search_mail",
+    "tool:google-account-send_draft",
+    "tool:judge-against-rules",
+    "tool:list-a-drive-folder",
+    "tool:list-connected-drives",
+    "tool:list-every-connection",
+    "tool:match-rows",
+    "tool:post-balanced-entries",
+    "tool:read-documents-as-list-rows",
+    "tool:read-namespace-documents-as-list-rows",
+    "tool:read-public-web-page",
+    "tool:reconcile-lines-against-a-statement",
+    "tool:search-everything-in-a-small-container",
+    "tool:search-the-public-web",
+    "tool:send-a-message-on-this-mac",
+    "tool:set-fields-by-rules",
+    "tool:start-a-decision",
+    "tool:what-is-waiting-on-me"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:put-a-households-money-in-order\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:put-a-households-money-in-order) and works through its steps in order: open-the-pursuit, connect-the-sources, inventory-every-item, reconcile-against-cash, research-each-item, decide-the-order, draft-every-message, file-every-movement-for-approval, act-on-approved-rows, follow-up-until-closed, repeat-monthly.",
+    "3. Read what each step hands back; the last step is repeat-monthly."
+  ],
+  "worked_examples": [
+    {
+      "title": "Put a household's money in order from a vague request from its first step",
+      "ask": "Run workflow:put-a-households-money-in-order.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:put-a-households-money-in-order",
+              "request": "<request: The person's words, as said>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:put-a-households-money-in-order",
+      "step": "open-the-pursuit",
+      "hands_back": "Step open-the-pursuit answers with pursuit_id, task_list_id, trunk_id, branch_ids, reused, consent_found.",
+      "given": "The person gives: request (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-a-page-for-search-and-answer-engines's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-a-page-for-search-and-answer-engines with url.\" Read one public page the way a search or answer engine does, from the HTML it is served with and no script run, and say which checks it passes, which it misses and how to fix each",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-a-page-for-search-and-answer-engines"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-a-page-for-search-and-answer-engines\", and give it url.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-page-for-search-and-answer-engines and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.final_url contains \"example.com\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check a page for search and answer engines on a sample input",
+      "ask": "Run tool:check-a-page-for-search-and-answer-engines.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-a-page-for-search-and-answer-engines",
+            "input": {
+              "url": "https://example.com"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.final_url contains \"example.com\"."
+    }
+  ]
+}

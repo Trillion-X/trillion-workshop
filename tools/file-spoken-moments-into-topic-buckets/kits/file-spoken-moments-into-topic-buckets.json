@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:file-spoken-moments-into-topic-buckets's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:file-spoken-moments-into-topic-buckets with nothing more.\" Go through my transcribed recordings, cut them into moments, file each moment under topics, and tell me which moments stand alone as a usable idea, story or lesson",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:file-spoken-moments-into-topic-buckets"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:file-spoken-moments-into-topic-buckets\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:file-spoken-moments-into-topic-buckets and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Go through my transcribed recordings, cut them into moments, file each moment under topics, and tell me which moments stand alone as a usable idea, story or lesson"
+  ],
+  "worked_examples": [
+    {
+      "title": "Sort what I said in my recordings into topics and rate how usable each moment is (runs on your computer) on a sample input",
+      "ask": "Run tool:file-spoken-moments-into-topic-buckets.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:file-spoken-moments-into-topic-buckets",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Go through my transcribed recordings, cut them into moments, file each moment under topics, and tell me which moments stand alone as a usable idea, story or lesson"
+    }
+  ]
+}

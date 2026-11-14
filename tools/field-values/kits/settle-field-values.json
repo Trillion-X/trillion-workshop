@@ -1,0 +1,57 @@
+{
+  "draft": true,
+  "drafted_from": "tool:settle-field-values's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:settle-field-values with offers.\" Say which value each field of my rows keeps when several sources offered one, who set it, and why the others lost: what I typed beats my rules, my rules beat imported sources, and those beat an AI's guess, with the AI's reasons and confidence kept beside its value",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:settle-field-values"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:settle-field-values\", and give it offers.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:settle-field-values and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.cells[0].value contains \"1-10\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Say who set each value and which source wins on a sample input",
+      "ask": "Run tool:settle-field-values.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:settle-field-values",
+            "input": {
+              "offers": [
+                {
+                  "row": "c1",
+                  "field": "size",
+                  "value": "51-200",
+                  "source": {
+                    "kind": "ai",
+                    "by": "guesser",
+                    "confidence": "high"
+                  }
+                },
+                {
+                  "row": "c1",
+                  "field": "size",
+                  "value": "1-10",
+                  "source": {
+                    "kind": "person",
+                    "by": "owner"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.cells[0].value contains \"1-10\"."
+    }
+  ]
+}

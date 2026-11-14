@@ -1,0 +1,77 @@
+{
+  "draft": true,
+  "drafted_from": "tool:score-answers-and-pick-segment's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:score-answers-and-pick-segment with answers, score_rules, segment_rules.\" Score a lead's or respondent's answers with your rules and pick their segment and follow-up, such as hot, warm or not ready",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:score-answers-and-pick-segment"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:score-answers-and-pick-segment\", and give it answers, score_rules, segment_rules.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:score-answers-and-pick-segment and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.segment.segmentId contains \"ready-to-buy\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Score answers and pick a segment on a sample input",
+      "ask": "Run tool:score-answers-and-pick-segment.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:score-answers-and-pick-segment",
+            "input": {
+              "answers": {
+                "budget": 2500,
+                "timeline": "this month",
+                "role": "owner"
+              },
+              "score_rules": [
+                {
+                  "readKey": "budget",
+                  "points": 40,
+                  "match": {
+                    "gte": 1000
+                  }
+                },
+                {
+                  "readKey": "timeline",
+                  "match": {
+                    "value_map": {
+                      "this month": 30,
+                      "this quarter": 15
+                    }
+                  }
+                },
+                {
+                  "readKey": "role",
+                  "points": 20,
+                  "match": {
+                    "equals": "owner"
+                  }
+                }
+              ],
+              "segment_rules": [
+                {
+                  "min": 0,
+                  "segmentId": "not-ready"
+                },
+                {
+                  "min": 60,
+                  "segmentId": "ready-to-buy",
+                  "nextStep": "Book a call today"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.segment.segmentId contains \"ready-to-buy\"."
+    }
+  ]
+}

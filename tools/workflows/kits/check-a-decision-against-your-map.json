@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:check-a-decision-against-your-map's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:check-a-decision-against-your-map.\" Weigh one decision against the person's own map of their life: which areas of that map it serves or lives and which it leaves out or takes from, especially the ones none of their pursuits touch, and keep the result on the decision.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:check-a-decision-against-your-map"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:check-a-decision-against-your-map\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:check-a-decision-against-your-map) and works through its steps in order: read, weigh, keep.",
+    "3. Read what each step hands back; the last step is keep."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check a decision against your map from its first step",
+      "ask": "Run workflow:check-a-decision-against-your-map.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:check-a-decision-against-your-map",
+              "case_id": "<case_id: The decision's case_id>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:check-a-decision-against-your-map",
+      "step": "read",
+      "hands_back": "Step read answers with case_id, map_areas, missing.",
+      "given": "The person gives: case_id (shown as <name> in the input)."
+    }
+  ]
+}

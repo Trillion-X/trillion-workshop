@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:method-find-the-constraints's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:method-find-the-constraints.\" List every hard constraint a design must meet and find the ones that, combined, rule out every lazy answer, so the right design is the only one left standing.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:method-find-the-constraints"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:method-find-the-constraints\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-find-the-constraints) and works through its steps in order: outcome, question, baseline, rule-out, owner, smallest-change, automate, risk, production, proof.",
+    "3. Read what each step hands back; the last step is proof."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find the constraints that leave one right answer from its first step",
+      "ask": "Run workflow:method-find-the-constraints.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:method-find-the-constraints",
+              "request": "<request: What you are deciding, designing or building, in plain words>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:method-find-the-constraints",
+      "step": "outcome",
+      "hands_back": "Step outcome answers with answer, checks.",
+      "given": "The person gives: request (shown as <name> in the input)."
+    }
+  ]
+}

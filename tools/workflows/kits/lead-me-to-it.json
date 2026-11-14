@@ -1,0 +1,42 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:lead-me-to-it's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:lead-me-to-it.\" Pick the one thing that moves the person's pursuits most right now, do every part of it an AI can, then take the person to it: open that exact thing on their screen and walk them through only the part that needs them, pointing at its own control.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:lead-me-to-it"
+  ],
+  "tools": [
+    "tool:take-me-there",
+    "tool:what-is-waiting-on-me"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:lead-me-to-it\".",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:lead-me-to-it) and works through its steps in order: pick, do-the-ai-part, arrange, take-there.",
+    "3. Read what each step hands back; the last step is take-there."
+  ],
+  "worked_examples": [
+    {
+      "title": "Lead the person to the one thing that needs them from its first step",
+      "ask": "Run workflow:lead-me-to-it.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:lead-me-to-it"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:lead-me-to-it",
+      "step": "pick",
+      "hands_back": "Step pick answers with thing, why, needs_the_person."
+    }
+  ]
+}

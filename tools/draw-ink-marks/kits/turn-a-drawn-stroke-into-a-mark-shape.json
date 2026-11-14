@@ -1,0 +1,56 @@
+{
+  "draft": true,
+  "drafted_from": "tool:turn-a-drawn-stroke-into-a-mark-shape's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:turn-a-drawn-stroke-into-a-mark-shape with tool, points.\" Turn the points of a drawn stroke into the shape the chosen drawing tool makes: freehand ink, a straight line, a rectangle or a regular polygon or ellipse",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:turn-a-drawn-stroke-into-a-mark-shape"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:turn-a-drawn-stroke-into-a-mark-shape\", and give it tool, points.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:turn-a-drawn-stroke-into-a-mark-shape and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.points[1] contains \"10\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Turn a drawn stroke into a line, rectangle or polygon on a sample input",
+      "ask": "Run tool:turn-a-drawn-stroke-into-a-mark-shape.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:turn-a-drawn-stroke-into-a-mark-shape",
+            "input": {
+              "tool": {
+                "id": "line",
+                "mapper": {
+                  "kind": "segment"
+                }
+              },
+              "points": [
+                [
+                  0,
+                  0
+                ],
+                [
+                  3,
+                  9
+                ],
+                [
+                  10,
+                  4
+                ]
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.points[1] contains \"10\"."
+    }
+  ]
+}

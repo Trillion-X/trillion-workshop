@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:make-quiz-questions's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:make-quiz-questions with text.\" Make fill-in-the-blank quiz questions from a piece of text, such as notes, a lesson or an article",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:make-quiz-questions"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:make-quiz-questions\", and give it text.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-quiz-questions and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.questions[0].answer contains \"Pacific\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Make quiz questions from text on a sample input",
+      "ask": "Run tool:make-quiz-questions.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:make-quiz-questions",
+            "input": {
+              "text": "The Pacific Ocean is the largest and deepest ocean on Earth. Photosynthesis converts sunlight into chemical energy in plants."
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.questions[0].answer contains \"Pacific\"."
+    }
+  ]
+}

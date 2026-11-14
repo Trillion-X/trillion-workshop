@@ -1,0 +1,42 @@
+{
+  "draft": true,
+  "drafted_from": "tool:submit-form-answers's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:submit-form-answers with form_id, respondent_id, answers.\" Check a person's answers against a saved form and, when they are all valid, record them with the score and segment they earn and any follow-up the form hands to its owner",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:submit-form-answers"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:submit-form-answers\", and give it form_id, respondent_id, answers.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:submit-form-answers and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields accepted, first_invalid, questions, decision, follow_up, written, action_requests, ignored."
+  ],
+  "worked_examples": [
+    {
+      "title": "Submit answers to a form on a sample input",
+      "ask": "Run tool:submit-form-answers.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:submit-form-answers",
+            "input": {
+              "form_id": "sample-intake",
+              "respondent_id": "respondent-1",
+              "answers": {
+                "budget": "2000"
+              },
+              "answered_at": "2026-06-26T00:00:00Z"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields accepted, first_invalid, questions, decision, follow_up, written, action_requests, ignored."
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:keep-a-show-type's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:keep-a-show-type with type.\" Keep a preset of show rules I can switch on, or change one I keep",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-a-show-type"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:keep-a-show-type\", and give it type.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-a-show-type and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $ contains \"sample-preset\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep a show type on a sample input",
+      "ask": "Run tool:keep-a-show-type.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-a-show-type",
+            "input": {
+              "type": {
+                "id": "sample-preset",
+                "label": "Sample preset",
+                "rules": []
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $ contains \"sample-preset\"."
+    }
+  ]
+}

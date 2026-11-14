@@ -1,0 +1,48 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:grow-on-reddit-without-selling-first's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:grow-on-reddit-without-selling-first.\" Warm up a Reddit account before the first post: choose 5 subreddits by which ones Google ranks for the person's keywords, read and record every subreddit's rules, reach at least 10 karma, then spend 3 days leaving one useful comment a day in each of the 5 subreddits (15 comments, no self-promotion), and only then write and publish a post.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:grow-on-reddit-without-selling-first"
+  ],
+  "tools": [
+    "tool:read-a-page-in-my-browser",
+    "tool:tell-the-person"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:grow-on-reddit-without-selling-first\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:grow-on-reddit-without-selling-first) and works through its steps in order: account, search, pick, rules, karma, day-1-comments, day-2-comments, day-3-comments, tally, reread-rules, draft-post, approve-post, post-it.",
+    "3. Read what each step hands back; the last step is post-it."
+  ],
+  "worked_examples": [
+    {
+      "title": "Grow on Reddit without selling for the first 3 days from its first step",
+      "ask": "Run workflow:grow-on-reddit-without-selling-first.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:grow-on-reddit-without-selling-first",
+              "product": "<product: The person's product, in one plain sentence: what it is and who it is for>",
+              "keywords": [
+                "<keywords: string>"
+              ],
+              "reddit_username": "<reddit_username: The person's Reddit username, without u/ in front>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:grow-on-reddit-without-selling-first",
+      "step": "account",
+      "hands_back": "Step account answers with profile_url, username_seen, karma.",
+      "given": "The person gives: product, keywords, reddit_username (shown as <name> in the input)."
+    }
+  ]
+}

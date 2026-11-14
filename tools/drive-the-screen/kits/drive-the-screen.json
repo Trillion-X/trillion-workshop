@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "tool:drive-the-screen's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:drive-the-screen with action.\" Click, press, type, scroll, drag or use keys on the person's computer, finding the target by what it is called and checking afterwards what really changed",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:drive-the-screen",
+    "tool:screen-actions"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:drive-the-screen\", and give it action.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:drive-the-screen and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.dispatched contains \"false\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Operate the person's computer screen on a sample input",
+      "ask": "Run tool:drive-the-screen.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:drive-the-screen",
+            "input": {
+              "action": "key",
+              "keys": "escape",
+              "app": "Finder",
+              "dry_run": true
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.dispatched contains \"false\"."
+    }
+  ]
+}

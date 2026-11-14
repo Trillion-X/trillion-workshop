@@ -1,0 +1,49 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-claims-are-grounded's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-claims-are-grounded with claims, retrieved_source_ids.\" Check that each claim in an answer cites a source that was really read, and none cites one that was not",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-claims-are-grounded"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-claims-are-grounded\", and give it claims, retrieved_source_ids.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-claims-are-grounded and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.per_claim[0].reason contains \"cited 1 retrieved source\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check claims cite sources that were read on a sample input",
+      "ask": "Run tool:check-claims-are-grounded.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-claims-are-grounded",
+            "input": {
+              "claims": [
+                {
+                  "text": "The shop opens at six.",
+                  "citations": [
+                    {
+                      "source_id": "opening-times"
+                    }
+                  ]
+                }
+              ],
+              "retrieved_source_ids": [
+                "opening-times"
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.per_claim[0].reason contains \"cited 1 retrieved source\"."
+    }
+  ]
+}

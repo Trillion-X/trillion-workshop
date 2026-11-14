@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:method-tell-a-story's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:method-tell-a-story.\" Write a story, post, article, newsletter, talk or video script as one real change: before, what changed and after; the part of the person that was stuck and the distinction that dissolves; every stage of the journey in their awareness; the enhancers its length carries in priority order; and a draft that shows each of them.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:method-tell-a-story"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:method-tell-a-story\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-tell-a-story) and works through its steps in order: story-change, story-awareness, story-journey, story-enhancers, story-draft.",
+    "3. Read what each step hands back; the last step is story-draft."
+  ],
+  "worked_examples": [
+    {
+      "title": "Tell a story that changes the reader from its first step",
+      "ask": "Run workflow:method-tell-a-story.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:method-tell-a-story",
+              "request": "<request: What you are deciding, designing or building, in plain words>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:method-tell-a-story",
+      "step": "story-change",
+      "hands_back": "Step story-change answers with answer, checks.",
+      "given": "The person gives: request (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "draft": true,
+  "drafted_from": "tool:fit-pass-and-fail-lines's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:fit-pass-and-fail-lines with bad, good, fail_good_share_at_most, pass_bad_share_at_most, usable_when.\" From a model's scores on lines I already ruled good or bad, work out where it should pass a line, where it should fail one, and whether its question can tell my good lines from my bad ones at all",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:fit-pass-and-fail-lines"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:fit-pass-and-fail-lines\", and give it bad, good, fail_good_share_at_most, pass_bad_share_at_most, usable_when.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:fit-pass-and-fail-lines and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields status, t_pass, t_fail, auc, reason."
+  ],
+  "worked_examples": [
+    {
+      "title": "Fit a pass line and a fail line for a model's yes or no, from lines I already ruled on (runs on your computer) on a sample input",
+      "ask": "Run tool:fit-pass-and-fail-lines.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:fit-pass-and-fail-lines",
+            "input": {
+              "bad": [],
+              "good": [],
+              "fail_good_share_at_most": "<fail_good_share_at_most: number>",
+              "pass_bad_share_at_most": "<pass_bad_share_at_most: number>",
+              "usable_when": {
+                "auc_at_least": "<auc_at_least: number>",
+                "bad_lines_at_least": "<bad_lines_at_least: integer>",
+                "recall_at_least": "<recall_at_least: number>",
+                "good_failed_or_uncertain_at_most": "<good_failed_or_uncertain_at_most: number>"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields status, t_pass, t_fail, auc, reason.",
+      "given": "The person gives: fail_good_share_at_most, pass_bad_share_at_most, auc_at_least, bad_lines_at_least, recall_at_least, good_failed_or_uncertain_at_most (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "draft": true,
+  "drafted_from": "tool:lay-out-a-calendar-view's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:lay-out-a-calendar-view with blocks, views.\" Arrange time blocks for a day, week, month or agenda view, split overlapping blocks into columns, and name the blocks that clash",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:lay-out-a-calendar-view"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:lay-out-a-calendar-view\", and give it blocks, views.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:lay-out-a-calendar-view and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.clashes[0].ids contains \"b\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Lay out a calendar view on a sample input",
+      "ask": "Run tool:lay-out-a-calendar-view.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:lay-out-a-calendar-view",
+            "input": {
+              "blocks": [
+                {
+                  "id": "a",
+                  "interval": {
+                    "start": "2026-01-07T09:00:00Z",
+                    "end": "2026-01-07T10:00:00Z",
+                    "allDay": false
+                  }
+                },
+                {
+                  "id": "b",
+                  "interval": {
+                    "start": "2026-01-07T09:30:00Z",
+                    "end": "2026-01-07T10:30:00Z",
+                    "allDay": false
+                  }
+                }
+              ],
+              "views": [
+                {
+                  "kind": "calendar-view-descriptor",
+                  "view_id": "day",
+                  "layout": "time-grid",
+                  "day_count": 1
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.clashes[0].ids contains \"b\"."
+    }
+  ]
+}

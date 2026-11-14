@@ -1,0 +1,57 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:reach-companies-with-a-long-open-job-post's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:reach-companies-with-a-long-open-job-post.\" Find companies whose job post has stayed open (by the shipped open-job-posts row: 21 days or more, at 10 to 200 people; the person's own source row replaces it), read the day-to-day section of each post, name its three biggest problems, and send each a four-sentence observation that cites the role and how long it has been open, paced from a separate inbox, with every reply and bounce handled and the funnel measured.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:reach-companies-with-a-long-open-job-post"
+  ],
+  "tools": [
+    "tool:brief-a-prospect",
+    "tool:classify-a-record",
+    "tool:judge-against-rules",
+    "tool:keep-a-prospect",
+    "tool:measure-funnel-stages",
+    "tool:pace-sends-from-an-inbox",
+    "tool:read-public-web-page",
+    "tool:read-voice",
+    "tool:record-a-customer-step",
+    "tool:send-an-email-with-resend",
+    "tool:sort-bounces-and-replies",
+    "tool:write-a-message-body-from-a-document"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:reach-companies-with-a-long-open-job-post\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:reach-companies-with-a-long-open-job-post) and works through its steps in order: find, read-post, problems, keep, style, write, judge, pace, send, record, outcomes, measure.",
+    "3. Read what each step hands back; the last step is measure."
+  ],
+  "worked_examples": [
+    {
+      "title": "Reach companies whose job post has stayed open from its first step",
+      "ask": "Run workflow:reach-companies-with-a-long-open-job-post.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:reach-companies-with-a-long-open-job-post",
+              "offer": "<offer: What the person helps with, in their own words; the criteria a prospect is researched against>",
+              "from": "<from: The separate sending identity: an address on a domain that is not the person's main domain>",
+              "time_zone": "<time_zone: The sending inbox's IANA time zone>",
+              "product_id": "<product_id: The product in the person's customer list these steps are recorded under>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:reach-companies-with-a-long-open-job-post",
+      "step": "find",
+      "hands_back": "Step find answers with tool, source, prospects.",
+      "given": "The person gives: offer, from, time_zone, product_id (shown as <name> in the input)."
+    }
+  ]
+}

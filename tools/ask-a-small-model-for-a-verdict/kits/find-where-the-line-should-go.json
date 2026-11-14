@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:find-where-the-line-should-go's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:find-where-the-line-should-go with rubrics_file.\" Work out, from my rubric's known cases, how sure a model has to be before I act, by measuring how sure it is on known-true and known-false cases",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:find-where-the-line-should-go"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:find-where-the-line-should-go\", and give it rubrics_file.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-where-the-line-should-go and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields lines."
+  ],
+  "worked_examples": [
+    {
+      "title": "Measure where my confidence line belongs instead of guessing a round number (runs on your computer) on a sample input",
+      "ask": "Run tool:find-where-the-line-should-go.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-where-the-line-should-go",
+            "input": {
+              "rubrics_file": "<rubrics_file: string>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields lines.",
+      "given": "The person gives: rubrics_file (shown as <name> in the input)."
+    }
+  ]
+}

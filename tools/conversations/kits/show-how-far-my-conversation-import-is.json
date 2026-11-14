@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:show-how-far-my-conversation-import-is's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:show-how-far-my-conversation-import-is with nothing more.\" Show how far bringing in my conversations has got: for each source, files done, conversations and messages kept, and whether it stopped",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:show-how-far-my-conversation-import-is"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:show-how-far-my-conversation-import-is\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:show-how-far-my-conversation-import-is and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $ contains \"sources\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Show how far my conversation import is on a sample input",
+      "ask": "Run tool:show-how-far-my-conversation-import-is.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:show-how-far-my-conversation-import-is",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The answer's $ contains \"sources\"."
+    }
+  ]
+}

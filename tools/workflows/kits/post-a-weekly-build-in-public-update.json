@@ -1,0 +1,53 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:post-a-weekly-build-in-public-update's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:post-a-weekly-build-in-public-update.\" Every week, build the person's public update from what really happened: read the changes this week in the lists and records the person names, pick the numbers that moved (each with the record it comes from), one setback or mistake that really happened, and what the person promised last week and whether it was done; draft one update per platform the person names, each written the way that platform reads (its first line, length and tone), check every word against the person's own rules, and have the person approve the exact words and post them.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:post-a-weekly-build-in-public-update"
+  ],
+  "tools": [
+    "tool:check-against-a-persons-rules-and-verdicts",
+    "tool:read-a-page-in-my-browser",
+    "tool:tell-the-person"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:post-a-weekly-build-in-public-update\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:post-a-weekly-build-in-public-update) and works through its steps in order: read-week, pick, draft, check-words, approve-and-post, record.",
+    "3. Read what each step hands back; the last step is record."
+  ],
+  "worked_examples": [
+    {
+      "title": "Post a weekly build-in-public update from its first step",
+      "ask": "Run workflow:post-a-weekly-build-in-public-update.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:post-a-weekly-build-in-public-update",
+              "lists": [
+                "<lists: string>"
+              ],
+              "platforms": [
+                "<platforms: string>"
+              ],
+              "rules": [
+                {}
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:post-a-weekly-build-in-public-update",
+      "step": "read-week",
+      "hands_back": "Step read-week answers with changes.",
+      "given": "The person gives: lists, platforms (shown as <name> in the input)."
+    }
+  ]
+}

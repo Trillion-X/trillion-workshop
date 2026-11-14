@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:work-through-a-framework's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:work-through-a-framework.\" Work through any author's framework for a person using what is already known about them, keep every answer with its source and confidence, and ask only for answers the evidence cannot support.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:work-through-a-framework"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:work-through-a-framework\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:work-through-a-framework) and works through its steps in order: read, infer, keep, ask, use.",
+    "3. Read what each step hands back; the last step is use."
+  ],
+  "worked_examples": [
+    {
+      "title": "Work through a framework from its first step",
+      "ask": "Run workflow:work-through-a-framework.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:work-through-a-framework",
+              "framework": "<framework: A private framework file in this person's files (name or identity), with its items, questions, exercises and source citations>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:work-through-a-framework",
+      "step": "read",
+      "hands_back": "Step read answers with framework_id, items_in_scope, already_answered, read.",
+      "given": "The person gives: framework (shown as <name> in the input)."
+    }
+  ]
+}

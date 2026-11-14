@@ -1,0 +1,42 @@
+{
+  "draft": true,
+  "drafted_from": "tool:fulfill-setup-access's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:fulfill-setup-access with account_id, source_id, request_id, bundle_identifier, testflight_groups.\" Arrange the TestFlight access a person's setup requires, through the release owner's Apple account, without sending a second invitation",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:fulfill-setup-access"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:fulfill-setup-access\", and give it account_id, source_id, request_id, bundle_identifier, testflight_groups.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:fulfill-setup-access and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields state, reason, request_id."
+  ],
+  "worked_examples": [
+    {
+      "title": "Arrange a person's beta app access on a sample input",
+      "ask": "Run tool:fulfill-setup-access.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:fulfill-setup-access",
+            "input": {
+              "account_id": "<account_id: string>",
+              "source_id": "<source_id: string>",
+              "request_id": "<request_id: string>",
+              "bundle_identifier": "<bundle_identifier: The app's bundle identifier in App Store Connect, such as com.example.sample>",
+              "testflight_groups": []
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields state, reason, request_id.",
+      "given": "The person gives: account_id, source_id, request_id, bundle_identifier (shown as <name> in the input)."
+    }
+  ]
+}

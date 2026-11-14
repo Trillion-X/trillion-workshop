@@ -1,0 +1,45 @@
+{
+  "draft": true,
+  "drafted_from": "tool:change-a-document-row's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:change-a-document-row with nothing more.\" Change or remove fields of documents' frontmatter in a folder I granted, write a whole document or remove one, each only if the document is still the one I read",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:change-a-document-row"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:change-a-document-row\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:change-a-document-row and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields kept, removed."
+  ],
+  "worked_examples": [
+    {
+      "title": "Change fields of documents in my folder list on a sample input",
+      "ask": "Run tool:change-a-document-row.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:change-a-document-row",
+            "input": {
+              "rows": [
+                {
+                  "id": "/notes/plan.md",
+                  "values": {
+                    "note.status": "done"
+                  },
+                  "if_identity": "1f:ddd90c328f560d726224da1ede548f7bfd2ab198335379d213f867a742e21da2"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields kept, removed."
+    }
+  ]
+}

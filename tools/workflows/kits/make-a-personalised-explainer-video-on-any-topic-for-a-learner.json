@@ -1,0 +1,47 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner.\" Turn a topic and a description of one learner (what they know, what they want, how long they will watch) into a finished explainer video: a lesson pitched at that learner, a spoken track, word-exact timing, one consistent animated character whose mouth follows the voice, one picture per spoken line, and a deterministic render.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner"
+  ],
+  "tools": [
+    "tool:tell-the-person"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner) and works through its steps in order: plan-the-lesson, write-the-lines, speak, time-the-words, make-the-character, draw-the-scenes, move-the-mouth, render, check-it, tell.",
+    "3. Read what each step hands back; the last step is tell."
+  ],
+  "worked_examples": [
+    {
+      "title": "Make a personalised explainer video on any topic for a learner from its first step",
+      "ask": "Run workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner",
+              "topic": "<topic: What the video teaches, in a few words>",
+              "learner": {
+                "level": "<level: What the learner already knows about the topic, in their own terms>",
+                "goal": "<goal: What the learner wants to be able to do or understand afterwards>"
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner",
+      "step": "plan-the-lesson",
+      "hands_back": "Step plan-the-lesson answers with hook, payoff, points, closer.",
+      "given": "The person gives: topic, level, goal (shown as <name> in the input)."
+    }
+  ]
+}

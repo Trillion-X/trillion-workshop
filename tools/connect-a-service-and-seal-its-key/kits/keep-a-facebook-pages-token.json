@@ -1,0 +1,43 @@
+{
+  "draft": true,
+  "drafted_from": "tool:keep-a-facebook-pages-token's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:keep-a-facebook-pages-token with connection, page_id.\" Read the one Page the person chose from the connection's sign-in and keep its own token sealed in the vault",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-a-facebook-pages-token",
+    "tool:connect-an-account-by-signing-in-to-the-service",
+    "tool:list-the-facebook-pages-a-sign-in-reaches"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:keep-a-facebook-pages-token\", and give it connection, page_id.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-a-facebook-pages-token and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $ holds the result: Read the one Page the person chose from the connection's sign-in and keep its own token sealed in the vault"
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep one Facebook Page's own token on a sample input",
+      "ask": "Run tool:keep-a-facebook-pages-token.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-a-facebook-pages-token",
+            "input": {
+              "connection": {
+                "connection_id": "<connection_id: The new connection the sign-in fills: service_connection:<vendor>:<account>, made by tool:connect-an-account-by-signing-in-to-the-service when the sign-in started>"
+              },
+              "page_id": "<page_id: The id of the Page chosen from tool:list-the-facebook-pages-a-sign-in-reaches>"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $ holds the result: Read the one Page the person chose from the connection's sign-in and keep its own token sealed in the vault",
+      "given": "The person gives: connection_id, page_id (shown as <name> in the input)."
+    }
+  ]
+}

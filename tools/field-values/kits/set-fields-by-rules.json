@@ -1,0 +1,86 @@
+{
+  "draft": true,
+  "drafted_from": "tool:set-fields-by-rules's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:set-fields-by-rules with records, fields, groups.\" Set fields on the rows my rules match, like coding transactions by merchant and amount: my rule groups in order, the first matching rule sets each field, never over a value I set myself, with a preview of what each rule would change",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:set-fields-by-rules"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:set-fields-by-rules\", and give it records, fields, groups.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:set-fields-by-rules and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.changes[0].to contains \"Ingredients\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Set fields on the rows my rules match on a sample input",
+      "ask": "Run tool:set-fields-by-rules.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:set-fields-by-rules",
+            "input": {
+              "records": [
+                {
+                  "id": "t1",
+                  "merchant": "North Flour Mill",
+                  "amount": 120
+                },
+                {
+                  "id": "t2",
+                  "merchant": "Oven Parts Co",
+                  "amount": 80,
+                  "category": "Repairs"
+                }
+              ],
+              "fields": [
+                {
+                  "id": "merchant",
+                  "kind": "text"
+                },
+                {
+                  "id": "category",
+                  "kind": "choice"
+                }
+              ],
+              "groups": [
+                {
+                  "id": "ingredients",
+                  "rules": [
+                    {
+                      "id": "flour",
+                      "when": {
+                        "kind": "rule",
+                        "field": "merchant",
+                        "operator": "contains",
+                        "params": {
+                          "text": "flour"
+                        }
+                      },
+                      "set": [
+                        {
+                          "field": "category",
+                          "value": "Ingredients"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "id_path": [
+                "id"
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.changes[0].to contains \"Ingredients\"."
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:find-unexplored-ground's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:find-unexplored-ground.\" Find many things nobody has explored, researched or talked about enough (unusual combinations of fields, overlooked everyday things, questions without good answers) and match each to what one person is good at, is aiming for, values and keeps coming back to, so they see where they would be a strong explorer; then ask them about the best few and keep the list for them.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:find-unexplored-ground"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:find-unexplored-ground\".",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:find-unexplored-ground) and works through its steps in order: person, areas, match, ask, keep.",
+    "3. Read what each step hands back; the last step is keep."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find unexplored ground that fits you from its first step",
+      "ask": "Run workflow:find-unexplored-ground.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:find-unexplored-ground"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:find-unexplored-ground",
+      "step": "person",
+      "hands_back": "Step person answers with skills, aims, sources."
+    }
+  ]
+}

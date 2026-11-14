@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:add-a-customer's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:add-a-customer with name.\" Add a customer or contact to my customer list, with their name, how to reach them and where they came from",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:add-a-customer"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:add-a-customer\", and give it name.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:add-a-customer and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.contact_record.displayName contains \"Dee Lo\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Add a customer on a sample input",
+      "ask": "Run tool:add-a-customer.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:add-a-customer",
+            "input": {
+              "name": "Dee Lo",
+              "reach_them_by": "Email",
+              "came_from": "A referral from Ana"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.contact_record.displayName contains \"Dee Lo\"."
+    }
+  ]
+}

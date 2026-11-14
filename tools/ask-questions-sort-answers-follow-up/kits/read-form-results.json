@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-form-results's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-form-results with nothing more.\" Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-form-results"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-form-results\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-form-results and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.summary.total contains \"0\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Form results on a sample input",
+      "ask": "Run tool:read-form-results.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-form-results",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The answer's $.summary.total contains \"0\"."
+    }
+  ]
+}

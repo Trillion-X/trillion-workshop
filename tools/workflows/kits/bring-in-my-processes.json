@@ -1,0 +1,42 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:bring-in-my-processes's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:bring-in-my-processes.\" Find the processes, skills, checklists, scripts and tools a person already has on a computer or agent, check which ones the marketplace already has, and bring each missing one in as a workflow or a tool that keeps running where it already lives, with no duplicates.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:bring-in-my-processes",
+    "workflow:turn-research-into-a-plan"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:bring-in-my-processes\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:bring-in-my-processes) and works through its steps in order: inventory, match, decide, bring_in.",
+    "3. Read what each step hands back; the last step is bring_in."
+  ],
+  "worked_examples": [
+    {
+      "title": "Bring in my processes and tools from its first step",
+      "ask": "Run workflow:bring-in-my-processes.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:bring-in-my-processes",
+              "scope": "<scope: What to look through, such as a folder of skills, a scripts folder, or everything this agent can reach>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:bring-in-my-processes",
+      "step": "inventory",
+      "hands_back": "Step inventory answers with items.",
+      "given": "The person gives: scope (shown as <name> in the input)."
+    }
+  ]
+}

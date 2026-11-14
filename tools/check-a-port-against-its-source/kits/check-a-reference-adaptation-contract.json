@@ -1,0 +1,87 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-a-reference-adaptation-contract's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-a-reference-adaptation-contract with nothing more.\" Check a contract for work taken from a reference (a source ported, a behaviour ported, a visual replica, an inspiration, an anti-reference): the source and its identity, what must be preserved, and the proof (retained source lines, required mechanisms, measured pictures and pixel difference)",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-a-reference-adaptation-contract"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-a-reference-adaptation-contract\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-reference-adaptation-contract and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields valid, errors, id, mode, status, measurements."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check my port or replica keeps its promises to its reference on a sample input",
+      "ask": "Run tool:check-a-reference-adaptation-contract.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-a-reference-adaptation-contract",
+            "input": {
+              "contract": {
+                "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+                "id": "REF-SAMPLE-PORT",
+                "status": "VERIFIED",
+                "directive": {
+                  "thread_id": "sample",
+                  "message_multihash": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                  "quote": "port the exact same module"
+                },
+                "mode": "SOURCE_FIRST_PORT",
+                "sources": [
+                  {
+                    "path": "source.mjs",
+                    "multihash": "1f:a2822a40353b3dea8c48ad9b25afd93ec70ceb927b6211f30ac4d3720b58f201",
+                    "ownership": "user-owned"
+                  }
+                ],
+                "targets": [
+                  {
+                    "path": "target.mjs"
+                  }
+                ],
+                "preserve": [
+                  "the module mechanisms"
+                ],
+                "allowed_deltas": [
+                  "labels"
+                ],
+                "banned_substitutions": [
+                  "a rewritten approximation"
+                ],
+                "baseline": {
+                  "copied_before_adaptation": true,
+                  "source_multihash": "1f:a2822a40353b3dea8c48ad9b25afd93ec70ceb927b6211f30ac4d3720b58f201",
+                  "target_multihash_at_baseline": "1f:a2822a40353b3dea8c48ad9b25afd93ec70ceb927b6211f30ac4d3720b58f201",
+                  "recorded_at": "2026-01-01T00:00:00Z"
+                },
+                "proof": {
+                  "minimum_meaningful_line_retention": 0.8,
+                  "required_mechanisms": [
+                    "keptMechanism1"
+                  ],
+                  "test_refs": [
+                    "test:unit"
+                  ],
+                  "render_refs": [],
+                  "originality_ref": null
+                }
+              },
+              "stage": "completion",
+              "target": "target.mjs"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields valid, errors, id, mode, status, measurements."
+    }
+  ]
+}

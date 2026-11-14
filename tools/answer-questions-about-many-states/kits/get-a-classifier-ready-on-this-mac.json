@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:get-a-classifier-ready-on-this-mac's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:get-a-classifier-ready-on-this-mac with model.\" Get my question classifier model ready to run on my Mac",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:get-a-classifier-ready-on-this-mac"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:get-a-classifier-ready-on-this-mac\", and give it model.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:get-a-classifier-ready-on-this-mac and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Get my question classifier model ready to run on my Mac"
+  ],
+  "worked_examples": [
+    {
+      "title": "Get a questions-first classifier ready on this Mac on a sample input",
+      "ask": "Run tool:get-a-classifier-ready-on-this-mac.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:get-a-classifier-ready-on-this-mac",
+            "input": {
+              "model": {
+                "type": "record:classifier-model",
+                "id": "record:classifier-model:sample"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Get my question classifier model ready to run on my Mac"
+    }
+  ]
+}

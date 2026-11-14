@@ -1,0 +1,57 @@
+{
+  "draft": true,
+  "drafted_from": "tool:compare-two-ai-builds-on-trap-tasks's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:compare-two-ai-builds-on-trap-tasks with left, right.\" Score two builds of an AI's behaviour on the same trap tasks from the calls each run recorded, and say on which tasks they differ",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:compare-two-ai-builds-on-trap-tasks"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:compare-two-ai-builds-on-trap-tasks\", and give it left, right.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:compare-two-ai-builds-on-trap-tasks and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.differ contains \"read-before-write\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Compare two AI builds on trap tasks on a sample input",
+      "ask": "Run tool:compare-two-ai-builds-on-trap-tasks.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:compare-two-ai-builds-on-trap-tasks",
+            "input": {
+              "left": {
+                "arm": "new",
+                "runs": [
+                  {
+                    "task_id": "read-before-write",
+                    "state": "done",
+                    "calls": [
+                      {
+                        "tool": "read_space_record"
+                      },
+                      {
+                        "tool": "write_space_record"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "right": {
+                "arm": "old",
+                "runs": []
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.differ contains \"read-before-write\"."
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "draft": true,
+  "drafted_from": "tool:sort-inspiration-clips-into-card-rows's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:sort-inspiration-clips-into-card-rows with sources.\" Sort the clips, recent files, formats, saved examples and prepared posts handed in into the named rows of inspiration cards, marking which clips can start a new edit",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:sort-inspiration-clips-into-card-rows"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:sort-inspiration-clips-into-card-rows\", and give it sources.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:sort-inspiration-clips-into-card-rows and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.said contains \"You talk in these (1)\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Sort inspiration clips into rows of cards on a sample input",
+      "ask": "Run tool:sort-inspiration-clips-into-card-rows.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:sort-inspiration-clips-into-card-rows",
+            "input": {
+              "sources": {
+                "library": {
+                  "rows": [
+                    {
+                      "identity": "clip-1",
+                      "title": "Morning walk",
+                      "file": "clips/morning-walk.mp4",
+                      "media_kind": "video",
+                      "duration": 42,
+                      "origin": "recording",
+                      "edits": 0,
+                      "words": 120,
+                      "captured_ms": 1762243200000
+                    }
+                  ]
+                },
+                "formats": {
+                  "formats": [
+                    {
+                      "id": "before-after",
+                      "label": "Before and after",
+                      "description": "Show the start, then the end"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.said contains \"You talk in these (1)\"."
+    }
+  ]
+}

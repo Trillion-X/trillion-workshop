@@ -1,0 +1,40 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-what-shipped's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-what-shipped with settings, repository, staged.\" Read a person's release mark or commit branch, stage each new entry once with its source identity, and let their mapping make list rows",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-what-shipped"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-what-shipped\", and give it settings, repository, staged.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-what-shipped and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Read a person's release mark or commit branch, stage each new entry once with its source identity, and let their mapping make list rows"
+  ],
+  "worked_examples": [
+    {
+      "title": "Note new releases or commits from a repository (runs on your computer) on a sample input",
+      "ask": "Run tool:read-what-shipped.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-what-shipped",
+            "input": {
+              "settings": "<settings: The settings file (mark, fields, most_subjects, and optionally each, after and skip_subjects), put where {settings} is in the command>",
+              "repository": "<repository: The repository folder, put where {repository} is in the command>",
+              "staged": "<staged: The staged file of releases, put where {staged} is in the command>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Read a person's release mark or commit branch, stage each new entry once with its source identity, and let their mapping make list rows",
+      "given": "The person gives: settings, repository, staged (shown as <name> in the input)."
+    }
+  ]
+}

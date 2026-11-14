@@ -1,0 +1,36 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-every-piece-is-covered's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-every-piece-is-covered with nothing more.\" Say, for each of a person's source files, how many of its pieces have a check, how many a recorded reason, and which are uncovered",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-every-piece-is-covered",
+    "tool:split-a-document-into-pieces"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-every-piece-is-covered\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-every-piece-is-covered and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.files[0].uncovered[0].id contains \"piece-dddddddddddddddddddddddd\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check every piece of a person's files has a check or a reason on a sample input",
+      "ask": "Run tool:check-every-piece-is-covered.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-every-piece-is-covered",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The answer's $.files[0].uncovered[0].id contains \"piece-dddddddddddddddddddddddd\"."
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:personalized-reach-out's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:personalized-reach-out.\" Identify relevant people and deliver individually useful, truthful outreach through suitable connected channels.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:personalized-reach-out",
+    "workflow:answer-commenters-with-videos",
+    "workflow:trillion-x-mode",
+    "workflow:turn-something-shared-into-what-you-can-use"
+  ],
+  "tools": [
+    "tool:start-a-recipe-run"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:personalized-reach-out\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:personalized-reach-out) and works through its steps in order: fit, message, deliver, follow.",
+    "3. Read what each step hands back; the last step is follow."
+  ],
+  "worked_examples": [
+    {
+      "title": "Personalized Reach Out Mode from its first step",
+      "ask": "Run workflow:personalized-reach-out.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:personalized-reach-out",
+              "request": "<request: string>",
+              "scope": "<scope: string>",
+              "constraints": [],
+              "authorized_actions": []
+            }
+          }
+        }
+      },
+      "workflow": "workflow:personalized-reach-out",
+      "step": "fit",
+      "hands_back": "Step fit answers with summary, evidence, requirements.",
+      "given": "The person gives: request, scope (shown as <name> in the input)."
+    }
+  ]
+}

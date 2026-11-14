@@ -1,0 +1,67 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:run-a-linkedin-content-system's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:run-a-linkedin-content-system.\" Build a voice guide from the person's real posts and transcripts, mine the questions buyers ask on calls, keep an outreach research desk, write posts that answer the objections of stalled deals, review each on a 100-point rubric where invented evidence blocks it, attribute results honestly (tracked conversions apart from influence), and turn the edits the person keeps making into rule proposals.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:run-a-linkedin-content-system"
+  ],
+  "tools": [
+    "tool:approve-a-post",
+    "tool:break-down-visits-and-sales",
+    "tool:brief-a-profile",
+    "tool:brief-a-prospect",
+    "tool:draft-a-post",
+    "tool:find-repeated-voice-edits",
+    "tool:judge-against-rules",
+    "tool:keep-a-profile",
+    "tool:keep-a-prospect",
+    "tool:make-tracked-link",
+    "tool:read-an-export-of-my-conversations",
+    "tool:save-voice",
+    "tool:see-where-each-customer-is",
+    "tool:set-a-post-to-go-at-its-time"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:run-a-linkedin-content-system\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:run-a-linkedin-content-system) and works through its steps in order: voice-sources, voice-guide, keep-voice, buyer-questions, objections, research-desk, keep-desk, draft, review, track, approve, schedule, attribute, edits-to-rules.",
+    "3. Read what each step hands back; the last step is edits-to-rules."
+  ],
+  "worked_examples": [
+    {
+      "title": "Run a LinkedIn content system from its first step",
+      "ask": "Run workflow:run-a-linkedin-content-system.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:run-a-linkedin-content-system",
+              "posts": [
+                "<posts: string>"
+              ],
+              "transcripts": [
+                "<transcripts: string>"
+              ],
+              "call_transcripts": [
+                "<call_transcripts: string>"
+              ],
+              "linkedin_account": "<linkedin_account: The LinkedIn destination id, as tool:list-post-destinations names it>",
+              "landing_page": "<landing_page: The page tracked links point at>",
+              "project": "<project: The traffic project the links and sales are counted in>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:run-a-linkedin-content-system",
+      "step": "voice-sources",
+      "hands_back": "Step voice-sources answers with tool, read, brief_ref.",
+      "given": "The person gives: posts, transcripts, call_transcripts, linkedin_account, landing_page, project (shown as <name> in the input)."
+    }
+  ]
+}

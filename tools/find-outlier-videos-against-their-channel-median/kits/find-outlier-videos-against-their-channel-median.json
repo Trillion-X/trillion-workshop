@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:find-outlier-videos-against-their-channel-median's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:find-outlier-videos-against-their-channel-median with videos, output.\" Find the outlier videos: the ones that got many times more views than their channel normally gets",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:find-outlier-videos-against-their-channel-median"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:find-outlier-videos-against-their-channel-median\", and give it videos, output.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-outlier-videos-against-their-channel-median and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Find the outlier videos: the ones that got many times more views than their channel normally gets"
+  ],
+  "worked_examples": [
+    {
+      "title": "Find the videos that did far better than their own channel usually does (runs on your computer) on a sample input",
+      "ask": "Run tool:find-outlier-videos-against-their-channel-median.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-outlier-videos-against-their-channel-median",
+            "input": {
+              "videos": "<videos: The tab-separated table of videos, put where {videos} is in the command>",
+              "output": "<output: The outliers table to write, put where {output} is in the command>"
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Find the outlier videos: the ones that got many times more views than their channel normally gets",
+      "given": "The person gives: videos, output (shown as <name> in the input)."
+    }
+  ]
+}

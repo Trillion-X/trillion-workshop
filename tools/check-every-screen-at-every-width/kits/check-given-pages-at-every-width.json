@@ -1,0 +1,50 @@
+{
+  "draft": true,
+  "drafted_from": "tool:check-given-pages-at-every-width's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:check-given-pages-at-every-width with screens.\" Open each page I give at every width and device setting and read every piece of text a person can see, refusing text that cannot be read, is drawn in a font the page did not ask for, is cut off or makes a phone scroll sideways",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:check-given-pages-at-every-width"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:check-given-pages-at-every-width\", and give it screens.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-given-pages-at-every-width and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields passed, failures, reported, counts, report."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check pages at every width and device setting on a sample input",
+      "ask": "Run tool:check-given-pages-at-every-width.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-given-pages-at-every-width",
+            "input": {
+              "screens": [
+                {
+                  "id": "sample-notice",
+                  "html": "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>Sample notice</title><style>:root{color-scheme:light dark}body{margin:0;padding:16px;font-family:system-ui,sans-serif;background:#ffffff;color:#1a1a1a}.faint{color:#c8c8c8}</style></head><body><h1>Garden club notice</h1><p>The next meeting is on Saturday morning.</p><p class=\"faint\">Bring your own gloves.</p></body></html>"
+                }
+              ],
+              "widths": [
+                "phone",
+                "desktop"
+              ],
+              "modes": [
+                "light",
+                "dark"
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields passed, failures, reported, counts, report."
+    }
+  ]
+}

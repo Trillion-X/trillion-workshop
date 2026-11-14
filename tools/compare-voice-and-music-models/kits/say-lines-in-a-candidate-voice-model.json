@@ -1,0 +1,43 @@
+{
+  "draft": true,
+  "drafted_from": "tool:say-lines-in-a-candidate-voice-model's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:say-lines-in-a-candidate-voice-model with model, out_dir, reference, reference_text, lines.\" Try a new text-to-speech model: say these lines in my cloned voice so I can compare it with the voice I use now",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:say-lines-in-a-candidate-voice-model",
+    "tool:score-how-alike-lines-sound-to-a-reference-voice"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:say-lines-in-a-candidate-voice-model\", and give it model, out_dir, reference, reference_text, lines.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:say-lines-in-a-candidate-voice-model and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Try a new text-to-speech model: say these lines in my cloned voice so I can compare it with the voice I use now"
+  ],
+  "worked_examples": [
+    {
+      "title": "Say some lines in a voice model I am trying out, cloned from my reference recording (runs on your Mac) on a sample input",
+      "ask": "Run tool:say-lines-in-a-candidate-voice-model.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:say-lines-in-a-candidate-voice-model",
+            "input": {
+              "model": "<model: The model's Hugging Face id, put where {model} is in the command>",
+              "out_dir": "<out_dir: The folder for the line recordings, put where {out_dir} is in the command>",
+              "reference": "<reference: The reference recording the voice is cloned from, put where {reference} is in the command; the person must own the voice or have the speaker's consent>",
+              "reference_text": "<reference_text: The words said in the reference recording, put where {reference_text} is in the command>",
+              "lines": []
+            }
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Try a new text-to-speech model: say these lines in my cloned voice so I can compare it with the voice I use now",
+      "given": "The person gives: model, out_dir, reference, reference_text (shown as <name> in the input)."
+    }
+  ]
+}

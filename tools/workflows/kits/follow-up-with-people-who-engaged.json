@@ -1,0 +1,54 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:follow-up-with-people-who-engaged's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:follow-up-with-people-who-engaged.\" Once a week, list the people who commented, replied or signed up because of the person's own posts in the window, match each to the person's people records (adding none without the person), rank them by what they did, draft one short personal follow-up for each of the top people that answers what they actually said, check every draft against the person's own rules, get the person's approval of the exact words, and record each follow-up the person sent.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:follow-up-with-people-who-engaged"
+  ],
+  "tools": [
+    "tool:check-against-a-persons-rules-and-verdicts",
+    "tool:find-people",
+    "tool:rank-people-by-activity",
+    "tool:read-a-page-in-my-browser",
+    "tool:record-a-customer-step",
+    "tool:tell-the-person"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:follow-up-with-people-who-engaged\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:follow-up-with-people-who-engaged) and works through its steps in order: read-engagement, match, rank, draft, approve, person-sends, record.",
+    "3. Read what each step hands back; the last step is record."
+  ],
+  "worked_examples": [
+    {
+      "title": "Follow up with the people who engaged from its first step",
+      "ask": "Run workflow:follow-up-with-people-who-engaged.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:follow-up-with-people-who-engaged",
+              "platforms": [
+                {
+                  "platform": "<platform: string>",
+                  "profile_url": "<profile_url: string>"
+                }
+              ],
+              "offer": "<offer: What the person can offer a person who engaged (an answer, a call, a free resource, the product), in their own words>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:follow-up-with-people-who-engaged",
+      "step": "read-engagement",
+      "hands_back": "Step read-engagement answers with engaged.",
+      "given": "The person gives: platform, profile_url, offer (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:hire-help-for-a-step's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:hire-help-for-a-step.\" Hire a person nearby (TaskRabbit and services like it, or an employee by email) to do a step that needs someone physically there, after one tap with the price, then make sure they did it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:hire-help-for-a-step"
+  ],
+  "tools": [
+    "tool:hold-to-it",
+    "tool:send-an-email-with-amazon-ses",
+    "tool:send-an-email-with-resend"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:hire-help-for-a-step\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:hire-help-for-a-step) and works through its steps in order: task, ask, book.",
+    "3. Read what each step hands back; the last step is book."
+  ],
+  "worked_examples": [
+    {
+      "title": "Hire help for a step from its first step",
+      "ask": "Run workflow:hire-help-for-a-step.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:hire-help-for-a-step",
+              "step": "<step: string>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:hire-help-for-a-step",
+      "step": "task",
+      "hands_back": "Step task answers with task, who, price.",
+      "given": "The person gives: step (shown as <name> in the input)."
+    }
+  ]
+}

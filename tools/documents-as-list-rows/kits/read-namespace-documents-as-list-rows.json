@@ -1,0 +1,38 @@
+{
+  "draft": true,
+  "drafted_from": "tool:read-namespace-documents-as-list-rows's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:read-namespace-documents-as-list-rows with nothing more.\" Read the markdown documents in a folder of my account's files as rows: each document's frontmatter is its fields, with the file's name, folder, size, dates, links, tags and identity, a page at a time",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:read-namespace-documents-as-list-rows",
+    "tool:read-documents-as-list-rows"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:read-namespace-documents-as-list-rows\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-namespace-documents-as-list-rows and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields rows, next."
+  ],
+  "worked_examples": [
+    {
+      "title": "Show a folder of my account's documents as the rows of a list on a sample input",
+      "ask": "Run tool:read-namespace-documents-as-list-rows.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-namespace-documents-as-list-rows",
+            "input": {
+              "folder": "/Notes"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields rows, next."
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:give-paid-buyers-access's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:give-paid-buyers-access.\" Every time it runs (every 15 minutes is the intended schedule), turn each newly paid Stripe checkout into a customer: list the checkouts completed since the last one kept, skip any already kept, check each paid amount against a price the offer declares (a trial checkout is checked by its subscription's amount), keep a customer record keyed by the checkout, send the setup email once with an idempotency key, and mark each customer whose subscription ended as ended, keeping their record.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:give-paid-buyers-access"
+  ],
+  "tools": [
+    "tool:check-what-a-buyer-paid",
+    "tool:list-completed-stripe-checkouts",
+    "tool:list-ended-stripe-subscriptions",
+    "tool:look-up-a-stripe-checkout",
+    "tool:tell-the-person"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:give-paid-buyers-access\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:give-paid-buyers-access) and works through its steps in order: where-to-start, list-paid-checkouts, check-each-amount, keep-customers, send-setup, mark-ended.",
+    "3. Read what each step hands back; the last step is mark-ended."
+  ],
+  "worked_examples": [
+    {
+      "title": "Give paid buyers access from its first step",
+      "ask": "Run workflow:give-paid-buyers-access.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:give-paid-buyers-access",
+              "offer_id": "<offer_id: The offer whose buyers get access, as named in the checkout's metadata>",
+              "email_tool": "tool:send-an-email-with-resend",
+              "from": "<from: The address the setup email comes from>",
+              "setup_email": {
+                "subject": "<subject: string>",
+                "text": "<text: The setup email's words; {email} and {people} are filled per buyer>"
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:give-paid-buyers-access",
+      "step": "where-to-start",
+      "hands_back": "Step where-to-start answers with created_after_unix, ended_after_unix, known_checkouts.",
+      "given": "The person gives: offer_id, from, subject, text (shown as <name> in the input)."
+    }
+  ]
+}

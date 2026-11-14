@@ -1,0 +1,51 @@
+{
+  "draft": true,
+  "drafted_from": "tool:build-a-quoted-section-from-entries's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:build-a-quoted-section-from-entries with heading, sources.\" Write one markdown section out of a list of entries (what people said or wrote), keeping every entry's words exactly as they came in",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:build-a-quoted-section-from-entries",
+    "tool:place-a-section-in-a-markdown-document"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:build-a-quoted-section-from-entries\", and give it heading, sources.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:build-a-quoted-section-from-entries and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.text contains \"> One line.\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Build a markdown section from entries, word for word on a sample input",
+      "ask": "Run tool:build-a-quoted-section-from-entries.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:build-a-quoted-section-from-entries",
+            "input": {
+              "heading": "What was said",
+              "sources": [
+                {
+                  "document": {
+                    "session_id": "first",
+                    "messages": [
+                      {
+                        "ordinal": 1,
+                        "content": "One line."
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.text contains \"> One line.\"."
+    }
+  ]
+}

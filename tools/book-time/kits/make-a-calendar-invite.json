@@ -1,0 +1,43 @@
+{
+  "draft": true,
+  "drafted_from": "tool:make-a-calendar-invite's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:make-a-calendar-invite with uid, start, end, summary, organizer.\" Make an invitation file that any mail client turns into a calendar event, or into a cancellation",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:make-a-calendar-invite"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:make-a-calendar-invite\", and give it uid, start, end, summary, organizer.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-a-calendar-invite and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.text contains \"BEGIN:VCALENDAR\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Make a calendar invite on a sample input",
+      "ask": "Run tool:make-a-calendar-invite.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:make-a-calendar-invite",
+            "input": {
+              "uid": "booking-1",
+              "start": "2026-08-12T15:00:00Z",
+              "end": "2026-08-12T15:30:00Z",
+              "summary": "Intro call",
+              "organizer": {
+                "email": "host@example.test"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.text contains \"BEGIN:VCALENDAR\"."
+    }
+  ]
+}

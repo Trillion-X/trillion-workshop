@@ -1,0 +1,52 @@
+{
+  "draft": true,
+  "drafted_from": "tool:plan-an-event's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:plan-an-event with idempotency_key, host_group_ref, event_label, focus_label, public_summary, detail_intro, schedule_intent, primary_starts_at, primary_ends_at, time_zone, mode, visibility, capacity, host_origin, workflow_definition_ref.\" Turn my draft of a gathering into its session, its catalog entry, the places to open and the link people will use",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:plan-an-event",
+    "tool:open-a-capacity-ledger"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:plan-an-event\", and give it idempotency_key, host_group_ref, event_label, focus_label, public_summary, detail_intro, schedule_intent, primary_starts_at, primary_ends_at, time_zone, mode, visibility, capacity, host_origin, workflow_definition_ref.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:plan-an-event and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.share_url contains \"https://club.example.test/events/\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Plan an event on a sample input",
+      "ask": "Run tool:plan-an-event.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:plan-an-event",
+            "input": {
+              "idempotency_key": "a8b0d0bfea434a4583182715150e1725",
+              "host_group_ref": "group:bakery-club",
+              "event_label": "Sourdough Saturday",
+              "focus_label": "Fix one flat loaf",
+              "public_summary": "Bring one flat loaf and leave knowing why.",
+              "detail_intro": "A small baking morning.",
+              "schedule_intent": "weekend morning",
+              "primary_starts_at": "2026-09-12T09:00",
+              "primary_ends_at": "2026-09-12T11:00",
+              "time_zone": "America/Chicago",
+              "mode": "in person",
+              "visibility": "members only",
+              "capacity": 12,
+              "host_origin": "https://club.example.test",
+              "workflow_definition_ref": "workflow:event-signup"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.share_url contains \"https://club.example.test/events/\"."
+    }
+  ]
+}

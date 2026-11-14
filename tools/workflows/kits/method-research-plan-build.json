@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:method-research-plan-build's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:method-research-plan-build.\" Research how a capability is done across the whole field and from first principles, turn the findings into a plan, and carry that plan through to the real working result.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:method-research-plan-build"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:method-research-plan-build\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-research-plan-build) and works through its steps in order: baseline, root, rule-out, combine, risk, production.",
+    "3. Read what each step hands back; the last step is production."
+  ],
+  "worked_examples": [
+    {
+      "title": "Research the field, then plan and build it end to end from its first step",
+      "ask": "Run workflow:method-research-plan-build.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:method-research-plan-build",
+              "request": "<request: What you are deciding, designing or building, in plain words>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:method-research-plan-build",
+      "step": "baseline",
+      "hands_back": "Step baseline answers with answer, checks.",
+      "given": "The person gives: request (shown as <name> in the input)."
+    }
+  ]
+}

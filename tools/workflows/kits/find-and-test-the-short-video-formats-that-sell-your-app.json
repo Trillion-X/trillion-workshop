@@ -1,0 +1,51 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:find-and-test-the-short-video-formats-that-sell-your-app's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:find-and-test-the-short-video-formats-that-sell-your-app.\" Map which short-video formats won in the person's category over the last 30 and 90 days, read the 8 most relevant videos in detail, score the formats and pick the top 3, write 9 scripts (3 per format, 3 hooks each, the app on screen by 0:03) that keep each format's structure and change every word, list the creators who already posted for the person's competitors, then plan a 2-week test of 3 videos per format and end every format that gets under 5 downloads per 1,000 views.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:find-and-test-the-short-video-formats-that-sell-your-app"
+  ],
+  "tools": [
+    "tool:github:yt-dlp-yt-dlp",
+    "tool:read-a-page-in-my-browser",
+    "tool:tell-the-person"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:find-and-test-the-short-video-formats-that-sell-your-app\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:find-and-test-the-short-video-formats-that-sell-your-app) and works through its steps in order: scope, map-niche, read-videos, score-formats, write-scripts, creators, approve, test-plan, weekly-rerun.",
+    "3. Read what each step hands back; the last step is weekly-rerun."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find and test the short-video formats that sell your app from its first step",
+      "ask": "Run workflow:find-and-test-the-short-video-formats-that-sell-your-app.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:find-and-test-the-short-video-formats-that-sell-your-app",
+              "app": "<app: The person's app, in one plain sentence: what it is and who it is for>",
+              "best_feature": "<best_feature: The one feature that shows the app's value fastest on a phone screen>",
+              "category": "<category: The app's category in the person's own words, for example language learning or period tracking>",
+              "competitors": [
+                "<competitors: string>"
+              ],
+              "platform": "tiktok"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:find-and-test-the-short-video-formats-that-sell-your-app",
+      "step": "scope",
+      "hands_back": "Step scope answers with route, category_name, competitors_matched, competitors_missing, format_names.",
+      "given": "The person gives: app, best_feature, category, competitors (shown as <name> in the input)."
+    }
+  ]
+}

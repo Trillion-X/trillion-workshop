@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:set-a-customer-target's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:set-a-customer-target with product_id, product_name, customers.\" Set how many customers I want for a product, so progress toward that target can be tracked",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:set-a-customer-target"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:set-a-customer-target\", and give it product_id, product_name, customers.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:set-a-customer-target and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.target_record.productLabel contains \"Coaching\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Set a product's customer target on a sample input",
+      "ask": "Run tool:set-a-customer-target.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:set-a-customer-target",
+            "input": {
+              "product_id": "product:coaching",
+              "product_name": "Coaching",
+              "customers": 10
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.target_record.productLabel contains \"Coaching\"."
+    }
+  ]
+}

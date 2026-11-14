@@ -1,0 +1,48 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:find-moments-in-a-recording's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:find-moments-in-a-recording.\" Inspect a recording, keep what is seen and heard as timed rows linked to its file, then turn useful material into source-linked drafts without inventing speech or approving a post.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:find-moments-in-a-recording",
+    "workflow:turn-what-you-said-into-content"
+  ],
+  "tools": [
+    "tool:find-action-moments",
+    "tool:find-scene-changes",
+    "tool:pick-cover-frame",
+    "tool:transcribe-audio-and-repair-whisper-loops",
+    "tool:who-is-in-this"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:find-moments-in-a-recording\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:find-moments-in-a-recording) and works through its steps in order: inspect, moments, content.",
+    "3. Read what each step hands back; the last step is content."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find useful moments in a recording from its first step",
+      "ask": "Run workflow:find-moments-in-a-recording.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:find-moments-in-a-recording",
+              "file": "<file: The recording in this account by its content identity>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:find-moments-in-a-recording",
+      "step": "inspect",
+      "hands_back": "Step inspect answers with words, evidence, coverage.",
+      "given": "The person gives: file (shown as <name> in the input)."
+    }
+  ]
+}

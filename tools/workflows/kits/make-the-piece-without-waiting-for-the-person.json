@@ -1,0 +1,51 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:make-the-piece-without-waiting-for-the-person's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:make-the-piece-without-waiting-for-the-person.\" When a piece of content is waiting on a step only the person can do (filming, a voiceover), list the other ways to reach the finished piece, and when the due time passes without their step, make it from the written script in the person's own cloned voice with their own assets, check it, draft it, and keep that path as a permanent branch so nobody asks next time.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:make-the-piece-without-waiting-for-the-person",
+    "workflow:make-one-piece-of-content-from-audience-to-publish",
+    "workflow:make-short-videos-from-footage"
+  ],
+  "tools": [
+    "tool:check-a-post",
+    "tool:cut-and-caption",
+    "tool:draft-a-post",
+    "tool:layer-pictures-over-video",
+    "tool:say-with-a-voice-model",
+    "tool:start-a-recipe-run",
+    "tool:voices"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:make-the-piece-without-waiting-for-the-person\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:make-the-piece-without-waiting-for-the-person) and works through its steps in order: read-the-piece, find-the-alternative-paths, wait-until-the-due-time, voice-clone-the-script, make-the-video, check-and-draft, keep-the-path-as-a-permanent-branch.",
+    "3. Read what each step hands back; the last step is keep-the-path-as-a-permanent-branch."
+  ],
+  "worked_examples": [
+    {
+      "title": "Make the piece without waiting for the person from its first step",
+      "ask": "Run workflow:make-the-piece-without-waiting-for-the-person.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:make-the-piece-without-waiting-for-the-person",
+              "piece_row": "<piece_row: string>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:make-the-piece-without-waiting-for-the-person",
+      "step": "read-the-piece",
+      "hands_back": "Step read-the-piece answers with piece_row, script, due_at, waiting_on.",
+      "given": "The person gives: piece_row (shown as <name> in the input)."
+    }
+  ]
+}

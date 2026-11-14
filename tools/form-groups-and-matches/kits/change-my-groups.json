@@ -1,0 +1,47 @@
+{
+  "draft": true,
+  "drafted_from": "tool:change-my-groups's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:change-my-groups with nothing more.\" Add things to my groups, lists or collections, move and reorder them, put some into a new group inside, take a group apart, or bring a whole folder tree in as groups",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:change-my-groups"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:change-my-groups\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:change-my-groups and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.groups[0].groupRef.parts.id contains \"verify\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Change my groups: add, move, order, nest and remove on a sample input",
+      "ask": "Run tool:change-my-groups.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:change-my-groups",
+            "input": {
+              "changes": [
+                {
+                  "kind": "ensure-group",
+                  "groupRef": {
+                    "family": "sample-shelf",
+                    "parts": {
+                      "id": "verify"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.groups[0].groupRef.parts.id contains \"verify\"."
+    }
+  ]
+}

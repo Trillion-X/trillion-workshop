@@ -16,7 +16,7 @@
 
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { root, rows } from './tool-rows.mjs';
+import { root, rows, rowsOf, folders, tools as TOOLS } from './tool-rows.mjs';
 import { KIT_TEMPLATE, kitProblems } from '../tools/workflows/read-data/kit-problems.mjs';
 
 export const OWED_FILE = resolve(root, 'test/items-without-a-kit.json');
@@ -24,26 +24,39 @@ const RECIPES = resolve(root, 'tools/workflows/recipes/workflows.json');
 
 const slugOf = id => id.slice(id.indexOf(':') + 1);
 export const kitFileOf = (folder, id) => resolve(root, 'tools', folder, 'kits', `${slugOf(id)}.json`);
+// The folder a tool's kit goes in: the folder whose tool-rows.json offers the row. A row a tool-row-source lists from a records
+// folder is offered by the folder holding the source, so its kit sits there, not in the records folder.
+function offeringFolders() {
+  const offered = new Map();
+  for (const folder of folders) {
+    if (!existsSync(resolve(TOOLS, folder, 'tool-rows.json'))) continue;
+    for (const { folder: where, payload } of rowsOf(folder)) if (!offered.has(payload.id)) offered.set(payload.id, folder);
+  }
+  return offered;
+}
 const readKit = file => (existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : undefined);
 
 /** Every item: workflow recipes and tool rows, each with its id, kind, kit file and kit problems (null when it has no kit file). */
 export function items() {
   const recipes = JSON.parse(readFileSync(RECIPES, 'utf8')).records.map(record => record.payload);
-  const tools = rows().filter(({ payload }) => payload.kind === 'ai-tool-descriptor');
-  const make = (kind, id, file, problemsOf) => {
+  const offered = offeringFolders();
+  const tools = rows().filter(({ payload }) => payload.kind === 'ai-tool-descriptor').map(({ folder, payload }) => ({ folder: offered.get(payload.id) ?? folder, payload }));
+  const make = (kind, item, file, problemsOf) => {
+    const id = item.id;
     const kit = readKit(file);
-    return { id, kind, file, problems: kit === undefined ? null : problemsOf(kit) };
+    return { id, kind, file, item, problems: kit === undefined ? null : problemsOf(kit) };
   };
   return [
-    ...recipes.map(recipe => make('workflow', recipe.id, kitFileOf('workflows', recipe.id), kit => kitProblems(kit, { recipe }))),
-    ...tools.map(({ folder, payload }) => make('tool', payload.id, kitFileOf(folder, payload.id), kit => kitProblems(kit, { tool: payload }))),
+    ...recipes.map(recipe => make('workflow', recipe, kitFileOf('workflows', recipe.id), kit => kitProblems(kit, { recipe }))),
+    ...tools.map(({ folder, payload }) => make('tool', payload, kitFileOf(folder, payload.id), kit => kitProblems(kit, { tool: payload }))),
   ];
 }
 
 /** The ids of the items this change touches: a tool whose folder has a changed file outside kits/, a workflow whose recipe is new or differs from `beforeRecipes`. */
 export function touchedIds({ changed = [], beforeRecipes = null } = {}) {
   const touched = new Set();
-  const inFolder = new Map(rows().map(({ folder, payload }) => [payload.id, folder]));
+  const offered = offeringFolders();
+  const inFolder = new Map(rows().map(({ folder, payload }) => [payload.id, offered.get(payload.id) ?? folder]));
   for (const [id, folder] of inFolder) {
     if (changed.some(path => path.startsWith(`tools/${folder}/`) && !path.startsWith(`tools/${folder}/kits/`))) touched.add(id);
   }

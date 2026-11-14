@@ -1,0 +1,44 @@
+{
+  "draft": true,
+  "drafted_from": "tool:trade-an-x-sign-in-code-for-its-tokens's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:trade-an-x-sign-in-code-for-its-tokens with connection, code, redirect_uri, code_verifier.\" Trade the code X's sign-in page handed back for the connection's access and refresh tokens, kept sealed in the vault",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:trade-an-x-sign-in-code-for-its-tokens",
+    "tool:connect-an-account-by-signing-in-to-the-service"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:trade-an-x-sign-in-code-for-its-tokens\", and give it connection, code, redirect_uri, code_verifier.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:trade-an-x-sign-in-code-for-its-tokens and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $ holds the result: Trade the code X's sign-in page handed back for the connection's access and refresh tokens, kept sealed in the vault"
+  ],
+  "worked_examples": [
+    {
+      "title": "Trade an X sign-in code for its tokens on a sample input",
+      "ask": "Run tool:trade-an-x-sign-in-code-for-its-tokens.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:trade-an-x-sign-in-code-for-its-tokens",
+            "input": {
+              "connection": {
+                "connection_id": "<connection_id: The connection: service_connection:x or service_connection:x:<account>>"
+              },
+              "code": "<code: The code X handed back to the sign-in callback>",
+              "redirect_uri": "<redirect_uri: The callback address the sign-in was started with>",
+              "code_verifier": "<code_verifier: The PKCE verifier the sign-in was started with (RFC 7636)>"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $ holds the result: Trade the code X's sign-in page handed back for the connection's access and refresh tokens, kept sealed in the vault",
+      "given": "The person gives: connection_id, code, redirect_uri, code_verifier (shown as <name> in the input)."
+    }
+  ]
+}

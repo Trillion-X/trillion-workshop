@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:name-what-holds-a-drive's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:name-what-holds-a-drive with mount.\" Name the programs on this person's computer that are using one drive right now, which would stop it from ejecting",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:name-what-holds-a-drive",
+    "tool:list-connected-drives"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:name-what-holds-a-drive\", and give it mount.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:name-what-holds-a-drive and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields mount, processes."
+  ],
+  "worked_examples": [
+    {
+      "title": "What is using a drive on a sample input",
+      "ask": "Run tool:name-what-holds-a-drive.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:name-what-holds-a-drive",
+            "input": {
+              "mount": "<mount: Where the drive is mounted on the computer, as tool:list-connected-drives lists it, like /Volumes/Drive>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields mount, processes.",
+      "given": "The person gives: mount (shown as <name> in the input)."
+    }
+  ]
+}

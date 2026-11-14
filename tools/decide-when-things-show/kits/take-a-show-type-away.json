@@ -1,0 +1,37 @@
+{
+  "draft": true,
+  "drafted_from": "tool:take-a-show-type-away's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:take-a-show-type-away with remove_type.\" Take away a preset of show rules I keep",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:take-a-show-type-away"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:take-a-show-type-away\", and give it remove_type.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:take-a-show-type-away and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $ contains \"keep\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Take a show type away on a sample input",
+      "ask": "Run tool:take-a-show-type-away.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:take-a-show-type-away",
+            "input": {
+              "remove_type": "sample-preset"
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $ contains \"keep\"."
+    }
+  ]
+}

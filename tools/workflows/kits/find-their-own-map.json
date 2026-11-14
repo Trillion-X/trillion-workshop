@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:find-their-own-map's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:find-their-own-map.\" Before using a default map, look through everything a person keeps for how they themselves divide their life (the parts they name, the areas they keep coming back to, a framework they wrote or follow) and keep their map as rows of their own map list in their own words, each with where they said it; when they have none, keep the default map.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:find-their-own-map"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:find-their-own-map\".",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:find-their-own-map) and works through its steps in order: look, compare, keep.",
+    "3. Read what each step hands back; the last step is keep."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find a person's own map of their life from its first step",
+      "ask": "Run workflow:find-their-own-map.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:find-their-own-map"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:find-their-own-map",
+      "step": "look",
+      "hands_back": "Step look answers with searched, found."
+    }
+  ]
+}

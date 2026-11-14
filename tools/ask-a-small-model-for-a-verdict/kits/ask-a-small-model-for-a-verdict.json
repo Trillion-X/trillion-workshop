@@ -1,0 +1,39 @@
+{
+  "draft": true,
+  "drafted_from": "tool:ask-a-small-model-for-a-verdict's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:ask-a-small-model-for-a-verdict with content.\" Ask a small model one question about some text (yes or no, which of a list, or how much on a scale) and get its answer with how sure it is, but only after that model got my already-answered cases right",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:ask-a-small-model-for-a-verdict",
+    "tool:tell-it-when-it-was-wrong"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:ask-a-small-model-for-a-verdict\", and give it content.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:ask-a-small-model-for-a-verdict and its input (the worked example shows one).",
+    "3. Read what comes back: An answer with the fields accepted, reason, answer, confidence, agreement, distribution, band, sure."
+  ],
+  "worked_examples": [
+    {
+      "title": "Ask a small model a question about some text, and trust it only if it got my known cases right (runs on your computer) on a sample input",
+      "ask": "Run tool:ask-a-small-model-for-a-verdict.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:ask-a-small-model-for-a-verdict",
+            "input": {
+              "content": "<content: The text the question is about>"
+            }
+          }
+        }
+      },
+      "hands_back": "An answer with the fields accepted, reason, answer, confidence, agreement, distribution, band, sure.",
+      "given": "The person gives: content (shown as <name> in the input)."
+    }
+  ]
+}

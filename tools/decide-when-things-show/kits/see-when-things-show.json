@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:see-when-things-show's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:see-when-things-show with nothing more.\" Show me the rules that decide when things show, hide or stay quiet for me, and the types I keep",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:see-when-things-show"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:see-when-things-show\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-when-things-show and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $ contains \"rules\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "See when things show on a sample input",
+      "ask": "Run tool:see-when-things-show.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:see-when-things-show",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The answer's $ contains \"rules\"."
+    }
+  ]
+}

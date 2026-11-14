@@ -1,0 +1,45 @@
+{
+  "draft": true,
+  "drafted_from": "tool:describe-connected-accounts's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:describe-connected-accounts with connections.\" Say in plain words, for each of my connected accounts, which one is primary, what its sign-in allowed, what Trillion copies from it, what stays live and what Trillion may do with it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:describe-connected-accounts"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:describe-connected-accounts\", and give it connections.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:describe-connected-accounts and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.accounts contains \"it cannot send\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Describe my connected accounts on a sample input",
+      "ask": "Run tool:describe-connected-accounts.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:describe-connected-accounts",
+            "input": {
+              "connections": [
+                {
+                  "connection_id": "c-1",
+                  "vendor": "notion",
+                  "service": "Notion",
+                  "status": "connected",
+                  "can_send": false
+                }
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.accounts contains \"it cannot send\"."
+    }
+  ]
+}

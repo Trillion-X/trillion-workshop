@@ -1,0 +1,45 @@
+{
+  "draft": true,
+  "drafted_from": "tool:find-on-the-screen's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:find-on-the-screen with target.\" Say where a described thing is on the person's screen right now (a button, a field, a line of text) without touching it",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:find-on-the-screen"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:find-on-the-screen\", and give it target.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-on-the-screen and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.app contains \"Finder\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find a thing on the person's computer screen on a sample input",
+      "ask": "Run tool:find-on-the-screen.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:find-on-the-screen",
+            "input": {
+              "app": "Finder",
+              "target": {
+                "match": {
+                  "role": "AXMenuBar"
+                }
+              },
+              "sources": [
+                "ax"
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.app contains \"Finder\"."
+    }
+  ]
+}

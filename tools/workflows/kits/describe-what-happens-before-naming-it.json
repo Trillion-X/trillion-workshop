@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:describe-what-happens-before-naming-it's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:describe-what-happens-before-naming-it.\" Find out what is actually happening in any subject, and under which conditions it holds or fails, before choosing its dimensions, goals, tradeoffs or name: describe it in observable terms, sort every stated requirement into observed, assumed or inherited, keep only the distinctions that change the outcome, derive the fewest principles the evidence supports, and only then propose dimensions (each with a test that could reject it) and a name that claims no more than what was derived.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:describe-what-happens-before-naming-it"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:describe-what-happens-before-naming-it\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:describe-what-happens-before-naming-it) and works through its steps in order: observe, requirements, conditions, principles, dimensions-and-name.",
+    "3. Read what each step hands back; the last step is dimensions-and-name."
+  ],
+  "worked_examples": [
+    {
+      "title": "Describe what happens before you name it from its first step",
+      "ask": "Run workflow:describe-what-happens-before-naming-it.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:describe-what-happens-before-naming-it",
+              "subject": "<subject: string>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:describe-what-happens-before-naming-it",
+      "step": "observe",
+      "hands_back": "Step observe answers with observations.",
+      "given": "The person gives: subject (shown as <name> in the input)."
+    }
+  ]
+}

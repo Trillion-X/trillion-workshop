@@ -1,0 +1,45 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:lock-in's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:lock-in.\" Run one locked-in work session on the needle mover: pick the block from the person's pursuits and calendar, shut out everything else on their computer for the length of it, practise what they keep getting wrong, then say what got done and book the next one",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:lock-in"
+  ],
+  "tools": [
+    "tool:focus",
+    "tool:hold-a-device-quiet",
+    "tool:hold-to-it",
+    "tool:practice",
+    "tool:release-a-device"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:lock-in\".",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:lock-in) and works through its steps in order: before, surroundings, during, after.",
+    "3. Read what each step hands back; the last step is after."
+  ],
+  "worked_examples": [
+    {
+      "title": "Lock in from its first step",
+      "ask": "Run workflow:lock-in.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:lock-in"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:lock-in",
+      "step": "before",
+      "hands_back": "Step before answers with what, minutes, done_means."
+    }
+  ]
+}

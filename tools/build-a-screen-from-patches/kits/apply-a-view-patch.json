@@ -1,0 +1,42 @@
+{
+  "draft": true,
+  "drafted_from": "tool:apply-a-view-patch's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:apply-a-view-patch with answer.\" Rebuild the answer a screen should show from the answer it holds and the changes it was sent",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:apply-a-view-patch",
+    "tool:make-a-view-patch"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:apply-a-view-patch\", and give it answer.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:apply-a-view-patch and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.text contains \"\"a\":2\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Rebuild an answer from its changes on a sample input",
+      "ask": "Run tool:apply-a-view-patch.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:apply-a-view-patch",
+            "input": {
+              "previous": "{\"a\":1}",
+              "answer": {
+                "status": 200,
+                "text": "{\"a\":2}"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.text contains \"\"a\":2\"."
+    }
+  ]
+}

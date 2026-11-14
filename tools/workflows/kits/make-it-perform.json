@@ -1,0 +1,48 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:make-it-perform's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:make-it-perform.\" Improve discoverability, conversion and useful performance across search, answer engines, social channels and the live experience using current evidence.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:make-it-perform",
+    "workflow:trillion-x-mode",
+    "workflow:turn-something-shared-into-what-you-can-use"
+  ],
+  "tools": [
+    "tool:start-a-recipe-run"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:make-it-perform\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:make-it-perform) and works through its steps in order: discover, improve, measure.",
+    "3. Read what each step hands back; the last step is measure."
+  ],
+  "worked_examples": [
+    {
+      "title": "Make It Perform Mode from its first step",
+      "ask": "Run workflow:make-it-perform.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:make-it-perform",
+              "request": "<request: string>",
+              "scope": "<scope: string>",
+              "constraints": [],
+              "authorized_actions": []
+            }
+          }
+        }
+      },
+      "workflow": "workflow:make-it-perform",
+      "step": "discover",
+      "hands_back": "Step discover answers with summary, evidence, requirements.",
+      "given": "The person gives: request, scope (shown as <name> in the input)."
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:write-a-research-prompt-without-the-answer-in-it's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:write-a-research-prompt-without-the-answer-in-it.\" Write a research prompt (for an AI or a person) that tests the requester's question without slipping in the writer's expected answer: keep the requester's goal and scope in their own words, find every term that presumes a result (a tradeoff, a limit, a fixed number of dimensions, a physical constraint, a frontier), delete it or turn it into something to be tested, keep only the constraints the requester gave, and log every change.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:write-a-research-prompt-without-the-answer-in-it"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:write-a-research-prompt-without-the-answer-in-it\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:write-a-research-prompt-without-the-answer-in-it) and works through its steps in order: goal, mark, rewrite, verify, label-claims.",
+    "3. Read what each step hands back; the last step is label-claims."
+  ],
+  "worked_examples": [
+    {
+      "title": "Write a research prompt without the answer in it from its first step",
+      "ask": "Run workflow:write-a-research-prompt-without-the-answer-in-it.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:write-a-research-prompt-without-the-answer-in-it",
+              "goal": "<goal: string>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:write-a-research-prompt-without-the-answer-in-it",
+      "step": "goal",
+      "hands_back": "Step goal answers with goal, scope.",
+      "given": "The person gives: goal (shown as <name> in the input)."
+    }
+  ]
+}

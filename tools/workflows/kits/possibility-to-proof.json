@@ -1,0 +1,41 @@
+{
+  "draft": true,
+  "drafted_from": "workflow:possibility-to-proof's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run workflow:possibility-to-proof.\" Convert any person's idea, observed unmet need, recombined tool capability, business or service concept into a hypothesis, an independently executable minimal real-world experiment, observed customer behavior or cost, and a revised next action; iterate without treating a draft or demo as market validation.",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [
+    "workflow:possibility-to-proof"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Say to your AI: \"Run workflow:possibility-to-proof\" with the input in the worked example.",
+    "2. The AI starts it with tool:start-a-recipe-run (row workflow:possibility-to-proof) and works through its steps in order: first-principles, combinatorics, test, execute, learn-and-repeat.",
+    "3. Read what each step hands back; the last step is learn-and-repeat."
+  ],
+  "worked_examples": [
+    {
+      "title": "Turn a possibility into reality evidence from its first step",
+      "ask": "Run workflow:possibility-to-proof.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:possibility-to-proof",
+              "idea": "<idea: string>"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:possibility-to-proof",
+      "step": "first-principles",
+      "hands_back": "Step first-principles answers with decision, desired_change, chooser, need, evidence, falsifier.",
+      "given": "The person gives: idea (shown as <name> in the input)."
+    }
+  ]
+}
