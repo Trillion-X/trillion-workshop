@@ -20,18 +20,20 @@ const SELF = 'test/failed-names.test.mjs';
 const CODE = /\.(mjs|cjs|js|jsx|ts|tsx|py|sh|swift|rs|kt|java|m|h|c|go|rb|css|html|svelte|vue)$/;
 const SKIP = new Set(['node_modules', '.git', 'from-old-trillion', 'target', 'dist', 'build', '.build', 'DerivedData']);
 
-// Every receipt's moved file and the identity it was moved with: { 'tools/<tool>/...': '1f:...' }.
-function movedCopies(dir = join(ROOT, 'tools')) {
-  const moved = new Map();
+// Every receipt's moved file and the identity it was moved with, from each moved-from.json at any depth under tools/:
+// { 'tools/<tool>/...': '1f:...' } (a receipt names it `identity`, or `identity_at_move` when the copy was changed after).
+function movedCopies(dir = join(ROOT, 'tools'), moved = new Map()) {
   const walk = value => {
     if (Array.isArray(value)) return value.forEach(walk);
     if (!value || typeof value !== 'object') return;
-    if (typeof value.to === 'string' && typeof value.identity === 'string') moved.set(value.to, value.identity);
+    const identity = value.identity ?? value.identity_at_move;
+    if (typeof value.to === 'string' && typeof identity === 'string') moved.set(value.to, identity);
     Object.values(value).forEach(walk);
   };
-  for (const tool of readdirSync(dir, { withFileTypes: true })) {
-    if (!tool.isDirectory()) continue;
-    try { walk(JSON.parse(readFileSync(join(dir, tool.name, 'moved-from.json'), 'utf8'))); } catch {}
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (SKIP.has(entry.name)) continue;
+    if (entry.isDirectory()) movedCopies(join(dir, entry.name), moved);
+    else if (entry.name === 'moved-from.json') { try { walk(JSON.parse(readFileSync(join(dir, entry.name), 'utf8'))); } catch {} }
   }
   return moved;
 }
