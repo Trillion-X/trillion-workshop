@@ -11,6 +11,139 @@
       "source_identity": "1f:f6a7de29c6d3c3656b6d2015415bdda2a0a5c2c5789951b885a1dc7b8bc1742a",
       "identity": "1f:3ec0a74c54687134c00348b7b8a9a7b30ee37c7d8c5776a7a1505af112762427",
       "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
+    },
+    {
+      "from": "packages/screen-arrangement/read-data/__tests__/build-companion-overlay-arrangement.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/read-data/__tests__/build-companion-overlay-arrangement.test.ts.held",
+      "source_identity": "1f:07f09c5a42edd08e5cf9e8aaf7be3dc935e0d5ecd3c708185da08c8b4c9b29e6",
+      "identity": "1f:07f09c5a42edd08e5cf9e8aaf7be3dc935e0d5ecd3c708185da08c8b4c9b29e6"
+    },
+    {
+      "from": "packages/screen-arrangement/read-data/always-mount-companions.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/read-data/always-mount-companions.test.ts.held",
+      "source_identity": "1f:20f299070e012b46336cb3a7cd4b096001cb918412c54de1f85a28c7f6321f16",
+      "identity": "1f:20f299070e012b46336cb3a7cd4b096001cb918412c54de1f85a28c7f6321f16"
+    },
+    {
+      "from": "packages/screen-arrangement/read-data/application-composition.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/read-data/application-composition.test.ts.held",
+      "source_identity": "1f:81a5e23b9b1163bab54deb724ece7814fd4ea0e0eb0d6e985615a6c89c2ddf0b",
+      "identity": "1f:81a5e23b9b1163bab54deb724ece7814fd4ea0e0eb0d6e985615a6c89c2ddf0b"
+    },
+    {
+      "from": "packages/screen-arrangement/read-data/application-composition.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/read-data/application-composition.ts",
+      "source_identity": "1f:f27e4f32b119fc82be759fce39775400190777575d92e64e52e956bcd45864ac",
+      "identity": "1f:f27e4f32b119fc82be759fce39775400190777575d92e64e52e956bcd45864ac"
+    },
+    {
+      "from": "packages/screen-arrangement/read-data/application-entry-map.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/read-data/application-entry-map.test.ts.held",
+      "source_identity": "1f:43b83cf3f6ce3c7a57f547bdbb2b9e1201ebc057e648b700f3f0860e76b24da2",
+      "identity": "1f:43b83cf3f6ce3c7a57f547bdbb2b9e1201ebc057e648b700f3f0860e76b24da2"
+    },
+    {
+      "from": "packages/screen-arrangement/read-data/application-layout-state-contribution.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/read-data/application-layout-state-contribution.test.ts.held",
+      "source_identity": "1f:a830f3625642a852647e98308aec5c51b20aa7837d534766332f58b257b4b971",
+      "identity": "1f:a830f3625642a852647e98308aec5c51b20aa7837d534766332f58b257b4b971"
+    },
+    {
+      "from": "packages/screen-arrangement/read-data/application-projector-template.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/read-data/application-projector-template.json",
+      "source_identity": "1f:7f36d5d09577574a6ecb8231891fdc414acd104aa735bc276ae29de9d8caaa80",
+      "identity": "1f:7f36d5d09577574a6ecb8231891fdc414acd104aa735bc276ae29de9d8caaa80"
+    },
+    {
+      "from": "packages/screen-arrangement/read-data/application-surface-catalog-contribution.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/read-data/application-surface-catalog-contribution.test.ts.held",
+      "source_identity": "1f:19225b2ee384c1feb7998b1d7aa3eaad0883b32fa2a1ca5502f6963840340c50",
+      "identity": "1f:19225b2ee384c1feb7998b1d7aa3eaad0883b32fa2a1ca5502f6963840340c50"
+    },
+    {
+      "from": "packages/screen-arrangement/read-data/application-surface-catalog-contribution.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/read-data/application-surface-catalog-contribution.ts",
+      "source_identity": "1f:361a7c44626a5cd02c7eaa4a7ff7a4a810344cc9c728ec865df01691cbf25978",
+      "identity": "1f:361a7c44626a5cd02c7eaa4a7ff7a4a810344cc9c728ec865df01691cbf25978"
+    },
+    {
+      "from": "packages/screen-arrangement/read-data/chrome-visibility.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/read-data/chrome-visibility.test.ts.held",
+      "source_identity": "1f:19eb5a2391994f00b5b4ffdeb1b7b4078024cba1672a873e53e6b15c15f36ff2",
+      "identity": "1f:19eb5a2391994f00b5b4ffdeb1b7b4078024cba1672a873e53e6b15c15f36ff2"
+    },
+    {
+      "from": "packages/screen-arrangement/read-data/placeable-surface-input-overrides.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/read-data/placeable-surface-input-overrides.test.ts.held",
+      "source_identity": "1f:beb04c2f48aad168573f719ce5df6bb196b2a98c73c63f79cbdb3e8ae3029582",
+      "identity": "1f:beb04c2f48aad168573f719ce5df6bb196b2a98c73c63f79cbdb3e8ae3029582"
+    },
+    {
+      "from": "packages/screen-arrangement/read-data/read-published-records.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/read-data/read-published-records.test.ts.held",
+      "source_identity": "1f:d9185044b0a4fdede60f3065a23ddfc51b376b306ef25da6adb7ca6b0bc72dd0",
+      "identity": "1f:d9185044b0a4fdede60f3065a23ddfc51b376b306ef25da6adb7ca6b0bc72dd0"
+    },
+    {
+      "from": "packages/screen-arrangement/read-data/read-screen-arrangement.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/read-data/read-screen-arrangement.test.ts.held",
+      "source_identity": "1f:fd0dba6496405bb212d097ac87295c22fd8ffb2eef4efe6ea8dc26959340e18b",
+      "identity": "1f:fd0dba6496405bb212d097ac87295c22fd8ffb2eef4efe6ea8dc26959340e18b"
+    },
+    {
+      "from": "packages/screen-arrangement/read-data/read-tab-collections.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/read-data/read-tab-collections.test.ts.held",
+      "source_identity": "1f:361a2430341cd790825fb75e72217ae31ada9704c6490d6659e8638fe6ebd7be",
+      "identity": "1f:361a2430341cd790825fb75e72217ae31ada9704c6490d6659e8638fe6ebd7be"
+    },
+    {
+      "from": "packages/screen-arrangement/read-data/region-chrome.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/read-data/region-chrome.test.ts.held",
+      "source_identity": "1f:73e79e6888f376ea3bc1b49d6c89704f663f926455984d74ca157508e15cf022",
+      "identity": "1f:73e79e6888f376ea3bc1b49d6c89704f663f926455984d74ca157508e15cf022"
+    },
+    {
+      "from": "packages/screen-arrangement/read-data/split-tree-operations.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/read-data/split-tree-operations.test.ts.held",
+      "source_identity": "1f:6c95dc0d3b95ab886b9823da02583aa4981d71d6a7052aa78257f0e5d9cddc43",
+      "identity": "1f:6c95dc0d3b95ab886b9823da02583aa4981d71d6a7052aa78257f0e5d9cddc43"
+    },
+    {
+      "from": "packages/screen-arrangement/read-data/tab-presentation-modes.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/read-data/tab-presentation-modes.test.ts.held",
+      "source_identity": "1f:98e67c1ab18385d56d82edf0c31778d535d977bff84dfa0b681450d24cd08289",
+      "identity": "1f:98e67c1ab18385d56d82edf0c31778d535d977bff84dfa0b681450d24cd08289"
+    },
+    {
+      "from": "packages/screen-arrangement/read-data/target-reply-envelope.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/read-data/target-reply-envelope.test.ts.held",
+      "source_identity": "1f:b5ecddea79d04dc2685800a151e992bc6e6a3ec42627fe99cd96e47406b3f43c",
+      "identity": "1f:b5ecddea79d04dc2685800a151e992bc6e6a3ec42627fe99cd96e47406b3f43c"
+    },
+    {
+      "from": "packages/screen-arrangement/read-data/worker-console-arrangement.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/read-data/worker-console-arrangement.test.ts.held",
+      "source_identity": "1f:8b29b4db04bc130719fa179afe10ac35aa8af5cb6502198007d7c966ec42c1ae",
+      "identity": "1f:8b29b4db04bc130719fa179afe10ac35aa8af5cb6502198007d7c966ec42c1ae"
     }
   ]
 }

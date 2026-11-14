@@ -17,6 +17,13 @@
       "to": "tools/publish-a-site-at-its-own-address/web/test/public-site-pages.test.mjs",
       "source_identity": "1f:abe19f2699707016711d6fc7643720cbbb0a8ca83563edcde7df9ba3da90b680",
       "identity": "1f:abe19f2699707016711d6fc7643720cbbb0a8ca83563edcde7df9ba3da90b680"
+    },
+    {
+      "from": "packages/public-site-publisher/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/publish-a-site-at-its-own-address/things-to-store-and-run.json",
+      "source_identity": "1f:57801a080928ed372c9b2e2e8381590f3b760e249508bac234ba66b6589ea074",
+      "identity": "1f:57801a080928ed372c9b2e2e8381590f3b760e249508bac234ba66b6589ea074"
     }
   ]
 }

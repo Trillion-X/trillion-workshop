@@ -1,0 +1,57 @@
+{
+  "about": "Files moved here byte for byte from another code tree: each names its source path and commit, the identity of its source bytes and of its bytes here. Nothing was changed.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/structured-file-output/do-work/make-structured-file-output.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/export-documents-to-files/do-work/make-structured-file-output.test.ts.held",
+      "source_identity": "1f:6cf2bc4ebccf4042f239c9e9f75e74a6acc288a7c12178b17db7ec3e7abdd60a",
+      "identity": "1f:6cf2bc4ebccf4042f239c9e9f75e74a6acc288a7c12178b17db7ec3e7abdd60a"
+    },
+    {
+      "from": "packages/structured-file-output/do-work/make-structured-file-output.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/export-documents-to-files/do-work/make-structured-file-output.ts",
+      "source_identity": "1f:2d4a8b0849d7c2d72f3eff861fb70963e52ced2dfdb25619a47399f77786feec",
+      "identity": "1f:2d4a8b0849d7c2d72f3eff861fb70963e52ced2dfdb25619a47399f77786feec"
+    },
+    {
+      "from": "packages/structured-file-output/do-work/process-scripts/read-structured-docx.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/export-documents-to-files/do-work/process-scripts/read-structured-docx.py",
+      "source_identity": "1f:d2a8245e2b38edde5de48db34d3fed64f40754480861e0525359ed965d7de35d",
+      "identity": "1f:d2a8245e2b38edde5de48db34d3fed64f40754480861e0525359ed965d7de35d"
+    },
+    {
+      "from": "packages/structured-file-output/do-work/process-scripts/render-structured-file-export.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/export-documents-to-files/do-work/process-scripts/render-structured-file-export.py",
+      "source_identity": "1f:78864ba8d6bdc2eda52c30176c55794046fb1f970acc9643f5d88e9e20555bf1",
+      "identity": "1f:78864ba8d6bdc2eda52c30176c55794046fb1f970acc9643f5d88e9e20555bf1"
+    },
+    {
+      "from": "packages/structured-file-output/do-work/process-scripts/test-structured-file-export-docx.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/export-documents-to-files/do-work/process-scripts/test-structured-file-export-docx.py",
+      "source_identity": "1f:4ca97255a0f57f600fa2bb17c50ad5934488039dbde33cbfde8b8216bd6aa1b6",
+      "identity": "1f:4ca97255a0f57f600fa2bb17c50ad5934488039dbde33cbfde8b8216bd6aa1b6"
+    },
+    {
+      "from": "packages/structured-file-output/do-work/process-scripts/test-structured-file-export-pdf.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/export-documents-to-files/do-work/process-scripts/test-structured-file-export-pdf.py",
+      "source_identity": "1f:c2b0df16b8d06ab116d68e0d0c3c37faca9a538b34aec41b07271238f67e894d",
+      "identity": "1f:c2b0df16b8d06ab116d68e0d0c3c37faca9a538b34aec41b07271238f67e894d"
+    },
+    {
+      "from": "packages/structured-file-output/do-work/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/export-documents-to-files/do-work/README.md",
+      "source_identity": "1f:68600d9b79f80b28c08de71516367b0cf472b3f7fd4963def6dd0faa2febaea8",
+      "identity": "1f:68600d9b79f80b28c08de71516367b0cf472b3f7fd4963def6dd0faa2febaea8"
+    }
+  ]
+}

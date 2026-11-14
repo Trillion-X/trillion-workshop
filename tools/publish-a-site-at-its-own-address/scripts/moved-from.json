@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree: each names its source path and commit, the identity of its source bytes and of its bytes here. Nothing was changed.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/public-site-publisher/scripts/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/publish-a-site-at-its-own-address/scripts/README.md",
+      "source_identity": "1f:292a2a4c803501cd13710d213fb91049aeabca426bc19fadfc9fde964f6838a9",
+      "identity": "1f:292a2a4c803501cd13710d213fb91049aeabca426bc19fadfc9fde964f6838a9"
+    },
+    {
+      "from": "packages/public-site-publisher/scripts/check-compiled-vocabulary.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/publish-a-site-at-its-own-address/scripts/check-compiled-vocabulary.mjs",
+      "source_identity": "1f:5deb5d3c7b85a09c871208efc06363ea0241ddf1f69df1d557319eac3031caec",
+      "identity": "1f:5deb5d3c7b85a09c871208efc06363ea0241ddf1f69df1d557319eac3031caec"
+    },
+    {
+      "from": "packages/public-site-publisher/scripts/check-generic-backend-boundary.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/publish-a-site-at-its-own-address/scripts/check-generic-backend-boundary.mjs",
+      "source_identity": "1f:4be04b086024556e58907cfe0b0b98b22fbee222f352beb5d7a7caf63d821cc6",
+      "identity": "1f:4be04b086024556e58907cfe0b0b98b22fbee222f352beb5d7a7caf63d821cc6"
+    }
+  ]
+}

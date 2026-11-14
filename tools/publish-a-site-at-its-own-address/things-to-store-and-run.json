@@ -1,0 +1,434 @@
+{
+  "package": "public-site-publisher",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::public-site-publisher::primitive-contract",
+      "address_mode": "identity_text",
+      "path": [
+        "package-primitive",
+        "configured-record-action-projection"
+      ],
+      "payload": {
+        "kind": "configured-record-action-projection-contract",
+        "package": "public-site-publisher",
+        "capability": "configured-record-action-projection",
+        "new_slot": false,
+        "owns": [
+          "record-event-configuration",
+          "owner-action-binding",
+          "effect-receipt-role",
+          "projection-descriptor-role",
+          "reader-contract"
+        ],
+        "does_not_own": [
+          "document rendering",
+          "hosted app activation",
+          "http transport",
+          "credentials",
+          "workflow execution",
+          "native process execution",
+          "runtime sync",
+          "shared visual primitives"
+        ],
+        "open_data_contract": {
+          "field_roles_are_data": true,
+          "action_roles_are_data": true,
+          "effect_roles_are_data": true,
+          "human_labels_are_data": true,
+          "closed_domain_status_enums": false
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::public-site-publisher::factflow::surface",
+      "address_mode": "identity_text",
+      "path": [
+        "package-primitive",
+        "factflow"
+      ],
+      "payload": {
+        "kind": "bitfield-eeaf-factflow",
+        "package": "public-site-publisher",
+        "label": "Public Websites",
+        "reads": [
+          {
+            "address": "package::public-site-publisher::input::configured-record-action-projection",
+            "role": "package-owned record events, action bindings, effect receipts, and projection descriptors"
+          }
+        ],
+        "writes": [
+          {
+            "address": "package::public-site-publisher::target::request-configured-action",
+            "role": "append package record events or dispatch configured owner-action handoffs"
+          }
+        ],
+        "execution_locus": "slot::workflow",
+        "new_slot": false
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::public-site-publisher::input::configured-record-action-projection",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "configured-record-action-projection",
+        "is_default": true,
+        "value_address_label": "public-site-publisher.configured-record-action-projection",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "public-site-publisher.configured-record-action-projection",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "configured-record-action-projection",
+        "records": [],
+        "events": [],
+        "action_bindings": [
+          {
+            "id": "action:public-site-publisher.request-preview",
+            "role_ref": "package-data/public-site-publisher/action-roles/request-preview",
+            "label": "Preview website",
+            "target": "slot::workflow",
+            "definition_id": "package::public-document-renderer::workflow-action::render-and-publish",
+            "input_bindings": [
+              {
+                "key": "content_ref",
+                "source": "subject",
+                "path": [
+                  "fields",
+                  "selected_content_ref"
+                ]
+              },
+              {
+                "key": "correlation_ref",
+                "source": "context",
+                "path": [
+                  "correlation_ref"
+                ]
+              }
+            ],
+            "effect_role_ref": "package-data/public-site-publisher/effect-roles/preview-result"
+          },
+          {
+            "id": "action:public-site-publisher.request-live-activation",
+            "role_ref": "package-data/public-site-publisher/action-roles/request-live-activation",
+            "label": "Make website live",
+            "target": "slot::workflow",
+            "definition_id": "package::hosted-public-app::workflow-action::publish-live-site",
+            "input_bindings": [
+              {
+                "key": "site_ref",
+                "source": "subject",
+                "path": [
+                  "subject_ref"
+                ]
+              },
+              {
+                "key": "render_ref",
+                "source": "subject",
+                "path": [
+                  "fields",
+                  "last_render_ref"
+                ]
+              },
+              {
+                "key": "correlation_ref",
+                "source": "context",
+                "path": [
+                  "correlation_ref"
+                ]
+              }
+            ],
+            "effect_role_ref": "package-data/public-site-publisher/effect-roles/live-result"
+          },
+          {
+            "id": "action:public-site-publisher.request-content-update",
+            "role_ref": "package-data/public-site-publisher/action-roles/request-content-update",
+            "label": "Update live content",
+            "target": "slot::workflow",
+            "definition_id": "package::public-document-site::workflow-action::render-on-publish",
+            "input_bindings": [
+              {
+                "key": "site_ref",
+                "source": "subject",
+                "path": [
+                  "subject_ref"
+                ]
+              },
+              {
+                "key": "content_ref",
+                "source": "subject",
+                "path": [
+                  "fields",
+                  "selected_content_ref"
+                ]
+              },
+              {
+                "key": "correlation_ref",
+                "source": "context",
+                "path": [
+                  "correlation_ref"
+                ]
+              }
+            ],
+            "effect_role_ref": "package-data/public-site-publisher/effect-roles/update-result"
+          },
+          {
+            "id": "action:public-site-publisher.request-address-check",
+            "role_ref": "package-data/public-site-publisher/action-roles/request-address-check",
+            "label": "Check address",
+            "target": "slot::workflow",
+            "definition_id": "package::service-connections::workflow-action::verify-service-credential",
+            "input_bindings": [
+              {
+                "key": "address_ref",
+                "source": "subject",
+                "path": [
+                  "fields",
+                  "external_address"
+                ]
+              },
+              {
+                "key": "correlation_ref",
+                "source": "context",
+                "path": [
+                  "correlation_ref"
+                ]
+              }
+            ],
+            "effect_role_ref": "package-data/public-site-publisher/effect-roles/address-check-result"
+          }
+        ],
+        "effect_receipt_roles": [
+          {
+            "role_ref": "package-data/public-site-publisher/effect-roles/preview-result",
+            "preserve_fields_on_failure": [
+              "external_address"
+            ],
+            "proof_refs": [
+              "process_session_ref"
+            ]
+          },
+          {
+            "role_ref": "package-data/public-site-publisher/effect-roles/live-result",
+            "preserve_fields_on_failure": [
+              "external_address"
+            ],
+            "proof_refs": [
+              "process_session_ref"
+            ]
+          },
+          {
+            "role_ref": "package-data/public-site-publisher/effect-roles/update-result",
+            "preserve_fields_on_failure": [
+              "external_address"
+            ],
+            "proof_refs": [
+              "process_session_ref"
+            ]
+          },
+          {
+            "role_ref": "package-data/public-site-publisher/effect-roles/address-check-result",
+            "preserve_fields_on_failure": [
+              "external_address"
+            ],
+            "proof_refs": [
+              "process_session_ref"
+            ]
+          }
+        ],
+        "projection_descriptors": [
+          {
+            "id": "projection:public-site-publisher.reader",
+            "kind": "projection-descriptor",
+            "field_roles": [
+              {
+                "role": "title",
+                "field_ref": "package-data/public-site-publisher/fields/name"
+              },
+              {
+                "role": "selected_content",
+                "field_ref": "package-data/public-site-publisher/fields/selected-content-ref"
+              },
+              {
+                "role": "external_address",
+                "field_ref": "package-data/public-site-publisher/fields/external-address"
+              },
+              {
+                "role": "last_successful_effect",
+                "field_ref": "package-data/public-site-publisher/fields/last-successful-effect-ref"
+              }
+            ],
+            "action_roles": [
+              {
+                "role": "preview_action",
+                "action_ref": "action:public-site-publisher.request-preview"
+              },
+              {
+                "role": "primary_action",
+                "action_ref": "action:public-site-publisher.request-content-update"
+              },
+              {
+                "role": "activation_action",
+                "action_ref": "action:public-site-publisher.request-live-activation"
+              },
+              {
+                "role": "address_check_action",
+                "action_ref": "action:public-site-publisher.request-address-check"
+              }
+            ],
+            "view_roles": [
+              {
+                "role": "collection",
+                "label_ref": "package-data/public-site-publisher/labels/collection"
+              },
+              {
+                "role": "detail",
+                "label_ref": "package-data/public-site-publisher/labels/detail"
+              },
+              {
+                "role": "history",
+                "relation_ref": "package-data/public-site-publisher/relations/effect-history"
+              }
+            ]
+          }
+        ],
+        "human_labels": [
+          {
+            "ref": "package-data/public-site-publisher/labels/collection",
+            "text": "Public Websites"
+          },
+          {
+            "ref": "package-data/public-site-publisher/labels/detail",
+            "text": "Website details"
+          },
+          {
+            "ref": "package-data/public-site-publisher/labels/still-live",
+            "text": "This website is still live"
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::public-site-publisher::target::request-configured-action",
+      "path": [
+        "packages",
+        "public-site-publisher",
+        "targets",
+        "request-configured-action"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "target": "public-site-publisher.request-configured-action",
+        "entry_name": "request-configured-action",
+        "source_path": "src/owner-action-bindings.mjs",
+        "export_name": "buildOwnerActionInvocation"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::public-site-publisher::contract::projection-reader",
+      "address_mode": "identity_text",
+      "path": [
+        "package-primitive",
+        "reader-contract"
+      ],
+      "payload": {
+        "kind": "projection-reader-contract",
+        "package": "public-site-publisher",
+        "source_path": "src/projection-reader-contract.mjs",
+        "platforms": [
+          "react-desktop-browser",
+          "ios-jscore"
+        ],
+        "shared_fixture_required": true,
+        "reader_receives": [
+          "projection_rows",
+          "action_descriptors",
+          "human_labels"
+        ],
+        "reader_does_not_receive": [
+          "owner package internals",
+          "process descriptors",
+          "credentials",
+          "transport configuration"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::public-site-publisher::published-records",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "cell_table",
+        "columns": [
+          {
+            "column": 0,
+            "source": {
+              "path": [
+                "record",
+                "address"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "non_empty_text"
+            }
+          },
+          {
+            "column": 1,
+            "source": {
+              "path": [
+                "record",
+                "payload_json_text"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "json_text"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

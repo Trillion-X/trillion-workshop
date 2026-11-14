@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree: each names its source path and commit, the identity of its source bytes and of its bytes here. Nothing was changed.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/transcript-history/do-work/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/transcript-reader/do-work/README.md",
+      "source_identity": "1f:30e6a6ace138e6dd7ab318961b8e61a5cc2b7a3a4f8b4828e634d0e59b8fbc9d",
+      "identity": "1f:30e6a6ace138e6dd7ab318961b8e61a5cc2b7a3a4f8b4828e634d0e59b8fbc9d"
+    },
+    {
+      "from": "packages/transcript-history/do-work/accept-transcript-records.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/transcript-reader/do-work/accept-transcript-records.test.ts.held",
+      "source_identity": "1f:3f0654ade7b0c4d2bbe44843a6a89f55cebfa072dc12ca53211baf32ff45cac0",
+      "identity": "1f:3f0654ade7b0c4d2bbe44843a6a89f55cebfa072dc12ca53211baf32ff45cac0"
+    },
+    {
+      "from": "packages/transcript-history/do-work/accept-transcript-records.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/transcript-reader/do-work/accept-transcript-records.ts",
+      "source_identity": "1f:00fa3fc075f05efbc3dc4f905bc1407963ecd5f32c176115aea880e49664c4f7",
+      "identity": "1f:00fa3fc075f05efbc3dc4f905bc1407963ecd5f32c176115aea880e49664c4f7"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree: each names its source path and commit, the identity of its source bytes and of its bytes here. Nothing was changed.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/signed-event-effects/do-work/signed-event-effects-targets.d.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-a-signed-events-effects-once/do-work/signed-event-effects-targets.d.ts",
+      "source_identity": "1f:540af2f98ccd0680692be1772a3754c39eef50c172f3dd4055188a2cdb35ac23",
+      "identity": "1f:540af2f98ccd0680692be1772a3754c39eef50c172f3dd4055188a2cdb35ac23"
+    },
+    {
+      "from": "packages/signed-event-effects/do-work/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-a-signed-events-effects-once/do-work/README.md",
+      "source_identity": "1f:7a7d4acde338e6d8bbdd9cec4fd8e67a372f75dff46bb826cc1f45524659c14d",
+      "identity": "1f:7a7d4acde338e6d8bbdd9cec4fd8e67a372f75dff46bb826cc1f45524659c14d"
+    }
+  ]
+}

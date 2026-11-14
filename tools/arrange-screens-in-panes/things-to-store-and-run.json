@@ -1,0 +1,2319 @@
+{
+  "package": "screen-arrangement",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::checks",
+      "path": [
+        "packages",
+        "screen-arrangement",
+        "checks"
+      ],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "show/OverlayArranger.resize.test.tsx",
+          "show/tab-bar-placement.test.tsx",
+          "read-data/split-tree-operations.test.ts",
+          "show/returning-to-the-tab-keeps-the-screen.test.tsx",
+          "show/SplitTreeArranger.motion.test.tsx",
+          "show/SplitTreeArranger.responsive.test.tsx",
+          "show/split-tree-constraints.test.ts",
+          "show/ArrangementNavigator.test.tsx",
+          "show/canvas-gestures.test.ts",
+          "tests/source-built-slot.test.mjs",
+          "show/arrangement-zoom.test.ts",
+          "show/ArrangementSurfaceControl.test.tsx",
+          "show/LayerPlacementPanel.test.tsx",
+          "show/continuous-layout-navigation.test.ts",
+          "show/continuous-layout-navigation.component.test.tsx",
+          "show/__tests__/browser-local-persistence.test.tsx",
+          "show/instant-tab-activation.test.tsx",
+          "show/mount-screen-arrangement.test.tsx",
+          "show/mount-floating-panel.geometry.test.ts",
+          "do-work/apply-application-composition-selection.test.ts",
+          "do-work/ask-screen-arrangement.test.ts",
+          "do-work/build-application-layout-state-contribution.test.ts",
+          "do-work/build-application-surface-catalog-contribution.test.ts",
+          "do-work/dispatch-application-composition-transition.test.ts",
+          "do-work/layout-operations.test.ts",
+          "do-work/migrate-layout-presets-to-groups.test.ts",
+          "do-work/node-bookmark-operations.test.ts",
+          "do-work/node-history-operations.test.ts",
+          "do-work/owned-address-identity.test.ts",
+          "do-work/plan-application-composition-transition.test.ts",
+          "do-work/preserve-client-owned.test.ts",
+          "do-work/read-canonical-artifact-object-url.test.ts",
+          "do-work/save-arrangement-as-group.test.ts",
+          "do-work/save-layout-state.test.ts",
+          "do-work/store-bytes-to-cas.test.ts",
+          "read-data/__tests__/build-companion-overlay-arrangement.test.ts",
+          "read-data/always-mount-companions.test.ts",
+          "read-data/application-composition.test.ts",
+          "read-data/application-entry-map.test.ts",
+          "read-data/target-reply-envelope.test.ts",
+          "read-data/application-layout-state-contribution.test.ts",
+          "read-data/application-surface-catalog-contribution.test.ts",
+          "read-data/chrome-visibility.test.ts",
+          "read-data/placeable-surface-input-overrides.test.ts",
+          "read-data/read-published-records.test.ts",
+          "read-data/read-screen-arrangement.test.ts",
+          "read-data/read-tab-collections.test.ts",
+          "read-data/region-chrome.test.ts",
+          "read-data/tab-presentation-modes.test.ts",
+          "read-data/worker-console-arrangement.test.ts",
+          "tests/application-selection-triggers.test.mjs",
+          "show/CompanionMounts.test.tsx",
+          "show/ComponentMaterialSurface.test.tsx",
+          "show/ContainerHeader.interaction-contract.test.tsx",
+          "show/SavedLayoutMenu.accessibility.test.tsx",
+          "show/ContainerHost.pointer-focus.test.tsx",
+          "show/EmptyContainer.test.tsx",
+          "show/NarrowingTheOfferKeepsOpenWorkDrawable.test.tsx",
+          "show/WorkspaceShell.test.ts",
+          "show/__tests__/node-action-pack.test.tsx",
+          "show/__tests__/node-menu-context.test.ts",
+          "show/always-mount-companions.test.tsx",
+          "show/open-placeable-surface.test.ts",
+          "show/open-placeable-surface.overlay.test.ts",
+          "show/ContainerHost.floating-grab.test.tsx",
+          "show/open-placeable-surface.reveal.test.ts",
+          "show/optimistic-tab-close.test.ts",
+          "show/placeable-surface-tab.test.ts",
+          "show/region-drop-intents.test.ts",
+          "show/screen-arrangement-context.mount.test.tsx",
+          "show/surface-intent-destination.test.ts",
+          "show/visual-layer-runtime.test.tsx",
+          "tests/required-chrome-is-checked-against-roots.test.mjs",
+          "tests/record-application-composition-selection.test.mjs"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::input::viewer-access-refs",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "viewer-access-refs",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "viewer-access-refs",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "screen-arrangement-thing-to-put-on-screen-source",
+      "source_path": "thing-to-put-on-screen/put-screen-arrangement-on-screen.js"
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::thing-to-put-on-screen",
+      "path": [
+        "packages",
+        "screen-arrangement",
+        "things_to_put_on_screen",
+        "primary"
+      ],
+      "payload_template": {
+        "payload": {
+          "artifact": {
+            "hash": ""
+          },
+          "props": {},
+          "environment": {},
+          "dependencies": {},
+          "required_capabilities": [
+            "thing-to-put-on-screen"
+          ],
+          "lifecycle_key": "component:screen-arrangement"
+        },
+        "replacements": [
+          {
+            "path": [
+              "artifact",
+              "hash"
+            ],
+            "value": {
+              "type": "stored_bytes_content_hash",
+              "name": "screen-arrangement-thing-to-put-on-screen-source",
+              "encoding": "string"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::workflow-action::build-this-apps-screen",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:build-this-apps-screen",
+        "kind": "action",
+        "name": "build-this-apps-screen",
+        "description": "Show this app's saved home screen and check that it opened.",
+        "why_this_action_exists": "An app can include a home screen without showing it. This action opens the saved home screen and checks each part before reporting success.",
+        "is_active": true,
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "selection_receipt_ref": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          "required": [
+            "selection_receipt_ref"
+          ]
+        },
+        "steps": [
+          {
+            "id": "plan-materialization",
+            "kind": "ask",
+            "config": {
+              "name": "screen-arrangement.plan-application-composition-selection-materialization",
+              "input": {
+                "selection_receipt_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "selection_receipt_ref"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "materialize",
+            "kind": "ask",
+            "config": {
+              "name": "engine.operation.label-addressed",
+              "input": {
+                "operation_label": "engine.operation.write-batch",
+                "writes": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "plan-materialization",
+                    "path": "output.writes"
+                  }
+                },
+                "preconditions": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "plan-materialization",
+                    "path": "output.preconditions"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "apply",
+            "kind": "ask",
+            "config": {
+              "name": "screen-arrangement.apply-application-composition-selection",
+              "input": {
+                "selection_receipt_ref": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "selection_receipt_ref"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::trigger-rule::show-current-application-screen-on-selection",
+      "address_mode": "identity_text",
+      "path": [
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:screen-arrangement.show-current-application-screen-on-selection",
+        "name": "show-current-application-screen-on-selection",
+        "description": "Show the selected home screen as soon as it becomes available.",
+        "topic": "data_state",
+        "trigger_type": "delta",
+        "is_active": true,
+        "match_condition": {
+          "conditions": [
+            {
+              "$bind": {
+                "select": {
+                  "from": "change",
+                  "path": "kind"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.equals",
+                    "args": {
+                      "value": "application-composition-selection"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "$bind": {
+                "select": {
+                  "from": "envelope",
+                  "path": "is_retraction"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.equals",
+                    "args": {
+                      "value": false
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:build-this-apps-screen",
+            "input": {
+              "selection_receipt_ref": {
+                "$kind": "binding",
+                "select": {
+                  "from": "envelope",
+                  "path": "address_text"
+                }
+              }
+            }
+          },
+          "delivery": "later_with_durable_outcome",
+          "outcome_correlation_template": {
+            "purpose": "show-current-application-screen",
+            "selection_ref": {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "address_text"
+              }
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::workflow-action::archive-layout-preset",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:archive-layout-preset",
+        "kind": "action",
+        "name": "archive-layout-preset",
+        "description": "Archive one canonical layout_preset owner record.",
+        "input_schema": {},
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "preset_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "preset_id"
+                              }
+                            },
+                            "|prop:layout_preset:status|type:layout_preset"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "attribute_fact"
+                  ],
+                  "payload": {
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "preset_id"
+                      }
+                    },
+                    "property_id": "prop:layout_preset:status",
+                    "type_id": "type:layout_preset",
+                    "value_json": "archived"
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "preset_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "preset_id"
+                              }
+                            },
+                            "|prop:layout_preset:updated_at|type:layout_preset"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "attribute_fact"
+                  ],
+                  "payload": {
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "preset_id"
+                      }
+                    },
+                    "property_id": "prop:layout_preset:updated_at",
+                    "type_id": "type:layout_preset",
+                    "value_json": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "updated_at"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "kind": "action",
+            "config": {
+              "definition_id": "action:publish-layout-presets",
+              "inputs": {}
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::workflow-action::publish-layout-presets",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:publish-layout-presets",
+        "kind": "action",
+        "name": "publish-layout-presets",
+        "description": "Read canonical layout_preset attribute facts and publish the addressed layout-presets sink payload.",
+        "input_schema": {},
+        "steps": [
+          {
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "attribute_fact",
+                "select": [
+                  "subject_id",
+                  "property_id",
+                  "value_json"
+                ],
+                "where": {
+                  "all": [
+                    {
+                      "field": "property_id",
+                      "in": [
+                        "prop:layout_preset:name",
+                        "prop:layout_preset:layout",
+                        "prop:layout_preset:starred",
+                        "prop:layout_preset:order",
+                        "prop:layout_preset:created_at",
+                        "prop:layout_preset:updated_at",
+                        "prop:layout_preset:status"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": "layout-presets",
+                  "path": [],
+                  "payload_bytes": {
+                    "rows": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "step_0",
+                        "path": "output.items"
+                      }
+                    },
+                    "columns": [
+                      {
+                        "column": 0,
+                        "source": {
+                          "path": [
+                            "subject_id"
+                          ]
+                        },
+                        "value": {
+                          "value_to_bytes": "non_empty_text"
+                        }
+                      },
+                      {
+                        "column": 1,
+                        "source": {
+                          "path": [
+                            "property_id"
+                          ]
+                        },
+                        "value": {
+                          "value_to_bytes": "non_empty_text"
+                        }
+                      },
+                      {
+                        "column": 2,
+                        "source": {
+                          "path": [
+                            "value_json"
+                          ]
+                        },
+                        "value": {
+                          "value_to_bytes": "json"
+                        }
+                      }
+                    ],
+                    "value_to_bytes": "cell_table"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "screen-arrangement-layout-state",
+      "address_mode": "label_hash",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "containers": {
+          "main": {
+            "id": "main",
+            "groupId": "main-group"
+          }
+        },
+        "tabGroups": {
+          "main-group": {
+            "tabIds": [
+              "surface-default"
+            ],
+            "activeTabId": "surface-default"
+          }
+        },
+        "tabs": {
+          "surface-default": {
+            "id": "surface-default",
+            "title": "Empty tab",
+            "target": null,
+            "icon": "Square"
+          }
+        },
+        "layouts": [
+          {
+            "type": "tiled",
+            "root": {
+              "kind": "leaf",
+              "containerId": "main"
+            }
+          },
+          {
+            "type": "floating",
+            "containers": [],
+            "camera": {
+              "scale": 1,
+              "tx": 0,
+              "ty": 0
+            }
+          },
+          {
+            "type": "overlay",
+            "containers": []
+          }
+        ],
+        "surface": "grid",
+        "focusedContainerId": "main",
+        "maximizedContainerId": null
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "built-show-ios-jscore-mount-screen-arrangement-jscore",
+      "source_path": "show-ios-jscore/mount-screen-arrangement-jscore.js"
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::entry::screen-arrangement",
+      "path": [
+        "packages",
+        "screen-arrangement",
+        "entries",
+        "screen-arrangement"
+      ],
+      "payload": {
+        "entry_name": "screen-arrangement",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-screen-arrangement.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-screen-arrangement"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::entry::workspace-shell",
+      "path": [
+        "packages",
+        "screen-arrangement",
+        "entries",
+        "workspace-shell"
+      ],
+      "payload": {
+        "entry_name": "workspace-shell",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-workspace-shell.tsx",
+        "dynamic_read_selector_policy": "declared-provider-input-membership",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-workspace-shell"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::entry::worker-console",
+      "path": [
+        "packages",
+        "screen-arrangement",
+        "entries",
+        "worker-console"
+      ],
+      "payload": {
+        "entry_name": "worker-console",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-worker-console.tsx",
+        "dynamic_read_selector_policy": "declared-provider-input-membership",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-worker-console"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:screen-arrangement|prop:extension:integrity_hash|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:integrity_hash"
+      ],
+      "payload_template": {
+        "payload": {
+          "property_id": "prop:extension:integrity_hash",
+          "subject_id": "component:screen-arrangement",
+          "table": "attribute_fact",
+          "type_id": "type:extension",
+          "value_json": ""
+        },
+        "replacements": [
+          {
+            "path": [
+              "value_json"
+            ],
+            "value": {
+              "type": "stored_bytes_content_hash",
+              "name": "entry-bytes-screen-arrangement",
+              "encoding": "json_string"
+            }
+          }
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:screen-arrangement|prop:extension:things_to_put_on_screen|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:things_to_put_on_screen"
+      ],
+      "payload": {
+        "property_id": "prop:extension:things_to_put_on_screen",
+        "subject_id": "component:screen-arrangement",
+        "table": "attribute_fact",
+        "type_id": "type:extension",
+        "value_json": [
+          {
+            "source_bytes": {
+              "address_label": "package::screen-arrangement::entry-bytes::screen-arrangement"
+            },
+            "source_key": "package::screen-arrangement::entry-bytes::screen-arrangement",
+            "required_capabilities": [
+              "can-put-thing-on-screen-using-screen-element"
+            ],
+            "lifecycle_key": "component:screen-arrangement:live-entry-bytes"
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::screen-arrangement::screen-reply-provider-feed",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "reply-template"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "placeable-surface-list::main-workspace",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": [
+              "payload"
+            ]
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "placeable-surface"
+            },
+            {
+              "path": [
+                "payload",
+                "placement_labels"
+              ],
+              "contains": "main-workspace"
+            }
+          ],
+          "order_by": [
+            {
+              "source": {
+                "path": [
+                  "payload",
+                  "placement_order_key"
+                ]
+              },
+              "value": {
+                "value_to_bytes": "non_empty_text"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::input::published-records",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "published-records",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "package::screen-arrangement::screen-reply-provider-feed",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::input::package-entry-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "package-entry-by-address-label",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "bytes"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::input::layout-state",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "layout-state",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "screen-arrangement-layout-state"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::input::embedded-workspace-layout-state",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "embedded-workspace-layout-state",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "embedded-workspace-layout-state"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::input::layout-state-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "layout-state-by-address-label",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::input::selector-source-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "selector-source-by-address-label",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::input::selector-source-by-address",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "selector-source-by-address",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "address"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::input::always-mount-companions",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "always-mount-companions",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "screen-arrangement-always-mount-companions"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::input::layout-presets",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "layout-presets",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "layout-presets",
+          "value": {
+            "projection": {
+              "fields": [
+                {
+                  "column": 0,
+                  "key": "subject_id",
+                  "required": true,
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "non_empty_text"
+                    }
+                  }
+                },
+                {
+                  "column": 1,
+                  "key": "property_id",
+                  "required": true,
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "non_empty_text"
+                    }
+                  }
+                },
+                {
+                  "column": 2,
+                  "key": "value",
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "json"
+                    }
+                  }
+                }
+              ],
+              "op": "rows"
+            },
+            "source_bytes": {
+              "bytes_to_value": "cell_table"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:screen-arrangement|prop:extension:name|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:name"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOm5hbWUiLCJzdWJqZWN0X2lkIjoiY29tcG9uZW50OnNjcmVlbi1hcnJhbmdlbWVudCIsInRhYmxlIjoiYXR0cmlidXRlX2ZhY3QiLCJ0eXBlX2lkIjoidHlwZTpleHRlbnNpb24iLCJ2YWx1ZV9qc29uIjoiXCJTY3JlZW5BcnJhbmdlbWVudFJvb3RcIiJ9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:screen-arrangement|prop:extension:source_path|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:source_path"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOnNvdXJjZV9wYXRoIiwic3ViamVjdF9pZCI6ImNvbXBvbmVudDpzY3JlZW4tYXJyYW5nZW1lbnQiLCJ0YWJsZSI6ImF0dHJpYnV0ZV9mYWN0IiwidHlwZV9pZCI6InR5cGU6ZXh0ZW5zaW9uIiwidmFsdWVfanNvbiI6IlwicGFja2FnZXMvc2NyZWVuLWFycmFuZ2VtZW50L3Nob3cvbW91bnQtc2NyZWVuLWFycmFuZ2VtZW50LnRzeFwiIn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:screen-arrangement|prop:extension:status|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:status"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOnN0YXR1cyIsInN1YmplY3RfaWQiOiJjb21wb25lbnQ6c2NyZWVuLWFycmFuZ2VtZW50IiwidGFibGUiOiJhdHRyaWJ1dGVfZmFjdCIsInR5cGVfaWQiOiJ0eXBlOmV4dGVuc2lvbiIsInZhbHVlX2pzb24iOiJcImFjdGl2ZVwiIn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:screen-arrangement|prop:extension:version|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:version"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6ZXh0ZW5zaW9uOnZlcnNpb24iLCJzdWJqZWN0X2lkIjoiY29tcG9uZW50OnNjcmVlbi1hcnJhbmdlbWVudCIsInRhYmxlIjoiYXR0cmlidXRlX2ZhY3QiLCJ0eXBlX2lkIjoidHlwZTpleHRlbnNpb24iLCJ2YWx1ZV9qc29uIjoiXCIxLjAuMFwiIn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:screen-arrangement|prop:resource:compiler_config|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:resource:compiler_config"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6cmVzb3VyY2U6Y29tcGlsZXJfY29uZmlnIiwic3ViamVjdF9pZCI6ImNvbXBvbmVudDpzY3JlZW4tYXJyYW5nZW1lbnQiLCJ0YWJsZSI6ImF0dHJpYnV0ZV9mYWN0IiwidHlwZV9pZCI6InR5cGU6ZXh0ZW5zaW9uIiwidmFsdWVfanNvbiI6IntcImFyZ3ZcIjpbXCIuL3Rvb2xcIixcIl9fU09VUkNFX1BBVEhfX1wiLFwiLS1idW5kbGVcIixcIi0tZm9ybWF0PWVzbVwiLFwiLS1vdXRmaWxlPV9fT1VUUFVUXzBfX1wiLFwiLS1wbGF0Zm9ybT1icm93c2VyXCIsXCItLXRhcmdldD1lczIwMjBcIixcIi0tanN4PWF1dG9tYXRpY1wiLFwiLS1sb2FkZXI6LnRzeD10c3hcIixcIi0tbG9hZGVyOi50cz10c1wiLFwiLS1yZXNvbHZlLWV4dGVuc2lvbnM9LnRzLC50c3gsLmpzLC5qc3hcIixcIi0tYWxpYXM6QD0uXCIsXCItLWFsaWFzOkBiaXRmaWVsZC9ydW50aW1lLWtpdC9yZWFjdD0uL3BhY2thZ2VzL3NjcmVlbi1hcnJhbmdlbWVudC8uYml0ZmllbGQtZW50cnktc2NvcGUvc2NyZWVuLWFycmFuZ2VtZW50L3J1bnRpbWUta2l0LXJlYWN0LnRzXCIsXCItLWFsaWFzOkBiaXRmaWVsZC9ydW50aW1lLWtpdC9pbnRlcm5hbC9vd25lci1zdXJmYWNlPS4vbm9kZV9tb2R1bGVzL0BiaXRmaWVsZC9ydW50aW1lLWtpdC9zcmMvaW50ZXJuYWwvb3duZXItc3VyZmFjZS50c1wiLFwiLS1hbGlhczpyZWFjdD0uL25vZGVfbW9kdWxlcy9yZWFjdFwiLFwiLS1hbGlhczpyZWFjdC1kb209Li9ub2RlX21vZHVsZXMvcmVhY3QtZG9tXCIsXCItLWFsaWFzOnJlYWN0LWRvbS9jbGllbnQ9Li9ub2RlX21vZHVsZXMvcmVhY3QtZG9tL2NsaWVudFwiLFwiLS1hbGlhczpyZWFjdC9qc3gtcnVudGltZT0uL25vZGVfbW9kdWxlcy9yZWFjdC9qc3gtcnVudGltZVwiLFwiLS1hbGlhczpyZWFjdC9qc3gtZGV2LXJ1bnRpbWU9Li9ub2RlX21vZHVsZXMvcmVhY3QvanN4LWRldi1ydW50aW1lXCIsXCItLXByZXNlcnZlLXN5bWxpbmtzXCJdLFwiY3dkXCI6XCIuXCIsXCJ0aW1lb3V0X21zXCI6MTIwMDAwLFwidGVybWluYXRpb25fZ3JhY2VfbXNcIjoxMDAwLFwiZXhwZWN0ZWRfdGVybWluYXRpb25cIjpudWxsLFwiZW52XCI6e30sXCJpbnB1dHNcIjpbXSxcImlucHV0X3RyZWVzXCI6W10sXCJvdXRwdXRzXCI6W3tcImNvbnRlbnRfdHlwZVwiOlwiYXBwbGljYXRpb24vamF2YXNjcmlwdFwiLFwibW91bnRfcGF0aFwiOlwib3V0cHV0LmpzXCJ9XSxcImNvbnRhaW5tZW50XCI6e1wia2luZFwiOlwiZGVzY2VuZGFudF9lZmZlY3RfY29udGFpbmVkXCIsXCJwaXBlX2VvZl90aW1lb3V0X21zXCI6MTAwMCxcInB1YmxpY2F0aW9uc1wiOltdfSxcImNhcHR1cmVfZmRzXCI6WzEsMl0sXCJjb2xsZWN0ZWRfZmlsZXNcIjpbXSxcIm91dHB1dF9tYXBwaW5nXCI6W3tcImNvbnRlbnRfdHlwZVwiOlwiYXBwbGljYXRpb24vamF2YXNjcmlwdFwiLFwiaGFzaF9wcm9wZXJ0eV9pZFwiOlwicHJvcDpleHRlbnNpb246aW50ZWdyaXR5X2hhc2hcIixcIm91dHB1dF9wYXRoXCI6XCJvdXRwdXQuanNcIixcInByb3BlcnR5X2lkXCI6XCJwcm9wOmV4dGVuc2lvbjpidW5kbGVcIixcInR5cGVfaWRcIjpcInR5cGU6ZXh0ZW5zaW9uXCJ9XX0ifQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:screen-arrangement|prop:resource:compiler_resource|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:resource:compiler_resource"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJwcm9wZXJ0eV9pZCI6InByb3A6cmVzb3VyY2U6Y29tcGlsZXJfcmVzb3VyY2UiLCJzdWJqZWN0X2lkIjoiY29tcG9uZW50OnNjcmVlbi1hcnJhbmdlbWVudCIsInRhYmxlIjoiYXR0cmlidXRlX2ZhY3QiLCJ0eXBlX2lkIjoidHlwZTpleHRlbnNpb24iLCJ2YWx1ZV9qc29uIjoiXCJyZXNvdXJjZTplc2J1aWxkXCIifQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|component:screen-arrangement|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "type:extension"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJlbnRpdHlfaWQiOiJjb21wb25lbnQ6c2NyZWVuLWFycmFuZ2VtZW50IiwidGFibGUiOiJlbnRpdHlfdHlwZXMiLCJ0eXBlX2lkIjoidHlwZTpleHRlbnNpb24ifQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|component:screen-arrangement",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "eyJpZCI6ImNvbXBvbmVudDpzY3JlZW4tYXJyYW5nZW1lbnQiLCJ0YWJsZSI6ImVudGl0eSJ9",
+      "remove": false
+    },
+    {
+      "type": "slot",
+      "name": "screen-arrangement",
+      "build": {
+        "sequence": {
+          "inputs": [],
+          "input_trees": [],
+          "steps": [
+            {
+              "name": "build",
+              "process": {
+                "argv": ["cargo", "build", "--target", "wasm32-wasip2", "--release", "--manifest-path", "Cargo.toml"],
+                "cwd": "source",
+                "timeout_ms": 300000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {"kind": "exited", "code": 0},
+                "env": {"CARGO_TARGET_DIR": "../target"},
+                "network_access": "allowed",
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [{"mount_path": "target/wasm32-wasip2/release/screen_arrangement.wasm"}],
+                "containment": {"kind": "descendant_effect_contained", "pipe_eof_timeout_ms": 1000, "publications": []},
+                "capture_fds": [1, 2],
+                "collected_files": []
+              },
+              "workspace_bindings": {"environment": [], "arguments": []},
+              "predecessor_outputs": []
+            }
+          ]
+        },
+        "output": {"step": "build", "mount_path": "target/wasm32-wasip2/release/screen_arrangement.wasm"}
+      },
+      "boundary": {
+        "call_shape": "envelope-bytes-in-envelope-bytes-out",
+        "methods": [
+          {
+            "name": "query"
+          }
+        ]
+      },
+      "runner": {
+        "private_config": {}
+      },
+      "methods": [
+        {
+          "name": "query"
+        }
+      ]
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::public-source::read-data",
+      "path": [
+        "packages",
+        "screen-arrangement",
+        "public-sources",
+        "read-data"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "read-data"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::public-source::show",
+      "path": [
+        "packages",
+        "screen-arrangement",
+        "public-sources",
+        "show"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "show"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::input::placeable-surface-list-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "placeable-surface-list-by-address-label",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::input::placeable-surfaces",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "placeable-surfaces",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "placeable-surfaces",
+          "value": {
+            "projection": {
+              "fields": [
+                {
+                  "column": 0,
+                  "key": "kind",
+                  "required": true,
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "non_empty_text"
+                    }
+                  }
+                },
+                {
+                  "column": 1,
+                  "key": "id",
+                  "required": true,
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "non_empty_text"
+                    }
+                  }
+                },
+                {
+                  "column": 2,
+                  "key": "label",
+                  "required": true,
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "non_empty_text"
+                    }
+                  }
+                },
+                {
+                  "column": 3,
+                  "key": "material_target",
+                  "required": true,
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "non_empty_text"
+                    }
+                  }
+                },
+                {
+                  "column": 4,
+                  "key": "icon",
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "text"
+                    }
+                  }
+                },
+                {
+                  "column": 5,
+                  "key": "order",
+                  "required": true,
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "json"
+                    }
+                  }
+                },
+                {
+                  "column": 6,
+                  "key": "package_entry",
+                  "required": true,
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "json"
+                    }
+                  }
+                },
+                {
+                  "column": 7,
+                  "key": "surface_id",
+                  "required": true,
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "non_empty_text"
+                    }
+                  }
+                },
+                {
+                  "column": 8,
+                  "key": "placement_labels",
+                  "required": true,
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "json"
+                    }
+                  }
+                },
+                {
+                  "column": 9,
+                  "key": "placement_order_key",
+                  "required": true,
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "non_empty_text"
+                    }
+                  }
+                },
+                {
+                  "column": 10,
+                  "key": "surface_input",
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "json"
+                    }
+                  }
+                }
+              ],
+              "op": "rows"
+            },
+            "source_bytes": {
+              "bytes_to_value": "cell_table"
+            }
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::workflow-action::arrange-workspace",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:arrange-workspace",
+        "kind": "action",
+        "name": "arrange-workspace",
+        "description": "Rearrange the workspace by placing named surfaces into coarse regions. The screen-arrangement slot lowers the declarative placements to a valid tiled layout; the result is written to the canonical layout-state SSOT so the live workspace re-renders (same address a human drag writes).",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "placements": {
+              "type": "array",
+              "description": "Ordered surface placements. Each item is {\"surfaceId\":<id from the surface catalog>,\"region\":<region>} where region is one of left|right|top|bottom|center|overlay|floating. Use ONLY the surface id from the catalog — the workspace resolves it to the real surface automatically. Example: [{\"surfaceId\":\"chat\",\"region\":\"left\"},{\"surfaceId\":\"vision-board\",\"region\":\"right\"},{\"surfaceId\":\"saved-links\",\"region\":\"bottom\"}].",
+              "items": {
+                "type": "object"
+              }
+            },
+            "focusTabId": {
+              "type": "string",
+              "description": "Optional surface tab id to focus after arranging."
+            }
+          },
+          "required": [
+            "placements"
+          ]
+        },
+        "steps": [
+          {
+            "kind": "ask",
+            "config": {
+              "name": "slot::screen-arrangement",
+              "input": {
+                "state": {
+                  "containers": {
+                    "main": {
+                      "id": "main",
+                      "groupId": "main-group"
+                    }
+                  },
+                  "tabGroups": {
+                    "main-group": {
+                      "tabIds": [
+                        "surface-default"
+                      ],
+                      "activeTabId": "surface-default"
+                    }
+                  },
+                  "tabs": {
+                    "surface-default": {
+                      "id": "surface-default",
+                      "title": "Empty tab",
+                      "target": null,
+                      "icon": "Square"
+                    }
+                  },
+                  "layouts": [
+                    {
+                      "type": "tiled",
+                      "root": {
+                        "kind": "leaf",
+                        "containerId": "main"
+                      }
+                    },
+                    {
+                      "type": "floating",
+                      "containers": [],
+                      "camera": {
+                        "scale": 1,
+                        "tx": 0,
+                        "ty": 0
+                      }
+                    },
+                    {
+                      "type": "overlay",
+                      "containers": []
+                    }
+                  ],
+                  "surface": "grid",
+                  "focusedContainerId": "main",
+                  "maximizedContainerId": null
+                },
+                "operation": "arrangeSurfaces",
+                "payload": {
+                  "placements": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "placements"
+                    }
+                  },
+                  "focusTabId": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "focusTabId"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "kind": "ask",
+            "config": {
+              "name": "engine.operation.label-addressed",
+              "input": {
+                "operation_label": "engine.operation.write-batch",
+                "writes": [
+                  {
+                    "address_label": "screen-arrangement-layout-state",
+                    "address_mode": "label_hash",
+                    "path_labels": [
+                      "current-item",
+                      "published-record"
+                    ],
+                    "payload": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "step_0",
+                        "path": "output.state"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::trigger-rule::publish-layout-presets-on-change",
+      "address_mode": "identity_text",
+      "path": [
+        "trigger-rule"
+      ],
+      "payload": {
+        "id": "trigger:publish-layout-presets-on-change",
+        "match_condition": {
+          "conditions": [
+            {
+              "$bind": {
+                "select": {
+                  "from": "change",
+                  "path": "property_id"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.in_list",
+                    "args": {
+                      "values": [
+                        "prop:layout_preset:name",
+                        "prop:layout_preset:layout",
+                        "prop:layout_preset:starred",
+                        "prop:layout_preset:order",
+                        "prop:layout_preset:created_at",
+                        "prop:layout_preset:updated_at",
+                        "prop:layout_preset:status"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:publish-layout-presets",
+            "include_steps": false,
+            "include_output": false,
+            "input": {
+              "change": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": ""
+                }
+              },
+              "envelope": {
+                "$kind": "binding",
+                "select": {
+                  "from": "envelope",
+                  "path": ""
+                }
+              }
+            }
+          }
+        },
+        "is_active": true,
+        "topic": "attribute_changed"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::trigger-rule::publish-layout-presets-on-runtime-loaded",
+      "address_mode": "identity_text",
+      "path": [
+        "trigger-rule"
+      ],
+      "payload": {
+        "id": "trigger:publish-layout-presets-on-runtime-loaded",
+        "match_condition": {
+          "conditions": [
+            {
+              "$bind": {
+                "select": {
+                  "from": "change",
+                  "path": "properties.event_type"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.equals",
+                    "args": {
+                      "value": "runtime_loaded"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:publish-layout-presets",
+            "include_steps": false,
+            "include_output": false,
+            "input": {
+              "change": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": ""
+                }
+              },
+              "envelope": {
+                "$kind": "binding",
+                "select": {
+                  "from": "envelope",
+                  "path": ""
+                }
+              }
+            }
+          }
+        },
+        "is_active": true,
+        "topic": "runtime_loaded"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:layout_preset|prop:layout_preset:status",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmxheW91dF9wcmVzZXQ6c3RhdHVzIiwKICAidGFibGUiOiAidHlwZV9wcm9wZXJ0aWVzIiwKICAidHlwZV9pZCI6ICJ0eXBlOmxheW91dF9wcmVzZXQiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "type_properties|type:layout_preset|prop:layout_preset:updated_at",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmxheW91dF9wcmVzZXQ6dXBkYXRlZF9hdCIsCiAgInRhYmxlIjogInR5cGVfcHJvcGVydGllcyIsCiAgInR5cGVfaWQiOiAidHlwZTpsYXlvdXRfcHJlc2V0Igp9",
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "application-projector-template-data",
+      "source_path": "read-data/application-projector-template.json",
+      "media_type": "application/json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-plan-application-composition-transition",
+      "source_path": "built-stored-bytes/entry-bytes-plan-application-composition-transition",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-plan-application-composition-transition.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-build-application-surface-catalog-contribution",
+      "source_path": "built-stored-bytes/entry-bytes-build-application-surface-catalog-contribution",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-build-application-surface-catalog-contribution.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-build-application-layout-state-contribution",
+      "source_path": "built-stored-bytes/entry-bytes-build-application-layout-state-contribution",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-build-application-layout-state-contribution.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-dispatch-application-composition-transition",
+      "source_path": "built-stored-bytes/entry-bytes-dispatch-application-composition-transition",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-dispatch-application-composition-transition.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-plan-application-composition-selection-materialization",
+      "source_path": "built-stored-bytes/entry-bytes-plan-application-composition-selection-materialization",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-plan-application-composition-selection-materialization.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-apply-application-composition-selection",
+      "source_path": "built-stored-bytes/entry-bytes-apply-application-composition-selection",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-apply-application-composition-selection.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "screen-arrangement-application-selection-receipt",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "application-composition-selection-receipt-empty"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::target::plan-application-composition-selection-materialization",
+      "path": [
+        "packages",
+        "screen-arrangement",
+        "targets",
+        "plan-application-composition-selection-materialization"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "plan-application-composition-selection-materialization",
+        "export_name": "planApplicationCompositionSelectionMaterializationTarget",
+        "source_path": "do-work/apply-application-composition-selection.ts",
+        "target": "screen-arrangement.plan-application-composition-selection-materialization"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::entry::plan-application-composition-selection-materialization",
+      "path": [
+        "packages",
+        "screen-arrangement",
+        "entries",
+        "plan-application-composition-selection-materialization"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "plan-application-composition-selection-materialization",
+        "export_name": "planApplicationCompositionSelectionMaterializationTarget",
+        "source_path": "do-work/apply-application-composition-selection.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-plan-application-composition-selection-materialization"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::target::apply-application-composition-selection",
+      "path": [
+        "packages",
+        "screen-arrangement",
+        "targets",
+        "apply-application-composition-selection"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "apply-application-composition-selection",
+        "export_name": "applyApplicationCompositionSelectionTarget",
+        "source_path": "do-work/apply-application-composition-selection.ts",
+        "target": "screen-arrangement.apply-application-composition-selection",
+        "write_scope": {
+          "exact_records": [
+            "screen-arrangement-application-selection-receipt"
+          ]
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::entry::apply-application-composition-selection",
+      "path": [
+        "packages",
+        "screen-arrangement",
+        "entries",
+        "apply-application-composition-selection"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "apply-application-composition-selection",
+        "export_name": "applyApplicationCompositionSelectionTarget",
+        "source_path": "do-work/apply-application-composition-selection.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-apply-application-composition-selection"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::target::plan-application-composition-transition",
+      "path": [
+        "packages",
+        "screen-arrangement",
+        "targets",
+        "plan-application-composition-transition"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "plan-application-composition-transition",
+        "export_name": "planApplicationCompositionTransitionTarget",
+        "source_path": "do-work/plan-application-composition-transition.ts",
+        "target": "screen-arrangement.plan-application-composition-transition"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::entry::plan-application-composition-transition",
+      "path": [
+        "packages",
+        "screen-arrangement",
+        "entries",
+        "plan-application-composition-transition"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "plan-application-composition-transition",
+        "export_name": "planApplicationCompositionTransitionTarget",
+        "source_path": "do-work/plan-application-composition-transition.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-plan-application-composition-transition"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::application-contribution-owner::placeable-surface-catalog",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "schema": "bitfield.application-contribution-owner/positive-write-authority",
+        "kind": "application-contribution-owner-descriptor",
+        "owner_ref": "package::screen-arrangement::application-contribution::placeable-surface-catalog",
+        "target_ref": "screen-arrangement.build-application-surface-catalog-contribution",
+        "write_authority": {
+          "thing_types": [
+            "record_from_matching_records",
+            "record"
+          ],
+          "exact_addresses": [
+            "placeable-surfaces"
+          ],
+          "address_prefixes": [
+            "placeable-surface-list::",
+            "package::screen-arrangement::placeable-surface-input-overrides::"
+          ]
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::target::build-application-surface-catalog-contribution",
+      "path": [
+        "packages",
+        "screen-arrangement",
+        "targets",
+        "build-application-surface-catalog-contribution"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "build-application-surface-catalog-contribution",
+        "export_name": "buildApplicationSurfaceCatalogContributionTarget",
+        "source_path": "do-work/build-application-surface-catalog-contribution.ts",
+        "target": "screen-arrangement.build-application-surface-catalog-contribution",
+        "write_scope": {
+          "derived_records": [
+            {
+              "derivation": "application-surface-input-overrides",
+              "address_segments": [
+                {
+                  "literal": "package"
+                },
+                {
+                  "literal": "screen-arrangement"
+                },
+                {
+                  "literal": "placeable-surface-input-overrides"
+                },
+                {
+                  "variable": "catalog_address"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::entry::build-application-surface-catalog-contribution",
+      "path": [
+        "packages",
+        "screen-arrangement",
+        "entries",
+        "build-application-surface-catalog-contribution"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "build-application-surface-catalog-contribution",
+        "export_name": "buildApplicationSurfaceCatalogContributionTarget",
+        "source_path": "do-work/build-application-surface-catalog-contribution.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-build-application-surface-catalog-contribution"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::application-contribution-owner::default-layout",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "schema": "bitfield.application-contribution-owner/positive-write-authority",
+        "kind": "application-contribution-owner-descriptor",
+        "owner_ref": "package::screen-arrangement::application-contribution::default-layout",
+        "target_ref": "screen-arrangement.build-application-layout-state-contribution",
+        "write_authority": {
+          "thing_types": [
+            "record"
+          ],
+          "exact_addresses": [
+            "screen-arrangement-layout-state"
+          ],
+          "address_prefixes": []
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::target::build-application-layout-state-contribution",
+      "path": [
+        "packages",
+        "screen-arrangement",
+        "targets",
+        "build-application-layout-state-contribution"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "build-application-layout-state-contribution",
+        "export_name": "buildApplicationLayoutStateContributionTarget",
+        "source_path": "do-work/build-application-layout-state-contribution.ts",
+        "target": "screen-arrangement.build-application-layout-state-contribution",
+        "write_scope": {
+          "exact_records": [
+            "screen-arrangement-layout-state"
+          ]
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::entry::build-application-layout-state-contribution",
+      "path": [
+        "packages",
+        "screen-arrangement",
+        "entries",
+        "build-application-layout-state-contribution"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "build-application-layout-state-contribution",
+        "export_name": "buildApplicationLayoutStateContributionTarget",
+        "source_path": "do-work/build-application-layout-state-contribution.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-build-application-layout-state-contribution"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::target::dispatch-application-composition-transition",
+      "path": [
+        "packages",
+        "screen-arrangement",
+        "targets",
+        "dispatch-application-composition-transition"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "dispatch-application-composition-transition",
+        "export_name": "dispatchApplicationCompositionTransitionTarget",
+        "source_path": "do-work/dispatch-application-composition-transition.ts",
+        "target": "screen-arrangement.dispatch-application-composition-transition"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::entry::dispatch-application-composition-transition",
+      "path": [
+        "packages",
+        "screen-arrangement",
+        "entries",
+        "dispatch-application-composition-transition"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "dispatch-application-composition-transition",
+        "export_name": "dispatchApplicationCompositionTransitionTarget",
+        "source_path": "do-work/dispatch-application-composition-transition.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-dispatch-application-composition-transition"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-screen-arrangement",
+      "source_path": "built-stored-bytes/entry-bytes-screen-arrangement",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-screen-arrangement.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-workspace-shell",
+      "source_path": "built-stored-bytes/entry-bytes-workspace-shell",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-workspace-shell.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-worker-console",
+      "source_path": "built-stored-bytes/entry-bytes-worker-console",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-worker-console.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::workflow-action::record-application-composition-selection",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:screen-arrangement.record-application-composition-selection",
+        "kind": "action",
+        "name": "record-application-composition-selection",
+        "description": "Save the selected app layout at its declared address so the current screen can open and update.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "selection_ref",
+            "selection"
+          ],
+          "properties": {
+            "selection_ref": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            },
+            "selection": {
+              "type": "object"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "write-selection",
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "selection_ref"
+                    }
+                  },
+                  "address_mode": "label_hash",
+                  "path": [
+                    "current-item",
+                    "published-record",
+                    "application-composition-selection"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "selection"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::input::editable-screen-look-themes",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "editable-screen-look-themes",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "address",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "payload",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ],
+            "op": "rows"
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "package::screen-look::published-records"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::screen-arrangement::input::current-screen-look",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "current-screen-look",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "name",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              }
+            ],
+            "op": "rows"
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "screen-look"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    }
+  ]
+}

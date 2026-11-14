@@ -1,0 +1,689 @@
+{
+  "package": "transcript-history",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::transcript-history::placeable-surface::transcript-history",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "FileText",
+        "id": "transcript-history.panel",
+        "kind": "placeable-surface",
+        "label": "Past transcripts",
+        "material_target": "transcript-history",
+        "factflow_ref": "package::transcript-history::factflow::transcript-history-surface",
+        "order": 642,
+        "surface_id": "transcript-history.panel",
+        "placement_labels": [
+          "recording-workspace"
+        ],
+        "placement_order_key": "000000642:transcript-history.panel",
+        "package_entry": {
+          "package_name": "transcript-history",
+          "entry_name": "transcript-history"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::transcript-history::factflow::transcript-history-surface",
+      "address_mode": "identity_text",
+      "path": [
+        "package-primitive",
+        "factflow"
+      ],
+      "payload": {
+        "kind": "bitfield-eeaf-factflow",
+        "journal": {
+          "address_label": "transcript-history.surface.journal"
+        },
+        "fact_sources": [
+          {
+            "address": "package::transcript-history::input::content-media-evidence"
+          },
+          {
+            "address": "package::transcript-history::evidence-pipeline::config"
+          },
+          {
+            "address": "package::transcript-history::graph::current-record-action-graph"
+          },
+          {
+            "address": "package::transcript-history::workflow-action::accept-transcript-result"
+          },
+          {
+            "address": "package::transcript-history::blocker::feed-heavy-proof"
+          }
+        ],
+        "genesis": [
+          {
+            "address": "package::transcript-history::placeable-surface::transcript-history"
+          }
+        ],
+        "blockers": [
+          {
+            "address": "package::transcript-history::blocker::feed-heavy-proof"
+          }
+        ],
+        "evidence": [
+          {
+            "address": "package::transcript-history::entry::transcript-history"
+          },
+          {
+            "address": "package::transcript-history::capability::transcript-history"
+          },
+          {
+            "address": "package::transcript-history::contract::entry"
+          },
+          {
+            "address": "package::transcript-history::contract::segment"
+          },
+          {
+            "address": "package::transcript-history::contract::chunk"
+          },
+          {
+            "address": "package::transcript-history::contract::search-result"
+          },
+          {
+            "address": "package::transcript-history::graph::current-record-action-graph"
+          }
+        ],
+        "interpreter_facts": {
+          "facts": [
+            {
+              "address_label": "transcript-history.facts.content-media-evidence"
+            }
+          ],
+          "intents": [
+            {
+              "address_label": "transcript-history.intent.accept-transcript-result"
+            }
+          ],
+          "effects": [
+            {
+              "address_label": "transcript-history.effect.workflow-current-records-journal"
+            }
+          ],
+          "validation": [
+            {
+              "address_label": "transcript-history.validation.artifact-ref-multihash"
+            }
+          ],
+          "permissions": [
+            {
+              "address_label": "transcript-history.permission.invoke-workflow-intent"
+            }
+          ],
+          "projections": [
+            {
+              "address_label": "transcript-history-content-media-evidence"
+            }
+          ],
+          "materializations": [
+            {
+              "address_label": "transcript-history.materialization.placeable-surface"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::transcript-history::entry::transcript-history",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "transcript-history",
+        "entries",
+        "transcript-history"
+      ],
+      "payload": {
+        "entry_name": "transcript-history",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-transcript-history.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-transcript-history"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::transcript-history::capability::transcript-history",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-package-capability",
+        "id": "capability:transcript-history",
+        "package": "transcript-history",
+        "label": "Past transcripts",
+        "description": "Maintains transcript library entries, timestamped segment rows, semantic chunks, and transcript activity records over accepted transcription results.",
+        "owned_record_kinds": [
+          "transcript-history.entry",
+          "transcript-history.segment",
+          "transcript-history.chunk",
+          "transcript-history.activity",
+          "transcript-history.search-result"
+        ],
+        "reuses": [
+          "audio-transcription",
+          "journal",
+          "find-current-items",
+          "record_from_matching_records"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::transcript-history::input::content-media-evidence",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "contentMediaEvidence",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "role",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "payload",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "source_package",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 3,
+                "key": "blocker",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ],
+            "op": "rows"
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "transcript-history-content-media-evidence"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::transcript-history::evidence-pipeline::config",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "content-media.evidence-pipeline.config",
+        "package": "transcript-history",
+        "roles": {
+          "entries": [
+            "transcript-history.entry"
+          ],
+          "segments": [
+            "transcript-history.segment"
+          ],
+          "chunks": [
+            "transcript-history.chunk"
+          ],
+          "activities": [
+            "transcript-history.activity"
+          ],
+          "searchResults": [
+            "transcript-history.search-result"
+          ]
+        },
+        "artifact_roles": {
+          "source": [
+            "transcription-result"
+          ],
+          "outputs": [
+            "transcript-entry",
+            "semantic-chunk",
+            "search-row"
+          ]
+        },
+        "execution_capabilities": [
+          "audio-transcription",
+          "journal",
+          "find-current-items",
+          "record_from_matching_records"
+        ],
+        "projection_lanes": [
+          "entries",
+          "segments",
+          "chunks",
+          "activities",
+          "searchResults"
+        ],
+        "maintained_projection_label": "transcript-history-content-media-evidence",
+        "workflow_actions": [
+          {
+            "role": "accept",
+            "action_id": "action:accept-transcript-result",
+            "execution_locus": "workflow",
+            "side_effect_boundary": "intent-only"
+          }
+        ],
+        "artifact_ref_contract": {
+          "required_fields": [
+            "multihash"
+          ],
+          "optional_fields": [
+            "cas_address",
+            "byte_length",
+            "media_type"
+          ]
+        },
+        "proof_gates": [
+          "CPD-10F"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::transcript-history::blocker::feed-heavy-proof",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "content-media.evidence.blocker",
+        "code": "content-media.feed-heavy-proof.blocked",
+        "message": "Runtime proof remains blocked until CPD-10F source fingerprint and accepted-state no-op closure is recorded for transcript-history-content-media-evidence.",
+        "owner": "transcript-history",
+        "severity": "blocked",
+        "proof_gate": "CPD-10F"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::transcript-history::contract::entry",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-record-contract",
+        "record_kind": "transcript-history.entry",
+        "required_fields": [
+          "entry_id",
+          "source_artifact_ref",
+          "source_fingerprint",
+          "transcript_result_id",
+          "transcript_result_ref",
+          "media",
+          "language",
+          "output_artifact_refs",
+          "accepted_at"
+        ],
+        "optional_fields": [
+          "has_chapters",
+          "has_speakers",
+          "segment_count",
+          "word_count"
+        ],
+        "source_contract": "Entry is a read-model record over an accepted audio-transcription.result. It stores refs and summary metadata, not transcript execution ownership."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::transcript-history::contract::segment",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-record-contract",
+        "record_kind": "transcript-history.segment",
+        "required_fields": [
+          "segment_id",
+          "entry_id",
+          "source_fingerprint",
+          "transcript_result_id",
+          "segment_index",
+          "start",
+          "end",
+          "text"
+        ],
+        "optional_fields": [
+          "speaker",
+          "confidence"
+        ],
+        "read_model_contract": "Segment rows are derived from accepted audio-transcription.result segment evidence."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::transcript-history::contract::chunk",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-record-contract",
+        "record_kind": "transcript-history.chunk",
+        "required_fields": [
+          "chunk_id",
+          "entry_id",
+          "source_fingerprint",
+          "transcript_result_id",
+          "time_range",
+          "text_ref",
+          "embedding_ref"
+        ],
+        "optional_fields": [
+          "summary",
+          "token_count"
+        ],
+        "read_model_contract": "Chunk rows are searchable read-model records over accepted transcript artifacts and embedding refs."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::transcript-history::contract::search-result",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-record-contract",
+        "record_kind": "transcript-history.search-result",
+        "required_fields": [
+          "search_result_id",
+          "entry_id",
+          "asset_id",
+          "source_fingerprint",
+          "transcript_result_id",
+          "evidence",
+          "relevance_score",
+          "indexed_at"
+        ],
+        "evidence_lanes": [
+          "transcript_matches",
+          "semantic_matches",
+          "metadata"
+        ],
+        "read_model_contract": "Search rows are derived from accepted transcript-history entry/segment/chunk records. Identity matches, when needed, come from media-identity evidence refs rather than transcript-history ownership."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::transcript-history::graph::current-record-action-graph",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "current-record-action-graph.descriptors",
+        "package": "transcript-history",
+        "records": [
+          {
+            "id": "record:entry",
+            "role": "entries",
+            "record_kind": "transcript-history.entry",
+            "owner_ref": "owner:transcript-history"
+          },
+          {
+            "id": "record:segment",
+            "role": "segments",
+            "record_kind": "transcript-history.segment",
+            "owner_ref": "owner:transcript-history"
+          },
+          {
+            "id": "record:chunk",
+            "role": "chunks",
+            "record_kind": "transcript-history.chunk",
+            "owner_ref": "owner:transcript-history"
+          },
+          {
+            "id": "record:activity",
+            "role": "activities",
+            "record_kind": "transcript-history.activity",
+            "owner_ref": "owner:transcript-history"
+          },
+          {
+            "id": "record:search-result",
+            "role": "searchResults",
+            "record_kind": "transcript-history.search-result",
+            "owner_ref": "owner:transcript-history"
+          }
+        ],
+        "fields": [
+          {
+            "id": "title",
+            "label": "Title",
+            "paths": [
+              [
+                "media",
+                "display_name"
+              ],
+              [
+                "title"
+              ]
+            ]
+          },
+          {
+            "id": "duration",
+            "label": "Length",
+            "paths": [
+              [
+                "media",
+                "duration_seconds"
+              ]
+            ],
+            "format": {
+              "kind": "durationSeconds",
+              "empty": "Length not saved"
+            }
+          },
+          {
+            "id": "words",
+            "label": "Words",
+            "paths": [
+              [
+                "word_count"
+              ]
+            ],
+            "format": {
+              "kind": "number",
+              "empty": "Words not saved"
+            }
+          },
+          {
+            "id": "language",
+            "label": "Language",
+            "paths": [
+              [
+                "language"
+              ]
+            ],
+            "format": {
+              "empty": "Language not saved"
+            }
+          },
+          {
+            "id": "accepted",
+            "label": "Accepted",
+            "paths": [
+              [
+                "accepted_at"
+              ]
+            ],
+            "format": {
+              "kind": "datetime",
+              "empty": "Not accepted yet"
+            }
+          }
+        ],
+        "views": [
+          {
+            "id": "view:past-transcripts",
+            "label": "Past transcripts",
+            "eyebrow": "Review",
+            "sourceRole": "entries",
+            "status": {
+              "empty": "No transcripts",
+              "waiting": "Waiting",
+              "ready": "Ready",
+              "blocked": "Needs attention"
+            },
+            "primary": {
+              "valueField": "words",
+              "labelField": "title",
+              "detailFields": [
+                "language",
+                "accepted"
+              ],
+              "emptyValue": "No text",
+              "emptyLabel": "No accepted transcripts yet."
+            },
+            "item": {
+              "titleField": "title",
+              "detailFields": [
+                "words",
+                "language",
+                "accepted"
+              ],
+              "badgeField": "duration",
+              "maxItems": 6
+            },
+            "detail": {
+              "fields": [
+                "duration",
+                "words",
+                "language",
+                "accepted"
+              ]
+            }
+          }
+        ],
+        "actions": [
+          {
+            "id": "action:accept-transcript-result",
+            "label": "Accept",
+            "operation": "engine.operation.write-batch",
+            "target": "slot::workflow",
+            "proofGates": [
+              "CPD-10F"
+            ],
+            "disabledWhen": {
+              "missingProof": true
+            }
+          }
+        ],
+        "relationships": [
+          {
+            "id": "relationship:entry-source",
+            "sourceRole": "entries",
+            "targetOwnerRef": "owner:audio-transcription"
+          }
+        ],
+        "rules": [
+          {
+            "id": "rule:missing-descriptor",
+            "when": {
+              "missing_descriptor": true
+            },
+            "message": "This page is missing its material setup.",
+            "severity": "blocked"
+          }
+        ],
+        "projections": [
+          {
+            "id": "projection:transcript-history-content-media-evidence",
+            "label": "transcript-history-content-media-evidence",
+            "source": "content-media-evidence"
+          }
+        ],
+        "owner_refs": [
+          {
+            "id": "owner:transcript-history",
+            "package": "transcript-history"
+          },
+          {
+            "id": "owner:audio-transcription",
+            "package": "audio-transcription"
+          }
+        ],
+        "target_invocations": [
+          {
+            "id": "target:write-batch",
+            "operation": "engine.operation.write-batch",
+            "target": "slot::workflow"
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::transcript-history::workflow-action::accept-transcript-result",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:accept-transcript-result",
+        "kind": "action",
+        "is_active": true,
+        "name": "accept-transcript-result",
+        "description": "Accept an audio-transcription result into transcript-history entry and activity records without re-running transcription.",
+        "descriptor_ref": "package::transcript-history::graph::current-record-action-graph",
+        "operation": "engine.operation.write-batch",
+        "target": "slot::workflow",
+        "proof_gates": [
+          "CPD-10F"
+        ],
+        "write_plan_source": "current-record-action-graph.action-descriptor"
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-transcript-history",
+      "source_path": "built-stored-bytes/entry-bytes-transcript-history",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-transcript-history.source-closure.json"
+    }
+  ]
+}

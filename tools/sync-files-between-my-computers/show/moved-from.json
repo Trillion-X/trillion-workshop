@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree: each names its source path and commit, the identity of its source bytes and of its bytes here. Nothing was changed.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/sync-status/show/SyncStatus.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/sync-files-between-my-computers/show/SyncStatus.tsx",
+      "source_identity": "1f:56423706c52d0833b15d92456f03ae928bcccae7d0c9e832f2205e8e21bfd046",
+      "identity": "1f:56423706c52d0833b15d92456f03ae928bcccae7d0c9e832f2205e8e21bfd046"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "about": "Files moved here byte for byte from another code tree: each names its source path and commit, the identity of its source bytes and of its bytes here. Nothing was changed.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/public-site-publisher/src/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/publish-a-site-at-its-own-address/src/README.md",
+      "source_identity": "1f:bce4f6b250583642327dd7a29b1489b4ce4b363b64443920ff8a2bc21c8904fc",
+      "identity": "1f:bce4f6b250583642327dd7a29b1489b4ce4b363b64443920ff8a2bc21c8904fc"
+    },
+    {
+      "from": "packages/public-site-publisher/src/configured-record-action-projection.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/publish-a-site-at-its-own-address/src/configured-record-action-projection.mjs",
+      "source_identity": "1f:b52477ee5efedbbf5503ba170af4b056dbf82bc6e866c7ae6f41bd91e4181bb1",
+      "identity": "1f:b52477ee5efedbbf5503ba170af4b056dbf82bc6e866c7ae6f41bd91e4181bb1"
+    },
+    {
+      "from": "packages/public-site-publisher/src/configured-record-action-projection.test.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/publish-a-site-at-its-own-address/src/configured-record-action-projection.test.mjs",
+      "source_identity": "1f:7716bbf0183648a8fe3ba623f09afb0dd479e110bab01eb169f71f3cab6a612c",
+      "identity": "1f:7716bbf0183648a8fe3ba623f09afb0dd479e110bab01eb169f71f3cab6a612c"
+    },
+    {
+      "from": "packages/public-site-publisher/src/owner-action-bindings.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/publish-a-site-at-its-own-address/src/owner-action-bindings.mjs",
+      "source_identity": "1f:32db25fafde599fa43159bdb1f39f53605ffff8fe34abb95b5eaca623d048d13",
+      "identity": "1f:32db25fafde599fa43159bdb1f39f53605ffff8fe34abb95b5eaca623d048d13"
+    },
+    {
+      "from": "packages/public-site-publisher/src/owner-action-bindings.test.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/publish-a-site-at-its-own-address/src/owner-action-bindings.test.mjs",
+      "source_identity": "1f:2f906541e2a3c0f7328fd6f2ed89a779dee0693f81ae70a1e7c17cbd9d5dc091",
+      "identity": "1f:2f906541e2a3c0f7328fd6f2ed89a779dee0693f81ae70a1e7c17cbd9d5dc091"
+    },
+    {
+      "from": "packages/public-site-publisher/src/projection-reader-contract.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/publish-a-site-at-its-own-address/src/projection-reader-contract.mjs",
+      "source_identity": "1f:648a3002173c2a9c83cb300db4ed8861f943ac2b12976efaf24905cfda8295b3",
+      "identity": "1f:648a3002173c2a9c83cb300db4ed8861f943ac2b12976efaf24905cfda8295b3"
+    },
+    {
+      "from": "packages/public-site-publisher/src/projection-reader-contract.test.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/publish-a-site-at-its-own-address/src/projection-reader-contract.test.mjs",
+      "source_identity": "1f:ea1edf8753d76ca69245bc5141582d752d0df4454743013376b7d821cfe04371",
+      "identity": "1f:ea1edf8753d76ca69245bc5141582d752d0df4454743013376b7d821cfe04371"
+    }
+  ]
+}

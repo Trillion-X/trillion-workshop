@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree: each names its source path and commit, the identity of its source bytes and of its bytes here. Nothing was changed.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/screen-arrangement/thing-to-put-on-screen/put-screen-arrangement-on-screen.js",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/thing-to-put-on-screen/put-screen-arrangement-on-screen.js",
+      "source_identity": "1f:c986ce5161a5aa93db34d451912bd2b5ff59dc47b2411b514fdba1e7ab40d606",
+      "identity": "1f:c986ce5161a5aa93db34d451912bd2b5ff59dc47b2411b514fdba1e7ab40d606"
+    }
+  ]
+}

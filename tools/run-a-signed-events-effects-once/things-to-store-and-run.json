@@ -1,0 +1,703 @@
+{
+  "package": "signed-event-effects",
+  "things": [
+    {
+      "type": "stored_bytes",
+      "name": "index",
+      "source_path": "index.js"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "signed-event-effects-targets",
+      "source_path": "do-work/signed-event-effects-targets.js"
+    },
+    {
+      "type": "record",
+      "address": "package::signed-event-effects::contract",
+      "path": [
+        "packages",
+        "package",
+        "signed-event-effects"
+      ],
+      "payload": {
+        "does_not_own": [
+          "event signing",
+          "event family semantics",
+          "credential storage",
+          "concrete write owners",
+          "concrete reader owners",
+          "product reward policy"
+        ],
+        "owns": [
+          "installed rule validation",
+          "authority-verified event admission before projection",
+          "signed-event fact to generic effect projection",
+          "dispatch-policy-bounded write request creation",
+          "installed effect list reads",
+          "generic signed_event_effect write definition"
+        ],
+        "package": "signed-event-effects"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::signed-event-effects::dispatch-policy::owner-effects-v1",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "signed-event-effects-dispatch-policy",
+        "id": "signed-event-effects.dispatch-policy.owner-effects.v1",
+        "allowed_write_paths": [
+          {
+            "target": "slot::workflow",
+            "definition_id": "action:signed-event-effects.record-signed-event-effect"
+          }
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::signed-event-effects::admission-descriptor::owner-action-accepted-v1",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "signed-event-effects-admission-descriptor",
+        "id": "signed-event-effects.owner-action-accepted.v1",
+        "verifier_target": "signed-event-authority.admit-event",
+        "dispatch_policy_ref": "signed-event-effects.dispatch-policy.owner-effects.v1",
+        "effect_rules": [
+          {
+            "rule_id": "accepted-owner-create",
+            "relation": "owner-action.accepted",
+            "objects": [
+              "group-page.create-group-page"
+            ],
+            "required_attributes": [
+              "subject_ref",
+              "owner_ref",
+              "owner_revision",
+              "idempotency_ref"
+            ],
+            "effect_id_prefix": "accepted-owner-create",
+            "effect_kind": "accepted_owner_action",
+            "subject": {
+              "from": "fact",
+              "path": "subject"
+            },
+            "object": {
+              "from": "attribute",
+              "key": "subject_ref"
+            },
+            "material": {
+              "constants": {
+                "formula_ref": "progression-formula:weighted-accepted-events",
+                "weight_ref": "progression-weight:owner-create",
+                "window_ref": "progression-window:all-accepted-events",
+                "progression_ref": "progression:open-participation"
+              },
+              "include_attributes": true,
+              "include_event_fields": [
+                "event_id",
+                "occurred_at",
+                "idempotency_key"
+              ],
+              "include_fact_fields": [
+                "fact_id",
+                "relation",
+                "object"
+              ]
+            }
+          },
+          {
+            "rule_id": "accepted-subject-join",
+            "relation": "owner-action.accepted",
+            "objects": [
+              "subject-participant.join-subject"
+            ],
+            "required_attributes": [
+              "subject_ref",
+              "owner_ref",
+              "owner_revision",
+              "idempotency_ref"
+            ],
+            "effect_id_prefix": "accepted-subject-join",
+            "effect_kind": "accepted_owner_action",
+            "subject": {
+              "from": "fact",
+              "path": "subject"
+            },
+            "object": {
+              "from": "attribute",
+              "key": "subject_ref"
+            },
+            "material": {
+              "constants": {
+                "formula_ref": "progression-formula:weighted-accepted-events",
+                "weight_ref": "progression-weight:subject-join",
+                "window_ref": "progression-window:all-accepted-events",
+                "progression_ref": "progression:open-participation"
+              },
+              "include_attributes": true,
+              "include_event_fields": [
+                "event_id",
+                "occurred_at",
+                "idempotency_key"
+              ],
+              "include_fact_fields": [
+                "fact_id",
+                "relation",
+                "object"
+              ]
+            }
+          },
+          {
+            "rule_id": "accepted-shared-item",
+            "relation": "owner-action.accepted",
+            "objects": [
+              "group-page.share-item"
+            ],
+            "required_attributes": [
+              "subject_ref",
+              "owner_ref",
+              "owner_revision",
+              "idempotency_ref"
+            ],
+            "effect_id_prefix": "accepted-shared-item",
+            "effect_kind": "accepted_owner_action",
+            "subject": {
+              "from": "fact",
+              "path": "subject"
+            },
+            "object": {
+              "from": "attribute",
+              "key": "subject_ref"
+            },
+            "material": {
+              "constants": {
+                "formula_ref": "progression-formula:weighted-accepted-events",
+                "weight_ref": "progression-weight:shared-item",
+                "window_ref": "progression-window:all-accepted-events",
+                "progression_ref": "progression:open-participation"
+              },
+              "include_attributes": true,
+              "include_event_fields": [
+                "event_id",
+                "occurred_at",
+                "idempotency_key"
+              ],
+              "include_fact_fields": [
+                "fact_id",
+                "relation",
+                "object"
+              ]
+            }
+          }
+        ],
+        "write_path": {
+          "target": "slot::workflow",
+          "operation": "execute_definition",
+          "definition_id": "action:signed-event-effects.record-signed-event-effect",
+          "include_output": true
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::signed-event-effects::list-descriptor::by-subject-v1",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "signed-event-effects-list-descriptor",
+        "id": "signed-event-effects.by-subject.v1",
+        "reader_target": "slot::find-current-items",
+        "query": {
+          "operation": "find-current-items",
+          "in": "signed_event_effect",
+          "where": {
+            "field": "subject",
+            "eq": {
+              "$kind": "input",
+              "path": "subject"
+            }
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::signed-event-effects::dispatch-policy::person-effect-store-v1",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "signed-event-effects-dispatch-policy",
+        "id": "signed-event-effects.dispatch-policy.person-effect-store.v1",
+        "allowed_write_paths": [
+          {
+            "target": "person-effect-store",
+            "definition_id": "record-signed-event-effect"
+          }
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::signed-event-effects::admission-descriptor::payment-provider-event-accepted-v1",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "signed-event-effects-admission-descriptor",
+        "id": "signed-event-effects.payment-provider-event-accepted.v1",
+        "comment": "A payment provider's webhook event, already mapped to a generic payment event by the provider package, becomes one effect on the paying person's own record. The verifier target re-checks the provider's signature over the exact bytes it received and answers with the event's content identity; nothing is written for an event it does not confirm.",
+        "verifier_target": "payment-provider.verified-webhook-event",
+        "dispatch_policy_ref": "signed-event-effects.dispatch-policy.person-effect-store.v1",
+        "effect_rules": [
+          {
+            "rule_id": "payment-confirmed",
+            "relation": "payment.confirmed",
+            "required_attributes": [
+              "provider_event_id"
+            ],
+            "effect_id_prefix": "payment-confirmed",
+            "effect_kind": "payment.confirmed",
+            "subject": {
+              "from": "fact",
+              "path": "subject"
+            },
+            "object": {
+              "from": "fact",
+              "path": "object"
+            },
+            "material": {
+              "include_attributes": true,
+              "include_event_fields": [
+                "event_id",
+                "occurred_at",
+                "idempotency_key"
+              ],
+              "include_fact_fields": [
+                "fact_id",
+                "relation",
+                "object"
+              ]
+            }
+          },
+          {
+            "rule_id": "subscription-renewed",
+            "relation": "subscription.renewed",
+            "required_attributes": [
+              "provider_event_id"
+            ],
+            "effect_id_prefix": "subscription-renewed",
+            "effect_kind": "subscription.renewed",
+            "subject": {
+              "from": "fact",
+              "path": "subject"
+            },
+            "object": {
+              "from": "fact",
+              "path": "object"
+            },
+            "material": {
+              "include_attributes": true,
+              "include_event_fields": [
+                "event_id",
+                "occurred_at",
+                "idempotency_key"
+              ],
+              "include_fact_fields": [
+                "fact_id",
+                "relation",
+                "object"
+              ]
+            }
+          },
+          {
+            "rule_id": "subscription-ended",
+            "relation": "subscription.ended",
+            "required_attributes": [
+              "provider_event_id"
+            ],
+            "effect_id_prefix": "subscription-ended",
+            "effect_kind": "subscription.ended",
+            "subject": {
+              "from": "fact",
+              "path": "subject"
+            },
+            "object": {
+              "from": "fact",
+              "path": "object"
+            },
+            "material": {
+              "include_attributes": true,
+              "include_event_fields": [
+                "event_id",
+                "occurred_at",
+                "idempotency_key"
+              ],
+              "include_fact_fields": [
+                "fact_id",
+                "relation",
+                "object"
+              ]
+            }
+          },
+          {
+            "rule_id": "payment-refunded",
+            "relation": "payment.refunded",
+            "required_attributes": [
+              "provider_event_id"
+            ],
+            "effect_id_prefix": "payment-refunded",
+            "effect_kind": "payment.refunded",
+            "subject": {
+              "from": "fact",
+              "path": "subject"
+            },
+            "object": {
+              "from": "fact",
+              "path": "object"
+            },
+            "material": {
+              "include_attributes": true,
+              "include_event_fields": [
+                "event_id",
+                "occurred_at",
+                "idempotency_key"
+              ],
+              "include_fact_fields": [
+                "fact_id",
+                "relation",
+                "object"
+              ]
+            }
+          }
+        ],
+        "write_path": {
+          "target": "person-effect-store",
+          "definition_id": "record-signed-event-effect"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::signed-event-effects::trigger-rule::project-accepted-owner-event",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:signed-event-effects:project-accepted-owner-event",
+        "name": "project-accepted-owner-event",
+        "description": "Project every durable authority-admitted owner event through installed effect rules. Pure DATA over trigger-engine; event producers and effect policy remain separate owners.",
+        "is_active": true,
+        "version": 1,
+        "trigger_type": "delta",
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "owner-action-event-log.accepted-event"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "envelope",
+                "path": "is_retraction"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "signed-event-effects.admit-event",
+          "output_template": {
+            "descriptor_ref": "signed-event-effects.owner-action-accepted.v1",
+            "request_id": {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "event.payload.event_id"
+              }
+            },
+            "body": {
+              "events": [
+                {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "change",
+                    "path": "event"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "extra_properties": {}
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::signed-event-effects::target::admit-event",
+      "path": [
+        "packages",
+        "signed-event-effects",
+        "targets",
+        "admit-event"
+      ],
+      "payload": {
+        "entry_name": "admit-event",
+        "export_name": "admitSignedEventEffects",
+        "kind": "package-target-descriptor",
+        "source_path": "do-work/signed-event-effects-targets.js",
+        "target": "signed-event-effects.admit-event",
+        "exposure": "owner-to-owner-only",
+        "fixed_owner_targets": [
+          "signed-event-authority.admit-event",
+          "slot::workflow"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::signed-event-effects::target::list-effects",
+      "path": [
+        "packages",
+        "signed-event-effects",
+        "targets",
+        "list-effects"
+      ],
+      "payload": {
+        "entry_name": "list-effects",
+        "export_name": "listSignedEventEffects",
+        "kind": "package-target-descriptor",
+        "source_path": "do-work/signed-event-effects-targets.js",
+        "target": "signed-event-effects.list-effects",
+        "exposure": "owner-to-owner-only",
+        "fixed_owner_targets": [
+          "slot::find-current-items"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::signed-event-effects::workflow-action::record-signed-event-effect",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:signed-event-effects.record-signed-event-effect",
+        "kind": "action",
+        "is_active": true,
+        "name": "signed-event-effects.record-signed-event-effect",
+        "description": "Record one generic signed_event_effect from a caller-projected effect record.",
+        "input_schema": {},
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "effect_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "signed-event-effect|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "effect_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "signed_event_effect"
+                  ],
+                  "payload": {
+                    "table": "signed_event_effect",
+                    "effect_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "effect_id"
+                      }
+                    },
+                    "kind": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "kind"
+                      }
+                    },
+                    "subject": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "subject"
+                      }
+                    },
+                    "object": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "object"
+                      }
+                    },
+                    "source_event_ids": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "source_event_ids"
+                      }
+                    },
+                    "material": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "material"
+                      }
+                    },
+                    "proof": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "proof"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::signed-event-effects::entry::admit-event",
+      "path": [
+        "packages",
+        "signed-event-effects",
+        "entries",
+        "admit-event"
+      ],
+      "payload": {
+        "entry_name": "admit-event",
+        "export_name": "admitSignedEventEffects",
+        "kind": "bitfield-package-entry",
+        "source_path": "do-work/signed-event-effects-targets.js",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-admit-event"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-admit-event",
+      "source_path": "built-stored-bytes/entry-bytes-admit-event",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-admit-event.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::signed-event-effects::entry::list-effects",
+      "path": [
+        "packages",
+        "signed-event-effects",
+        "entries",
+        "list-effects"
+      ],
+      "payload": {
+        "entry_name": "list-effects",
+        "export_name": "listSignedEventEffects",
+        "kind": "bitfield-package-entry",
+        "source_path": "do-work/signed-event-effects-targets.js",
+        "live_read_mode": "none",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-list-effects"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-list-effects",
+      "source_path": "built-stored-bytes/entry-bytes-list-effects",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-list-effects.source-closure.json"
+    },
+    {"type": "record", "address": "package::signed-event-effects::public-source::do-work", "path": ["packages", "signed-event-effects", "public-sources", "do-work"], "payload": {"kind": "bitfield-package-public-source", "source_path": "do-work"}, "remove": false}
+  ]
+}

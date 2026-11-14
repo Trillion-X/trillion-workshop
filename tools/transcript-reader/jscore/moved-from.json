@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree: each names its source path and commit, the identity of its source bytes and of its bytes here. Nothing was changed.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/transcript-history/jscore/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/transcript-reader/jscore/README.md",
+      "source_identity": "1f:71f4077eedb8b02bbc487b8ec6fad72d284b19ea92d920a8d17d76c083088a74",
+      "identity": "1f:71f4077eedb8b02bbc487b8ec6fad72d284b19ea92d920a8d17d76c083088a74"
+    },
+    {
+      "from": "packages/transcript-history/jscore/transcript-history-graph-evaluator.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/transcript-reader/jscore/transcript-history-graph-evaluator.test.ts.held",
+      "source_identity": "1f:4b55ea847dc4ea65d358f5a886cbcbbdc24c87ce8f6b7d5939fcb12e2a8ba482",
+      "identity": "1f:4b55ea847dc4ea65d358f5a886cbcbbdc24c87ce8f6b7d5939fcb12e2a8ba482"
+    },
+    {
+      "from": "packages/transcript-history/jscore/transcript-history-graph-evaluator.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/transcript-reader/jscore/transcript-history-graph-evaluator.ts",
+      "source_identity": "1f:94ae4e520c439310f10d8685e59568f147d4c1ac502e00c27e518d009604220d",
+      "identity": "1f:94ae4e520c439310f10d8685e59568f147d4c1ac502e00c27e518d009604220d"
+    }
+  ]
+}

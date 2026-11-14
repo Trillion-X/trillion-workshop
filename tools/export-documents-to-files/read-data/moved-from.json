@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree: each names its source path and commit, the identity of its source bytes and of its bytes here. Nothing was changed.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/structured-file-output/read-data/structured-file-output.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/export-documents-to-files/read-data/structured-file-output.ts",
+      "source_identity": "1f:b42c75cb0481529fbeaa1ab64b7ee8854d053146a55822f2ac92c5a7111c1f8f",
+      "identity": "1f:b42c75cb0481529fbeaa1ab64b7ee8854d053146a55822f2ac92c5a7111c1f8f"
+    },
+    {
+      "from": "packages/structured-file-output/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/export-documents-to-files/read-data/README.md",
+      "source_identity": "1f:89a5dfa98464ba5ca4f0133a9cda2c345bacea4bd4eb3b8b7ce13f01bfaa7e14",
+      "identity": "1f:89a5dfa98464ba5ca4f0133a9cda2c345bacea4bd4eb3b8b7ce13f01bfaa7e14"
+    }
+  ]
+}

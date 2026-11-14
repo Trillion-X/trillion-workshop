@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree: each names its source path and commit, the identity of its source bytes and of its bytes here. Nothing was changed.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/screen-arrangement/show-ios-jscore/mount-screen-arrangement-jscore.js",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/show-ios-jscore/mount-screen-arrangement-jscore.js",
+      "source_identity": "1f:adac334adfcbbdbc2764d40721a70230e0ce568a8867c7e9afbb792ea2364ae3",
+      "identity": "1f:adac334adfcbbdbc2764d40721a70230e0ce568a8867c7e9afbb792ea2364ae3"
+    }
+  ]
+}

@@ -67,6 +67,20 @@
       "source_identity": "1f:f3abd69c4ad869a361fecee21b262be5d6d8aacb5d70bcccbb4a8a49454e9c72",
       "identity": "1f:f3abd69c4ad869a361fecee21b262be5d6d8aacb5d70bcccbb4a8a49454e9c72",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/transcript-history/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/transcript-reader/entry-to-package-data-map.json",
+      "source_identity": "1f:d71a6b621e4effce05a52405e1eb96dd44a52345d5bd77b7c3992e19eb0dff22",
+      "identity": "1f:d71a6b621e4effce05a52405e1eb96dd44a52345d5bd77b7c3992e19eb0dff22"
+    },
+    {
+      "from": "packages/transcript-history/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/transcript-reader/things-to-store-and-run.json",
+      "source_identity": "1f:91fb77cf61d36d7472308f17c6655042708431ffcfd6d6f50dff2e4e09602f3d",
+      "identity": "1f:91fb77cf61d36d7472308f17c6655042708431ffcfd6d6f50dff2e4e09602f3d"
     }
   ]
 }

@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree: each names its source path and commit, the identity of its source bytes and of its bytes here. Nothing was changed.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/screen-arrangement/tests/application-selection-triggers.test.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/tests/application-selection-triggers.test.mjs.held",
+      "source_identity": "1f:7ba411094d32cb43c246b7e12df4814f4cadc73cb03ba77d266f766788826957",
+      "identity": "1f:7ba411094d32cb43c246b7e12df4814f4cadc73cb03ba77d266f766788826957"
+    },
+    {
+      "from": "packages/screen-arrangement/tests/record-application-composition-selection.test.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/tests/record-application-composition-selection.test.mjs",
+      "source_identity": "1f:3c99d88c4ceeecd772b9b922584506d08f03c245316cffe9c5e38f50d5b416a1",
+      "identity": "1f:3c99d88c4ceeecd772b9b922584506d08f03c245316cffe9c5e38f50d5b416a1"
+    },
+    {
+      "from": "packages/screen-arrangement/tests/required-chrome-is-checked-against-roots.test.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/tests/required-chrome-is-checked-against-roots.test.mjs",
+      "source_identity": "1f:9762b87cc9e7537c02d8d498cc32abf258c5e70e3072caca94da720a52f01639",
+      "identity": "1f:9762b87cc9e7537c02d8d498cc32abf258c5e70e3072caca94da720a52f01639"
+    }
+  ]
+}

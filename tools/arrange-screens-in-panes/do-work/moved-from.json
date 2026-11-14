@@ -1,0 +1,176 @@
+{
+  "about": "Files moved here byte for byte from another code tree: each names its source path and commit, the identity of its source bytes and of its bytes here. Nothing was changed.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/screen-arrangement/do-work/apply-application-composition-selection.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/do-work/apply-application-composition-selection.test.ts.held",
+      "source_identity": "1f:d2d4217bcb3e36d1cab03059dd315f1e90368f7295eda77c565a825fb637f772",
+      "identity": "1f:d2d4217bcb3e36d1cab03059dd315f1e90368f7295eda77c565a825fb637f772"
+    },
+    {
+      "from": "packages/screen-arrangement/do-work/apply-application-composition-selection.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/do-work/apply-application-composition-selection.ts",
+      "source_identity": "1f:447784d91f1e5ca4b38bbc0597b3015b2778512111eb268fc81028900e768b6b",
+      "identity": "1f:447784d91f1e5ca4b38bbc0597b3015b2778512111eb268fc81028900e768b6b"
+    },
+    {
+      "from": "packages/screen-arrangement/do-work/ask-screen-arrangement.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/do-work/ask-screen-arrangement.test.ts.held",
+      "source_identity": "1f:d8fa0d61163e57530fa520009674aefa26b3ef5aa257cf44b3828df74f33d045",
+      "identity": "1f:d8fa0d61163e57530fa520009674aefa26b3ef5aa257cf44b3828df74f33d045"
+    },
+    {
+      "from": "packages/screen-arrangement/do-work/build-application-layout-state-contribution.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/do-work/build-application-layout-state-contribution.test.ts.held",
+      "source_identity": "1f:2d66efdec21dfa8ab1ebc5724f693b645a9527df058074b9bcb9cd3b614da9eb",
+      "identity": "1f:2d66efdec21dfa8ab1ebc5724f693b645a9527df058074b9bcb9cd3b614da9eb"
+    },
+    {
+      "from": "packages/screen-arrangement/do-work/build-application-layout-state-contribution.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/do-work/build-application-layout-state-contribution.ts",
+      "source_identity": "1f:9771df795d560647016070e520d135e7ba77e3a597344341b544b159fef6ba4b",
+      "identity": "1f:9771df795d560647016070e520d135e7ba77e3a597344341b544b159fef6ba4b"
+    },
+    {
+      "from": "packages/screen-arrangement/do-work/build-application-surface-catalog-contribution.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/do-work/build-application-surface-catalog-contribution.test.ts.held",
+      "source_identity": "1f:cd0ac5afe10d19d3f883752e404eba29e79967691e9114193138a9ffd685f5fe",
+      "identity": "1f:cd0ac5afe10d19d3f883752e404eba29e79967691e9114193138a9ffd685f5fe"
+    },
+    {
+      "from": "packages/screen-arrangement/do-work/build-application-surface-catalog-contribution.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/do-work/build-application-surface-catalog-contribution.ts",
+      "source_identity": "1f:a8c7af9eca03f89b1f856bffd7e845795c5a61fdb2cf9f668426ecc7f2ee2f0e",
+      "identity": "1f:a8c7af9eca03f89b1f856bffd7e845795c5a61fdb2cf9f668426ecc7f2ee2f0e"
+    },
+    {
+      "from": "packages/screen-arrangement/do-work/decoration-bytes-namespace.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/do-work/decoration-bytes-namespace.ts",
+      "source_identity": "1f:c2c633a0c6f9d18e214a5a98384754b9e0e23686f484cc62815c809da77b5498",
+      "identity": "1f:c2c633a0c6f9d18e214a5a98384754b9e0e23686f484cc62815c809da77b5498"
+    },
+    {
+      "from": "packages/screen-arrangement/do-work/dispatch-application-composition-transition.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/do-work/dispatch-application-composition-transition.test.ts.held",
+      "source_identity": "1f:d462ca5edbcba84917fd11eef446436e817868c51e6951cd9f6f295afc67f297",
+      "identity": "1f:d462ca5edbcba84917fd11eef446436e817868c51e6951cd9f6f295afc67f297"
+    },
+    {
+      "from": "packages/screen-arrangement/do-work/dispatch-application-composition-transition.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/do-work/dispatch-application-composition-transition.ts",
+      "source_identity": "1f:e3f143919162430d25ee036cf79c0c9f4f4121e8de312da085e5291da43e4896",
+      "identity": "1f:e3f143919162430d25ee036cf79c0c9f4f4121e8de312da085e5291da43e4896"
+    },
+    {
+      "from": "packages/screen-arrangement/do-work/layout-operations.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/do-work/layout-operations.test.ts.held",
+      "source_identity": "1f:fdfa0e0b7d3c0b6125fa507d3ae8b1c9cad6b457fb5cd96a66d5950df14cf737",
+      "identity": "1f:fdfa0e0b7d3c0b6125fa507d3ae8b1c9cad6b457fb5cd96a66d5950df14cf737"
+    },
+    {
+      "from": "packages/screen-arrangement/do-work/migrate-layout-presets-to-groups.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/do-work/migrate-layout-presets-to-groups.test.ts.held",
+      "source_identity": "1f:633c8cf5d8d0f0145623fdc389c0820fe8d039d37ef00b7ddd6b9e42c85ea5cf",
+      "identity": "1f:633c8cf5d8d0f0145623fdc389c0820fe8d039d37ef00b7ddd6b9e42c85ea5cf"
+    },
+    {
+      "from": "packages/screen-arrangement/do-work/node-bookmark-operations.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/do-work/node-bookmark-operations.test.ts.held",
+      "source_identity": "1f:12eceab484ac157a06553d6bdf00f481ccb0c24ce0ab170b23dca6dc9caa0e62",
+      "identity": "1f:12eceab484ac157a06553d6bdf00f481ccb0c24ce0ab170b23dca6dc9caa0e62"
+    },
+    {
+      "from": "packages/screen-arrangement/do-work/node-history-operations.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/do-work/node-history-operations.test.ts.held",
+      "source_identity": "1f:22db0cb9a2504a75b00885d070fd468f098667a87db0b019033fefc69d1cd263",
+      "identity": "1f:22db0cb9a2504a75b00885d070fd468f098667a87db0b019033fefc69d1cd263"
+    },
+    {
+      "from": "packages/screen-arrangement/do-work/owned-address-identity.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/do-work/owned-address-identity.test.ts.held",
+      "source_identity": "1f:ff936edac543a77d7052e72cd03680dc128f45a3c140529c1a7703efdba0297f",
+      "identity": "1f:ff936edac543a77d7052e72cd03680dc128f45a3c140529c1a7703efdba0297f"
+    },
+    {
+      "from": "packages/screen-arrangement/do-work/plan-application-composition-transition.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/do-work/plan-application-composition-transition.test.ts.held",
+      "source_identity": "1f:28f418b474fcef9e4ec1d8b70725ee00f2782e57ec78c913bad149111cb3f269",
+      "identity": "1f:28f418b474fcef9e4ec1d8b70725ee00f2782e57ec78c913bad149111cb3f269"
+    },
+    {
+      "from": "packages/screen-arrangement/do-work/plan-application-composition-transition.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/do-work/plan-application-composition-transition.ts",
+      "source_identity": "1f:6d362282ea6145f5e9b9d3163317bd33376137968fe9643f32acb9fd634fb62a",
+      "identity": "1f:6d362282ea6145f5e9b9d3163317bd33376137968fe9643f32acb9fd634fb62a"
+    },
+    {
+      "from": "packages/screen-arrangement/do-work/preserve-client-owned.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/do-work/preserve-client-owned.test.ts.held",
+      "source_identity": "1f:1ea6a3ab9c1635f3d68cf973114b57c6c0f64106a8e7b080705349e7a314540c",
+      "identity": "1f:1ea6a3ab9c1635f3d68cf973114b57c6c0f64106a8e7b080705349e7a314540c"
+    },
+    {
+      "from": "packages/screen-arrangement/do-work/read-canonical-artifact-object-url.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/do-work/read-canonical-artifact-object-url.test.ts.held",
+      "source_identity": "1f:c38fa9fcabf6ddddf6b6405d6f163d36cc5b61ca8cbb1efc3c9934f7fb969778",
+      "identity": "1f:c38fa9fcabf6ddddf6b6405d6f163d36cc5b61ca8cbb1efc3c9934f7fb969778"
+    },
+    {
+      "from": "packages/screen-arrangement/do-work/save-arrangement-as-group.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/do-work/save-arrangement-as-group.test.ts.held",
+      "source_identity": "1f:9b81f58ed966ff4c87dc184e6a646df232200d6294cfdc509b6b215118e08c77",
+      "identity": "1f:9b81f58ed966ff4c87dc184e6a646df232200d6294cfdc509b6b215118e08c77"
+    },
+    {
+      "from": "packages/screen-arrangement/do-work/save-layout-preset.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/do-work/save-layout-preset.ts",
+      "source_identity": "1f:21092411b8e77703a086d02eb1c37ad6bd475be51e6decf007881a24a8db72a9",
+      "identity": "1f:21092411b8e77703a086d02eb1c37ad6bd475be51e6decf007881a24a8db72a9"
+    },
+    {
+      "from": "packages/screen-arrangement/do-work/save-layout-state.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/do-work/save-layout-state.test.ts.held",
+      "source_identity": "1f:de85a618d8e6b21bdd106058ea3edb4f87256e7afb2cd60d3fb56f81eab3753d",
+      "identity": "1f:de85a618d8e6b21bdd106058ea3edb4f87256e7afb2cd60d3fb56f81eab3753d"
+    },
+    {
+      "from": "packages/screen-arrangement/do-work/store-bytes-to-cas.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/do-work/store-bytes-to-cas.test.ts.held",
+      "source_identity": "1f:2cfa1b0eb00e1b6c3b0065b818620205fa85542c6b02f44ba3096ce5c3711ef8",
+      "identity": "1f:2cfa1b0eb00e1b6c3b0065b818620205fa85542c6b02f44ba3096ce5c3711ef8"
+    },
+    {
+      "from": "packages/screen-arrangement/do-work/store-bytes-to-cas.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/do-work/store-bytes-to-cas.ts",
+      "source_identity": "1f:554ef34fe4b2166dff504af3e442355edf993cd470bb767b58f4a1a73684fddd",
+      "identity": "1f:554ef34fe4b2166dff504af3e442355edf993cd470bb767b58f4a1a73684fddd"
+    }
+  ]
+}

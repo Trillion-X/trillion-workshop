@@ -1,0 +1,30 @@
+{
+  "schema": "screen-arrangement.application-projector-template/scene-roots",
+  "kind": "application-projector-template",
+  "projector_template": {
+    "type": "record",
+    "address": "edge::render-roots-to-scene",
+    "address_mode": "identity_text",
+    "path": [
+      "edge-config"
+    ],
+    "payload": {
+      "context": "{\n  \"query_source\": {\n    \"address\": \"slot::eeaf\",\n    \"reply_value_extractor\": {\n      \"list_path\": [\"items\"],\n      \"value_path_from_list_item\": [\"value\"]\n    }\n  },\n  \"render_roots_scene\": {\n    \"roots_queries\": [{\n      \"request\": {\"operation\": \"query\", \"entity_type\": \"type:scene\"},\n      \"reply_value_extractor\": {\"list_path\": [\"items\"], \"value_path_from_list_item\": [\"value\"]}\n    }],\n    \"components_query\": {\n      \"request\": {\"operation\": \"query\", \"entity_type\": \"type:extension\", \"select\": [\"id\", \"integrity_hash\", \"instance_props\", \"artifact_dependencies\", \"things_to_put_on_screen\"]},\n      \"address\": \"slot::eeaf\",\n      \"reply_value_extractor\": {\"list_path\": [\"items\"], \"value_path_from_list_item\": [\"value\"]}\n    },\n    \"roots_field\": \"roots\",\n    \"component_id_field\": \"id\",\n    \"root_component_id_field\": \"component_id\",\n    \"root_id_field\": \"id\",\n    \"integrity_hash_field\": \"integrity_hash\",\n    \"instance_props_field\": \"instance_props\",\n    \"artifact_dependencies_field\": \"artifact_dependencies\",\n    \"scene_root_id\": \"root\",\n    \"things_to_put_on_screen_field\": \"things_to_put_on_screen\"\n  }\n}",
+      "id": "render-roots-to-scene",
+      "paths": [
+        "prop:scene:roots",
+        "prop:extension:integrity_hash",
+        "prop:extension:instance_props",
+        "prop:extension:things_to_put_on_screen"
+      ],
+      "required_capabilities": [
+        "eeaf.indexed-state"
+      ],
+      "sink": "scene",
+      "source": "replaced-by-application-composition",
+      "source_address_kind": "literal",
+      "transform": "projector"
+    },
+    "remove": false
+  }
+}

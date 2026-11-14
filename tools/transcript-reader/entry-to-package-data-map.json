@@ -1,0 +1,12 @@
+{
+  "kind": "bitfield-entry-to-package-data-map",
+  "package": "transcript-history",
+  "package_data_path": "things-to-store-and-run.json",
+  "entries": [
+    {
+      "entry_name": "transcript-history",
+      "source_path": "show/mount-transcript-history.tsx",
+      "package_data_path": "things-to-store-and-run.json"
+    }
+  ]
+}

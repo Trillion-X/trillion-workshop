@@ -12,6 +12,20 @@
       "source_identity": "1f:1a1f0b979e3e5174f3852f35d0bdff74104ed79edf455b388c7966c66e0ee6e4",
       "identity": "1f:1a1f0b979e3e5174f3852f35d0bdff74104ed79edf455b388c7966c66e0ee6e4",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/signed-event-effects/index.js",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-a-signed-events-effects-once/index.js",
+      "source_identity": "1f:3e28b155432fe6864bd4542c66214c9bba354d2a5e830b4aa8c052c6c75c2807",
+      "identity": "1f:3e28b155432fe6864bd4542c66214c9bba354d2a5e830b4aa8c052c6c75c2807"
+    },
+    {
+      "from": "packages/signed-event-effects/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-a-signed-events-effects-once/things-to-store-and-run.json",
+      "source_identity": "1f:16a2eff56eb79e555447de90655b8606725ecdc177fe12426cff4c312854ccc2",
+      "identity": "1f:16a2eff56eb79e555447de90655b8606725ecdc177fe12426cff4c312854ccc2"
     }
   ]
 }
