@@ -80,6 +80,29 @@ export function referralCodeFor(codes, value) {
   return found && !found.withdrawn_at ? found : null;
 }
 
+/**
+ * A friend types a code: the two events to save. `referral_code_applied` is the friend's own record of the code they
+ * were given; `referral_signup` is the maker's own event naming the account that typed the code, which is what the maker's accepted count
+ * reads (referralStateFor). The code must be live in `events`; nobody applies their own code; an account's first
+ * applied code stands, so a second is refused.
+ */
+export function referralCodeAppliedEvents({ account, code, events, occurredAt }) {
+  const friend = text(account);
+  if (!friend) throw new Error('Applying a referral code needs the account that typed it.');
+  if (!Array.isArray(events)) throw new Error('events must be a list of referral events.');
+  const normalized = normalizeReferralCode(code);
+  if (!normalized) throw new Error('A referral code is 4 to 32 letters, digits or dashes.');
+  const live = referralCodeFor(referralCodesFromEvents(events), normalized);
+  if (!live) throw new Error(`${normalized} is not a live referral code.`);
+  if (live.referrer === friend) throw new Error('An account cannot apply its own referral code.');
+  const held = events.filter(isRecord).find(event => eventType(event) === 'referral_code_applied' && text(event.subject) === friend);
+  if (held) throw new Error(`This account already applied ${normalizeReferralCode(held.material?.referral_code) ?? 'a code'}; its first code stands.`);
+  return [
+    { kind: 'referral_code_applied', subject: friend, material: { event_type: 'referral_code_applied', referral_code: normalized, occurred_at: occurredAt } },
+    { kind: 'referral_signup', subject: live.referrer, material: { event_type: 'referral_signup', referral_code: normalized, referrer_account_id: live.referrer, account_id: friend, occurred_at: occurredAt } },
+  ];
+}
+
 /** A sale earns a code its share when the attribute the code points at has the value it names. */
 export function referralCodeApplies(code, sale) {
   return Boolean(code && !code.withdrawn_at && isRecord(sale) && sale[code.target.on] === code.target.value);

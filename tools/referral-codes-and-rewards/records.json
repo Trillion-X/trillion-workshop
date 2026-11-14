@@ -183,8 +183,19 @@
     ],
     "maker": "maker:referral-codes-and-rewards",
     "result_selector": "$.result",
+    "screen": {
+     "group": "grow",
+     "kind": "module",
+     "module": {
+      "package": "referral-codes-and-rewards",
+      "entry": "web/referrals-screen-mount.tsx"
+     },
+     "icon": "Gift",
+     "label": "Referrals",
+     "about": "Your referral code, how many referrals were accepted, and a place to record a code you were given."
+    },
     "provenance": {
-     "source": "bitfield-packages packages/referrals and packages/codes-and-rewards; rules are the business's own rows"
+     "source": "bitfield-packages packages/referrals (the portal panel, moved) and packages/codes-and-rewards; rules are the business's own rows"
     },
     "verify": [
      {
@@ -814,6 +825,131 @@
       },
       "output_selector": "$.event.kind",
       "contains": "referral_code_withdrawn"
+     }
+    ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::referral-codes-and-rewards::tool::apply-a-referral-code",
+   "address": "package::referral-codes-and-rewards::tool::apply-a-referral-code",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:apply-a-referral-code",
+    "label": "Apply a referral code",
+    "status": "active",
+    "job": "Record that an account typed a referral code it was given, and give back the events to save",
+    "description": "Give the account that typed the code, the code, and the referral events saved so far. Returns the two events to save: the account's own record that it applied the code, and the maker's own signup event naming the account that typed the code, which is what the maker's accepted referrals count. The code must be live in the events (made and not withdrawn), an account cannot apply its own code, and an account's first applied code stands: a second is refused with the reason.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "account",
+      "code",
+      "events"
+     ],
+     "properties": {
+      "account": {
+       "type": "string",
+       "description": "The account that typed the code"
+      },
+      "code": {
+       "type": "string"
+      },
+      "events": {
+       "type": "array",
+       "description": "The referral events saved so far (a code made or withdrawn, a code typed, a signup)",
+       "items": {
+        "type": "object"
+       }
+      },
+      "occurred_at": {
+       "type": "string",
+       "description": "When it was applied; now when absent"
+      }
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "events"
+     ],
+     "properties": {
+      "events": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "referral-codes-and-rewards",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/parts/referral-codes-and-rewards"
+      }
+     },
+     "workdir": "/opt/parts/referral-codes-and-rewards",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/apply-a-referral-code.mjs",
+      {
+       "fill": {
+        "from": "input"
+       }
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:referral-codes-and-rewards",
+    "result_selector": "$",
+    "provenance": {
+     "source": "bitfield-packages packages/referrals (the referral_code_applied event of send-referral-event.ts)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "account": "account:bo",
+       "code": "bread-7k3q",
+       "events": [
+        {
+         "kind": "referral_code_created",
+         "subject": "account:ada",
+         "material": {
+          "event_type": "referral_code_created",
+          "referral_code": "BREAD-7K3Q",
+          "target": {
+           "on": "product_id",
+           "value": "product:loaf"
+          },
+          "occurred_at": "2026-01-01T00:00:00Z"
+         }
+        }
+       ],
+       "occurred_at": "2026-01-02T00:00:00Z"
+      },
+      "output_selector": "$.events[1].material.referrer_account_id",
+      "contains": "account:ada"
      }
     ]
    }

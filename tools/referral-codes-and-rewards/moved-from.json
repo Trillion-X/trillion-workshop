@@ -1,0 +1,38 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/referrals/do-work/read-portal-referrals.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/referral-codes-and-rewards/packages/referrals/do-work/read-portal-referrals.ts",
+      "source_identity": "1f:022cf41d58af41b53f4d16f538c3590425c73889ce5b9b4728bdd57a88821789",
+      "identity": "1f:d0530b123c604a9e1dfef0c95a4c1e67441352f6c831f2a4f498188bd7a70655"
+    },
+    {
+      "from": "packages/referrals/do-work/send-referral-event.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/referral-codes-and-rewards/packages/referrals/do-work/send-referral-event.ts",
+      "source_identity": "1f:72922a6848cd8ce9e928a638847f2aa0b8e1f47e87df69671f0130ab79a7cb67",
+      "identity": "1f:72922a6848cd8ce9e928a638847f2aa0b8e1f47e87df69671f0130ab79a7cb67"
+    },
+    {
+      "from": "packages/referrals/show/app-shell/ReferralsPortalSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/referral-codes-and-rewards/packages/referrals/show/app-shell/ReferralsPortalSurface.tsx",
+      "source_identity": "1f:dc6496c0d37fb536ed32e39e799eb3444dfe218cf76700c22cb25f1f6a4ae073",
+      "identity": "1f:96ad18851feb9156146b09431023bc3d07d96a6e9ecdab8b2253648f5598d092"
+    },
+    {
+      "from": "packages/referrals/read-data/read-referral-state.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/referral-codes-and-rewards/read-data/referral-codes.mjs",
+      "source_identity": "1f:9302043af8f57c4b5b4d3553d1b9e482a9391ab8fb620041e3a7e4eed7a6e2fa",
+      "identity": "1f:f31f857d2511b9aab8b4487cdf38f832aa0d4985114122bc96ee3c990cb8c54f",
+      "reused": true,
+      "adapted": "referral-codes-and-rewards holds this fold as referralStateFor; the old copy is not moved a second time"
+    }
+  ]
+}
