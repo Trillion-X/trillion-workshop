@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:7e46e3d9083430ae63ce2fa2ed0d1122c0d93cd58a3cfd9b92e400e6f39ec046"
+  "blake3": "1f:968940ce02495a1d1a68451ca90cc7fd4bd51a1c275638c414dd4cf7cec6a355"
  },
  "fields": [
   {
@@ -14263,7 +14263,10 @@
     "placements": [
      "placement:small-container"
     ],
-    "folder": "lessons-and-learning-paths"
+    "folder": "lessons-and-learning-paths",
+    "flags": [
+     "has-a-screen"
+    ]
    }
   },
   {
