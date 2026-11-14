@@ -3,12 +3,12 @@
  "source": {
   "view": "list-view:workflows:public",
   "list": "workflows",
-  "blake3": "41323ca02daa72055ba5131b12e3a637b162c4ba347dd95da76e38ac4f0646ca",
+  "blake3": "91e3de2100b56d8b7453c895e0018c1184e91c1005ee21d4138ed8ea92f34414",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
    "canonical_rows_readback": false,
-   "reason": "Named local workflow candidates remain pending account synchronization. All other rows are complete current public-view readbacks; restored modes keep their canonical account identities and private Cambrian is excluded. Every-workflow-is-a-branch (2026-11-13): fires_when on the workflows that were tree branches and the trunk's choose-branches, fan-out, answer-and-change-log and learn-and-prune are local candidates until the account rows are written and read back (account read-modify-write is on hold). Rewrite-a-broad-condition (2026-11-14): published here so every account installs it; the account copies that proved it are removed once this lands. One-tree follow-up items 2 and 3 (2026-11-14): test-prices-and-change-a-page-for-each-visitor no longer fires on a customer asking a price, personalized-reach-out fires when a named person must be told something, method-name-things-by-what-they-do fires on a request for a name.",
+   "reason": "Named local workflow candidates remain pending account synchronization. All other rows are complete current public-view readbacks; restored modes keep their canonical account identities and private Cambrian is excluded. Every-workflow-is-a-branch (2026-11-13): fires_when on the workflows that were tree branches and the trunk's choose-branches, fan-out, answer-and-change-log and learn-and-prune are local candidates until the account rows are written and read back (account read-modify-write is on hold). Rewrite-a-broad-condition (2026-11-14): published here so every account installs it; the account copies that proved it are removed once this lands. One-tree follow-up items 2 and 3 (2026-11-14): test-prices-and-change-a-page-for-each-visitor no longer fires on a customer asking a price, personalized-reach-out fires when a named person must be told something, method-name-things-by-what-they-do fires on a request for a name. handle-every-inbox-daily (2026-11-14): moved from the person account into the Workshop with its row types record:mailbox, record:inbox-setup, record:inbox-summary and record:calendar-task (decision source:b25lLXRyZWUgaXRlbSAyOiBob3cgYSBXb3Jrc2hvcCB3b3JrZmxvdyBhbnN3ZXJzIGEgdGhyZWFkIGZvciBldmVyeSBhY2NvdW50IChsYW5lIGV2ZXJ5LXdvcmtmbG93LWlzLWEtYnJhbmNoLCBhaS1qb2I6NWY1ODc0NmIsIE5vdiAxNCAyMDI2KQ).",
    "target_lists": [
     "workflows",
     "workflow-steps"
@@ -20,6 +20,7 @@
     "first-win",
     "follow-through",
     "grow-the-one-tree",
+    "handle-every-inbox-daily",
     "infinity",
     "keep-a-changelog-from-what-shipped",
     "keep-it-working",
@@ -1902,6 +1903,23 @@
     "input_schema": "{\"type\":\"object\",\"properties\":{\"seeds\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"words\"],\"properties\":{\"words\":{\"type\":\"string\"},\"came_from\":{\"type\":\"string\"},\"at\":{\"type\":\"string\"}}},\"description\":\"The broad-condition rows that arrived, filled in by the starter from the arrival source; never given by hand.\"},\"arrival_source\":{\"type\":\"string\",\"description\":\"The person's row record:arrival-sources:broad-conditions-waiting, given by the wake.\"}}}",
     "source": "{\"from\":\"decision case every-workflow-is-a-branch (Nov 14 2026): the chooser's broad report becomes a row, and an on-write wake turns each row into a run, with no one asking and no new service.\",\"proven\":\"On one account the same recipe, woken by a person's wake-declaration, rewrote a real broad condition and marked its row Done (9:31 AM CST Nov 14 2026); a Done write started a second run until the arrival source kept only rows still Waiting.\",\"starts\":\"By the wake broad-found when a record:broad-condition row is written and the arrival source record:arrival-sources:broad-conditions-waiting keeps it (status Waiting). The trunk's choose-branches writes that source when the person has none. The wake is off until the person switches it on.\"}",
     "wakes": "[{\"id\":\"broad-found\",\"on\":{\"record\":{\"resource\":\"own-records\",\"prefix\":\"record:broad-condition:\"}},\"budget\":{\"steps\":10,\"wall_ms\":900000},\"input\":{\"start_at\":\"rewrite\",\"arrival_source\":\"record:arrival-sources:broad-conditions-waiting\"}}]",
+    "flags": [
+     "public"
+    ]
+   }
+  },
+  {
+   "id": "handle-every-inbox-daily",
+   "values": {
+    "title": "Handle every inbox daily",
+    "recipe": "workflow:handle-every-inbox-daily",
+    "job": "Each morning, read the new mail of every connected mailbox (DATA, no address in the code), triage each thread with the Workshop triage tools, file each thread that needs the person as a task under the pursuit it serves, draft replies that need words in the person's voice, and write one short summary of what needs them. Nothing is sent without the person's yes.",
+    "produces": "A daily summary row, one task row per thread that needs the person, and drafts waiting in the mailbox for a yes.",
+    "made_from": "Built 2026-11-12 from the scope research-scope:inbox-in-order-2026-11-12; reuses tool:brief-a-triage, tool:settle-a-triage and the google-account read tools.",
+    "input_schema": "{\"type\": \"object\", \"properties\": {}, \"additionalProperties\": false}",
+    "source": "{\"from\":\"Mailboxes their owner does not keep up with: every message that needs them should reach them, triaged, with replies drafted for their yes; scope research-scope:inbox-in-order-2026-11-12 (constraints c1 to c8).\",\"note\":\"Built on tool:brief-a-triage, tool:settle-a-triage and the google-account read tools. Pursuit ids, trunk tasks and the disposition list are DATA in record:inbox-setup:dispositions, written per person.\"}",
+    "wakes": "[{\"id\": \"every-morning\", \"on\": {\"time\": {\"every_ms\": 86400000, \"from_ms\": 28800000, \"zone\": \"America/Chicago\"}}, \"budget\": {\"steps\": 60, \"wall_ms\": 1800000}, \"input\": {\"start_at\": \"read-setup\"}}]",
+    "fires_when": "[{\"label\": \"the seed is, or produces, a thread that needs an answer\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"thread-needs-answer\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Moved onto this workflow's own row from list tree-branches row record:tree-branches:handle-every-inbox and list tree-branch-conditions row record:tree-branch-conditions:handle-every-inbox--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch).\"}]",
     "flags": [
      "public"
     ]

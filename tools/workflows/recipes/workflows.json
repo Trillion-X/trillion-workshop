@@ -1,5 +1,5 @@
 {
-  "about": "Generated from published workflow views by do-work/rebuild-recipes.mjs; canonical account rows have been read back where synchronized. Pending account workflow rows: answer-commenters-with-videos, answer-comments-and-messages, find-unexplored-ground, first-win, follow-through, grow-the-one-tree, infinity, keep-a-changelog-from-what-shipped, keep-it-working, make-it-perform, make-the-piece-without-waiting-for-the-person, personalized-reach-out, possibility-to-proof, put-it-in-the-world, quintillion, reach-companies-with-a-long-open-job-post, reach-local-businesses-by-zip-code, real-life-cases, refresh-measurement-coverage, research-what-everyone-says, rewrite-a-broad-condition, run-a-linkedin-content-system, turn-what-you-said-into-content. The account row owner remains the source of truth.",
+  "about": "Generated from published workflow views by do-work/rebuild-recipes.mjs; canonical account rows have been read back where synchronized. Pending account workflow rows: answer-commenters-with-videos, answer-comments-and-messages, find-unexplored-ground, first-win, follow-through, grow-the-one-tree, handle-every-inbox-daily, infinity, keep-a-changelog-from-what-shipped, keep-it-working, make-it-perform, make-the-piece-without-waiting-for-the-person, personalized-reach-out, possibility-to-proof, put-it-in-the-world, quintillion, reach-companies-with-a-long-open-job-post, reach-local-businesses-by-zip-code, real-life-cases, refresh-measurement-coverage, research-what-everyone-says, rewrite-a-broad-condition, run-a-linkedin-content-system, turn-what-you-said-into-content. The account row owner remains the source of truth.",
   "records": [
     {
       "payload": {
@@ -12585,6 +12585,413 @@
             "made_by": "derived",
             "state": "Off",
             "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words. Retired 2026-11-13: it kept most parts of four ordinary seeds no one aimed (rewritten in place by lane every-workflow-is-a-branch)."
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:handle-every-inbox-daily",
+        "label": "Handle every inbox daily",
+        "job": "Each morning, read the new mail of every connected mailbox (DATA, no address in the code), triage each thread with the Workshop triage tools, file each thread that needs the person as a task under the pursuit it serves, draft replies that need words in the person's voice, and write one short summary of what needs them. Nothing is sent without the person's yes.",
+        "produces": "A daily summary row, one task row per thread that needs the person, and drafts waiting in the mailbox for a yes.",
+        "input_schema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "source": {
+          "from": "Mailboxes their owner does not keep up with: every message that needs them should reach them, triaged, with replies drafted for their yes; scope research-scope:inbox-in-order-2026-11-12 (constraints c1 to c8).",
+          "note": "Built on tool:brief-a-triage, tool:settle-a-triage and the google-account read tools. Pursuit ids, trunk tasks and the disposition list are DATA in record:inbox-setup:dispositions, written per person."
+        },
+        "wakes": [
+          {
+            "id": "every-morning",
+            "on": {
+              "time": {
+                "every_ms": 86400000,
+                "from_ms": 28800000,
+                "zone": "America/Chicago"
+              }
+            },
+            "budget": {
+              "steps": 60,
+              "wall_ms": 1800000
+            },
+            "input": {
+              "start_at": "read-setup"
+            }
+          }
+        ],
+        "fires_when": [
+          {
+            "label": "the seed is, or produces, a thread that needs an answer",
+            "condition": {
+              "fields": [
+                {
+                  "id": "kinds",
+                  "kind": "tags",
+                  "path": [
+                    "kinds"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "kinds",
+                    "operator": "has_any_of",
+                    "params": {
+                      "values": [
+                        "thread-needs-answer"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "fires_when",
+            "state": "On",
+            "evidence": "Moved onto this workflow's own row from list tree-branches row record:tree-branches:handle-every-inbox and list tree-branch-conditions row record:tree-branch-conditions:handle-every-inbox--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch)."
+          }
+        ],
+        "steps": [
+          {
+            "id": "read-setup",
+            "title": "Read the setup and the connected mailboxes",
+            "do": "Call run_resource_operation with address @own-records, method records:read, input {\"id\":\"record:inbox-setup:dispositions\"}; keep its value as setup (dispositions, pursuit_trunks keyed by pursuit id with list and trunk_task). Call run_resource_operation with address @own-records, method records:list, input {\"type\":\"pursuit\",\"limit\":200}; keep every row's id and after as priorities. Call run_resource_operation with address @own-records, method records:list, input {\"type\":\"record:mailbox\",\"limit\":200}; keep each row whose status is connected as mailboxes, with its id, connection_id, address and history_id (empty when none). Never copy a secret value: the connection_id is a handle only.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "setup",
+                "priorities",
+                "mailboxes"
+              ],
+              "properties": {
+                "setup": {
+                  "type": "object"
+                },
+                "priorities": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "mailboxes": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "connection_id"
+                    ]
+                  }
+                },
+                "blocked": {
+                  "type": "string"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "distinct-at-least",
+                "path": [
+                  "this",
+                  "mailboxes",
+                  "*",
+                  "connection_id"
+                ],
+                "count": 1,
+                "says": "At least one connected mailbox is read."
+              }
+            ]
+          },
+          {
+            "id": "pull-new-mail",
+            "title": "Pull new mail from each connected mailbox",
+            "do": "For each mailbox: when its history_id is empty, call tool:google-account-find_my_mailbox with connection {connection_id} to read the current historyId, then call tool:google-account-search_mail with connection {connection_id} and query \"in:inbox newer_than:1d\", following page_token from each nextPageToken until none is returned. When its history_id is set, call tool:google-account-list_new_mail with connection {connection_id} and since set to that history_id, following its page token the same way. Keep each message id and threadId with its mailbox id, and the historyId to store as next_history for that mailbox. Call no send, draft, trash or modify tool in this step.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "messages",
+                "next_history"
+              ],
+              "properties": {
+                "messages": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "mailbox_id",
+                      "message_id",
+                      "thread_id"
+                    ]
+                  }
+                },
+                "next_history": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "path": [
+                  "this",
+                  "messages",
+                  "*",
+                  "mailbox_id"
+                ],
+                "of": [
+                  "steps",
+                  "read-setup",
+                  "mailboxes",
+                  "*",
+                  "id"
+                ],
+                "says": "Every message comes from a mailbox read-setup kept."
+              }
+            ]
+          },
+          {
+            "id": "group-threads",
+            "title": "Group messages into threads and read their headers",
+            "do": "Group the messages of pull-new-mail by thread_id. For each thread call tool:google-account-read_mail_headers on its newest message with connection {connection_id} of that message's mailbox. Keep From, To, Subject, Date and the snippet only. Submit one item per thread: ref \"gmail-thread:<thread_id>\", mailbox_id, version (the newest message id) and says (subject, sender name and snippet, under 400 characters).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "threads"
+              ],
+              "properties": {
+                "threads": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "ref",
+                      "mailbox_id",
+                      "version",
+                      "says"
+                    ]
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "path": [
+                  "this",
+                  "threads",
+                  "*",
+                  "mailbox_id"
+                ],
+                "of": [
+                  "steps",
+                  "read-setup",
+                  "mailboxes",
+                  "*",
+                  "id"
+                ],
+                "says": "Every thread belongs to a connected mailbox."
+              }
+            ]
+          },
+          {
+            "id": "triage",
+            "title": "Triage each thread",
+            "do": "For each thread item: call tool:brief-a-triage with item {ref, version, says}, priorities from read-setup, dispositions from read-setup setup.dispositions, min_confidence 0.5, and max_words {rationale: 30}. Judge the item yourself against the brief's rules: answer one disposition ref from the list, a confidence from 0 to 1, one short rationale, and target_ref set to the pursuit id this thread serves, chosen from the priorities (a key of setup.pursuit_trunks), or empty for noise and file-for-the-person. Then call tool:settle-a-triage with the same item, priorities, dispositions and min_confidence, and answers [your answer]. Keep each decision as it was returned. Send nothing, reply to nothing and change no mailbox in this step.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "decisions"
+              ],
+              "properties": {
+                "decisions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "ref",
+                      "mailbox_id",
+                      "disposition_ref",
+                      "confidence",
+                      "fail_closed",
+                      "blocked"
+                    ]
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "path": [
+                  "this",
+                  "decisions",
+                  "*",
+                  "ref"
+                ],
+                "of": [
+                  "steps",
+                  "group-threads",
+                  "threads",
+                  "*",
+                  "ref"
+                ],
+                "says": "Every thread gets one decision."
+              },
+              {
+                "kind": "subset-of",
+                "path": [
+                  "this",
+                  "decisions",
+                  "*",
+                  "disposition_ref"
+                ],
+                "of": [
+                  "steps",
+                  "read-setup",
+                  "setup",
+                  "dispositions",
+                  "*",
+                  "ref"
+                ],
+                "says": "Every decision uses a listed disposition."
+              }
+            ]
+          },
+          {
+            "id": "file-what-needs-the-person",
+            "title": "File each thread that needs the person as a task",
+            "do": "For each decision not noise and not blocked, with a non-empty target_ref that is a key of setup.pursuit_trunks: read records:read with id \"record:calendar-task:inbox-<thread id>\" through run_resource_operation at @own-records. If it exists, skip it. If not, call records:write with one record: id \"record:calendar-task:inbox-<thread id>\", type \"record:calendar-task\", value {title: the disposition label followed by the subject (under 90 characters), collection_id: [\"record:\" + setup.pursuit_trunks[target_ref].list], parent_id: [\"record:\" + setup.pursuit_trunks[target_ref].trunk_task] (omit parent_id when the trunk task is null), status \"To do\", priority \"high\" for money and system-alert, \"medium\" for customer and opportunity, \"low\" for file-for-the-person, description: sender, date, rationale and the thread link, source_id \"gmail-thread:<thread id>\", source_url \"https://mail.google.com/mail/u/0/#all/<thread id>\", labels [\"inbox\"], smart_list \"email\"}. Submit filed and skipped ids.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "filed",
+                "skipped"
+              ],
+              "properties": {
+                "filed": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "skipped": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "path": [
+                  "this",
+                  "filed"
+                ],
+                "of": [
+                  "steps",
+                  "triage",
+                  "decisions",
+                  "*",
+                  "ref"
+                ],
+                "says": "Only decided threads are filed."
+              }
+            ]
+          },
+          {
+            "id": "draft-replies",
+            "title": "Draft replies that need words, and send nothing",
+            "do": "For each such decision whose thread asks for something (a non-empty target_ref): call tool:read-voice for the person's voice and write the reply words. Check the words with tool:check-against-a-persons-rules-and-verdicts, and check them with tool:check-personal-data with no model named before any model outside this computer reads them. Then call tool:google-account-create_draft with connection {connection_id} of the thread's mailbox, thread_id, and raw as a base64url RFC 2822 message whose To and Subject come from the thread. Never call tool:google-account-send_draft in this workflow.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "drafts",
+                "not_drafted"
+              ],
+              "properties": {
+                "drafts": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "ref",
+                      "draft_id"
+                    ]
+                  }
+                },
+                "not_drafted": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "ref",
+                      "reason"
+                    ]
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "path": [
+                  "this",
+                  "drafts",
+                  "*",
+                  "ref"
+                ],
+                "of": [
+                  "steps",
+                  "triage",
+                  "decisions",
+                  "*",
+                  "ref"
+                ],
+                "says": "Drafts only for decided threads."
+              }
+            ]
+          },
+          {
+            "id": "summary",
+            "title": "Write the daily summary of what needs the person",
+            "do": "Call records:write through run_resource_operation at @own-records with one record: id \"record:inbox-summary:<YYYY-MM-DD of this run>\", type \"record:inbox-summary\", value {date, mailboxes_read (count of mailboxes that answered), threads (count), counts (count of threads per disposition), needs_him (the task ids filed or skipped this run, oldest first, with each subject), drafts_waiting (draft ids from draft-replies), not_read (mailboxes that refused, with reasons)}. Then tell the person in one short line in the chat: how many need them and which one to read first.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "summary_id",
+                "needs_him_count"
+              ],
+              "properties": {
+                "summary_id": {
+                  "type": "string"
+                },
+                "needs_him_count": {
+                  "type": "integer"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "distinct-at-least",
+                "path": [
+                  "this",
+                  "summary_id"
+                ],
+                "count": 1,
+                "says": "A summary row is written."
+              }
+            ]
           }
         ]
       }

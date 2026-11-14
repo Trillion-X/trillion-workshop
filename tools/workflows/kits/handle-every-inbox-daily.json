@@ -1,0 +1,100 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:handle-every-inbox-daily now for my connected mailbox hello@example.com, and tell me which thread to read first.\"",
+  "lists": [
+    {
+      "list": "list:mailboxes",
+      "label": "Mailboxes",
+      "row_type": "record:mailbox",
+      "holds": "One connected mailbox: its address, the connection handle the mail tools use (never a secret), the last history id read, its role and whether it is connected.",
+      "fields": [
+        { "id": "title", "kind": "text", "label": "Name", "alike": ["name", "label"] },
+        { "id": "address", "kind": "text", "label": "Address", "alike": ["email", "email address"] },
+        { "id": "connection_id", "kind": "text", "label": "Connection", "alike": ["account connection", "connection handle"] },
+        { "id": "history_id", "kind": "text", "label": "Last history id", "alike": ["cursor", "sync token"] },
+        { "id": "role", "kind": "choice", "label": "Role", "alike": ["purpose", "kind"] },
+        { "id": "status", "kind": "choice", "label": "Status", "alike": ["state", "connected"] }
+      ],
+      "example_rows": [
+        { "id": "hello", "values": { "title": "Shop inbox", "address": "hello@example.com", "connection_id": "connection:example-google-1", "history_id": "", "role": "business", "status": "connected" } },
+        { "id": "owner", "values": { "title": "Owner inbox", "address": "owner@example.com", "connection_id": "connection:example-google-2", "history_id": "1234567", "role": "personal", "status": "connected" } }
+      ],
+      "alike": ["the accounts list of a mail app", "a spreadsheet of shared inboxes", "a help desk's connected channels"]
+    },
+    {
+      "list": "list:inbox-setup",
+      "label": "Inbox setup",
+      "row_type": "record:inbox-setup",
+      "holds": "How threads are settled: the dispositions a thread can get, and for each pursuit the task list and trunk task its threads are filed under.",
+      "fields": [
+        { "id": "about", "kind": "long-text", "label": "About", "alike": ["description"] },
+        { "id": "dispositions", "kind": "long-text", "label": "Dispositions", "alike": ["labels", "triage categories", "folders"] },
+        { "id": "pursuit_trunks", "kind": "long-text", "label": "Where each pursuit's threads go", "alike": ["routing", "filing rules"] },
+        { "id": "gaps", "kind": "long-text", "label": "Gaps", "alike": ["notes", "missing"] }
+      ],
+      "example_rows": [
+        { "id": "dispositions", "values": { "about": "The dispositions a thread can be settled as, and where a thread for each pursuit is filed.", "dispositions": "[{\"ref\":\"customer\",\"label\":\"A customer or a customer's support case\",\"blocked_default\":false},{\"ref\":\"opportunity\",\"label\":\"A business opportunity or an offer to work together\",\"blocked_default\":false},{\"ref\":\"money\",\"label\":\"A bill, invoice, payment or money owed\",\"blocked_default\":false},{\"ref\":\"noise\",\"label\":\"Newsletter, promotion or automated notice nobody needs to act on\",\"blocked_default\":false},{\"ref\":\"file-for-the-person\",\"label\":\"Unsure: file for the person to read\",\"blocked_default\":false,\"fallback\":true}]", "pursuit_trunks": "{\"pursuit:example-shop\":{\"list\":\"calendar-task-list:example\",\"trunk_task\":\"calendar-task:example-shop-trunk\"}}", "gaps": "[]" } },
+        { "id": "dispositions-two-pursuits", "values": { "about": "Two pursuits, one without a trunk task yet.", "dispositions": "[{\"ref\":\"customer\",\"label\":\"A customer\",\"blocked_default\":false},{\"ref\":\"file-for-the-person\",\"label\":\"Unsure: file for the person to read\",\"blocked_default\":false,\"fallback\":true}]", "pursuit_trunks": "{\"pursuit:example-shop\":{\"list\":\"calendar-task-list:example\",\"trunk_task\":\"calendar-task:example-shop-trunk\"},\"pursuit:example-club\":{\"list\":\"calendar-task-list:example-club\",\"trunk_task\":null}}", "gaps": "[\"pursuit:example-club has no trunk task yet, so its tasks are filed with no parent until one exists.\"]" } }
+      ],
+      "alike": ["a mail app's filter rules", "a help desk's triage categories", "an email labels list"]
+    },
+    {
+      "list": "list:inbox-summaries",
+      "label": "Inbox summaries",
+      "row_type": "record:inbox-summary",
+      "holds": "One run's summary: how many mailboxes and threads were read, the count per disposition, the tasks that need the person, the drafts waiting for a yes and the mailboxes that could not be read.",
+      "fields": [
+        { "id": "date", "kind": "date", "label": "Date", "alike": ["day"] },
+        { "id": "mailboxes_read", "kind": "number", "label": "Mailboxes read", "alike": ["accounts read"] },
+        { "id": "threads", "kind": "number", "label": "Threads", "alike": ["conversations"] },
+        { "id": "counts", "kind": "long-text", "label": "Threads per disposition", "alike": ["counts"] },
+        { "id": "needs_him", "kind": "long-text", "label": "Needs the person", "alike": ["to do", "needs you"] },
+        { "id": "drafts_waiting", "kind": "long-text", "label": "Drafts waiting", "alike": ["drafts"] },
+        { "id": "not_read", "kind": "long-text", "label": "Not read", "alike": ["errors", "failed mailboxes"] }
+      ],
+      "example_rows": [
+        { "id": "2026-01-05", "values": { "date": "2026-01-05", "mailboxes_read": 2, "threads": 14, "counts": "{\"customer\":3,\"money\":1,\"noise\":10}", "needs_him": "[\"record:calendar-task:inbox-example-thread-1: Can we swap Saturday to Sunday?\"]", "drafts_waiting": "[\"draft:example-1\"]", "not_read": "[]" } },
+        { "id": "2026-01-06", "values": { "date": "2026-01-06", "mailboxes_read": 1, "threads": 4, "counts": "{\"opportunity\":1,\"noise\":3}", "needs_him": "[]", "drafts_waiting": "[]", "not_read": "[\"record:mailbox:owner: connection refused\"]" } }
+      ],
+      "alike": ["a daily email digest", "a help desk's daily report", "an inbox zero log"]
+    }
+  ],
+  "workflows": ["workflow:handle-every-inbox-daily", "workflow:grow-the-one-tree"],
+  "tools": ["tool:start-a-recipe-run", "tool:pour-example-rows-into-my-list", "tool:brief-a-triage", "tool:settle-a-triage", "tool:google-account-find_my_mailbox", "tool:google-account-search_mail", "tool:google-account-list_new_mail", "tool:google-account-read_mail_headers", "tool:google-account-create_draft", "tool:google-account-send_draft", "tool:read-voice", "tool:check-against-a-persons-rules-and-verdicts", "tool:check-personal-data"],
+  "instructions": [
+    "1. Connect each mailbox you want read (your Google account connection) and write one record:mailbox row per mailbox with its address and connection handle, status connected; or pour the example rows into the list you keep (see pour).",
+    "2. Write your record:inbox-setup:dispositions row: the dispositions a thread can get and, for each pursuit, the task list and trunk task its threads are filed under (start from the example rows).",
+    "3. Say \"Run workflow:handle-every-inbox-daily\", or switch on its wake every-morning; it reads new mail, triages each thread, files what needs you as tasks, drafts replies in your voice and sends nothing.",
+    "4. Read the one line it says in the chat and the record:inbox-summary row of the day; open the first task it names, and say yes to the drafts you want sent."
+  ],
+  "worked_examples": [
+    {
+      "title": "A customer's swap request becomes a task and a draft",
+      "ask": "Run my inbox now.",
+      "mcp": { "server": "trillion", "tool": "run_resource_operation", "input": { "address": "@workshop-tools", "method": "tools:run", "input": { "tool": "tool:start-a-recipe-run", "input": { "row": "workflow:handle-every-inbox-daily", "start_at": "read-setup" } } } },
+      "workflow": "workflow:handle-every-inbox-daily",
+      "step": "file-what-needs-the-person",
+      "given": "triage decided gmail-thread:example-thread-1 (\"Can we swap Saturday 9am to Sunday afternoon?\", from a parent) as customer, target_ref pursuit:example-shop, confidence 0.9.",
+      "hands_back": "filed [\"record:calendar-task:inbox-example-thread-1\"], skipped []; the task is titled \"A customer: Can we swap Saturday to Sunday?\" under record:calendar-task:example-shop-trunk."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for your mail accounts and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and list:mailboxes as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:mailboxes",
+      "into": {
+        "list": "list:my-mail-accounts",
+        "row_type": "record:mail-account",
+        "fields": [
+          { "id": "name", "label": "Name" },
+          { "id": "email", "label": "Email" },
+          { "id": "account_connection", "label": "Account connection" },
+          { "id": "cursor", "label": "Cursor" },
+          { "id": "purpose", "label": "Purpose" },
+          { "id": "state", "label": "State" }
+        ]
+      }
+    }
+  }
+}

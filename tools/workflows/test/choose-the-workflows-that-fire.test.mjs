@@ -156,3 +156,13 @@ test('on a blank account a customer asking a price is not sent to price testing,
   assert.equal(of(1)[0]?.workflow, 'workflow:method-name-things-by-what-they-do');
   assert.ok(of(2).some(choice => choice.workflow === 'workflow:personalized-reach-out'));
 });
+
+test('on a blank account a message that needs an answer starts the installed inbox workflow first, which reads and writes only record: row types', async () => {
+  const parts = [{ words: 'can we swap Saturday 9am to Sunday afternoon if there is room?', kinds: ['thread-needs-answer'] }];
+  const answer = await chooseTheWorkflowsThatFire({ parts }, { door: doorOver([]) });
+  assert.equal(answer.chosen.find(choice => choice.part === 0 && choice.rank === 1)?.workflow, 'workflow:handle-every-inbox-daily');
+  const inbox = installed.find(recipe => recipe.id === 'workflow:handle-every-inbox-daily');
+  const text = JSON.stringify(inbox.steps.map(step => step.do));
+  for (const type of ['mailbox', 'inbox-summary', 'calendar-task']) assert.doesNotMatch(text, new RegExp(`type \\\\?"${type}\\\\?"|\\\\"type\\\\":\\\\"${type}\\\\"`), `${type} is read and written as record:${type}`);
+  assert.match(text, /record:mailbox/);
+});
