@@ -33,10 +33,31 @@ function readClaim(env) {
   } catch { return null; }
 }
 
+/** Every process's parent, group and start time from one ps, or null when ps did not answer. One check asks about the
+ *  owner, the group and each ancestor: one ps each cost seconds on a loaded computer, one ps for all of them does not. */
+export function processSnapshot(run = execFileSync) {
+  const rows = new Map();
+  try {
+    for (const line of run('ps', ['-A', '-o', 'pid=,ppid=,pgid=,lstart='], PROBE_OPTIONS).split('\n')) {
+      const found = line.trim().match(/^(\d+)\s+(\d+)\s+(\d+)\s+(.+)$/);
+      if (found) rows.set(Number(found[1]), { parent: Number(found[2]), group: Number(found[3]), started: found[4].trim() });
+    }
+  } catch { return null; }
+  return rows.size ? rows : null;
+}
+
 /** A copied environment is not admission: prove current group and ancestry against the live claim. */
 export function verifiedHeavyWorkClaim(owner, { env = process.env, pid = process.pid, inspect = identityOf, relation = inspectProcessRelation } = {}) {
   const claim = readClaim(env);
   if (!claim || !owner || owner.token !== claim.token || owner.pid !== claim.pid || owner.process_started !== claim.process_started) return null;
+  if (inspect === identityOf && relation === inspectProcessRelation) {
+    // The live probes: read every process once and answer from that one reading.
+    const snapshot = processSnapshot();
+    if (snapshot) {
+      inspect = at => snapshot.get(at)?.started ?? null;
+      relation = at => { const row = snapshot.get(at); return row ? { parent: row.parent, group: row.group } : null; };
+    }
+  }
   const ownerStarted = inspect(owner.pid);
   if (!ownerStarted || ownerStarted === UNKNOWN_LIVE || ownerStarted !== owner.process_started) return null;
   const current = relation(pid);

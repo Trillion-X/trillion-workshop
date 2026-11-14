@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { setTimeout as pause } from 'node:timers/promises';
 import { createProcessAdmissionQueue, identityOf, UNKNOWN_LIVE } from '../do-work/process-admission.mjs';
-import { createHeavyWorkOwner, heavyWorkOwnerIsLive, HEAVY_WORK_CLAIM, verifiedHeavyWorkClaim } from '../do-work/heavy-work.mjs';
+import { createHeavyWorkOwner, heavyWorkOwnerIsLive, HEAVY_WORK_CLAIM, processSnapshot, verifiedHeavyWorkClaim } from '../do-work/heavy-work.mjs';
 
 function stageTrace() {
   const events = []; const began = performance.now(); let pending = '';
@@ -319,3 +319,13 @@ for (const [label, window, expectedFirst] of [['aged waiters',0,'older'],['fresh
     }
   });
 }
+
+test('one ps reading answers every process the claim check asks about, and a failed ps answers nothing', () => {
+  const calls = [];
+  const rows = processSnapshot((program, args) => { calls.push([program, ...args]); return '    1     0     1 Wed Dec 31 18:00:23 1969\n  412     1   412 Sat Nov 14  9:05:01 2026    \n'; });
+  assert.deepEqual(calls, [['ps', '-A', '-o', 'pid=,ppid=,pgid=,lstart=']]);
+  assert.deepEqual(rows.get(412), { parent: 1, group: 412, started: 'Sat Nov 14  9:05:01 2026' });
+  assert.equal(processSnapshot(() => { throw new Error('ps did not answer'); }), null);
+  const live = processSnapshot();
+  assert.equal(live.get(process.pid).started, identityOf(process.pid), 'the reading gives the same start time as one ps for one process');
+});
