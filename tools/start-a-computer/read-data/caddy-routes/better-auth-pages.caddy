@@ -1,0 +1,4 @@
+	@better_auth_pages path {auth_page_paths}
+	handle @better_auth_pages {
+		reverse_proxy 127.0.0.1:{auth_port}
+	}

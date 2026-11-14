@@ -88,3 +88,10 @@ test('a computer whose row names no site host asks its restarted unit\'s health 
   const health = commands.find(command => command.startsWith('curl '));
   assert.equal(health, "curl -s -o /dev/null -w '%{http_code}' 'http://127.0.0.1:8792/api/auth/ok' || true");
 });
+
+test('better-auth-pages sends the paths the row names in auth_page_paths to the sign-in tool, and needs them', () => {
+  const paths = ['/sign-in', '/sign-in/*', '/sign-up', '/sign-up/*'];
+  const [file] = renderLayout({ caddy: { ...caddy, routes: ['better-auth', 'better-auth-pages'], auth_page_paths: paths }, units: [] }, SITE_BLOCK);
+  assert.match(file.text, /^\t@better_auth_pages path \/sign-in \/sign-in\/\* \/sign-up \/sign-up\/\*\n\thandle @better_auth_pages \{\n\t\treverse_proxy 127\.0\.0\.1:8792\n\t\}$/m);
+  assert.throws(() => renderLayout({ caddy: { ...caddy, routes: ['better-auth-pages'] }, units: [] }, SITE_BLOCK), /caddy route better-auth-pages needs auth_page_paths/);
+});
