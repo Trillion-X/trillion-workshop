@@ -35,6 +35,17 @@ A reader takes the first `counts` items of each list, so a record written in a w
 
 **Size guarantee.** Every record and write is measured as carried (`carriedBytes`: its JSON with every character past ASCII as a `\u` escape, quoted once more as a JSON string), the most a door can make of it on the way, so a part, whose text is JSON already escaped once, still fits when a door re-encodes it: a 67 KB chat message full of quotes, newlines and emoji once made a write of 46 KB plain that was 74 KB carried, and the door answered 413. Every record the tools write except the root is at most `record_bytes` carried; the root holds only one-call fields and counts; every door write is at most `writes` records and about `write_bytes` bytes, the root last when a change takes more than one. The test `a decision of any size fits` builds a made-up case of about 400 KB (500 evidence rows, 43 steps, a step with 300 checks and verdicts, three earlier decisions, twelve receipts, thirty cited pursuits, a 32 KB method) and checks every write against the 64 KiB cap of the in-memory door (`test/fixtures.mjs` refuses a larger write as the door does): its largest write is about 48 KB, its largest record 32 KB (a part), its largest root 1,158 bytes.
 
+## A method as rows and a saved view
+
+A method is a saved view over the person's method rows, never a fixed list of steps with a judge on each check (the person's own order, Nov 14 2026, case `source:ZGVjaXNpb24tdG9vbC1pcy1yb3dzLWFuZC12aWV3cy0yMDI2LTExLTE0`). The person's files, and the sections of those files, are rows of one list (`list:method-rows`, row type `method-row`: each file whole, each section a row of its own linked to its file, made by the documents row source of `tools/documents-as-list-rows`); a method is a saved view (a `list-view` record: its rules keep rows, its sort orders them), so any mix of files and sections is a method and a row can be in any number of them. Two tools make the pair every method uses:
+
+- `tool:read-a-method` (`method-rows/view.mjs`) reads the saved view a page at a time (`next` becomes `after`), each row with its whole values and the strictness an answer to it is checked by. Which rows a view holds is decided by the rule filter of `tools/formulas`, the filter the person's own list views use.
+- `tool:record-method-answers` (`method-rows/answers.mjs`) records answers to any number of those rows in one call: `{ decision_id, method, answers: [{ row, answer, cites?, evidence_refs? }] }`. An answer is recorded only if its row and every row it cites are rows of the method, every evidence ref it cites is evidence of the decision, and it passes its strictness; one that fails is named with why and not written, and the others are recorded. Each answer is a record of its own (`method-answer:<decision>:<row>`), the same answer again is unchanged, a different one the next version. No model is asked.
+
+**Strictness is an open value, never a level.** It is `{ rules, review }` on the row (`strictness`), else on the saved view, else the default of `method-rows/settings.json` (the answer says something and cites a row or evidence: the cheap check): `rules` a rule tree in the vocabulary of the person's own view rules, decided by the formula engine's rule filter; `review: true` asks an AI to look at the answer too. Only then is the answer kept with review `asked` and the words of the review (`review_job`, `review_said`), and the rule of `starting-rules.json` (the trigger engine) hands it to an AI. A row or a method asks for as much or as little as it says; nothing here names a level, a kind of row or a number of checks.
+
+The methods of `list:checks`, the 17 fixed steps and the judge on every check of the earlier tools above are the old way; they are read by the tools above until the person's open cases are recorded through this pair.
+
 ## Files
 
 | File | Purpose |
@@ -68,6 +79,11 @@ A reader takes the first `counts` items of each list, so a record written in a w
 | `test/similar-decisions.test.mjs` | The old app's similar-decisions tests, ported. |
 | `test/decisions-route.test.mjs` | The route tool: 200 with the same read as `tool:see-my-decisions`, 404 for another path or method, and the row run with its own rights. |
 | `test/work-screen.test.mjs` | The screen read: the engine copy's summary and helped tests (values.rs) and pursuit-tree tests (record_scope_links.rs), the old app's screen, progress and check-use tests, allowance metadata reading no decision, one page's coverage and next start, and refusals. |
+| `method-rows/view.mjs` | `tool:read-a-method`: a saved view of method rows read a page at a time with each row's strictness; the one pass both tools make over a method (`rowsOfMethod`) |
+| `method-rows/answers.mjs` | `tool:record-method-answers`: answers for any number of a method's rows recorded in one call, each checked for its row, its cited rows, its cited evidence and its strictness |
+| `method-rows/settings.json` | DATA for the pair: the names of the list reader's records, the page bounds, the default strictness, the answer record and its words |
+| `starting-rules.json` | The rule shipped to every account: an answer kept with review asked is handed to one of the person's AIs |
+| `test/method-rows.test.mjs` | The pair on made-up rows, against the door the rows declare: view, order, paging, strictness, every refusal, any number of answers, the shipped rule |
 
 ## Key Types / Functions
 
@@ -118,6 +134,8 @@ until they do what these files do now; or let this repository accept a rewrite o
 **Depends on:** `tools/check-against-a-persons-rules-and-verdicts` (`do-work/branch.mjs`, packed by every row), `tools/records-door` (the door client, `run-an-export.mjs` and `writeBatches`), `tools/content-identity` (the identity of each kept check), and, loaded only for a share, `tools/learn-from-everyones-results` (the plain privacy pass, public) and `tools/ask-a-small-model-for-a-verdict` (`contentReviewIdentity`, public); Node 24 in the tool container. Every row packs records-door, content-identity and `@noble/hashes`.
 
 **Depended on by:** `tool-rows.json`, the tests here.
+
+The method pair (`method-rows/`) depends only on `tools/formulas` (the rule filter, `do-work/requests.mjs`), `tools/records-door` (`writeBatches`, the door client) and `tools/content-identity`; it imports nothing of the step walk above, so that walk can leave without it.
 
 _Write-once layout (2026-11-12):_ a step and an answered-step summary are kept at the content identity of their value (`:c<identity>`), never overwritten. The root names no step itself: its `refs` names one `decision-refs:<id>:c<identity>` record that gives the identity each index holds. A write that is refused before its root lands leaves nothing the root names (test: 'a refused root write of a revision leaves nothing visible').
 

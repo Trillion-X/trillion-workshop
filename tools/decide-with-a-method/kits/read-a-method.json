@@ -1,0 +1,39 @@
+{
+  "drafted_from": "tool:read-a-method's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read the rows of one of my methods, a saved view over my method rows, a page at a time, each row with how strictly an answer to it is checked\", with {\"method\":\"list-view:sample-method-rows:sample-method\"}. It runs tool:read-a-method and answers {\"method\":\"list-view:sample-method-rows:sample-method\",\"label\":\"A made-up method\",\"list\":\"sample-method-rows\",\"strictness\":{\"rules\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"answer\",\"operator\":\"is_not_empty\",\"params\":{}},{\"kind\":\"group\",\"combinator\":\"or\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"cites\",\"operator\":\"is_not_empty\",\"params\":{}} ...",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (list, list-view, record:method-row) through the records door.",
+  "workflows": [],
+  "tools": [
+    "tool:read-a-method",
+    "tool:record-method-answers"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Read the rows of one of my methods, a saved view over my method rows, a page at a time, each row with how strictly an answer to it is checked\", and give it method (The id of the saved view that is the method).",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-a-method and its input (the worked example shows one).",
+    "3. Read what comes back: A method is a saved view over the person's method rows (their files and the sections of their files, each row whole): the view's rules keep the rows, its sort orders them, and any mix of rows is a method.",
+    "4. It reads and writes only its own rows through the records door: list (records:read); list-view (records:read); record:method-row (records:list)."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read one of my methods on its own sample",
+      "ask": "Read the rows of one of my methods, a saved view over my method rows, a page at a time, each row with how strictly an answer to it is checked",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-a-method",
+            "input": {
+              "method": "list-view:sample-method-rows:sample-method"
+            }
+          }
+        }
+      },
+      "given": "The input {\"method\":\"list-view:sample-method-rows:sample-method\"}, with 5 example rows (list, list-view, record:method-row) already kept.",
+      "hands_back": "It answered {\"method\":\"list-view:sample-method-rows:sample-method\",\"label\":\"A made-up method\",\"list\":\"sample-method-rows\",\"strictness\":{\"rules\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"answer\",\"operator\":\"is_not_empty\",\"params\":{}},{\"kind\":\"group\",\"combinator\":\"or\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"cites\",\"operator\":\"is_not_empty\",\"params\":{}},{\"kind\":\"rule\",\"field\":\"evidence_refs\",\"operator\":\"is_not_empty\",\"params\":{}}]}]},\"review\":false,\"from\":\"default\"},\"rows\":[{\"id\":\"record:method-row:sample-method-rows~first\",\"values\":{\"title\":\"First made-up section\",\"kind\":\"section\",\"document.offset\":10},\"strictness\":{\"rules\":{\"kind\":\"group\" ...."
+    }
+  ]
+}

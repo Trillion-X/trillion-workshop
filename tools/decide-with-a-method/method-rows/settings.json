@@ -1,0 +1,106 @@
+{
+  "what_this_is": "DATA for method-rows/view.mjs and method-rows/answers.mjs: a method is a saved view over the person's own method rows (the list `list`, `names`), read a page at a time (tool:read-a-method), and answered for any number of its rows in one call (tool:record-method-answers). `names`: where the list reader finds the list, its rows and its saved views (the reader of tools/read-a-list-view). `strictness`: how strictly one answer is checked is an open value on the row (`row_field`) or on the saved view (`view_field`), never a named level: it is `{ rules, review }`, `rules` a rule tree in the vocabulary the person already uses for a view's rules (tools/formulas read-data/rule-operators.json) over the fields of `answer_fields`, and `review` true when an AI is to look at the answer too. The row's own value wins over the view's, the view's over `default`, which asks only the cheap check: the answer says something and cites a row or a piece of the decision's evidence. A review is asked only where the strictness says `review`: the answer row is kept with `review_field` set to `review_asked`, and the rule of starting-rules.json hands it to an AI. `answers`: the record type of an answer, kept one record per decision and row (`type` + ':' + the decision + ':' + the row's id, URI-encoded); `by_max_chars` bounds who answered,. `words`: what a refusal says ({name} is filled).",
+  "names": {
+    "list_type": "list",
+    "list_record": "list:{list_id}",
+    "row_type": "record:{row_type}",
+    "view_type": "list-view"
+  },
+  "list": "method-rows",
+  "read": {
+    "page_rows": 25,
+    "page_rows_most": 200,
+    "page_bytes": 40000
+  },
+  "strictness": {
+    "row_field": "strictness",
+    "view_field": "strictness",
+    "review_field": "review",
+    "review_asked": "asked",
+    "answer_fields": [
+      {
+        "id": "answer",
+        "kind": "text"
+      },
+      {
+        "id": "cites",
+        "kind": "tags"
+      },
+      {
+        "id": "evidence_refs",
+        "kind": "tags"
+      }
+    ],
+    "default": {
+      "rules": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "answer",
+            "operator": "is_not_empty",
+            "params": {}
+          },
+          {
+            "kind": "group",
+            "combinator": "or",
+            "negate": false,
+            "rules": [
+              {
+                "kind": "rule",
+                "field": "cites",
+                "operator": "is_not_empty",
+                "params": {}
+              },
+              {
+                "kind": "rule",
+                "field": "evidence_refs",
+                "operator": "is_not_empty",
+                "params": {}
+              }
+            ]
+          }
+        ]
+      },
+      "review": false
+    },
+    "review_job_field": "review_job",
+    "review_said_field": "review_said"
+  },
+  "answers": {
+    "type": "method-answer",
+    "by_max_chars": 200,
+    "most_cites": 256,
+    "default_by": "calling-ai",
+    "most_bytes": 24000
+  },
+  "evidence": {
+    "type": "decision-evidence",
+    "root_type": "decision"
+  },
+  "words": {
+    "no_decision": "Say which decision these answers are for (decision_id).",
+    "decision_not_found": "There is no decision {decision}.",
+    "no_method": "Say which method to read or answer (method): the id of a saved view.",
+    "method_not_found": "There is no saved method {method}.",
+    "no_answers": "Send answers: a list of { row, answer, cites?, evidence_refs? }, at least one.",
+    "answer_shape": "Answer {position} is not { row, answer, cites?, evidence_refs? }: row and answer are text, cites and evidence_refs lists of text.",
+    "row_twice": "Row {row} is answered twice in one call; answer each row once.",
+    "row_not_in_method": "Row {row} is not one of the rows of method {method}.",
+    "cite_not_in_method": "Row {row} cites {cite}, which is not one of the rows of method {method}.",
+    "evidence_not_in_decision": "Row {row} cites evidence {ref}, which is not evidence of decision {decision}; add it with tool:add-decision-evidence first.",
+    "too_many_cites": "Row {row} cites more than {count} rows or pieces of evidence.",
+    "strictness_unusable": "The strictness of row {row} cannot be checked: {why}.",
+    "strictness_unmet": "Row {row} does not pass its strictness: {why}.",
+    "by_too_long": "Who answered (by) is at most {count} characters.",
+    "view_unusable": "The method cannot be read: {why}.",
+    "bad_limit": "limit is a whole number from 1 to {most}.",
+    "bad_after": "after is the next of an earlier page of this method.",
+    "answer_too_large": "Row {row} has an answer over {count} bytes; say it in less, or split it across the rows it answers.",
+    "field_unknown": "{name} is not a field of this tool; it takes {fields}.",
+    "review_job": "Look at one answer to a row of a method and say if it holds. The decision is {decision}. The method is {method}. The row is {row}. Read the row with tool:read-a-method. Read the answer kept for the row (method-answer:{decision}:{row_key}). Check that it answers what the row asks and that the rows and evidence it cites say what it claims. If it holds, say so on this job. If it does not, record a better answer with tool:record-method-answers (it becomes the next version) and say what you changed.",
+    "review_said": "Review the answer to {row}"
+  }
+}

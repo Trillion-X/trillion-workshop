@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:2e0148186908f6d7b463b2e76eed6990b76b66e181734c239dcef629670640a6"
+  "blake3": "1f:bb2ca41ded79833b232e39d33f2949b59a74607e9abd39c61eb010a10a968963"
  },
  "fields": [
   {
@@ -9210,6 +9210,21 @@
    }
   },
   {
+   "id": "tool:read-a-method",
+   "values": {
+    "title": "Read one of my methods",
+    "job": "Read the rows of one of my methods, a saved view over my method rows, a page at a time, each row with how strictly an answer to it is checked",
+    "description": "A method is a saved view over the person's method rows (their files and the sections of their files, each row whole): the view's rules keep the rows, its sort orders them, and any mix of rows is a method. Reads the saved view `method` (the id of a record of type list-view) and answers a page of its rows in the view's order, each with its whole values and the strictness an answer to it is checked by (its own `strictness` value, else the method's, else the default cheap check), and `next` to pass as `after` for the following page, null on the last. A page holds at most `limit` rows (25 when not given) and at most the bytes read-data/method-rows.json allows. Reads only; it writes nothing. The rows are those of the list the view is over, read by the list reader's own rule filter, so the method means what the person's own view of the list shows. Answer what you read with tool:record-method-answers.",
+    "status": "active",
+    "maker": "maker:decide-with-a-method",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-with-a-method"
+   }
+  },
+  {
    "id": "tool:read-a-receptionist-build-host",
    "values": {
     "title": "Read a receptionist build host",
@@ -10520,6 +10535,21 @@
      "placement:your-computer"
     ],
     "folder": "workflows"
+   }
+  },
+  {
+   "id": "tool:record-method-answers",
+   "values": {
+    "title": "Record my answers to a method",
+    "job": "Record my AI's answers to any number of the rows of a method in one call, each with the rows it cites and the decision's evidence it rests on",
+    "description": "Records answers to a method's rows for a decision: input { decision_id, method, answers: [{ row, answer, cites?, evidence_refs? }], by? }, any number of answers, each about one row of the method (tool:read-a-method). An answer is recorded only when its row is a row of the method, every row it cites is a row of the method, every evidence ref it cites is evidence of the decision, and it passes its strictness: an open value on the row, else on the method, else the default (the answer says something and cites a row or a piece of evidence), a rule tree in the vocabulary of the person's view rules. A review by an AI is asked only where the strictness says review: that answer is kept with review asked. Nothing asks a judge. An answer that fails is named with why and nothing of it is written; the others are recorded, so one wrong answer never holds up the rest. The same answer again is unchanged; a different one is the row's next version. Answers are records of their own, one per decision and row. Returns recorded, unchanged, refused, how many rows of the method the decision has answered and how many the method has.",
+    "status": "active",
+    "maker": "maker:decide-with-a-method",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-with-a-method"
    }
   },
   {

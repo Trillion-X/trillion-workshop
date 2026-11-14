@@ -1,0 +1,67 @@
+{
+  "what_this_is": "The rule this tool ships, read from the deploy for every account and never copied into anyone's store (the same file shape and reader as tools/starting-set/starting-rules.json). A method answer is kept with review `asked` only where its strictness says review (method-rows/answers.mjs); this rule hands that answer, with the words the answer carries (review_job, review_said), to one of the person's AIs. An answer with no review asked starts nothing, so a method is checked by its cheap check alone unless its row or its method asks for more.",
+  "every_account": [
+    {
+      "rule_id": "starting:review-a-method-answer-that-asks-for-one",
+      "label": "Have one of your AIs look at a method answer whose strictness asks for a review",
+      "when": {
+        "recorded": "method-answer",
+        "where": [
+          {
+            "field": "review",
+            "equals": "asked"
+          }
+        ]
+      },
+      "then": {
+        "workflow_id": "workflow:hand-to-an-agent",
+        "input": {
+          "job": {
+            "fill": {
+              "from": "record",
+              "field": "review_job"
+            }
+          },
+          "said": {
+            "fill": {
+              "from": "record",
+              "field": "review_said"
+            }
+          },
+          "once_per": {
+            "fill": {
+              "from": "record",
+              "field": "id"
+            }
+          },
+          "arrived": {
+            "answer_id": {
+              "fill": {
+                "from": "record",
+                "field": "id"
+              }
+            },
+            "decision_id": {
+              "fill": {
+                "from": "record",
+                "field": "decision_id"
+              }
+            },
+            "method": {
+              "fill": {
+                "from": "record",
+                "field": "method"
+              }
+            },
+            "row": {
+              "fill": {
+                "from": "record",
+                "field": "row"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

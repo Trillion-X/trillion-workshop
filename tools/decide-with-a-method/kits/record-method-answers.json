@@ -1,0 +1,49 @@
+{
+  "drafted_from": "tool:record-method-answers's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Record my AI's answers to any number of the rows of a method in one call, each with the rows it cites and the decision's evidence it rests on\", with {\"decision_id\":\"source:c2FtcGxlOm1ldGhvZC0x\",\"method\":\"list-view:sample-method-rows:sample-method\",\"answers\":[{\"row\":\"record:method-row:sample-method-rows~first\",\"answer\":\"A made-up answer that rests on the made-up evidence\",\"evidence_refs\":[\"e1\"]}]}. It runs tool:record-method-answers and answers {\"decision_id\":\"source:c2FtcGxlOm1ldGhvZC0x\",\"method\":\"list-view:sample-method-rows:sample-method\",\"recorded\":[{\"row\":\"record:method-row:sample-method-rows~first\",\"version\":1}],\"unchanged\":[],\"refused\":[],\"answered\":1,\"rows\":2}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (list, list-view, record:method-row, decision, decision-revision, decision-evidence, method-answer) through the records door.",
+  "workflows": [],
+  "tools": [
+    "tool:record-method-answers",
+    "tool:read-a-method"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Record my AI's answers to any number of the rows of a method in one call, each with the rows it cites and the decision's evidence it rests on\", and give it decision_id (The decision these answers are for); method (The id of the saved view that is the method); answers (One per row answered).",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:record-method-answers and its input (the worked example shows one).",
+    "3. Read what comes back: Records answers to a method's rows for a decision: input { decision_id, method, answers: [{ row, answer, cites?, evidence_refs?",
+    "4. It reads and writes only its own rows through the records door: list (records:read); list-view (records:read); record:method-row (records:list); decision (records:read); decision-revision (records:read); decision-evidence (records:list); method-answer (records:read, records:list, records:write)."
+  ],
+  "worked_examples": [
+    {
+      "title": "Record my answers to a method on its own sample",
+      "ask": "Record my AI's answers to any number of the rows of a method in one call, each with the rows it cites and the decision's evidence it rests on",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:record-method-answers",
+            "input": {
+              "decision_id": "source:c2FtcGxlOm1ldGhvZC0x",
+              "method": "list-view:sample-method-rows:sample-method",
+              "answers": [
+                {
+                  "row": "record:method-row:sample-method-rows~first",
+                  "answer": "A made-up answer that rests on the made-up evidence",
+                  "evidence_refs": [
+                    "e1"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "The input {\"decision_id\":\"source:c2FtcGxlOm1ldGhvZC0x\",\"method\":\"list-view:sample-method-rows:sample-method\",\"answers\":[{\"row\":\"record:method-row:sample-method-rows~first\",\"answer\":\"A made-up answer that rests on the made-up evidence\",\"evidence_refs\":[\"e1\"]}]}, with 6 example rows (list, list-view, record:method-row, decision) already kept.",
+      "hands_back": "It answered {\"decision_id\":\"source:c2FtcGxlOm1ldGhvZC0x\",\"method\":\"list-view:sample-method-rows:sample-method\",\"recorded\":[{\"row\":\"record:method-row:sample-method-rows~first\",\"version\":1}],\"unchanged\":[],\"refused\":[],\"answered\":1,\"rows\":2}, and kept method-answer:source:c2FtcGxlOm1ldGhvZC0x:record%3Amethod-row%3Asample-method-rows~first."
+    }
+  ]
+}
