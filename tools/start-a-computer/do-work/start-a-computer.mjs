@@ -25,6 +25,7 @@ import { isAbsolute, dirname, basename, resolve as resolvePath, posix } from 'no
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+import { verifyEntry } from '../../publish-an-engine-release/do-work/release-feed.mjs';
 import {
   machineProvider, nameProvider, providerClient, rentMachine, readMachine, releaseMachine, readPrice, pointName,
   forgetName, readLease,
@@ -71,13 +72,13 @@ async function untilSsh(machine, { wait, run, tries = 36 }) {
 /** Compare a computer's host layout row with what it runs now (`request.host_layout`): every file the row renders, every
  * drop-in the row does not declare, and every unmanaged user and folder the row keeps. Answers the differences, [] when the
  * computer matches. An absent file is a difference; a failed connection is an error, not an absence. */
-export async function hostLayoutDifferences(machine, layout, run = onMachine, product) {
-  const { rendered, live, found } = await hostLayoutState(machine, layout, run, product);
+export async function hostLayoutDifferences(machine, layout, run = onMachine, product, deps = {}) {
+  const { rendered, live, found } = await hostLayoutState(machine, layout, run, product, deps);
   return [...differences(rendered, live), ...found];
 }
 
 /** What a layout renders, what the computer has at those paths, and what the computer keeps that the layout does not name. */
-export async function hostLayoutState(machine, layout, run = onMachine, product) {
+export async function hostLayoutState(machine, layout, run = onMachine, product, { fetchImpl = fetch } = {}) {
   const units = layout.units;
   const rendered = renderLayout(layout, SITE_BLOCK, product);
   const live = {};
@@ -94,7 +95,42 @@ export async function hostLayoutState(machine, layout, run = onMachine, product)
     const present = await run(machine, `${test} || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; });
     if (!present) found.push(gone);
   }
-  return { rendered, live, found };
+  // A file the row says is absent (a secret it once kept in the clear, say) is a difference while it is there.
+  const present = [];
+  for (const path of layout.absent ?? []) {
+    if (await run(machine, `test -e ${q(path)} || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })) present.push(path);
+  }
+  found.push(...present.map(path => ({ path, reason: 'present; the layout says absent' })));
+  // A unit run from a Workshop clone is behind when the clone is not at the commit its row follows.
+  const moves = [];
+  for (const unit of units.filter(row => row.workshop && (row.workshop_feed || row.workshop_commit))) {
+    const wanted = await workshopCommitOf(unit, fetchImpl);
+    const head = (await run(machine, `${asUser(unit)} git -C ${q(unit.workshop)} rev-parse HEAD`)).trim();
+    if (head !== wanted) moves.push({ unit, from: head, to: wanted });
+  }
+  found.push(...moves.map(({ unit, from, to }) => ({ path: unit.workshop, reason: `runs Workshop ${from}; its row follows ${to}` })));
+  return { rendered, live, found, present, moves };
+}
+
+const asUser = unit => `runuser -u ${q(unit.user)} --`;
+
+/** The Workshop commit a unit's row follows: its pin (`workshop_commit`), else the newest entry for `workshop_feed.target`
+ * in the signed feed the row names that one of its `public_keys` signed (the feed and keys every computer's door follows). */
+export async function workshopCommitOf(unit, fetchImpl = fetch) {
+  if (unit.workshop_commit) {
+    if (!/^[0-9a-f]{40}$/.test(unit.workshop_commit)) throw refused(`${unit.unit} workshop_commit must be a full commit id.`);
+    return unit.workshop_commit;
+  }
+  const { urls, public_keys: keys, target } = unit.workshop_feed;
+  for (const url of urls) {
+    const answer = await fetchImpl(url).catch(() => null);
+    if (!answer?.ok) continue;
+    const { releases = [] } = await answer.json();
+    const signed = releases.filter(entry => entry.target === target && /^[0-9a-f]{40}$/.test(entry.commit ?? '')
+      && keys.some(key => { try { return verifyEntry(entry, key); } catch { return false; } }));
+    if (signed.length) return signed.reduce((newest, entry) => (entry.sequence > newest.sequence ? entry : newest)).commit;
+  }
+  throw new Error(`${unit.unit}: no feed in workshop_feed answered a ${target} entry one of its keys signed.`);
 }
 
 /** One file's text on the computer, or undefined when it is absent. */
@@ -107,8 +143,8 @@ async function readIfPresent(machine, run, path) {
  * nothing written, no set-up run and nothing restarted. A file that is replaced keeps its previous bytes beside it as
  * `NAME.bak-STAMP`. `held` maps a unit's `secret_vault_key` to the value the person's vault holds under that name; the value
  * reaches the computer only on the SSH channel's standard input, sealed there by systemd-creds at the unit's `secret_file`. */
-export async function applyHostLayout(machine, layout, run = onMachine, product, held = {}) {
-  const { rendered, live } = await hostLayoutState(machine, layout, run, product);
+export async function applyHostLayout(machine, layout, run = onMachine, product, held = {}, deps = {}) {
+  const { rendered, live, present, moves } = await hostLayoutState(machine, layout, run, product, deps);
   const writes = rendered.filter(({ path, text }) => live[path] !== text);
   const absent = path => run(machine, `${path} || exit 3`).then(() => false, error => { if (error.code === 3) return true; throw error; });
   const nodes = [...new Set(layout.units.map(unit => unit.node_bin).filter(Boolean))];
@@ -121,7 +157,18 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
       throw refused(`${unit.unit} needs the value held under the vault name ${unit.secret_vault_key}: hand it on descriptor 5 as {"${unit.secret_vault_key}": value}, read from the person's vault.`);
     }
   }
-  if (!writes.length && !missing.length && !nodeMissing) return { written: [], restarted: [] };
+  for (const path of present) await run(machine, `rm -f -- ${q(path)}`);
+  const removed = present.length ? { removed: present } : {};
+  // A clone the row's feed (or pin) has moved past goes to that commit as its unit's user; its unit restarts only when the
+  // tool folder it runs from changed.
+  const toolChanged = [];
+  for (const { unit, from, to } of moves) {
+    const tree = commit => run(machine, `${asUser(unit)} git -C ${q(unit.workshop)} rev-parse ${q(`${commit}:${unit.tool_folder}`)}`).then(text => text.trim());
+    await run(machine, `${asUser(unit)} git -C ${q(unit.workshop)} fetch -q --depth 1 origin ${q(to)} && ${asUser(unit)} git -C ${q(unit.workshop)} checkout -q --detach ${q(to)}`);
+    if (!unit.tool_folder || await tree(from).catch(() => null) !== await tree(to)) toolChanged.push(unit.unit);
+  }
+  const moved = moves.length ? { moved: moves.map(({ unit, from, to }) => ({ path: unit.workshop, from, to })) } : {};
+  if (!writes.length && !missing.length && !nodeMissing && !toolChanged.length) return { written: [], restarted: [], ...removed, ...moved };
   // Set-up makes what is missing (packages, node, accounts, folders); a computer whose accounts and node all exist needs
   // none, and running it would refresh the package lists on every apply.
   const accounts = await Promise.all(layout.units.map(unit => run(machine, `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
@@ -155,9 +202,9 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
     }
   }
   const unitOf = path => layout.units.find(unit => unit.product_settings === path)?.unit ?? path.match(/\/([^/]+\.service)(?:\.d\/[^/]+)?$/)?.[1];
-  const units = [...new Set([...writes.map(({ path }) => unitOf(path)), ...missing.map(unit => unit.unit)].filter(Boolean))];
+  const units = [...new Set([...writes.map(({ path }) => unitOf(path)), ...missing.map(unit => unit.unit), ...toolChanged].filter(Boolean))];
   const running = new Set([...writes.filter(({ path }) => live[path] !== undefined).map(({ path }) => unitOf(path)),
-    ...missing.filter(unit => live[`/etc/systemd/system/${unit.unit}`] !== undefined).map(unit => unit.unit)]);
+    ...[...missing.map(unit => unit.unit), ...toolChanged].filter(name => live[`/etc/systemd/system/${name}`] !== undefined)]);
   if (units.length) await run(machine, 'systemctl daemon-reload');
   // Caddy is restarted, never only enabled, when its front-door drop-in changes: the drop-in swaps the program itself.
   for (const unit of units) {
@@ -174,7 +221,7 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
     if (status !== health.status) throw Object.assign(new Error(`${unit} answered ${status ?? 'nothing'} on ${health.path}, not ${health.status}, after its restart.`), { unit, status });
     booted.push(unit);
   }
-  return { written: writes.map(({ path }) => path), restarted: units, booted, ...(missing.length ? { sealed: missing.map(unit => unit.secret_name) } : {}) };
+  return { written: writes.map(({ path }) => path), restarted: units, booted, ...(missing.length ? { sealed: missing.map(unit => unit.secret_name) } : {}), ...removed, ...moved };
 }
 
 const CADDYFILE = '/etc/caddy/Caddyfile';
