@@ -1,0 +1,109 @@
+{
+  "about": "Lists many Workshop items name, with their fields (as the list is defined in a person's account) and synthetic example rows, so a kit drafted from an item's row (read-data/draft-a-kit.mjs) can carry the list. Add an entry when several items name one list and no kit holds it.",
+  "lists": [
+    {
+      "list": "list:settings",
+      "label": "Settings",
+      "row_type": "record:setting",
+      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
+      "fields": [
+        {
+          "id": "name",
+          "kind": "text",
+          "label": "Setting",
+          "alike": [
+            "title",
+            "key",
+            "label"
+          ]
+        },
+        {
+          "id": "tool",
+          "kind": "text",
+          "label": "Tool",
+          "alike": [
+            "tool id",
+            "owner"
+          ]
+        },
+        {
+          "id": "scope_kind",
+          "kind": "text",
+          "label": "For a",
+          "alike": [
+            "scope",
+            "applies to"
+          ]
+        },
+        {
+          "id": "scope_id",
+          "kind": "text",
+          "label": "For",
+          "alike": [
+            "scope id",
+            "target"
+          ]
+        },
+        {
+          "id": "settings",
+          "kind": "long-text",
+          "label": "Settings (JSON)",
+          "alike": [
+            "values",
+            "config",
+            "options"
+          ]
+        },
+        {
+          "id": "from",
+          "kind": "text",
+          "label": "From",
+          "alike": [
+            "source",
+            "origin"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "text",
+          "label": "Status",
+          "alike": [
+            "state",
+            "on or off"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "caption-style",
+          "values": {
+            "name": "Caption style",
+            "tool": "tool:example-captioner",
+            "scope_kind": "person",
+            "scope_id": "example-person",
+            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
+            "from": "the person",
+            "status": "on"
+          }
+        },
+        {
+          "id": "quiet-hours",
+          "values": {
+            "name": "Quiet hours",
+            "tool": "tool:example-notifier",
+            "scope_kind": "account",
+            "scope_id": "whole-account",
+            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
+            "from": "the person",
+            "status": "on"
+          }
+        }
+      ],
+      "alike": [
+        "an app's settings screen",
+        "a config file per tool",
+        "a spreadsheet of options"
+      ]
+    }
+  ]
+}

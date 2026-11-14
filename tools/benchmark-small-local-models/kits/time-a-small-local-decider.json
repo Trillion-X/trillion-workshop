@@ -1,0 +1,183 @@
+{
+  "draft": true,
+  "drafted_from": "tool:time-a-small-local-decider's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:time-a-small-local-decider with nothing more.\" Time how long a small decider model takes to load and to answer on my computer, and how much memory it holds",
+  "lists": [
+    {
+      "list": "list:settings",
+      "label": "Settings",
+      "row_type": "record:setting",
+      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
+      "fields": [
+        {
+          "id": "name",
+          "kind": "text",
+          "label": "Setting",
+          "alike": [
+            "title",
+            "key",
+            "label"
+          ]
+        },
+        {
+          "id": "tool",
+          "kind": "text",
+          "label": "Tool",
+          "alike": [
+            "tool id",
+            "owner"
+          ]
+        },
+        {
+          "id": "scope_kind",
+          "kind": "text",
+          "label": "For a",
+          "alike": [
+            "scope",
+            "applies to"
+          ]
+        },
+        {
+          "id": "scope_id",
+          "kind": "text",
+          "label": "For",
+          "alike": [
+            "scope id",
+            "target"
+          ]
+        },
+        {
+          "id": "settings",
+          "kind": "long-text",
+          "label": "Settings (JSON)",
+          "alike": [
+            "values",
+            "config",
+            "options"
+          ]
+        },
+        {
+          "id": "from",
+          "kind": "text",
+          "label": "From",
+          "alike": [
+            "source",
+            "origin"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "text",
+          "label": "Status",
+          "alike": [
+            "state",
+            "on or off"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "caption-style",
+          "values": {
+            "name": "Caption style",
+            "tool": "tool:example-captioner",
+            "scope_kind": "person",
+            "scope_id": "example-person",
+            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
+            "from": "the person",
+            "status": "on"
+          }
+        },
+        {
+          "id": "quiet-hours",
+          "values": {
+            "name": "Quiet hours",
+            "tool": "tool:example-notifier",
+            "scope_kind": "account",
+            "scope_id": "whole-account",
+            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
+            "from": "the person",
+            "status": "on"
+          }
+        }
+      ],
+      "alike": [
+        "an app's settings screen",
+        "a config file per tool",
+        "a spreadsheet of options"
+      ]
+    }
+  ],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:time-a-small-local-decider",
+    "tool:read-a-tool-setting"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:time-a-small-local-decider\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:time-a-small-local-decider and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Time how long a small decider model takes to load and to answer on my computer, and how much memory it holds"
+  ],
+  "worked_examples": [
+    {
+      "title": "Time how fast a small decider model loads and answers on my computer (runs on your computer) on a sample input",
+      "ask": "Run tool:time-a-small-local-decider.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:time-a-small-local-decider",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Time how long a small decider model takes to load and to answer on my computer, and how much memory it holds"
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:settings",
+      "into": {
+        "list": "list:my-settings",
+        "row_type": "record:setting",
+        "fields": [
+          {
+            "id": "name",
+            "label": "Setting"
+          },
+          {
+            "id": "tool",
+            "label": "Tool"
+          },
+          {
+            "id": "scope_kind",
+            "label": "For a"
+          },
+          {
+            "id": "scope_id",
+            "label": "For"
+          },
+          {
+            "id": "settings",
+            "label": "Settings (JSON)"
+          },
+          {
+            "id": "from",
+            "label": "From"
+          },
+          {
+            "id": "status",
+            "label": "Status"
+          }
+        ]
+      }
+    }
+  }
+}

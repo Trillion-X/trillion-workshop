@@ -1,0 +1,267 @@
+{
+  "draft": true,
+  "drafted_from": "tool:evaluate-a-writing-voice-classifier's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:evaluate-a-writing-voice-classifier with data.\" Check how well a small classifier judges a writer's voice: validate the labelled challenge passages, plan the questions, ask the classifier each one, and report its choices, probabilities, abstentions and accuracy by criterion, family and source",
+  "lists": [
+    {
+      "list": "list:settings",
+      "label": "Settings",
+      "row_type": "record:setting",
+      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
+      "fields": [
+        {
+          "id": "name",
+          "kind": "text",
+          "label": "Setting",
+          "alike": [
+            "title",
+            "key",
+            "label"
+          ]
+        },
+        {
+          "id": "tool",
+          "kind": "text",
+          "label": "Tool",
+          "alike": [
+            "tool id",
+            "owner"
+          ]
+        },
+        {
+          "id": "scope_kind",
+          "kind": "text",
+          "label": "For a",
+          "alike": [
+            "scope",
+            "applies to"
+          ]
+        },
+        {
+          "id": "scope_id",
+          "kind": "text",
+          "label": "For",
+          "alike": [
+            "scope id",
+            "target"
+          ]
+        },
+        {
+          "id": "settings",
+          "kind": "long-text",
+          "label": "Settings (JSON)",
+          "alike": [
+            "values",
+            "config",
+            "options"
+          ]
+        },
+        {
+          "id": "from",
+          "kind": "text",
+          "label": "From",
+          "alike": [
+            "source",
+            "origin"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "text",
+          "label": "Status",
+          "alike": [
+            "state",
+            "on or off"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "caption-style",
+          "values": {
+            "name": "Caption style",
+            "tool": "tool:example-captioner",
+            "scope_kind": "person",
+            "scope_id": "example-person",
+            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
+            "from": "the person",
+            "status": "on"
+          }
+        },
+        {
+          "id": "quiet-hours",
+          "values": {
+            "name": "Quiet hours",
+            "tool": "tool:example-notifier",
+            "scope_kind": "account",
+            "scope_id": "whole-account",
+            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
+            "from": "the person",
+            "status": "on"
+          }
+        }
+      ],
+      "alike": [
+        "an app's settings screen",
+        "a config file per tool",
+        "a spreadsheet of options"
+      ]
+    }
+  ],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:evaluate-a-writing-voice-classifier"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:evaluate-a-writing-voice-classifier\", and give it data.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:evaluate-a-writing-voice-classifier and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.result holds the result: Check how well a small classifier judges a writer's voice: validate the labelled challenge passages, plan the questions, ask the classifier each one, and report its choices, probabilities, abstentions and accuracy by criterion, family and source"
+  ],
+  "worked_examples": [
+    {
+      "title": "Evaluate a writing-voice classifier on labelled passages on a sample input",
+      "ask": "Run tool:evaluate-a-writing-voice-classifier.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:evaluate-a-writing-voice-classifier",
+            "input": {
+              "action": "evaluate",
+              "data": {
+                "schema": "book-voice-decider-challenge-v2",
+                "dataset_role": "source_feedback_controls",
+                "criteria": [
+                  {
+                    "id": "claim-strength",
+                    "primitive": "true-or-false",
+                    "question": "Does the passage state the claim no more strongly than its source?"
+                  }
+                ],
+                "items": [
+                  {
+                    "id": "MADE-UP-01",
+                    "text": "We tried the kettle first. It boiled in four minutes, so we stopped guessing and timed the pot instead.",
+                    "family": "made-up-kettle",
+                    "split": "eval",
+                    "rationale": "Made-up fixture.",
+                    "axis": [
+                      "made_up_axis"
+                    ],
+                    "origin": {
+                      "kind": "made-up-fixture",
+                      "source_ref": {
+                        "file": "made-up-notes.md",
+                        "lines": "1-3"
+                      }
+                    },
+                    "checks": {
+                      "claim-strength": "pass"
+                    }
+                  },
+                  {
+                    "id": "MADE-UP-02",
+                    "text": "Leverage synergies to maximize kettle outcomes across all stakeholders.",
+                    "family": "made-up-kettle",
+                    "split": "eval",
+                    "rationale": "Made-up fixture.",
+                    "axis": [
+                      "made_up_axis"
+                    ],
+                    "origin": {
+                      "kind": "made-up-fixture",
+                      "source_ref": {
+                        "file": "made-up-notes.md",
+                        "lines": "5-7"
+                      }
+                    },
+                    "checks": {
+                      "claim-strength": "fail"
+                    }
+                  }
+                ]
+              },
+              "data_name": "/fixture/binary-challenge.json",
+              "settings_record": {
+                "id": "record:setting:train-and-evaluate-a-writing-voice-classifier~person~made-up-writer",
+                "type": "record:setting",
+                "value": {
+                  "name": "A made-up writer's voice classifier",
+                  "tool": "tool:evaluate-a-writing-voice-classifier",
+                  "scope_kind": "person",
+                  "scope_id": "made-up-writer",
+                  "settings": "{\"endpoint\":\"http://127.0.0.1:8099/v1/systemone\",\"model\":\"made-up-model\",\"workers\":1}",
+                  "from": "made-up",
+                  "status": "active"
+                }
+              },
+              "replies": [
+                {
+                  "request": "{\"state\":\"Passage: We tried the kettle first. It boiled in four minutes, so we stopped guessing and timed the pot instead.\",\"questions\":{\"claim-strength\":{\"type\":\"noul\",\"instructions\":\"Does the passage state the claim no more strongly than its source?\"}},\"model\":\"made-up-model\"}",
+                  "status": 200,
+                  "response": "{\"model\":\"made-up-model\",\"served_identity\":\"/fixture/made-up-model-snapshot\",\"answers\":{\"claim-strength\":{\"noul\":0.8}},\"usage\":{\"input_tokens\":12,\"output_tokens\":0}}"
+                },
+                {
+                  "request": "{\"state\":\"Passage: Leverage synergies to maximize kettle outcomes across all stakeholders.\",\"questions\":{\"claim-strength\":{\"type\":\"noul\",\"instructions\":\"Does the passage state the claim no more strongly than its source?\"}},\"model\":\"made-up-model\"}",
+                  "status": 200,
+                  "response": "{\"model\":\"made-up-model\",\"served_identity\":\"/fixture/made-up-model-snapshot\",\"answers\":{\"claim-strength\":{\"noul\":0.3}},\"usage\":{\"input_tokens\":12,\"output_tokens\":0}}"
+                }
+              ],
+              "health": {
+                "serving": "/fixture/made-up-model-snapshot",
+                "device": "cpu"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.result holds the result: Check how well a small classifier judges a writer's voice: validate the labelled challenge passages, plan the questions, ask the classifier each one, and report its choices, probabilities, abstentions and accuracy by criterion, family and source"
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:settings",
+      "into": {
+        "list": "list:my-settings",
+        "row_type": "record:setting",
+        "fields": [
+          {
+            "id": "name",
+            "label": "Setting"
+          },
+          {
+            "id": "tool",
+            "label": "Tool"
+          },
+          {
+            "id": "scope_kind",
+            "label": "For a"
+          },
+          {
+            "id": "scope_id",
+            "label": "For"
+          },
+          {
+            "id": "settings",
+            "label": "Settings (JSON)"
+          },
+          {
+            "id": "from",
+            "label": "From"
+          },
+          {
+            "id": "status",
+            "label": "Status"
+          }
+        ]
+      }
+    }
+  }
+}

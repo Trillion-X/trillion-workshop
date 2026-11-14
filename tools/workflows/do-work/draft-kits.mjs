@@ -23,6 +23,7 @@ const owing = new Map(items().filter(item => item.problems === null).map(item =>
 // The lists other kits here already define, by list id, for any item that names one of them.
 const keptLists = new Map();
 for (const entry of items().filter(item => item.problems !== null)) for (const list of JSON.parse(readFileSync(entry.file, 'utf8')).lists ?? []) if (!keptLists.has(list.list)) keptLists.set(list.list, list);
+for (const list of JSON.parse(readFileSync(new URL('../kit-lists.json', import.meta.url), 'utf8')).lists) if (!keptLists.has(list.list)) keptLists.set(list.list, list);
 const known = new Set([...items().map(item => item.id), ...HOST_TOOLS]);
 const done = [];
 const gaps = [];

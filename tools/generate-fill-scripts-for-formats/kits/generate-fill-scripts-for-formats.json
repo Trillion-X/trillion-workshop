@@ -1,0 +1,263 @@
+{
+  "draft": true,
+  "drafted_from": "tool:generate-fill-scripts-for-formats's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:generate-fill-scripts-for-formats with nothing more.\" Write a draft script for each of my product's capabilities in each video format I picked: the format's own lines filled with the capability's words, the word count of every line against the format's measured budget, the shots, the filming notes, and every fact still missing listed with what would fill it",
+  "lists": [
+    {
+      "list": "list:settings",
+      "label": "Settings",
+      "row_type": "record:setting",
+      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
+      "fields": [
+        {
+          "id": "name",
+          "kind": "text",
+          "label": "Setting",
+          "alike": [
+            "title",
+            "key",
+            "label"
+          ]
+        },
+        {
+          "id": "tool",
+          "kind": "text",
+          "label": "Tool",
+          "alike": [
+            "tool id",
+            "owner"
+          ]
+        },
+        {
+          "id": "scope_kind",
+          "kind": "text",
+          "label": "For a",
+          "alike": [
+            "scope",
+            "applies to"
+          ]
+        },
+        {
+          "id": "scope_id",
+          "kind": "text",
+          "label": "For",
+          "alike": [
+            "scope id",
+            "target"
+          ]
+        },
+        {
+          "id": "settings",
+          "kind": "long-text",
+          "label": "Settings (JSON)",
+          "alike": [
+            "values",
+            "config",
+            "options"
+          ]
+        },
+        {
+          "id": "from",
+          "kind": "text",
+          "label": "From",
+          "alike": [
+            "source",
+            "origin"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "text",
+          "label": "Status",
+          "alike": [
+            "state",
+            "on or off"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "caption-style",
+          "values": {
+            "name": "Caption style",
+            "tool": "tool:example-captioner",
+            "scope_kind": "person",
+            "scope_id": "example-person",
+            "settings": "{\"style\":\"plain\",\"size\":\"large\"}",
+            "from": "the person",
+            "status": "on"
+          }
+        },
+        {
+          "id": "quiet-hours",
+          "values": {
+            "name": "Quiet hours",
+            "tool": "tool:example-notifier",
+            "scope_kind": "account",
+            "scope_id": "whole-account",
+            "settings": "{\"from\":\"22:00\",\"to\":\"07:00\"}",
+            "from": "the person",
+            "status": "on"
+          }
+        }
+      ],
+      "alike": [
+        "an app's settings screen",
+        "a config file per tool",
+        "a spreadsheet of options"
+      ]
+    }
+  ],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:generate-fill-scripts-for-formats"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:generate-fill-scripts-for-formats\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:generate-fill-scripts-for-formats and its input (the worked example shows one).",
+    "3. Read what comes back: The answer's $.fills[0].text contains \"Hi, today I'm showing you Steeper.\"."
+  ],
+  "worked_examples": [
+    {
+      "title": "Fill video formats with my product's capabilities on a sample input",
+      "ask": "Run tool:generate-fill-scripts-for-formats.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:generate-fill-scripts-for-formats",
+            "input": {
+              "settings": {
+                "fetched": "a made-up morning"
+              },
+              "settings_record": {
+                "id": "record:setting:generate-fill-scripts-for-formats~account~main",
+                "type": "record:setting",
+                "value": {
+                  "name": "Tea shop fill pages",
+                  "tool": "tool:generate-fill-scripts-for-formats",
+                  "scope_kind": "account",
+                  "scope_id": "main",
+                  "settings": "{\"fill_page\":[\"# Fill: {format.short} x \\\"{listing.title}\\\"\\n\",\"| # | slot | line | budget | words | diff | {format.template.time_label} |\",{\"as\":\"r\",\"each\":\"fill.line_rows\",\"item\":\"{r}\"},{\"else\":\"No line is over budget.\",\"if\":\"fill.over\",\"then\":\"Over budget: {fill.over}.\"},{\"as\":\"r\",\"each\":\"fill.slot_rows\",\"item\":\"{r}\"},{\"as\":\"r\",\"each\":\"fill.hole_rows\",\"item\":\"{r}\"}],\"over_budget\":{\"min_words\":3,\"ratio\":1.2},\"standard_holes\":[\"| [real run of {cap.id}] | every screen | one real run |\"]}",
+                  "from": "made-up@0",
+                  "status": "active"
+                }
+              },
+              "formats": [
+                {
+                  "id": "counter-chat",
+                  "short": "counter",
+                  "template": {
+                    "time_label": "secs",
+                    "values": {
+                      "nm": {
+                        "if": "cap.spoken",
+                        "then": "{cap.spoken}",
+                        "else": "a Lantern {cap.kind}"
+                      }
+                    },
+                    "lines": [
+                      {
+                        "no": 1,
+                        "slot": 1,
+                        "text": "Hi, today I'm showing you {v.nm}.",
+                        "budget": 8,
+                        "secs": 2.5
+                      },
+                      {
+                        "no": 2,
+                        "slot": 2,
+                        "text": "{cap.pain}. It got me <<3|the real count|the till roll for one morning>>.",
+                        "budget": 12,
+                        "secs": 4
+                      }
+                    ],
+                    "slots": [
+                      {
+                        "slot": "1",
+                        "time": "0-3",
+                        "line": "L1",
+                        "picture": "a pour of {cap.id}",
+                        "made": "filmed"
+                      }
+                    ],
+                    "shoot": [
+                      "Film {cap.id} at the counter."
+                    ],
+                    "reuse": []
+                  }
+                }
+              ],
+              "capabilities": [
+                {
+                  "key": "steeper",
+                  "id": "tool:steeper",
+                  "kind": "tool",
+                  "spoken": "Steeper",
+                  "pain": "Cups went cold while I waited"
+                }
+              ],
+              "listings": {
+                "tool:steeper": {
+                  "file": "listings/tool-steeper.json",
+                  "listing": {
+                    "title": "Steeper",
+                    "job": "steep a pot",
+                    "steps": []
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "The answer's $.fills[0].text contains \"Hi, today I'm showing you Steeper.\"."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:settings",
+      "into": {
+        "list": "list:my-settings",
+        "row_type": "record:setting",
+        "fields": [
+          {
+            "id": "name",
+            "label": "Setting"
+          },
+          {
+            "id": "tool",
+            "label": "Tool"
+          },
+          {
+            "id": "scope_kind",
+            "label": "For a"
+          },
+          {
+            "id": "scope_id",
+            "label": "For"
+          },
+          {
+            "id": "settings",
+            "label": "Settings (JSON)"
+          },
+          {
+            "id": "from",
+            "label": "From"
+          },
+          {
+            "id": "status",
+            "label": "Status"
+          }
+        ]
+      }
+    }
+  }
+}
