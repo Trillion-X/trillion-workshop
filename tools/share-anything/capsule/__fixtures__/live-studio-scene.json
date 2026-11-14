@@ -1,0 +1,73 @@
+{
+  "children": [
+    {
+      "children": [],
+      "id": "scene-root:bitfield-studio-sidebar",
+      "kind": "Component",
+      "props": {
+        "a11y": null,
+        "component_id": "component:sidebar",
+        "custom": null,
+        "handlers": null,
+        "src": null,
+        "style": null,
+        "text": null,
+        "things_to_put_on_screen": [
+          {
+            "lifecycle_key": "component:sidebar:live-entry-bytes",
+            "required_capabilities": [
+              "can-put-thing-on-screen-using-screen-element"
+            ],
+            "source_bytes": {
+              "address_label": "package::sidebar::entry-bytes::sidebar",
+              "partition_label": "bitfield-studio"
+            },
+            "source_key": "package::sidebar::entry-bytes::sidebar"
+          }
+        ]
+      },
+      "visible": true
+    },
+    {
+      "children": [],
+      "id": "scene-root:bitfield-studio-main-workspace",
+      "kind": "Component",
+      "props": {
+        "a11y": null,
+        "component_id": "component:screen-arrangement",
+        "custom": null,
+        "handlers": null,
+        "instance_props": {
+          "placeableSurfaceListAddressLabel": "placeable-surface-list::main-workspace"
+        },
+        "src": null,
+        "style": null,
+        "text": null,
+        "things_to_put_on_screen": [
+          {
+            "lifecycle_key": "component:screen-arrangement:live-entry-bytes",
+            "required_capabilities": [
+              "can-put-thing-on-screen-using-screen-element"
+            ],
+            "source_bytes": {
+              "address_label": "package::screen-arrangement::entry-bytes::screen-arrangement"
+            },
+            "source_key": "package::screen-arrangement::entry-bytes::screen-arrangement"
+          }
+        ]
+      },
+      "visible": true
+    }
+  ],
+  "id": "root",
+  "kind": "Container",
+  "props": {
+    "a11y": null,
+    "custom": null,
+    "handlers": null,
+    "src": null,
+    "style": null,
+    "text": null
+  },
+  "visible": true
+}

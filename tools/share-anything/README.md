@@ -44,3 +44,7 @@ It replaces `tool:share-a-record-by-a-sealed-link` (deleted with this change) an
 **Depends on:** `tools/records-door` (`run-an-export.mjs`, `writeWorkspace`, `readWorkspace`, `read`, `write`), `@noble/hashes` (BLAKE3), Node's `crypto`.
 
 **Depended on by:** `tool-rows.json`; the sharing sheet and the board share in the Trillion apps, which call `tool:share-anything` and use `read-data/share-label.mjs` to name the label.
+
+## Public scene capsule
+
+`capsule/`, `render/`, `do-work/`, `show/` and `viewer/` hold the public scene capsule moved byte for byte from bitfield-packages `packages/public-scene-share` (receipt `from-bitfield-packages/public-scene-share/moved-from.json`): freeze a scene into a content-addressed capsule, the two publish gates, share scope pruning, the reader, offline render and the Share button. Not wired yet: it reads and writes through the retired Bitfield runtime. Its proof scripts and two documents that hold a computer path or a person's name were not carried.

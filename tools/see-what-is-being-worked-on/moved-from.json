@@ -288,6 +288,237 @@
         "web/src/workspace/record-filter.ts",
         "web/src/workspace/send-message.ts"
       ]
+    },
+    {
+      "from": "parts/workflow-canvas/README.md",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/from-old-trillion/parts/workflow-canvas/README.md",
+      "source_identity": "1f:9c357ce588f9a7318a22e41790de22a2ecded5ebdbf4a9674ab16809ce38e472",
+      "identity": "1f:9c357ce588f9a7318a22e41790de22a2ecded5ebdbf4a9674ab16809ce38e472"
+    },
+    {
+      "from": "parts/workflow-canvas/do-work/delete-workflow-canvas-definition.ts",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/do-work/delete-workflow-canvas-definition.ts",
+      "source_identity": "1f:b1042e8848eb7f5213146d59321d29c7656f6f331d975024a3e8c16cde2faa49",
+      "identity": "1f:b1042e8848eb7f5213146d59321d29c7656f6f331d975024a3e8c16cde2faa49"
+    },
+    {
+      "from": "parts/workflow-canvas/do-work/list-workflow-canvas-runs.ts",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/do-work/list-workflow-canvas-runs.ts",
+      "source_identity": "1f:2f1876ff3e5949008813986e5ff75cda241915237edef37ed8d83542a773bed3",
+      "identity": "1f:2f1876ff3e5949008813986e5ff75cda241915237edef37ed8d83542a773bed3"
+    },
+    {
+      "from": "parts/workflow-canvas/do-work/run-workflow-canvas-definition.ts",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/do-work/run-workflow-canvas-definition.ts",
+      "source_identity": "1f:bcaa150dda0562b542b2a393c53420ac91d54fd79d45c808d2e2b92329e80c7e",
+      "identity": "1f:bcaa150dda0562b542b2a393c53420ac91d54fd79d45c808d2e2b92329e80c7e"
+    },
+    {
+      "from": "parts/workflow-canvas/do-work/save-workflow-canvas-actions.ts",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/do-work/save-workflow-canvas-actions.ts",
+      "source_identity": "1f:406411399ce36f9dadaf411582312ebacabb6737a683cafe0e00d17b1f6b15ef",
+      "identity": "1f:406411399ce36f9dadaf411582312ebacabb6737a683cafe0e00d17b1f6b15ef"
+    },
+    {
+      "from": "parts/workflow-canvas/do-work/save-workflow-canvas-layout.ts",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/do-work/save-workflow-canvas-layout.ts",
+      "source_identity": "1f:109dc252fd68c9d95873800eb1554a574aca15b080a2fd293f94284d3fb3cc1f",
+      "identity": "1f:109dc252fd68c9d95873800eb1554a574aca15b080a2fd293f94284d3fb3cc1f"
+    },
+    {
+      "from": "parts/workflow-canvas/part.json",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/from-old-trillion/parts/workflow-canvas/part.json",
+      "source_identity": "1f:a19c47b368a298184a9ecf7e36757d9927df2986c13f9f6509659e643db7c814",
+      "identity": "1f:a19c47b368a298184a9ecf7e36757d9927df2986c13f9f6509659e643db7c814"
+    },
+    {
+      "from": "parts/workflow-canvas/read-data/describe-step-fields.test.ts",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/read-data/describe-step-fields.test.ts",
+      "source_identity": "1f:b8058335c898d44e19e53c44a85d5feeb5b3143549a0346b28582548c338a090",
+      "identity": "1f:b8058335c898d44e19e53c44a85d5feeb5b3143549a0346b28582548c338a090"
+    },
+    {
+      "from": "parts/workflow-canvas/read-data/describe-step-fields.ts",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/read-data/describe-step-fields.ts",
+      "source_identity": "1f:1c5fe460d27728626e44fc1f47038ca61df878f97579f19cefc76d8b6ba9b0c2",
+      "identity": "1f:1c5fe460d27728626e44fc1f47038ca61df878f97579f19cefc76d8b6ba9b0c2"
+    },
+    {
+      "from": "parts/workflow-canvas/read-data/read-workflow-canvas-layout.ts",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/read-data/read-workflow-canvas-layout.ts",
+      "source_identity": "1f:ca36cca3e51c1d5fbc7d6e5a048e1afdfffe3f47d02d746e4b8ee87a76012867",
+      "identity": "1f:ca36cca3e51c1d5fbc7d6e5a048e1afdfffe3f47d02d746e4b8ee87a76012867"
+    },
+    {
+      "from": "parts/workflow-canvas/show/CanvasCommandOverlay.tsx",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/show/CanvasCommandOverlay.tsx",
+      "source_identity": "1f:d91eb40082e93027ddb603d4d9a08e3721ca0dac5cc7e6a7f0102b8f9fc6d2af",
+      "identity": "1f:d91eb40082e93027ddb603d4d9a08e3721ca0dac5cc7e6a7f0102b8f9fc6d2af"
+    },
+    {
+      "from": "parts/workflow-canvas/show/CanvasEmptyState.tsx",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/show/CanvasEmptyState.tsx",
+      "source_identity": "1f:edcf6be158bb83d100ed5d6bb981c59cef82ff0b43d9f888bb56ebb1db253a88",
+      "identity": "1f:edcf6be158bb83d100ed5d6bb981c59cef82ff0b43d9f888bb56ebb1db253a88"
+    },
+    {
+      "from": "parts/workflow-canvas/show/CanvasToolbar.tsx",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/show/CanvasToolbar.tsx",
+      "source_identity": "1f:4f5bd2acc28b43c76e5eeffe473a0cd7fc1c3c7a60ac087b3f0257811632b6f5",
+      "identity": "1f:4f5bd2acc28b43c76e5eeffe473a0cd7fc1c3c7a60ac087b3f0257811632b6f5"
+    },
+    {
+      "from": "parts/workflow-canvas/show/InjectDataPicker.tsx",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/show/InjectDataPicker.tsx",
+      "source_identity": "1f:d83d95d152615a29216c8b1d93544a9d2f18f7dfe0547546f1e1aded33831402",
+      "identity": "1f:d83d95d152615a29216c8b1d93544a9d2f18f7dfe0547546f1e1aded33831402"
+    },
+    {
+      "from": "parts/workflow-canvas/show/InspectorHeader.tsx",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/show/InspectorHeader.tsx",
+      "source_identity": "1f:2f8177d08128a0123894f693c335960bde5e03a0698457c624913809e7a09b1f",
+      "identity": "1f:2f8177d08128a0123894f693c335960bde5e03a0698457c624913809e7a09b1f"
+    },
+    {
+      "from": "parts/workflow-canvas/show/NextStepPopover.tsx",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/show/NextStepPopover.tsx",
+      "source_identity": "1f:5fbb9f4106f9a9eaaf6924455df41f69af3f34dd76417a73a0af58ba6cc5b21c",
+      "identity": "1f:5fbb9f4106f9a9eaaf6924455df41f69af3f34dd76417a73a0af58ba6cc5b21c"
+    },
+    {
+      "from": "parts/workflow-canvas/show/NodeActionMenu.tsx",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/show/NodeActionMenu.tsx",
+      "source_identity": "1f:b867355c4c1263cf44f227a02cc0f3590b2b6168745ea4072f34a0433ec04388",
+      "identity": "1f:b867355c4c1263cf44f227a02cc0f3590b2b6168745ea4072f34a0433ec04388"
+    },
+    {
+      "from": "parts/workflow-canvas/show/NodeInspector.tsx",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/show/NodeInspector.tsx",
+      "source_identity": "1f:cdf6287ae7a18ae2721f1e4edb28e0b763c6640bc9671d89f7c8b2c029db6d6e",
+      "identity": "1f:cdf6287ae7a18ae2721f1e4edb28e0b763c6640bc9671d89f7c8b2c029db6d6e"
+    },
+    {
+      "from": "parts/workflow-canvas/show/StepFieldRenderer.tsx",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/show/StepFieldRenderer.tsx",
+      "source_identity": "1f:8be0a68aaa617b02dd0fcbada827e916b6490d0b4ac38c97ab1bec7a79532983",
+      "identity": "1f:8be0a68aaa617b02dd0fcbada827e916b6490d0b4ac38c97ab1bec7a79532983"
+    },
+    {
+      "from": "parts/workflow-canvas/show/StepGraph.tsx",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/show/StepGraph.tsx",
+      "source_identity": "1f:9cdd7ed67b758ae2368a0b60acb13345087b85ebb2b542948e54203693fdd8d8",
+      "identity": "1f:9cdd7ed67b758ae2368a0b60acb13345087b85ebb2b542948e54203693fdd8d8"
+    },
+    {
+      "from": "parts/workflow-canvas/show/WaitDurationEditor.tsx",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/show/WaitDurationEditor.tsx",
+      "source_identity": "1f:d60d91ad49945d4e49653d697e807e5d8ab10438c55eb20883947f5ccb65c9e0",
+      "identity": "1f:d60d91ad49945d4e49653d697e807e5d8ab10438c55eb20883947f5ccb65c9e0"
+    },
+    {
+      "from": "parts/workflow-canvas/show/WorkflowCanvas.golden.test.tsx",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/show/WorkflowCanvas.golden.test.tsx",
+      "source_identity": "1f:a5b5fa4a9e99a1e9f5842ca0716a68bc7cb9463545835dbc6ff4f5768e4850b4",
+      "identity": "1f:a5b5fa4a9e99a1e9f5842ca0716a68bc7cb9463545835dbc6ff4f5768e4850b4"
+    },
+    {
+      "from": "parts/workflow-canvas/show/WorkflowCanvas.tsx",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/show/WorkflowCanvas.tsx",
+      "source_identity": "1f:9ff7ef5b6a9e6ed87cf4209eb39a5f454224df7a4ffa1683e1cc712fc3cc06b3",
+      "identity": "1f:9ff7ef5b6a9e6ed87cf4209eb39a5f454224df7a4ffa1683e1cc712fc3cc06b3"
+    },
+    {
+      "from": "parts/workflow-canvas/show/WorkflowNodeCard.tsx",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/show/WorkflowNodeCard.tsx",
+      "source_identity": "1f:d8ee01257d5cda7350052489f4183136135ad20a98818f874ebb00338e1d0aa5",
+      "identity": "1f:d8ee01257d5cda7350052489f4183136135ad20a98818f874ebb00338e1d0aa5"
+    },
+    {
+      "from": "parts/workflow-canvas/show/__snapshots__/WorkflowCanvas.golden.test.tsx.snap",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/show/__snapshots__/WorkflowCanvas.golden.test.tsx.snap",
+      "source_identity": "1f:2744e76ee0b0717d010d28fb648a08610b712c160e5d0643bc7eafc45073c9fb",
+      "identity": "1f:2744e76ee0b0717d010d28fb648a08610b712c160e5d0643bc7eafc45073c9fb"
+    },
+    {
+      "from": "parts/workflow-canvas/show/canvas-shortcuts.test.ts",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/show/canvas-shortcuts.test.ts",
+      "source_identity": "1f:09c0b5c42f530cc57df0a414b85d2f5601e68ecac42aa83d4794e07f9183bd04",
+      "identity": "1f:09c0b5c42f530cc57df0a414b85d2f5601e68ecac42aa83d4794e07f9183bd04"
+    },
+    {
+      "from": "parts/workflow-canvas/show/canvas-shortcuts.ts",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/show/canvas-shortcuts.ts",
+      "source_identity": "1f:8b5dcb494d29528ae6e8f9c3d797c8e50bc844d1ca1fb5d9fb10e1957c621ed4",
+      "identity": "1f:8b5dcb494d29528ae6e8f9c3d797c8e50bc844d1ca1fb5d9fb10e1957c621ed4"
+    },
+    {
+      "from": "parts/workflow-canvas/show/mount-workflow-canvas.tsx",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/show/mount-workflow-canvas.tsx",
+      "source_identity": "1f:eb792bf8e7c781001261574d5b1c4d731e4b041bced004bce571975ed26cfaa1",
+      "identity": "1f:eb792bf8e7c781001261574d5b1c4d731e4b041bced004bce571975ed26cfaa1"
+    },
+    {
+      "from": "parts/workflow-canvas/show/node-icon.tsx",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/show/node-icon.tsx",
+      "source_identity": "1f:f70685dc395f1e76bb2065026ac9dbf18c59dc18d76e959871c8f1ddb1e54b9c",
+      "identity": "1f:f70685dc395f1e76bb2065026ac9dbf18c59dc18d76e959871c8f1ddb1e54b9c"
+    },
+    {
+      "from": "parts/workflow-canvas/show/use-canvas-history.test.ts",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/show/use-canvas-history.test.ts",
+      "source_identity": "1f:afb85b7514822aab63dc0c4f40753c1e5a5b16c515149080f85d8ef3d48f0748",
+      "identity": "1f:afb85b7514822aab63dc0c4f40753c1e5a5b16c515149080f85d8ef3d48f0748"
+    },
+    {
+      "from": "parts/workflow-canvas/show/use-canvas-history.ts",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/show/use-canvas-history.ts",
+      "source_identity": "1f:c5f001c985cc132ab2cba117c9e7c545e70731d58e1bed918895b127b137dbcb",
+      "identity": "1f:c5f001c985cc132ab2cba117c9e7c545e70731d58e1bed918895b127b137dbcb"
+    },
+    {
+      "from": "parts/workflow-canvas/show/workflow-canvas-types.ts",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/show/workflow-canvas-types.ts",
+      "source_identity": "1f:056bf6774bbf33fb1880c7b455f3f05c6af8e63afd3eac29e65ab36e6b9df71c",
+      "identity": "1f:056bf6774bbf33fb1880c7b455f3f05c6af8e63afd3eac29e65ab36e6b9df71c"
+    },
+    {
+      "from": "src/workspace/workflow-canvas-records.ts",
+      "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
+      "to": "tools/see-what-is-being-worked-on/web/src/workspace/workflow-canvas-records.ts",
+      "source_identity": "1f:1b49bf7a5925aaef513e30ed91033bbb8b6a11f4edd19e0ab0362ed67caf6f35",
+      "identity": "1f:1b49bf7a5925aaef513e30ed91033bbb8b6a11f4edd19e0ab0362ed67caf6f35"
     }
   ]
 }

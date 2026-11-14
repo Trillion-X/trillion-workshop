@@ -74,3 +74,7 @@ It starts the first Chromium-family browser it finds (`WALK_BROWSER`, `CHROME_PA
 **Depends on:** Node 22 or later (its own `WebSocket` and `fetch`), a Chromium-family browser, ffmpeg for journey videos (without it the screencast frames stay as the evidence).
 
 **Depended on by:** Trillion, through `tool-rows.json`.
+
+## Web surface observation (the Playwright observer)
+
+`do-work/observe-surface.mjs` and `test/observe-a-running-web-surface.test.mjs` are moved byte for byte from bitfield-packages `packages/web-surface-observation` (receipt `from-bitfield-packages/web-surface-observation/moved-from.json`). It takes a plan file (`--plan`, `--readback`) of steps (goto, click, fill, press, wait_for, wait_ms, screenshot) aimed by selector, role or text, and reads elements, count, media readiness, text, global paths and attributes. `do-work/observe.mjs` is this tool's own observer without a browser library; the two are kept side by side.

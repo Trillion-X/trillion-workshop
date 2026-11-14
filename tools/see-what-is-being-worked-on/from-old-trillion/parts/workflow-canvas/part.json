@@ -1,0 +1,8 @@
+{
+  "public": [
+    "show/StepGraph.tsx",
+    "show/WorkflowEdge.tsx",
+    "show/mount-workflow-canvas.tsx",
+    "read-data/layered-layout.ts"
+  ]
+}

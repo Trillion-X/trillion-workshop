@@ -23,3 +23,7 @@ Every document in the input page must have exactly one unique origin-relative pa
 ## Checks
 
 Run `node --test tools/publish-content-for-discovery/test/*.test.mjs` from the Workshop checkout. The controls cover two unrelated origins, changed source versions, withdrawn visibility, retry, partial pages, escaping, source provenance, route validation and visitor serving.
+
+## Public document preparation
+
+`do-work/prepare-current-document.mjs`, `do-work/compose-public-sales-page.mjs`, `read-data/read-public-document-site.ts`, `show/` and `test/` hold the public document site package moved byte for byte from bitfield-packages `packages/public-document-site` (receipt `from-bitfield-packages/public-document-site/moved-from.json`, which also holds its README, build notes and records): prepare the current Documents revision with separate factual and writing reviews, and compose its public blocks. `test/compose-public-sales-page.test.mjs` and `test/public-document-site-boundary.test.ts` import `vitest`, which this repository does not install, so they are not run here.

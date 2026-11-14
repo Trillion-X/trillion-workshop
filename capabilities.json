@@ -301,7 +301,8 @@
       "capability": "project an authorized public document collection into consistent routes, rendered pages, Markdown, structured data and discovery feeds, and serve those projections against current source visibility",
       "owner": ["tools/publish-content-for-discovery/"],
       "entry": "tools/publish-content-for-discovery/tool-rows.json",
-      "evidence": "tools/publish-content-for-discovery/README.md: shared bounded collection preparation and read-only serving; account source rights and destination mutations remain with their existing owners",
+      "evidence": "tools/publish-content-for-discovery/README.md: shared bounded collection preparation and read-only serving; account source rights and destination mutations remain with their existing owners; from-bitfield-packages/public-document-site/ and do-work/prepare-current-document.mjs, do-work/compose-public-sales-page.mjs, read-data/read-public-document-site.ts and show/ carry the package that prepares the current Documents revision for publication with separate factual and writing reviews and composes its public blocks, moved byte for byte from bitfield-packages",
+      "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/public-document-site/"]},
       "distinct_from": [
         {"job": "check a public page the way search and answer engines read it (served HTML, no script run), score it against editable check rows and say how to fix each miss; add the language, address and dates a page leaves out; answer a page as Markdown when asked", "why": "The existing readiness owner audits served pages and supplies reused metadata helpers. This owner binds a paged document collection to routes and feeds, and rechecks its public source when serving."},
         {"job": "export a document tree to Word, PDF or other file formats", "why": "The existing export owner renders one document tree and is reused here. This owner adds collection, canonical-route, source-version and visibility contracts without another renderer."},
@@ -935,7 +936,8 @@
       "capability": "walk an app's user journeys in a real browser and keep evidence that people can still do what they came for",
       "owner": ["tools/walk-through-an-app-like-its-users/"],
       "entry": "tools/walk-through-an-app-like-its-users/tool-rows.json",
-      "evidence": "README.md:3 walks journeys written as DATA in a real browser, keeps a picture per step, a log and a video per journey; bitfield-packages/packages/web-surface-observation is this job, not ported"
+      "evidence": "README.md:3 walks journeys written as DATA in a real browser, keeps a picture per step, a log and a video per journey; bitfield-packages/packages/web-surface-observation (the Playwright observer, plans of steps and observations as DATA) is carried byte for byte as do-work/observe-surface.mjs and test/observe-a-running-web-surface.test.mjs beside this tool's own do-work/observe.mjs, the no-library rewrite of the same job (receipt from-bitfield-packages/web-surface-observation/moved-from.json)",
+      "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/web-surface-observation/"]}
     },
     {
       "capability": "show everything a person's account runs on its own: each schedule and trigger, its last and next run, and a switch",
@@ -1265,8 +1267,8 @@
       "capability": "practise with due reviews and guided drills: spaced repetition, decision practice, tactics",
       "owner": ["tools/practice-and-review/"],
       "entry": "tools/practice-and-review/tool-rows.json",
-      "evidence": "spaced-repetition README.md:1 due-review prompts; practice-decision-loop practises decisions from evidence; tactics-practice is chess tactics over it; the originals of bitfield-packages packages/spaced-repetition (scheduler, due-queue fold, next-record builder, queue view reader, review-response request, review surface and mount, the five __tests__) moved byte for byte from commit d926b7adb8ca24159ee64f47e7d9cae254f5b641 into read-data/, do-work/, show/ and __tests__/ (moved-from.json in each); wiring of the surface and request needs the retired runtime and stays held",
-      "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/spaced-repetition/things-to-store-and-run.json", "bitfield-packages/packages/spaced-repetition/proof/", "bitfield-packages/packages/spaced-repetition/reference-grounded-screen-contract.md"]}
+      "evidence": "spaced-repetition README.md:1 due-review prompts; practice-decision-loop practises decisions from evidence; tactics-practice is chess tactics over it; the originals of bitfield-packages packages/spaced-repetition (scheduler, due-queue fold, next-record builder, queue view reader, review-response request, review surface and mount, the five __tests__) moved byte for byte from commit d926b7adb8ca24159ee64f47e7d9cae254f5b641 into read-data/, do-work/, show/ and __tests__/ (moved-from.json in each); wiring of the surface and request needs the retired runtime and stays held; from-bitfield-packages/quiz-me-on-saved-items/ carries the package that turns a summarized saved item into recall questions and routes the answers into review and progress (its records and conformance test, moved byte for byte, not yet converted to rows of this model)",
+      "source_still_in": {"repo_kind":"retired bitfield-packages repository","paths":["bitfield-packages/packages/spaced-repetition/things-to-store-and-run.json","bitfield-packages/packages/spaced-repetition/proof/","bitfield-packages/packages/spaced-repetition/reference-grounded-screen-contract.md","bitfield-packages/packages/quiz-me-on-saved-items/"]}
     },
     {
       "capability": "decide with a method: start a decision, read its method (a saved view over the person's method rows) and record answers to any number of its rows in one call, make the decision once every row has an answer, report how it turned out, bring back the person's similar past decisions, and make a decided one safe to share",

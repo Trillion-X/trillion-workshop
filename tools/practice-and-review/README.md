@@ -42,3 +42,7 @@ Carried as generic mechanism: the next-record builder (`nextScheduleRecord`, wit
 **Depends on:** nothing (Node 24 in the tool container runs the scripts).
 
 **Depended on by:** `tool-rows.json` (the tool rows), Trillion's deploy (it bundles the files a row names), `test/practice-and-review.test.mjs`.
+
+## Quiz me on saved items
+
+`from-bitfield-packages/quiz-me-on-saved-items/` holds the package that turns a summarized saved item into recall questions and routes the answers into review and progress, moved byte for byte from bitfield-packages (its records, README and conformance test). The records are in the retired engine's shape; turning them into this model is not done.

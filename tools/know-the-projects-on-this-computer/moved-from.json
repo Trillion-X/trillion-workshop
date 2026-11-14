@@ -1,0 +1,106 @@
+{
+  "about": "Files moved here byte for byte from another code tree: each names its source path and commit, the identity of its source bytes and of its bytes here. Nothing was changed; a file that is not here (a proof script holding a computer path, a document naming a person) was held back.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/projects/do-work/add-known-project.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/know-the-projects-on-this-computer/do-work/add-known-project.ts",
+      "source_identity": "1f:4e9ebf4dd74c0e3bd792cf78928ddc407be7f313943bc6b26bc7c2497103c84b",
+      "identity": "1f:4e9ebf4dd74c0e3bd792cf78928ddc407be7f313943bc6b26bc7c2497103c84b"
+    },
+    {
+      "from": "packages/projects/do-work/hide-known-project.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/know-the-projects-on-this-computer/do-work/hide-known-project.ts",
+      "source_identity": "1f:f45609768ca4439ff6d0be2ab1fe05bda8a2c4e1cb633583dbc448b69b24ebcb",
+      "identity": "1f:f45609768ca4439ff6d0be2ab1fe05bda8a2c4e1cb633583dbc448b69b24ebcb"
+    },
+    {
+      "from": "packages/projects/do-work/pin-known-project.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/know-the-projects-on-this-computer/do-work/pin-known-project.ts",
+      "source_identity": "1f:a0c0f29ebababf9cadbb09e381344436026d137aa4700824b31be8c22a39e68c",
+      "identity": "1f:a0c0f29ebababf9cadbb09e381344436026d137aa4700824b31be8c22a39e68c"
+    },
+    {
+      "from": "packages/projects/do-work/process-scripts/read-known-projects.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/know-the-projects-on-this-computer/do-work/process-scripts/read-known-projects.py",
+      "source_identity": "1f:48359a540490e5824a1574a9688935b1d05616e2eddad4df6b96793eba6072a0",
+      "identity": "1f:48359a540490e5824a1574a9688935b1d05616e2eddad4df6b96793eba6072a0"
+    },
+    {
+      "from": "packages/projects/do-work/refresh-known-projects.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/know-the-projects-on-this-computer/do-work/refresh-known-projects.ts",
+      "source_identity": "1f:8e44c0f6bb444c3b200cdc0fe67f19082f44cb08c0a4802885fc096a5495edb2",
+      "identity": "1f:8e44c0f6bb444c3b200cdc0fe67f19082f44cb08c0a4802885fc096a5495edb2"
+    },
+    {
+      "from": "packages/projects/do-work/select-current-project.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/know-the-projects-on-this-computer/do-work/select-current-project.ts",
+      "source_identity": "1f:979f4addbe1e49ab5a0428c788448efb3d8f9ac2edbd7dd9a1d567b1e830ef85",
+      "identity": "1f:979f4addbe1e49ab5a0428c788448efb3d8f9ac2edbd7dd9a1d567b1e830ef85"
+    },
+    {
+      "from": "packages/projects/index.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/know-the-projects-on-this-computer/index.tsx",
+      "source_identity": "1f:f82fcfc9cd722cf4ab17df61a799de987f42ac6a57cad301bfccb0e847bcbb89",
+      "identity": "1f:f82fcfc9cd722cf4ab17df61a799de987f42ac6a57cad301bfccb0e847bcbb89"
+    },
+    {
+      "from": "packages/projects/read-data/read-current-project.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/know-the-projects-on-this-computer/read-data/read-current-project.ts",
+      "source_identity": "1f:258c3d4915545fb4fbeb98924bfdf5206b0b1ec4ba71bfad6fab139e15057276",
+      "identity": "1f:258c3d4915545fb4fbeb98924bfdf5206b0b1ec4ba71bfad6fab139e15057276"
+    },
+    {
+      "from": "packages/projects/read-data/read-json-payload.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/know-the-projects-on-this-computer/read-data/read-json-payload.ts",
+      "source_identity": "1f:64b8678b6ce342da33ee6d8cc94bf162bc23b8b13d7f0f68f894a68329232009",
+      "identity": "1f:64b8678b6ce342da33ee6d8cc94bf162bc23b8b13d7f0f68f894a68329232009"
+    },
+    {
+      "from": "packages/projects/read-data/read-known-projects.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/know-the-projects-on-this-computer/read-data/read-known-projects.ts",
+      "source_identity": "1f:aeb46ec9e0e928a63ca0cfad23be0a450dd68c5eb9e74503ba62e4f0bdf0d9c8",
+      "identity": "1f:aeb46ec9e0e928a63ca0cfad23be0a450dd68c5eb9e74503ba62e4f0bdf0d9c8"
+    },
+    {
+      "from": "packages/projects/show/ProjectCard.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/know-the-projects-on-this-computer/show/ProjectCard.tsx",
+      "source_identity": "1f:50c04083e7f932e1f9ce3ce8eb2c2c0e9456952c1b95440c412d94063847d897",
+      "identity": "1f:50c04083e7f932e1f9ce3ce8eb2c2c0e9456952c1b95440c412d94063847d897"
+    },
+    {
+      "from": "packages/projects/show/ProjectsPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/know-the-projects-on-this-computer/show/ProjectsPanel.tsx",
+      "source_identity": "1f:2f6a2272953046778de7e68737c95a984d6c9b16d34e409fd29469508e9d97ab",
+      "identity": "1f:2f6a2272953046778de7e68737c95a984d6c9b16d34e409fd29469508e9d97ab"
+    },
+    {
+      "from": "packages/projects/show/mount-projects.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/know-the-projects-on-this-computer/show/mount-projects.tsx",
+      "source_identity": "1f:c5048ec6f5f2630780660e0a60c2afbc162c417c0c2ea3e0cc5d6bb27a72a479",
+      "identity": "1f:c5048ec6f5f2630780660e0a60c2afbc162c417c0c2ea3e0cc5d6bb27a72a479"
+    },
+    {
+      "from": "packages/projects/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/know-the-projects-on-this-computer/from-bitfield-packages/projects/things-to-store-and-run.json",
+      "source_identity": "1f:4e30e623f8fd46ddaadda6cefe29f8d2e4129f0eead0f9a88050ce3f99d53ee9",
+      "identity": "1f:4e30e623f8fd46ddaadda6cefe29f8d2e4129f0eead0f9a88050ce3f99d53ee9"
+    }
+  ]
+}
