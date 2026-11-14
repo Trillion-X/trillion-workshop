@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:classify-a-record's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Give a record the label of the first of my rules that holds: each rule has clauses over facts read from the record (is present, is absent, at least, at most, equals), and I get the rule's key, label, tone and severity, or none\", with {\"facts\":[{\"key\":\"collected\",\"path\":[\"collected_at\"],\"as\":\"present\"},{\"key\":\"waiting\",\"path\":[\"ordered_at\"],\"as\":\"age-seconds\"}],\"rules\":[{\"key\":\"forgotten\",\"label\":\"Forgotten order\",\"tone\":\"alarm\",\"requires\":[{\"fact\":\"collected\",\"op\":\"absent\"},{\"fact\":\"waiting\",\"op\":\"gte\",\"value\":1800}]},{\"key\":\"done\",\"label\":\"Collected\",\"requires\":[{\"fact\":\"collected\",\"op\":\"present\"}]}] .... It runs tool:classify-a-record and answers {\"result\":{\"key\":\"forgotten\",\"label\":\"Forgotten order\",\"tone\":\"alarm\",\"severity\":null}}",
   "lists": [],

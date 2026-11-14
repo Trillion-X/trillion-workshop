@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:check-community-matching-settings's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Check that a community's matching settings can run: cadence, sizes, the evidence contract and the questions that cover every factor's citations, consent, follow-up hours, words for every job, refusal and state, contact pattern, limits and experiments\", with {\"community\":{\"title\":\"Sample\",\"owner\":\"sample-person\",\"created_at\":\"2031-01-01T00:00:00.000Z\",\"matching\":{}}}. It runs tool:check-community-matching-settings and answers {\"usable\":false,\"problems\":[\"matching.every_days is a number above 0.\",\"matching.round_hours is a number above 0.\",\"matching.shortlist_size is a whole number above 0.\",\"matching.posting_cap is a whole number above 0.\",\"matching.group_size is a whole number, 2 or more.\",\"matching.cadence_label says how often, in words.\",\"matching.default_on is true or false.\",\"matching.contract: contract must be { ...",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:keep-a-profile's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep the profile of how a person does their thing, so drafts made for them are shaped by it and checked against it\", with {\"profile_ref\":\"profile:bakery-voice\",\"subject_ref\":\"baker:1\",\"derived_items\":[{\"kind\":\"tone\",\"value\":\"warm\",\"evidence\":\"post:1\"}],\"evaluator_refs\":[\"evaluator:tone\"]}. It runs tool:keep-a-profile and answers {\"profile\":{\"type\":\"profile\",\"id\":\"profile:bakery-voice\",\"subject_ref\":\"baker:1\",\"feature_schema_refs\":[],\"evaluator_refs\":[\"evaluator:tone\"],\"generator_refs\":[],\"derived_items\":[{\"kind\":\"tone\",\"value\":\"warm\",\"evidence\":\"post:1\"}]}}",
   "lists": [],

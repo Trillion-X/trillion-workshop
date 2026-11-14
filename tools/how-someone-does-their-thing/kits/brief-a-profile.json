@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:brief-a-profile's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Work out how a person or creator does their thing, such as their style or voice, from what they have made or said\", with {\"profile_ref\":\"profile:bakery-voice\",\"subject_ref\":\"baker:1\",\"subject_records\":[{\"text\":\"Warm loaves, no fuss.\"}]}. It runs tool:brief-a-profile and answers {\"brief\":{\"profile_ref\":\"profile:bakery-voice\",\"subject_ref\":\"baker:1\",\"subject_records\":[{\"text\":\"Warm loaves, no fuss.\"}],\"rules\":[\"Use only the supplied subject records.\",\"Derive self-describing items about how the subject does their thing that can condition future drafts and check their fit.\",\"Keep feature, evaluator, generator and validation references as refs, not prose.\",\"Answer with items ...",
   "lists": [],

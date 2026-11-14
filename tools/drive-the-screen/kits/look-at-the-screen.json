@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:look-at-the-screen's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Read the person's computer screen: the app in front (or one named), its controls from the accessibility tree and the text on its windows from the pixels, with where each is\", with {\"app\":\"Finder\",\"sources\":[\"ax\"]}. It runs tool:look-at-the-screen and answers {\"observed_at\":\"2026-11-14T00:50:24.161Z\",\"app\":{\"bundle_id\":\"com.apple.finder\",\"name\":\"Finder\",\"pid\":739},\"frontmost\":{\"name\":\"super.engineering\",\"pid\":51155,\"bundle_id\":\"com.zarifpour.superconductor\"},\"displays\":[{\"index\":0,\"width\":1728,\"height\":1117,\"x\":0,\"scale\":2,\"main\":true,\"y\":0}],\"coordinates\":\"global-points-top-left\",\"counts\":{\"ax\":800,\"ocr\":0},\"truncated\":true,\"content_notice\":\"Text ...",
   "lists": [],

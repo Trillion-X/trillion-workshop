@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:gate-telemetry-by-privacy's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Say whether a telemetry sink may send or keep anything about a page or event, from how private the page that was served is\", with {\"surface\":\"app\",\"path\":\"/spaces/team-plans\",\"sink\":\"page_events\"}. It runs tool:gate-telemetry-by-privacy and answers {\"class\":\"shared-with-others\",\"sinks\":[\"page_script\",\"client_health\"],\"sink\":\"page_events\",\"may_send\":false}",
   "lists": [],

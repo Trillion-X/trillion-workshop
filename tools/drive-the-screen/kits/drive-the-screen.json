@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:drive-the-screen's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Click, press, type, scroll, drag or use keys on the person's computer, finding the target by what it is called and checking afterwards what really changed\", with {\"action\":\"key\",\"keys\":\"escape\",\"app\":\"Finder\",\"dry_run\":true}. It runs tool:drive-the-screen and answers {\"error\":\"The person is using this-mac right now (their last input was 0 seconds ago). Wait until they have left it alone for 5 seconds.\",\"retry\":true,\"retry_after_ms\":4893,\"reaction\":\"retry\"}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-spend-rails's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"See which ways my AI may pay (card, bank, x402 and others) and which rail rows are refused\", with {}. It runs tool:read-spend-rails and answers {\"rails\":[{\"id\":\"payment-rail:x402\",\"label\":\"x402\",\"enabled\":false,\"spend_authority_ref\":\"spend-authority:x402\",\"credential_ref\":\"credential:x402-signing-key\",\"settles_with\":\"tool:settle-an-x402-payment\"}],\"refused\":[]}",
   "lists": [],

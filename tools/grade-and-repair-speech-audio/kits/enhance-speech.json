@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:enhance-speech's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Clean the noise out of a recording on my own computer with what it can afford, and tell me where the speech is\", with {\"file\":\"/Recordings/sample-talk.wav\",\"ffmpeg\":\"ffmpeg\",\"cpu_budget\":1}. It runs tool:enhance-speech and answers {\"tier\":\"light\",\"why\":null,\"output\":\"/Recordings/sample-talk.clean.wav\",\"speech\":[{\"start\":1,\"end\":4}],\"budget\":1,\"file\":\"/Recordings/sample-talk.wav\"}",
   "lists": [],

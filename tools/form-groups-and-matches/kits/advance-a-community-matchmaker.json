@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:advance-a-community-matchmaker's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Pair a community's members on its cadence without anyone asking: start a round when it is due, close it at its deadline, make introductions everyone said yes to, and follow up the ones nobody acted on\", with {\"community_id\":\"sample-verify-community\"}. It runs tool:advance-a-community-matchmaker and answers {\"ok\":false,\"error\":\"No community sample-verify-community keeps matching settings here.\",\"status\":404}",
   "lists": [],

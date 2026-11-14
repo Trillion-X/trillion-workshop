@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:find-on-the-screen's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Say where a described thing is on the person's screen right now (a button, a field, a line of text) without touching it\", with {\"app\":\"Finder\",\"target\":{\"match\":{\"role\":\"AXMenuBar\"}},\"sources\":[\"ax\"]}. It runs tool:find-on-the-screen and answers {\"observed_at\":\"2026-11-14T00:50:24.169Z\",\"app\":{\"bundle_id\":\"com.apple.finder\",\"name\":\"Finder\",\"pid\":739},\"frontmost\":{\"bundle_id\":\"com.zarifpour.superconductor\",\"name\":\"super.engineering\",\"pid\":51155},\"displays\":[{\"height\":1117,\"scale\":2,\"width\":1728,\"main\":true,\"x\":0,\"index\":0,\"y\":0}],\"coordinates\":\"global-points-top-left\",\"counts\":{\"ax\":800,\"ocr\":0},\"truncated\":true,\"content_notice\":\"Text ...",
   "lists": [],

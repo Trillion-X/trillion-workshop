@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:work-out-history-values's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Work out, from the values a field of a row has held over time, the value it held at a moment, the value before the current one, since when it holds it, how long it spent holding a value and whether it ever held one\", with {\"now_ms\":1760832000000,\"kept\":{\"_history\":{\"stage\":{\"cut\":false,\"steps\":[{\"v\":\"Lead\",\"at\":\"2025-10-09T00:00:00.000Z\"},{\"v\":\"Won\",\"at\":\"2025-10-17T00:00:00.000Z\"}]}}},\"fields\":[{\"id\":\"was\",\"history\":{\"field\":\"stage\",\"op\":\"previous_value\"}}]}. It runs tool:work-out-history-values and answers {\"values\":{\"was\":\"Lead\"}}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:export-a-document-to-a-file's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Turn one document made of headings, words, lists, tables, graphs, calendar events and pictures into a file in the format asked for, and give the file back\", with {\"document\":{\"title\":\"Money\",\"blocks\":[{\"kind\":\"table\",\"columns\":[\"Name\",\"Amount\"],\"rows\":[[\"Acme, Inc.\",1200.5],[\"Birch\",300]]}]},\"format\":\"csv\"}. It runs tool:export-a-document-to-a-file and answers {\"format_id\":\"csv\",\"filename\":\"money.csv\",\"extension\":\"csv\",\"mime\":\"text/csv\",\"byte_length\":45,\"base64\":\"TmFtZSxBbW91bnQNCiJBY21lLCBJbmMuIiwxMjAwLjUNCkJpcmNoLDMwMA0K\",\"text\":\"Name,Amount\\r\\n\\\"Acme, Inc.\\\",1200.5\\r\\nBirch,300\\r\\n\"}",
   "lists": [],

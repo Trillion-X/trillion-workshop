@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:evaluate-a-formula's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Evaluate a formula over each row of a list: read a value from the row, then run a pipeline of steps (and, or, not, equals, more than, less than, is in a list, position in a list, lower-case, contains, starts with, join, is empty, is unknown) over it\", with {\"binding\":{\"$kind\":\"binding\",\"select\":{\"from\":\"self\",\"path\":[\"name\"]},\"transform\":[{\"op\":\"op:core.lower\"},{\"op\":\"op:core.contains\",\"args\":{\"value\":\"rye\"}}]},\"rows\":[{\"name\":\"Dark RYE loaf\"},{\"name\":\"Scone\"},{\"name\":null}]}. It runs tool:evaluate-a-formula and answers {\"values\":[true,false,null],\"errors\":[]}",
   "lists": [],

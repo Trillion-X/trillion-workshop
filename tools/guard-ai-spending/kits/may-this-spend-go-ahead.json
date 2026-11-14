@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:may-this-spend-go-ahead's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Just before my AI pays, check that the spend still holds its one current budget reservation\", with {\"spend_authority_ref\":\"spend-authority:sample-research\",\"operation_ref\":\"operation:sample-report\",\"idempotency_key\":\"idem:sample-one\"}. It runs tool:may-this-spend-go-ahead and answers {\"available\":true,\"reason\":\"budget admitted\",\"amount\":250,\"fencing_token\":\"spend-authority-budget-fence:idem:sample-one\"}",
   "lists": [],

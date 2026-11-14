@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:check-a-draft-against-a-profile's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Check that a draft made for a person carries the references to the profile that shaped it and the profile it is checked by\", with {\"draft\":{\"blocks\":[{\"text\":\"Fresh today.\",\"profile_ref\":\"profile:bakery-voice\"}]},\"required_ref_fields\":[\"profile_ref\"],\"profile_ref\":\"profile:bakery-voice\"}. It runs tool:check-a-draft-against-a-profile and answers {\"fits\":true,\"rules\":[{\"field\":\"profile_ref\",\"passed\":true,\"reason\":\"\"}]}",
   "lists": [],

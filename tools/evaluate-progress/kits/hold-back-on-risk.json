@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:hold-back-on-risk's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Hold an output back, and give the person's own support resources instead, when its risk is too high or unknown\", with {\"assessment\":{\"evaluated\":true,\"risk\":0.9,\"categories\":[\"spoilage\"]},\"threshold\":0.5,\"support_resources\":[\"Call the supplier line\"]}. It runs tool:hold-back-on-risk and answers {\"release\":false,\"hold_back\":true,\"reason\":\"risk is at or above the threshold: held back\",\"support_resources\":[\"Call the supplier line\"],\"categories\":[\"spoilage\"]}",
   "lists": [],

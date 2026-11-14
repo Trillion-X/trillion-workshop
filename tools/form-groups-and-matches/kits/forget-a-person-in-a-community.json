@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:forget-a-person-in-a-community's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Erase a person from a community's matching: what they told it, every match naming them, their asks, answers and jobs, and their place and scores on other members' shortlists and score jobs\", with {\"community_id\":\"sample-verify-community\",\"person\":\"sample-person\"}. It runs tool:forget-a-person-in-a-community and answers {\"ok\":false,\"error\":\"No community sample-verify-community keeps matching settings here.\",\"status\":404}",
   "lists": [],

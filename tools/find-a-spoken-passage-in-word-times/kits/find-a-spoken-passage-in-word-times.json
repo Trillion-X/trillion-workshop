@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:find-a-spoken-passage-in-word-times's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Tell me the exact seconds a passage I quote starts and ends in a recording, read a recording's words back as timed sentences, or keep its word times in the one file shape my plans cut from\", with {\"step\":\"span\",\"words\":\"take.words.json\",\"first\":\"then\",\"last\":\"wait\"}. It runs tool:find-a-spoken-passage-in-word-times and answers {\"step\":\"span\",\"words\":\"/granted-jNUzLv/take.words.json\",\"start\":1,\"end\":2.4,\"text\":\"Then we wait.\"}",
   "lists": [

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-a-fields-history's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Read one field's history of one row as lines a person reads: each value it held, from when until when, who changed it and by which road\", with {\"list\":{\"id\":\"deals\",\"fields\":[{\"id\":\"stage\",\"keeps_history\":true}]},\"row_id\":\"sample\",\"field_id\":\"stage\",\"kept\":{\"_history\":{\"stage\":{\"cut\":false,\"steps\":[{\"v\":\"Lead\",\"at\":\"2025-10-09T00:00:00.000Z\",\"via\":{\"app\":\"Sample App\",\"basis\":\"client_declared\"}}]}}}}. It runs tool:read-a-fields-history and answers {\"list_id\":\"deals\",\"row_id\":\"sample\",\"field_id\":\"stage\",\"complete\":true,\"steps\":[{\"value\":\"Lead\",\"from\":\"2025-10-09T00:00:00.000Z\",\"until\":null,\"said\":\"You via Sample App (as the app says)\"}]}",
   "lists": [],

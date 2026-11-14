@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:see-ai-work's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Show me the jobs my AIs handed each other: what is waiting, who took what, and what each finished with\", with {\"status\":\"waiting\"}. It runs tool:see-ai-work and answers {\"jobs\":[{\"id\":\"ai-job:sample-1\",\"status\":\"waiting\",\"job\":\"Write a made-up sample report\",\"to\":null,\"from\":\"ai:sample-sender\",\"priority\":5,\"sent_at\":\"2026-11-03T00:00:00.000Z\"}],\"more\":false}",
   "lists": [],

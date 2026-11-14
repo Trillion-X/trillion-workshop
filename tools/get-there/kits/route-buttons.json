@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:route-buttons's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Give one-tap buttons that open the route to a place in each maps app, from a start and through stops on the way\", with {\"destination\":\"1 Example Street, Sampleton\",\"origin\":\"1 Example Street, Sampleton\",\"mode\":\"walk\"}. It runs tool:route-buttons and answers {\"buttons\":[{\"id\":\"apple-maps\",\"label\":\"Open in Apple Maps\",\"url\":\"https://maps.apple.com/directions?source=1%20Example%20Street%2C%20Sampleton&destination=1%20Example%20Street%2C%20Sampleton&mode=walking\"},{\"id\":\"google-maps\",\"label\":\"Open in Google Maps\" ...",
   "lists": [],

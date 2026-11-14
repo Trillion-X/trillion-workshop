@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:unstage-changes's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Take chosen files in a project on the person's computer out of the next commit, leaving the files as they are\", with {\"folder\":\"/projects/sample\",\"paths\":[\"notes.txt\"]}. It runs tool:unstage-changes and answers {\"folder\":\"/projects/sample\",\"branch\":\"main\",\"ahead\":1,\"behind\":0,\"changes\":[{\"file_path\":\"notes.txt\",\"bucket\":\"unstaged\",\"status\":\"M\"},{\"file_path\":\"scratch.txt\",\"bucket\":\"untracked\",\"status\":\"?\"}]}",
   "lists": [],

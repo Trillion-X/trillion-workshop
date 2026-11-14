@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:answer-the-needs-you-hold-route's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Answer the Trillion page routes GET and POST /work/api/needs-you-hold: the one thing held for me now, and setting it aside, handing it back, choosing a stake, asking off or turning it on\", with {\"path\":\"/needs-you-hold\",\"method\":\"GET\",\"query\":{},\"body\":{},\"browser\":{}}. It runs tool:answer-the-needs-you-hold-route and answers {\"status\":200,\"body\":{\"on\":true,\"held\":null,\"ranked\":[],\"every_seconds\":90,\"asides_left\":0,\"hand_back\":[],\"stakes\":[],\"said\":\"Nothing is holding you.\",\"words\":{\"free\":\"Nothing is holding you.\"}}}",
   "lists": [],

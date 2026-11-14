@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:reserve-a-spend-within-budget's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Before my AI spends money, check the spend against my budget and reserve it, or refuse it\", with {\"spend_authority_ref\":\"spend-authority:sample-research\",\"operation_ref\":\"operation:sample-report\",\"estimated_cost\":250,\"idempotency_key\":\"idem:sample-one\"}. It runs tool:reserve-a-spend-within-budget and answers {\"approved\":true,\"reason\":\"ok\",\"idempotent\":false,\"budget_check\":{\"kind\":\"spend_budget_check\",\"check_ref\":\"spend-budget-check:operation:sample-report\",\"operation_ref\":\"operation:sample-report\",\"spend_authority_ref\":\"spend-authority:sample-research\",\"wallet_ref\":\"spend-authority:sample-research\",\"rail_ref\":\"payment-rail:unspecified\",\"spender_id\":\"\",\"agent_id\":\"\",\"idempotency_key\":\"idem:sample-one\" ...",
   "lists": [],

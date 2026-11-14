@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:place-a-section-in-a-markdown-document's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Put one named section into a markdown document without repeating it: replace the section with the same heading, or add it at the end\", with {\"document_text\":\"# Notes\\n\\n## One\\n\\nOld.\\n\\n## Two\\n\\nKeep.\\n\",\"section_text\":\"## One\\n\\nNew.\\n\"}. It runs tool:place-a-section-in-a-markdown-document and answers {\"text\":\"# Notes\\n\\n## One\\n\\nNew.\\n\\n## Two\\n\\nKeep.\\n\",\"placement\":\"replaced\",\"heading\":\"## One\"}",
   "lists": [],

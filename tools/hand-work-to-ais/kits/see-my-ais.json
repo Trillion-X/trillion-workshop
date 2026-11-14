@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:see-my-ais's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Show me my AIs and computers: which are live now, what each can do and how many jobs each is doing\", with {\"can\":[\"code\"]}. It runs tool:see-my-ais and answers {\"ais\":[{\"id\":\"ai:sample-sender\",\"value\":{\"label\":\"Sample sample-sender\",\"can\":[\"code\"],\"order\":1,\"live\":{\"seen_at\":\"2026-11-03T00:00:00.000Z\",\"minutes\":10}},\"live\":false,\"seen_at\":\"2026-11-03T00:00:00.000Z\",\"busy\":0},{\"id\":\"ai:sample-taker\",\"value\":{\"label\":\"Sample sample-taker\",\"can\":[\"code\"],\"order\":2,\"live\":{\"seen_at\":\"2026-11-03T00:00:00.000Z\",\"minutes\":10}},\"live\":false ...",
   "lists": [],

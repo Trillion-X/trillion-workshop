@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:find-pictures-by-colour-and-likeness's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Find my pictures by a colour I type or name, or find pictures like one I pick\", with {\"rows\":[{\"id\":\"sea\",\"palette\":[\"#1e5aa8\"]},{\"id\":\"fire\",\"palette\":[\"#d02010\"]}],\"colour\":\"#1f5ba9\"}. It runs tool:find-pictures-by-colour-and-likeness and answers {\"ids\":[\"sea\"],\"by\":\"colour\",\"asked\":[{\"hex\":\"#1f5ba9\"}]}",
   "lists": [],

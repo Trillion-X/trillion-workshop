@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-my-community-matches's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"See who a community's matchmaker proposed for me and where each introduction stands, what my profile still misses, the shortlist my AI still has to score, and fellow members who share my categories\", with {\"community_id\":\"sample-verify-community\",\"person\":\"sample-person\"}. It runs tool:read-my-community-matches and answers {\"ok\":false,\"error\":\"No community sample-verify-community keeps matching settings here.\",\"status\":404}",
   "lists": [],

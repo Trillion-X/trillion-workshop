@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:list-email-sending-domains's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"See which domains my email-sending account can send from and whether each is verified\", with {}. It runs tool:list-email-sending-domains and answers {\"domains\":[{\"name\":\"example.com\",\"status\":\"verified\"},{\"name\":\"mail.example.test\",\"status\":\"pending\"}],\"count\":2}",
   "lists": [],

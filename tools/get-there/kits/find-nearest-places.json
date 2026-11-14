@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:find-nearest-places's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Find the nearest stores or places of a brand or name around a start, each with route buttons\", with {\"name\":\"Sample Coffee\",\"near\":{\"lat\":40,\"lon\":-105},\"radius_km\":5,\"most\":2,\"mode\":\"walk\"}. It runs tool:find-nearest-places and answers {\"places\":[{\"name\":\"Sample Coffee\",\"address\":\"1 Example Street, Sampletown\",\"lat\":40.004,\"lon\":-105.002,\"km\":0.5,\"opening_hours\":\"Mo-Fr 07:00-18:00\",\"id\":\"node/1000001\",\"buttons\":[{\"id\":\"apple-maps\",\"label\":\"Open in Apple Maps\",\"url\":\"https://maps.apple.com/directions?source=40%2C-105&destination=Sample%20Coffee%2C%201%20Example%20Street%2C%20Sampletown&mode=walking\"},{\"id\":\"google-maps\" ...",
   "lists": [],

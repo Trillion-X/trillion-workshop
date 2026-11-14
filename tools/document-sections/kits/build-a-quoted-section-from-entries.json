@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:build-a-quoted-section-from-entries's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Write one markdown section out of a list of entries (what people said or wrote), keeping every entry's words exactly as they came in\", with {\"heading\":\"What was said\",\"sources\":[{\"document\":{\"session_id\":\"first\",\"messages\":[{\"ordinal\":1,\"content\":\"One line.\"}]}}]}. It runs tool:build-a-quoted-section-from-entries and answers {\"text\":\"## What was said\\n\\n### first (1)\\n\\n**#1**\\n\\n> One line.\\n\",\"entries\":1,\"sources\":1}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:hand-a-job-to-an-ai's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Give a job to another of my AIs (a named one, or any of them) so it is waiting for that AI to take\", with {\"as\":\"ai:sample-sender\",\"job\":\"Write a made-up sample report\",\"to\":\"ai:sample-taker\",\"key\":\"sample-1\"}. It runs tool:hand-a-job-to-an-ai and answers {\"job_id\":\"ai-job:sample-1\",\"status\":\"written\",\"job\":{\"id\":\"ai-job:sample-1\",\"status\":\"waiting\",\"job\":\"Write a made-up sample report\",\"to\":\"ai:sample-taker\",\"from\":\"ai:sample-sender\",\"priority\":5,\"sent_at\":\"2026-11-14T00:50:23.608Z\"}}",
   "lists": [],

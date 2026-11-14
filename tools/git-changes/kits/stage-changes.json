@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:stage-changes's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Add chosen files in a project on the person's computer to the next commit\", with {\"folder\":\"/projects/sample\",\"paths\":[\"notes.txt\"]}. It runs tool:stage-changes and answers {\"folder\":\"/projects/sample\",\"branch\":\"main\",\"ahead\":1,\"behind\":0,\"changes\":[{\"file_path\":\"notes.txt\",\"bucket\":\"unstaged\",\"status\":\"M\"},{\"file_path\":\"scratch.txt\",\"bucket\":\"untracked\",\"status\":\"?\"}]}",
   "lists": [],

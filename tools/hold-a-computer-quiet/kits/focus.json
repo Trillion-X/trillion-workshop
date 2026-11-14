@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:focus's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Switch Do Not Disturb on the person's computer on or off\", with {\"on\":false}. It runs tool:focus and answers {\"focus\":\"off\",\"switched\":false,\"needs_person\":\"Press Add Shortcut in the Shortcuts window that just opened (once on this Mac), then Focus switches by itself.\",\"said\":\"Press Add Shortcut in the Shortcuts window that just opened (once on this Mac), then Focus switches by itself.\"}",
   "lists": [],

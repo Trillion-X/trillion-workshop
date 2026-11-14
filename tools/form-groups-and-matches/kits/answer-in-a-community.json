@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:answer-in-a-community's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Give a community's matchmaker what it asked for: a member's answers and on/off switch, an AI's cited scores for its shortlist, a person's yes or no to an introduction, first topics, or that they wrote in the one-to-one\", with {\"community_id\":\"sample-verify-community\",\"person\":\"sample-person\",\"kind\":\"profile\",\"answers\":{}}. It runs tool:answer-in-a-community and answers {\"ok\":false,\"error\":\"No community sample-verify-community keeps matching settings here.\",\"status\":404}",
   "lists": [],

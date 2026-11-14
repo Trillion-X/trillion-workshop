@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:change-a-document-row's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Change or remove fields of documents' frontmatter in a folder I granted, write a whole document or remove one, each only if the document is still the one I read\", with {\"rows\":[{\"id\":\"/notes/plan.md\",\"values\":{\"note.status\":\"done\"},\"if_identity\":\"1f:ddd90c328f560d726224da1ede548f7bfd2ab198335379d213f867a742e21da2\"}]}. It runs tool:change-a-document-row and answers {\"kept\":[{\"id\":\"/notes/plan.md\",\"values\":{\"note.status\":\"done\",\"file.name\":\"plan.md\",\"file.basename\":\"plan\",\"file.ext\":\"md\",\"file.path\":\"/notes/plan.md\",\"file.folder\":\"/notes\",\"file.size\":35,\"file.ctime\":\"2026-11-14T00:50:20.307Z\",\"file.mtime\":\"2026-11-14T00:50:20.308Z\",\"file.identity\":\"1f:454ad62170dcadf8e5dafc466574e744edd1d9b19bd4f45f3328da4353693eca\",\"file.links\":[],\"file.embeds\":[] ...",
   "lists": [],

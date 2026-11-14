@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:check-if-a-tour-step-may-advance's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Decide whether a guided-tour step has met its advance condition: tapped next, touched the highlighted thing, answered, watched enough of a video, waited long enough, finished an embedded form, or a fact someone looked up has the right value\", with {\"condition\":{\"op\":\"any-of\",\"args\":{\"of\":[{\"op\":\"tap-next\"},{\"op\":\"timeout\",\"args\":{\"ms\":5000}}]}},\"signals\":{\"elapsed_ms\":6000}}. It runs tool:check-if-a-tour-step-may-advance and answers {\"may_advance\":true}",
   "lists": [],

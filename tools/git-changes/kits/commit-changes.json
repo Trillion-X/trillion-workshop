@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:commit-changes's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Commit what is chosen for the next commit in a project on the person's computer, with a message\", with {\"folder\":\"/projects/sample\",\"message\":\"Sample commit\"}. It runs tool:commit-changes and answers {\"folder\":\"/projects/sample\",\"branch\":\"main\",\"ahead\":1,\"behind\":0,\"changes\":[{\"file_path\":\"notes.txt\",\"bucket\":\"unstaged\",\"status\":\"M\"},{\"file_path\":\"scratch.txt\",\"bucket\":\"untracked\",\"status\":\"?\"}]}",
   "lists": [],

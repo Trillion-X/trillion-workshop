@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:measure-funnel-stages's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Count how many visitors reached each stage of a funnel, how many converted and the revenue each stage brought\", with {\"facts\":[{\"stage\":\"front\",\"amount_cents\":900},{\"stage\":\"front\"},{\"stage\":\"extra\",\"converted\":true}],\"stage_ids\":[\"front\",\"extra\"],\"group_by\":\"stage\",\"amount_field\":\"amount_cents\"}. It runs tool:measure-funnel-stages and answers {\"stages\":{\"front\":{\"visits\":2,\"conversions\":1,\"conversion_rate\":50,\"revenue_cents\":900},\"extra\":{\"visits\":1,\"conversions\":1,\"conversion_rate\":100,\"revenue_cents\":0}},\"facts_read\":3,\"facts_unplaced\":0}",
   "lists": [],

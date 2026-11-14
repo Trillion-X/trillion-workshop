@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:keep-a-voice-edit's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep what the person changed in words an AI wrote for them, so their voice is learned from it\", with {\"before\":\"Same words.\",\"after\":\"Same words.\"}. It runs tool:keep-a-voice-edit and answers {\"edit\":null}",
   "lists": [],

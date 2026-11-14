@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-voice's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Read how this person writes before drafting anything for them: a post, an email, a message\", with {}. It runs tool:read-voice and answers {\"how_to_use\":\"Write the way this person writes. Read profiles first, then the edits: each edit is an AI's draft (before) beside the words the person changed it to (after). After drafting, if their edits show something the profile lacks, save it with tool:save-voice. Sent shows words they published. A profile's builds_on names the profiles it sits on: read them first, earliest first, and let each ...",
   "lists": [],

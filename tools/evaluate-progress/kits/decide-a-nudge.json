@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:decide-a-nudge's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Decide whether a person should get a nudge now, honouring their opt-out and a rate limit\", with {\"context\":{\"risk\":0.8,\"rate_limit_ok\":true},\"risk_threshold\":0.5,\"tone\":\"warm\",\"framing_ref\":\"framing:welcome-back\"}. It runs tool:decide-a-nudge and answers {\"nudge\":true,\"tone\":\"warm\",\"framing_ref\":\"framing:welcome-back\",\"reason\":\"the risk is at or above the threshold\"}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:list-comparisons's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"List the comparisons and the all-of and any-of groups a rule can use, for one kind of field or every kind\", with {\"field_kind\":\"tags\"}. It runs tool:list-comparisons and answers {\"combinators\":[{\"id\":\"and\",\"label\":\"All\",\"sentence\":\"and\"},{\"id\":\"or\",\"label\":\"Any\",\"sentence\":\"or\"}],\"comparisons\":[{\"id\":\"has_any_of\",\"label\":\"has any of\",\"input\":\"values\",\"applies_to\":[\"tags\"]},{\"id\":\"has_all_of\",\"label\":\"has all of\",\"input\":\"values\",\"applies_to\":[\"tags\"]},{\"id\":\"has_none_of\",\"label\":\"has none of\",\"input\":\"values\",\"applies_to\":[\"tags\"]},{\"id\":\"has_one_containing\",\"label\":\"has ...",
   "lists": [],

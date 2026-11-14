@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:find-the-ink-mark-to-erase's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Find which showing ink mark lies nearest a point, so it can be erased without changing any mark\", with {\"operations\":[{\"id\":\"one\",\"target\":{\"address\":\"poster\"},\"body\":{\"coordinate_sets\":[{\"points\":[{\"values\":[0,0]},{\"values\":[10,0]}]}]}}],\"target\":{\"address\":\"poster\"},\"point\":[5,1],\"radius\":2}. It runs tool:find-the-ink-mark-to-erase and answers {\"ref\":\"one:set:0\",\"effects\":{\"hide_refs\":[\"one:set:0\"]}}",
   "lists": [],

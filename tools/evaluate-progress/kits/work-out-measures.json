@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:work-out-measures's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Work out measures from my records: counts, totals, ratios, ranks, quantiles, the latest value, groups, or a ranked and packed list\", with {\"facts\":[{\"id\":\"o1\",\"kind\":\"order\",\"item\":\"rye\",\"t\":1},{\"id\":\"o2\",\"kind\":\"order\",\"item\":\"scone\",\"t\":2},{\"id\":\"r1\",\"kind\":\"refund\",\"item\":\"rye\",\"t\":3}],\"measures\":[{\"id\":\"last-ordered\",\"op\":\"latest\",\"inputs\":[{\"match\":{\"kind\":\"order\"},\"field\":[\"item\"]}],\"params\":{\"sortBy\":[\"t\"]}}]}. It runs tool:work-out-measures and answers {\"measures\":[{\"measureId\":\"last-ordered\",\"emit\":null,\"value\":\"scone\",\"window\":null,\"provenance\":[{\"op\":\"latest\",\"inputCount\":2}],\"confidence\":1,\"basis\":[\"o1\",\"o2\"],\"ok\":true}]}",
   "lists": [],

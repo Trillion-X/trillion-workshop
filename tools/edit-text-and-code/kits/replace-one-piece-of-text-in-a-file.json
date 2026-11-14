@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:replace-one-piece-of-text-in-a-file's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Change one exact piece of text in a text or code file without sending the whole file: give the words to find and the words to put there\", with {\"file\":\"notes/greeting.txt\",\"find\":\"Hello world\",\"replace\":\"Hello there\"}. It runs tool:replace-one-piece-of-text-in-a-file and answers {\"file\":\"notes/greeting.txt\",\"bytes_before\":24,\"bytes_after\":24,\"replaced\":1}",
   "lists": [],

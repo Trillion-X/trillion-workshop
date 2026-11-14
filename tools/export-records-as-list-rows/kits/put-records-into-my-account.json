@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:put-records-into-my-account's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Put the records I prepared into my account so a re-run writes nothing: read what my account holds, send only what differs (or, when I keep edited rows, only what it lacks), in small commands, and stop at the first refusal\", with {\"payload\":{\"commands\":[{\"input\":{\"records\":[{\"id\":\"sample-list:row-1\",\"type\":\"sample-row\",\"value\":{\"title\":\"Sample row\"}}]}}]},\"target_type\":\"sample-row\",\"target_prefix\":\"sample-list:\"}. It runs tool:put-records-into-my-account and answers {\"state\":\"all_written\",\"to_write\":1,\"commands\":1,\"written\":1,\"out_of_scope\":0,\"readback\":{\"sample-row\":{\"payload\":1,\"held\":1,\"equal\":1,\"missing\":[],\"differing\":[]}}}",
   "lists": [],

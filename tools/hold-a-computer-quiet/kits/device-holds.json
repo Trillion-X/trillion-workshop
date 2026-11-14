@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:device-holds's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"See which holds are keeping apps closed on the person's computer and when each ends\", with {}. It runs tool:device-holds and answers {\"holds\":[],\"said\":\"Nothing holds this Mac.\"}",
   "lists": [],

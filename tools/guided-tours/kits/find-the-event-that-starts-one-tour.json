@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:find-the-event-that-starts-one-tour's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Work out the event a Start or Replay control should send to run one named guided tour on demand\", with {\"tours\":[{\"kind\":\"walkthrough-definition\",\"id\":\"tour:welcome\",\"entry_step\":\"a\",\"steps\":[{\"id\":\"a\"}],\"triggers\":[{\"reason\":\"replay\",\"on_event\":{\"event_kind\":\"tour-requested\",\"match\":{\"walkthrough_id\":\"tour:welcome\"}}}]}],\"tour_id\":\"tour:welcome\"}. It runs tool:find-the-event-that-starts-one-tour and answers {\"event\":{\"event_kind\":\"tour-requested\",\"walkthrough_id\":\"tour:welcome\"}}",
   "lists": [],

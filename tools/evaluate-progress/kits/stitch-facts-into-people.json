@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:stitch-facts-into-people's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Link records that share a key into one person and give each person the highest stage their records reach\", with {\"facts\":[{\"member\":\"m-17\",\"visit\":\"first\",\"source\":\"flyer\",\"at\":\"2026-01-01\"},{\"member\":\"m-17\",\"visit\":\"bought\",\"source\":\"shop\",\"at\":\"2026-01-02\"}],\"config\":{\"keyPaths\":[[\"member\"]],\"strongKeyPaths\":[[\"member\"]],\"stageRules\":[{\"when\":{\"field\":[\"visit\"],\"equals\":\"first\"},\"stage\":\"visited\",\"rank\":1},{\"when\":{\"field\":[\"visit\"],\"equals\":\"bought\"},\"stage\":\"customer\",\"rank\":2}],\"sourcePath\":[\"source\"] .... It runs tool:stitch-facts-into-people and answers {\"ledger\":[{\"personId\":\"m-17\",\"source\":\"flyer\",\"stage\":\"customer\",\"stageRank\":2,\"confidence\":\"known\",\"value\":0,\"keyCount\":1,\"factCount\":2}]}",
   "lists": [],

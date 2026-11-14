@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:turn-a-drawn-stroke-into-a-mark-shape's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Turn the points of a drawn stroke into the shape the chosen drawing tool makes: freehand ink, a straight line, a rectangle or a regular polygon or ellipse\", with {\"tool\":{\"id\":\"line\",\"mapper\":{\"kind\":\"segment\"}},\"points\":[[0,0],[3,9],[10,4]]}. It runs tool:turn-a-drawn-stroke-into-a-mark-shape and answers {\"points\":[[0,0],[10,4]],\"closed\":false,\"erases\":false}",
   "lists": [],

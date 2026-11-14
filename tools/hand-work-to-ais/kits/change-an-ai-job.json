@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:change-an-ai-job's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Record what happened to a job one of my AIs took: finish it with its result, say it failed, give it back, say what blocks it, take back one I sent, or remove it\", with {\"as\":\"ai:sample-taker\",\"id\":\"ai-job:sample-1\",\"action\":\"finish\",\"result\":\"A made-up sample report.\",\"summary\":\"Made-up summary\"}. It runs tool:change-an-ai-job and answers {\"job_id\":\"ai-job:sample-1\",\"moved\":true,\"from\":\"taken\",\"to\":\"done\",\"job\":{\"id\":\"ai-job:sample-1\",\"status\":\"done\",\"job\":\"Write a made-up sample report\",\"to\":null,\"from\":\"ai:sample-sender\",\"priority\":5,\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"taker\":\"ai:sample-taker\",\"taken_at\":\"2026-11-03T00:05:00.000Z\",\"result\":\"A made-up sample report.\",\"summary\":\"Made-up summary\" ...",
   "lists": [],

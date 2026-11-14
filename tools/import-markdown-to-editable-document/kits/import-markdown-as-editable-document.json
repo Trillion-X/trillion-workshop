@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:import-markdown-as-editable-document's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Turn Markdown into the editable document scene tree, keeping its headings, lists, tables, code and source spans\", with {\"markdown\":\"# Sample\\n\\nA paragraph.\\n\"}. It runs tool:import-markdown-as-editable-document and answers {\"kind\":\"editable-document-import\",\"page\":{\"id\":\"markdown-5cd221eaa9d128f8\",\"kind\":\"Container\",\"props\":{\"style\":{\"layout\":{\"mode\":\"flex\",\"axis\":\"y\",\"gap\":10}}},\"visible\":true,\"children\":[{\"id\":\"markdown-5cd221eaa9d128f8-b0\",\"kind\":\"Text\",\"props\":{\"text\":\"Sample\",\"style\":{\"font_size\":30,\"font_weight\":700},\"custom\":{\"heading_level\":1}},\"visible\":true,\"children\":[]} ...",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:replace-several-pieces-of-text-in-files's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Make several exact text changes across one or more text or code files in one go, so either every change is made or none is\", with {\"edits\":[{\"file\":\"src/a.txt\",\"find\":\"alpha\",\"replace\":\"apple\"},{\"file\":\"src/b.txt\",\"find\":\"beta\",\"replace\":\"banana\"}]}. It runs tool:replace-several-pieces-of-text-in-files and answers {\"files\":[{\"file\":\"src/a.txt\",\"bytes_before\":10,\"bytes_after\":10,\"replaced\":1},{\"file\":\"src/b.txt\",\"bytes_before\":9,\"bytes_after\":11,\"replaced\":1}],\"replaced\":2}",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:step-through-a-guided-tour's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Work out where a person is in a guided tour, walkthrough, spotlight or branching quiz after they start, go on, answer, go back, jump to a step or restart\", with {\"tour\":{\"entry_step\":\"hello\",\"steps\":[{\"id\":\"hello\",\"branch_map\":{\"by_answer\":{\"baker\":\"oven\"},\"default_next\":\"menu\"}},{\"id\":\"menu\"},{\"id\":\"oven\"}]},\"action\":\"advance\",\"cursor\":{\"current_step_id\":\"hello\",\"history\":[],\"status\":\"active\"},\"answer\":\"baker\"}. It runs tool:step-through-a-guided-tour and answers {\"cursor\":{\"current_step_id\":\"oven\",\"history\":[\"hello\"],\"status\":\"active\"},\"step\":{\"id\":\"oven\"},\"finished\":false}",
   "lists": [],

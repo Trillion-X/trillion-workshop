@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:pick-fired-rules's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Pick which of my progress rules fire for my current numbers and give the adjustment each carries\", with {\"signals\":[{\"metricRef\":\"sell-through\",\"value\":0.7}],\"rules\":[{\"id\":\"rule:low\",\"metricRef\":\"sell-through\",\"band\":{\"max\":0.6},\"adjustment\":{\"bake\":-1}},{\"id\":\"rule:steady\",\"metricRef\":\"sell-through\",\"band\":{\"min\":0.6,\"max\":0.85},\"adjustment\":{\"bake\":0}},{\"id\":\"rule:high\",\"metricRef\":\"sell-through\",\"band\":{\"min\":0.85},\"adjustment\":{\"bake\":1}}]}. It runs tool:pick-fired-rules and answers {\"fired\":[{\"rule\":{\"id\":\"rule:steady\",\"metricRef\":\"sell-through\",\"band\":{\"min\":0.6,\"max\":0.85},\"adjustment\":{\"bake\":0}},\"metricValue\":0.7}],\"adjustments\":[{\"bake\":0}],\"matched\":true}",
   "lists": [],

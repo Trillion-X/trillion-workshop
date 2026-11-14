@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:screen-actions's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"List the actions this computer keeps for operating its screen, what each needs, and how to describe a target\", with {}. It runs tool:screen-actions and answers {\"actions\":[{\"id\":\"click\",\"what\":\"Click once on a thing on the screen with the primary button.\",\"target\":\"required\",\"inputs\":{}},{\"id\":\"double_click\",\"what\":\"Double-click on a thing on the screen.\",\"target\":\"required\",\"inputs\":{}},{\"id\":\"right_click\",\"what\":\"Open the context menu of a thing on the screen.\",\"target\":\"required\",\"inputs\":{}},{\"id\":\"hover\",\"what\":\"Rest the pointer on a thing on the ...",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:open-the-document-a-pursuit-edits-together's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Say which document each page of Write opens, so everyone in a pursuit edits the same document together and a personal page stays personal\", with {\"pages\":[{\"space_id\":\"garden-club\",\"member_id\":\"sample-a\"},{\"space_id\":\"garden-club\",\"member_id\":\"sample-b\"},{\"scene_address\":\"package::documents::documents::personal\"},{\"space_id\":\"a/b\"}]}. It runs tool:open-the-document-a-pursuit-edits-together and answers {\"pages\":[{\"opened\":true,\"input\":{\"space_id\":\"garden-club\",\"member_id\":\"sample-a\",\"scene_address\":\"space-room:garden-club/package::documents::documents\"},\"shared\":true},{\"opened\":true,\"input\":{\"space_id\":\"garden-club\",\"member_id\":\"sample-b\",\"scene_address\":\"space-room:garden-club/package::documents::documents\"},\"shared\":true},{\"opened\":true ...",
   "lists": [],

@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:take-an-ai-job's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Take the next job another of my AIs left for me, so no other AI does it too\", with {\"as\":\"ai:sample-taker\"}. It runs tool:take-an-ai-job and answers {\"taken\":{\"id\":\"ai-job:sample-1\",\"status\":\"taken\",\"job\":\"Write a made-up sample report\",\"to\":null,\"from\":\"ai:sample-sender\",\"priority\":5,\"sent_at\":\"2026-11-03T00:00:00.000Z\",\"taker\":\"ai:sample-taker\",\"taken_at\":\"2026-11-14T00:50:23.662Z\"},\"tried\":1}",
   "lists": [],

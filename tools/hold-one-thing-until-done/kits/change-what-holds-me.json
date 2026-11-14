@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:change-what-holds-me's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Set the one thing I must do aside with a reason, hand it back to my AIs, choose what turning the hold off costs me, ask to turn it off, or turn it back on\", with {\"change\":\"turn-on\",\"request_key\":\"sample-turn-on\",\"rules\":{\"after_minutes\":0},\"now\":\"2026-01-01T00:00:00.000Z\"}. It runs tool:change-what-holds-me and answers {\"changed\":true,\"jobs\":[],\"state\":{\"on\":true}}",
   "lists": [],

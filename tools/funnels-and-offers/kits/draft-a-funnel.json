@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:draft-a-funnel's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Start a new funnel with a title and its steps, or add steps to a funnel I already have\", with {\"title\":\"Spring loaf offers\",\"stages\":[\"Visit\",\"Order\"],\"entropy\":\"a1\"}. It runs tool:draft-a-funnel and answers {\"funnel\":{\"kind\":\"funnel-definition\",\"id\":\"funnel:spring-loaf-offers-a1\",\"title\":\"Spring loaf offers\",\"stages\":[{\"stage_address\":\"stage:spring-loaf-offers-a1:s1\",\"title\":\"Visit\"},{\"stage_address\":\"stage:spring-loaf-offers-a1:s2\",\"title\":\"Order\"}]}}",
   "lists": [],

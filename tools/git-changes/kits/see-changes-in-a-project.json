@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:see-changes-in-a-project's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"See every file that changed in a project on the person's computer and where each one stands: staged for the next commit, changed but not staged, or new\", with {\"folder\":\"/projects/sample\"}. It runs tool:see-changes-in-a-project and answers {\"folder\":\"/projects/sample\",\"branch\":\"main\",\"ahead\":1,\"behind\":0,\"changes\":[{\"file_path\":\"notes.txt\",\"bucket\":\"unstaged\",\"status\":\"M\"},{\"file_path\":\"scratch.txt\",\"bucket\":\"untracked\",\"status\":\"?\"}]}",
   "lists": [],

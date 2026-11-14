@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:find-the-tour-an-event-starts's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Decide which guided tour, if any, should start when something happens in an app (it opened, a page was entered, a replay was asked for), without showing a tour that was already seen\", with {\"tours\":[{\"kind\":\"walkthrough-definition\",\"id\":\"tour:welcome\",\"entry_step\":\"a\",\"steps\":[{\"id\":\"a\"}],\"triggers\":[{\"reason\":\"first-visit\",\"on_event\":{\"event_kind\":\"shop-opened\"},\"once_key\":\"tour:welcome\"}]}],\"event\":{\"event_kind\":\"shop-opened\"}}. It runs tool:find-the-tour-an-event-starts and answers {\"tour_id\":\"tour:welcome\",\"trigger\":{\"reason\":\"first-visit\",\"on_event\":{\"event_kind\":\"shop-opened\"},\"once_key\":\"tour:welcome\"},\"suppression_key\":\"tour:welcome\"}",
   "lists": [],

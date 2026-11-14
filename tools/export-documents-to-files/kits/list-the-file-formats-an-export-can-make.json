@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:list-the-file-formats-an-export-can-make's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Show every format a document can be exported to, with its file ending, its media type and the block kinds it writes itself\", with {}. It runs tool:list-the-file-formats-an-export-can-make and answers {\"formats\":[{\"id\":\"markdown\",\"label\":\"Markdown\",\"extension\":\"md\",\"mime\":\"text/markdown\",\"draws\":[\"heading\",\"paragraph\",\"list\",\"table\"]},{\"id\":\"txt\",\"label\":\"Plain text\",\"extension\":\"txt\",\"mime\":\"text/plain\",\"draws\":[\"heading\",\"paragraph\",\"list\",\"table\"]},{\"id\":\"csv\",\"label\":\"CSV\",\"extension\":\"csv\",\"mime\":\"text/csv\",\"draws\":[\"heading\",\"paragraph\",\"list\",\"table\"]},{\"id\":\"tsv\",\"label\":\"Tab-separated ...",
   "lists": [],

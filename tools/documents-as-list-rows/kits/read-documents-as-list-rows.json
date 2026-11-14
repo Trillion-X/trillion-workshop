@@ -1,5 +1,4 @@
 {
-  "draft": true,
   "drafted_from": "tool:read-documents-as-list-rows's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Read the markdown documents in a folder I granted as rows: each document's frontmatter is its fields, with the file's name, folder, size, dates, links, tags and identity, a page at a time\", with {}. It runs tool:read-documents-as-list-rows and answers {\"rows\":[{\"id\":\"/notes/plan.md\",\"title\":\"plan\",\"identity\":\"1f:a83a09f1c4b493836e2ef7ba4f403221e1e2309c337ab43769ec7ac01868c0ea\",\"values\":{\"note.status\":\"draft\",\"file.name\":\"plan.md\",\"file.basename\":\"plan\",\"file.ext\":\"md\",\"file.path\":\"/notes/plan.md\",\"file.folder\":\"/notes\",\"file.size\":53,\"file.ctime\":\"2026-11-14T00:50:20.142Z\",\"file.mtime\":\"2026-11-14T00:50:20.142Z\" ...",
   "lists": [],
