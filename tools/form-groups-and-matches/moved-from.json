@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/subject-participant/read-data/subject-participant-surface.js",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/form-groups-and-matches/packages/subject-participant/read-data/subject-participant-surface.js",
+      "source_identity": "1f:e35fa59dbbdf6b1b1f5c8bdcf30d0c8493f3294eeb5689b24fec64b70f1f38c8",
+      "identity": "1f:e35fa59dbbdf6b1b1f5c8bdcf30d0c8493f3294eeb5689b24fec64b70f1f38c8"
+    },
+    {
+      "from": "packages/subject-participant/show/mount-subject-participant.js",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/form-groups-and-matches/packages/subject-participant/show/mount-subject-participant.js",
+      "source_identity": "1f:9abb911939411f8346cfb774e33f535f3a716104328ef3f270448aa226b4e0e1",
+      "identity": "1f:9abb911939411f8346cfb774e33f535f3a716104328ef3f270448aa226b4e0e1"
+    },
+    {
+      "from": "packages/subject-participant/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/form-groups-and-matches/packages/subject-participant/show/README.md",
+      "source_identity": "1f:5bd966c7a7a5dff78fadbee6b58d75f4191c39095bd92bc4da11a1760f4633ba",
+      "identity": "1f:5bd966c7a7a5dff78fadbee6b58d75f4191c39095bd92bc4da11a1760f4633ba"
+    }
+  ]
+}

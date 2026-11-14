@@ -70,6 +70,34 @@
       "identity": "1f:3850b4219069ce75f551fe70b6eb2c4a74edf7054b794bba8b8651448f4a927a"
     },
     {
+      "from": "packages/ai-execution-history/show/ExecutionHistoryPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/hand-work-to-ais/packages/ai-execution-history/show/ExecutionHistoryPanel.tsx",
+      "source_identity": "1f:e286e9da5f81508f44c78ab1265c1855fcb6bb73273d58e959e9e676be30b54a",
+      "identity": "1f:e286e9da5f81508f44c78ab1265c1855fcb6bb73273d58e959e9e676be30b54a"
+    },
+    {
+      "from": "packages/ai-execution-history/show/mount-ai-execution-history.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/hand-work-to-ais/packages/ai-execution-history/show/mount-ai-execution-history.tsx",
+      "source_identity": "1f:54f0f8d4e552e3fd73c4893114b6ea8bf9822ec17f5a08b46f498677fe26ec80",
+      "identity": "1f:54f0f8d4e552e3fd73c4893114b6ea8bf9822ec17f5a08b46f498677fe26ec80"
+    },
+    {
+      "from": "packages/ai-guided-work/show/AIGuidedWork.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/hand-work-to-ais/packages/ai-guided-work/show/AIGuidedWork.tsx",
+      "source_identity": "1f:ea35d30180bde48806d76bba168111679f93e3286d0f2c462bc32aa26d3e1799",
+      "identity": "1f:ea35d30180bde48806d76bba168111679f93e3286d0f2c462bc32aa26d3e1799"
+    },
+    {
+      "from": "packages/ai-guided-work/show/mount-ai-guided-work.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/hand-work-to-ais/packages/ai-guided-work/show/mount-ai-guided-work.tsx",
+      "source_identity": "1f:b4d9f0fd2c0eb92bdcc8cad506a680c6312a0db50cf9fbba3c357430adf0194f",
+      "identity": "1f:b4d9f0fd2c0eb92bdcc8cad506a680c6312a0db50cf9fbba3c357430adf0194f"
+    },
+    {
       "from": "test/agent-cards-read-by-column.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/hand-work-to-ais/test/agent-cards-read-by-column.test.mjs",

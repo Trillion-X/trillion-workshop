@@ -2,17 +2,15 @@
   "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
   "source": "trillion",
   "package": "trillion-workshop",
-  "calls": [],
-  "files": [
+  "calls": [
     {
-      "from": "parts/local-files/read-data/invoke-local-files-target.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/choose-and-save-local-files/read-data/invoke-local-files-target.ts",
-      "source_identity": "1f:534777d740404b7a875107b8adeb63cd6acf131505f8ccd271d6f9c2f22ae214",
-      "identity": "1f:534777d740404b7a875107b8adeb63cd6acf131505f8ccd271d6f9c2f22ae214",
-      "found_by": "same bytes"
-    },
+      "id": "a-test-home-folder-made-neutral",
+      "find": "[/]Users[/]testus[e]r",
+      "replace": "/workspace",
+      "means": "A test path in a home folder named like a real one; a neutral folder instead."
+    }
+  ],
+  "files": [
     {
       "from": "parts/local-files/do-work/choose-local-files.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
@@ -33,6 +31,39 @@
       "identity_at_move": "1f:e98ff819adcba9c0facbe1879386c3c80bd154c0bfb566570e16706027a1d626",
       "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
       "changed": true,
+      "found_by": "same bytes"
+    },
+    {
+      "from": "packages/local-files/show/LocalFileTree.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/choose-and-save-local-files/packages/local-files/show/LocalFileTree.test.tsx",
+      "source_identity": "1f:66cfd060b3892e1c83a0270dc4117a8426a732efe46268dbbc58cefcd76c08ef",
+      "identity": "1f:b9e459cc37076fcd40961f77cbb3fcc10ab9b8dcf951f4055508b83c7907cc36",
+      "calls": [
+        "a-test-home-folder-made-neutral"
+      ]
+    },
+    {
+      "from": "packages/local-files/show/LocalFileTree.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/choose-and-save-local-files/packages/local-files/show/LocalFileTree.tsx",
+      "source_identity": "1f:9a7aba8dc61688010eacc3a698fbd8ac62882d7e298880d13d816840b5f48927",
+      "identity": "1f:9a7aba8dc61688010eacc3a698fbd8ac62882d7e298880d13d816840b5f48927"
+    },
+    {
+      "from": "packages/local-files/show/mount-local-file-tree.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/choose-and-save-local-files/packages/local-files/show/mount-local-file-tree.tsx",
+      "source_identity": "1f:919bdc7696a2c0a214bf5adb3ccf8aa55e1570ca903da40c3c0cdf573deec7ad",
+      "identity": "1f:919bdc7696a2c0a214bf5adb3ccf8aa55e1570ca903da40c3c0cdf573deec7ad"
+    },
+    {
+      "from": "parts/local-files/read-data/invoke-local-files-target.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/choose-and-save-local-files/read-data/invoke-local-files-target.ts",
+      "source_identity": "1f:534777d740404b7a875107b8adeb63cd6acf131505f8ccd271d6f9c2f22ae214",
+      "identity": "1f:534777d740404b7a875107b8adeb63cd6acf131505f8ccd271d6f9c2f22ae214",
       "found_by": "same bytes"
     }
   ]

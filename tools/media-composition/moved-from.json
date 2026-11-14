@@ -875,6 +875,41 @@
       "source_identity": "1f:c24a0a59a7bef2fbdded783c841c670b8fc50247312adf29712bb65d5c06596e",
       "identity": "1f:c24a0a59a7bef2fbdded783c841c670b8fc50247312adf29712bb65d5c06596e",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/caption-renderer/show/caption-visible-error.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/media-composition/packages/caption-renderer/show/caption-visible-error.ts",
+      "source_identity": "1f:a3d55ba4e82e82a58221b8ea3b593a05cc9ca48b19b8f8044637319b53e39eea",
+      "identity": "1f:a3d55ba4e82e82a58221b8ea3b593a05cc9ca48b19b8f8044637319b53e39eea"
+    },
+    {
+      "from": "packages/caption-renderer/show/CaptionDropStep.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/media-composition/packages/caption-renderer/show/CaptionDropStep.tsx",
+      "source_identity": "1f:d92c622fe4354c5ce1c77bc24d73efa57ad707f98e8ba5b9acc127d35173ba7b",
+      "identity": "1f:d92c622fe4354c5ce1c77bc24d73efa57ad707f98e8ba5b9acc127d35173ba7b"
+    },
+    {
+      "from": "packages/caption-renderer/show/CaptionPreview.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/media-composition/packages/caption-renderer/show/CaptionPreview.tsx",
+      "source_identity": "1f:2b3498e6430ed41a41e9c5bebdcafded5a6afdff2d9e860b643fdaea0e9a5bcf",
+      "identity": "1f:2b3498e6430ed41a41e9c5bebdcafded5a6afdff2d9e860b643fdaea0e9a5bcf"
+    },
+    {
+      "from": "packages/caption-renderer/show/CaptionRendererPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/media-composition/packages/caption-renderer/show/CaptionRendererPanel.tsx",
+      "source_identity": "1f:61bcd0a77d29ddea73c41ae5bfbed3ad9ea5cfb1932a838917348f084c326c40",
+      "identity": "1f:61bcd0a77d29ddea73c41ae5bfbed3ad9ea5cfb1932a838917348f084c326c40"
+    },
+    {
+      "from": "packages/caption-renderer/show/mount-caption-renderer.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/media-composition/packages/caption-renderer/show/mount-caption-renderer.tsx",
+      "source_identity": "1f:8a81ee041a97ca7504d3ed4f78b67e2c092abbd275ed526b51328be7ad5f950d",
+      "identity": "1f:8a81ee041a97ca7504d3ed4f78b67e2c092abbd275ed526b51328be7ad5f950d"
     }
   ],
   "values": [

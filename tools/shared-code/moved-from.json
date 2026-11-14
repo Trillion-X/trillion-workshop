@@ -5,6 +5,20 @@
   "calls": [],
   "files": [
     {
+      "from": "packages/access-scoped-content/show/AccessScopedContent.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/shared-code/packages/access-scoped-content/show/AccessScopedContent.tsx",
+      "source_identity": "1f:c6d69458921abdcbd7091ca116409a7f1b3a0466a2b0df25e544ea28aa6dcf9b",
+      "identity": "1f:33c04f605959b26545a9a96645e87b9b1017a5dd4d2a40b13316656fbb213f50"
+    },
+    {
+      "from": "packages/account-session/do-work/browser-session-access-key.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/shared-code/packages/account-session/do-work/browser-session-access-key.ts",
+      "source_identity": "1f:416cbcabfecc80a538b64707c7cbbe442c5f02b5ed9dca01e75f9efae2474528",
+      "identity": "1f:416cbcabfecc80a538b64707c7cbbe442c5f02b5ed9dca01e75f9efae2474528"
+    },
+    {
       "from": "parts/live-namespace/do-work/byte-identity.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/parts/live-namespace/do-work/byte-identity.mjs",

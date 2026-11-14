@@ -5,6 +5,34 @@
   "calls": [],
   "files": [
     {
+      "from": "packages/account-deletion/do-work/read-account-deletion-state.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/settings/packages/account-deletion/do-work/read-account-deletion-state.ts",
+      "source_identity": "1f:6ebd36199b42f6e11df276b7de282c3655e4b3289fd2f90a92645598742e010b",
+      "identity": "1f:40a84f4d1e4016979f1b531ffc24e86a892d27c2995310bc638bed84a107a060"
+    },
+    {
+      "from": "packages/account-deletion/do-work/send-account-deletion-event.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/settings/packages/account-deletion/do-work/send-account-deletion-event.ts",
+      "source_identity": "1f:ca4a5a974072d2b7e4894c2640451ded829de20a0faee26fbf38079541508646",
+      "identity": "1f:ca4a5a974072d2b7e4894c2640451ded829de20a0faee26fbf38079541508646"
+    },
+    {
+      "from": "packages/account-deletion/show/app-shell/AccountDeletionPortalSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/settings/packages/account-deletion/show/app-shell/AccountDeletionPortalSurface.tsx",
+      "source_identity": "1f:a6b7c3e11b5b053237f2c48aa97730a4ed1482802fdc63b97bd21b527f2414a3",
+      "identity": "1f:fe3c2a37a0d2b898f779cb5d8610d183f65492a468b7b8528142f08574b197d6"
+    },
+    {
+      "from": "packages/account-deletion/show/mount-account-deletion-portal.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/settings/packages/account-deletion/show/mount-account-deletion-portal.tsx",
+      "source_identity": "1f:e2a862e8070c9afeab23c762c61915615ef252e42fc3e4d0d2a1e835487d1158",
+      "identity": "1f:e2a862e8070c9afeab23c762c61915615ef252e42fc3e4d0d2a1e835487d1158"
+    },
+    {
       "from": "web/src/workspace/settings-pages.json",
       "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
       "to": "tools/settings/web/src/workspace/settings-pages.json",

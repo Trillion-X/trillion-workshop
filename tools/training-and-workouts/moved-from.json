@@ -1,0 +1,43 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/training-plan/show/mount-training-plan.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/training-and-workouts/packages/training-plan/show/mount-training-plan.tsx",
+      "source_identity": "1f:436cb461dd8ae74a999813a3c2b4d66d6c3c81f7457dab56813472602ff17522",
+      "identity": "1f:436cb461dd8ae74a999813a3c2b4d66d6c3c81f7457dab56813472602ff17522"
+    },
+    {
+      "from": "packages/training-plan/show/TrainingPlanPanel.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/training-and-workouts/packages/training-plan/show/TrainingPlanPanel.test.tsx",
+      "source_identity": "1f:04fefd1c206f5d3b249fc84f341cfe6c736cc4c6c31c2da322a7983a11ad1efc",
+      "identity": "1f:04fefd1c206f5d3b249fc84f341cfe6c736cc4c6c31c2da322a7983a11ad1efc"
+    },
+    {
+      "from": "packages/training-plan/show/TrainingPlanPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/training-and-workouts/packages/training-plan/show/TrainingPlanPanel.tsx",
+      "source_identity": "1f:93b6212912ce06cfdd2b181d55442c821ed52eff1fa2300bd11b5cbb3cd93b46",
+      "identity": "1f:93b6212912ce06cfdd2b181d55442c821ed52eff1fa2300bd11b5cbb3cd93b46"
+    },
+    {
+      "from": "packages/workout-log/show/mount-workout-log.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/training-and-workouts/packages/workout-log/show/mount-workout-log.tsx",
+      "source_identity": "1f:30887313bfcdf98ba6767cf82e50a5a99de9c4b8e2d09fde970c8f6c587825cb",
+      "identity": "1f:30887313bfcdf98ba6767cf82e50a5a99de9c4b8e2d09fde970c8f6c587825cb"
+    },
+    {
+      "from": "packages/workout-log/show/WorkoutLogPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/training-and-workouts/packages/workout-log/show/WorkoutLogPanel.tsx",
+      "source_identity": "1f:867e340c1f9786a4d61d755bef268902b8f6d2f1ccc47b32da9406c9f931f6cb",
+      "identity": "1f:867e340c1f9786a4d61d755bef268902b8f6d2f1ccc47b32da9406c9f931f6cb"
+    }
+  ]
+}

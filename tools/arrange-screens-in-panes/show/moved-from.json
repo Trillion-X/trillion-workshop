@@ -1,0 +1,25 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/screen-arrangement/show/CompanionMounts.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/show/CompanionMounts.tsx",
+      "source_identity": "1f:7e37fddd1a312c903f4f058853cd2a2475fe7c2e940d76ddc5c63071efdb574a",
+      "identity": "1f:b94476abbe59e62a8967108784fdd36d7a33dd6e51bcf38e71c6769de2db32e6",
+      "reused": true,
+      "adapted": "arrange-screens-in-panes holds this file rewritten; the old copy is not moved a second time"
+    },
+    {
+      "from": "packages/screen-arrangement/show/ComponentMaterialSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/arrange-screens-in-panes/show/ComponentMaterialSurface.tsx",
+      "source_identity": "1f:1875e3a41b6d879b1f2cdbfcc96c919b1e222b170e4ed1e755c3d9b5e0f663a6",
+      "identity": "1f:dff377197655b9fe141f35f81de4cf5fb9f5828080ebef0f6509acf153be4825",
+      "reused": true
+    }
+  ]
+}

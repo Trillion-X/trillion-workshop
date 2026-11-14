@@ -10,6 +10,13 @@
       "to": "tools/send-messages/from-old-trillion/src/audience-sends.json",
       "source_identity": "1f:47b298aed27c0d395e5bb7608d865c24c3a3cdd44b678f480dad14ac57973b92",
       "identity": "1f:47b298aed27c0d395e5bb7608d865c24c3a3cdd44b678f480dad14ac57973b92"
+    },
+    {
+      "from": "packages/myletter-newsletter/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/send-messages/packages/myletter-newsletter/show/README.md",
+      "source_identity": "1f:1402f861b7e87e45d7142c5b9d83db88a7715fb3fbe48eca3ad643fec58de2e3",
+      "identity": "1f:1402f861b7e87e45d7142c5b9d83db88a7715fb3fbe48eca3ad643fec58de2e3"
     }
   ]
 }

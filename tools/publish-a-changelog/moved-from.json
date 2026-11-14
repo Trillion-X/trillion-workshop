@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/changelog-publisher/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/publish-a-changelog/packages/changelog-publisher/show/README.md",
+      "source_identity": "1f:c04da998f94e78d382f08dde74611ceed29f37dc1ad6fb0444e8380eefea97b7",
+      "identity": "1f:c04da998f94e78d382f08dde74611ceed29f37dc1ad6fb0444e8380eefea97b7"
+    }
+  ]
+}

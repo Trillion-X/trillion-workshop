@@ -2,7 +2,14 @@
   "about": "Files moved here byte for byte from another code tree: each names its source path and commit, the identity of its source bytes and of its bytes here. Only part.json differs: it names the tree that imports this part.",
   "source": "Trillion-X/trillion",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "an-email-made-up-example",
+      "find": "p@e\\.com",
+      "replace": "person@example.com",
+      "means": "A test address shaped like a real one; made up on example.com."
+    }
+  ],
   "files": [
     {
       "from": "parts/account-session/README.md",
@@ -81,6 +88,72 @@
       "source_identity": "1f:ec7e6efa3d86ce78d7729e5d8a55299ccc5baad2b8fb1f369d3ed9b1f2df32dc",
       "identity": "1f:ec7e6efa3d86ce78d7729e5d8a55299ccc5baad2b8fb1f369d3ed9b1f2df32dc",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/account-session/do-work/read-browser-session-state.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/do-work/read-browser-session-state.ts",
+      "source_identity": "1f:cd5017b92e0257d90da96eb90fc8c2ea870e05a5467e00c274dd68e8e12a29ea",
+      "identity": "1f:ca13f6654fdddadd70f03eeedb4ce0ebbda6f51c20c651a61435b84ce2b70a12"
+    },
+    {
+      "from": "packages/account-session/read-data/read-session.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/account-session/read-data/read-session.ts",
+      "source_identity": "1f:5548ba3a4fdc4736a4b31f3b25e4ec00a8c37bc5275052377cdfd1fcf7884d1e",
+      "identity": "1f:5548ba3a4fdc4736a4b31f3b25e4ec00a8c37bc5275052377cdfd1fcf7884d1e"
+    },
+    {
+      "from": "packages/screen-after-sign-in-check/read-data/read-screen-after-sign-in-check-records.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/screen-after-sign-in-check/read-data/read-screen-after-sign-in-check-records.ts",
+      "source_identity": "1f:00f28935b023c72063379b0451ba21e400a597da5bda3f2e53cc267e3a4923ce",
+      "identity": "1f:00f28935b023c72063379b0451ba21e400a597da5bda3f2e53cc267e3a4923ce"
+    },
+    {
+      "from": "packages/screen-after-sign-in-check/read-data/resolve-entry-surface.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/screen-after-sign-in-check/read-data/resolve-entry-surface.ts",
+      "source_identity": "1f:3eae3ae0959caedfebea643a17d1bd439d46b8b9496bfb8f5cf992a9e5467016",
+      "identity": "1f:3eae3ae0959caedfebea643a17d1bd439d46b8b9496bfb8f5cf992a9e5467016"
+    },
+    {
+      "from": "packages/screen-after-sign-in-check/show/mount-screen-after-sign-in-check.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/screen-after-sign-in-check/show/mount-screen-after-sign-in-check.tsx",
+      "source_identity": "1f:d166b4c9d5b2cdcd1c4e9520d8d099fba3e0ab22200400dd96b1640bdff6618f",
+      "identity": "1f:d166b4c9d5b2cdcd1c4e9520d8d099fba3e0ab22200400dd96b1640bdff6618f"
+    },
+    {
+      "from": "packages/screen-after-sign-in-check/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/screen-after-sign-in-check/show/README.md",
+      "source_identity": "1f:c089ed996b508b602b85b494b8e9587ce159b09c847ce23295dac7819f43c205",
+      "identity": "1f:c089ed996b508b602b85b494b8e9587ce159b09c847ce23295dac7819f43c205"
+    },
+    {
+      "from": "packages/screen-after-sign-in-check/show/ScreenAfterSignInCheck.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/screen-after-sign-in-check/show/ScreenAfterSignInCheck.tsx",
+      "source_identity": "1f:2977e2ca9f6da2b98371d8ca23e86e3a72b7397426e5b79c90bd9795ac20146e",
+      "identity": "1f:b5b2de78b71d66549a7516603677d54afd2cffacfaf29e786bf471efe019c800"
+    },
+    {
+      "from": "packages/supabase-sign-in/show/mount-supabase-sign-in-completion.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/supabase-sign-in/show/mount-supabase-sign-in-completion.test.tsx",
+      "source_identity": "1f:b14bbbaf101d7edaf9191abd2890b8ff0e6aa458261c747c7a2c8a1364556caf",
+      "identity": "1f:1b400d69a6da81c1358985d84dc88cca2325fa762df00f60cd3a498371535659",
+      "calls": [
+        "an-email-made-up-example"
+      ]
+    },
+    {
+      "from": "packages/supabase-sign-in/show/mount-supabase-sign-in-completion.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/account-session/packages/supabase-sign-in/show/mount-supabase-sign-in-completion.tsx",
+      "source_identity": "1f:c9cf01ca8f208c2fe76b98d03923cc06a329dd8b477163fbe40ba472b8e394ab",
+      "identity": "1f:c9cf01ca8f208c2fe76b98d03923cc06a329dd8b477163fbe40ba472b8e394ab"
     }
   ]
 }

@@ -2,7 +2,26 @@
   "about": "Files moved here from Trillion-X/trillion by #76 (a9ee2580). Each matched file names its source path and commit and the BLAKE3 identity of its source bytes and of its bytes here. not_matched lists files #76 adapted or renamed, so no source file holds their exact bytes; their sources are under the old capability row's owner paths in sources.",
   "source": "Trillion-X/trillion",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "a-work-address-made-up",
+      "find": "work@gmail\\.com",
+      "replace": "work@example.com",
+      "means": "An example account address shaped like a real one; made up on example.com."
+    },
+    {
+      "id": "a-personal-address-made-up",
+      "find": "personal@gmail\\.com",
+      "replace": "personal@example.com",
+      "means": "An example account address shaped like a real one; made up on example.com."
+    },
+    {
+      "id": "a-home-folder-made-relative",
+      "find": "[/]Users[/]br[i]anakhtar[/]",
+      "replace": "",
+      "means": "A path in the maker's home folder, written from the home folder instead."
+    }
+  ],
   "sources": [
     "parts/service-connections/",
     "src/held-values.mjs",
@@ -82,6 +101,106 @@
       "to": "tools/connect-a-service-and-seal-its-key/held-sends.mjs",
       "source_identity": "1f:ca5863926f5fb20d462737e1c31a26b8afc181439daed44cd821e367910b3c28",
       "identity": "1f:ca5863926f5fb20d462737e1c31a26b8afc181439daed44cd821e367910b3c28"
+    },
+    {
+      "from": "packages/service-connections/show/__tests__/ConnectedAccountsSection.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/packages/service-connections/show/__tests__/ConnectedAccountsSection.test.tsx",
+      "source_identity": "1f:1f61dc6713514172ce5ba0a09187e87cd690367b52f21a9b73fe14a174dcb092",
+      "identity": "1f:5579d090817715064b7752156920b4bbba75c5648bdb04f10943df3566d78220",
+      "calls": [
+        "a-work-address-made-up",
+        "a-personal-address-made-up"
+      ]
+    },
+    {
+      "from": "packages/service-connections/show/__tests__/ServiceConnectionDialog.acquire-close.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/packages/service-connections/show/__tests__/ServiceConnectionDialog.acquire-close.test.tsx",
+      "source_identity": "1f:8dd14397d83df5695b17f442845fd60c3dbd33d902e664685f21d852066d50f2",
+      "identity": "1f:8dd14397d83df5695b17f442845fd60c3dbd33d902e664685f21d852066d50f2"
+    },
+    {
+      "from": "packages/service-connections/show/__tests__/ServiceConnectionDialog.existing-accounts.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/packages/service-connections/show/__tests__/ServiceConnectionDialog.existing-accounts.test.tsx",
+      "source_identity": "1f:2a7b30d47d8eea92975968c686a884fb32da1f893f7932d46499b6ac123b9901",
+      "identity": "1f:c32d94520e845f38a3071b4b2b1292885ab110dc0ed8bb3434b154f7903f5e60",
+      "calls": [
+        "a-work-address-made-up"
+      ]
+    },
+    {
+      "from": "packages/service-connections/show/__tests__/ServiceConnectionDialog.live-challenge.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/packages/service-connections/show/__tests__/ServiceConnectionDialog.live-challenge.test.tsx",
+      "source_identity": "1f:914f96c62090b4f4733fc659823f46d2217928253fccd4379a40e647d6112656",
+      "identity": "1f:914f96c62090b4f4733fc659823f46d2217928253fccd4379a40e647d6112656"
+    },
+    {
+      "from": "packages/service-connections/show/__tests__/ServiceConnectionsSurface.render-states.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/packages/service-connections/show/__tests__/ServiceConnectionsSurface.render-states.test.tsx",
+      "source_identity": "1f:02a6aa131eb7a429e47d248a5bef951149e8a9c2b63dd32139e97555040e82b6",
+      "identity": "1f:02a6aa131eb7a429e47d248a5bef951149e8a9c2b63dd32139e97555040e82b6"
+    },
+    {
+      "from": "packages/service-connections/show/__tests__/x-dialog-oneclick-proof.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/packages/service-connections/show/__tests__/x-dialog-oneclick-proof.test.tsx",
+      "source_identity": "1f:4294b727156137c10541fffc411c557f106e8de817709e6b34f217409d77de83",
+      "identity": "1f:6d723deba397733486d14cb23506f736c39ae5ec80f22f297bdb25ea4372d076",
+      "calls": [
+        "a-home-folder-made-relative"
+      ]
+    },
+    {
+      "from": "packages/service-connections/show/ConnectedAccountsSection.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/packages/service-connections/show/ConnectedAccountsSection.tsx",
+      "source_identity": "1f:8b77a48c192e224f88a0689790213a2a1807efda2b75ccb36d7380778864d7e5",
+      "identity": "1f:784761e19caab9eae91b9478fdbb5236d610e553227783632816154f20e872ec",
+      "calls": [
+        "a-work-address-made-up"
+      ]
+    },
+    {
+      "from": "packages/service-connections/show/mount-service-connection-dialog.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/packages/service-connections/show/mount-service-connection-dialog.tsx",
+      "source_identity": "1f:b4e01210ed4c7ccc708d64a8e1bb45d40bd4d119cc2366f04820a51e56058c19",
+      "identity": "1f:b4e01210ed4c7ccc708d64a8e1bb45d40bd4d119cc2366f04820a51e56058c19"
+    },
+    {
+      "from": "packages/service-connections/show/mount-service-connections-settings.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/packages/service-connections/show/mount-service-connections-settings.tsx",
+      "source_identity": "1f:b4c853ee06d081de79d1d75212bdab615b7eed51f2797c120ae44f7e4330e2df",
+      "identity": "1f:b4c853ee06d081de79d1d75212bdab615b7eed51f2797c120ae44f7e4330e2df"
+    },
+    {
+      "from": "packages/service-connections/show/ServiceConnectionCard.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/packages/service-connections/show/ServiceConnectionCard.tsx",
+      "source_identity": "1f:ad861fc9bb4dc7e73c4fcc0a13468d84913fa9edef3335f46e7529a9230780fc",
+      "identity": "1f:cb9f3d2d5e99a355020a96fcd6b17c88d520a16110e5120cb2fd3e8015a8b0af",
+      "calls": [
+        "a-work-address-made-up"
+      ]
+    },
+    {
+      "from": "packages/service-connections/show/ServiceConnectionDialog.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/packages/service-connections/show/ServiceConnectionDialog.tsx",
+      "source_identity": "1f:04a33132e46f7043be495691dca2850b1305016be0cda4fff48eb86a233b3d09",
+      "identity": "1f:04a33132e46f7043be495691dca2850b1305016be0cda4fff48eb86a233b3d09"
+    },
+    {
+      "from": "packages/service-connections/show/ServiceConnectionsSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/connect-a-service-and-seal-its-key/packages/service-connections/show/ServiceConnectionsSurface.tsx",
+      "source_identity": "1f:4944d8ce1b372197aedfdf6176f496a646af8a0948f4a5faa71c1ba290d6cb7f",
+      "identity": "1f:4944d8ce1b372197aedfdf6176f496a646af8a0948f4a5faa71c1ba290d6cb7f"
     },
     {
       "from": "parts/service-connections/part.json",

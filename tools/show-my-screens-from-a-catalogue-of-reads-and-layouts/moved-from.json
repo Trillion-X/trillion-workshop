@@ -35,6 +35,34 @@
       "held": true
     },
     {
+      "from": "packages/current-summary/show/CurrentSummarySurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/packages/current-summary/show/CurrentSummarySurface.tsx",
+      "source_identity": "1f:f10bcc3314db99b734558d0c8202c20c91d00d9ab3e90e94e0ae704d286cb7c8",
+      "identity": "1f:f10bcc3314db99b734558d0c8202c20c91d00d9ab3e90e94e0ae704d286cb7c8"
+    },
+    {
+      "from": "packages/current-summary/show/mount-current-summary.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/packages/current-summary/show/mount-current-summary.tsx",
+      "source_identity": "1f:76dbce5dc361f5ce8f54de4189ab2c270f7a53ad4b2f9e6675fabd70b3142580",
+      "identity": "1f:76dbce5dc361f5ce8f54de4189ab2c270f7a53ad4b2f9e6675fabd70b3142580"
+    },
+    {
+      "from": "packages/current-summary/show/SummaryCard.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/packages/current-summary/show/SummaryCard.tsx",
+      "source_identity": "1f:869456d910a4bada95a0a5cbb13b066fa9acbbefe7ddd39be3b82b416dbd0b7a",
+      "identity": "1f:869456d910a4bada95a0a5cbb13b066fa9acbbefe7ddd39be3b82b416dbd0b7a"
+    },
+    {
+      "from": "packages/current-summary/show/SummaryGrid.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/packages/current-summary/show/SummaryGrid.tsx",
+      "source_identity": "1f:78427d641390f977b124e69f9a0d89015096d3ad81a297188e7b98fbaf7989f8",
+      "identity": "1f:78427d641390f977b124e69f9a0d89015096d3ad81a297188e7b98fbaf7989f8"
+    },
+    {
       "from": "web/src/pursuit-detail-screen.mjs",
       "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
       "to": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/web/src/pursuit-detail-screen.mjs",

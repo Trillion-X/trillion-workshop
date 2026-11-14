@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/git-worktree/show/GitChangesPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/git-changes/packages/git-worktree/show/GitChangesPanel.tsx",
+      "source_identity": "1f:548da20fe9f68f4859c5b2520860927a55793ef2a627675e2051fbc179e007bc",
+      "identity": "1f:548da20fe9f68f4859c5b2520860927a55793ef2a627675e2051fbc179e007bc"
+    },
+    {
+      "from": "packages/git-worktree/show/mount-git-worktree.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/git-changes/packages/git-worktree/show/mount-git-worktree.tsx",
+      "source_identity": "1f:cd7ef838d38eb6323dea0b33a6465df2c493d359be03e21d671ecbd5203f0930",
+      "identity": "1f:cd7ef838d38eb6323dea0b33a6465df2c493d359be03e21d671ecbd5203f0930"
+    }
+  ]
+}

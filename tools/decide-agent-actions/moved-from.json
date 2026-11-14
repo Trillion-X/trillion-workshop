@@ -1,0 +1,74 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/agent-work-gate-compliance/show/AgentWorkGateCompliancePanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/decide-agent-actions/packages/agent-work-gate-compliance/show/AgentWorkGateCompliancePanel.tsx",
+      "source_identity": "1f:829afca459d1ba8fd36dfc36d5c2a6731a2a741aedfa5a90ddb9ec3ef7e6dc78",
+      "identity": "1f:829afca459d1ba8fd36dfc36d5c2a6731a2a741aedfa5a90ddb9ec3ef7e6dc78"
+    },
+    {
+      "from": "packages/ai-action-guard/read-data/read-ai-action-guards.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/decide-agent-actions/packages/ai-action-guard/read-data/read-ai-action-guards.ts",
+      "source_identity": "1f:9b3e5fcc8a2a6b135d8e3d1d11dd009505fcb22ec3946e4f25e85f0a78e1472f",
+      "identity": "1f:9b3e5fcc8a2a6b135d8e3d1d11dd009505fcb22ec3946e4f25e85f0a78e1472f"
+    },
+    {
+      "from": "packages/ai-action-guard/read-data/read-openbot-operator.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/decide-agent-actions/packages/ai-action-guard/read-data/read-openbot-operator.ts",
+      "source_identity": "1f:a4c8d2a8b2e2436f720a7113f94da0ecb1c4bde4f9a07b489cfaa779ec9c1f8a",
+      "identity": "1f:a4c8d2a8b2e2436f720a7113f94da0ecb1c4bde4f9a07b489cfaa779ec9c1f8a"
+    },
+    {
+      "from": "packages/ai-action-guard/show/ActionGuardPanel.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/decide-agent-actions/packages/ai-action-guard/show/ActionGuardPanel.test.tsx",
+      "source_identity": "1f:e812fa1661a3b933f4e68aac4ab9e46e465d9bd523a4ba5675b73679eec670a1",
+      "identity": "1f:e812fa1661a3b933f4e68aac4ab9e46e465d9bd523a4ba5675b73679eec670a1"
+    },
+    {
+      "from": "packages/ai-action-guard/show/ActionGuardPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/decide-agent-actions/packages/ai-action-guard/show/ActionGuardPanel.tsx",
+      "source_identity": "1f:0d76622bc1bb9ba80a3145007d6229b4f86e2f679ce5bf468c2fe633c415e295",
+      "identity": "1f:0d76622bc1bb9ba80a3145007d6229b4f86e2f679ce5bf468c2fe633c415e295"
+    },
+    {
+      "from": "packages/ai-action-guard/show/mount-ai-action-guard-panel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/decide-agent-actions/packages/ai-action-guard/show/mount-ai-action-guard-panel.tsx",
+      "source_identity": "1f:d03b364edbee4a244a6d598bead67b0e8e57f9fd39b53281214f788b49f27eb2",
+      "identity": "1f:d03b364edbee4a244a6d598bead67b0e8e57f9fd39b53281214f788b49f27eb2"
+    },
+    {
+      "from": "packages/ai-action-guard/show/mount-openbot-operator.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/decide-agent-actions/packages/ai-action-guard/show/mount-openbot-operator.tsx",
+      "source_identity": "1f:6f01d2a10151616bfa54d9998a2857d8c68b621196a0211875826814536702fd",
+      "identity": "1f:6f01d2a10151616bfa54d9998a2857d8c68b621196a0211875826814536702fd"
+    },
+    {
+      "from": "packages/ai-action-guard/show/OpenbotOperatorConsole.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/decide-agent-actions/packages/ai-action-guard/show/OpenbotOperatorConsole.tsx",
+      "source_identity": "1f:d38d8cab9315669a01da81fb9b51f27e09f7c4c43cf2e6a23cb4c7544993bd06",
+      "identity": "1f:581974536ab13680b1d6e7b683592ce34f5539ce7bff092e10cc3527ca14de73",
+      "calls": [
+        "private-notes-path"
+      ]
+    }
+  ]
+}

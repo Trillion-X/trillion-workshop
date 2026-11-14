@@ -8,11 +8,179 @@
   ],
   "files": [
     {
-      "from": "parts/public-sales-page/README.md",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/write-a-sales-page/README.md",
-      "source_identity": "1f:6e773e404c2350c15d9aa6a1e36b1f77d2118795db914f02c33bf69c443b74c8",
-      "identity": "1f:6e773e404c2350c15d9aa6a1e36b1f77d2118795db914f02c33bf69c443b74c8"
+      "from": "parts/public-sales-page/do-work/write-a-sales-page.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/write-a-sales-page/do-work/write-a-sales-page.mjs",
+      "source_identity": "1f:cb98ff9cb2409795580b9c80196405998ae90f9c9e31781ffac0286d18a0ed29",
+      "identity": "1f:c80bfd89d4ea585784c915994ec741c7b6991bf5c0f88007f8e64770c291f76d"
+    },
+    {
+      "from": "records/workshop-page-tool-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/write-a-sales-page/from-old-trillion/records/workshop-page-tool-records.json",
+      "source_identity": "1f:fc333a784c3649600268c219ffde83c5151dcf82e319e72fd2d12ec700d8e6ff",
+      "identity": "1f:fc333a784c3649600268c219ffde83c5151dcf82e319e72fd2d12ec700d8e6ff"
+    },
+    {
+      "from": "packages/adaptive-program-landing/read-data/program-landing-data.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/read-data/program-landing-data.ts",
+      "source_identity": "1f:28ca4523b577bf0a798765e8dbe8c03ea1fbd7e907e626a4b04af3249e4a6e7b",
+      "identity": "1f:28ca4523b577bf0a798765e8dbe8c03ea1fbd7e907e626a4b04af3249e4a6e7b"
+    },
+    {
+      "from": "packages/adaptive-program-landing/read-data/program-pricing-policy.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/read-data/program-pricing-policy.ts",
+      "source_identity": "1f:ab5ed7ee53853c2fb7e0e05d2897a0b8b263c3d90cc19a59ac171aeb48da2dec",
+      "identity": "1f:ab5ed7ee53853c2fb7e0e05d2897a0b8b263c3d90cc19a59ac171aeb48da2dec"
+    },
+    {
+      "from": "packages/adaptive-program-landing/read-data/weave-proof-items.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/read-data/weave-proof-items.ts",
+      "source_identity": "1f:15ef026d4f1112314e988112ce0b8b9cb0237ed130b1f97f1627d6124caa8cd4",
+      "identity": "1f:15ef026d4f1112314e988112ce0b8b9cb0237ed130b1f97f1627d6124caa8cd4"
+    },
+    {
+      "from": "packages/adaptive-program-landing/show/ComparisonLibrarySection.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/show/ComparisonLibrarySection.tsx",
+      "source_identity": "1f:56927086692ccda708188cf8ede03579167212c64465e35f16d61b6727ebd7fd",
+      "identity": "1f:56927086692ccda708188cf8ede03579167212c64465e35f16d61b6727ebd7fd"
+    },
+    {
+      "from": "packages/adaptive-program-landing/show/GuidedMediaOverlay.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/show/GuidedMediaOverlay.tsx",
+      "source_identity": "1f:7f7c67646cd199b1f534157f017215b6a4e73bc07ee6f00829d6ffae2fba6211",
+      "identity": "1f:7f7c67646cd199b1f534157f017215b6a4e73bc07ee6f00829d6ffae2fba6211"
+    },
+    {
+      "from": "packages/adaptive-program-landing/show/GuidedMediaSection.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/show/GuidedMediaSection.tsx",
+      "source_identity": "1f:8d1338287e3973149747c6b977ce8ab78a19208e0334dbfa15c3332aba06c7f0",
+      "identity": "1f:8d1338287e3973149747c6b977ce8ab78a19208e0334dbfa15c3332aba06c7f0"
+    },
+    {
+      "from": "packages/adaptive-program-landing/show/mount-adaptive-program-landing.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/show/mount-adaptive-program-landing.tsx",
+      "source_identity": "1f:4f21864af3b32cd60faf23f36459f2fe701046ad045ae427b2fa3243a02b9c43",
+      "identity": "1f:4f21864af3b32cd60faf23f36459f2fe701046ad045ae427b2fa3243a02b9c43"
+    },
+    {
+      "from": "packages/adaptive-program-landing/show/ProgramCommunitySection.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/show/ProgramCommunitySection.tsx",
+      "source_identity": "1f:9357f2a59d4a78033e72eece2ac134a97884afa1c68f1f5b0f5d36cc10dc30e2",
+      "identity": "1f:9357f2a59d4a78033e72eece2ac134a97884afa1c68f1f5b0f5d36cc10dc30e2"
+    },
+    {
+      "from": "packages/adaptive-program-landing/show/ProgramComparisonShowcase.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/show/ProgramComparisonShowcase.tsx",
+      "source_identity": "1f:7e830c29d83d994fb54f725d272eb5e1dda9fd35f2defeb0db17904c7faec851",
+      "identity": "1f:7e830c29d83d994fb54f725d272eb5e1dda9fd35f2defeb0db17904c7faec851"
+    },
+    {
+      "from": "packages/adaptive-program-landing/show/ProgramEmailCourseSection.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/show/ProgramEmailCourseSection.test.tsx",
+      "source_identity": "1f:7b5a04b0c40c245cec23c13d901b41463f0b9100ce2fcf13b3d09b1913ab0648",
+      "identity": "1f:7b5a04b0c40c245cec23c13d901b41463f0b9100ce2fcf13b3d09b1913ab0648"
+    },
+    {
+      "from": "packages/adaptive-program-landing/show/ProgramEmailCourseSection.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/show/ProgramEmailCourseSection.tsx",
+      "source_identity": "1f:0ab6221f29c42ed73ce1efbc142c5bf1e4ef32418cd08cb4e1b26186e0b75105",
+      "identity": "1f:0ab6221f29c42ed73ce1efbc142c5bf1e4ef32418cd08cb4e1b26186e0b75105"
+    },
+    {
+      "from": "packages/adaptive-program-landing/show/programHeroTypography.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/show/programHeroTypography.ts",
+      "source_identity": "1f:a8b8e0b2d925d98d74e4ecddcf43b00f8a68e35169aca56f463b9d9b3b07fe75",
+      "identity": "1f:a8b8e0b2d925d98d74e4ecddcf43b00f8a68e35169aca56f463b9d9b3b07fe75"
+    },
+    {
+      "from": "packages/adaptive-program-landing/show/ProgramLanding.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/show/ProgramLanding.tsx",
+      "source_identity": "1f:5446bd395bc90f55be68dc392e6ade82d66ceab86a296aed4b3b1ebb95120be5",
+      "identity": "1f:5446bd395bc90f55be68dc392e6ade82d66ceab86a296aed4b3b1ebb95120be5"
+    },
+    {
+      "from": "packages/adaptive-program-landing/show/ProgramLandingData.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/show/ProgramLandingData.tsx",
+      "source_identity": "1f:8d666fed11a97038abfbc600b86e0da39954f24cc71cfde9f91a1a33076e5ee4",
+      "identity": "1f:8d666fed11a97038abfbc600b86e0da39954f24cc71cfde9f91a1a33076e5ee4"
+    },
+    {
+      "from": "packages/adaptive-program-landing/show/ProgramNamedStrip.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/show/ProgramNamedStrip.tsx",
+      "source_identity": "1f:cf6366eac7d9fa69fa8acec9eeb992d3a0f60e7428db4940b36051f512c88411",
+      "identity": "1f:cf6366eac7d9fa69fa8acec9eeb992d3a0f60e7428db4940b36051f512c88411"
+    },
+    {
+      "from": "packages/adaptive-program-landing/show/ProgramPricingSection.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/show/ProgramPricingSection.tsx",
+      "source_identity": "1f:957719c98dae43dd1d560dff4312b8d74e25732be6d5fffa212e13bb54c2ea67",
+      "identity": "1f:957719c98dae43dd1d560dff4312b8d74e25732be6d5fffa212e13bb54c2ea67"
+    },
+    {
+      "from": "packages/adaptive-program-landing/show/ProgramProofMarquee.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/show/ProgramProofMarquee.tsx",
+      "source_identity": "1f:b5ede1df79e92dbebca61f44fd90b7a753358a1bb5994f90c82843e372baf06a",
+      "identity": "1f:b5ede1df79e92dbebca61f44fd90b7a753358a1bb5994f90c82843e372baf06a"
+    },
+    {
+      "from": "packages/adaptive-program-landing/show/ProgramQuoteSpotlight.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/show/ProgramQuoteSpotlight.tsx",
+      "source_identity": "1f:70861fd5e7f9a09f93f542d8b93b2efbaf2a47060cb2199acd2cc4b16d32be3b",
+      "identity": "1f:70861fd5e7f9a09f93f542d8b93b2efbaf2a47060cb2199acd2cc4b16d32be3b"
+    },
+    {
+      "from": "packages/adaptive-program-landing/show/ProgramResultsGrid.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/show/ProgramResultsGrid.tsx",
+      "source_identity": "1f:a8ac6a4cb7b6e2974bdb5a923a858acc95884b2674f91c35065df59564bb66a9",
+      "identity": "1f:a8ac6a4cb7b6e2974bdb5a923a858acc95884b2674f91c35065df59564bb66a9"
+    },
+    {
+      "from": "packages/adaptive-program-landing/show/ProgramStatementSection.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/show/ProgramStatementSection.tsx",
+      "source_identity": "1f:329a2660d70d211643fc8d3b554ccc8b8abd3c82ce61f87bc27904492558bbb3",
+      "identity": "1f:329a2660d70d211643fc8d3b554ccc8b8abd3c82ce61f87bc27904492558bbb3"
+    },
+    {
+      "from": "packages/adaptive-program-landing/show/ProgramStoryBlock.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/show/ProgramStoryBlock.tsx",
+      "source_identity": "1f:ebda7e89668757fa793c79886165e2ddbba48a51959c6e2b8f486127ead2f0b2",
+      "identity": "1f:ebda7e89668757fa793c79886165e2ddbba48a51959c6e2b8f486127ead2f0b2"
+    },
+    {
+      "from": "packages/adaptive-program-landing/show/ProgramSystemVisuals.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/show/ProgramSystemVisuals.tsx",
+      "source_identity": "1f:77945acde9b7f472d8d795a3928dc1e140509589ac9f4def03c32c4d37735824",
+      "identity": "1f:77945acde9b7f472d8d795a3928dc1e140509589ac9f4def03c32c4d37735824"
+    },
+    {
+      "from": "packages/adaptive-program-landing/show/StrategySequenceSection.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/write-a-sales-page/packages/adaptive-program-landing/show/StrategySequenceSection.tsx",
+      "source_identity": "1f:1809289a956b246da919e9a6d47a104faa8e7a0d7388a6ee104b0d7e88636c97",
+      "identity": "1f:1809289a956b246da919e9a6d47a104faa8e7a0d7388a6ee104b0d7e88636c97"
     },
     {
       "from": "parts/public-sales-page/part.json",
@@ -29,25 +197,18 @@
       "identity": "1f:a698c601fc5bf45fbaf88262e0cb3e105cbb85b02fda67df27ec3d4e5dd82368"
     },
     {
+      "from": "parts/public-sales-page/README.md",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/write-a-sales-page/README.md",
+      "source_identity": "1f:6e773e404c2350c15d9aa6a1e36b1f77d2118795db914f02c33bf69c443b74c8",
+      "identity": "1f:6e773e404c2350c15d9aa6a1e36b1f77d2118795db914f02c33bf69c443b74c8"
+    },
+    {
       "from": "parts/public-sales-page/records.json",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/write-a-sales-page/records.json",
       "source_identity": "1f:e64ada3768afee3d5e392aad20094029858e0af47dc28754cacdd7f5875d2aa0",
       "identity": "1f:e64ada3768afee3d5e392aad20094029858e0af47dc28754cacdd7f5875d2aa0"
-    },
-    {
-      "from": "parts/public-sales-page/do-work/write-a-sales-page.mjs",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/write-a-sales-page/do-work/write-a-sales-page.mjs",
-      "source_identity": "1f:cb98ff9cb2409795580b9c80196405998ae90f9c9e31781ffac0286d18a0ed29",
-      "identity": "1f:c80bfd89d4ea585784c915994ec741c7b6991bf5c0f88007f8e64770c291f76d"
-    },
-    {
-      "from": "records/workshop-page-tool-records.json",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/write-a-sales-page/from-old-trillion/records/workshop-page-tool-records.json",
-      "source_identity": "1f:fc333a784c3649600268c219ffde83c5151dcf82e319e72fd2d12ec700d8e6ff",
-      "identity": "1f:fc333a784c3649600268c219ffde83c5151dcf82e319e72fd2d12ec700d8e6ff"
     }
   ],
   "not_matched": []

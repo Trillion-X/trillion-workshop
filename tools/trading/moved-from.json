@@ -1,0 +1,85 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/investment-command/show/InvestmentCommandPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/trading/packages/investment-command/show/InvestmentCommandPanel.tsx",
+      "source_identity": "1f:9ec43b89604b04bdf059122311cf582634a380d37019797d47066d17aadb8b04",
+      "identity": "1f:9ec43b89604b04bdf059122311cf582634a380d37019797d47066d17aadb8b04"
+    },
+    {
+      "from": "packages/investment-command/show/mount-investment-command.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/trading/packages/investment-command/show/mount-investment-command.tsx",
+      "source_identity": "1f:a8f9f8a7fae63662ba052856d2794d2522c6ae4c2fa1c6dc87e6a129d50ca8e1",
+      "identity": "1f:a8f9f8a7fae63662ba052856d2794d2522c6ae4c2fa1c6dc87e6a129d50ca8e1"
+    },
+    {
+      "from": "packages/investment-command/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/trading/packages/investment-command/show/README.md",
+      "source_identity": "1f:8d0d4a847408937bea3047426ab3bd5f38542ad8cb0efff2ddf8b8c22d5b1e6c",
+      "identity": "1f:8d0d4a847408937bea3047426ab3bd5f38542ad8cb0efff2ddf8b8c22d5b1e6c"
+    },
+    {
+      "from": "packages/portfolio-connector/show/mount-portfolio-connector.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/trading/packages/portfolio-connector/show/mount-portfolio-connector.tsx",
+      "source_identity": "1f:d1297240fe4d306307c5be942deeeab5ad82bc2d0a1065f99d7228e4734394a8",
+      "identity": "1f:d1297240fe4d306307c5be942deeeab5ad82bc2d0a1065f99d7228e4734394a8"
+    },
+    {
+      "from": "packages/portfolio-connector/show/PortfolioConnectorPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/trading/packages/portfolio-connector/show/PortfolioConnectorPanel.tsx",
+      "source_identity": "1f:e72d22cfab167bc12e13796fce2ac7270cc88aff31c0fadbbc2d4bfd4f7ee285",
+      "identity": "1f:e72d22cfab167bc12e13796fce2ac7270cc88aff31c0fadbbc2d4bfd4f7ee285"
+    },
+    {
+      "from": "packages/portfolio-connector/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/trading/packages/portfolio-connector/show/README.md",
+      "source_identity": "1f:bcd9477c221f34ef4bb8beb9b3f3594253b8c1b60fee15549d86d4bf978e17a0",
+      "identity": "1f:bcd9477c221f34ef4bb8beb9b3f3594253b8c1b60fee15549d86d4bf978e17a0"
+    },
+    {
+      "from": "packages/trade-audit/show/mount-trade-audit.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/trading/packages/trade-audit/show/mount-trade-audit.tsx",
+      "source_identity": "1f:e0bf4ac62b524ef092c3dd6da0e39a74e4c2d0c19140ac2ea2b62d588869e74c",
+      "identity": "1f:e0bf4ac62b524ef092c3dd6da0e39a74e4c2d0c19140ac2ea2b62d588869e74c"
+    },
+    {
+      "from": "packages/trade-audit/show/TradeAuditPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/trading/packages/trade-audit/show/TradeAuditPanel.tsx",
+      "source_identity": "1f:c2d5099fa5c7c6420b9bbe8ca05a1e38c68870fcce661ef2ee0a290319bd112e",
+      "identity": "1f:c2d5099fa5c7c6420b9bbe8ca05a1e38c68870fcce661ef2ee0a290319bd112e"
+    },
+    {
+      "from": "packages/trade-order/show/mount-trade-order.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/trading/packages/trade-order/show/mount-trade-order.tsx",
+      "source_identity": "1f:1ccb05a38804d7eefb1d7f449a613c7bc740a7ddfba017bc30b63e1cdf667e1d",
+      "identity": "1f:1ccb05a38804d7eefb1d7f449a613c7bc740a7ddfba017bc30b63e1cdf667e1d"
+    },
+    {
+      "from": "packages/trade-order/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/trading/packages/trade-order/show/README.md",
+      "source_identity": "1f:41cb35ea57fb0ef638c7926b62a60a119c12ebaf54099ee6ad00105574887ca0",
+      "identity": "1f:41cb35ea57fb0ef638c7926b62a60a119c12ebaf54099ee6ad00105574887ca0"
+    },
+    {
+      "from": "packages/trade-order/show/TradeOrderPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/trading/packages/trade-order/show/TradeOrderPanel.tsx",
+      "source_identity": "1f:9b6a32cf3bfba04b3fbf7def40fd999ebccd374a4395fda209cbdf0f7dbf7c10",
+      "identity": "1f:9b6a32cf3bfba04b3fbf7def40fd999ebccd374a4395fda209cbdf0f7dbf7c10"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/poker-rules/show/mount-poker-rules.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/poker/packages/poker-rules/show/mount-poker-rules.tsx",
+      "source_identity": "1f:735c9034de3664b7cd2bf7a5c17c739dfb7847d7fd5c65255b1824e5428e14c8",
+      "identity": "1f:735c9034de3664b7cd2bf7a5c17c739dfb7847d7fd5c65255b1824e5428e14c8"
+    },
+    {
+      "from": "packages/poker-rules/show/PokerRuleSummary.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/poker/packages/poker-rules/show/PokerRuleSummary.tsx",
+      "source_identity": "1f:1061c712b530d3ef541aa21bfabbc6ab4a4ae0357f0715312e9da5df50f2ed47",
+      "identity": "1f:1061c712b530d3ef541aa21bfabbc6ab4a4ae0357f0715312e9da5df50f2ed47"
+    },
+    {
+      "from": "packages/poker-rules/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/poker/packages/poker-rules/show/README.md",
+      "source_identity": "1f:776a8b82943f60404e440dfd15b27e1651513a59a081ddc59e1ae0e093fa9c75",
+      "identity": "1f:776a8b82943f60404e440dfd15b27e1651513a59a081ddc59e1ae0e093fa9c75"
+    },
+    {
+      "from": "packages/poker-table/show/mount-poker-table.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/poker/packages/poker-table/show/mount-poker-table.tsx",
+      "source_identity": "1f:0aeded8b92f6c4faa6d663b166622cc3700a2511780372f2741fd3ba2b08d6e9",
+      "identity": "1f:0aeded8b92f6c4faa6d663b166622cc3700a2511780372f2741fd3ba2b08d6e9"
+    },
+    {
+      "from": "packages/poker-table/show/PokerTablePanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/poker/packages/poker-table/show/PokerTablePanel.tsx",
+      "source_identity": "1f:f876ab30a08ecb3b760eeb66c1dd1bf53040d927bb38cb55a41305918d8f799b",
+      "identity": "1f:f876ab30a08ecb3b760eeb66c1dd1bf53040d927bb38cb55a41305918d8f799b"
+    },
+    {
+      "from": "packages/poker-table/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/poker/packages/poker-table/show/README.md",
+      "source_identity": "1f:8b3f9d90115516ae74dcd30caccda065fa58d485177e8925af7fa1c60db0e8d0",
+      "identity": "1f:8b3f9d90115516ae74dcd30caccda065fa58d485177e8925af7fa1c60db0e8d0"
+    },
+    {
+      "from": "packages/shared-room-connection/show/mount-shared-room-connection.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/poker/packages/shared-room-connection/show/mount-shared-room-connection.tsx",
+      "source_identity": "1f:437f30ed179b7686da8dbdccf1debae24898c0a277ccdf212eeadd9a8e42e3cc",
+      "identity": "1f:437f30ed179b7686da8dbdccf1debae24898c0a277ccdf212eeadd9a8e42e3cc"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/ai-cli-launch-adapters/read-data/read-harness-controls.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-an-ai-loop-from-spinning/packages/ai-cli-launch-adapters/read-data/read-harness-controls.mjs",
+      "source_identity": "1f:cdc13d9c1fb90cb1958222c350f6d7a97b24a2e439758ec5a6ae1cd64ce5a01e",
+      "identity": "1f:cdc13d9c1fb90cb1958222c350f6d7a97b24a2e439758ec5a6ae1cd64ce5a01e"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/show/mount-harness-controls.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-an-ai-loop-from-spinning/packages/ai-cli-launch-adapters/show/mount-harness-controls.test.tsx",
+      "source_identity": "1f:84f11b21172c13a8f86cc0f02f9b9a8af1fe5d8806b1eacc5308dc11cc7f88b6",
+      "identity": "1f:84f11b21172c13a8f86cc0f02f9b9a8af1fe5d8806b1eacc5308dc11cc7f88b6"
+    },
+    {
+      "from": "packages/ai-cli-launch-adapters/show/mount-harness-controls.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-an-ai-loop-from-spinning/packages/ai-cli-launch-adapters/show/mount-harness-controls.tsx",
+      "source_identity": "1f:8528c3356d968b5863f2ea087904a44c25558231476cfb6dc64112fa50714325",
+      "identity": "1f:8528c3356d968b5863f2ea087904a44c25558231476cfb6dc64112fa50714325"
+    }
+  ]
+}

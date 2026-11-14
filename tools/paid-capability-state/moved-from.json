@@ -5,6 +5,111 @@
   "calls": [],
   "files": [
     {
+      "from": "packages/activation-manager/do-work/read-activation-manager-surface-state.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-capability-state/packages/activation-manager/do-work/read-activation-manager-surface-state.ts",
+      "source_identity": "1f:6cc05c772776e7ecb0296c66fb61d249af738563a940c211ed4aa0e143521344",
+      "identity": "1f:6cc05c772776e7ecb0296c66fb61d249af738563a940c211ed4aa0e143521344"
+    },
+    {
+      "from": "packages/activation-manager/do-work/read-portal-activations.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-capability-state/packages/activation-manager/do-work/read-portal-activations.ts",
+      "source_identity": "1f:731e1dfd4f9b4982c9a8dabcd9097f8d457c74b7d997509d551d4bac30c90f4d",
+      "identity": "1f:731e1dfd4f9b4982c9a8dabcd9097f8d457c74b7d997509d551d4bac30c90f4d"
+    },
+    {
+      "from": "packages/activation-manager/do-work/resolve-caller-context.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-capability-state/packages/activation-manager/do-work/resolve-caller-context.ts",
+      "source_identity": "1f:bcd91a2c0a66f8271a0d79c47d47adb358947354d85b27d1e4931c54784d6ff6",
+      "identity": "1f:bcd91a2c0a66f8271a0d79c47d47adb358947354d85b27d1e4931c54784d6ff6"
+    },
+    {
+      "from": "packages/activation-manager/read-data/capability-state-records.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-capability-state/packages/activation-manager/read-data/capability-state-records.ts",
+      "source_identity": "1f:1c30215f80b5d6d97d0d1fc28e9e8a4030f184340f78542ee4f977f0c9b8611d",
+      "identity": "1f:1c30215f80b5d6d97d0d1fc28e9e8a4030f184340f78542ee4f977f0c9b8611d"
+    },
+    {
+      "from": "packages/activation-manager/read-data/fold-capability-state.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-capability-state/packages/activation-manager/read-data/fold-capability-state.ts",
+      "source_identity": "1f:f8947ede9e84cb8526711e526c1324c52620024bb654a43ed5903323a8bbe6f2",
+      "identity": "1f:f8947ede9e84cb8526711e526c1324c52620024bb654a43ed5903323a8bbe6f2"
+    },
+    {
+      "from": "packages/activation-manager/read-data/read-activations.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-capability-state/packages/activation-manager/read-data/read-activations.ts",
+      "source_identity": "1f:61b830164b3e5d816cba6b649369e2d450f9152682e334029169dd21d73e3128",
+      "identity": "1f:61b830164b3e5d816cba6b649369e2d450f9152682e334029169dd21d73e3128"
+    },
+    {
+      "from": "packages/activation-manager/read-data/read-gate-activations.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-capability-state/packages/activation-manager/read-data/read-gate-activations.ts",
+      "source_identity": "1f:9ce845d1f2f9ed08c22aacce8a9b0cc4bb7a68aeb52f3bd1d8b98f0cfc7e3c45",
+      "identity": "1f:9ce845d1f2f9ed08c22aacce8a9b0cc4bb7a68aeb52f3bd1d8b98f0cfc7e3c45"
+    },
+    {
+      "from": "packages/activation-manager/show/ActivationManager.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-capability-state/packages/activation-manager/show/ActivationManager.tsx",
+      "source_identity": "1f:bded94fa980f1714f9aeed50d2ab43767e8a0c57fd97895224d4fd9dfb52e5d1",
+      "identity": "1f:f186969a07e69b29038dc90cfd11874bb845735550f5c3e77da1c6f700c6397c"
+    },
+    {
+      "from": "packages/activation-manager/show/ActivationManagerSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-capability-state/packages/activation-manager/show/ActivationManagerSurface.tsx",
+      "source_identity": "1f:a70d29763a2add441994d02339930de67b862d00ab7bae9b8616b653c7011e2b",
+      "identity": "1f:a70d29763a2add441994d02339930de67b862d00ab7bae9b8616b653c7011e2b"
+    },
+    {
+      "from": "packages/activation-manager/show/app-shell/ActivationManagerPortalSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-capability-state/packages/activation-manager/show/app-shell/ActivationManagerPortalSurface.tsx",
+      "source_identity": "1f:a0cc7e48aae99d9cf50b53e286328b1c2d150b2d7a2cd152c6aae69aeaef8ec0",
+      "identity": "1f:e4100ed173111798ff2eb0b307a1d16d19f28eaad9981c29dcac336105c0b3f8"
+    },
+    {
+      "from": "packages/activation-manager/show/AuthorizeDeviceGrantPage.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-capability-state/packages/activation-manager/show/AuthorizeDeviceGrantPage.tsx",
+      "source_identity": "1f:e657ebc5fb11a650f7aea3624427b5b85861a69992911ed269d655dc03154c27",
+      "identity": "1f:e657ebc5fb11a650f7aea3624427b5b85861a69992911ed269d655dc03154c27"
+    },
+    {
+      "from": "packages/activation-manager/show/mount-activation-manager-portal.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-capability-state/packages/activation-manager/show/mount-activation-manager-portal.tsx",
+      "source_identity": "1f:c3f3690018c142c0e0792ec976fda40f12608163ae958517c182831e8a867bc1",
+      "identity": "1f:c3f3690018c142c0e0792ec976fda40f12608163ae958517c182831e8a867bc1"
+    },
+    {
+      "from": "packages/activation-manager/show/mount-authorize-device-grant.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-capability-state/packages/activation-manager/show/mount-authorize-device-grant.tsx",
+      "source_identity": "1f:d0b33c92e98ec6398479b649dd70d5acee04136461a7e0c453e6a66cefea4c6f",
+      "identity": "1f:d0b33c92e98ec6398479b649dd70d5acee04136461a7e0c453e6a66cefea4c6f"
+    },
+    {
+      "from": "packages/activation-manager/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-capability-state/packages/activation-manager/show/README.md",
+      "source_identity": "1f:5917d811d0c038cc2f49fac57ed7b9d99be7b650d1e28aa0560d49a3e52f3453",
+      "identity": "1f:5917d811d0c038cc2f49fac57ed7b9d99be7b650d1e28aa0560d49a3e52f3453"
+    },
+    {
+      "from": "packages/activation-manager/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-capability-state/packages/activation-manager/things-to-store-and-run.json",
+      "source_identity": "1f:caaaeaa26aec9784534879b508e7cc57287b895a35bedc0977e2c099adc1bb83",
+      "identity": "1f:caaaeaa26aec9784534879b508e7cc57287b895a35bedc0977e2c099adc1bb83"
+    },
+    {
       "from": "parts/capability-effect-lifecycle/data/effect-lifecycles.json",
       "commit": "42aff4e9dcd9974d11ece5ae52be3d4a0fa23a8f",
       "to": "tools/paid-capability-state/parts/capability-effect-lifecycle/data/effect-lifecycles.json",

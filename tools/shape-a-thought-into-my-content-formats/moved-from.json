@@ -5,6 +5,83 @@
   "calls": [],
   "files": [
     {
+      "from": "packages/content-production/show/ContentDeliverablesPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/shape-a-thought-into-my-content-formats/packages/content-production/show/ContentDeliverablesPanel.tsx",
+      "source_identity": "1f:47e194c339c2872823812cefb5a20b921cb29dfc6271858c18fe9c9f1f0893c0",
+      "identity": "1f:47e194c339c2872823812cefb5a20b921cb29dfc6271858c18fe9c9f1f0893c0"
+    },
+    {
+      "from": "packages/content-production/show/ContentLibraryPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/shape-a-thought-into-my-content-formats/packages/content-production/show/ContentLibraryPanel.tsx",
+      "source_identity": "1f:3ab9cc5f03f474acea4c4afa2db8720c3b5ca814d5452fffee7dd8c5b812b5c8",
+      "identity": "1f:3ab9cc5f03f474acea4c4afa2db8720c3b5ca814d5452fffee7dd8c5b812b5c8"
+    },
+    {
+      "from": "packages/content-production/show/ContentProduction.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/shape-a-thought-into-my-content-formats/packages/content-production/show/ContentProduction.tsx",
+      "source_identity": "1f:b4baf19cace3c1114c1d796dea501813efc5e41348f451772bb3a5b2666f6b91",
+      "identity": "1f:b4baf19cace3c1114c1d796dea501813efc5e41348f451772bb3a5b2666f6b91"
+    },
+    {
+      "from": "packages/content-production/show/ContentStylePanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/shape-a-thought-into-my-content-formats/packages/content-production/show/ContentStylePanel.tsx",
+      "source_identity": "1f:55ffe5680ff8e86fbf4f18cc34e43ed4fe7c11750777ec2c387eda09396737cf",
+      "identity": "1f:55ffe5680ff8e86fbf4f18cc34e43ed4fe7c11750777ec2c387eda09396737cf"
+    },
+    {
+      "from": "packages/content-production/show/ContentWorkspaceShell.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/shape-a-thought-into-my-content-formats/packages/content-production/show/ContentWorkspaceShell.tsx",
+      "source_identity": "1f:08975a58da50280d48222b9a45307df29fff522a987afce394305137d0686d3e",
+      "identity": "1f:08975a58da50280d48222b9a45307df29fff522a987afce394305137d0686d3e"
+    },
+    {
+      "from": "packages/content-production/show/mount-content-deliverables.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/shape-a-thought-into-my-content-formats/packages/content-production/show/mount-content-deliverables.tsx",
+      "source_identity": "1f:dc2424a25d12385cc120d191240a94c1b189b16eb3fd7f12a793a9a5a8d6fb52",
+      "identity": "1f:dc2424a25d12385cc120d191240a94c1b189b16eb3fd7f12a793a9a5a8d6fb52"
+    },
+    {
+      "from": "packages/content-production/show/mount-content-library.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/shape-a-thought-into-my-content-formats/packages/content-production/show/mount-content-library.tsx",
+      "source_identity": "1f:874a39e42e59e0d62ba324494ee150c97e45c254795b4eee65f6f1121e3c3cbe",
+      "identity": "1f:874a39e42e59e0d62ba324494ee150c97e45c254795b4eee65f6f1121e3c3cbe"
+    },
+    {
+      "from": "packages/content-production/show/mount-content-production.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/shape-a-thought-into-my-content-formats/packages/content-production/show/mount-content-production.tsx",
+      "source_identity": "1f:cefc93bc24c98de703cbe58f5472bf8d7279348ebab1168c1a9925e6e8072723",
+      "identity": "1f:cefc93bc24c98de703cbe58f5472bf8d7279348ebab1168c1a9925e6e8072723"
+    },
+    {
+      "from": "packages/content-production/show/mount-content-style.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/shape-a-thought-into-my-content-formats/packages/content-production/show/mount-content-style.tsx",
+      "source_identity": "1f:1950f1e8e143d69594d664d7bfd68667d9eb1e0bc1a72448dc1219623cfbf33a",
+      "identity": "1f:1950f1e8e143d69594d664d7bfd68667d9eb1e0bc1a72448dc1219623cfbf33a"
+    },
+    {
+      "from": "packages/content-production/show/mount-content-workspace.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/shape-a-thought-into-my-content-formats/packages/content-production/show/mount-content-workspace.tsx",
+      "source_identity": "1f:2a9e6ac2b8c019b9be901684ada99677bcb763eb8ee66f19033bc4520ee74995",
+      "identity": "1f:2a9e6ac2b8c019b9be901684ada99677bcb763eb8ee66f19033bc4520ee74995"
+    },
+    {
+      "from": "packages/content-production/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/shape-a-thought-into-my-content-formats/packages/content-production/show/README.md",
+      "source_identity": "1f:84a811de682599601203278eba8940ab65956c9056aa36511462cdcc24f61ef2",
+      "identity": "1f:84a811de682599601203278eba8940ab65956c9056aa36511462cdcc24f61ef2"
+    },
+    {
       "from": "src/content-formats.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "deleted_by": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",

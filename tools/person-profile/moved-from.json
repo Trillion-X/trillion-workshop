@@ -34,6 +34,42 @@
       "adapted": "the same bytes under another name: receipt trillion-workshop:tools/person-profile/moved-from.json"
     },
     {
+      "from": "packages/person-profile/show/person-profile-screen-model.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/person-profile/packages/person-profile/show/person-profile-screen-model.ts",
+      "source_identity": "1f:d3168aa639f19ef1ab7440caa325ddcc931c4ebdf6d13e7eba6237a625022c45",
+      "identity": "1f:357f0cf3839ff38d0594c90d72fc7763eba3fcc7b729af245854f5e8ccf94a3b"
+    },
+    {
+      "from": "packages/person-profile/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/person-profile/packages/person-profile/show/README.md",
+      "source_identity": "1f:ff3585e201a47f1ebdafc39fcbb37474900600441c559216f3e3acd16321bf6b",
+      "identity": "1f:ff3585e201a47f1ebdafc39fcbb37474900600441c559216f3e3acd16321bf6b"
+    },
+    {
+      "from": "packages/subject-home/show/consumer-contract.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/person-profile/packages/subject-home/show/consumer-contract.md",
+      "source_identity": "1f:e47de1dd4b61d2dd5139493aeb856ba70b5061c5dc8bcc348f95356ff24b1e6e",
+      "identity": "1f:e47de1dd4b61d2dd5139493aeb856ba70b5061c5dc8bcc348f95356ff24b1e6e"
+    },
+    {
+      "from": "packages/subject-home/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/person-profile/packages/subject-home/show/README.md",
+      "source_identity": "1f:b5bafdd413a8a9b813a7875c5bd3c465c3fde253235902ad2a51826554b8db53",
+      "identity": "1f:b5bafdd413a8a9b813a7875c5bd3c465c3fde253235902ad2a51826554b8db53"
+    },
+    {
+      "from": "packages/person-profile/read-data/described-record-surface.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/person-profile/read-data/described-record-surface.ts",
+      "source_identity": "1f:ad254f5ebf731a46be0755d4285e3da1a6e818903757ff6405e7165860642b34",
+      "identity": "1f:ad254f5ebf731a46be0755d4285e3da1a6e818903757ff6405e7165860642b34",
+      "reused": true
+    },
+    {
       "from": "test/network-profile-fill.test.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/person-profile/test/network-profile-fill.test.mjs",

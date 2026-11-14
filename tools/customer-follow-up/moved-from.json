@@ -1,0 +1,39 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "a-home-folder-made-relative",
+      "find": "[/]Users[/]br[i]anakhtar[/]",
+      "replace": "",
+      "means": "A path in the maker's home folder, written from the home folder instead."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/customer-follow-up/show/CustomerFollowUpSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/customer-follow-up/packages/customer-follow-up/show/CustomerFollowUpSurface.tsx",
+      "source_identity": "1f:b9e7e9251ac2b9770f2cef5e7198a26188380d60c255b6e40a5a4471ce8a9f69",
+      "identity": "1f:b9e7e9251ac2b9770f2cef5e7198a26188380d60c255b6e40a5a4471ce8a9f69"
+    },
+    {
+      "from": "packages/customer-follow-up/show/mount-customer-follow-up.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/customer-follow-up/packages/customer-follow-up/show/mount-customer-follow-up.tsx",
+      "source_identity": "1f:57994294aeefd407c540103c40204cc52de3a3489899b1cbdc100b4fc0e6f10a",
+      "identity": "1f:57994294aeefd407c540103c40204cc52de3a3489899b1cbdc100b4fc0e6f10a"
+    },
+    {
+      "from": "packages/customer-follow-up/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/customer-follow-up/packages/customer-follow-up/show/README.md",
+      "source_identity": "1f:dd9d2310cab83f59552b21eb970000a44ec493cd3cb046163f3cbf62d548dfe0",
+      "identity": "1f:133fce3b4d07dc471857e31811f7f50d90ea880adb01857880101597be48b2e5",
+      "calls": [
+        "a-home-folder-made-relative"
+      ]
+    }
+  ]
+}

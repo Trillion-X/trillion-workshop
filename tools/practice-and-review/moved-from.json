@@ -2,7 +2,14 @@
   "about": "Files moved here byte for byte from Trillion-X/trillion (old main, commit 5dc302be37) by the old-trillion sweep. Each names its source path and commit and the BLAKE3 identity of its bytes there and here.",
   "source": "Trillion-X/trillion",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "a-home-folder-made-relative",
+      "find": "[/]Users[/]br[i]anakhtar[/]",
+      "replace": "",
+      "means": "A path in the maker's home folder, written from the home folder instead."
+    }
+  ],
   "files": [
     {
       "from": "records/workshop-practice-tool-records.json",
@@ -31,6 +38,184 @@
       "to": "tools/practice-and-review/from-old-trillion/test/practice.test.mjs",
       "source_identity": "1f:f677177cbb8d170e8154b08f0587732c601366cea54cc461472a43ab10472e5e",
       "identity": "1f:f677177cbb8d170e8154b08f0587732c601366cea54cc461472a43ab10472e5e"
+    },
+    {
+      "from": "packages/apeak/show/apeak-surface-model.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/apeak/show/apeak-surface-model.ts",
+      "source_identity": "1f:d78095d300a46258c5ee222b12a49892a8157da8e406207b911720c14f22a487",
+      "identity": "1f:d78095d300a46258c5ee222b12a49892a8157da8e406207b911720c14f22a487"
+    },
+    {
+      "from": "packages/apeak/show/apeak-surface.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/apeak/show/apeak-surface.test.tsx",
+      "source_identity": "1f:045bb64b8083500953f948c1e17a06bdbf7c336b38cd73eb9632da1866f65912",
+      "identity": "1f:045bb64b8083500953f948c1e17a06bdbf7c336b38cd73eb9632da1866f65912"
+    },
+    {
+      "from": "packages/apeak/show/ApeakSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/apeak/show/ApeakSurface.tsx",
+      "source_identity": "1f:456e7a8248e7a862b1839c0a3624946df41e7152780623ffc90d167e51440b8c",
+      "identity": "1f:456e7a8248e7a862b1839c0a3624946df41e7152780623ffc90d167e51440b8c"
+    },
+    {
+      "from": "packages/apeak/show/mount-apeak-surface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/apeak/show/mount-apeak-surface.tsx",
+      "source_identity": "1f:9b6c999dead7732dc795ce67c8d6b92242959feace84687bf1df8185041cef62",
+      "identity": "1f:9b6c999dead7732dc795ce67c8d6b92242959feace84687bf1df8185041cef62"
+    },
+    {
+      "from": "packages/practice-decision-loop/show/mount-practice-decision-loop.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/practice-decision-loop/show/mount-practice-decision-loop.tsx",
+      "source_identity": "1f:caa61bb0cd76d0684827dc1267d1ac67eb08efaed194733241839c0da409e2b3",
+      "identity": "1f:caa61bb0cd76d0684827dc1267d1ac67eb08efaed194733241839c0da409e2b3"
+    },
+    {
+      "from": "packages/practice-decision-loop/show/PracticeDecisionLoopSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/practice-decision-loop/show/PracticeDecisionLoopSurface.tsx",
+      "source_identity": "1f:d5415b3db8938076ac697159d56f7c1739b8a2ce11c337c3fa90ac72e054a904",
+      "identity": "1f:d5415b3db8938076ac697159d56f7c1739b8a2ce11c337c3fa90ac72e054a904"
+    },
+    {
+      "from": "packages/practice-decision-loop/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/practice-decision-loop/show/README.md",
+      "source_identity": "1f:af2e435bb3ab39ca21e16178cbde31bf14d063dbe0a96533e5639749f79d904d",
+      "identity": "1f:af2e435bb3ab39ca21e16178cbde31bf14d063dbe0a96533e5639749f79d904d"
+    },
+    {
+      "from": "packages/practice-protocol/show/mount-practice-protocol.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/practice-protocol/show/mount-practice-protocol.tsx",
+      "source_identity": "1f:df4a454ce051db66af539606bf34e9cf20ea5aa726b3b282a9a83854f2854f7d",
+      "identity": "1f:df4a454ce051db66af539606bf34e9cf20ea5aa726b3b282a9a83854f2854f7d"
+    },
+    {
+      "from": "packages/practice-protocol/show/PracticeProtocolSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/practice-protocol/show/PracticeProtocolSurface.tsx",
+      "source_identity": "1f:1b5f15d586a1ec06430c811a36c4570f33c4ce0e5d9cf57de353356b2126f337",
+      "identity": "1f:1b5f15d586a1ec06430c811a36c4570f33c4ce0e5d9cf57de353356b2126f337"
+    },
+    {
+      "from": "packages/practice-protocol/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/practice-protocol/show/README.md",
+      "source_identity": "1f:f47830e33ba606053121fd6dcd22b20284bdcd728909555a07a3902701bc8be3",
+      "identity": "1f:f47830e33ba606053121fd6dcd22b20284bdcd728909555a07a3902701bc8be3"
+    },
+    {
+      "from": "packages/spaced-repetition/show/mount-spaced-repetition.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/spaced-repetition/show/mount-spaced-repetition.tsx",
+      "source_identity": "1f:b60ec10aef9fe52259752c46a8682be3bade22f7d6a16522ed65c55626397dbd",
+      "identity": "1f:b60ec10aef9fe52259752c46a8682be3bade22f7d6a16522ed65c55626397dbd"
+    },
+    {
+      "from": "packages/spaced-repetition/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/spaced-repetition/show/README.md",
+      "source_identity": "1f:2eb920121d84e74371a8aca3c66389de71f2b871c50f17fdc838d2297309e5ff",
+      "identity": "1f:2eb920121d84e74371a8aca3c66389de71f2b871c50f17fdc838d2297309e5ff"
+    },
+    {
+      "from": "packages/spaced-repetition/show/spaced-repetition-scoped-feed.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/spaced-repetition/show/spaced-repetition-scoped-feed.test.ts",
+      "source_identity": "1f:49fcfa9f1d3bcadc1e9b4ebef1c1fe4d5574ad3be4e99c955afd6a7d7275ba6d",
+      "identity": "1f:49fcfa9f1d3bcadc1e9b4ebef1c1fe4d5574ad3be4e99c955afd6a7d7275ba6d"
+    },
+    {
+      "from": "packages/spaced-repetition/show/SpacedRepetitionSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/spaced-repetition/show/SpacedRepetitionSurface.tsx",
+      "source_identity": "1f:ffd537f4bcd3e6813b015466c8ed1a6e941244ba0003b398a30abab65fc739c5",
+      "identity": "1f:ffd537f4bcd3e6813b015466c8ed1a6e941244ba0003b398a30abab65fc739c5"
+    },
+    {
+      "from": "packages/tactics-practice/show/__tests__/contest-season-surfaces.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/tactics-practice/show/__tests__/contest-season-surfaces.test.tsx",
+      "source_identity": "1f:2823b8338ae8e58469201435489b3bfe8785a9619b52fabe77dde70f60d043ca",
+      "identity": "1f:2823b8338ae8e58469201435489b3bfe8785a9619b52fabe77dde70f60d043ca"
+    },
+    {
+      "from": "packages/tactics-practice/show/__tests__/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/tactics-practice/show/__tests__/README.md",
+      "source_identity": "1f:16d9393c864e7fcb443e1c4e84e5fbe328908ace68df8d0458c5b7f2c30e0a93",
+      "identity": "1f:36237942ecdad330329e7d494f531b3cdfa97efcc01e855ffc5d73d787be5a8e",
+      "calls": [
+        "a-home-folder-made-relative"
+      ]
+    },
+    {
+      "from": "packages/tactics-practice/show/__tests__/surface-mount.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/tactics-practice/show/__tests__/surface-mount.test.tsx",
+      "source_identity": "1f:29a517f3b29b4db79fa5edbca1568748caf2e3d1049cc4636945b71cfb70a2dd",
+      "identity": "1f:29a517f3b29b4db79fa5edbca1568748caf2e3d1049cc4636945b71cfb70a2dd"
+    },
+    {
+      "from": "packages/tactics-practice/show/humanize-ref.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/tactics-practice/show/humanize-ref.ts",
+      "source_identity": "1f:af6488bd0195855b619d3601339acd2cc4c751812af438893a108d92dd664501",
+      "identity": "1f:af6488bd0195855b619d3601339acd2cc4c751812af438893a108d92dd664501"
+    },
+    {
+      "from": "packages/tactics-practice/show/mount-tactics-practice.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/tactics-practice/show/mount-tactics-practice.tsx",
+      "source_identity": "1f:3cf83f11e1826777fc40a68c6e1580cd2ec482c101bbcb9df5dac102f2142093",
+      "identity": "1f:3cf83f11e1826777fc40a68c6e1580cd2ec482c101bbcb9df5dac102f2142093"
+    },
+    {
+      "from": "packages/tactics-practice/show/OneOnOneContestPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/tactics-practice/show/OneOnOneContestPanel.tsx",
+      "source_identity": "1f:825046c1dfc59d206cb990cb8e9f009131c235a76193dda9fc9b745593c13d2c",
+      "identity": "1f:825046c1dfc59d206cb990cb8e9f009131c235a76193dda9fc9b745593c13d2c"
+    },
+    {
+      "from": "packages/tactics-practice/show/PeerVoteSplit.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/tactics-practice/show/PeerVoteSplit.tsx",
+      "source_identity": "1f:b36afda863ffd966a5905f33354c81ea4e7c322c73dce37d6fe96f90cb646a3a",
+      "identity": "1f:b36afda863ffd966a5905f33354c81ea4e7c322c73dce37d6fe96f90cb646a3a"
+    },
+    {
+      "from": "packages/tactics-practice/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/tactics-practice/show/README.md",
+      "source_identity": "1f:3e5f89d98092a1c86ff84fec7e70e6bcbf378fe898c56a8549c476a651d09ba6",
+      "identity": "1f:3e5f89d98092a1c86ff84fec7e70e6bcbf378fe898c56a8549c476a651d09ba6"
+    },
+    {
+      "from": "packages/tactics-practice/show/SeasonTournamentPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/tactics-practice/show/SeasonTournamentPanel.tsx",
+      "source_identity": "1f:dc9b74ed72742d3b4f45c63b38ca23fabe22a7b875675869526029fa063d90be",
+      "identity": "1f:dc9b74ed72742d3b4f45c63b38ca23fabe22a7b875675869526029fa063d90be"
+    },
+    {
+      "from": "packages/tactics-practice/show/TacticalRatingStandings.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/tactics-practice/show/TacticalRatingStandings.tsx",
+      "source_identity": "1f:ec77b04e3f9d0251056f78794fe4c62acc62be82949b39f46ae47e81847dc69f",
+      "identity": "1f:ec77b04e3f9d0251056f78794fe4c62acc62be82949b39f46ae47e81847dc69f"
+    },
+    {
+      "from": "packages/tactics-practice/show/TacticsPracticeSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/practice-and-review/packages/tactics-practice/show/TacticsPracticeSurface.tsx",
+      "source_identity": "1f:d5a9173f97b0dd586f8771f5746d9cb05a87648d08463202bfd2d5fe1dad2378",
+      "identity": "1f:d5a9173f97b0dd586f8771f5746d9cb05a87648d08463202bfd2d5fe1dad2378"
     }
   ]
 }

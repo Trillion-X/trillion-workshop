@@ -17,6 +17,13 @@
       "to": "tools/guard-ai-spending/from-old-trillion/src/api-spend.mjs",
       "source_identity": "1f:15f4ea3da4c8f5301a67cb5abcdf9810031c7f1f82c95c5247804bc26bd0747b",
       "identity": "1f:15f4ea3da4c8f5301a67cb5abcdf9810031c7f1f82c95c5247804bc26bd0747b"
+    },
+    {
+      "from": "packages/agent-wallet/show/AgentWalletPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/guard-ai-spending/packages/agent-wallet/show/AgentWalletPanel.tsx",
+      "source_identity": "1f:04484785e0c551c998cc9acc0a70cf5463912e2dcc8f85baf32ab82d5493c231",
+      "identity": "1f:04484785e0c551c998cc9acc0a70cf5463912e2dcc8f85baf32ab82d5493c231"
     }
   ]
 }

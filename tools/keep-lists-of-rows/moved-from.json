@@ -2,7 +2,14 @@
   "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
   "source": "trillion",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "a-persons-first-name-made-up",
+      "find": "\\bBria[n]\\b",
+      "replace": "Alex",
+      "means": "A fixture or test label named a real person; a public tree holds made-up names only."
+    }
+  ],
   "files": [
     {
       "from": "parts/visual-database/do-work/cell-expression.ts",
@@ -149,6 +156,142 @@
       "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
       "changed": true,
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/ai-memory/read-data/read-memory-context.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/packages/ai-memory/read-data/read-memory-context.ts",
+      "source_identity": "1f:55caeef259e2d2d01f3a4e346aadc79f9d928393cacb36255d04b6d01966ecd4",
+      "identity": "1f:55caeef259e2d2d01f3a4e346aadc79f9d928393cacb36255d04b6d01966ecd4"
+    },
+    {
+      "from": "packages/ai-memory/show/AiMemoryPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/packages/ai-memory/show/AiMemoryPanel.tsx",
+      "source_identity": "1f:d40c6fe7fe3b89d7eae4e4da0ae73f902df904ba31eff9dcfe49900954bf43e7",
+      "identity": "1f:d40c6fe7fe3b89d7eae4e4da0ae73f902df904ba31eff9dcfe49900954bf43e7"
+    },
+    {
+      "from": "packages/ai-memory/show/mount-ai-memory-panel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/packages/ai-memory/show/mount-ai-memory-panel.tsx",
+      "source_identity": "1f:6396c5126e8f0d7201b72c488cd9cc4e932c60bdaceede5366ad4ae4d60dfcfd",
+      "identity": "1f:6396c5126e8f0d7201b72c488cd9cc4e932c60bdaceede5366ad4ae4d60dfcfd"
+    },
+    {
+      "from": "packages/ideas/show/mount-ideas.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/packages/ideas/show/mount-ideas.tsx",
+      "source_identity": "1f:9a455c1e9b092fcd98b6ce26f42988f1f5ca7f510104d8b17e107cf9e5fc5342",
+      "identity": "1f:9a455c1e9b092fcd98b6ce26f42988f1f5ca7f510104d8b17e107cf9e5fc5342"
+    },
+    {
+      "from": "packages/marketing-pipeline/do-work/request-coordination-action.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/packages/marketing-pipeline/do-work/request-coordination-action.ts",
+      "source_identity": "1f:1f3b7c39d781a821f246f2aa0163bef83793f19365c84056e4f316654af9e14c",
+      "identity": "1f:1f3b7c39d781a821f246f2aa0163bef83793f19365c84056e4f316654af9e14c"
+    },
+    {
+      "from": "packages/marketing-pipeline/read-data/coordination-metrics.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/packages/marketing-pipeline/read-data/coordination-metrics.ts",
+      "source_identity": "1f:26d4e0f1f31673246772b4056039a4cfe6f2c1d07cb20aab3f8e0514bbee194b",
+      "identity": "1f:26d4e0f1f31673246772b4056039a4cfe6f2c1d07cb20aab3f8e0514bbee194b"
+    },
+    {
+      "from": "packages/marketing-pipeline/read-data/fixtures.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/packages/marketing-pipeline/read-data/fixtures.ts",
+      "source_identity": "1f:87d54a3763bebc5ad35f70b3c6500c4f62ab3a008fdb02908d76b8a545e23598",
+      "identity": "1f:d1bee525529d29f5b514c9cc7255272d653dcf994a6c7218e8eb4ddad6bfa3b6",
+      "calls": [
+        "a-persons-first-name-made-up"
+      ]
+    },
+    {
+      "from": "packages/marketing-pipeline/read-data/read-coordination-records.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/packages/marketing-pipeline/read-data/read-coordination-records.ts",
+      "source_identity": "1f:3f20314d00506fd24b1c9524dbcd574e7417bb3ce5e84b28f15f9df6c5c4c7c7",
+      "identity": "1f:3f20314d00506fd24b1c9524dbcd574e7417bb3ce5e84b28f15f9df6c5c4c7c7"
+    },
+    {
+      "from": "packages/marketing-pipeline/show/coordination-field-list.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/packages/marketing-pipeline/show/coordination-field-list.tsx",
+      "source_identity": "1f:1919df49c0741f7275c21f70ddbcd3c8516acebb8a90acaef24405c7f23fbd8e",
+      "identity": "1f:1919df49c0741f7275c21f70ddbcd3c8516acebb8a90acaef24405c7f23fbd8e"
+    },
+    {
+      "from": "packages/marketing-pipeline/show/coordination-surface.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/packages/marketing-pipeline/show/coordination-surface.test.tsx",
+      "source_identity": "1f:b30d462489c7d61c8d82d145b909f2b5c76ce4a0473ec8d5b710a8fdc294b387",
+      "identity": "1f:b30d462489c7d61c8d82d145b909f2b5c76ce4a0473ec8d5b710a8fdc294b387"
+    },
+    {
+      "from": "packages/marketing-pipeline/show/field-value-view.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/packages/marketing-pipeline/show/field-value-view.tsx",
+      "source_identity": "1f:cd42d533f457043e95ac245d4d0ff61d9f8e75fa8c00cac7281295a94d3e83da",
+      "identity": "1f:cd42d533f457043e95ac245d4d0ff61d9f8e75fa8c00cac7281295a94d3e83da"
+    },
+    {
+      "from": "packages/marketing-pipeline/show/humanize.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/packages/marketing-pipeline/show/humanize.ts",
+      "source_identity": "1f:2916453fdf41ebb362704cd604d8952eeed9752a202848f1e6fcc36f80784806",
+      "identity": "1f:2916453fdf41ebb362704cd604d8952eeed9752a202848f1e6fcc36f80784806"
+    },
+    {
+      "from": "packages/marketing-pipeline/show/issue-banner.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/packages/marketing-pipeline/show/issue-banner.tsx",
+      "source_identity": "1f:d8de84dc9c0f70727bd3dbf6803b54c1f73549017bb299e69dca02230df0c34a",
+      "identity": "1f:d8de84dc9c0f70727bd3dbf6803b54c1f73549017bb299e69dca02230df0c34a"
+    },
+    {
+      "from": "packages/marketing-pipeline/show/MarketingPipelineSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/packages/marketing-pipeline/show/MarketingPipelineSurface.tsx",
+      "source_identity": "1f:f72bf43ba7c8a2e491e92939f58dc9509b4cf3d69a020dd0f0401cd7bb342a8a",
+      "identity": "1f:f72bf43ba7c8a2e491e92939f58dc9509b4cf3d69a020dd0f0401cd7bb342a8a"
+    },
+    {
+      "from": "packages/marketing-pipeline/show/mount-marketing-pipeline.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/packages/marketing-pipeline/show/mount-marketing-pipeline.tsx",
+      "source_identity": "1f:9a0729abab2784e2a9cf85b08d626aa0a34e34996ab88701102c5b382536e3b4",
+      "identity": "1f:9a0729abab2784e2a9cf85b08d626aa0a34e34996ab88701102c5b382536e3b4"
+    },
+    {
+      "from": "packages/marketing-pipeline/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/packages/marketing-pipeline/show/README.md",
+      "source_identity": "1f:7ca3d39b7402202184104afe0e85b326928bc1a8cf28dc6319f6f5df27cf392c",
+      "identity": "1f:7ca3d39b7402202184104afe0e85b326928bc1a8cf28dc6319f6f5df27cf392c"
+    },
+    {
+      "from": "packages/marketing-pipeline/show/record-collection.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/packages/marketing-pipeline/show/record-collection.tsx",
+      "source_identity": "1f:e8429bb80fc07bcd58387808dc7212184d336fd444847fd5af2ecb671d048bce",
+      "identity": "1f:e8429bb80fc07bcd58387808dc7212184d336fd444847fd5af2ecb671d048bce"
+    },
+    {
+      "from": "packages/marketing-pipeline/show/record-detail.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/packages/marketing-pipeline/show/record-detail.tsx",
+      "source_identity": "1f:4897218cfba9414ac1f0a4fc94424ee4143d53fc94a9da88cbe99c8a257c142b",
+      "identity": "1f:4897218cfba9414ac1f0a4fc94424ee4143d53fc94a9da88cbe99c8a257c142b"
+    },
+    {
+      "from": "packages/marketing-pipeline/show/source-inbox.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/packages/marketing-pipeline/show/source-inbox.tsx",
+      "source_identity": "1f:ee4fa14ee86924c783e41e76e7a652388bb94b307c348fceebf2085901726582",
+      "identity": "1f:ee4fa14ee86924c783e41e76e7a652388bb94b307c348fceebf2085901726582"
     },
     {
       "from": "parts/visual-database/read-data/addressed-descriptors.ts",

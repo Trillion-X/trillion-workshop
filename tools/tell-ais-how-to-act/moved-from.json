@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/ai-instruction-blocks/read-data/read-ai-instruction-blocks.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/tell-ais-how-to-act/packages/ai-instruction-blocks/read-data/read-ai-instruction-blocks.ts",
+      "source_identity": "1f:1bfba34c48a03e428d3225c93c2c4947a16f8e451bcb09e1a2362d84ac8a221b",
+      "identity": "1f:1bfba34c48a03e428d3225c93c2c4947a16f8e451bcb09e1a2362d84ac8a221b"
+    },
+    {
+      "from": "packages/ai-instruction-blocks/show/InstructionBlockList.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/tell-ais-how-to-act/packages/ai-instruction-blocks/show/InstructionBlockList.tsx",
+      "source_identity": "1f:d701fa0adea9d6fe5d6109d4f61ffea74563fbfaf2c56abfa8d73e4fc2d2e3f8",
+      "identity": "1f:d701fa0adea9d6fe5d6109d4f61ffea74563fbfaf2c56abfa8d73e4fc2d2e3f8"
+    },
+    {
+      "from": "packages/ai-instruction-blocks/show/mount-ai-instruction-block-list.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/tell-ais-how-to-act/packages/ai-instruction-blocks/show/mount-ai-instruction-block-list.tsx",
+      "source_identity": "1f:cb631974eaf18d02ffd8e3ef264414fd51f7b5f7c15131e20817b7b1b30bec82",
+      "identity": "1f:cb631974eaf18d02ffd8e3ef264414fd51f7b5f7c15131e20817b7b1b30bec82"
+    }
+  ]
+}

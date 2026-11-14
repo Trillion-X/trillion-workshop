@@ -1,0 +1,574 @@
+{
+  "package": "ask-questions-sort-answers-follow-up",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::ask-questions-sort-answers-follow-up::question-type-capability::number",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "question-type-capability",
+        "id": "ask-questions-sort-answers-follow-up.question-type.number",
+        "questionTypeId": "number",
+        "label": "Number",
+        "inputComponentKey": "number",
+        "validate": {
+          "rules": {
+            "required": false,
+            "min": null,
+            "max": null,
+            "pattern": null,
+            "message": null
+          }
+        },
+        "coerce": "number"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ask-questions-sort-answers-follow-up::question-type-capability::evidence-reference",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "question-type-capability",
+        "id": "ask-questions-sort-answers-follow-up.question-type.evidence-reference",
+        "questionTypeId": "evidence-reference",
+        "label": "Source",
+        "inputComponentKey": "evidence-reference",
+        "validate": {
+          "rules": {
+            "required": false,
+            "min": null,
+            "max": null,
+            "pattern": null,
+            "message": null
+          }
+        },
+        "coerce": "evidence-reference"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ask-questions-sort-answers-follow-up::entry::progress",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "ask-questions-sort-answers-follow-up",
+        "entries",
+        "progress"
+      ],
+      "remove": false,
+      "payload": {
+        "entry_name": "progress",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-progress.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-progress"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ask-questions-sort-answers-follow-up::entry::ask-questions-sort-answers-follow-up",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "ask-questions-sort-answers-follow-up",
+        "entries",
+        "ask-questions-sort-answers-follow-up"
+      ],
+      "remove": false,
+      "payload": {
+        "entry_name": "ask-questions-sort-answers-follow-up",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-ask-questions-sort-answers-follow-up.tsx",
+        "dynamic_read_selector_policy": "declared-provider-input-membership",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-ask-questions-sort-answers-follow-up"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ask-questions-sort-answers-follow-up::placeable-surface::builder",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "icon": "PencilRuler",
+        "id": "ask-questions-sort-answers-follow-up.builder.panel",
+        "kind": "placeable-surface",
+        "label": "Build a form",
+        "material_target": "builder",
+        "order": 641,
+        "audience": "operator",
+        "surface_id": "ask-questions-sort-answers-follow-up.builder.panel",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000641:ask-questions-sort-answers-follow-up.builder.panel",
+        "package_entry": {
+          "package_name": "ask-questions-sort-answers-follow-up",
+          "entry_name": "builder"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ask-questions-sort-answers-follow-up::entry::builder",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "ask-questions-sort-answers-follow-up",
+        "entries",
+        "builder"
+      ],
+      "remove": false,
+      "payload": {
+        "entry_name": "builder",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-builder.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-builder"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ask-questions-sort-answers-follow-up::placeable-surface::results",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "icon": "Users",
+        "id": "ask-questions-sort-answers-follow-up.results.panel",
+        "kind": "placeable-surface",
+        "label": "Responses & segments",
+        "material_target": "results",
+        "order": 642,
+        "audience": "operator",
+        "surface_id": "ask-questions-sort-answers-follow-up.results.panel",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000642:ask-questions-sort-answers-follow-up.results.panel",
+        "package_entry": {
+          "package_name": "ask-questions-sort-answers-follow-up",
+          "entry_name": "results"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ask-questions-sort-answers-follow-up::entry::results",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "ask-questions-sort-answers-follow-up",
+        "entries",
+        "results"
+      ],
+      "remove": false,
+      "payload": {
+        "entry_name": "results",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-results.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-results"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ask-questions-sort-answers-follow-up::entry::synthesis",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "ask-questions-sort-answers-follow-up",
+        "entries",
+        "synthesis"
+      ],
+      "remove": false,
+      "payload": {
+        "entry_name": "synthesis",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-synthesis.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-synthesis"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ask-questions-sort-answers-follow-up::input::published-records",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "published-records",
+        "is_default": true,
+        "value_address_label": "package::ask-questions-sort-answers-follow-up::published-records",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          },
+          "projection": {
+            "op": "rows",
+            "fields": [
+              {
+                "column": 0,
+                "key": "address",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "payload",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "path",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::ask-questions-sort-answers-follow-up::published-records",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "cell_table",
+        "columns": [
+          {
+            "column": 0,
+            "source": {
+              "path": [
+                "record",
+                "address"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "non_empty_text"
+            }
+          },
+          {
+            "column": 1,
+            "source": {
+              "path": [
+                "record",
+                "payload_json_text"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "json_text"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ask-questions-sort-answers-follow-up::factflow::surface",
+      "address_mode": "identity_text",
+      "path": [
+        "package-primitive",
+        "factflow"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "bitfield-eeaf-factflow",
+        "version": 1,
+        "package": "ask-questions-sort-answers-follow-up",
+        "journal": {
+          "address_label": "ask-questions-sort-answers-follow-up.journal"
+        },
+        "fact_sources": [
+          {
+            "address": "package::ask-questions-sort-answers-follow-up::input::published-records",
+            "role": "published question-type-capability + question-sequence records"
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ask-questions-sort-answers-follow-up::question-type-capability::text",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "question-type-capability",
+        "id": "ask-questions-sort-answers-follow-up.question-type.text",
+        "questionTypeId": "text",
+        "label": "Text",
+        "inputComponentKey": "text",
+        "validate": {
+          "rules": {
+            "required": false,
+            "min": null,
+            "max": null,
+            "pattern": null,
+            "message": null
+          }
+        },
+        "coerce": "string"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ask-questions-sort-answers-follow-up::question-type-capability::long-text",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "question-type-capability",
+        "id": "ask-questions-sort-answers-follow-up.question-type.long-text",
+        "questionTypeId": "long-text",
+        "label": "Long text",
+        "inputComponentKey": "long-text",
+        "validate": {
+          "rules": {
+            "required": false,
+            "min": null,
+            "max": null,
+            "pattern": null,
+            "message": null
+          }
+        },
+        "coerce": "string"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ask-questions-sort-answers-follow-up::question-type-capability::choice",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "question-type-capability",
+        "id": "ask-questions-sort-answers-follow-up.question-type.choice",
+        "questionTypeId": "choice",
+        "label": "Choice",
+        "inputComponentKey": "choice",
+        "validate": {
+          "rules": {
+            "required": false,
+            "min": null,
+            "max": null,
+            "pattern": null,
+            "message": null
+          }
+        },
+        "coerce": "string"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ask-questions-sort-answers-follow-up::question-type-capability::rating",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": false,
+      "payload": {
+        "kind": "question-type-capability",
+        "id": "ask-questions-sort-answers-follow-up.question-type.rating",
+        "questionTypeId": "rating",
+        "label": "Rating",
+        "inputComponentKey": "rating",
+        "validate": {
+          "rules": {
+            "required": false,
+            "min": 1,
+            "max": 5,
+            "pattern": null,
+            "message": null
+          }
+        },
+        "coerce": "number"
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-progress",
+      "source_path": "built-stored-bytes/entry-bytes-progress",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-progress.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-ask-questions-sort-answers-follow-up",
+      "source_path": "built-stored-bytes/entry-bytes-ask-questions-sort-answers-follow-up",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-ask-questions-sort-answers-follow-up.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-builder",
+      "source_path": "built-stored-bytes/entry-bytes-builder",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-builder.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-results",
+      "source_path": "built-stored-bytes/entry-bytes-results",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-results.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-synthesis",
+      "source_path": "built-stored-bytes/entry-bytes-synthesis",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-synthesis.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::ask-questions-sort-answers-follow-up::checks",
+      "path": [
+        "packages",
+        "ask-questions-sort-answers-follow-up",
+        "checks"
+      ],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "__tests__/generate-questions.test.ts",
+          "do-work/answer-fact-writes.test.ts",
+          "do-work/feedback-capture.test.ts",
+          "do-work/process-submission.test.ts",
+          "do-work/run-after-saved-actions.test.ts",
+          "do-work/save-question-sequence.test.ts",
+          "do-work/segment-assignment-writes.test.ts",
+          "read-data/builder-model.test.ts",
+          "read-data/current-respondent.test.ts",
+          "read-data/feedback-decide.test.ts",
+          "read-data/feedback-render.test.ts",
+          "read-data/fill-screen-model.test.ts",
+          "read-data/fold-answer-facts.test.ts",
+          "read-data/follow-up-sequences.test.ts",
+          "read-data/progress-model.test.ts",
+          "read-data/question-suggestions.test.ts",
+          "read-data/read-decide-config.test.ts",
+          "read-data/read-forms-data.test.ts",
+          "read-data/required-folds-into-submit-gate.test.ts",
+          "read-data/results-model.test.ts",
+          "read-data/score-and-segment.test.ts",
+          "read-data/session-progress-rows.test.ts",
+          "read-data/synthesis-answer-lines.test.ts",
+          "read-data/synthesis-result.test.ts",
+          "read-data/validate-answer.test.ts",
+          "show/BuilderSurface.test.tsx",
+          "show/FillSurface.test.tsx",
+          "show/ProgressSurface.test.tsx",
+          "show/ProgressView.test.tsx",
+          "show/ResultsSurface.test.tsx",
+          "show/practice-session-render.test.tsx",
+          "show/inputs/resolve-input-component.test.ts",
+          "show/inputs/source-and-number.test.tsx",
+          "show/AskQuestionsView.test.tsx",
+          "__tests__/a-caller-can-author-one-set-of-questions.test.mjs"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ask-questions-sort-answers-follow-up::workflow-action::author-question-sequence",
+      "path": ["current-item", "published-record", "workflow-definition"],
+      "payload": {
+        "kind": "action",
+        "id": "action:author-question-sequence",
+        "name": "author-question-sequence",
+        "description": "Write one set of questions as the same question-sequence record the fill surface reads. The caller supplies the questions; this package owns where they live and how they render. Nothing here is specific to any product, domain, or question type: a question names a type that the question-type-capability rows already resolve, so a new kind of question stays one DATA row and no edit here.",
+        "version": 0,
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "input_schema": {},
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": { "from": "input", "path": "formId" },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::ask-questions-sort-answers-follow-up::question-sequence::",
+                            { "$kind": "binding", "select": { "from": "input", "path": "formId" } }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": ["current-item", "published-record"],
+                  "payload": {
+                    "kind": "question-sequence",
+                    "formId": { "$kind": "binding", "select": { "from": "input", "path": "formId" } },
+                    "title": { "$kind": "binding", "select": { "from": "input", "path": "title" } },
+                    "presentation": { "$kind": "binding", "select": { "from": "input", "path": "presentation" } },
+                    "questions": { "$kind": "binding", "select": { "from": "input", "path": "questions" } }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": []
+      },
+      "remove": false
+    }
+  ]
+}

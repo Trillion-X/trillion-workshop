@@ -1,0 +1,16 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/access-scoped-content/data/sidebar-config.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/edit-a-document-together/data/sidebar-config.json",
+      "source_identity": "1f:2d756495db7c68752068d0e26a7fd652f7eb083af6cfc15423472a23744ac692",
+      "identity": "1f:2d756495db7c68752068d0e26a7fd652f7eb083af6cfc15423472a23744ac692",
+      "reused": true
+    }
+  ]
+}

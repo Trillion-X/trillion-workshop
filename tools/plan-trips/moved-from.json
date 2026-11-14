@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/travel-operations/show/mount-travel-operations.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/plan-trips/packages/travel-operations/show/mount-travel-operations.tsx",
+      "source_identity": "1f:d27a648ef9145e7a0a7a44a2cb217b486b7dd17143e847e919ebb5f82f1ccbc8",
+      "identity": "1f:d27a648ef9145e7a0a7a44a2cb217b486b7dd17143e847e919ebb5f82f1ccbc8"
+    },
+    {
+      "from": "packages/travel-operations/show/TravelOperationsPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/plan-trips/packages/travel-operations/show/TravelOperationsPanel.tsx",
+      "source_identity": "1f:4382d4af6e49868d2fba02a63bebe7ee09dff3430d046ea278d80f8a26ac29da",
+      "identity": "1f:4382d4af6e49868d2fba02a63bebe7ee09dff3430d046ea278d80f8a26ac29da"
+    }
+  ]
+}

@@ -1,0 +1,176 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/customer-support/do-work/invoke-customer-support-action.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/packages/customer-support/do-work/invoke-customer-support-action.ts",
+      "source_identity": "1f:1665c7695d0ccc04d531599ec7bfa68a347a389e3af6a8af1cb55e3aafdb1e6f",
+      "identity": "1f:1665c7695d0ccc04d531599ec7bfa68a347a389e3af6a8af1cb55e3aafdb1e6f"
+    },
+    {
+      "from": "packages/customer-support/do-work/invoke-record-work-action.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/packages/customer-support/do-work/invoke-record-work-action.ts",
+      "source_identity": "1f:319f2e924344d4cb459575a333b122831b42507a893da2edf5bfc1f559c9b2e0",
+      "identity": "1f:319f2e924344d4cb459575a333b122831b42507a893da2edf5bfc1f559c9b2e0"
+    },
+    {
+      "from": "packages/customer-support/read-data/read-customer-support-workspace.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/packages/customer-support/read-data/read-customer-support-workspace.ts",
+      "source_identity": "1f:f58da1c6f97ca6ce0c9b5f84fbe57f510a594dded4147e96451039daabfae8a0",
+      "identity": "1f:f58da1c6f97ca6ce0c9b5f84fbe57f510a594dded4147e96451039daabfae8a0"
+    },
+    {
+      "from": "packages/customer-support/read-data/record-work-graph.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/packages/customer-support/read-data/record-work-graph.ts",
+      "source_identity": "1f:93123d808580161de398fd6173d9a462b4e80c0997a840b6b2af72cf287b255f",
+      "identity": "1f:93123d808580161de398fd6173d9a462b4e80c0997a840b6b2af72cf287b255f"
+    },
+    {
+      "from": "packages/customer-support/show/action-composer.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/packages/customer-support/show/action-composer.tsx",
+      "source_identity": "1f:5eb65b0d6b079fe16ae8ed51257286dda70e77fb95b1a83ed89579f9c8941ba5",
+      "identity": "1f:5eb65b0d6b079fe16ae8ed51257286dda70e77fb95b1a83ed89579f9c8941ba5"
+    },
+    {
+      "from": "packages/customer-support/show/customer-support-surface.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/packages/customer-support/show/customer-support-surface.test.tsx",
+      "source_identity": "1f:d3bfbd639bcb52d7d5c41a9edcc5fc5da1d6dd6d3bd340e1bc5e1b034017b9fa",
+      "identity": "1f:d3bfbd639bcb52d7d5c41a9edcc5fc5da1d6dd6d3bd340e1bc5e1b034017b9fa"
+    },
+    {
+      "from": "packages/customer-support/show/CustomerSupportSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/packages/customer-support/show/CustomerSupportSurface.tsx",
+      "source_identity": "1f:bc5ab909b0f3bb5e2ed147427422014cb83bb4ef524c35230342d8d46b4d2b61",
+      "identity": "1f:bc5ab909b0f3bb5e2ed147427422014cb83bb4ef524c35230342d8d46b4d2b61"
+    },
+    {
+      "from": "packages/customer-support/show/field-value-view.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/packages/customer-support/show/field-value-view.tsx",
+      "source_identity": "1f:3183a7d96b7da6398c065657353c7938a789a6763b95efa044c34a6e42c6032a",
+      "identity": "1f:3183a7d96b7da6398c065657353c7938a789a6763b95efa044c34a6e42c6032a"
+    },
+    {
+      "from": "packages/customer-support/show/fixtures.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/packages/customer-support/show/fixtures.ts",
+      "source_identity": "1f:d5b243a9b465359ed6209107e87d5ac77ad42a68a3b46afb557cc2bf84e241d7",
+      "identity": "1f:d5b243a9b465359ed6209107e87d5ac77ad42a68a3b46afb557cc2bf84e241d7"
+    },
+    {
+      "from": "packages/customer-support/show/humanize.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/packages/customer-support/show/humanize.ts",
+      "source_identity": "1f:2344095a457e24fc0d0302596d8566d159c4ba2d2dcfcaedc410ff44c464e643",
+      "identity": "1f:2344095a457e24fc0d0302596d8566d159c4ba2d2dcfcaedc410ff44c464e643"
+    },
+    {
+      "from": "packages/customer-support/show/issue-banner.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/packages/customer-support/show/issue-banner.tsx",
+      "source_identity": "1f:7e446e3eccf0f00344ce15e26db2caa178141850d91931cadbec0be6dd196cee",
+      "identity": "1f:7e446e3eccf0f00344ce15e26db2caa178141850d91931cadbec0be6dd196cee"
+    },
+    {
+      "from": "packages/customer-support/show/mount-customer-support.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/packages/customer-support/show/mount-customer-support.tsx",
+      "source_identity": "1f:87e2f5169ec604997c5b8f65b95898241bd9ec56042d5b499c0bc74a3e732435",
+      "identity": "1f:87e2f5169ec604997c5b8f65b95898241bd9ec56042d5b499c0bc74a3e732435"
+    },
+    {
+      "from": "packages/customer-support/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/packages/customer-support/show/README.md",
+      "source_identity": "1f:b0a27917b69b89d05697add53757f74e5c7340c59b596fbb6f0db17511fff86e",
+      "identity": "1f:b0a27917b69b89d05697add53757f74e5c7340c59b596fbb6f0db17511fff86e"
+    },
+    {
+      "from": "packages/customer-support/show/record-collection.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/packages/customer-support/show/record-collection.tsx",
+      "source_identity": "1f:52f1a6192c0ba3141d79624d9e987e4a43ddc1215b71c0ff7b4581f7b8dffb95",
+      "identity": "1f:52f1a6192c0ba3141d79624d9e987e4a43ddc1215b71c0ff7b4581f7b8dffb95"
+    },
+    {
+      "from": "packages/customer-support/show/record-detail.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/packages/customer-support/show/record-detail.tsx",
+      "source_identity": "1f:0e4b90f73592804b880aee750f5495f655aa65acd84ef1a66d49f6a2d31a6225",
+      "identity": "1f:0e4b90f73592804b880aee750f5495f655aa65acd84ef1a66d49f6a2d31a6225"
+    },
+    {
+      "from": "packages/customer-support/show/record-field-list.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/packages/customer-support/show/record-field-list.tsx",
+      "source_identity": "1f:fa6e1529db53b9f7a5fa4bcc0a31f0012de4136bbb669ce135b711150066a186",
+      "identity": "1f:fa6e1529db53b9f7a5fa4bcc0a31f0012de4136bbb669ce135b711150066a186"
+    },
+    {
+      "from": "packages/customer-support/show/source-inbox.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/packages/customer-support/show/source-inbox.tsx",
+      "source_identity": "1f:cf8cfa0072b763dbdaa3424bf9289949385a334f2b2b28bcf2aed93f3c2837a6",
+      "identity": "1f:cf8cfa0072b763dbdaa3424bf9289949385a334f2b2b28bcf2aed93f3c2837a6"
+    },
+    {
+      "from": "packages/customer-support/show/workspace-types.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/packages/customer-support/show/workspace-types.ts",
+      "source_identity": "1f:c089418d057fc5f637cd97e7853a4ad7cb5f8999dcad59d6329caa75c23f3e12",
+      "identity": "1f:c089418d057fc5f637cd97e7853a4ad7cb5f8999dcad59d6329caa75c23f3e12"
+    },
+    {
+      "from": "packages/request-intake/show/request-intake-fixtures.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/packages/request-intake/show/request-intake-fixtures.ts",
+      "source_identity": "1f:0e45bc1a304d211f64f8e0808b6d975f7e1eb67eb328f2b5d2c764c4cd92f498",
+      "identity": "1f:0e45bc1a304d211f64f8e0808b6d975f7e1eb67eb328f2b5d2c764c4cd92f498"
+    },
+    {
+      "from": "packages/request-intake/show/request-intake-screen-model.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/packages/request-intake/show/request-intake-screen-model.ts",
+      "source_identity": "1f:3e8d84622ad3954e29e4929b07ff0e48058f00af26db7d44aa77984dd23e39c3",
+      "identity": "1f:3e8d84622ad3954e29e4929b07ff0e48058f00af26db7d44aa77984dd23e39c3"
+    },
+    {
+      "from": "packages/request-intake/show/RequestActionBar.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/packages/request-intake/show/RequestActionBar.tsx",
+      "source_identity": "1f:56a62af98093529e9b89a179efdbd46cb16cd029ab8cbdeaa4034417dca53707",
+      "identity": "1f:56a62af98093529e9b89a179efdbd46cb16cd029ab8cbdeaa4034417dca53707"
+    },
+    {
+      "from": "packages/request-intake/show/RequestPreviewAndPublish.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/packages/request-intake/show/RequestPreviewAndPublish.tsx",
+      "source_identity": "1f:f57733bf5158aded0f1763693ea9e252662fcb0ac46c807c58529016eecdc231",
+      "identity": "1f:f57733bf5158aded0f1763693ea9e252662fcb0ac46c807c58529016eecdc231"
+    },
+    {
+      "from": "packages/request-intake/show/RequestQuestionList.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/packages/request-intake/show/RequestQuestionList.tsx",
+      "source_identity": "1f:3bc9599cd5523d4de5e6a0e97b6fb990a1cafdae518e8ed80f955140c5d5f811",
+      "identity": "1f:3bc9599cd5523d4de5e6a0e97b6fb990a1cafdae518e8ed80f955140c5d5f811"
+    },
+    {
+      "from": "packages/request-intake/show/RequestShareSettings.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/take-requests/packages/request-intake/show/RequestShareSettings.tsx",
+      "source_identity": "1f:34962dcc76d22dbfb16d7ea863d3b3c2219a47ceede93b54d2c2cb483570a8d6",
+      "identity": "1f:34962dcc76d22dbfb16d7ea863d3b3c2219a47ceede93b54d2c2cb483570a8d6"
+    }
+  ]
+}

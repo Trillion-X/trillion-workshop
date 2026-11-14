@@ -17,6 +17,20 @@
       "to": "tools/generate-speech/from-old-trillion/src/account-speech.mjs",
       "source_identity": "1f:28b93925336be54e276c07badbd7af0f2f6c97756e3312f18364aa045bade893",
       "identity": "1f:97050170a6088a288935e7ab117251e508e605ce91ed306785408d47e28215c8"
+    },
+    {
+      "from": "packages/speech-generation/show/mount-speech-generation.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/generate-speech/packages/speech-generation/show/mount-speech-generation.tsx",
+      "source_identity": "1f:41e70ae47c75e871b89a44abc53fe232f7d9409df511627dca0e32fb67a64540",
+      "identity": "1f:41e70ae47c75e871b89a44abc53fe232f7d9409df511627dca0e32fb67a64540"
+    },
+    {
+      "from": "packages/speech-generation/show/SpeechGenerationPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/generate-speech/packages/speech-generation/show/SpeechGenerationPanel.tsx",
+      "source_identity": "1f:11f940d5b1e4fb8b1ada9826dabde08837f16ee2278bfa1b9973d1f92ac1598f",
+      "identity": "1f:11f940d5b1e4fb8b1ada9826dabde08837f16ee2278bfa1b9973d1f92ac1598f"
     }
   ]
 }

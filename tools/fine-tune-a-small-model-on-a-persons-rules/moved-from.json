@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/ai-training-batch/read-data/read-ai-training-batches.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/fine-tune-a-small-model-on-a-persons-rules/packages/ai-training-batch/read-data/read-ai-training-batches.ts",
+      "source_identity": "1f:0dec56cc8a266275d8cdd6411bc640087d2c9009caa5772ac02e10ab0d945b64",
+      "identity": "1f:0dec56cc8a266275d8cdd6411bc640087d2c9009caa5772ac02e10ab0d945b64"
+    },
+    {
+      "from": "packages/ai-training-batch/show/TrainingBatchPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/fine-tune-a-small-model-on-a-persons-rules/packages/ai-training-batch/show/TrainingBatchPanel.tsx",
+      "source_identity": "1f:41358efaf534283ed2ab7fa0b9242e8701a36495302045c84c7d24eea13c587a",
+      "identity": "1f:41358efaf534283ed2ab7fa0b9242e8701a36495302045c84c7d24eea13c587a"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/public-scene-share/show/mount-share-surface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/share-anything/packages/public-scene-share/show/mount-share-surface.tsx",
+      "source_identity": "1f:b85982815ee17125f151b67c220643e017a7d6708f996b1beb743b3907c6439e",
+      "identity": "1f:b85982815ee17125f151b67c220643e017a7d6708f996b1beb743b3907c6439e"
+    },
+    {
+      "from": "packages/public-scene-share/show/share-scene-presenter.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/share-anything/packages/public-scene-share/show/share-scene-presenter.test.ts",
+      "source_identity": "1f:adf3a55a966c20272c3af7485452ab0d434c075ad28edf45b1400c1ecbb095d1",
+      "identity": "1f:adf3a55a966c20272c3af7485452ab0d434c075ad28edf45b1400c1ecbb095d1"
+    },
+    {
+      "from": "packages/public-scene-share/show/share-scene-presenter.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/share-anything/packages/public-scene-share/show/share-scene-presenter.ts",
+      "source_identity": "1f:2778229b358cc65420df558ae28d682ea406828b3be0db9aa62f9ebb7c61b7f9",
+      "identity": "1f:2778229b358cc65420df558ae28d682ea406828b3be0db9aa62f9ebb7c61b7f9"
+    },
+    {
+      "from": "packages/public-scene-share/show/share-surface-scope.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/share-anything/packages/public-scene-share/show/share-surface-scope.test.tsx",
+      "source_identity": "1f:7e8ef9f0025263bd1879b882a325bb4d3b518baa0d9932983e68d089588407ed",
+      "identity": "1f:7e8ef9f0025263bd1879b882a325bb4d3b518baa0d9932983e68d089588407ed"
+    },
+    {
+      "from": "packages/public-scene-share/show/share-surface.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/share-anything/packages/public-scene-share/show/share-surface.test.ts",
+      "source_identity": "1f:dcff011a92143edfde9691aa4c1f6ec4421b16c89f612d6b33c95744dd05c305",
+      "identity": "1f:dcff011a92143edfde9691aa4c1f6ec4421b16c89f612d6b33c95744dd05c305"
+    },
+    {
+      "from": "packages/public-scene-share/show/share-surface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/share-anything/packages/public-scene-share/show/share-surface.tsx",
+      "source_identity": "1f:d36dfd02f5edcc0a7f900bd5369d92df8fe352f5af82ffa8471b9a7457d2245f",
+      "identity": "1f:d36dfd02f5edcc0a7f900bd5369d92df8fe352f5af82ffa8471b9a7457d2245f"
+    },
+    {
+      "from": "packages/public-scene-share/show/ShareAffordance.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/share-anything/packages/public-scene-share/show/ShareAffordance.test.tsx",
+      "source_identity": "1f:1cfdcf35fbd2174ce6e5f7c177ef78d1791ba13386ed8874f6b65e5ac93cf832",
+      "identity": "1f:1cfdcf35fbd2174ce6e5f7c177ef78d1791ba13386ed8874f6b65e5ac93cf832"
+    },
+    {
+      "from": "packages/public-scene-share/show/ShareAffordance.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/share-anything/packages/public-scene-share/show/ShareAffordance.tsx",
+      "source_identity": "1f:456b371bddb8678560082ba37fe5077865ca4a7ca7546b3dccc91c53c492e820",
+      "identity": "1f:456b371bddb8678560082ba37fe5077865ca4a7ca7546b3dccc91c53c492e820"
+    }
+  ]
+}

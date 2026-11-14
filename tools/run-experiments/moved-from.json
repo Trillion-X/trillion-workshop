@@ -1,0 +1,64 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/choose-per-observer/show/DeciderBuilder.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/show/DeciderBuilder.test.tsx",
+      "source_identity": "1f:cccf555e67395a08a9f3c3212d85d0b8704febe226b54dd499740a12130dd34d",
+      "identity": "1f:cccf555e67395a08a9f3c3212d85d0b8704febe226b54dd499740a12130dd34d"
+    },
+    {
+      "from": "packages/choose-per-observer/show/DeciderBuilder.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/show/DeciderBuilder.tsx",
+      "source_identity": "1f:3f68f0871a460ed634aeeaf936fda8ab8c14be6cdcfc5b0da15379f74e11c6c5",
+      "identity": "1f:3f68f0871a460ed634aeeaf936fda8ab8c14be6cdcfc5b0da15379f74e11c6c5"
+    },
+    {
+      "from": "packages/choose-per-observer/show/metric-format.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/show/metric-format.ts",
+      "source_identity": "1f:91d8908786310289e42cfd5d62ef4a39a481b5b01125a08537b4d7293da5d9c4",
+      "identity": "1f:91d8908786310289e42cfd5d62ef4a39a481b5b01125a08537b4d7293da5d9c4"
+    },
+    {
+      "from": "packages/choose-per-observer/show/mount-scoreboard.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/show/mount-scoreboard.tsx",
+      "source_identity": "1f:1a9addf8d1dae2d35a926a7a02aa99418cec1f84850dfe9539c78a5896c39fae",
+      "identity": "1f:1a9addf8d1dae2d35a926a7a02aa99418cec1f84850dfe9539c78a5896c39fae"
+    },
+    {
+      "from": "packages/choose-per-observer/show/observer-profile-view-model.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/show/observer-profile-view-model.ts",
+      "source_identity": "1f:55f88965106e97376b2ad9d13476667d3947351e8b82003440d8cb4af4cb608d",
+      "identity": "1f:55f88965106e97376b2ad9d13476667d3947351e8b82003440d8cb4af4cb608d"
+    },
+    {
+      "from": "packages/choose-per-observer/show/ObserverProfileSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/show/ObserverProfileSurface.tsx",
+      "source_identity": "1f:a81decaf2c3b291ea15ec1af318630337330bfe0b1d79391706f3d2393bb1330",
+      "identity": "1f:a81decaf2c3b291ea15ec1af318630337330bfe0b1d79391706f3d2393bb1330"
+    },
+    {
+      "from": "packages/choose-per-observer/show/scoreboard-view-model.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/show/scoreboard-view-model.ts",
+      "source_identity": "1f:dc36769aca0cc39e05f17a3ecf9a28e97f98152379467760952480d5fb497cd1",
+      "identity": "1f:dc36769aca0cc39e05f17a3ecf9a28e97f98152379467760952480d5fb497cd1"
+    },
+    {
+      "from": "packages/choose-per-observer/show/ScoreboardSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/run-experiments/packages/choose-per-observer/show/ScoreboardSurface.tsx",
+      "source_identity": "1f:9e27eb96de38b8a987043316c2d606cc38d6dd4bf795a81fbfbf1502f6144f3c",
+      "identity": "1f:9e27eb96de38b8a987043316c2d606cc38d6dd4bf795a81fbfbf1502f6144f3c"
+    }
+  ]
+}

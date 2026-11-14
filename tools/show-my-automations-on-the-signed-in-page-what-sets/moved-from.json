@@ -35,6 +35,27 @@
       "held": true
     },
     {
+      "from": "packages/connector-room/show/ConnectorRoomPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-my-automations-on-the-signed-in-page-what-sets/packages/connector-room/show/ConnectorRoomPanel.tsx",
+      "source_identity": "1f:18c5dd1a9f72f0c881bd43faa23166d520aa38ba90cfc52c9ad6e51a845451f7",
+      "identity": "1f:18c5dd1a9f72f0c881bd43faa23166d520aa38ba90cfc52c9ad6e51a845451f7"
+    },
+    {
+      "from": "packages/connector-room/show/mount-connector-room.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-my-automations-on-the-signed-in-page-what-sets/packages/connector-room/show/mount-connector-room.tsx",
+      "source_identity": "1f:8f28f0a8ddf21a4805fe011c8b35fac798fb0ba450be00cb84af5d95d98e7c28",
+      "identity": "1f:8f28f0a8ddf21a4805fe011c8b35fac798fb0ba450be00cb84af5d95d98e7c28"
+    },
+    {
+      "from": "packages/connector-room/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-my-automations-on-the-signed-in-page-what-sets/packages/connector-room/show/README.md",
+      "source_identity": "1f:36392e6ac22178cd9a2e39c1aef39e7a99f2bf8d87571eaec7902a27aa3984f2",
+      "identity": "1f:36392e6ac22178cd9a2e39c1aef39e7a99f2bf8d87571eaec7902a27aa3984f2"
+    },
+    {
       "from": "web/src/workspace/last-run-words.mjs",
       "commit": "6c5d561107b6fd7c7800d8c400513108e0a472be",
       "to": "tools/show-my-automations-on-the-signed-in-page-what-sets/web/src/workspace/last-run-words.mjs",

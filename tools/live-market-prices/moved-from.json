@@ -1,0 +1,43 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/market-data-feed/show/MarketDataFeedPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/live-market-prices/packages/market-data-feed/show/MarketDataFeedPanel.tsx",
+      "source_identity": "1f:ac6e3de634da57d5974b17d2f33958905ba78c5aba38fa2f2202a076a96ce2f3",
+      "identity": "1f:ac6e3de634da57d5974b17d2f33958905ba78c5aba38fa2f2202a076a96ce2f3"
+    },
+    {
+      "from": "packages/market-data-feed/show/mount-market-data-feed.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/live-market-prices/packages/market-data-feed/show/mount-market-data-feed.tsx",
+      "source_identity": "1f:fd1a99f535033bcf8629a275ea2d3967243bd54eac5ef98067869d17ddceddb7",
+      "identity": "1f:fd1a99f535033bcf8629a275ea2d3967243bd54eac5ef98067869d17ddceddb7"
+    },
+    {
+      "from": "packages/market-data-feed/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/live-market-prices/packages/market-data-feed/show/README.md",
+      "source_identity": "1f:1b0e5674a7b0c403e6f7047c9cf761e0206a62ac8218a6aefe68d7d37c82bb9c",
+      "identity": "1f:1b0e5674a7b0c403e6f7047c9cf761e0206a62ac8218a6aefe68d7d37c82bb9c"
+    },
+    {
+      "from": "packages/polymarket/show/mount-polymarket.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/live-market-prices/packages/polymarket/show/mount-polymarket.tsx",
+      "source_identity": "1f:74451ea2b2272cd651ab703cd7dfa1e8cdfc6609d2d7b7a8c45e6b46dcd4f069",
+      "identity": "1f:74451ea2b2272cd651ab703cd7dfa1e8cdfc6609d2d7b7a8c45e6b46dcd4f069"
+    },
+    {
+      "from": "packages/polymarket/show/PolymarketPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/live-market-prices/packages/polymarket/show/PolymarketPanel.tsx",
+      "source_identity": "1f:b2de83349a10bb7d39264e1fc4fa77b731719daf1d4106ea293e6a3f45fdadef",
+      "identity": "1f:b2de83349a10bb7d39264e1fc4fa77b731719daf1d4106ea293e6a3f45fdadef"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/destination-surface/read-data/read-destination.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/published-destinations/packages/destination-surface/read-data/read-destination.ts",
+      "source_identity": "1f:cc46ab676a13b684668b734a1de3d355cb6bd64ce14d3f3161afdde7f2439984",
+      "identity": "1f:cc46ab676a13b684668b734a1de3d355cb6bd64ce14d3f3161afdde7f2439984"
+    },
+    {
+      "from": "packages/destination-surface/show/destination-section-registry.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/published-destinations/packages/destination-surface/show/destination-section-registry.tsx",
+      "source_identity": "1f:f78b30d88fd8c5aa083c457d2240c59471cdc5ed3f4a3ea96a2391e3958d623b",
+      "identity": "1f:f78b30d88fd8c5aa083c457d2240c59471cdc5ed3f4a3ea96a2391e3958d623b"
+    },
+    {
+      "from": "packages/destination-surface/show/DestinationView.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/published-destinations/packages/destination-surface/show/DestinationView.test.tsx",
+      "source_identity": "1f:0abd1de9cd707ce419f90dd9b6b4fc1a1c48e960ff441f7ba688e2216acc1c81",
+      "identity": "1f:0abd1de9cd707ce419f90dd9b6b4fc1a1c48e960ff441f7ba688e2216acc1c81"
+    },
+    {
+      "from": "packages/destination-surface/show/DestinationView.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/published-destinations/packages/destination-surface/show/DestinationView.tsx",
+      "source_identity": "1f:7cd611435e914b0fc3e2f1dacac316c6824a6da352131d82e54a33b1659050de",
+      "identity": "1f:7cd611435e914b0fc3e2f1dacac316c6824a6da352131d82e54a33b1659050de"
+    },
+    {
+      "from": "packages/destination-surface/show/mount-destination.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/published-destinations/packages/destination-surface/show/mount-destination.tsx",
+      "source_identity": "1f:c21efefe2e5c29fbcb6e43de1a7fc22ba2c9709e14f1861ac16fc87e66d58ed3",
+      "identity": "1f:c21efefe2e5c29fbcb6e43de1a7fc22ba2c9709e14f1861ac16fc87e66d58ed3"
+    }
+  ]
+}

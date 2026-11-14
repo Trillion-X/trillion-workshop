@@ -18,6 +18,41 @@
   ],
   "files": [
     {
+      "from": "packages/item-record/show/ItemFeed.empty-state.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-the-persons-spaces-on-the-signed-in-page-answer/packages/item-record/show/ItemFeed.empty-state.test.tsx",
+      "source_identity": "1f:49a979e35dc26fdd13c4c25889a6fc5ec4a3b02f1cc7e81789473f2713e1cbc3",
+      "identity": "1f:49a979e35dc26fdd13c4c25889a6fc5ec4a3b02f1cc7e81789473f2713e1cbc3"
+    },
+    {
+      "from": "packages/item-record/show/ItemFeed.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-the-persons-spaces-on-the-signed-in-page-answer/packages/item-record/show/ItemFeed.tsx",
+      "source_identity": "1f:34605a09d99dba6415f9643db22fc7cb8fa9a85657f0679668515d552c901a8d",
+      "identity": "1f:34605a09d99dba6415f9643db22fc7cb8fa9a85657f0679668515d552c901a8d"
+    },
+    {
+      "from": "packages/item-record/show/mount-item-composer.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-the-persons-spaces-on-the-signed-in-page-answer/packages/item-record/show/mount-item-composer.tsx",
+      "source_identity": "1f:fd8bd5ed0d6bb7bc570888cd62244bcc52b6e6c8f4c65ef2cc085174292de0c4",
+      "identity": "1f:fd8bd5ed0d6bb7bc570888cd62244bcc52b6e6c8f4c65ef2cc085174292de0c4"
+    },
+    {
+      "from": "packages/item-record/show/mount-item-record.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-the-persons-spaces-on-the-signed-in-page-answer/packages/item-record/show/mount-item-record.tsx",
+      "source_identity": "1f:7a90feb5b6a5e824a71282df1a48d38d14038db3edd6b2a485014909b87463a7",
+      "identity": "1f:7a90feb5b6a5e824a71282df1a48d38d14038db3edd6b2a485014909b87463a7"
+    },
+    {
+      "from": "packages/item-record/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/show-the-persons-spaces-on-the-signed-in-page-answer/packages/item-record/show/README.md",
+      "source_identity": "1f:631b417cac38bdca6b6d49b5ea0e1d319dadba7406b1784c770397cd5770bd5c",
+      "identity": "1f:631b417cac38bdca6b6d49b5ea0e1d319dadba7406b1784c770397cd5770bd5c"
+    },
+    {
       "from": "src/work-spaces.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/show-the-persons-spaces-on-the-signed-in-page-answer/src/work-spaces.mjs",

@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/media-analysis/show/MediaAnalysisPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/media-analysis/packages/media-analysis/show/MediaAnalysisPanel.tsx",
+      "source_identity": "1f:69c81ca672970218cb7d77d1bb27c2d95844a8817e9df4267588d654eecf3a0c",
+      "identity": "1f:69c81ca672970218cb7d77d1bb27c2d95844a8817e9df4267588d654eecf3a0c"
+    },
+    {
+      "from": "packages/media-analysis/show/mount-media-analysis.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/media-analysis/packages/media-analysis/show/mount-media-analysis.tsx",
+      "source_identity": "1f:dcec9d9c66b3ea66682f272c26769ff44ccb38f8e8c3c725bb799edc079e620b",
+      "identity": "1f:dcec9d9c66b3ea66682f272c26769ff44ccb38f8e8c3c725bb799edc079e620b"
+    }
+  ]
+}

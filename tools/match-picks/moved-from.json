@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/match-picks/show/match-picks-scoped-feed.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/match-picks/packages/match-picks/show/match-picks-scoped-feed.test.ts",
+      "source_identity": "1f:ba7859b21647dde0f89b8184e4149042920a2d6b4e5f0b5084470bb75d76d1a0",
+      "identity": "1f:ba7859b21647dde0f89b8184e4149042920a2d6b4e5f0b5084470bb75d76d1a0"
+    },
+    {
+      "from": "packages/match-picks/show/MatchPicksSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/match-picks/packages/match-picks/show/MatchPicksSurface.tsx",
+      "source_identity": "1f:1508b2b9ecc426009ef1f74ad4d9f35822cde1eba97da8e75149ba376836618a",
+      "identity": "1f:1508b2b9ecc426009ef1f74ad4d9f35822cde1eba97da8e75149ba376836618a"
+    },
+    {
+      "from": "packages/match-picks/show/mount-match-picks.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/match-picks/packages/match-picks/show/mount-match-picks.tsx",
+      "source_identity": "1f:aeb8e5337e6d94cbbc188775ca979fcb5940730dc02003603ef5afe53f1243cd",
+      "identity": "1f:aeb8e5337e6d94cbbc188775ca979fcb5940730dc02003603ef5afe53f1243cd"
+    },
+    {
+      "from": "packages/match-picks/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/match-picks/packages/match-picks/show/README.md",
+      "source_identity": "1f:32599ac187a5d27eb288870011dd00649b3b4c972a1f0d36d48134c705d431e8",
+      "identity": "1f:32599ac187a5d27eb288870011dd00649b3b4c972a1f0d36d48134c705d431e8"
+    }
+  ]
+}

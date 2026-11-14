@@ -21,6 +21,27 @@
       "source_identity": "1f:36d4930730784c8e6567f4cc30d15a05f590439a24c9d4145c8d6521bd4c8323",
       "identity": "1f:36d4930730784c8e6567f4cc30d15a05f590439a24c9d4145c8d6521bd4c8323",
       "found_by": "same bytes"
+    },
+    {
+      "from": "packages/selected-agent/show/AgentSelectionSurface.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/selected-agent/packages/selected-agent/show/AgentSelectionSurface.test.tsx",
+      "source_identity": "1f:67bc626be9d18b1f2aac0287dce742db534159c9dd5ee67440f878bc1596fc6d",
+      "identity": "1f:67bc626be9d18b1f2aac0287dce742db534159c9dd5ee67440f878bc1596fc6d"
+    },
+    {
+      "from": "packages/selected-agent/show/AgentSelectionSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/selected-agent/packages/selected-agent/show/AgentSelectionSurface.tsx",
+      "source_identity": "1f:a340a360a326e463bd4df3e03ecbf3e9000bb3167108e7dd533eccdc06de2561",
+      "identity": "1f:a340a360a326e463bd4df3e03ecbf3e9000bb3167108e7dd533eccdc06de2561"
+    },
+    {
+      "from": "packages/selected-agent/show/mount-selection-surface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/selected-agent/packages/selected-agent/show/mount-selection-surface.tsx",
+      "source_identity": "1f:3af8141eb62fe4857ba0ac8ab8b47421060b39e82854eede4a6616dd4fd56cf3",
+      "identity": "1f:3af8141eb62fe4857ba0ac8ab8b47421060b39e82854eede4a6616dd4fd56cf3"
     }
   ]
 }

@@ -2,7 +2,14 @@
   "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
   "source": "trillion",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "a-persons-anatomy-made-generic",
+      "find": "Bria[n]'s anatomy",
+      "replace": "the owner's anatomy",
+      "means": "A comment named the maker; a public tree holds made-up names only."
+    }
+  ],
   "files": [
     {
       "from": "src/work-item-rows.mjs",
@@ -23,6 +30,184 @@
       "changed": true
     },
     {
+      "from": "packages/agent-catalog/show/AgentCatalog.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-is-being-worked-on/packages/agent-catalog/show/AgentCatalog.tsx",
+      "source_identity": "1f:e9e10181f6c8ae4e9b85ccf29b5f3b89805cb8ee38b67581bbaa8ad0e2bea921",
+      "identity": "1f:e9e10181f6c8ae4e9b85ccf29b5f3b89805cb8ee38b67581bbaa8ad0e2bea921"
+    },
+    {
+      "from": "packages/agent-catalog/show/OrganizationalChart.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-is-being-worked-on/packages/agent-catalog/show/OrganizationalChart.tsx",
+      "source_identity": "1f:392429b798d9133ae334b6a4edc69d2586330ef3c916984f26d368fcab46141f",
+      "identity": "1f:392429b798d9133ae334b6a4edc69d2586330ef3c916984f26d368fcab46141f"
+    },
+    {
+      "from": "packages/agents-hub/show/__tests__/decode-published-record-rows.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-is-being-worked-on/packages/agents-hub/show/__tests__/decode-published-record-rows.test.ts",
+      "source_identity": "1f:1a4be37e2d86c2c3b8a27e1d8d868f6e3df336e930a75d4590c85da30b31d349",
+      "identity": "1f:1a4be37e2d86c2c3b8a27e1d8d868f6e3df336e930a75d4590c85da30b31d349"
+    },
+    {
+      "from": "packages/agents-hub/show/__tests__/surface-input.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-is-being-worked-on/packages/agents-hub/show/__tests__/surface-input.test.ts",
+      "source_identity": "1f:149d3bb225e8df176e7fa15096fa574e6255ff1197b672439e61a86c0c12638e",
+      "identity": "1f:149d3bb225e8df176e7fa15096fa574e6255ff1197b672439e61a86c0c12638e"
+    },
+    {
+      "from": "packages/agents-hub/show/AgentCard.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-is-being-worked-on/packages/agents-hub/show/AgentCard.tsx",
+      "source_identity": "1f:1dbffd9da289f9537ae4dd38027847317fb27e8a5a384a85c52af9b29cb7e233",
+      "identity": "1f:1dbffd9da289f9537ae4dd38027847317fb27e8a5a384a85c52af9b29cb7e233"
+    },
+    {
+      "from": "packages/agents-hub/show/AgentEditView.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-is-being-worked-on/packages/agents-hub/show/AgentEditView.tsx",
+      "source_identity": "1f:9700d924c18b0a17b12b198fefa7a907122685ed63e014c2c1006c18379f4d43",
+      "identity": "1f:9700d924c18b0a17b12b198fefa7a907122685ed63e014c2c1006c18379f4d43"
+    },
+    {
+      "from": "packages/agents-hub/show/AgentManagerView.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-is-being-worked-on/packages/agents-hub/show/AgentManagerView.tsx",
+      "source_identity": "1f:4e8f91e004410deb483f052c1c4ecf6dadec0d622f8bcbe611776d2e801accba",
+      "identity": "1f:4e8f91e004410deb483f052c1c4ecf6dadec0d622f8bcbe611776d2e801accba"
+    },
+    {
+      "from": "packages/agents-hub/show/AgentQuickView.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-is-being-worked-on/packages/agents-hub/show/AgentQuickView.tsx",
+      "source_identity": "1f:b127b825e92ff4048f757658090246055383dc56179c48bf18bb1b4509f7e309",
+      "identity": "1f:b127b825e92ff4048f757658090246055383dc56179c48bf18bb1b4509f7e309"
+    },
+    {
+      "from": "packages/agents-hub/show/AgentsHubSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-is-being-worked-on/packages/agents-hub/show/AgentsHubSurface.tsx",
+      "source_identity": "1f:9fc8b7060c3f6657da5ad32a10150e554ae999c16db437930829b7146c6f5d9d",
+      "identity": "1f:4483f55aa4383cb0e3b865f2e23b45fd56e08f676ea0082c2c07c209636fc55a",
+      "calls": [
+        "a-persons-anatomy-made-generic"
+      ]
+    },
+    {
+      "from": "packages/agents-hub/show/EntityCard.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-is-being-worked-on/packages/agents-hub/show/EntityCard.tsx",
+      "source_identity": "1f:e9396c684729224952df1e18c4f4c908083ed0839c7e9f5cddabb6b080de9cc8",
+      "identity": "1f:e9396c684729224952df1e18c4f4c908083ed0839c7e9f5cddabb6b080de9cc8"
+    },
+    {
+      "from": "packages/agents-hub/show/EntityDetailView.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-is-being-worked-on/packages/agents-hub/show/EntityDetailView.tsx",
+      "source_identity": "1f:aaf5ecefa2e496eb3db39ae573119ad220cf0409f35a89e471b801d127ca2f78",
+      "identity": "1f:aaf5ecefa2e496eb3db39ae573119ad220cf0409f35a89e471b801d127ca2f78"
+    },
+    {
+      "from": "packages/agents-hub/show/mount-agents-hub.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-is-being-worked-on/packages/agents-hub/show/mount-agents-hub.tsx",
+      "source_identity": "1f:50353c00900859d3ab719c786bdba6a932ae7873279b19ab62cb22810fae7a9f",
+      "identity": "1f:50353c00900859d3ab719c786bdba6a932ae7873279b19ab62cb22810fae7a9f"
+    },
+    {
+      "from": "packages/project-gate-compliance/show/mount-project-gate-compliance.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-is-being-worked-on/packages/project-gate-compliance/show/mount-project-gate-compliance.tsx",
+      "source_identity": "1f:328754f82f4047a781d213e4e9285fe1a6e9c87d7e1a290aae7382ce5941992e",
+      "identity": "1f:328754f82f4047a781d213e4e9285fe1a6e9c87d7e1a290aae7382ce5941992e"
+    },
+    {
+      "from": "packages/project-gate-compliance/show/ProjectGateCompliancePanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-is-being-worked-on/packages/project-gate-compliance/show/ProjectGateCompliancePanel.tsx",
+      "source_identity": "1f:6226e41d42e9645164544a3e5cae573a8807cfe27db09735bd74b9e69ffde05e",
+      "identity": "1f:6226e41d42e9645164544a3e5cae573a8807cfe27db09735bd74b9e69ffde05e"
+    },
+    {
+      "from": "packages/projects/show/mount-projects.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-is-being-worked-on/packages/projects/show/mount-projects.tsx",
+      "source_identity": "1f:c5048ec6f5f2630780660e0a60c2afbc162c417c0c2ea3e0cc5d6bb27a72a479",
+      "identity": "1f:c5048ec6f5f2630780660e0a60c2afbc162c417c0c2ea3e0cc5d6bb27a72a479"
+    },
+    {
+      "from": "packages/projects/show/ProjectCard.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-is-being-worked-on/packages/projects/show/ProjectCard.tsx",
+      "source_identity": "1f:50c04083e7f932e1f9ce3ce8eb2c2c0e9456952c1b95440c412d94063847d897",
+      "identity": "1f:50c04083e7f932e1f9ce3ce8eb2c2c0e9456952c1b95440c412d94063847d897"
+    },
+    {
+      "from": "packages/projects/show/ProjectsPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-is-being-worked-on/packages/projects/show/ProjectsPanel.tsx",
+      "source_identity": "1f:2f6a2272953046778de7e68737c95a984d6c9b16d34e409fd29469508e9d97ab",
+      "identity": "1f:2f6a2272953046778de7e68737c95a984d6c9b16d34e409fd29469508e9d97ab"
+    },
+    {
+      "from": "packages/record-board-progress-feed/read-data/observed-content-flow.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-is-being-worked-on/packages/record-board-progress-feed/read-data/observed-content-flow.ts",
+      "source_identity": "1f:cd2e3c4e2bfc50326d12f00233e002c6bfdb7ffd7eb84a29667135b0242a8c0e",
+      "identity": "1f:cd2e3c4e2bfc50326d12f00233e002c6bfdb7ffd7eb84a29667135b0242a8c0e"
+    },
+    {
+      "from": "packages/record-board-progress-feed/read-data/source-correlated-records.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-is-being-worked-on/packages/record-board-progress-feed/read-data/source-correlated-records.ts",
+      "source_identity": "1f:103aa4caac8c1e38e731ef0881ec4aaa00095a5e1fcc4d3e1c962981c258f053",
+      "identity": "1f:103aa4caac8c1e38e731ef0881ec4aaa00095a5e1fcc4d3e1c962981c258f053"
+    },
+    {
+      "from": "packages/record-board-progress-feed/read-data/work-flow-feed.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-is-being-worked-on/packages/record-board-progress-feed/read-data/work-flow-feed.ts",
+      "source_identity": "1f:f96ce8c7561ae62010aad1ae273df6cc60bed12e041651a7e89a10da4799fe32",
+      "identity": "1f:f96ce8c7561ae62010aad1ae273df6cc60bed12e041651a7e89a10da4799fe32"
+    },
+    {
+      "from": "packages/record-board-progress-feed/read-data/work-flow-map.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-is-being-worked-on/packages/record-board-progress-feed/read-data/work-flow-map.ts",
+      "source_identity": "1f:b61128f29adf7006f53516a730dc50b836326f0be38b63b5989b415b1237c433",
+      "identity": "1f:b61128f29adf7006f53516a730dc50b836326f0be38b63b5989b415b1237c433"
+    },
+    {
+      "from": "packages/record-board-progress-feed/show/mount-work-flow-map.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-is-being-worked-on/packages/record-board-progress-feed/show/mount-work-flow-map.test.tsx",
+      "source_identity": "1f:4ae42b1d4d25dbe8900fee50afc7aecbea56dd739ddad05c65db9cf1c85d8027",
+      "identity": "1f:4ae42b1d4d25dbe8900fee50afc7aecbea56dd739ddad05c65db9cf1c85d8027"
+    },
+    {
+      "from": "packages/record-board-progress-feed/show/mount-work-flow-map.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-is-being-worked-on/packages/record-board-progress-feed/show/mount-work-flow-map.tsx",
+      "source_identity": "1f:5e51a3d190bd8c1defd92d17b0407dc9098fa8ba33aaa05f26d1a650d92506a6",
+      "identity": "1f:5e51a3d190bd8c1defd92d17b0407dc9098fa8ba33aaa05f26d1a650d92506a6"
+    },
+    {
+      "from": "packages/record-board-progress-feed/show/WorkFlowMap.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-is-being-worked-on/packages/record-board-progress-feed/show/WorkFlowMap.test.tsx",
+      "source_identity": "1f:b717d007140a792d76e2bccf2dd7d7b2d0ead218d5fd0e419ba8c9a18036345b",
+      "identity": "1f:b717d007140a792d76e2bccf2dd7d7b2d0ead218d5fd0e419ba8c9a18036345b"
+    },
+    {
+      "from": "packages/record-board-progress-feed/show/WorkFlowMap.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-is-being-worked-on/packages/record-board-progress-feed/show/WorkFlowMap.tsx",
+      "source_identity": "1f:b686c033ea62eb00b7fce5a88a92c70af721b8034d48ea9aae555c95f259c052",
+      "identity": "1f:b686c033ea62eb00b7fce5a88a92c70af721b8034d48ea9aae555c95f259c052"
+    },
+    {
       "from": "parts/work-map/read-data/join-records.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
@@ -41,21 +226,21 @@
       "found_by": "same bytes"
     },
     {
-      "from": "parts/workflow-canvas/show/WorkflowEdge.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/see-what-is-being-worked-on/show/WorkflowEdge.tsx",
-      "source_identity": "1f:d1ec656649c09f4f738e33ee3f82f929cd8d002fc230af408a27ccc0bed542ce",
-      "identity": "1f:d1ec656649c09f4f738e33ee3f82f929cd8d002fc230af408a27ccc0bed542ce",
-      "found_by": "same bytes"
-    },
-    {
       "from": "parts/work-map/show/work-map-screen.tsx",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
       "to": "tools/see-what-is-being-worked-on/show/work-map-screen.tsx",
       "source_identity": "1f:af2411dacefbad786bd5ae563590a1d4a8f27daa1b29604a7252d170ed9c6f00",
       "identity": "1f:af2411dacefbad786bd5ae563590a1d4a8f27daa1b29604a7252d170ed9c6f00",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/workflow-canvas/show/WorkflowEdge.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/see-what-is-being-worked-on/show/WorkflowEdge.tsx",
+      "source_identity": "1f:d1ec656649c09f4f738e33ee3f82f929cd8d002fc230af408a27ccc0bed542ce",
+      "identity": "1f:d1ec656649c09f4f738e33ee3f82f929cd8d002fc230af408a27ccc0bed542ce",
       "found_by": "same bytes"
     },
     {

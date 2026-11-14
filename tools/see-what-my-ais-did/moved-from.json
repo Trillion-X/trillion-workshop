@@ -36,6 +36,41 @@
       "identity": "1f:bbe57684db56b08bb9ab4be9e39fa37749076cce22378fd7509d18d322239339"
     },
     {
+      "from": "packages/away-summary/show/AwaySummary.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-my-ais-did/packages/away-summary/show/AwaySummary.tsx",
+      "source_identity": "1f:e9dc3ac74ac6efe3f959eebb56e9f39fa3dbf725583e42d8e74fe9846e9f25ad",
+      "identity": "1f:e9dc3ac74ac6efe3f959eebb56e9f39fa3dbf725583e42d8e74fe9846e9f25ad"
+    },
+    {
+      "from": "packages/away-summary/show/AwaySummaryGate.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-my-ais-did/packages/away-summary/show/AwaySummaryGate.tsx",
+      "source_identity": "1f:55e30c9297648172b34d3355ed0f62d23a9c2bf040a4c42bc918e7a22f9cdc25",
+      "identity": "1f:55e30c9297648172b34d3355ed0f62d23a9c2bf040a4c42bc918e7a22f9cdc25"
+    },
+    {
+      "from": "packages/event-group/show/EventGroupPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-my-ais-did/packages/event-group/show/EventGroupPanel.tsx",
+      "source_identity": "1f:e04121278b46baeb530f4be92e6f680f5a5f60702215013366fe3df2722b38a7",
+      "identity": "1f:e04121278b46baeb530f4be92e6f680f5a5f60702215013366fe3df2722b38a7"
+    },
+    {
+      "from": "packages/event-group/show/mount-event-group.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-my-ais-did/packages/event-group/show/mount-event-group.tsx",
+      "source_identity": "1f:fc12343e40e023fafc5e4cbc43b70c0f87f0d033b48355acbae5da77ec2d9cc8",
+      "identity": "1f:fc12343e40e023fafc5e4cbc43b70c0f87f0d033b48355acbae5da77ec2d9cc8"
+    },
+    {
+      "from": "packages/event-group/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/see-what-my-ais-did/packages/event-group/show/README.md",
+      "source_identity": "1f:ca8c93c4155c6c9df5d1480d3b214f55b070495d103e52431d2898ce5402da12",
+      "identity": "1f:ca8c93c4155c6c9df5d1480d3b214f55b070495d103e52431d2898ce5402da12"
+    },
+    {
       "from": "test/activity-counts-hot.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/see-what-my-ais-did/test/activity-counts-hot.test.mjs",

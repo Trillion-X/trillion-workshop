@@ -2,7 +2,20 @@
   "about": "Files moved here from another code tree: each names its source path and commit and the identity of its source bytes, which its first commit here held byte for byte (its port contract in ports/ names any later change). lines names the part of the source file that moved.",
   "source": "Trillion-X/trillion",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    },
+    {
+      "id": "a-home-folder-made-relative",
+      "find": "[/]Users[/]br[i]anakhtar[/]",
+      "replace": "",
+      "means": "A path in the maker's home folder, written from the home folder instead."
+    }
+  ],
   "files": [
     {
       "from": "src/work-marketplace.mjs",
@@ -29,6 +42,197 @@
         74,
         88
       ]
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/read-data/read-catalog-view.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-browse-surface/read-data/read-catalog-view.ts",
+      "source_identity": "1f:28c420d180f2f68c4ab8a5ce7591b711e947d080b00fbfdd0db1cfe7f60551f5",
+      "identity": "1f:28c420d180f2f68c4ab8a5ce7591b711e947d080b00fbfdd0db1cfe7f60551f5"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/show/AICurationPanelComponent.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-browse-surface/show/AICurationPanelComponent.test.tsx",
+      "source_identity": "1f:355808593c48a7be17424a2699afc1c69056abf2cd46ea8affc48ae49e3fe4a6",
+      "identity": "1f:355808593c48a7be17424a2699afc1c69056abf2cd46ea8affc48ae49e3fe4a6"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/show/AICurationPanelComponent.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-browse-surface/show/AICurationPanelComponent.tsx",
+      "source_identity": "1f:faa2567013ee9478b009ff401d5bffb60885512a76b6e8a153aa70a8c9f4f95f",
+      "identity": "1f:faa2567013ee9478b009ff401d5bffb60885512a76b6e8a153aa70a8c9f4f95f"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/show/BitfieldPackageStoreBrowseSurface.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-browse-surface/show/BitfieldPackageStoreBrowseSurface.test.tsx",
+      "source_identity": "1f:48cc56e193ec0aa419d9bc8497ffc8adc24d2387baf91830e8b3aa2d7a095cb0",
+      "identity": "1f:48cc56e193ec0aa419d9bc8497ffc8adc24d2387baf91830e8b3aa2d7a095cb0"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/show/BitfieldPackageStoreBrowseSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-browse-surface/show/BitfieldPackageStoreBrowseSurface.tsx",
+      "source_identity": "1f:9a798a43983e58425972b18ea94388ce0c635c4fd1f5dbb03bc94a59608060d6",
+      "identity": "1f:9a798a43983e58425972b18ea94388ce0c635c4fd1f5dbb03bc94a59608060d6"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/show/mount-package-store-browse-surface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-browse-surface/show/mount-package-store-browse-surface.tsx",
+      "source_identity": "1f:a287f3b6b14bbfd420fabf0ba10c85b84833456ce4396d67bd7f3f006f0e433f",
+      "identity": "1f:a287f3b6b14bbfd420fabf0ba10c85b84833456ce4396d67bd7f3f006f0e433f"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/show/packageDownloadUrl.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-browse-surface/show/packageDownloadUrl.test.tsx",
+      "source_identity": "1f:4e59a0cffbe3ecf8298d7b4c09925bcb81df2fdc89cb884e4ca3b1298f1743be",
+      "identity": "1f:4e59a0cffbe3ecf8298d7b4c09925bcb81df2fdc89cb884e4ca3b1298f1743be"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/show/PointillistPackagePreviewCanvas.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-browse-surface/show/PointillistPackagePreviewCanvas.tsx",
+      "source_identity": "1f:811843af9762da9f60b964ca47ef21eac3092bc1c3e10ae6e0c1fcda3bd09fda",
+      "identity": "1f:811843af9762da9f60b964ca47ef21eac3092bc1c3e10ae6e0c1fcda3bd09fda"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/show/pointillistPackedFrame.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-browse-surface/show/pointillistPackedFrame.ts",
+      "source_identity": "1f:a086963e666e29dadb7d69d1d10e9ba58834a2f73d58309fdd616e7bbc752cbc",
+      "identity": "1f:a086963e666e29dadb7d69d1d10e9ba58834a2f73d58309fdd616e7bbc752cbc"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/show/PresentationSectionRenderer.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-browse-surface/show/PresentationSectionRenderer.tsx",
+      "source_identity": "1f:b807c63d2104f600336a12201958553641d9c99ccefc2bedda6081ac596e46f1",
+      "identity": "1f:b807c63d2104f600336a12201958553641d9c99ccefc2bedda6081ac596e46f1"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/show/SearchModeRow.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-browse-surface/show/SearchModeRow.test.tsx",
+      "source_identity": "1f:328fa541e1f04756eea230e38849e9bd6c591f7933d58c8d63e2b1e9b5d66d31",
+      "identity": "1f:328fa541e1f04756eea230e38849e9bd6c591f7933d58c8d63e2b1e9b5d66d31"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/show/SearchModeRow.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-browse-surface/show/SearchModeRow.tsx",
+      "source_identity": "1f:bedb74b9b1f55baa383e541704eef4a17fd1f2e062085c6da14be761b8472ba5",
+      "identity": "1f:bedb74b9b1f55baa383e541704eef4a17fd1f2e062085c6da14be761b8472ba5"
+    },
+    {
+      "from": "packages/bitfield-package-store-browse-surface/show/StoreRatingsReviews.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-browse-surface/show/StoreRatingsReviews.tsx",
+      "source_identity": "1f:018c076db1a6fbec7597683a891e39b9868d5da2ebef582b8e55b52be7c891fc",
+      "identity": "1f:018c076db1a6fbec7597683a891e39b9868d5da2ebef582b8e55b52be7c891fc"
+    },
+    {
+      "from": "packages/bitfield-package-store-catalog/data/catalog.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-catalog/data/catalog.json",
+      "source_identity": "1f:679d5a08321c9e95108be26fa212cb279b815f697c1e5dd7d29d1f206a0ca7d1",
+      "identity": "1f:229d2f062f157b2f22951764bee1156e1c621b58cfd1a653b58d94a9e44117f3",
+      "calls": [
+        "private-notes-path"
+      ]
+    },
+    {
+      "from": "packages/bitfield-package-store-offer-exchange/read-data/read-record-exchange-projection.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-offer-exchange/read-data/read-record-exchange-projection.ts",
+      "source_identity": "1f:68c25f9fef4894ca299f7283e224a3a7ca6f6632d8cf0b671ff9bd05cf66f55a",
+      "identity": "1f:68c25f9fef4894ca299f7283e224a3a7ca6f6632d8cf0b671ff9bd05cf66f55a"
+    },
+    {
+      "from": "packages/bitfield-package-store-offer-exchange/show/map-record-exchange-projection.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-offer-exchange/show/map-record-exchange-projection.ts",
+      "source_identity": "1f:ec66e50cfe08266dc741d84b9d63594c45449eadf27921daaf7a66955fda055d",
+      "identity": "1f:ec66e50cfe08266dc741d84b9d63594c45449eadf27921daaf7a66955fda055d"
+    },
+    {
+      "from": "packages/bitfield-package-store-offer-exchange/show/offer-setup-surface-descriptor.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-offer-exchange/show/offer-setup-surface-descriptor.ts",
+      "source_identity": "1f:adab42ac439c26cf246385bfcd2bd30f67fcaf5e22ef2651d44f1fb868cbca49",
+      "identity": "1f:adab42ac439c26cf246385bfcd2bd30f67fcaf5e22ef2651d44f1fb868cbca49"
+    },
+    {
+      "from": "packages/bitfield-package-store-offer-exchange/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-offer-exchange/show/README.md",
+      "source_identity": "1f:8ec0890c553d8462ff4dea8ddf425217ff29c6a21aa3d5874d8f503de3db019b",
+      "identity": "1f:a9d6f9e01a127bc3c7c2076a72aeb475aee247b90e6ce37cd1646081a613011e",
+      "calls": [
+        "a-home-folder-made-relative"
+      ]
+    },
+    {
+      "from": "packages/package-store-reviews/read-data/descriptor-contracts.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/package-store-reviews/read-data/descriptor-contracts.ts",
+      "source_identity": "1f:fa6b6aae1f36e0d58655bdaac5f11b5b4e8f141c248156d4caf01e7b7ae8fa02",
+      "identity": "1f:fa6b6aae1f36e0d58655bdaac5f11b5b4e8f141c248156d4caf01e7b7ae8fa02"
+    },
+    {
+      "from": "packages/package-store-reviews/read-data/fold-generic-record-events.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/package-store-reviews/read-data/fold-generic-record-events.ts",
+      "source_identity": "1f:6e07c02327acce34b2c174bfba7088b8735f51446f803c3713f9c7c03deda207",
+      "identity": "1f:6e07c02327acce34b2c174bfba7088b8735f51446f803c3713f9c7c03deda207"
+    },
+    {
+      "from": "packages/package-store-reviews/read-data/read-generic-record-projection.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/package-store-reviews/read-data/read-generic-record-projection.ts",
+      "source_identity": "1f:a3d41162f1a3f5dcf518baa93360c53c998e47811f5bb4d1b2fc2d5db38cd4bc",
+      "identity": "1f:a3d41162f1a3f5dcf518baa93360c53c998e47811f5bb4d1b2fc2d5db38cd4bc"
+    },
+    {
+      "from": "packages/package-store-reviews/show/package-store-reviews-consumer-contract.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/package-store-reviews/show/package-store-reviews-consumer-contract.test.tsx",
+      "source_identity": "1f:ae796dfc271f131b997aaade00392f05089ee9f8f0a15928a16bd9853718c558",
+      "identity": "1f:ae796dfc271f131b997aaade00392f05089ee9f8f0a15928a16bd9853718c558"
+    },
+    {
+      "from": "packages/package-store-reviews/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/package-store-reviews/show/README.md",
+      "source_identity": "1f:ee92e0f4f0c4a07bf8067899ed4a003e215515f96b16838ddb79e9af3607c3c9",
+      "identity": "1f:167c6959df72f1d08f52fe3d3b736eb147d784a0e7aae33bd0b7b7a3c78858cb",
+      "calls": [
+        "a-home-folder-made-relative"
+      ]
+    },
+    {
+      "from": "packages/public-product-entry/show/contract-model.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/public-product-entry/show/contract-model.ts",
+      "source_identity": "1f:e77a8ac6a67ed70436f3bded3377e006356aa32f114b87188ab2768e6516e922",
+      "identity": "1f:e77a8ac6a67ed70436f3bded3377e006356aa32f114b87188ab2768e6516e922"
+    },
+    {
+      "from": "packages/public-product-entry/show/contract-parity.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/public-product-entry/show/contract-parity.test.ts",
+      "source_identity": "1f:f6c1c02456cba8dd9d656b397250e590bbedf49363b70b21062890873c69abc2",
+      "identity": "1f:f6c1c02456cba8dd9d656b397250e590bbedf49363b70b21062890873c69abc2"
+    },
+    {
+      "from": "packages/public-product-entry/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/public-product-entry/show/README.md",
+      "source_identity": "1f:0f00f4b859fc29a82529a84cc408ab348c565b8011cb0dd03fc0859ec4fc2225",
+      "identity": "1f:0f00f4b859fc29a82529a84cc408ab348c565b8011cb0dd03fc0859ec4fc2225"
     },
     {
       "from": "web/src/workspace/marketplace-screen.tsx",

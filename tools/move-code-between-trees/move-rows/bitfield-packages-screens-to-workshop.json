@@ -1,0 +1,1052 @@
+{
+  "id": "move:bitfield-packages-screens-to-workshop",
+  "about": "The screens (each package's show/ folder, with the read-data and do-work files they import) of the retired bitfield-packages repository at d926b7adb, for every package with no copy or successor in the Workshop or the apps repository, move byte for byte into the Workshop tool that owns the job. Packages a rewritten successor already serves, packages with only some files moved, and packages with no owning tool were listed, not moved. Nothing is wired into the app by file path: the tool row's screen module declaration mounts a screen.",
+  "source": {
+    "name": "Trillion-X/bitfield-packages",
+    "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+    "test_folders": []
+  },
+  "destination": {
+    "name": "Trillion-X/trillion-workshop",
+    "package": "trillion-workshop",
+    "shared_folder": "tools/shared-code"
+  },
+  "keep": [],
+  "provider_calls": [],
+  "calls": [
+    {
+      "id": "an-email-made-up-example",
+      "find": "p@e\\.com",
+      "replace": "person@example.com",
+      "means": "A test address shaped like a real one; made up on example.com."
+    },
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    },
+    {
+      "id": "a-home-folder-made-relative",
+      "find": "[/]Users[/]br[i]anakhtar[/]",
+      "replace": "",
+      "means": "A path in the maker's home folder, written from the home folder instead."
+    },
+    {
+      "id": "a-test-home-folder-made-neutral",
+      "find": "[/]Users[/]testus[e]r",
+      "replace": "/workspace",
+      "means": "A test path in a home folder named like a real one; a neutral folder instead."
+    },
+    {
+      "id": "a-work-address-made-up",
+      "find": "work@gmail\\.com",
+      "replace": "work@example.com",
+      "means": "An example account address shaped like a real one; made up on example.com."
+    },
+    {
+      "id": "a-personal-address-made-up",
+      "find": "personal@gmail\\.com",
+      "replace": "personal@example.com",
+      "means": "An example account address shaped like a real one; made up on example.com."
+    },
+    {
+      "id": "a-persons-first-name-made-up",
+      "find": "\\bBria[n]\\b",
+      "replace": "Alex",
+      "means": "A fixture or test label named a real person; a public tree holds made-up names only."
+    },
+    {
+      "id": "a-persons-anatomy-made-generic",
+      "find": "Bria[n]'s anatomy",
+      "replace": "the owner's anatomy",
+      "means": "A comment named the maker; a public tree holds made-up names only."
+    }
+  ],
+  "host_provides": [
+    "@/components",
+    "@/hooks",
+    "@/lib",
+    "@/packages",
+    "@/tests",
+    "@assistant-ui/ai-sdk",
+    "@assistant-ui/react",
+    "@assistant-ui/react-generative-ui",
+    "@assistant-ui/react-markdown",
+    "@assistant-ui/react-mcp",
+    "@assistant-ui/react-syntax-highlighter",
+    "@assistant-ui/store",
+    "@aws-sdk/client-ses",
+    "@aws-sdk/signature-v4-crt",
+    "@aws-sdk/signature-v4a",
+    "@base-ui/react",
+    "@bitfield-package-entry-scope/keep-the-last-good-answer",
+    "@bitfield/runtime-kit",
+    "@bitfield/slot-protocol",
+    "@codemirror/lang-css",
+    "@codemirror/lang-html",
+    "@codemirror/lang-javascript",
+    "@codemirror/lang-json",
+    "@codemirror/lang-markdown",
+    "@codemirror/lang-python",
+    "@codemirror/language",
+    "@codemirror/search",
+    "@codemirror/state",
+    "@codemirror/view",
+    "@floating-ui/dom",
+    "@kobalte/core",
+    "@lezer/highlight",
+    "@opal/layouts",
+    "@opal/types",
+    "@radix-ui/react-popover",
+    "@radix-ui/react-tooltip",
+    "@remotion/bundler",
+    "@remotion/renderer",
+    "@tanstack/react-virtual",
+    "@testing-library/react",
+    "@testing-library/user-event",
+    "@whiskeysockets/baileys",
+    "ajv",
+    "beautiful-mermaid",
+    "class-variance-authority",
+    "clsx",
+    "cmdk",
+    "codemirror",
+    "diff",
+    "embla-carousel-react",
+    "framer-motion",
+    "googleapis",
+    "input-otp",
+    "jsdom",
+    "lucide-react",
+    "next",
+    "next-themes",
+    "onnxruntime-web",
+    "parse-diff",
+    "playwright-core",
+    "pngjs",
+    "pyodide",
+    "qrcode",
+    "radix-ui",
+    "react",
+    "react-day-picker",
+    "react-dom",
+    "react-dropzone",
+    "react-hook-form",
+    "react-markdown",
+    "react-resizable-panels",
+    "react-rnd",
+    "react-shiki",
+    "react-syntax-highlighter",
+    "recharts",
+    "remark-gfm",
+    "remotion",
+    "rollup",
+    "shiki",
+    "solid-js",
+    "sonner",
+    "tailwind-merge",
+    "tailwindcss",
+    "three",
+    "vaul",
+    "vite",
+    "vitest",
+    "ws",
+    "zod",
+    "zustand"
+  ],
+  "groups": [
+    {
+      "id": "access-scoped-content",
+      "owner": [
+        "packages/access-scoped-content/show/**"
+      ],
+      "to": "tools/paid-access",
+      "capability": "the access-scoped-content screen",
+      "joins_tool": "the access-scoped-content screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "account-deletion",
+      "owner": [
+        "packages/account-deletion/show/**"
+      ],
+      "to": "tools/settings",
+      "capability": "the account-deletion screen",
+      "joins_tool": "the account-deletion screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "activation-manager",
+      "owner": [
+        "packages/activation-manager/show/**"
+      ],
+      "to": "tools/paid-capability-state",
+      "capability": "the activation-manager screen",
+      "joins_tool": "the activation-manager screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "adaptive-program-landing",
+      "owner": [
+        "packages/adaptive-program-landing/show/**"
+      ],
+      "to": "tools/write-a-sales-page",
+      "capability": "the adaptive-program-landing screen",
+      "joins_tool": "the adaptive-program-landing screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "agent-catalog",
+      "owner": [
+        "packages/agent-catalog/show/**"
+      ],
+      "to": "tools/see-what-is-being-worked-on",
+      "capability": "the agent-catalog screen",
+      "joins_tool": "the agent-catalog screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "agent-wallet",
+      "owner": [
+        "packages/agent-wallet/show/**"
+      ],
+      "to": "tools/guard-ai-spending",
+      "capability": "the agent-wallet screen",
+      "joins_tool": "the agent-wallet screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "agent-work-gate-compliance",
+      "owner": [
+        "packages/agent-work-gate-compliance/show/**"
+      ],
+      "to": "tools/decide-agent-actions",
+      "capability": "the agent-work-gate-compliance screen",
+      "joins_tool": "the agent-work-gate-compliance screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "agents-hub",
+      "owner": [
+        "packages/agents-hub/show/**"
+      ],
+      "to": "tools/see-what-is-being-worked-on",
+      "capability": "the agents-hub screen",
+      "joins_tool": "the agents-hub screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "ai-action-guard",
+      "owner": [
+        "packages/ai-action-guard/show/**"
+      ],
+      "to": "tools/decide-agent-actions",
+      "capability": "the ai-action-guard screen",
+      "joins_tool": "the ai-action-guard screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "ai-agent-profile",
+      "owner": [
+        "packages/ai-agent-profile/show/**"
+      ],
+      "to": "tools/messages-screen",
+      "capability": "the ai-agent-profile screen",
+      "joins_tool": "the ai-agent-profile screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "ai-cli-launch-adapters",
+      "owner": [
+        "packages/ai-cli-launch-adapters/show/**"
+      ],
+      "to": "tools/keep-an-ai-loop-from-spinning",
+      "capability": "the ai-cli-launch-adapters screen",
+      "joins_tool": "the ai-cli-launch-adapters screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "ai-execution-history",
+      "owner": [
+        "packages/ai-execution-history/show/**"
+      ],
+      "to": "tools/hand-work-to-ais",
+      "capability": "the ai-execution-history screen",
+      "joins_tool": "the ai-execution-history screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "ai-guided-work",
+      "owner": [
+        "packages/ai-guided-work/show/**"
+      ],
+      "to": "tools/hand-work-to-ais",
+      "capability": "the ai-guided-work screen",
+      "joins_tool": "the ai-guided-work screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "ai-instruction-blocks",
+      "owner": [
+        "packages/ai-instruction-blocks/show/**"
+      ],
+      "to": "tools/tell-ais-how-to-act",
+      "capability": "the ai-instruction-blocks screen",
+      "joins_tool": "the ai-instruction-blocks screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "ai-memory",
+      "owner": [
+        "packages/ai-memory/show/**"
+      ],
+      "to": "tools/keep-lists-of-rows",
+      "capability": "the ai-memory screen",
+      "joins_tool": "the ai-memory screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "ai-providers",
+      "owner": [
+        "packages/ai-providers/show/**"
+      ],
+      "to": "tools/messages-screen",
+      "capability": "the ai-providers screen",
+      "joins_tool": "the ai-providers screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "ai-training-batch",
+      "owner": [
+        "packages/ai-training-batch/show/**"
+      ],
+      "to": "tools/fine-tune-a-small-model-on-a-persons-rules",
+      "capability": "the ai-training-batch screen",
+      "joins_tool": "the ai-training-batch screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "apeak",
+      "owner": [
+        "packages/apeak/show/**"
+      ],
+      "to": "tools/practice-and-review",
+      "capability": "the apeak screen",
+      "joins_tool": "the apeak screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "ask-questions-sort-answers-follow-up",
+      "owner": [
+        "packages/ask-questions-sort-answers-follow-up/show/**"
+      ],
+      "to": "tools/ask-questions-sort-answers-follow-up",
+      "capability": "the ask-questions-sort-answers-follow-up screen",
+      "joins_tool": "the ask-questions-sort-answers-follow-up screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "away-summary",
+      "owner": [
+        "packages/away-summary/show/**"
+      ],
+      "to": "tools/see-what-my-ais-did",
+      "capability": "the away-summary screen",
+      "joins_tool": "the away-summary screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "background-runner-control",
+      "owner": [
+        "packages/background-runner-control/show/**"
+      ],
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer",
+      "capability": "the background-runner-control screen",
+      "joins_tool": "the background-runner-control screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "bitfield-package-store-browse-surface",
+      "owner": [
+        "packages/bitfield-package-store-browse-surface/show/**"
+      ],
+      "to": "tools/browse-and-publish-what-my-ai-can-use",
+      "capability": "the bitfield-package-store-browse-surface screen",
+      "joins_tool": "the bitfield-package-store-browse-surface screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "bitfield-package-store-offer-exchange",
+      "owner": [
+        "packages/bitfield-package-store-offer-exchange/show/**"
+      ],
+      "to": "tools/browse-and-publish-what-my-ai-can-use",
+      "capability": "the bitfield-package-store-offer-exchange screen",
+      "joins_tool": "the bitfield-package-store-offer-exchange screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "bug-reports",
+      "owner": [
+        "packages/bug-reports/show/**"
+      ],
+      "to": "tools/send-a-report-or-a-note-to-the-people-who-make",
+      "capability": "the bug-reports screen",
+      "joins_tool": "the bug-reports screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "caption-renderer",
+      "owner": [
+        "packages/caption-renderer/show/**"
+      ],
+      "to": "tools/media-composition",
+      "capability": "the caption-renderer screen",
+      "joins_tool": "the caption-renderer screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "changelog-publisher",
+      "owner": [
+        "packages/changelog-publisher/show/**"
+      ],
+      "to": "tools/publish-a-changelog",
+      "capability": "the changelog-publisher screen",
+      "joins_tool": "the changelog-publisher screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "choose-per-observer",
+      "owner": [
+        "packages/choose-per-observer/show/**"
+      ],
+      "to": "tools/run-experiments",
+      "capability": "the choose-per-observer screen",
+      "joins_tool": "the choose-per-observer screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "cloud-files",
+      "owner": [
+        "packages/cloud-files/show/**"
+      ],
+      "to": "tools/browse-and-upload-my-files",
+      "capability": "the cloud-files screen",
+      "joins_tool": "the cloud-files screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "connector-room",
+      "owner": [
+        "packages/connector-room/show/**"
+      ],
+      "to": "tools/show-my-automations-on-the-signed-in-page-what-sets",
+      "capability": "the connector-room screen",
+      "joins_tool": "the connector-room screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "content-analytics",
+      "owner": [
+        "packages/content-analytics/show/**"
+      ],
+      "to": "tools/social-posts",
+      "capability": "the content-analytics screen",
+      "joins_tool": "the content-analytics screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "content-distribution",
+      "owner": [
+        "packages/content-distribution/show/**"
+      ],
+      "to": "tools/social-posts",
+      "capability": "the content-distribution screen",
+      "joins_tool": "the content-distribution screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "content-production",
+      "owner": [
+        "packages/content-production/show/**"
+      ],
+      "to": "tools/shape-a-thought-into-my-content-formats",
+      "capability": "the content-production screen",
+      "joins_tool": "the content-production screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "current-summary",
+      "owner": [
+        "packages/current-summary/show/**"
+      ],
+      "to": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts",
+      "capability": "the current-summary screen",
+      "joins_tool": "the current-summary screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "customer-follow-up",
+      "owner": [
+        "packages/customer-follow-up/show/**"
+      ],
+      "to": "tools/customer-follow-up",
+      "capability": "the customer-follow-up screen",
+      "joins_tool": "the customer-follow-up screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "customer-support",
+      "owner": [
+        "packages/customer-support/show/**"
+      ],
+      "to": "tools/take-requests",
+      "capability": "the customer-support screen",
+      "joins_tool": "the customer-support screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "destination-surface",
+      "owner": [
+        "packages/destination-surface/show/**"
+      ],
+      "to": "tools/published-destinations",
+      "capability": "the destination-surface screen",
+      "joins_tool": "the destination-surface screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "event-group",
+      "owner": [
+        "packages/event-group/show/**"
+      ],
+      "to": "tools/see-what-my-ais-did",
+      "capability": "the event-group screen",
+      "joins_tool": "the event-group screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "founder-growth-engine-screens",
+      "owner": [
+        "packages/founder-growth-engine-screens/show/**"
+      ],
+      "to": "tools/social-posts",
+      "capability": "the founder-growth-engine-screens screen",
+      "joins_tool": "the founder-growth-engine-screens screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "git-worktree",
+      "owner": [
+        "packages/git-worktree/show/**"
+      ],
+      "to": "tools/git-changes",
+      "capability": "the git-worktree screen",
+      "joins_tool": "the git-worktree screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "ideas",
+      "owner": [
+        "packages/ideas/show/**"
+      ],
+      "to": "tools/keep-lists-of-rows",
+      "capability": "the ideas screen",
+      "joins_tool": "the ideas screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "investment-command",
+      "owner": [
+        "packages/investment-command/show/**"
+      ],
+      "to": "tools/trading",
+      "capability": "the investment-command screen",
+      "joins_tool": "the investment-command screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "item-record",
+      "owner": [
+        "packages/item-record/show/**"
+      ],
+      "to": "tools/show-the-persons-spaces-on-the-signed-in-page-answer",
+      "capability": "the item-record screen",
+      "joins_tool": "the item-record screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "learning-mastery-protocol",
+      "owner": [
+        "packages/learning-mastery-protocol/show/**"
+      ],
+      "to": "tools/lessons-and-learning-paths",
+      "capability": "the learning-mastery-protocol screen",
+      "joins_tool": "the learning-mastery-protocol screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "live-match-score",
+      "owner": [
+        "packages/live-match-score/show/**"
+      ],
+      "to": "tools/live-match-scores",
+      "capability": "the live-match-score screen",
+      "joins_tool": "the live-match-score screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "local-files",
+      "owner": [
+        "packages/local-files/show/**"
+      ],
+      "to": "tools/choose-and-save-local-files",
+      "capability": "the local-files screen",
+      "joins_tool": "the local-files screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "market-data-feed",
+      "owner": [
+        "packages/market-data-feed/show/**"
+      ],
+      "to": "tools/live-market-prices",
+      "capability": "the market-data-feed screen",
+      "joins_tool": "the market-data-feed screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "marketing-pipeline",
+      "owner": [
+        "packages/marketing-pipeline/show/**"
+      ],
+      "to": "tools/keep-lists-of-rows",
+      "capability": "the marketing-pipeline screen",
+      "joins_tool": "the marketing-pipeline screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "match-picks",
+      "owner": [
+        "packages/match-picks/show/**"
+      ],
+      "to": "tools/match-picks",
+      "capability": "the match-picks screen",
+      "joins_tool": "the match-picks screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "meaning-search",
+      "owner": [
+        "packages/meaning-search/show/**"
+      ],
+      "to": "tools/show-the-media-library-and-search-what-was",
+      "capability": "the meaning-search screen",
+      "joins_tool": "the meaning-search screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "media-analysis",
+      "owner": [
+        "packages/media-analysis/show/**"
+      ],
+      "to": "tools/media-analysis",
+      "capability": "the media-analysis screen",
+      "joins_tool": "the media-analysis screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "media-identity",
+      "owner": [
+        "packages/media-identity/show/**"
+      ],
+      "to": "tools/know-who-is-in-this",
+      "capability": "the media-identity screen",
+      "joins_tool": "the media-identity screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "motion-analysis",
+      "owner": [
+        "packages/motion-analysis/show/**"
+      ],
+      "to": "tools/track-and-compare-movement",
+      "capability": "the motion-analysis screen",
+      "joins_tool": "the motion-analysis screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "motion-comparison",
+      "owner": [
+        "packages/motion-comparison/show/**"
+      ],
+      "to": "tools/track-and-compare-movement",
+      "capability": "the motion-comparison screen",
+      "joins_tool": "the motion-comparison screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "myletter-newsletter",
+      "owner": [
+        "packages/myletter-newsletter/show/**"
+      ],
+      "to": "tools/send-messages",
+      "capability": "the myletter-newsletter screen",
+      "joins_tool": "the myletter-newsletter screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "opponent-game-plan",
+      "owner": [
+        "packages/opponent-game-plan/show/**"
+      ],
+      "to": "tools/opponent-game-plan",
+      "capability": "the opponent-game-plan screen",
+      "joins_tool": "the opponent-game-plan screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "outside-conversations",
+      "owner": [
+        "packages/outside-conversations/show/**"
+      ],
+      "to": "tools/conversations",
+      "capability": "the outside-conversations screen",
+      "joins_tool": "the outside-conversations screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "package-store-reviews",
+      "owner": [
+        "packages/package-store-reviews/show/**"
+      ],
+      "to": "tools/browse-and-publish-what-my-ai-can-use",
+      "capability": "the package-store-reviews screen",
+      "joins_tool": "the package-store-reviews screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "person-profile",
+      "owner": [
+        "packages/person-profile/show/**"
+      ],
+      "to": "tools/person-profile",
+      "capability": "the person-profile screen",
+      "joins_tool": "the person-profile screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "plan-lifecycle",
+      "owner": [
+        "packages/plan-lifecycle/show/**"
+      ],
+      "to": "tools/paid-access",
+      "capability": "the plan-lifecycle screen",
+      "joins_tool": "the plan-lifecycle screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "poker-rules",
+      "owner": [
+        "packages/poker-rules/show/**"
+      ],
+      "to": "tools/poker",
+      "capability": "the poker-rules screen",
+      "joins_tool": "the poker-rules screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "poker-table",
+      "owner": [
+        "packages/poker-table/show/**"
+      ],
+      "to": "tools/poker",
+      "capability": "the poker-table screen",
+      "joins_tool": "the poker-table screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "polymarket",
+      "owner": [
+        "packages/polymarket/show/**"
+      ],
+      "to": "tools/live-market-prices",
+      "capability": "the polymarket screen",
+      "joins_tool": "the polymarket screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "portfolio-connector",
+      "owner": [
+        "packages/portfolio-connector/show/**"
+      ],
+      "to": "tools/trading",
+      "capability": "the portfolio-connector screen",
+      "joins_tool": "the portfolio-connector screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "practice-decision-loop",
+      "owner": [
+        "packages/practice-decision-loop/show/**"
+      ],
+      "to": "tools/practice-and-review",
+      "capability": "the practice-decision-loop screen",
+      "joins_tool": "the practice-decision-loop screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "practice-protocol",
+      "owner": [
+        "packages/practice-protocol/show/**"
+      ],
+      "to": "tools/practice-and-review",
+      "capability": "the practice-protocol screen",
+      "joins_tool": "the practice-protocol screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "project-gate-compliance",
+      "owner": [
+        "packages/project-gate-compliance/show/**"
+      ],
+      "to": "tools/see-what-is-being-worked-on",
+      "capability": "the project-gate-compliance screen",
+      "joins_tool": "the project-gate-compliance screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "project-preview",
+      "owner": [
+        "packages/project-preview/show/**"
+      ],
+      "to": "tools/assemble-and-publish-an-app-project",
+      "capability": "the project-preview screen",
+      "joins_tool": "the project-preview screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "projects",
+      "owner": [
+        "packages/projects/show/**"
+      ],
+      "to": "tools/see-what-is-being-worked-on",
+      "capability": "the projects screen",
+      "joins_tool": "the projects screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "public-document-site",
+      "owner": [
+        "packages/public-document-site/show/**"
+      ],
+      "to": "tools/publish-content-for-discovery",
+      "capability": "the public-document-site screen",
+      "joins_tool": "the public-document-site screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "public-product-entry",
+      "owner": [
+        "packages/public-product-entry/show/**"
+      ],
+      "to": "tools/browse-and-publish-what-my-ai-can-use",
+      "capability": "the public-product-entry screen",
+      "joins_tool": "the public-product-entry screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "public-scene-share",
+      "owner": [
+        "packages/public-scene-share/show/**"
+      ],
+      "to": "tools/share-anything",
+      "capability": "the public-scene-share screen",
+      "joins_tool": "the public-scene-share screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "publish-composer",
+      "owner": [
+        "packages/publish-composer/show/**"
+      ],
+      "to": "tools/social-posts",
+      "capability": "the publish-composer screen",
+      "joins_tool": "the publish-composer screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "record-board-progress-feed",
+      "owner": [
+        "packages/record-board-progress-feed/show/**"
+      ],
+      "to": "tools/see-what-is-being-worked-on",
+      "capability": "the record-board-progress-feed screen",
+      "joins_tool": "the record-board-progress-feed screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "request-intake",
+      "owner": [
+        "packages/request-intake/show/**"
+      ],
+      "to": "tools/take-requests",
+      "capability": "the request-intake screen",
+      "joins_tool": "the request-intake screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "research-workspace",
+      "owner": [
+        "packages/research-workspace/show/**"
+      ],
+      "to": "tools/research-a-creator-or-topic",
+      "capability": "the research-workspace screen",
+      "joins_tool": "the research-workspace screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "revenue-ledger",
+      "owner": [
+        "packages/revenue-ledger/show/**"
+      ],
+      "to": "tools/revenue-ledger",
+      "capability": "the revenue-ledger screen",
+      "joins_tool": "the revenue-ledger screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "roi",
+      "owner": [
+        "packages/roi/show/**"
+      ],
+      "to": "tools/measurement-workspace",
+      "capability": "the roi screen",
+      "joins_tool": "the roi screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "screen-after-sign-in-check",
+      "owner": [
+        "packages/screen-after-sign-in-check/show/**"
+      ],
+      "to": "tools/account-session",
+      "capability": "the screen-after-sign-in-check screen",
+      "joins_tool": "the screen-after-sign-in-check screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "selected-agent",
+      "owner": [
+        "packages/selected-agent/show/**"
+      ],
+      "to": "tools/selected-agent",
+      "capability": "the selected-agent screen",
+      "joins_tool": "the selected-agent screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "service-connections",
+      "owner": [
+        "packages/service-connections/show/**"
+      ],
+      "to": "tools/connect-a-service-and-seal-its-key",
+      "capability": "the service-connections screen",
+      "joins_tool": "the service-connections screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "shared-room-connection",
+      "owner": [
+        "packages/shared-room-connection/show/**"
+      ],
+      "to": "tools/poker",
+      "capability": "the shared-room-connection screen",
+      "joins_tool": "the shared-room-connection screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "spaced-repetition",
+      "owner": [
+        "packages/spaced-repetition/show/**"
+      ],
+      "to": "tools/practice-and-review",
+      "capability": "the spaced-repetition screen",
+      "joins_tool": "the spaced-repetition screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "tactics-practice",
+      "owner": [
+        "packages/tactics-practice/show/**"
+      ],
+      "to": "tools/practice-and-review",
+      "capability": "the tactics-practice screen",
+      "joins_tool": "the tactics-practice screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "speech-generation",
+      "owner": [
+        "packages/speech-generation/show/**"
+      ],
+      "to": "tools/generate-speech",
+      "capability": "the speech-generation screen",
+      "joins_tool": "the speech-generation screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "subject-home",
+      "owner": [
+        "packages/subject-home/show/**"
+      ],
+      "to": "tools/person-profile",
+      "capability": "the subject-home screen",
+      "joins_tool": "the subject-home screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "subject-participant",
+      "owner": [
+        "packages/subject-participant/show/**"
+      ],
+      "to": "tools/form-groups-and-matches",
+      "capability": "the subject-participant screen",
+      "joins_tool": "the subject-participant screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "supabase-sign-in",
+      "owner": [
+        "packages/supabase-sign-in/show/**"
+      ],
+      "to": "tools/account-session",
+      "capability": "the supabase-sign-in screen",
+      "joins_tool": "the supabase-sign-in screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "trade-audit",
+      "owner": [
+        "packages/trade-audit/show/**"
+      ],
+      "to": "tools/trading",
+      "capability": "the trade-audit screen",
+      "joins_tool": "the trade-audit screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "trade-order",
+      "owner": [
+        "packages/trade-order/show/**"
+      ],
+      "to": "tools/trading",
+      "capability": "the trade-order screen",
+      "joins_tool": "the trade-order screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "traffic-attribution",
+      "owner": [
+        "packages/traffic-attribution/show/**"
+      ],
+      "to": "tools/traffic-attribution",
+      "capability": "the traffic-attribution screen",
+      "joins_tool": "the traffic-attribution screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "training-plan",
+      "owner": [
+        "packages/training-plan/show/**"
+      ],
+      "to": "tools/training-and-workouts",
+      "capability": "the training-plan screen",
+      "joins_tool": "the training-plan screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "workout-log",
+      "owner": [
+        "packages/workout-log/show/**"
+      ],
+      "to": "tools/training-and-workouts",
+      "capability": "the workout-log screen",
+      "joins_tool": "the workout-log screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "transcript-history",
+      "owner": [
+        "packages/transcript-history/show/**"
+      ],
+      "to": "tools/audio-transcription",
+      "capability": "the transcript-history screen",
+      "joins_tool": "the transcript-history screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "travel-operations",
+      "owner": [
+        "packages/travel-operations/show/**"
+      ],
+      "to": "tools/plan-trips",
+      "capability": "the travel-operations screen",
+      "joins_tool": "the travel-operations screen of the retired bitfield-packages repository, which this tool does not hold"
+    },
+    {
+      "id": "vision-board",
+      "owner": [
+        "packages/vision-board/show/**"
+      ],
+      "to": "tools/organize-the-sidebar",
+      "capability": "the vision-board screen",
+      "joins_tool": "the vision-board screen of the retired bitfield-packages repository, which this tool does not hold"
+    }
+  ],
+  "adapted_homes": [
+    {
+      "from": "packages/ui/index.ts",
+      "home": "tools/ui/index.ts",
+      "why": "tools/ui holds the barrel of browser-local screen parts in its own shape; the old barrel is not copied a second time"
+    },
+    {
+      "from": "packages/sidebar/read-data/read-sidebar-placement.ts",
+      "home": "tools/organize-the-sidebar/read-data/read-sidebar-placement.ts",
+      "why": "organize-the-sidebar holds this file rewritten; the old copy is not moved a second time"
+    },
+    {
+      "from": "packages/sidebar/read-data/read-surface-collections.ts",
+      "home": "tools/organize-the-sidebar/read-data/read-surface-collections.ts",
+      "why": "organize-the-sidebar holds this file rewritten; the old copy is not moved a second time"
+    },
+    {
+      "from": "packages/sidebar/show/ProjectedCollectionNav.ts",
+      "home": "tools/organize-the-sidebar/show/ProjectedCollectionNav.ts",
+      "why": "organize-the-sidebar holds this file rewritten; the old copy is not moved a second time"
+    },
+    {
+      "from": "packages/sidebar/show/SidebarContent.tsx",
+      "home": "tools/organize-the-sidebar/show/SidebarContent.tsx",
+      "why": "organize-the-sidebar holds this file rewritten; the old copy is not moved a second time"
+    },
+    {
+      "from": "packages/sidebar/show/useSidebarPlacement.ts",
+      "home": "tools/organize-the-sidebar/show/useSidebarPlacement.ts",
+      "why": "organize-the-sidebar holds this file rewritten; the old copy is not moved a second time"
+    },
+    {
+      "from": "packages/screen-arrangement/show/CompanionMounts.tsx",
+      "home": "tools/arrange-screens-in-panes/show/CompanionMounts.tsx",
+      "why": "arrange-screens-in-panes holds this file rewritten; the old copy is not moved a second time"
+    }
+  ]
+}

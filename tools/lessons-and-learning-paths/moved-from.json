@@ -1,0 +1,43 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/learning-mastery-protocol/do-work/run-protocol-action.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/lessons-and-learning-paths/packages/learning-mastery-protocol/do-work/run-protocol-action.ts",
+      "source_identity": "1f:38d5e19dfa87cd571c7d18179bbe6dc737d4b1332dc73e3031667d21a1de3208",
+      "identity": "1f:38d5e19dfa87cd571c7d18179bbe6dc737d4b1332dc73e3031667d21a1de3208"
+    },
+    {
+      "from": "packages/learning-mastery-protocol/read-data/learning-mastery-types.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/lessons-and-learning-paths/packages/learning-mastery-protocol/read-data/learning-mastery-types.ts",
+      "source_identity": "1f:f7929bfb8dbf03c74e7b33a79b389bbcfae6e98ecfb1d8efec95e3ad6a93e5f4",
+      "identity": "1f:f7929bfb8dbf03c74e7b33a79b389bbcfae6e98ecfb1d8efec95e3ad6a93e5f4"
+    },
+    {
+      "from": "packages/learning-mastery-protocol/read-data/read-learning-mastery.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/lessons-and-learning-paths/packages/learning-mastery-protocol/read-data/read-learning-mastery.ts",
+      "source_identity": "1f:a3b798c4ba53379fbd590f692dd82fb4594c2abd15c21e9e52397aef4c5b32e0",
+      "identity": "1f:a3b798c4ba53379fbd590f692dd82fb4594c2abd15c21e9e52397aef4c5b32e0"
+    },
+    {
+      "from": "packages/learning-mastery-protocol/show/LearningMasteryProtocolPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/lessons-and-learning-paths/packages/learning-mastery-protocol/show/LearningMasteryProtocolPanel.tsx",
+      "source_identity": "1f:e98e8b44dee6674833980b5202008851787982e5ab252c501abc3ece17ef8215",
+      "identity": "1f:e98e8b44dee6674833980b5202008851787982e5ab252c501abc3ece17ef8215"
+    },
+    {
+      "from": "packages/learning-mastery-protocol/show/mount-learning-mastery-protocol.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/lessons-and-learning-paths/packages/learning-mastery-protocol/show/mount-learning-mastery-protocol.tsx",
+      "source_identity": "1f:4b320ecbe148d0264cf41323273f8c37fb5805bd47d57cbad3ffcefb40b2418b",
+      "identity": "1f:4b320ecbe148d0264cf41323273f8c37fb5805bd47d57cbad3ffcefb40b2418b"
+    }
+  ]
+}

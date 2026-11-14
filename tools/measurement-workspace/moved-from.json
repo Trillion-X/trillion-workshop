@@ -1,0 +1,85 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/roi/show/BusinessOutcomeCard.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/measurement-workspace/packages/roi/show/BusinessOutcomeCard.tsx",
+      "source_identity": "1f:f69c5a0a837eb413b1b80809764c840352a9ac3b234d095dbb0900e49ae31d69",
+      "identity": "1f:f69c5a0a837eb413b1b80809764c840352a9ac3b234d095dbb0900e49ae31d69"
+    },
+    {
+      "from": "packages/roi/show/ComplianceDashboard.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/measurement-workspace/packages/roi/show/ComplianceDashboard.tsx",
+      "source_identity": "1f:3873c473eb217e827c2b103b8d04725fda537fad1e830570440c08a47bafe2c0",
+      "identity": "1f:3873c473eb217e827c2b103b8d04725fda537fad1e830570440c08a47bafe2c0"
+    },
+    {
+      "from": "packages/roi/show/ContentBreakdownChart.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/measurement-workspace/packages/roi/show/ContentBreakdownChart.tsx",
+      "source_identity": "1f:bee2edabe0528e6977e584b2ec18cef5e2db020ab9155345499456c8c4d4c370",
+      "identity": "1f:bee2edabe0528e6977e584b2ec18cef5e2db020ab9155345499456c8c4d4c370"
+    },
+    {
+      "from": "packages/roi/show/EfficiencySuggestions.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/measurement-workspace/packages/roi/show/EfficiencySuggestions.tsx",
+      "source_identity": "1f:ef2f30cf343eb2cc4288813dfa97d6f8f234805dda208de2c09d5c797378b043",
+      "identity": "1f:2a50550e594e354819436a68a17561ea5bda774e7f3bf1f5b504c9c33bb04f01"
+    },
+    {
+      "from": "packages/roi/show/LeadFunnelChart.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/measurement-workspace/packages/roi/show/LeadFunnelChart.tsx",
+      "source_identity": "1f:8137efc555245b606fde40e9ff2a73e5ed52b0ff187858c1a6e35a30c47ad9e7",
+      "identity": "1f:8137efc555245b606fde40e9ff2a73e5ed52b0ff187858c1a6e35a30c47ad9e7"
+    },
+    {
+      "from": "packages/roi/show/MetricCard.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/measurement-workspace/packages/roi/show/MetricCard.tsx",
+      "source_identity": "1f:5709c081bff4ddbca13f75d0c3d219e1ac74ac1edb86609843123dec543ec40c",
+      "identity": "1f:5709c081bff4ddbca13f75d0c3d219e1ac74ac1edb86609843123dec543ec40c"
+    },
+    {
+      "from": "packages/roi/show/mount-roi.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/measurement-workspace/packages/roi/show/mount-roi.tsx",
+      "source_identity": "1f:de5f880dbd9f62687f330546cf6d29ced20c92ea8e4d4d445f2512317ab9afeb",
+      "identity": "1f:de5f880dbd9f62687f330546cf6d29ced20c92ea8e4d4d445f2512317ab9afeb"
+    },
+    {
+      "from": "packages/roi/show/RevenueCard.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/measurement-workspace/packages/roi/show/RevenueCard.tsx",
+      "source_identity": "1f:a57ce82d71382bd01171d5178b6b9f9dcad492de539f72d20fafa471828cd7ae",
+      "identity": "1f:a57ce82d71382bd01171d5178b6b9f9dcad492de539f72d20fafa471828cd7ae"
+    },
+    {
+      "from": "packages/roi/show/ROIDashboard.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/measurement-workspace/packages/roi/show/ROIDashboard.tsx",
+      "source_identity": "1f:312adce590471eef9d678d302c63f85c990ffccd24467ad3fb1c7727f98c6f8c",
+      "identity": "1f:312adce590471eef9d678d302c63f85c990ffccd24467ad3fb1c7727f98c6f8c"
+    },
+    {
+      "from": "packages/roi/show/SocietyMetricsBreakdown.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/measurement-workspace/packages/roi/show/SocietyMetricsBreakdown.tsx",
+      "source_identity": "1f:d3e2c5e77eb8d223db5d4ddf61c898d360fbacfacee364de271c903c2ada854c",
+      "identity": "1f:d3e2c5e77eb8d223db5d4ddf61c898d360fbacfacee364de271c903c2ada854c"
+    },
+    {
+      "from": "packages/roi/show/TaskReceipt.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/measurement-workspace/packages/roi/show/TaskReceipt.tsx",
+      "source_identity": "1f:c48dbd68629151af6c36c59c7fe42ede463f2b6c393dbda0f6c1ec120554fc3d",
+      "identity": "1f:c48dbd68629151af6c36c59c7fe42ede463f2b6c393dbda0f6c1ec120554fc3d"
+    }
+  ]
+}

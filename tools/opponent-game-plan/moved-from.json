@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/opponent-game-plan/show/mount-opponent-game-plan.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/opponent-game-plan/packages/opponent-game-plan/show/mount-opponent-game-plan.tsx",
+      "source_identity": "1f:3a461904d2e9137981540f4ab79204c749c4502d974b220db33c1ee5681ec1f8",
+      "identity": "1f:3a461904d2e9137981540f4ab79204c749c4502d974b220db33c1ee5681ec1f8"
+    },
+    {
+      "from": "packages/opponent-game-plan/show/OpponentGamePlanSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/opponent-game-plan/packages/opponent-game-plan/show/OpponentGamePlanSurface.tsx",
+      "source_identity": "1f:fee06200d37bd483bbd6c9582580c79a88d52f4f4ebeabc762d83778f14a5fcd",
+      "identity": "1f:fee06200d37bd483bbd6c9582580c79a88d52f4f4ebeabc762d83778f14a5fcd"
+    },
+    {
+      "from": "packages/opponent-game-plan/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/opponent-game-plan/packages/opponent-game-plan/show/README.md",
+      "source_identity": "1f:a5c2bc4b35bace619515299ecd6cbb901c7325a711cdc9d244c47b0194f94be5",
+      "identity": "1f:a5c2bc4b35bace619515299ecd6cbb901c7325a711cdc9d244c47b0194f94be5"
+    }
+  ]
+}

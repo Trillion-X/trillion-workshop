@@ -1,0 +1,64 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/motion-analysis/show/CaptureAndAnalyzeSurface.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/track-and-compare-movement/packages/motion-analysis/show/CaptureAndAnalyzeSurface.test.tsx",
+      "source_identity": "1f:34f77e2c156e45005c324cea11688676217558d845e4f1bc6decb78f0156f2a6",
+      "identity": "1f:34f77e2c156e45005c324cea11688676217558d845e4f1bc6decb78f0156f2a6"
+    },
+    {
+      "from": "packages/motion-analysis/show/CaptureAndAnalyzeSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/track-and-compare-movement/packages/motion-analysis/show/CaptureAndAnalyzeSurface.tsx",
+      "source_identity": "1f:cbf450697dc57ad347d4abd4a2eab2d29a1be1ae5b9b82102447882b2228d80d",
+      "identity": "1f:cbf450697dc57ad347d4abd4a2eab2d29a1be1ae5b9b82102447882b2228d80d"
+    },
+    {
+      "from": "packages/motion-analysis/show/MotionAnalysisPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/track-and-compare-movement/packages/motion-analysis/show/MotionAnalysisPanel.tsx",
+      "source_identity": "1f:545555400300c3b8b06b446ad013a89946004d8a4cf6a2d8c4676640ec2efe3a",
+      "identity": "1f:545555400300c3b8b06b446ad013a89946004d8a4cf6a2d8c4676640ec2efe3a"
+    },
+    {
+      "from": "packages/motion-analysis/show/mount-capture-and-analyze.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/track-and-compare-movement/packages/motion-analysis/show/mount-capture-and-analyze.tsx",
+      "source_identity": "1f:bf6e4dd7c77c1d30c01056acbd995921647dc8ae10ff3e807fd1cb27a5390b2b",
+      "identity": "1f:bf6e4dd7c77c1d30c01056acbd995921647dc8ae10ff3e807fd1cb27a5390b2b"
+    },
+    {
+      "from": "packages/motion-analysis/show/mount-motion-analysis.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/track-and-compare-movement/packages/motion-analysis/show/mount-motion-analysis.tsx",
+      "source_identity": "1f:9f603a54250ce7fd1c58c7db75474087933e30f43f070f666ffdccfbb70c14b0",
+      "identity": "1f:9f603a54250ce7fd1c58c7db75474087933e30f43f070f666ffdccfbb70c14b0"
+    },
+    {
+      "from": "packages/motion-comparison/show/MotionComparisonSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/track-and-compare-movement/packages/motion-comparison/show/MotionComparisonSurface.tsx",
+      "source_identity": "1f:9829f2545f386c84bfb264fb543657512066bdc730b6377827cf2765373eea67",
+      "identity": "1f:9829f2545f386c84bfb264fb543657512066bdc730b6377827cf2765373eea67"
+    },
+    {
+      "from": "packages/motion-comparison/show/mount-motion-comparison.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/track-and-compare-movement/packages/motion-comparison/show/mount-motion-comparison.tsx",
+      "source_identity": "1f:878d59d74ff13f99e7a17e1714a08048deab6d6b1e40585a1a1266e455686b0f",
+      "identity": "1f:878d59d74ff13f99e7a17e1714a08048deab6d6b1e40585a1a1266e455686b0f"
+    },
+    {
+      "from": "packages/motion-comparison/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/track-and-compare-movement/packages/motion-comparison/show/README.md",
+      "source_identity": "1f:34b39d72464e6ba925954add30088fce52be6413fdcdc5fe806d49257e422028",
+      "identity": "1f:34b39d72464e6ba925954add30088fce52be6413fdcdc5fe806d49257e422028"
+    }
+  ]
+}

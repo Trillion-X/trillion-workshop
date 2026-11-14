@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/research-workspace/show/add-channel-panel.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/research-a-creator-or-topic/packages/research-workspace/show/add-channel-panel.test.tsx",
+      "source_identity": "1f:f180cf9e9b1baddcffaef2894005ddebd3d6294879a8981595f193cdbdec04a6",
+      "identity": "1f:f180cf9e9b1baddcffaef2894005ddebd3d6294879a8981595f193cdbdec04a6"
+    },
+    {
+      "from": "packages/research-workspace/show/AddChannelPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/research-a-creator-or-topic/packages/research-workspace/show/AddChannelPanel.tsx",
+      "source_identity": "1f:777dc1abd9a416605ab92175476f7634a007eb3bb663291769d47754c94b779d",
+      "identity": "1f:777dc1abd9a416605ab92175476f7634a007eb3bb663291769d47754c94b779d"
+    },
+    {
+      "from": "packages/research-workspace/show/mount-research-board.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/research-a-creator-or-topic/packages/research-workspace/show/mount-research-board.tsx",
+      "source_identity": "1f:1ed4297985fb6e74003ae17d98be03c6f3f0af435cb9cc22647a7e9e9fd56d5d",
+      "identity": "1f:1ed4297985fb6e74003ae17d98be03c6f3f0af435cb9cc22647a7e9e9fd56d5d"
+    },
+    {
+      "from": "packages/research-workspace/show/research-board-render.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/research-a-creator-or-topic/packages/research-workspace/show/research-board-render.test.tsx",
+      "source_identity": "1f:a9238922ffadad09924c2bd12f74f41b55b886b779248d0b5213878203b9c56d",
+      "identity": "1f:a9238922ffadad09924c2bd12f74f41b55b886b779248d0b5213878203b9c56d"
+    }
+  ]
+}

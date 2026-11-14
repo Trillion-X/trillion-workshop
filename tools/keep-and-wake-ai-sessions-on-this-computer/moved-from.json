@@ -3276,6 +3276,20 @@
       "source_identity": "1f:153c1c5a98c736edcb69dc6c6b265f3808df333ae377c8377248fe8252fc62e3",
       "identity": "1f:60af27f5d73d186c4367fcaed9cdfedd1b93054a9639dd445acaca11e2f4042f",
       "adapted": "the receiver refusal test over this tool's handleConfigurationsRequest with a stand-in receiver, and the connection metadata test over write-public-share-files' shareableCopy with the old connection rule; the eleven record-sharing owner tests are left out, as no running code admits configuration links"
+    },
+    {
+      "from": "packages/background-runner-control/show/BackgroundRunnerControl.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/packages/background-runner-control/show/BackgroundRunnerControl.tsx",
+      "source_identity": "1f:16b1297dae013bbce05c26f456b34a2f71e607517f030022d238776c54b3195e",
+      "identity": "1f:16b1297dae013bbce05c26f456b34a2f71e607517f030022d238776c54b3195e"
+    },
+    {
+      "from": "packages/background-runner-control/show/mount-background-runner-control.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/packages/background-runner-control/show/mount-background-runner-control.tsx",
+      "source_identity": "1f:4bd297eddf5cf6bd540ed610660394e2e1c1e5feccd04d70230530b6441f82db",
+      "identity": "1f:4bd297eddf5cf6bd540ed610660394e2e1c1e5feccd04d70230530b6441f82db"
     }
   ]
 }

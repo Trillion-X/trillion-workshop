@@ -36,6 +36,27 @@
       "reused": true
     },
     {
+      "from": "packages/outside-conversations/show/mount-talk-to-people-and-companies.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/conversations/packages/outside-conversations/show/mount-talk-to-people-and-companies.tsx",
+      "source_identity": "1f:a07e77e0e617767c0ee1f7f434be263ca202360f0bc728f739b7afb041a63d14",
+      "identity": "1f:a07e77e0e617767c0ee1f7f434be263ca202360f0bc728f739b7afb041a63d14"
+    },
+    {
+      "from": "packages/outside-conversations/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/conversations/packages/outside-conversations/show/README.md",
+      "source_identity": "1f:cb8ea9f44af98c32a42d189a9169063ec08300263126526af57b4f37a6ab29fe",
+      "identity": "1f:cb8ea9f44af98c32a42d189a9169063ec08300263126526af57b4f37a6ab29fe"
+    },
+    {
+      "from": "packages/outside-conversations/show/TalkToPeopleAndCompaniesPanel.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/conversations/packages/outside-conversations/show/TalkToPeopleAndCompaniesPanel.tsx",
+      "source_identity": "1f:f95fa495fc6c62ddf5d1ed6ab6f871e1d27f922b9aace8dd79db4baba91c231f",
+      "identity": "1f:f95fa495fc6c62ddf5d1ed6ab6f871e1d27f922b9aace8dd79db4baba91c231f"
+    },
+    {
       "from": "docs/notes/chat-history-marketplace-workflow.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/conversations/read-data/acquire-and-import-ai-chat-history.json",

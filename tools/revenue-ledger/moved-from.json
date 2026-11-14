@@ -1,0 +1,74 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "a-home-folder-made-relative",
+      "find": "[/]Users[/]br[i]anakhtar[/]",
+      "replace": "",
+      "means": "A path in the maker's home folder, written from the home folder instead."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/revenue-ledger/read-data/revenue-types.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/revenue-ledger/packages/revenue-ledger/read-data/revenue-types.ts",
+      "source_identity": "1f:2bea84a31dede01e6d48bdf39de629ea68eb2732ea1a0a1a6ef652f65297aa68",
+      "identity": "1f:2bea84a31dede01e6d48bdf39de629ea68eb2732ea1a0a1a6ef652f65297aa68"
+    },
+    {
+      "from": "packages/revenue-ledger/show/__tests__/present-revenue.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/revenue-ledger/packages/revenue-ledger/show/__tests__/present-revenue.test.ts",
+      "source_identity": "1f:99ab990e9a51dce070b1467c6bddd0f1da300d68e152bb79550dd9107fd8e449",
+      "identity": "1f:99ab990e9a51dce070b1467c6bddd0f1da300d68e152bb79550dd9107fd8e449"
+    },
+    {
+      "from": "packages/revenue-ledger/show/__tests__/revenue-finance-surface.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/revenue-ledger/packages/revenue-ledger/show/__tests__/revenue-finance-surface.test.tsx",
+      "source_identity": "1f:ce46647e2cf37af7252e334f221ba65f88086740e1845f8ac46a1fe6d33a1177",
+      "identity": "1f:ce46647e2cf37af7252e334f221ba65f88086740e1845f8ac46a1fe6d33a1177"
+    },
+    {
+      "from": "packages/revenue-ledger/show/mount-revenue-finance.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/revenue-ledger/packages/revenue-ledger/show/mount-revenue-finance.tsx",
+      "source_identity": "1f:ce952d5112e7c5d62b4c1b66bbc6545e76d2b77d739becba18210e6bd11debe3",
+      "identity": "1f:ce952d5112e7c5d62b4c1b66bbc6545e76d2b77d739becba18210e6bd11debe3"
+    },
+    {
+      "from": "packages/revenue-ledger/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/revenue-ledger/packages/revenue-ledger/show/README.md",
+      "source_identity": "1f:c23a305eb1fc313327e65a166a3bdf66d5fa76964705effe6b72db5e05f2c237",
+      "identity": "1f:c23a305eb1fc313327e65a166a3bdf66d5fa76964705effe6b72db5e05f2c237"
+    },
+    {
+      "from": "packages/revenue-ledger/show/reference-grounded-screen-contract.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/revenue-ledger/packages/revenue-ledger/show/reference-grounded-screen-contract.md",
+      "source_identity": "1f:576cbb951da8467e3fa912be99183f7df5909b215e17ecf9e95a0536a5b8f7f4",
+      "identity": "1f:6beef150fb2c0c1cfdf63cd23b9801827075f83b2f44bfeee9d7735bebb9cfd3",
+      "calls": [
+        "a-home-folder-made-relative"
+      ]
+    },
+    {
+      "from": "packages/revenue-ledger/show/revenue-finance-display.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/revenue-ledger/packages/revenue-ledger/show/revenue-finance-display.ts",
+      "source_identity": "1f:5540bf25361ba8030a78031bb42bbc0fac9715641048d3af7c32120f72ac25f6",
+      "identity": "1f:5540bf25361ba8030a78031bb42bbc0fac9715641048d3af7c32120f72ac25f6"
+    },
+    {
+      "from": "packages/revenue-ledger/show/revenue-finance-surface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/revenue-ledger/packages/revenue-ledger/show/revenue-finance-surface.tsx",
+      "source_identity": "1f:808e303996cf6d54209f43afeeffeb62a338f618b98dcbf9b1f31c0f0a1b757e",
+      "identity": "1f:808e303996cf6d54209f43afeeffeb62a338f618b98dcbf9b1f31c0f0a1b757e"
+    }
+  ]
+}

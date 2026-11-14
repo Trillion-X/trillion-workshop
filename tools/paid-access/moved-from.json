@@ -1,0 +1,85 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/access-scoped-content/show/AccessScopedContent.renderer.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/packages/access-scoped-content/show/AccessScopedContent.renderer.test.tsx",
+      "source_identity": "1f:f27b79224e31a755f95c38ffee670378a8c8fef2ec363fb4b78f768d29e649bb",
+      "identity": "1f:7fe51c72fa4bc356b077be0835bfdabde0c57cedc43dca4a03925bd5de701ef7"
+    },
+    {
+      "from": "packages/access-scoped-content/show/AccessScopedContent.shipped-library.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/packages/access-scoped-content/show/AccessScopedContent.shipped-library.test.ts",
+      "source_identity": "1f:25f78170577e936bdc2acb902d88992a682ba29ca95c8974a60c7d6a00293f5a",
+      "identity": "1f:4545590e7a81ffc7eed2ed99ce8bd94f69985e2c303fcffeeb31e02baeb89bef"
+    },
+    {
+      "from": "packages/access-scoped-content/show/mount-access-scoped-content.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/packages/access-scoped-content/show/mount-access-scoped-content.tsx",
+      "source_identity": "1f:ff52250799c5f8ffd0c16c8c383da381c6b40b02ae8dd88f456b0704b0fa861e",
+      "identity": "1f:ff52250799c5f8ffd0c16c8c383da381c6b40b02ae8dd88f456b0704b0fa861e"
+    },
+    {
+      "from": "packages/access-scoped-content/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/packages/access-scoped-content/show/README.md",
+      "source_identity": "1f:baa69cd157606edebfa3a5dc2685a6347d4aee00bb69c1743e35ee7272ee0ffd",
+      "identity": "1f:baa69cd157606edebfa3a5dc2685a6347d4aee00bb69c1743e35ee7272ee0ffd"
+    },
+    {
+      "from": "packages/plan-lifecycle/do-work/read-portal-plan-state.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/packages/plan-lifecycle/do-work/read-portal-plan-state.ts",
+      "source_identity": "1f:d7db086f0d9aa9dc3a03acd1d8b98b524fec97c165d985a31f258e15ac39a9bc",
+      "identity": "1f:d7db086f0d9aa9dc3a03acd1d8b98b524fec97c165d985a31f258e15ac39a9bc"
+    },
+    {
+      "from": "packages/plan-lifecycle/do-work/send-plan-lifecycle-event.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/packages/plan-lifecycle/do-work/send-plan-lifecycle-event.ts",
+      "source_identity": "1f:cf0c0acd6eeb8bb434e02c37feafb62c25ccb0035346c6a88ac477a2d841f2d6",
+      "identity": "1f:cf0c0acd6eeb8bb434e02c37feafb62c25ccb0035346c6a88ac477a2d841f2d6"
+    },
+    {
+      "from": "packages/plan-lifecycle/read-data/record-work-model.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/packages/plan-lifecycle/read-data/record-work-model.ts",
+      "source_identity": "1f:9430117b880525214806a97f7893a083376f59eb6497019d54ed71090891f3c9",
+      "identity": "1f:9430117b880525214806a97f7893a083376f59eb6497019d54ed71090891f3c9"
+    },
+    {
+      "from": "packages/plan-lifecycle/show/app-shell/PlanLifecyclePortalSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/packages/plan-lifecycle/show/app-shell/PlanLifecyclePortalSurface.tsx",
+      "source_identity": "1f:9982bd79feb4ae936db0a70bdbe74ca09ac6e41384c492b5b0eff5b8d867dae0",
+      "identity": "1f:d6c7a3aafef85a68c49a12982312a914b1fde179a20ff7fdba7a3a01b3d36a45"
+    },
+    {
+      "from": "packages/plan-lifecycle/show/mount-plan-lifecycle-portal.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/packages/plan-lifecycle/show/mount-plan-lifecycle-portal.tsx",
+      "source_identity": "1f:92893ebbdf57cd3fd211a178c4d9d58467d5a3534110ada5420b41f045f72a05",
+      "identity": "1f:92893ebbdf57cd3fd211a178c4d9d58467d5a3534110ada5420b41f045f72a05"
+    },
+    {
+      "from": "packages/plan-lifecycle/show/plan-lifecycle-surface-descriptor.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/packages/plan-lifecycle/show/plan-lifecycle-surface-descriptor.ts",
+      "source_identity": "1f:9fe2f0d7e9082e7a3e7ad4f6a924dae737a279be8910102d866e04507a792e63",
+      "identity": "1f:9fe2f0d7e9082e7a3e7ad4f6a924dae737a279be8910102d866e04507a792e63"
+    },
+    {
+      "from": "packages/plan-lifecycle/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/paid-access/packages/plan-lifecycle/show/README.md",
+      "source_identity": "1f:4e35faea92b3c8b8a89633951565dd6fc76b6b0c06629bc0d9f74b5639826556",
+      "identity": "1f:4e35faea92b3c8b8a89633951565dd6fc76b6b0c06629bc0d9f74b5639826556"
+    }
+  ]
+}

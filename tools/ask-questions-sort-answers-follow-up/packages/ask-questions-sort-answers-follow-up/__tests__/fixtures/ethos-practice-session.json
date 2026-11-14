@@ -1,0 +1,46 @@
+{
+  "_note": "APK01 — owner's pre/post practice-session template as ONE generic question-sequence DATA record for the EXISTING ask-questions-sort-answers-follow-up engine (NOT journal-block-editor). Deploy to the LIVE ethos log via engine.operation.write-batch. Zero engine code: every questionTypeId resolves to an existing capability (text/rating/choice). skill-picker = choice with skill options DATA; focus rating = rating with a per-question validation override min:1,max:10. Answers become answer-fact records the DMG measure (apk01-focus-rating-measure-def) reads. See observation 2026-06-27-apk01-correct-substrate-is-ask-questions-not-journal-block-editor.md.",
+  "writes": [
+    {
+      "address_label": "package::ask-questions-sort-answers-follow-up::question-sequence::ethos-practice-session",
+      "address_mode": "identity_text",
+      "path_labels": ["current-item", "published-record"],
+      "payload": {
+        "kind": "question-sequence",
+        "formId": "ethos-practice-session",
+        "title": "Practice Session — Pre & Post",
+        "questions": [
+          { "questionId": "pre-goals", "questionTypeId": "text", "label": "What are your goals for this session?", "required": true, "placeholder": "e.g. cleaner first-serve toss, stay calm between points" },
+          { "questionId": "pre-focus-skills", "questionTypeId": "choice", "label": "Which skill is your main focus today?", "required": true, "options": [
+            { "value": "serve", "label": "Serve" },
+            { "value": "forehand", "label": "Forehand" },
+            { "value": "backhand", "label": "Backhand" },
+            { "value": "volley", "label": "Volley / net" },
+            { "value": "return", "label": "Return" },
+            { "value": "footwork", "label": "Footwork / movement" },
+            { "value": "mental", "label": "Mental / focus" }
+          ] },
+          { "questionId": "pre-actions", "questionTypeId": "text", "label": "What specific actions will you take to work on that?", "placeholder": "e.g. 20 serves to each box, split-step on every return" },
+          { "questionId": "pre-focus-plan", "questionTypeId": "text", "label": "What is your focus plan when things go wrong?", "placeholder": "e.g. breathe, reset routine, one point at a time" },
+          { "questionId": "pre-success-metric", "questionTypeId": "text", "label": "How will you know this session was a success?", "placeholder": "e.g. 60%+ first serves in, stayed positive after errors" },
+
+          { "questionId": "post-goals-met", "questionTypeId": "choice", "label": "Did you meet your goals?", "required": true, "options": [
+            { "value": "yes", "label": "Yes" },
+            { "value": "partially", "label": "Partially" },
+            { "value": "no", "label": "No" }
+          ] },
+          { "questionId": "post-goals-why", "questionTypeId": "text", "label": "Why / why not?", "placeholder": "What helped or got in the way?" },
+          { "questionId": "post-happiest", "questionTypeId": "text", "label": "What were you happiest about today?" },
+          { "questionId": "post-upset", "questionTypeId": "text", "label": "What upset or frustrated you today?" },
+          { "questionId": "post-learnings", "questionTypeId": "text", "label": "What did you learn?" },
+          { "questionId": "post-challenges", "questionTypeId": "text", "label": "What challenged you the most?" },
+          { "questionId": "post-improvements", "questionTypeId": "text", "label": "What will you improve next time?" },
+          { "questionId": "focus-rating", "questionTypeId": "rating", "label": "Rate your focus this session (1–10)", "required": true, "validation": { "min": 1, "max": 10 } },
+          { "questionId": "post-next-time", "questionTypeId": "text", "label": "What is your one priority for next time?" },
+
+          { "questionId": "todays-lesson", "questionTypeId": "text", "label": "Today's lesson (one line you want to remember)", "placeholder": "The single takeaway from today" }
+        ]
+      }
+    }
+  ]
+}

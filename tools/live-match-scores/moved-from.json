@@ -1,0 +1,46 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "a-persons-first-name-made-up",
+      "find": "\\bBria[n]\\b",
+      "replace": "Alex",
+      "means": "A fixture or test label named a real person; a public tree holds made-up names only."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/live-match-score/show/live-match-score-scoped-feed.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/live-match-scores/packages/live-match-score/show/live-match-score-scoped-feed.test.ts",
+      "source_identity": "1f:dc60c78f967e85989be07fe402747cbb375a3802ab2d8e7724e5a31ce95014bd",
+      "identity": "1f:07957ddc7f5c3ca289228dab522dcb21a632f7f1397c0cc7c9fbefe8067f0502",
+      "calls": [
+        "a-persons-first-name-made-up"
+      ]
+    },
+    {
+      "from": "packages/live-match-score/show/LiveMatchScoreSurface.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/live-match-scores/packages/live-match-score/show/LiveMatchScoreSurface.tsx",
+      "source_identity": "1f:9e82c163a453ed97bf1ad0d55a9ff8bb31b4471917996bfceadf53b8158f865b",
+      "identity": "1f:9e82c163a453ed97bf1ad0d55a9ff8bb31b4471917996bfceadf53b8158f865b"
+    },
+    {
+      "from": "packages/live-match-score/show/mount-live-match-score.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/live-match-scores/packages/live-match-score/show/mount-live-match-score.tsx",
+      "source_identity": "1f:4b29535400c0d3793a226b7164d83c67e0386743fce1c487819ade4695927153",
+      "identity": "1f:4b29535400c0d3793a226b7164d83c67e0386743fce1c487819ade4695927153"
+    },
+    {
+      "from": "packages/live-match-score/show/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/live-match-scores/packages/live-match-score/show/README.md",
+      "source_identity": "1f:bf87b9bfaac4bf69391ae54ef808f4c476a069a01bcb108d450eee73f03a273d",
+      "identity": "1f:bf87b9bfaac4bf69391ae54ef808f4c476a069a01bcb108d450eee73f03a273d"
+    }
+  ]
+}
