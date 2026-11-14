@@ -1440,6 +1440,13 @@
       "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/travel-operations/", "bitfield-packages/packages/packing-list/"]}
     },
     {
+      "capability": "sign people in with email and password or a passkey, and issue JWTs checked against public keys",
+      "owner": ["tools/better-auth/"],
+      "entry": "tools/better-auth/tool-rows.json",
+      "evidence": "better-auth-rs v1.0.0-alpha.5 README quick start and examples/axum_server.rs: email-password, passkey and jwt plugins on its SeaORM adapter",
+      "source_still_in": {"repo_kind": "upstream open-source repository", "paths": ["better-auth-rs/better-auth-rs"]}
+    },
+    {
       "capability": "render film frames as square-grid pointillist pictures",
       "owner": ["tools/pointillist-film/"],
       "entry": "tools/pointillist-film/tool-rows.json",

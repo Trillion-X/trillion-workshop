@@ -1,0 +1,52 @@
+{
+  "kind": "package-set-records",
+  "record_set": "better-auth-tool-rows",
+  "what_this_is": "The Workshop row for the better-auth folder: the documented Better Auth server (better-auth-rs on axum) that signs people in with email and password or a passkey and issues JWTs verified against its JWKS.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:run-better-auth-sign-in",
+        "label": "Run the Better Auth sign-in server (runs on your computer)",
+        "job": "Start the sign-in server: email and password, passkeys, and JWTs that anything can verify against its public keys",
+        "description": "Starts Better Auth (better-auth-rs, the documented axum setup) on the port in settings.json. It serves sign up, sign in, sessions and passkeys under the base path (default /api/auth), GET /api/auth/token for a JWT (EdDSA, claims sub, iss, aud, exp, iat and the user's email and name) and GET /api/auth/jwks for the public keys. Sessions travel as the __Host-trillion_session cookie or as an Authorization Bearer token. Port, base URL, issuer, audience, passkey relying party, trusted origins and the SQLite file are all in settings.json; the secret comes from the BETTER_AUTH_SECRET environment variable and is never printed.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "settings": {
+              "type": "string",
+              "description": "Optional path to a settings file, put where {settings} is in the command. Leave it out to use tools/better-auth/settings.json."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The server keeps running and answers on the port in settings.json. GET {base_url}{base_path}/ok answers {\"ok\":true} when it is ready."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git"
+          ],
+          "run": "cargo run --release --quiet --manifest-path trillion-workshop/tools/better-auth/Cargo.toml --target-dir /tmp/better-auth-build -- {settings}",
+          "needs": [
+            "rust 1.94 or newer (the folder's rust-toolchain.toml names 1.95.0)",
+            "ICU 78 for the build and the run: set RUST_ICU_MAJOR_VERSION_NUMBER=78 and RUST_ICU_LINK_SEARCH_DIR to its lib folder (brew install icu4c@78)",
+            "BETTER_AUTH_SECRET in the environment: a random secret of at least 32 characters"
+          ],
+          "say": "This runs on the person's own computer. Set BETTER_AUTH_SECRET from the vault by name (never print it), edit tools/better-auth/settings.json for the port, issuer, passkey origin and database file, then run `run`. The first run builds and takes a few minutes. Check GET {base_url}{base_path}/ok. Anything that verifies a token reads the keys from {base_url}{base_path}/jwks and checks iss and aud against the settings."
+        },
+        "maker": "maker:better-auth",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "better-auth-rs v1.0.0-alpha.5 (git 23c89f4e51), README quick start and examples/axum_server.rs, with the passkey and JWT plugin docs; its own SeaORM adapter and generated schema, no custom adapter"
+        }
+      }
+    }
+  ]
+}
