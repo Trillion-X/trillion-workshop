@@ -1,0 +1,5 @@
+{
+  "_what": "How a row of icons names the one the pointer rests on (hover-labels.tsx): intent_ms is how long the pointer rests on one control before its label opens, so passing over controls opens nothing; warm_ms is how long after a label closed the next one opens at once, the way moving along a toolbar names each control without waiting again.",
+  "intent_ms": 150,
+  "warm_ms": 500
+}

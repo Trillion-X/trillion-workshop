@@ -1,0 +1,1639 @@
+/* Record table and board look, transcribed from Twenty CRM.
+ *
+ * Twenty writes these rules as Linaria `styled` blocks inside .tsx files bound
+ * to its Jotai state and object-metadata layer, so the components cannot be
+ * lifted as-is. The RULES can, and these are theirs, against the same
+ * `--t-*` custom properties their theme-light.css defines (that file is here
+ * byte-for-byte). Sources:
+ *   record-table/record-table-cell/components/RecordTableCellBaseContainer.tsx
+ *   record-table/record-table-header/components/RecordTableHeaderCellContainer.tsx
+ *   record-table/components/RecordTableStyleWrapper.tsx
+ *   record-board/record-board-card/components/RecordBoardCard.tsx
+ * Twenty is AGPL-3.0. Nothing marked `@license Enterprise` was read or used.
+ */
+
+/* Whatever a host was laying out before, it now holds one surface that lays out
+ * its own contents. Without this, a host that is itself a grid or a flex row
+ * makes this whole surface one cell, and it renders as a narrow column with the
+ * rest of the page empty beside it. The marker comes from mountRecordViews, so
+ * this covers every view rather than the ones someone remembered to list. */
+[data-record-views-host] {
+  display: block !important;
+  grid-template-columns: none !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  width: 100%;
+}
+
+.record-views-host {
+  width: 100%;
+}
+
+/* The drag-selection rectangle. Positioned against the viewport because that is
+ * the space the pointer reports in, so it tracks correctly inside a scrolled
+ * table as well as over a grid. */
+.record-views-marquee {
+  position: fixed;
+  z-index: 50;
+  pointer-events: none;
+  border: 1px solid var(--t-color-blue);
+  background-color: var(--t-accent-quaternary);
+  border-radius: 2px;
+}
+
+.record-views {
+  --record-table-row-height: 32px;
+  /* The one horizontal inset. The bar, the filter chips and every view's
+   * content (table, board, gallery) sit on it, so the bar's left and right
+   * edges are the content's left and right edges in every view. */
+  --record-views-inset: var(--t-spacing-2);
+  width: 100%;
+  display: block;
+  color: var(--t-font-color-primary);
+  font-family: var(--t-font-family, inherit);
+  font-size: var(--t-font-size-md, 13px);
+}
+
+.record-views[data-density='compact'] {
+  --record-table-row-height: 25px;
+}
+
+/* The view bar sits on the pane surface, the way a sidebar list heading
+ * does: no box, no border, no darker band at rest. Screen-look supplies its
+ * surface from the first paint, so CSS pinning cannot expose records while
+ * the pin observer catches up. References: Linear and Notion view bars (title, count,
+ * view switch, tools on one line); Dropbox Dash (search in the middle).
+ *
+ * The bar is its own size container and its layout is decided by its width
+ * alone, never by what is hovered: a tool that opens its name reserves that
+ * room already (ExpandableTabs reserveHoverRoom), and the areas below never
+ * wrap, so nothing jumps. */
+.record-views-bar {
+  container-type: inline-size;
+  container-name: record-views-bar;
+  margin: var(--t-spacing-2) var(--record-views-inset) var(--t-spacing-1);
+  padding: 4px 0;
+  border-radius: 12px;
+  /* The view switch, Filter, Sort and Fields stay reachable however far down
+   * the list someone has scrolled; scrolling back to the top to change a
+   * filter is the thing this bar exists to prevent. A caller with its own
+   * pinned header above sets --record-views-sticky-top to that header's height
+   * so the two stack instead of overlapping. */
+  position: sticky;
+  top: var(--record-views-sticky-top, 0);
+  z-index: 19;
+}
+
+.record-views-bar[data-pinned='true'] {
+  padding-inline: 6px;
+}
+
+.record-views-bar-marker,
+.record-views-end-marker {
+  display: block;
+  height: 0;
+}
+
+/* Wide: one line, the search centred in the room the title, the view
+ * switch and the tools leave. A long title gives way first (its column
+ * shrinks to nothing and the name ends in an ellipsis), so the line never
+ * runs past the bar's edge. The zoom pair and the tools are one cluster at
+ * the end (record-views-bar-actions), so the bar reads as two groups, what
+ * is shown on the left and how it is shown on the right, never as islands
+ * with gaps between them (Linear's and Notion's view bars). */
+.record-views-bar-layout {
+  display: grid;
+  grid-template-columns: minmax(0, max-content) max-content minmax(12rem, 1fr) max-content;
+  grid-template-areas: 'title switch find actions';
+  align-items: center;
+  column-gap: var(--t-spacing-2);
+  row-gap: var(--t-spacing-2);
+  min-height: 36px;
+}
+
+.record-views-title {
+  grid-area: title;
+  display: flex;
+  align-items: center;
+  gap: var(--t-spacing-2);
+  min-width: 0;
+  white-space: nowrap;
+  font-size: var(--t-font-size-md, 14px);
+  font-weight: var(--t-font-weight-medium, 500);
+  color: var(--t-font-color-primary);
+}
+
+.record-views-title-count {
+  font-variant-numeric: tabular-nums;
+}
+
+.record-views-title-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.record-views-find {
+  grid-area: find;
+  display: flex;
+  justify-self: center;
+  width: 100%;
+  max-width: 30rem;
+  min-width: 0;
+}
+
+.record-views-find > .search-field {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* The field inside the search shrinks with it instead of keeping its own
+ * content width past the bar's edge. */
+.record-views-find > .search-field > * {
+  min-width: 0;
+}
+
+.record-views-switch {
+  grid-area: switch;
+  justify-self: start;
+}
+
+.record-views-bar-actions {
+  grid-area: actions;
+  justify-self: end;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--t-spacing-1);
+  min-width: 0;
+}
+
+/* Medium: the title and the search, then the view switch, the zoom and the
+ * tools, the tools at the far edge; the create action keeps only its icon.
+ * The view switch spans the title's column and the next, so the first column
+ * is as wide as the title alone and the search has the rest of the line: a
+ * wide switch sharing the title's column pushed the search past the edge
+ * (seen at a 712 px bar in a ChatGPT frame). */
+/* The same two lines whenever the bar's title does not show whole on one line
+ * (record-views.tsx sets data-fit="stacked"): how wide the line must be
+ * depends on the views, tools and caller words, which no fixed width knows.
+ * :where keeps this as weak as the width rules below, so a narrower bar still
+ * takes their layouts. */
+:where(.record-views-bar[data-fit='stacked']) .record-views-bar-layout {
+  grid-template-columns: minmax(0, max-content) minmax(0, 1fr) max-content;
+  grid-template-areas:
+    'title find find'
+    'switch switch actions';
+}
+
+:where(.record-views-bar[data-fit='stacked']) .record-views-find {
+  max-width: none;
+}
+
+:where(.record-views-bar[data-fit='stacked']) .record-views-primary-label {
+  display: none;
+}
+
+@container record-views-bar (max-width: 1040px) {
+  .record-views-bar-layout {
+    grid-template-columns: minmax(0, max-content) minmax(0, 1fr) max-content;
+    grid-template-areas:
+      'title find find'
+      'switch switch actions';
+  }
+
+  .record-views-find {
+    max-width: none;
+  }
+
+  .record-views-primary-label {
+    display: none;
+  }
+}
+
+/* Narrow: the title and the search, then the view switch with the tools on
+ * the same line at its end; the switch spans the title's column for the same
+ * reason as above. A switch and tools that cannot share the line wrap the
+ * tools under it, still at the end. */
+@container record-views-bar (max-width: 700px) {
+  .record-views-bar-layout {
+    grid-template-columns: minmax(0, max-content) minmax(0, 1fr) max-content;
+    grid-template-areas:
+      'title find find'
+      'switch switch actions';
+  }
+}
+
+/* Narrowest: one column, so no group's own width can push the search past the
+ * edge: the title, the search on its own line under it, then the view switch,
+ * then the zoom and the tools, each from the same left edge. */
+@container record-views-bar (max-width: 420px) {
+  .record-views-bar-layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'title'
+      'find'
+      'switch'
+      'actions';
+  }
+
+  .record-views-find {
+    justify-self: stretch;
+  }
+
+  .record-views-bar-actions {
+    justify-self: start;
+    justify-content: flex-start;
+  }
+
+  /* The views stay one line a finger slides along (a phone's segmented tabs), never two ragged rows. */
+  .record-views-switch {
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .record-views-switch::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.record-views-scroll {
+  margin-inline: var(--record-views-inset);
+  overflow-x: auto;
+  /* Sideways only: a box that scrolls sideways would otherwise scroll a few pixels vertically while its scrollbar
+     shows and catch the swipe meant for the pane, stopping the pane short of the table's top. */
+  overflow-y: hidden;
+}
+
+.record-views table {
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 100%;
+  table-layout: fixed;
+  background-color: var(--t-background-primary);
+}
+
+/* Header cell: RecordTableHeaderCellContainer. */
+.record-views thead th {
+  background-color: var(--t-background-primary);
+  border-bottom: 1px solid var(--t-border-color-light);
+  border-right: 1px solid var(--t-border-color-light);
+  color: var(--t-font-color-tertiary);
+  height: var(--record-table-row-height);
+  max-height: var(--record-table-row-height);
+  padding: 0 var(--t-spacing-2);
+  position: sticky;
+  top: 0;
+  text-align: left;
+  font-weight: var(--t-font-weight-regular, 400);
+  font-size: var(--t-font-size-sm, 12px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 5;
+}
+
+/* A 10px hit zone on the column's right edge; a 2px accent line shows while it
+ * is hovered, focused or dragged. */
+.record-views-column-resize {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: -5px;
+  z-index: 7;
+  width: 10px;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.record-views-column-resize::after {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 4px;
+  width: 1px;
+  background: transparent;
+}
+
+.record-views-column-resize:hover::after,
+.record-views-column-resize:active::after,
+.record-views-column-resize:focus-visible::after {
+  width: 2px;
+  background: var(--t-color-blue);
+}
+
+.record-views-column-resize:focus-visible {
+  outline: none;
+}
+
+/* Body cell: RecordTableCellBaseContainer. */
+.record-views tbody td {
+  box-sizing: border-box;
+  height: var(--record-table-row-height);
+  max-height: var(--record-table-row-height);
+  padding: 0 var(--t-spacing-2);
+  border-bottom: 1px solid var(--t-border-color-light);
+  border-right: 1px solid var(--t-border-color-light);
+  color: var(--t-font-color-primary);
+  user-select: none;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* The real height owner. A `td` ignores max-height, so without this every row
+ * grows to whatever its widest value wraps to and the table loses the even
+ * rhythm that makes it readable. Twenty's RecordTableCellBaseContainer is a div
+ * inside the cell for exactly this reason. */
+.record-views-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--t-spacing-1);
+  height: var(--record-table-row-height);
+  max-height: var(--record-table-row-height);
+  overflow: hidden;
+  /* The cell is the height owner, so it is also where wrapping has to stop. A
+   * `td` set to nowrap does not reach through this div, and the moment a long
+   * name breaks onto a second line the row grows and the whole table loses the
+   * even rhythm that makes it scannable. */
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+/* Cells host shared Buttons, which carry their own chrome. Inside a table cell
+ * Twenty shows the value itself, not a control, so the chrome comes off and only
+ * the pointer and the hover underline remain. */
+.record-views.coss-ui tbody td button,
+.record-views.coss-ui thead th button {
+  all: unset;
+  display: flex;
+  align-items: center;
+  gap: var(--t-spacing-1);
+  cursor: pointer;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font: inherit;
+  color: inherit;
+}
+
+.record-views.coss-ui tbody td button:hover {
+  text-decoration: underline;
+}
+
+.record-views.coss-ui thead th button {
+  color: var(--t-font-color-tertiary);
+  width: 100%;
+}
+
+@media (hover: hover) {
+  .record-views tbody tr:hover td {
+    background-color: var(--t-background-transparent-light);
+  }
+}
+
+.record-views tbody tr[data-selected='true'] td {
+  background-color: var(--t-accent-quaternary);
+}
+
+/* Chip cell. Twenty renders relations and statuses as soft tags. */
+.record-view-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--t-spacing-1);
+  height: 20px;
+  padding: 0 var(--t-spacing-2);
+  border-radius: var(--t-border-radius-sm, 4px);
+  font-size: var(--t-font-size-sm, 12px);
+  line-height: var(--t-text-line-height-md);
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.record-views-empty-cell {
+  color: var(--t-font-color-light);
+}
+
+/* Board, from RecordBoardCard and its column. */
+.record-views-board {
+  display: flex;
+  gap: var(--t-spacing-2);
+  align-items: flex-start;
+  overflow-x: auto;
+  /* Only sideways: the board grows as tall as its cards, and the cards are
+   * windowed against the scroller that holds the whole surface. */
+  overflow-y: hidden;
+  margin-inline: var(--record-views-inset);
+  padding: var(--t-spacing-2) 0;
+  background-color: var(--t-background-secondary);
+}
+
+.record-views-board-column {
+  min-width: 280px;
+  width: 280px;
+}
+.record-views-board-column[data-collapsed='true'] {
+  flex: 0 0 44px;
+  width: 44px;
+  min-width: 44px;
+  max-width: 44px;
+}
+
+.record-views-board-column-header {
+  display: flex;
+  align-items: center;
+  gap: var(--t-spacing-2);
+  height: var(--record-table-row-height);
+  padding: 0 var(--t-spacing-1);
+}
+.record-views-board-column-header[data-collapsed='true'] {
+  height: auto;
+  min-height: 44px;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: var(--t-spacing-1);
+  padding: var(--t-spacing-1) 0;
+}
+.record-views-board-fold {flex:0 0 auto;opacity:.65}
+.record-views-board-column-header:hover .record-views-board-fold,
+.record-views-board-fold:focus-visible {opacity:1}
+.record-views-board-folded-label {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  max-height: 11rem;
+  overflow: hidden;
+  color: var(--t-font-color-light);
+  font-size: var(--t-font-size-sm, 12px);
+  font-weight: 500;
+  text-overflow: ellipsis;
+}
+
+.record-views-board-column article {
+  background-color: var(--t-background-primary);
+  border: 1px solid var(--t-border-color-medium);
+  border-radius: var(--t-border-radius-md, 8px);
+  padding: var(--t-spacing-2);
+  margin-bottom: var(--t-spacing-1);
+  cursor: pointer;
+}
+
+.record-views-board-column article:hover {
+  background-color: var(--t-background-transparent-light);
+}
+
+/* A flex item refuses to shrink below its content by default, so one long value
+ * pushes the whole row past the edge of the card instead of ellipsing inside it. */
+
+.record-views-saved-view-editor {
+  display: flex;
+  align-items: center;
+  gap: var(--t-spacing-2);
+  padding: var(--t-spacing-2);
+  border-bottom: 1px solid var(--t-border-color-light);
+  background-color: var(--t-background-primary);
+}
+
+.record-views-saved-view-editor input {
+  flex: 1;
+  min-width: 120px;
+}
+
+.record-views-time-editor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--t-spacing-2);
+  padding: var(--t-spacing-3);
+  border-bottom: 1px solid var(--t-border-color-light);
+  background-color: var(--t-background-primary);
+}
+
+.record-views-time-editor label {
+  display: grid;
+  gap: var(--t-spacing-1);
+  min-width: min(100%, 140px);
+  font-size: 12px;
+  color: var(--t-font-color-secondary);
+}
+
+.record-views-time-editor select {
+  min-height: 32px;
+  border: 1px solid var(--t-border-color-light);
+  border-radius: 6px;
+  padding-inline: 8px;
+  background-color: var(--t-background-primary);
+  color: var(--t-font-color-primary);
+}
+
+.record-views-time-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--t-spacing-2);
+  min-width: 0;
+}
+
+.record-views-time-line input { width: 108px; min-width: 0; }
+.record-views-time-line > span { min-width: 36px; font-size: 12px; color: var(--t-font-color-secondary); }
+
+@media (max-width: 600px) {
+  .record-views-time-editor { align-items: stretch; }
+  .record-views-time-editor label { flex: 1 1 100%; }
+  .record-views-time-line { flex: 1 1 100%; }
+}
+
+/* A field kind that draws an image. Fixed box so a portrait clip and a
+ * landscape one keep the row rhythm rather than each setting its own height. */
+.record-view-thumbnail {
+  width: 40px;
+  height: 24px;
+  border-radius: var(--t-border-radius-sm, 4px);
+  object-fit: cover;
+  background-color: var(--t-background-tertiary);
+  flex: 0 0 auto;
+  display: block;
+}
+
+.record-view-thumbnail-absent {
+  border: 1px solid var(--t-border-color-light);
+  background-color: var(--t-background-secondary);
+}
+
+.record-views[data-density='compact'] .record-view-thumbnail {
+  width: 34px;
+  height: 20px;
+}
+
+/* A field kind that draws how much is done: the shared bar, then its whole percentage. */
+.record-view-progress {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--t-spacing-2, 8px);
+  width: 100%;
+  min-width: 0;
+}
+
+.record-view-progress-bar {
+  flex: 1 1 auto;
+  min-width: 48px;
+}
+
+.record-view-progress-value {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  color: var(--t-font-color-tertiary);
+}
+
+/* A thumbnail field with its own renderer (the shared MediaPreview) takes the
+ * same box the plain image does, wherever the field is drawn. */
+.record-views td .media-preview {
+  width: 40px;
+  height: 24px;
+  flex: 0 0 auto;
+}
+
+.record-views[data-density='compact'] td .media-preview {
+  width: 34px;
+  height: 20px;
+}
+
+.record-views-card-thumbnail > .media-preview {
+  height: 84px;
+}
+
+.record-views-card-thumbnail[data-large='true'] > .media-preview {
+  height: 132px;
+}
+
+/* The fields menu is the shared ActionMenu (floating-menus.css); only its
+ * add-field form below the rows is drawn here. */
+.coss-ui .record-views-fields-popup {
+  min-width: 260px;
+}
+
+.record-views-add-field {
+  display: grid;
+  grid-template-columns: minmax(110px, 1fr) minmax(90px, 0.8fr) auto;
+  align-items: center;
+  gap: var(--t-spacing-1);
+  margin-top: var(--t-spacing-1);
+  padding: var(--t-spacing-2) var(--t-spacing-1) 0;
+  border-top: 1px solid var(--t-border-color-light);
+}
+
+.record-views-add-field [role='status'] {
+  grid-column: 1 / -1;
+  color: var(--t-font-color-light);
+  font-size: var(--t-font-size-sm, 12px);
+}
+
+/* Cards, shared by the board and the gallery. The board sets the width; the
+ * gallery lays them out in a grid. Neither knows anything the other does not. */
+.record-views-card-thumbnail {
+  display: block;
+}
+
+.record-views-card-thumbnail .record-view-thumbnail {
+  width: 100%;
+  height: 84px;
+}
+
+/* Compact row density also applies to the Gallery surface, but must not
+ * collapse its image-first cards to row-thumbnail width. */
+.record-views[data-density='compact'] .record-views-card-thumbnail .record-view-thumbnail {
+  width: 100%;
+}
+
+.record-views-card-thumbnail[data-large='true'] .record-view-thumbnail {
+  height: 132px;
+}
+
+/* A field the caller marks `cardOverlay` sits on the picture's bottom edge,
+ * always visible, the way a photo library marks the days left on each photo. */
+.record-views-card-thumbnail {
+  position: relative;
+}
+
+.record-views-card-overlay {
+  position: absolute;
+  left: var(--t-spacing-1);
+  bottom: var(--t-spacing-1);
+  display: flex;
+  gap: var(--t-spacing-1);
+  max-width: calc(100% - 2 * var(--t-spacing-1));
+  pointer-events: none;
+}
+
+.record-views-card-overlay .record-view-tag {
+  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.24);
+}
+
+.record-views-card-title {
+  font-weight: var(--t-font-weight-medium, 500);
+  color: var(--t-font-color-primary);
+  display: block;
+  padding-top: var(--t-spacing-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.record-views-card-fields {
+  display: flex;
+  gap: var(--t-spacing-1);
+  flex-wrap: wrap;
+  padding-top: var(--t-spacing-1);
+}
+
+.record-views-card-fields .record-view-tag {
+  min-width: 0;
+}
+
+/* One value on a card: quieter than the title, and never run into its neighbour. */
+.record-views-card-field {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  font-size: var(--t-font-size-sm, 12px);
+  color: var(--t-font-color-tertiary);
+  gap: 4px;
+}
+/* The field's icon says what the value is, so a card needs no labels. */
+.record-views-card-field-icon { flex-shrink: 0; opacity: 0.7; }
+/* The field's name, read aloud before its value and never drawn. */
+.record-views-card-field-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* Section headings: the shared folding heading (screen-look
+ * disclosure-heading.css), stepped in per nesting level so a project sits
+ * inside its parent. */
+.record-views-divider[data-depth='1'] { padding-left: 18px }
+.record-views-divider[data-depth='2'] { padding-left: 36px }
+.record-views-divider[data-depth='3'] { padding-left: 54px }
+.record-views-divider[data-depth='4'] { padding-left: 72px }
+.record-views-divider[data-depth='5'] { padding-left: 90px }
+
+.record-views-divider:not([data-depth='0']) .disclosure-heading-toggle {
+  color: var(--t-font-color-secondary, var(--text-secondary));
+  font-weight: 400;
+}
+
+/* What a group holds, on hover: counts, span, recurring values, first names. */
+.record-group-summary {
+  display: grid;
+  gap: 6px;
+  width: 300px;
+  max-width: calc(100vw - 24px);
+  padding: 12px 14px;
+  border: 1px solid var(--border-primary, var(--color-border));
+  border-radius: 12px;
+  background: var(--glass-bg-primary, var(--color-popover));
+  backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-lg, 0 12px 32px rgba(0, 0, 0, .35));
+  font-size: 12px;
+  color: var(--text-secondary, var(--color-muted-foreground));
+}
+
+.record-group-summary-title {
+  color: var(--text-primary, var(--color-foreground));
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.record-group-summary-meta {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary, var(--color-muted-foreground));
+}
+
+.record-group-summary-facet {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: 8px;
+}
+
+.record-group-summary-field {
+  color: var(--text-tertiary, var(--color-muted-foreground));
+}
+
+.record-group-summary-values {
+  color: var(--text-primary, var(--color-foreground));
+  overflow-wrap: anywhere;
+}
+
+.record-group-summary-names {
+  display: grid;
+  gap: 2px;
+  margin: 2px 0 0;
+  padding: 6px 0 0;
+  border-top: 1px solid var(--border-primary, var(--color-border));
+  list-style: none;
+}
+
+.record-group-summary-names li {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary, var(--color-foreground));
+}
+
+.record-group-summary-names .record-group-summary-more {
+  color: var(--text-tertiary, var(--color-muted-foreground));
+}
+
+.record-views-section-heading {
+  margin: 0;
+  padding: var(--t-spacing-2) var(--t-spacing-2) var(--t-spacing-1);
+}
+
+.record-views-gallery-section[data-depth='1'] .record-views-gallery { padding-left: 18px }
+.record-views-gallery-section[data-depth='2'] .record-views-gallery { padding-left: 36px }
+.record-views-gallery-section[data-depth='3'] .record-views-gallery { padding-left: 54px }
+.record-views-gallery-section[data-depth='4'] .record-views-gallery { padding-left: 72px }
+
+.record-views-divider-row td {
+  background-color: var(--t-background-secondary);
+  position: sticky;
+  top: var(--record-table-row-height);
+  z-index: 4;
+}
+
+/* The filters in force, one chip each, in their own row under the bar. */
+.record-views-filters {
+  padding: 2px var(--record-views-inset) var(--t-spacing-1);
+}
+
+.record-views-gallery-sections {
+  background-color: var(--t-background-secondary);
+}
+
+/* The checkbox and the record's own menu, over the card rather than pushing the
+ * content down. They appear on hover and whenever the card is selected, so a
+ * quiet grid stays quiet and the actions are still one move away. */
+.record-views-card-corner {
+  position: absolute;
+  top: var(--record-card-control-inset, 8px);
+  right: var(--record-card-control-inset, 8px);
+  left: var(--record-card-control-inset, 8px);
+  height: var(--record-card-control-size, 24px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+/* Both corner controls are the same square on the same surface (tokens from
+ * screen-look), so the checkbox and the menu line up with each other and sit
+ * the same distance from their corners. */
+.record-views-gallery-card .record-views-card-corner [data-slot='checkbox'],
+.record-views-gallery-card .record-views-card-corner [data-slot='button'],
+.record-views-gallery-card .record-views-card-corner [data-slot='menu-trigger'] {
+  box-sizing: border-box;
+  flex: none;
+  width: var(--record-card-control-size, 24px);
+  height: var(--record-card-control-size, 24px);
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--record-card-control-border, var(--t-border-color-medium));
+  border-radius: var(--record-card-control-radius, 6px);
+  background-color: var(--record-card-control-surface, var(--t-background-primary));
+  box-shadow: var(--record-card-control-shadow, none);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.record-views-gallery-card .record-views-card-corner :is([data-slot='button'], [data-slot='menu-trigger'])::before {
+  display: none;
+}
+
+.record-views-gallery-card .record-views-card-corner :is([data-slot='button'], [data-slot='menu-trigger']) svg {
+  width: 14px;
+  height: 14px;
+}
+
+.record-views-gallery-card .record-views-card-corner [data-slot='checkbox-indicator'] {
+  border-radius: inherit;
+}
+
+/* Over a card's picture the controls float; a picture made of words (a file's
+ * opening lines) starts them below the controls' line, so no control ever sits
+ * on what the card says (media-preview.css reads the clearance). */
+.record-views-gallery-card .record-views-card-thumbnail {
+  --media-preview-overlay-top: calc(var(--record-card-control-inset, 8px) + var(--record-card-control-size, 24px) + 4px);
+}
+
+/* A card with no picture holds its words in a padded box, and both corner
+ * controls sit together at the end of the title line: over a picture they can
+ * float, over words they would cover the title. */
+.record-views-gallery-card:not(:has(> .record-views-card-thumbnail)) {
+  padding: var(--t-spacing-2);
+}
+
+.record-views-gallery-card:not(:has(> .record-views-card-thumbnail)) .record-views-card-corner {
+  left: auto;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.record-views-gallery-card:not(:has(> .record-views-card-thumbnail)) .record-views-card-title {
+  padding-top: 0;
+  padding-inline-end: calc(2 * var(--record-card-control-size, 24px) + 4px);
+  line-height: var(--record-card-control-size, 24px);
+}
+
+.record-views-gallery-card:hover .record-views-card-corner,
+.record-views-gallery-card:focus-within .record-views-card-corner,
+.record-views-gallery-card[data-selected='true'] .record-views-card-corner {
+  opacity: 1;
+}
+
+.record-views-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--t-spacing-2);
+  padding: var(--t-spacing-2);
+  background-color: var(--t-background-secondary);
+}
+
+.record-views-gallery-card {
+  position: relative;
+  background: transparent;
+  border: 0;
+  border-radius: var(--t-border-radius-md, 8px);
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Hover, focus and selection rings are painted INSIDE the card's own box, as
+ * an inset ring on a layer above the thumbnail. An outline with a positive
+ * offset grew into the grid gap, so two selected neighbours touched; an outline
+ * pulled inside with a negative offset is painted under the thumbnail and
+ * disappears. The ::after layer keeps the gap and stays visible. */
+.record-views-gallery-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 2px var(--record-views-card-ring, transparent);
+}
+
+.record-views-gallery-card:hover {
+  --record-views-card-ring: var(--t-border-color-medium);
+}
+
+.record-views-gallery-card[data-selected='true'],
+.record-views-board-column article[data-selected='true'] {
+  border-color: var(--t-color-blue);
+  background-color: var(--t-accent-quaternary);
+}
+
+.record-views-gallery-card[data-selected='true'],
+.record-views-gallery-card:focus-visible {
+  --record-views-card-ring: var(--t-color-blue);
+  outline: none;
+  background: transparent;
+}
+
+/* Scoped under .record-views so it outweighs the shared controls' own
+ * `.coss-ui [data-slot=button]` border. The card is the frame; the button that
+ * opens it is an invisible hit area. When the control's border won, it drew a
+ * second card inside the first, a few pixels off and wider than the space. */
+.record-views .record-views-gallery-card > button {
+  all: unset;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  font: inherit;
+  color: inherit;
+}
+
+/* The one place a selection's actions live. Fixed to the surface so it stays
+ * reachable at any scroll depth, which is the whole reason it is one bar rather
+ * than a control beside every row. */
+.record-views-selection-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: var(--t-spacing-1);
+  padding: var(--t-spacing-2);
+  border-top: 1px solid var(--t-border-color-medium);
+  background-color: var(--t-background-primary);
+  box-shadow: var(--t-box-shadow-light, 0 -2px 4px rgba(0, 0, 0, 0.04));
+}
+
+.record-views-selection-count {
+  margin-right: auto;
+  color: var(--t-font-color-tertiary);
+  font-size: var(--t-font-size-sm, 12px);
+}
+
+.record-views-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--t-spacing-2);
+  margin: 0;
+  padding: var(--t-spacing-4) var(--t-spacing-2);
+  color: var(--t-font-color-tertiary);
+}
+
+.record-views-status,
+.record-views-empty-content {
+  min-width: 0;
+  margin: var(--t-spacing-3) 0;
+}
+
+.record-views-status > * {
+  width: 100%;
+}
+
+/* Windowed views. Only the lines on screen are drawn: the gallery places each
+ * row and heading at its own offset inside a box as tall as every line, and
+ * the table and board fill the lines above and below with spacers. The gap,
+ * inset and smallest tile are read by the component from these properties, so
+ * the arithmetic and the paint cannot disagree. */
+.record-views-gallery-sections[data-windowed='true'] {
+  --record-views-gallery-gap: 8px;
+  --record-views-gallery-inset: var(--record-views-inset);
+  --record-views-gallery-tile: 200px;
+  position: relative;
+  overflow: hidden;
+  contain: layout paint;
+}
+
+.record-views-gallery-sections[data-windowed='true'] > .record-views-gallery,
+.record-views-gallery-sections[data-windowed='true'] > .record-views-section-heading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  will-change: transform;
+}
+
+.record-views-gallery-sections[data-windowed='true'] > .record-views-gallery {
+  grid-template-columns: repeat(var(--record-views-columns, 4), minmax(0, 1fr));
+  gap: var(--record-views-gallery-gap);
+  padding: 0 var(--record-views-gallery-inset);
+  background: none;
+}
+
+/* A group heading breathes: more room above it (it ends the group before)
+ * than below it (it belongs to what follows). */
+.record-views-gallery-sections[data-windowed='true'] > .record-views-section-heading {
+  display: flex;
+  align-items: flex-end;
+  box-sizing: border-box;
+  height: 56px;
+  padding: 16px var(--record-views-gallery-inset) 6px;
+}
+
+/* A gallery or board that zooms through how much each card says (record-views detail levels) takes two-finger pinches
+ * itself, so the page does not zoom instead; one finger still scrolls. */
+.record-views-gallery-sections[data-detail],
+.record-views-board[data-detail] {
+  touch-action: pan-x pan-y;
+}
+
+/* At Everything a card under a picture keeps its name and fields, which may wrap onto several lines. */
+.record-views-gallery-sections[data-detail='everything'] .record-views-card-title-text {
+  white-space: normal;
+}
+
+/* A timeline is a photo library: square pictures edge to edge with a hairline
+ * between them, so zooming out shows years of work at a glance. */
+.record-views-gallery-sections[data-timeline='true'] {
+  --record-views-gallery-gap: 2px;
+}
+
+.record-views-gallery-sections[data-timeline='true'] .record-views-gallery-card {
+  height: var(--record-views-card-height);
+  border-radius: 3px;
+}
+
+.record-views-gallery-sections[data-timeline='true'] .record-views-card-thumbnail,
+.record-views-gallery-sections[data-timeline='true'] .record-views-card-thumbnail .record-view-thumbnail,
+.record-views-gallery-sections[data-timeline='true'] .record-views-card-thumbnail > .media-preview {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+}
+
+.record-views-spacer-row td {
+  padding: 0;
+  border: 0;
+}
+
+.record-views-spacer {
+  flex: none;
+}
+
+/* A record revealed from elsewhere ("Show in library") is marked for a moment
+ * so the eye finds it among its neighbours. */
+@keyframes record-views-revealed {
+  0%, 60% { box-shadow: inset 0 0 0 3px var(--t-color-blue); }
+  100% { box-shadow: inset 0 0 0 3px transparent; }
+}
+
+.record-views-gallery-card[data-revealed='true']::after,
+.record-views [data-revealed='true'] > td:first-child,
+.record-views-board-column article[data-revealed='true'] {
+  animation: record-views-revealed 2.4s ease-out;
+}
+
+/* A record arriving after this list was drawn: the accent wash fades away and the row or card settles into the list. */
+@keyframes record-views-arrived {
+  from { background-color: color-mix(in srgb, var(--t-color-blue, #3b82f6) 14%, transparent); }
+  to { background-color: transparent; }
+}
+.record-views [data-arrived='true'] > td {
+  animation: record-views-arrived var(--motion-arrival) var(--ease-exit, ease-out) both;
+}
+.record-views-board-column article[data-arrived='true'] {
+  animation: record-views-arrived var(--motion-arrival) var(--ease-exit, ease-out) both;
+}
+.record-views-gallery-card[data-arrived='true']::after {
+  animation: record-views-arrived var(--motion-arrival) var(--ease-exit, ease-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .record-views-gallery-card[data-revealed='true']::after,
+  .record-views [data-revealed='true'] > td:first-child,
+  .record-views-board-column article[data-revealed='true'] {
+    animation: none;
+    box-shadow: inset 0 0 0 3px var(--t-color-blue);
+  }
+  .record-views [data-arrived='true'] > td,
+  .record-views-board-column article[data-arrived='true'],
+  .record-views-gallery-card[data-arrived='true']::after {
+    animation: none;
+    background-color: color-mix(in srgb, var(--t-color-blue, #3b82f6) 14%, transparent);
+  }
+}
+
+/* A value that asks for something (record-views/hover-form.tsx): the value reads as pressable, and its popover holds
+   what the person needs to answer, the box, and the button. Portalled, so every token carries a fallback. */
+.record-hover-form-trigger {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  border-radius: var(--t-border-radius-sm, 4px);
+  outline-offset: 2px;
+}
+.record-hover-form-trigger:focus-visible { outline: 2px solid var(--t-color-blue, #3b82f6); }
+.record-hover-form { width: min(380px, calc(100vw - 24px)); }
+.record-hover-form-body { display: flex; flex-direction: column; gap: 12px; }
+.record-hover-form-title { font-size: 15px; line-height: 1.35; font-weight: 600; }
+.record-hover-form-details { display: flex; flex-direction: column; gap: 8px; margin: 0; }
+.record-hover-form-detail { display: flex; flex-direction: column; gap: 2px; }
+.record-hover-form-detail dt { font-size: 12px; opacity: 0.6; }
+.record-hover-form-detail dd { margin: 0; font-size: 13px; line-height: 1.45; }
+.record-hover-form-field { display: flex; flex-direction: column; gap: 6px; }
+.record-hover-form-label { font-size: 12px; font-weight: 500; }
+.record-hover-form-refusal { margin: 0; font-size: 12px; line-height: 1.4; color: var(--t-color-red, #dc2626); }
+.record-hover-form-fields, .record-hover-form-actions { display: flex; flex-direction: column; gap: 12px; }
+.record-hover-form-send { align-self: stretch; }
+
+/* A chip whose value declares a meaning tone reads as that meaning, the same colours the guide's status badges use
+   (screen-look/show/guide.css), so "Your answer needed" looks the same in a list as on the decision itself. */
+.record-view-tag[data-tone] { border: 1px solid transparent; }
+.record-view-tag[data-tone="warning"], .record-view-tag[data-tone="attention"] { background: color-mix(in srgb, #d97706 11%, var(--color-background, #fff)); border-color: color-mix(in srgb, #d97706 30%, transparent); color: #92400e; }
+.record-view-tag[data-tone="success"], .record-view-tag[data-tone="good"] { background: color-mix(in srgb, #16865c 10%, var(--color-background, #fff)); border-color: color-mix(in srgb, #16865c 28%, transparent); color: #0f6b48; }
+.record-view-tag[data-tone="info"] { background: color-mix(in srgb, #2563eb 8%, var(--color-background, #fff)); border-color: color-mix(in srgb, #2563eb 24%, transparent); color: #1d4ed8; }
+.record-view-tag[data-tone="error"], .record-view-tag[data-tone="bad"], .record-view-tag[data-tone="danger"] { background: color-mix(in srgb, #b42318 9%, var(--color-background, #fff)); border-color: color-mix(in srgb, #b42318 28%, transparent); color: #b42318; }
+.record-view-tag[data-tone="neutral"], .record-view-tag[data-tone="quiet"] { border-color: color-mix(in srgb, var(--color-foreground, #1f1f1f) 14%, transparent); }
+
+/* Column headers (Twenty record-table-header: RecordTableHeaderCell,
+ * RecordTableColumnHeadDropdownMenu). The whole cell is the menu trigger: a
+ * 32px row, the field's icon left of its name, medium small text, a hover
+ * surface, and a small arrow at the right end of the sorted column. The menu
+ * is 200px wide and opens below the cell's start. */
+.record-views thead th:has(> .record-views-head) {
+  height: 32px;
+  max-height: 32px;
+  padding: 0;
+  font-weight: var(--t-font-weight-medium, 500);
+}
+
+.record-views-head {
+  display: flex;
+  align-items: center;
+  height: 32px;
+  min-width: 0;
+}
+
+.record-views.coss-ui thead th button.record-views-column-sort {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 32px;
+  padding: 0 var(--t-spacing-2, 8px);
+  color: var(--t-font-color-secondary, var(--t-font-color-tertiary));
+  font-size: var(--t-font-size-sm, 12px);
+  font-weight: var(--t-font-weight-medium, 500);
+  box-sizing: border-box;
+}
+
+.record-views.coss-ui thead th button.record-views-column-sort:hover,
+.record-views.coss-ui thead th button.record-views-column-sort[aria-pressed='true'] {
+  background-color: var(--t-background-transparent-light);
+}
+
+.record-views.coss-ui thead th button.record-views-column-sort:focus-visible {
+  box-shadow: inset 0 0 0 1px var(--t-color-blue);
+}
+
+.record-views.coss-ui thead th button.record-views-column-trigger {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  justify-content: center;
+  color: var(--t-font-color-secondary, var(--t-font-color-tertiary));
+  font-size: var(--t-font-size-sm, 12px);
+  font-weight: var(--t-font-weight-medium, 500);
+  box-sizing: border-box;
+}
+
+.record-views.coss-ui thead th button.record-views-column-trigger:hover,
+.record-views.coss-ui thead th button.record-views-column-trigger[data-popup-open],
+.record-views.coss-ui thead th button.record-views-column-trigger[aria-expanded='true'] {
+  background-color: var(--t-background-transparent-light);
+}
+
+.record-views.coss-ui thead th button.record-views-column-trigger:focus-visible {
+  box-shadow: inset 0 0 0 1px var(--t-color-blue);
+}
+
+.record-views-column-icon {
+  flex: none;
+  color: var(--t-font-color-tertiary);
+}
+
+.record-views-column-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.record-views-column-sorted {
+  flex: none;
+  color: var(--t-font-color-tertiary);
+}
+
+.record-views th[data-align='right'] .record-views-column-label { margin-inline-start: auto; }
+.record-views th[data-align='right'][data-sorted] .record-views-column-label { margin-inline-start: 0; }
+.record-views th[data-align='right'][data-sorted] .record-views-column-sorted { margin-inline-start: auto; }
+.record-views th[data-align='center'] .record-views-column-sort { justify-content: center; }
+
+.action-menu.record-views-column-menu,
+.action-menu.record-views-group-menu {
+  width: 200px;
+  min-width: 200px;
+}
+
+/* A column's alignment, chosen in its menu or read from its values. */
+.record-views td[data-align='right'] .record-views-cell { justify-content: flex-end; }
+.record-views td[data-align='center'] .record-views-cell { justify-content: center; }
+
+/* Frozen columns hold their place while the table scrolls sideways. Their
+ * left edges come from --record-views-frozen-left (the checkbox column plus
+ * every frozen column before); they need their own surface so rows sliding
+ * under them never show through, and the last one casts a shadow once the
+ * table has scrolled. */
+.record-views [data-frozen] {
+  position: sticky;
+  left: var(--record-views-frozen-left, 0);
+  z-index: 2;
+  background-color: var(--t-background-primary);
+}
+
+.record-views thead [data-frozen] {
+  z-index: 6;
+}
+
+/* Each row's menu stays at the table's right edge, so it is reachable without
+ * scrolling sideways and opening it never moves the table. */
+.record-views [data-row-actions] {
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  background-color: var(--t-background-primary);
+}
+
+.record-views thead [data-row-actions] {
+  z-index: 6;
+}
+
+/* A hovered or selected row tints these pinned cells over their own opaque
+ * surface: the row's translucent tint alone would let the cells scrolling
+ * under them show through. */
+@media (hover: hover) {
+  .record-views tbody tr:hover td[data-frozen],
+  .record-views tbody tr:hover td[data-row-actions] {
+    background-color: var(--t-background-primary);
+    background-image: linear-gradient(var(--t-background-transparent-light), var(--t-background-transparent-light));
+  }
+}
+
+.record-views tbody tr[data-selected='true'] td[data-frozen],
+.record-views tbody tr[data-selected='true'] td[data-row-actions] {
+  background-color: var(--t-background-primary);
+  background-image: linear-gradient(var(--t-accent-quaternary), var(--t-accent-quaternary));
+}
+
+.record-views-scroll[data-scrolled-sideways='true'] [data-frozen='edge'] {
+  box-shadow: 4px 0 6px -4px var(--t-box-shadow-color);
+}
+
+/* A field's mark: a small picture before the value, in the value's column. */
+.record-views-mark {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--t-font-color-tertiary);
+}
+
+.record-views-mark > img,
+.record-views-mark > svg {
+  max-width: 16px;
+  max-height: 16px;
+}
+
+.record-views-card-title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.record-views-card-title-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* A value's count sits in its own chip beside the value, never as bare digits. */
+.record-view-tag-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.record-view-tag-count,
+.record-views-count {
+  font-variant-numeric: tabular-nums;
+}
+
+/* "Kind:" before a grouped heading's value names what the records share. */
+.record-views-group-field {
+  color: var(--t-font-color-tertiary);
+  font-weight: var(--t-font-weight-regular, 400);
+}
+
+/* What a group adds up to (a record set field's `total`), after its value, so groups compare at a glance. */
+.record-views-group-total {
+  color: var(--t-font-color-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.record-views-toolbar-start {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+
+/* Sheet: a dense grid of cells with numbered rows, lettered columns and one
+ * selected cell whose full value reads in the bar above. */
+.record-views-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--t-spacing-1, 4px);
+  margin-inline: var(--record-views-inset);
+}
+
+.record-views-sheet-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--t-spacing-2, 8px);
+  min-height: 28px;
+  padding: 0 var(--t-spacing-2, 8px);
+  border: 1px solid var(--t-border-color-light);
+  border-radius: var(--t-border-radius-sm, 4px);
+  background-color: var(--t-background-primary);
+  font-size: var(--t-font-size-sm, 12px);
+}
+
+.record-views-sheet-address {
+  min-width: 40px;
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--t-font-weight-medium, 500);
+  color: var(--t-font-color-secondary, var(--t-font-color-tertiary));
+}
+
+.record-views-sheet-field {
+  padding-inline-end: var(--t-spacing-2, 8px);
+  border-inline-end: 1px solid var(--t-border-color-light);
+  color: var(--t-font-color-tertiary);
+  white-space: nowrap;
+}
+
+.record-views-sheet-value {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--t-font-color-primary);
+}
+
+.record-views-sheet-scroll {
+  overflow-x: auto;
+}
+
+.record-views-sheet-grid {
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  min-width: 100%;
+  font-size: var(--t-font-size-sm, 12px);
+  background-color: var(--t-background-primary);
+  outline: none;
+}
+
+.record-views-sheet-number-column { width: 48px; }
+
+.record-views-sheet-grid th,
+.record-views-sheet-grid td {
+  box-sizing: border-box;
+  height: 28px;
+  max-height: 28px;
+  padding: 0 6px;
+  border-right: 1px solid var(--t-border-color-light);
+  border-bottom: 1px solid var(--t-border-color-light);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+
+.record-views-sheet-grid thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background-color: var(--t-background-secondary);
+  color: var(--t-font-color-tertiary);
+  font-weight: var(--t-font-weight-medium, 500);
+}
+
+.record-views-sheet-letter {
+  margin-inline-end: 6px;
+  font-variant-numeric: tabular-nums;
+  color: var(--t-font-color-light, var(--t-font-color-tertiary));
+}
+
+.record-views-sheet-label {
+  color: var(--t-font-color-secondary, var(--t-font-color-tertiary));
+}
+
+.record-views-sheet-number,
+.record-views-sheet-corner {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background-color: var(--t-background-secondary);
+  color: var(--t-font-color-tertiary);
+  font-weight: var(--t-font-weight-regular, 400);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.record-views-sheet-corner { z-index: 4; }
+
+.record-views-sheet-grid [data-sheet-current='true'] {
+  background-color: var(--t-accent-tertiary);
+  color: var(--t-font-color-primary);
+}
+
+.record-views-sheet-grid td[data-align='right'] { text-align: right; }
+.record-views-sheet-grid td[data-align='center'] { text-align: center; }
+.record-views-sheet-grid th[data-align='right'] { text-align: right; }
+.record-views-sheet-grid th[data-align='center'] { text-align: center; }
+
+.record-views-sheet-grid tr[data-selected='true'] td {
+  background-color: var(--t-accent-quaternary);
+}
+
+.record-views-sheet-grid td[data-sheet-selected='true'] {
+  box-shadow: inset 0 0 0 2px var(--t-color-blue);
+}
+
+.record-views-sheet-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
+/* A focus set at a wider level: one chip per level with its own clear
+ * button, and a quiet note when this list cannot read what a focus asks. */
+.record-views-focus {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--t-spacing-1, 4px);
+  margin: 0 var(--record-views-inset) var(--t-spacing-1, 4px);
+}
+
+.record-views-focus-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.record-views-changelog {
+  margin-inline: var(--record-views-inset);
+  padding-block: var(--t-spacing-5, 20px);
+}
+.record-views-changelog-entry {
+  display: grid;
+  grid-template-columns: minmax(90px, 150px) minmax(0, 1fr);
+}
+.record-views-changelog-date {
+  padding: 12px 18px 20px 0;
+  color: var(--t-font-color-tertiary);
+  font-size: var(--t-font-size-sm, 12px);
+  text-align: right;
+}
+.record-views-changelog-content {
+  position: relative;
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+  padding: 10px 0 28px 22px;
+  border-left: 1px solid var(--t-border-color, currentColor);
+}
+.record-views-changelog-content::before {
+  content: '';
+  position: absolute;
+  left: -5px;
+  top: 17px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--t-font-color-primary, currentColor);
+}
+.record-views-changelog-field { overflow-wrap: anywhere; }
+@media (max-width: 600px) {
+  .record-views-changelog-entry { grid-template-columns: minmax(68px, 96px) minmax(0, 1fr); }
+  .record-views-changelog-date { padding-right: 10px; }
+  .record-views-changelog-content { padding-left: 14px; }
+}
+
+/* Document: the list read top to bottom, each record a numbered heading with its words under it and its other
+   facts as quiet label and value lines. */
+.record-views-document {
+  margin-inline: var(--record-views-inset);
+  padding-block: var(--t-spacing-4, 16px) var(--t-spacing-6, 24px);
+  display: grid;
+  gap: var(--t-spacing-6, 24px);
+  max-width: 72ch;
+}
+.record-views-document-part { display: grid; gap: var(--t-spacing-2, 8px); min-width: 0; }
+.record-views-document-heading {
+  display: flex;
+  align-items: baseline;
+  gap: var(--t-spacing-2, 8px);
+  margin: 0;
+  font-size: var(--t-font-size-lg, 16px);
+  font-weight: var(--t-font-weight-semi-bold, 600);
+  color: var(--t-font-color-primary);
+}
+.record-views-document-number {
+  min-width: 1.5em;
+  color: var(--t-font-color-tertiary);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--t-font-weight-regular, 400);
+}
+.record-views-document-words {
+  margin: 0;
+  padding-left: calc(1.5em + var(--t-spacing-2, 8px));
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+  color: var(--t-font-color-secondary, var(--t-font-color-primary));
+}
+.record-views-document-facts {
+  margin: 0;
+  padding-left: calc(1.5em + var(--t-spacing-2, 8px));
+  display: grid;
+  gap: var(--t-spacing-1, 4px);
+}
+.record-views-document-fact { display: grid; grid-template-columns: minmax(96px, 160px) minmax(0, 1fr); gap: var(--t-spacing-2, 8px); font-size: var(--t-font-size-sm, 12px); }
+.record-views-document-fact dt { color: var(--t-font-color-tertiary); }
+.record-views-document-fact dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 600px) {
+  .record-views-document-words, .record-views-document-facts { padding-left: 0; }
+  .record-views-document-fact { grid-template-columns: minmax(0, 1fr); gap: 0; }
+}
+
+/* A designed view (../record-views/view-designs.ts): its posts or rows sit under the bar with the list's own box on
+   top or under them; a box on top stays in reach while the posts under it scroll. */
+.record-views-design { display: grid; gap: 12px; padding-block: 8px; min-width: 0; }
+.record-views-design[data-box="top"] > .record-views-design-box {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding-block: 4px 8px;
+  background-color: var(--t-background-primary);
+}
+.record-views-design[data-box="bottom"] > .record-views-design-box {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  padding-block: 8px 4px;
+  background-color: var(--t-background-primary);
+}
+.record-views-design .trillion-guide, .record-views-design .guide { max-width: none; padding-top: 0; }
+/* The inbox design (../record-views/designs/inbox-design.tsx): the conversations in a column beside the open one, which
+   fills the rest; on a narrow surface one of them at a time. The chosen conversation is lifted with a soft fill. */
+.record-views-inbox { padding-block: 0; min-height: min(70vh, 720px); }
+.record-views-inbox-list {
+  display: grid; align-content: start; gap: 2px; width: clamp(260px, 34%, 380px); flex-shrink: 0;
+  padding: 4px 8px 4px 0; overflow-y: auto; border-right: 1px solid var(--t-border-color-light, rgba(0, 0, 0, 0.08));
+}
+.record-views-inbox[data-container-size="narrow"] .record-views-inbox-list { width: 100%; padding-right: 0; border-right: 0; }
+.record-views-inbox-list > [role="listitem"] { border-radius: 12px; }
+.record-views-inbox-list > [role="listitem"] [data-slot="listing-card"] { border-color: transparent; box-shadow: none; background: transparent; }
+.record-views-inbox-list > [data-chosen] { background-color: var(--t-background-secondary, rgba(0, 0, 0, 0.04)); }
+.record-views-inbox-open { display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 8px; min-width: 0; min-height: 0; padding-left: 16px; }
+.record-views-inbox[data-container-size="narrow"] .record-views-inbox-open { padding-left: 0; }
+.record-views-inbox-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding-block: 8px; }
+.record-views-inbox-title { flex: 1 1 12rem; min-width: 0; font-size: 1.0625rem; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
+.record-views-inbox-empty { padding: 32px 16px; text-align: center; color: var(--t-font-color-tertiary, rgba(0, 0, 0, 0.5)); }
