@@ -3,17 +3,23 @@
 // Purpose: counts, per source file, the calls that send Trillion-wide work into one person's store (the shapes in
 // test/service-work-shapes.json), for test/no-service-work-in-person-store.test.mjs. Comments are not counted.
 // Reading runs no code.
-import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import shapes from './service-work-shapes.json' with { type: 'json' };
 
 // A whole comment line, or a comment after code that follows whitespace; text inside strings is left as it is.
 const withoutComments = text => text.split('\n').map(line => (/^\s*(?:\/\/|\/\*|\*)/.test(line) ? '' : line.replace(/\s\/\/\s.*$/, ''))).join('\n');
 
+/** Every file under the shape folders, as a path from `cwd`, read from the files themselves (an export has no git history to list). */
+const filesUnder = (cwd, folders) => folders.flatMap(folder => (existsSync(`${cwd}/${folder}`)
+  ? readdirSync(`${cwd}/${folder}`, { recursive: true, withFileTypes: true })
+    .filter(entry => entry.isFile())
+    .map(entry => `${folder}/${`${entry.parentPath}/${entry.name}`.slice(`${cwd}/${folder}/`.length)}`)
+    .filter(file => !/(^|\/)(node_modules|\.git)\//.test(file))
+  : [])).sort();
+
 /** Each file's count of matches, for files holding any; `only` (pattern ids) counts those shapes alone. */
 export function serviceWorkCounts(cwd = new URL('..', import.meta.url).pathname, { only = null } = {}) {
-  const files = execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '--', ...shapes.folders], { cwd, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
-    .split('\n').filter(Boolean).filter(file => !/\.test\./.test(file));
+  const files = filesUnder(cwd.replace(/\/$/, ''), shapes.folders).filter(file => !/\.test\./.test(file));
   const reads = (shape, file) => (shape.extensions ?? shapes.extensions).some(extension => file.endsWith(extension));
   const counts = {};
   for (const file of files) {

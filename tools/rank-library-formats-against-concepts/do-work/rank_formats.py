@@ -136,9 +136,10 @@ def concepts():
                 found[current]['local'] += 'local' in line
                 found[current]['b2'] += ' b2' in line.lower() or '| B2' in line
     if PACKAGE and PACKAGE.exists():
-        for row in csv.DictReader(open(PACKAGE)):
-            if row['id'] in SETTINGS['package_ids']:
-                found[row['id']] = {'title': row['domain'], 'beats': [row['viewer_gets'], row['proof_needed']], 'n': 0, 'local': 0, 'b2': 0}
+        with open(PACKAGE) as package:
+            for row in csv.DictReader(package):
+                if row['id'] in SETTINGS['package_ids']:
+                    found[row['id']] = {'title': row['domain'], 'beats': [row['viewer_gets'], row['proof_needed']], 'n': 0, 'local': 0, 'b2': 0}
     for cid in SETTINGS['skip_concepts']:
         found.pop(cid, None)
     return found

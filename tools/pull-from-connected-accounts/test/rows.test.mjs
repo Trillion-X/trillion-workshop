@@ -42,7 +42,19 @@ test('a pull row that asks a service gets the public internet, its own held toke
     assert.equal(row.invoke.stdin.fill.from, 'input');
     assert.ok(!('account' in row.invoke) && !JSON.stringify(row.input_schema).includes('token'), row.id);
   }
-  assert.equal(secrets.size, askingRows.length);
+  // One held token serves every source that extends another on the same service (Instagram comments read with the messaging token);
+  // any other two sources hold separate tokens.
+  const sharing = new Map();
+  for (const row of askingRows) {
+    const name = row.invoke.credential_mounts[0].secret_name;
+    sharing.set(name, [...(sharing.get(name) ?? []), sourceOfRow(row)]);
+  }
+  assert.equal(secrets.size, sharing.size);
+  for (const [name, sources] of sharing) {
+    const [first, ...rest] = sources;
+    const parent = id => JSON.parse(readFileSync(new URL(`../read-data/sources/${id}.json`, import.meta.url), 'utf8')).extends;
+    for (const other of rest) assert.ok(parent(other) === first || parent(first) === other, `${name} is held for ${sources.join(' and ')}, which are not one service`);
+  }
 });
 
 test('a pull row for a source handed its document gets the records door on 3, no internet and no secret, and takes the document as input', () => {

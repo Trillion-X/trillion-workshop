@@ -4,14 +4,13 @@
 //   - a workspace page opens under it, before its script file, and a page without `opening_cover` carries none;
 //   - its inline script reads nothing from outside itself (it runs with nothing else on the page);
 //   - a host app that draws the cover itself gets no second cover, and the page's lift tells the host;
-//   - the iPhone app's copy of the cover and of its needle are the current ones (scripts/make-opening-cover.mjs).
+//   - the files made for the iPhone app are the cover's own bytes (scripts/make-opening-cover.mjs; the app's copy is checked with the app's source).
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { pageShellHtml } from '../parts/ui/show/server-rendered-page/page-sections-html.mjs';
-import { threadCoverHtml } from '../parts/ui/show/thread-cover/thread-cover.mjs';
+import { coverNeedleSvg, threadCoverHtml, threadCoverPage } from '../parts/ui/show/thread-cover/thread-cover.mjs';
 import setup from '../parts/ui/show/thread-cover/thread-cover.json' with { type: 'json' };
-import { openingCoverFiles } from '../../draw-trillions-app-icon-in-every-size-from/scripts/make-opening-cover.mjs';
+import { coverLook, openingCoverFiles } from '../../draw-trillions-app-icon-in-every-size-from/scripts/make-opening-cover.mjs';
 
 const scriptOf = html => html.slice(html.lastIndexOf('<script>') + '<script>'.length, html.lastIndexOf('</script>'));
 
@@ -46,6 +45,19 @@ test('every quote has words and who said them, and the cover\'s colours are colo
   for (const name of ['paper', 'ink', 'thread', 'quiet']) assert.match(setup.look[name], /^#[0-9a-f]{6}$/i);
 });
 
-test('the iPhone app carries the current cover and needle', () => {
-  for (const [path, bytes] of Object.entries(openingCoverFiles())) assert.equal(readFileSync(path, 'utf8'), bytes, `${path} is stale: run node scripts/make-opening-cover.mjs`);
+test('the files for the iPhone app are made from the cover itself, byte for byte', () => {
+  // The app's own copy of these files lives with the app's source (the iOS project is not in this repository), where
+  // the same generator is run and compared; here the generator is held to what the cover owner produces.
+  const files = Object.fromEntries(Object.entries(openingCoverFiles()).map(([path, bytes]) => [path.slice(path.indexOf('ios/')), bytes]));
+  assert.deepEqual(Object.keys(files).sort(), [
+    'ios/App/Assets.xcassets/CoverNeedle.imageset/Contents.json',
+    'ios/App/Assets.xcassets/CoverNeedle.imageset/cover-needle.svg',
+    'ios/App/Assets.xcassets/CoverPaper.colorset/Contents.json',
+    'ios/App/thread-cover.html',
+  ]);
+  assert.equal(files['ios/App/Assets.xcassets/CoverNeedle.imageset/cover-needle.svg'], coverNeedleSvg());
+  assert.equal(files['ios/App/thread-cover.html'], threadCoverPage(undefined, coverLook()));
+  const paper = JSON.parse(files['ios/App/Assets.xcassets/CoverPaper.colorset/Contents.json']).colors[0].color.components;
+  const hex = setup.look.paper.slice(1).toUpperCase();
+  assert.deepEqual([paper.red, paper.green, paper.blue], [0, 2, 4].map(at => `0x${hex.slice(at, at + 2)}`));
 });

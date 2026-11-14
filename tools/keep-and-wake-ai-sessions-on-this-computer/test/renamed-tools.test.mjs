@@ -33,7 +33,7 @@ test('no former tool, agent, prefix or configuration id remains in records, src 
   assert.deepEqual(hits, []);
 });
 
-test('every current tool id is the payload id of a workshop tool record', () => {
+test('every current tool id is the payload id of a workshop tool record or a tool this computer keeps', () => {
   const ids = new Set();
   for (const name of readdirSync(join(ROOT, 'records'))) {
     if (!/^workshop-.*-tool-records\.json$/.test(name)) continue;
@@ -47,8 +47,11 @@ test('every current tool id is the payload id of a workshop tool record', () => 
     try { file = JSON.parse(readFileSync(join(tools, folder, 'tool-rows.json'), 'utf8')); } catch { continue; }
     for (const row of file.records ?? []) if (row?.payload?.id) ids.add(row.payload.id);
   }
+  // The tools this computer keeps (listening, enrolling, carrying connections) are run by the computer program from
+  // run-on-a-persons-computer/mac-tools.json, which names each by its Workshop tool id.
+  for (const id of Object.keys(JSON.parse(readFileSync(join(tools, 'run-on-a-persons-computer', 'mac-tools.json'), 'utf8')).tools)) ids.add(id);
   for (const current of new Set(Object.values(renamed.tools))) {
-    assert.ok(ids.has(current), `${current} is not a payload.id in records/workshop-*-tool-records.json or a Workshop tool folder's tool-rows.json`);
+    assert.ok(ids.has(current), `${current} is not a payload.id in records/workshop-*-tool-records.json, a Workshop tool folder's tool-rows.json or run-on-a-persons-computer/mac-tools.json`);
   }
 });
 

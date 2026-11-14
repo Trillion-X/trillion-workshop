@@ -33,13 +33,17 @@ function countingHost() {
   } });
   return { host, handle, take: () => reads.splice(0) };
 }
+// One clock that moves a millisecond each time it is read, so no two handoffs are handed at the same instant: with the
+// wall clock, jobs handed within one millisecond tie on "the oldest" and come back in the order of their ids.
+let clock = Date.parse('2026-11-06T12:00:00.000Z');
+const nextInstant = () => new Date(clock += 1);
 // The person's agents over the counted SQLite, as a fresh start builds them (old personStoreOver).
 function agentsOver(counted) {
   const records = recordLogStore(counted.handle(), { transaction: counted.host.transaction, indexes: RECORD_INDEXES });
   let saved = null;
-  const store = { ...agentRecordStore({ records, transaction: counted.host.transaction }),
+  const store = { ...agentRecordStore({ records, transaction: counted.host.transaction, cardsMoving: () => false }),
     savedInstructions: () => structuredClone(saved), putSavedInstructions: list => { saved = structuredClone(list); } };
-  return Object.assign(makeAgents({ store }), { records });
+  return Object.assign(makeAgents({ store, now: nextInstant }), { records });
 }
 
 const N = 100;

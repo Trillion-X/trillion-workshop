@@ -67,12 +67,13 @@ test('ranges retain half-open bounds, newest tombstones, JS Unicode ordering, re
 
 test('real Workerd successor rejection removes exactly the unnecessary body read with equal answers', { timeout: 120000 }, async () => {
   const source = readFileSync(new URL('../parts/record-log/do-work/kept-runs.mjs', import.meta.url), 'utf8');
-  const correction = "        const nextPage = page + (reverse ? -1 : 1);\n        if (!reverse && nextFences.has(nextPage) && nextFences.get(nextPage) >= hi) {\n          // The immutable next page begins outside this range. Keep this\n          // value-free proof for a later seek that changes the group bounds.\n          head = null; headAt = index;\n          return;\n        }\n        page = nextPage;\n";
+  // The correction is the successor check alone; the page the walk moves to (nextPage, sparse or dense) is the same before it.
+  const correction = "        if (!reverse && nextFences.has(nextPage) && nextFences.get(nextPage) >= hi) {\n          // The immutable next page begins outside this range. Keep this\n          // value-free proof for a later seek that changes the group bounds.\n          head = null; headAt = index;\n          return;\n        }\n";
   assert.equal(source.split(correction).length, 2, 'unique actual corrected range boundary');
-  const before = source.replace(correction, '        page += reverse ? -1 : 1;\n');
+  const before = source.replace(correction, '');
   const modules = {};
   for (const [kind, contents] of [['before', before], ['after', source]]) {
-    const bundle = await build({ stdin: { contents, loader: 'js' }, bundle: true, write: false, format: 'esm', platform: 'browser', logLevel: 'error' });
+    const bundle = await build({ stdin: { contents, resolveDir: new URL('../parts/record-log/do-work/', import.meta.url).pathname, loader: 'js' }, bundle: true, write: false, format: 'esm', platform: 'browser', logLevel: 'error' });
     modules[kind + '.mjs'] = { type: 'esm', contents: bundle.outputFiles[0].text };
   }
   const worker = `

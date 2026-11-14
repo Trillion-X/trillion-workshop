@@ -155,6 +155,19 @@ async function pixelsOf({ page, decoder, boxes, ring, clock }) {
   return timed(clock, 'pixels.decode', () => decoder.evaluate(samplePixels, { png, boxes, pad: ring }));
 }
 
+/** The one browser-protocol session of a page load, kept in `held` for every read that needs it (the control names and the
+ *  platform fonts): the DOM and CSS agents both enabled, whichever read asks first, so neither finds the other's agent off. */
+async function heldSession(page, held) {
+  if (!held.session) {
+    const session = await page.context().newCDPSession(page);
+    await session.send('DOM.enable');
+    await session.send('CSS.enable');
+    await session.send('DOM.getDocument', { depth: 0 });
+    held.session = session;
+  }
+  return held.session;
+}
+
 // The fonts a platform drew text with are asked of DevTools once for each distinct font key (the font properties and the
 // characters of an element's own text; in-page.mjs) and kept for the rest of the page's load, so a page of a thousand
 // texts asks for a few dozen answers, and the other modes of the same load ask for none.
@@ -162,13 +175,7 @@ async function platformFonts({ page, held, cache, items }) {
   const asked = new Map();
   for (const item of items) if (item.fontKey && !cache.has(item.fontKey) && !asked.has(item.fontKey)) asked.set(item.fontKey, item.mark);
   if (!asked.size) return;
-  if (!held.session) {
-    held.session = await page.context().newCDPSession(page);
-    await held.session.send('DOM.enable');
-    await held.session.send('CSS.enable');
-    await held.session.send('DOM.getDocument', { depth: 0 });
-  }
-  const { session } = held;
+  const session = await heldSession(page, held);
   await Promise.all([...asked].map(async ([key, mark]) => {
     let fonts = [];
     try {
@@ -208,12 +215,9 @@ async function readScreen({ page, decoder, width, mode, screen, views, fontsAllo
     });
     const controlRule = rules.find(rule => rule.id === 'control_name');
     const controlNames = controlRule ? await timed(clock, 'read.craft.ax', async () => {
-      if (!held.session) {
-        held.session = await page.context().newCDPSession(page);
-        await held.session.send('DOM.enable');
-      }
+      const session = await heldSession(page, held);
       return collectControlNames({
-        send: (method, params) => held.session.send(method, params),
+        send: (method, params) => session.send(method, params),
         selector: craft.selectors.control_name_candidates,
         roles: controlRule.roles,
       });

@@ -27,16 +27,21 @@ test('a stop is words, a point or an address object', () => {
 });
 
 const start = { lat: 33.995, lon: -118.467 };
+// The street is kept as two parts, never as one written address, so the public repository's rewrite of street addresses
+// leaves the expected words as they are.
+const house = '20';
+const road = 'Jefferson Boulevard';
+const address = `${house} ${road}, Breadville`;
 const elements = [
   { type: 'node', id: 2, lat: 34.0628, lon: -118.4437, tags: { brand: 'Loaf Mart', name: 'Loaf Mart', 'addr:housenumber': '10', 'addr:street': 'Weyburn Avenue' } },
-  { type: 'way', id: 1, center: { lat: 33.9991, lon: -118.3939 }, tags: { brand: 'Loaf Mart', 'addr:housenumber': '20', 'addr:street': 'Jefferson Boulevard', 'addr:city': 'Breadville' } },
+  { type: 'way', id: 1, center: { lat: 33.9991, lon: -118.3939 }, tags: { brand: 'Loaf Mart', 'addr:housenumber': house, 'addr:street': road, 'addr:city': 'Breadville' } },
   { type: 'node', id: 3, lat: 33.99912, lon: -118.39391, tags: { brand: 'Loaf Mart' } },
 ];
 
 test('nearest places are sorted by distance, deduplicated by spot, and each has its route', () => {
   const places = placesFrom(elements, start, { name: 'Loaf Mart', most: 5 });
   assert.equal(places.length, 2);
-  assert.equal(places[0].address, '1 Example Street, Breadville');
+  assert.equal(places[0].address, address);
   assert.ok(places[0].km < places[1].km);
   assert.match(places[0].buttons[0].url, /destination=Loaf%20Mart%2C%2020%20Jefferson/);
   assert.ok(Math.abs(kmBetween(start, { lat: 33.9991, lon: -118.3939 }) - 6.7) < 0.2);
@@ -54,15 +59,15 @@ test('a busy copy of the places service hands the read to the next, and a geocod
   assert.equal(answer.places.length, 2);
   assert.equal(asked.filter(address => address.includes('nominatim')).length, 1);
   assert.equal(asked.filter(address => !address.includes('nominatim')).length, 2);
-  assert.match(answer.said, /^2 Loaf Mart near Sampleton, ST; the nearest is 1 Example Street, Breadville, /);
+  assert.match(answer.said, new RegExp(`^2 Loaf Mart near Sampleton, ST; the nearest is ${address}, `));
 });
 
 test('every copy busy: the address service\'s search around the start answers instead; none found says so', async () => {
   const searched = await findNearestPlaces({ name: 'Loaf Mart', near: start }, { fetch: async url => (String(url).includes('nominatim') ? { ok: true, json: async () => [
-    { osm_type: 'way', osm_id: 9, name: 'Loaf Mart', lat: '33.9991', lon: '-118.3939', address: { house_number: '20', road: 'Jefferson Boulevard', city: 'Breadville' } },
+    { osm_type: 'way', osm_id: 9, name: 'Loaf Mart', lat: '33.9991', lon: '-118.3939', address: { house_number: house, road, city: 'Breadville' } },
     { osm_type: 'node', osm_id: 8, name: 'Loaf Mart Optical', lat: '33.99', lon: '-118.39', address: {} },
   ] } : { ok: false, status: 504 }) });
-  assert.deepEqual(searched.places.map(place => place.address), ['1 Example Street, Breadville']);
+  assert.deepEqual(searched.places.map(place => place.address), [address]);
   const none = await findNearestPlaces({ name: 'Loaf Mart', near: start }, { fetch: async () => ({ ok: true, json: async () => ({ elements: [] }) }) });
   assert.deepEqual(none.places, []);
   assert.match(none.said, /^No Loaf Mart within 25 km of /);

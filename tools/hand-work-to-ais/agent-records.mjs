@@ -1081,7 +1081,7 @@ export function agentRecordStore({ records, transaction = fn => fn(), firstRows 
     pendingForReader: (reader, limit) => {
       flush();
       if (!readerReady() && (cardsMoving() || (keepFacts(READER_MARK, 'to_reader'), !readerReady()))) return null;
-      return readAll('handoff', scan('handoff', 'pending_reader', { equal: [reader], limit: pageOf(limit) })).filter(item => item.state === 'open');
+      return readAll('handoff', scan('handoff', 'pending_reader', { equal: [reader], limit: pageOf(limit) }), { pointReads: true }).filter(item => item.state === 'open');
     },
     // With `most`, counting stops there: a full queue is known from its first `most` jobs, never by reading them all.
     waitingCount: (id, { most = Infinity } = {}) => {

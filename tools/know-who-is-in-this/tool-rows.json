@@ -266,6 +266,21 @@
         "status": "active",
         "label": "Say who said each part of a recording",
         "job": "Name who said each stretch of a call or recording, from the voices of people who agreed to be known",
+        "screen": {
+          "kind": "described",
+          "label": "Who is in it",
+          "icon": "UsersRound",
+          "about": "Names who speaks in a recording, against the voices of people your computer knows who agreed to be known.",
+          "inputs": {
+            "file": {"label": "Recording", "file": {"takes": "seen-or-heard"}}
+          },
+          "takes_file": {
+            "takes": "seen-or-heard",
+            "label": "Who is in it",
+            "icon": "UsersRound",
+            "input": {"file": {"from": "file", "field": "identity"}}
+          }
+        },
         "description": "Takes a recording and its transcript (the timed stretches tools/audio-transcription gives) and answers each turn with who said it: the person's name when one enrolled person is clearly the closest voice; every person it could be when two are too close to tell, so a guess is never made silently; otherwise an unknown voice with a number that stays the same for the whole listening, across every recording of it. Stretches of one voice are judged together, a stretch too short to measure takes its neighbour's voice, and turns of one voice a couple of seconds apart are joined. Thresholds, the wording of the labels and the gap that joins turns are inputs; the starting values are not yet calibrated on the person's own consented clips. The voice-print and listening-voices record kinds are stays_on_this_device: true: only the listening's listening-voices record is kept, with the numbers of the unknown voices heard, on this device. It names no one who has not enrolled.",
         "input_schema": {
           "type": "object",

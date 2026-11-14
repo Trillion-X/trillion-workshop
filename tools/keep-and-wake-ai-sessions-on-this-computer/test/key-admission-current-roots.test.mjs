@@ -21,13 +21,18 @@ test('current roots preserve owner keys, side-tree keys, duplicate/absent inputs
     const ids=['arrival:uses-owner','side-only','missing','arrival:uses-owner'];
     const expected=left.records.erasureKeys(ids);assert.deepEqual(right.records.erasureKeys(ids),expected);
     assert.equal(expected['message:owner'],material);assert.equal(expected['side-only'],material);assert.equal('missing' in expected,false);
-    for(const [host,source,item] of [[a,before,left],[b,recordLogStore,right]]) {
+    // A tombstone taken from another copy names the fields it was sent with; the current store also erases the other erasable
+    // fields of the record's kind (the model's erasable and erase_fields), as erase() does, so its tombstone names them too.
+    const kindFields=['text','conversation_id','source_ref','origin','evidence','attachments'];
+    for(const [host,source,item,erased] of [[a,before,left,['text']],[b,recordLogStore,right,kindFields]]) {
       item.records.takeErasureKeys({'message:owner':{erased:['text']}});item.records.checkpoint();item.records=source(host.sql,item.options);
-      assert.deepEqual(item.records.erasureKeys(['message:owner'])['message:owner'],{erased:['text']});
+      assert.deepEqual(item.records.erasureKeys(['message:owner'])['message:owner'],{erased});
       assert.throws(()=>host.transaction(()=>{item.records.takeErasureKeys({'side-only':{erased:[]}});throw new Error('deliberate rollback');}),/deliberate rollback/);item.records.forgetCached();
       assert.equal(item.records.erasureKeys(['side-only'])['side-only'],material);
     }
-    assert.deepEqual(right.records.erasureKeys(ids),left.records.erasureKeys(ids));
+    // Everything but the erased owner answers alike; the owner's tombstones differ only in the fields they name (above).
+    const {'message:owner':ownerAfter,...othersRight}=right.records.erasureKeys(ids),{'message:owner':ownerBefore,...othersLeft}=left.records.erasureKeys(ids);
+    assert.deepEqual(othersRight,othersLeft);assert.deepEqual([ownerBefore,ownerAfter],[{erased:['text']},{erased:kindFields}]);
     // Each independently written message has a distinct generated key. Test logical output size/coverage without falsely equating key bytes.
     const wide=Array.from({length:140},(_,i)=>'message:'+i);
     for(const item of [left,right]) {

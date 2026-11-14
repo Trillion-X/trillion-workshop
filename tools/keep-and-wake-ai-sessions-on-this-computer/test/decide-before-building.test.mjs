@@ -3,14 +3,18 @@
 // files outside repositories and plain reads are never refused; merely naming a deciding tool decides nothing.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { fileURLToPath } from 'node:url';
-import { dirname, join, resolve } from 'node:path';
+import { join, resolve } from 'node:path';
 import { homedir, tmpdir } from 'node:os';
-import { appendFileSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { casesToConfirm, confirmDecided, currentTurn, decisionServerState, eventsOf, judge as judgeActual, lastingChange, settings, trillionDown, turnForDecisionFallback, turnRanLocalMethod, turnWithAskFromFile, turnDecided } from '../harness/decide-before-building.mjs';
 
-const repoFile = join(dirname(dirname(fileURLToPath(import.meta.url))), 'src', 'inbound.mjs');
-// The repository itself may be checked out under a free folder (for example a managed Codex checkout). The fixture
+// A lasting file is one inside a git repository, and a landing checks an export that has no .git of its own, so the
+// fixture makes its own repository (a folder holding a .git folder) rather than relying on the tree the test runs in.
+const repository = mkdtempSync(join(realpathSync(tmpdir()), 'decide-before-building-repository-'));
+mkdirSync(join(repository, '.git'));
+process.on('exit', () => rmSync(repository, { recursive: true, force: true }));
+const repoFile = join(repository, 'src', 'inbound.mjs');
+// The repository may sit under a free folder (the temp folder here, a managed Codex checkout elsewhere). The fixture
 // must still exercise a protected file. Production rules remain untouched, and the free-folder checks use them.
 const fixtureRules = { ...settings, free_folders: settings.free_folders.filter(folder => {
   const path = resolve(folder.replace(/^~(?=\/|$)/, homedir()));

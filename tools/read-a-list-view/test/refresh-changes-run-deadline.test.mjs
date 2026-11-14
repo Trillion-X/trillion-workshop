@@ -166,13 +166,23 @@ test('--deadline-ms that passes while the door has not answered ends the refresh
     tools: { address: 'tools:test', run_method: 'tools:run' },
     names: NAMES,
   }));
-  const started = Date.now();
   try {
-    const failure = await promisify(execFile)(process.execPath, [READER, '--config', config, '--refresh', 'chores',
-      '--deadline-ms', String(Date.now() + 400)], { timeout: 20000 }).then(() => assert.fail('should not finish'), error => error);
+    // The deadline is absolute, so how far ahead it must lie to fall after the reader has started is the reader's own start-up time,
+    // which depends on the load the Mac is under. A reader that answers not_started never ran, so it says nothing about the deadline:
+    // the deadline is moved out by the time that start-up was seen to take until the reader has started.
+    let ahead = 400;
+    let failure;
+    let started;
+    for (;;) {
+      started = Date.now();
+      failure = await promisify(execFile)(process.execPath, [READER, '--config', config, '--refresh', 'chores',
+        '--deadline-ms', String(started + ahead)], { timeout: ahead + 20000 }).then(() => assert.fail('should not finish'), error => error);
+      if (!/outcome=not_started/.test(failure.stderr)) break;
+      ahead = Math.max(ahead, Date.now() - started) * 2;
+    }
     assert.equal(failure.code, 2);
     assert.match(failure.stderr, /outcome=unknown/);
-    assert.ok(Date.now() - started < 10000, 'the process ends at the deadline, not when the door answers');
+    assert.ok(Date.now() - started < ahead + 9600, 'the process ends at the deadline, not when the door answers');
   } finally {
     server.close();
   }

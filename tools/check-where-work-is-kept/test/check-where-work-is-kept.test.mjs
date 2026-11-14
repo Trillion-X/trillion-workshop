@@ -20,9 +20,11 @@ const RULES = {
   list_copy_sync: 'read-list-view\\.mjs[^\\n]*--refresh',
   refused_places: [
     { place: '/tmp', why: 'a temporary file, outside every repository', list: 'list:notes' },
+    { place: '/private/var/folders', why: 'a temporary file, outside every repository', list: 'list:notes' },
+    { place: '/var/folders', why: 'a temporary file, outside every repository', list: 'list:notes' },
     { place: '~', why: 'a file in the home folder, outside every repository', list: 'list:notes' },
-    { place: '~/.ai-orchestra', why: 'the old orchestra folder', list: 'list:notes' },
-    { place: '~/source-folderdata', why: 'the old orchestra data folder', list: 'list:data' },
+    { place: '~/.orchestra', why: 'the old orchestra folder', list: 'list:notes' },
+    { place: '~/.orchestra/data', why: 'the old orchestra data folder', list: 'list:data' },
     { place: '~/.claude/**/memory', why: 'a Claude memory file', list: 'list:memories' },
   ],
   lists: {
@@ -71,13 +73,13 @@ test('the fixtures that pass: tracked source, a new source file, the scratch, a 
   }
 });
 
-test('the fixtures that refuse: /tmp, home, .ai-orchestra, its data, Claude memory, a new .md note, a list copy', async (t) => {
+test('the fixtures that refuse: /tmp, home, an orchestra folder, its data, Claude memory, a new .md note, a list copy', async (t) => {
   const { home, root } = world(t);
   const cases = [
     [write('/tmp/plan.md'), 'list:notes', 'temporary'],
     [bash('echo plan > ~/plan.txt'), 'list:notes', 'home folder'],
-    [bash('cat > ~/source-folderstate.json <<EOF\n{"a": 1}\nEOF'), 'list:notes', 'orchestra folder'],
-    [bash('cp out.json ~/source-folderdata/'), 'list:data', 'orchestra data'],
+    [bash('cat > ~/.orchestra/state.json <<EOF\n{"a": 1}\nEOF'), 'list:notes', 'orchestra folder'],
+    [bash('cp out.json ~/.orchestra/data/'), 'list:data', 'orchestra data'],
     [write(join(home, '.claude', 'projects', 'example', 'memory', 'MEMORY.md')), 'list:memories', 'Claude memory'],
     [write(join(root, 'notes', 'what-i-learned.md')), 'list:notes', 'Markdown note'],
     [write(join(home, 'kept-lists', 'notes', 'Avery', 'plan.md')), 'list:notes', 'list-copy sync'],

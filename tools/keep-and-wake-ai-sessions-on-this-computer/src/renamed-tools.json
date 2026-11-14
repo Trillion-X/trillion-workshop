@@ -17,7 +17,7 @@
     "tool:release-this-mac": "tool:release-a-device",
     "tool:holds-on-this-mac": "tool:device-holds",
     "tool:focus-on-this-mac": "tool:focus",
-    "tool:manage-harness-on-this-mac": "tool:manage-harness",
+    "tool:manage-harness-on-this-mac": "tool:set-up-trillion-hooks-in-an-ai-app-on-this-computer",
     "tool:printers-on-this-mac": "tool:printers",
     "tool:print-on-this-mac": "tool:print",
     "tool:read-this-mac": "tool:read-a-computer",

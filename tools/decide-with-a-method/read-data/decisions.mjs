@@ -303,8 +303,8 @@ async function guideReply(door, cat, record) {
 }
 
 export const decisionId = input => { if (!nonempty(input?.decision_id)) refuse('no_decision'); return input.decision_id; };
-export async function decisionOrRefuse(door, id, steps) {
-  const record = await readDecision(door, id, steps);
+export async function decisionOrRefuse(door, id, steps, options) {
+  const record = await readDecision(door, id, steps, options);
   if (!record) refuse('not_found');
   return record;
 }
@@ -513,7 +513,7 @@ export async function repairDecisionSteps(input, { door }) {
   refuseMisplacedFields('tool:repair-a-decisions-answered-steps', input);
   const id = decisionId(input);
   return retriedOnConflict(async attempt => {
-    const record = await decisionOrRefuse(door, id, EVERY_STEP);
+    const record = await decisionOrRefuse(door, id, EVERY_STEP, { lost: true });
     const { repaired, answered, total } = await putBackSteps(door, record);
     const summary = { case_id: id, repaired, answered_before: answered, answered_after: answered + repaired.length, answered_steps: total };
     if (repaired.length) await writeDecision(door, recordsOf(record), `repair-a-decisions-answered-steps:${id}:${attempt}`);

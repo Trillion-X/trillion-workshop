@@ -26,7 +26,7 @@ test('the profile subtracts: writes outside the roots, the credential folders, a
   const settings = confinementSettings();
   const text = profileFor(settings.tiers.find(row => row.id === 'workspace'), { workspace: '/tmp/w', tmp: '/tmp/t', home: '/Users/example' });
   assert.match(text, /\(deny file-write\*\)/);
-  assert.match(text, /\(deny file-read\* file-write\* .*"\/Users\/x\/\.ssh"/);
+  assert.match(text, /\(deny file-read\* file-write\* .*"\/Users\/example\/\.ssh"/);
   assert.match(text, /\(deny network\*\)/);
   assert.doesNotMatch(profileFor(settings.tiers.find(row => row.id === 'workspace-online'), { workspace: '/tmp/w', tmp: '/tmp/t', home: '/Users/example' }), /deny network/);
 });
@@ -69,7 +69,7 @@ test('an unknown tier and a pin that does not match are refused before anything 
 });
 
 test('the link reader runs confined when the DATA switch is on, and as before when it is off', mac, async () => {
-  const { runFetcher } = await import('trillion-workshop/tools/run-on-a-persons-computer/hear-a-link.mjs');
+  const { runFetcher } = await import('../../../audio-transcription/read-data/hear-here.mjs');
   const { workspace, outside } = await places();
   const row = part => ({ check: ['x'], info: ['/bin/sh', '-c', part] });
   const on = { enabled: true, tier: 'workspace-online' };

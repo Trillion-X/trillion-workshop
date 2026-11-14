@@ -34,7 +34,7 @@ function exportFolder(t) {
   return root;
 }
 
-test('the read row runs on the person\'s computer over a granted folder, reaches no internet, and packs only read-data', () => {
+test('the read row runs on the person\'s computer over a granted folder, reaches no internet, and packs read-data with what its programs import', () => {
   const item = row('tool:read-an-export-of-my-conversations');
   assert.equal(item.invoke.kind, 'computer');
   assert.deepEqual(item.invoke.capabilities, ['read-a-folder']);
@@ -42,7 +42,12 @@ test('the read row runs on the person\'s computer over a granted folder, reaches
   assert.deepEqual(item.placements, ['placement:your-computer']);
   assert.equal(item.result_selector, '$.result');
   assert.deepEqual(item.invoke.argv.at(-1), { fill: { from: 'task', field: 'grants.read-a-folder.folder' } });
-  assert.deepEqual(item.invoke.files.package_files, { package: 'conversations', paths: ['read-data'], at: '/opt/conversations' });
+  // read-data is packed whole, so chat-import.mjs travels with the reader; its relative imports (checked by
+  // test/every-tool-row-imports.test.mjs) are packed beside it, from the packages that own them.
+  const [own, ...imported] = item.invoke.files.package_files;
+  assert.deepEqual(own, { package: 'conversations', paths: ['read-data'], at: '/opt/conversations' });
+  assert.deepEqual(imported.map(entry => entry.package), ['keep-and-wake-ai-sessions-on-this-computer', 'records-door',
+    'content-identity', 'take-pictures-out-of-a-zip-archive', 'decide-with-a-method', 'browse-and-upload-my-files', 'set-up-my-account']);
   assert.deepEqual(item.input_schema.required, ['file']);
 });
 

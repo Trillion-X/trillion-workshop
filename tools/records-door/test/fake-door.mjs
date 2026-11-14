@@ -136,7 +136,6 @@ export async function startFakeDoor({ throttleFirst = 0, retryAfter = null, file
       if (!Array.isArray(items) || items.length < 1 || items.length > Math.min(mostWrites, WRITE_CAP)) return refuse('original_input_refused');
       // The engine's busy write: its record store was held before this write began, so nothing was written.
       if (busySource > 0) { busySource -= 1; return refuse('original_workspace_source_unavailable'); }
-      const before = new Map(kept);
       for (const item of items) {
         const holds = kept.get(item.id)?.type;
         if (!item.type || item.id.includes('/') || !may(item.type, 'records:write', { id: item.id }) || (holds && !may(holds, 'records:write', { id: item.id }))) {
@@ -144,7 +143,7 @@ export async function startFakeDoor({ throttleFirst = 0, retryAfter = null, file
         }
         if (Object.hasOwn(item, 'expected')) {
           const expected = item.expected;
-          const current = before.get(item.id) ?? null;
+          const current = kept.get(item.id) ?? null;
           if (expected === null) {
             if (current) return refuse('original_command_conflict');
           } else if (!expected || typeof expected !== 'object' || Array.isArray(expected)
@@ -171,6 +170,9 @@ export async function startFakeDoor({ throttleFirst = 0, retryAfter = null, file
   const mayFile = (operation, name) => fileRights.some(item => item.operations.includes(operation) && name.startsWith(item.files));
   const stored = new Map(Object.entries(files).map(([name, text]) => [name, Buffer.from(text, 'utf8')]));
   const bytesOf = name => stored.get(name) ?? Buffer.alloc(0);
+  // A stored file's identity, worked out once per stored buffer: a paged read asks it on every page.
+  const identities = new WeakMap();
+  const identityOf = bytes => { if (!identities.has(bytes)) identities.set(bytes, makeHashCodeHexFromBytes(bytes)); return identities.get(bytes); };
   const uploads = new Map();
   const fileOperations = {
     // The files whose names hold every asked word, scored 0.8 / (60 + rank), each with the find_file that opens it. Its
@@ -191,31 +193,31 @@ export async function startFakeDoor({ throttleFirst = 0, retryAfter = null, file
       const names = under.filter(name => !name.slice(base.length).includes('/') && (!after || name > after));
       const shown = names.slice(0, limit);
       const folders = after ? [] : [...new Set(under.map(name => name.slice(base.length)).filter(rest => rest.includes('/')).map(rest => `${base}${rest.split('/')[0]}`))];
-      return { structuredContent: { names: shown.map(name => ({ name, identity: makeHashCodeHexFromBytes(bytesOf(name)), byte_length: bytesOf(name).length })),
+      return { structuredContent: { names: shown.map(name => ({ name, identity: identityOf(bytesOf(name)), byte_length: bytesOf(name).length })),
         next_after: shown.length < names.length ? shown.at(-1) : null, folders } };
     },
     read_file: ({ name_or_identity: wanted, offset = 0, length = FILE_SPAN }) => {
-      const name = [...stored.keys()].find(each => each === wanted || makeHashCodeHexFromBytes(bytesOf(each)) === wanted);
+      const name = [...stored.keys()].find(each => each === wanted || identityOf(bytesOf(each)) === wanted);
       if (!name || !mayFile('read_file', name)) return refuse(OUTSIDE);
       const bytes = bytesOf(name);
       const part = bytes.subarray(offset, offset + Math.min(length || FILE_SPAN, FILE_SPAN));
-      return { structuredContent: { identity: makeHashCodeHexFromBytes(bytes), byte_length: bytes.length, offset, bytes_returned: part.length, encoding: 'base64', content: part.toString('base64') } };
+      return { structuredContent: { identity: identityOf(bytes), byte_length: bytes.length, offset, bytes_returned: part.length, encoding: 'base64', content: part.toString('base64') } };
     },
     // A signed link to a made-up file that expires after `seconds`, the way the engine's files door shares one for a
     // place to fetch: { url, identity, byte_length, expires_at }. The link is made up, under `shareOrigin`; nothing
     // answers it here.
     share_file: ({ name_or_identity: wanted, seconds = 3600 }) => {
-      const name = [...stored.keys()].find(each => each === wanted || makeHashCodeHexFromBytes(bytesOf(each)) === wanted);
+      const name = [...stored.keys()].find(each => each === wanted || identityOf(bytesOf(each)) === wanted);
       if (!name || !mayFile('share_file', name)) return refuse(OUTSIDE);
-      const identity = makeHashCodeHexFromBytes(bytesOf(name));
+      const identity = identityOf(bytesOf(name));
       const expires = new Date(Date.now() + Math.max(1, Number(seconds) || 3600) * 1000);
       const url = `${shareOrigin}/shared/${encodeURIComponent(identity)}?expires=${Math.floor(expires.getTime() / 1000)}&signature=made-up`;
       return { structuredContent: { url, identity, byte_length: bytesOf(name).length, expires_at: expires.toISOString() } };
     },
     find_file: ({ name_or_identity: wanted }) => {
-      const name = [...stored.keys()].find(each => each === wanted || makeHashCodeHexFromBytes(bytesOf(each)) === wanted);
+      const name = [...stored.keys()].find(each => each === wanted || identityOf(bytesOf(each)) === wanted);
       if (!name || !mayFile('find_file', name)) return refuse(OUTSIDE);
-      return { structuredContent: { identity: makeHashCodeHexFromBytes(bytesOf(name)), byte_length: bytesOf(name).length, names: [name] } };
+      return { structuredContent: { identity: identityOf(bytesOf(name)), byte_length: bytesOf(name).length, names: [name] } };
     },
     write_file_start: ({ upload_id: id, name, byte_length: length }) => {
       if (typeof name !== 'string' || !mayFile('write_file_start', name)) return refuse(OUTSIDE);

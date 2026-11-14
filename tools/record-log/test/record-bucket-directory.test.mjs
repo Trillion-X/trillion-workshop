@@ -53,7 +53,10 @@ function originalRead(host, opts = {}) {
 
 test('baseline fixture is exactly 577d3b687 source with only relative import relocation', () => {
   const original = readFileSync(new URL('./fixtures/record-log-store-before-bucket-directory.mjs', import.meta.url), 'utf8')
-    .replaceAll("from '../../parts/record-log/do-work/", "from '");
+    // The fixture is the source as it stood in its own folder; its relative imports now reach the same files from here.
+    .replaceAll("from '../../../keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/", "from './")
+    .replaceAll("from '../../do-work/", "from './")
+    .replaceAll("from '../../../", "from '../../");
   assert.equal(createHash('sha256').update(original).digest('hex'), '4b039d64ea2850718524d5c9f27ce8099578017ce2859e1d1bd7a19e994a80fa');
 });
 

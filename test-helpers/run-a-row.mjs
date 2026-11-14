@@ -12,13 +12,14 @@
 // A row the runner cannot run here answers `{ cannot: <why> }` and is not started: one with a fill this runner does
 // not read (a fetch), or one whose program is not on this computer.
 import { spawn, spawnSync } from 'node:child_process';
-import { closeSync, constants, cpSync, existsSync, mkdirSync, mkdtempSync, openSync, realpathSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
+import { closeSync, constants, cpSync, existsSync, mkdirSync, mkdtempSync, openSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync, writeSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { root, tools } from './tool-rows.mjs';
 import { settings as egress, startStandInEgress } from './stand-in-egress.mjs';
 import { startFakeDoor } from '../tools/records-door/test/fake-door.mjs';
 import { createServer } from 'node:http';
+import { generateKeyPairSync } from 'node:crypto';
 
 // A stand-in model server on loopback answering Ollama's embedding replies with one made-up `vector`: POST
 // /api/embeddings answers { embedding }, POST /api/embed answers { embeddings } with one vector per input. Anything
@@ -123,9 +124,17 @@ export function cannotRun(row) {
 }
 
 // The made-up value of one credential_mounts item: the sample's `held` by its secret_name or field_id, else the canary.
+// A held value that is an object is held as its JSON text, and an object { made_up_private_key: 'ec-p256' } inside it is
+// a private key (PKCS#8 PEM) made now for this run, so a sample never carries a key block (the public push rewrites a
+// private key block in any file it carries).
+const MADE_UP_KEYS = { 'ec-p256': () => generateKeyPairSync('ec', { namedCurve: 'prime256v1' }) };
+const madeUpKey = (key, value) => (value !== null && typeof value === 'object' && Object.hasOwn(MADE_UP_KEYS, value.made_up_private_key)
+  ? MADE_UP_KEYS[value.made_up_private_key]().privateKey.export({ type: 'pkcs8', format: 'pem' }) : value);
 const heldValue = (item, held) => {
   const name = item.secret_name ?? item.vault_key ?? item.field_id ?? 'held';
-  return held[name] ?? egress.canary_value.replace('{name}', name);
+  const given = held[name];
+  if (given === undefined) return egress.canary_value.replace('{name}', name);
+  return typeof given === 'string' ? given : JSON.stringify(given, madeUpKey);
 };
 
 // The read end of a pipe holding `value` and then its end, for a held value on a descriptor: the engine hands each one
@@ -160,6 +169,19 @@ function heldPipe(path, value) {
 // model server (startStandInModelServer) whose address any string names as {model_endpoint}. `task` gives fields of the
 // made-up task (its request_key, its cause); `stdin` replaces the filled standard input, for a refusal test. A row with
 // invoke.kept_folder gets a folder of its own as the task's `kept_folder`, holding the sample's `kept_files` ([{ path, text }]).
+// The row's home folder is `there`, so the browsers this computer keeps for Playwright are linked into it where Playwright
+// and the browser finders (tools/headless-browser/browser-places.json) look: they stand for the browser the engine's
+// container has. A computer with none links nothing, and a row that needs one says so.
+function seeBrowsers(there) {
+  const home = process.env.HOME;
+  if (!home) return;
+  for (const kept of [['Library', 'Caches', 'ms-playwright'], ['.cache', 'ms-playwright']]) {
+    if (!existsSync(join(home, ...kept))) continue;
+    mkdirSync(join(there, ...kept.slice(0, -1)), { recursive: true });
+    symlinkSync(join(home, ...kept), join(there, ...kept));
+  }
+}
+
 export async function runRow(row, sampleInput, sample = {}) {
   const why = cannotRun(row);
   if (why) return { cannot: why };
@@ -172,6 +194,7 @@ export async function runRow(row, sampleInput, sample = {}) {
   const piped = [];
   try {
     lay(specs, there);
+    seeBrowsers(there);
     // A task no page started; a capability the row asks for is granted on a folder of its own.
     const grants = Object.fromEntries((invoke.capabilities ?? []).map(name => [name, { folder: mkdtempSync(join(there, 'granted-')) }]));
     // A sample names a granted folder it cannot know beforehand as {grant:<capability>}, in any string it holds.

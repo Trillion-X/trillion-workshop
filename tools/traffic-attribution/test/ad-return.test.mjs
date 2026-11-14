@@ -149,7 +149,7 @@ const conversionInput = () => ({
     { visitor: 'v3', signals: { source: 'direct' } },
   ],
   conversions: [
-    { visitor: 'v1', outcome: 'signup', at: '2026-10-14T09:05:00Z', email: ' user-5edfb034@example.com ' },
+    { visitor: 'v1', outcome: 'signup', at: '2026-10-14T09:05:00Z', email: ' ada@example.com ' },
     { visitor: 'v1', outcome: 'payment', at: '2026-10-15T09:05:00Z', value: 100, event_id: 'inv_1' },
     { visitor: 'v2', outcome: 'payment', at: '2026-10-15T10:00:00Z', value: 100, phone: '+1 (650) 555-1212' },
     { visitor: 'v3', outcome: 'signup', at: '2026-10-01T00:00:00Z' },
@@ -171,12 +171,12 @@ test('each platform gets its own event shape, hashed by its own rule, with the f
   assert.equal(meta.tool_id, 'tool:meta-ads-send-conversion-events');
   assert.equal(meta.input.pixel_id, '555');
   assert.deepEqual(meta.input.data, [
-    { event_name: 'CompleteRegistration', event_time: Date.parse('2026-10-14T09:05:00Z') / 1000, event_id: 'acme:v1:signup', action_source: 'website', user_data: { em: [sha('user-5edfb034@example.com')] }, custom_data: { currency: 'USD' } },
+    { event_name: 'CompleteRegistration', event_time: Date.parse('2026-10-14T09:05:00Z') / 1000, event_id: 'acme:v1:signup', action_source: 'website', user_data: { em: [sha('ada@example.com')] }, custom_data: { currency: 'USD' } },
     { event_name: 'Purchase', event_time: Date.parse('2026-10-15T10:00:00Z') / 1000, event_id: 'acme:v2:payment', action_source: 'website', user_data: { ph: [sha('16505551212')], fbc: `fb.1.${Date.parse('2026-10-14T08:00:00Z')}.IwAR0x`, fbp: 'fb.1.1.2' }, custom_data: { value: 100, currency: 'USD' } },
   ]);
   const google = Object.fromEntries(answer.sends.filter(send => send.destination === 'google').map(send => [send.input.conversion_action_id, send]));
   assert.equal(google['111'].tool_id, 'tool:google-ads-send-conversions');
-  assert.deepEqual(google['111'].input.events, [{ transactionId: 'acme:v1:signup', eventTimestamp: '2026-10-14T09:05:00.000Z', eventSource: 'WEB', currency: 'USD', adIdentifiers: { gclid: 'Cj0KCQ' }, userData: { userIdentifiers: [{ emailAddress: sha('user-a57e4874@example.com') }] } }]);
+  assert.deepEqual(google['111'].input.events, [{ transactionId: 'acme:v1:signup', eventTimestamp: '2026-10-14T09:05:00.000Z', eventSource: 'WEB', currency: 'USD', adIdentifiers: { gclid: 'Cj0KCQ' }, userData: { userIdentifiers: [{ emailAddress: sha('ada@example.com') }] } }]);
   assert.deepEqual(google['222'].input.events.map(event => event.transactionId), ['inv_1', 'acme:v2:payment']);
   assert.deepEqual(google['222'].input.events[1].userData, { userIdentifiers: [{ phoneNumber: sha('+16505551212') }] });
   assert.equal(google['222'].input.operating_account_id, '1234567890');

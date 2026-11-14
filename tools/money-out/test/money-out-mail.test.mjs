@@ -133,7 +133,8 @@ test('with no merchant in the subject, the sender display name without its billi
 test('a sender with no display name is named by its domain', () => {
   const payment = paymentFromMail(gmail({
     id: 'domain-1',
-    from: 'user-2d96fb09@example.com',
+    // Built at run time: the public push rewrites any email written out in source, and this sender's domain is the point.
+    from: ['billing', 'widgets.example'].join('@'),
     subject: 'Payment confirmation',
     plain: 'Total $7.50\n',
   }), rules);

@@ -144,7 +144,38 @@
             }
           ]
         },
-        "result_selector": "$"
+        "result_selector": "$",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "account_id": "service_connection:cloudflare-r2:sample",
+              "action": "list",
+              "prefix": "site/",
+              "max_keys": 2
+            },
+            "held": {
+              "key_id": "SAMPLEKEYID0001",
+              "application_key": "sample-secret-access-key",
+              "endpoint": "https://store.example.com",
+              "bucket": "sample-bucket"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://store.example.com/sample-bucket"
+                },
+                "status": 200,
+                "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ListBucketResult><Name>sample-bucket</Name><Prefix>site/</Prefix><KeyCount>2</KeyCount><MaxKeys>2</MaxKeys><IsTruncated>true</IsTruncated><NextContinuationToken>sample-token-2</NextContinuationToken><Contents><Key>site/index.html</Key><LastModified>2026-11-01T10:00:00.000Z</LastModified><Size>1024</Size></Contents><Contents><Key>site/about.html</Key><LastModified>2026-11-01T10:05:00.000Z</LastModified><Size>2048</Size></Contents></ListBucketResult>",
+                "headers": {
+                  "content-type": "application/xml"
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-13"
+          }
+        ]
       }
     }
   ]

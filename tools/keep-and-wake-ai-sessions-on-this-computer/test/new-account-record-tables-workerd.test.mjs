@@ -4,8 +4,9 @@
 // records a new account's own records hold after sign-up (test/fixtures/new-account-own-records.json, read from the
 // real Worker) are written, in workerd's Durable Object SQLite, to a store opened on the real record model and indexes
 // (src/record-engine.mjs RECORD_MODEL, RECORD_INDEXES), and its maintenance runs until it has nothing left to do. The
-// earlier owner (parts/record-log/do-work/record-log-store.mjs and record-tables.mjs at 775166f635, the last commit before
-// a store stopped copying unused kinds) laid out a
+// earlier owner (parts/record-log/do-work/record-log-store.mjs and record-tables.mjs at 775166f635 of the old Trillion
+// repository, the last commit before a store stopped copying unused kinds; kept as test/fixtures/from-old-trillion/record-*-before-unused-kinds.mjs,
+// because a landing checks an export that has no git history) laid out a
 // typed table, its registry rows, its history and a `table-schema-change` log record for every declared table kind;
 // the current owner lays out only a kind the store holds a record of.
 //
@@ -19,7 +20,6 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation, or from loosening the rule it states.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { build } from 'esbuild';
 import { Miniflare } from 'miniflare';
@@ -27,13 +27,16 @@ import { RECORD_INDEXES, RECORD_MODEL } from '../src/record-engine.mjs';
 
 const root = new URL('..', import.meta.url).pathname;
 const { records } = JSON.parse(readFileSync(new URL('./fixtures/new-account-own-records.json', import.meta.url), 'utf8'));
-// The earlier owner: the two files as they were before this change, every other source byte the same as the current road.
-const EARLIER_COMMIT = '775166f635cd91daedaa51693ff40fb29b02f762';
-const committed = path => execFileSync('git', ['show', `${EARLIER_COMMIT}:${path}`], { cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
-const EARLIER = ['parts/record-log/do-work/record-log-store.mjs', 'parts/record-log/do-work/record-tables.mjs'];
+// The earlier owner: the two files as they were before this change (the fixtures: the current files with this change's lines
+// taken out, which is also 775166f635's record-tables.mjs byte for byte), every other source byte the same as the current road.
+const EARLIER = {
+  'parts/record-log/do-work/record-log-store.mjs': 'record-log-store-before-unused-kinds.mjs',
+  'parts/record-log/do-work/record-tables.mjs': 'record-tables-before-unused-kinds.mjs',
+};
+const earlierSource = path => readFileSync(new URL(`./fixtures/from-old-trillion/${EARLIER[path]}`, import.meta.url), 'utf8');
 
 async function bundle(road) {
-  const earlier = new Map(EARLIER.map(path => [root + path, committed(path)]));
+  const earlier = new Map(Object.keys(EARLIER).map(path => [root + path, earlierSource(path)]));
   const result = await build({ stdin: { contents: "export { recordLogStore } from './parts/record-log/do-work/record-log-store.mjs';", resolveDir: root, loader: 'js' },
     bundle: true, format: 'esm', platform: 'browser', write: false, logLevel: 'error',
     plugins: road === 'earlier' ? [{ name: 'earlier-record-tables-owner', setup(builder) {

@@ -121,14 +121,23 @@ test('a render that needs pieces not yet ready waits, saying which time is missi
   assert.equal(existsSync(join(folder, 'late.mp4')), false);
 });
 
-test('a transcript is cut by auto-edit (the lane that owns word cuts), and without it the run says so and does not try again', { skip: !hasFfmpeg || existsSync(new URL('./auto-edit.mjs', `file://${COMMAND}`)), timeout: 170_000 }, () => {
+test('a transcript is cut by auto-edit\'s removal proposals: the filler words go, everything else is kept and rendered at exactly that length', { skip: !hasFfmpeg, timeout: 170_000 }, () => {
   const folder = mkdtempSync(join(tmpdir(), 'cut-action-'));
   const transcript = join(folder, 'words.json');
-  writeFileSync(transcript, JSON.stringify({ words: [{ text: 'so', start: 0.5, end: 0.9 }] }));
-  const answer = run(['--video', clip(folder), '--output', join(folder, 'speech.mp4'), '--runs', mkdtempSync(join(tmpdir(), 'cut-runs-')), '--transcript', transcript]);
-  assert.equal(answer.status, 1);
-  assert.match(answer.report.stages.cut.error, /needs auto-edit\.mjs/);
-  assert.equal(answer.report.stages.cut.attempts, 1);
+  const words = [['so', 0.5, 0.9], ['um', 5, 5.5], ['we', 6, 6.3], ['uh', 10, 10.4], ['go', 11, 11.5]].map(([text, start, end]) => ({ text, start, end }));
+  writeFileSync(transcript, JSON.stringify({ words }));
+  const output = join(folder, 'speech.mp4');
+  const { status, report, error } = run(['--video', clip(folder), '--output', output, '--runs', mkdtempSync(join(tmpdir(), 'cut-runs-')), '--transcript', transcript]);
+  assert.equal(status, 0, error);
+  assert.equal(report.state, 'done');
+  const kept = report.stages.cut.result.kept;
+  const covers = (time) => kept.some(range => range.start <= time && time < range.end);
+  assert.equal(covers(5.25), false, 'the "um" is cut');
+  assert.equal(covers(10.2), false, 'the "uh" is cut');
+  assert.equal(covers(6.1) && covers(11.2), true, 'the words that are not fillers are kept');
+  const total = kept.reduce((sum, range) => sum + range.end - range.start, 0);
+  assert.ok(Math.abs(duration(output) - total) < 0.6, `rendered ${duration(output)} s for ${total} s kept`);
+  assert.equal(report.stages.cut.attempts, 1);
 });
 
 test('with an upload command the video goes in numbered parts: a failed part is sent again alone, and the file is freed only after every part is confirmed', { skip: !hasFfmpeg, timeout: 170_000 }, () => {

@@ -444,6 +444,23 @@
             ]
           }
         },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "path": "{grant:read-a-folder}/clips/sample-note.txt",
+              "name": "/clips/sample-note.txt",
+              "media_type": "text/plain"
+            },
+            "files": [
+              {
+                "grant": "read-a-folder",
+                "path": "clips/sample-note.txt",
+                "text": "A made-up note kept in Files.\n"
+              }
+            ]
+          }
+        ],
         "result_selector": "$.result",
         "needs": {
           "expected_seconds": 3600,

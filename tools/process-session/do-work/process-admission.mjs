@@ -10,15 +10,22 @@ const GUARD_STALE_MS = 5000;
 const POLL_MS = 180;
 const PROBE_OPTIONS = { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 2000, killSignal: 'SIGKILL' };
 export const UNKNOWN_LIVE = 'unverified-live-process';
+// This process's own start time cannot change while it runs, so it is asked of ps once: every acquire, guard entry and
+// own-ticket check asked again, and each ps costs hundreds of milliseconds on a loaded computer.
+let ownIdentity = null;
 export const identityOf = pid => {
   if (!Number.isInteger(pid) || pid <= 0) return null;
+  if (pid === process.pid && ownIdentity) return ownIdentity;
   try {
     process.kill(pid, 0);
   } catch (error) {
     if (error.code !== 'EPERM') return null;
   }
-  try { return execFileSync('ps', ['-p', String(pid), '-o', 'lstart='], PROBE_OPTIONS).trim() || UNKNOWN_LIVE; }
-  catch { return UNKNOWN_LIVE; }
+  let started;
+  try { started = execFileSync('ps', ['-p', String(pid), '-o', 'lstart='], PROBE_OPTIONS).trim() || UNKNOWN_LIVE; }
+  catch { started = UNKNOWN_LIVE; }
+  if (pid === process.pid && started !== UNKNOWN_LIVE) ownIdentity = started;
+  return started;
 };
 
 export const sameLiveProcess = (record, inspect = identityOf) => {

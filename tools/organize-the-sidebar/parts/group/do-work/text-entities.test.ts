@@ -43,9 +43,9 @@ describe('detectEntities', () => {
   });
 
   it('a conservative phone (with + country code) is detected and tel:-normalised', () => {
-    const [e] = detectEntities('call (555) 555-2802 anytime');
+    const [e] = detectEntities('call +1 201 555 0123 anytime');
     expect(e.kind).toBe('phone');
-    expect(entityHref(e)).toBe('tel:+15550100123');
+    expect(entityHref(e)).toBe('tel:+12015550123');
     // a plain date-like number run is NOT a phone (no + or (area) code)
     expect(detectEntities('on 2026 06 24 at noon').length).toBe(0);
   });

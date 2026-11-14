@@ -134,7 +134,49 @@
             }
           ]
         },
-        "result_selector": "$"
+        "result_selector": "$",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "account_id": "service_connection:supabase:sample",
+              "project_url": "https://sampleproject.supabase.co",
+              "table": "orders",
+              "select": "id,status",
+              "filters": {
+                "status": "eq.active"
+              },
+              "order": "id.asc",
+              "limit": 2
+            },
+            "held": {
+              "service_role_key": "sample-service-role-key"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://sampleproject.supabase.co/rest/v1/orders"
+                },
+                "status": 200,
+                "headers": {
+                  "content-range": "0-1/5"
+                },
+                "body": [
+                  {
+                    "id": 1,
+                    "status": "active"
+                  },
+                  {
+                    "id": 2,
+                    "status": "active"
+                  }
+                ]
+              }
+            ],
+            "shape_read_at": "2026-11-13"
+          }
+        ]
       }
     }
   ]

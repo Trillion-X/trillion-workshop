@@ -2846,7 +2846,7 @@
         "id": "tool:read-what-i-pulled-from-an-account",
         "label": "Read what I pulled from a connected account",
         "job": "Read the conversations, messages and saved items I pulled from a connected account such as Discord, Slack, Telegram, Signal, Instagram, Messenger, X bookmarks or Pinterest",
-        "description": "Give source (discord, slack, telegram, signal, instagram-messages, messenger-messages, x-bookmarks or pinterest-pins) and optionally account (the name it was pulled under, default \"default\"). Without thread it answers the conversations (id, title, message count), the collections (name, count), who the account is, the cursor and when it was last pulled. With thread (a conversation id from that list) it answers that conversation's messages exactly as the service sent them, the last limit of them (default 100, at most 500). It reads your records and changes nothing; it never reaches the service.",
+        "description": "Give source (discord, slack, telegram, signal, instagram-messages, instagram-comments, messenger-messages, x-bookmarks or pinterest-pins) and optionally account (the name it was pulled under, default \"default\"). Without thread it answers the conversations (id, title, message count), the collections (name, count), who the account is, the cursor and when it was last pulled. With thread (a conversation id from that list) it answers that conversation's messages exactly as the service sent them, the last limit of them (default 100, at most 500). It reads your records and changes nothing; it never reaches the service.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -2859,6 +2859,7 @@
               "type": "string",
               "enum": [
                 "discord",
+                "instagram-comments",
                 "instagram-messages",
                 "messenger-messages",
                 "pinterest-pins",
@@ -3328,26 +3329,15 @@
               {
                 "request": {
                   "method": "GET",
-                  "url": "https://graph.instagram.com/v21.0/me/conversations"
+                  "url": "https://graph.instagram.com/v21.0/me/media"
                 },
                 "status": 200,
                 "body": {
                   "data": [
                     {
-                      "id": "sample-conversation-1",
-                      "participants": {
-                        "data": [
-                          {
-                            "id": "9000000000000001",
-                            "username": "sample.studio"
-                          },
-                          {
-                            "id": "9000000000000002",
-                            "username": "made.up.friend"
-                          }
-                        ]
-                      },
-                      "updated_time": "2026-11-01T12:05:00+0000"
+                      "id": "sample-media-1",
+                      "timestamp": "2026-11-01T11:00:00+0000",
+                      "caption": "A made-up post"
                     }
                   ]
                 }
@@ -3355,28 +3345,30 @@
               {
                 "request": {
                   "method": "GET",
-                  "url": "https://graph.instagram.com/v21.0/sample-conversation-1/messages"
+                  "url": "https://graph.instagram.com/v21.0/sample-media-1/comments"
                 },
                 "status": 200,
                 "body": {
                   "data": [
                     {
-                      "id": "sample-message-2",
+                      "id": "sample-comment-2",
                       "from": {
                         "id": "9000000000000002",
                         "username": "made.up.friend"
                       },
-                      "created_time": "2026-11-01T12:05:00+0000",
-                      "message": "Sounds good, see you then."
+                      "username": "made.up.friend",
+                      "text": "Sounds good, see you then.",
+                      "timestamp": "2026-11-01T12:05:00+0000"
                     },
                     {
-                      "id": "sample-message-1",
+                      "id": "sample-comment-1",
                       "from": {
-                        "id": "9000000000000001",
-                        "username": "sample.studio"
+                        "id": "9000000000000003",
+                        "username": "another.friend"
                       },
-                      "created_time": "2026-11-01T12:00:00+0000",
-                      "message": "Does Thursday work?"
+                      "username": "another.friend",
+                      "text": "Does Thursday work?",
+                      "timestamp": "2026-11-01T12:00:00+0000"
                     }
                   ]
                 }

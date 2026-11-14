@@ -133,6 +133,14 @@
           "files": {
             "package_files": [
               {
+                "package": "run-on-a-persons-computer",
+                "paths": [
+                  "from-old-trillion/computer/confined-run.mjs",
+                  "from-old-trillion/computer/confined-run.json"
+                ],
+                "at": "/opt/run-on-a-persons-computer"
+              },
+              {
                 "package": "audio-transcription",
                 "paths": [
                   "do-work",
@@ -230,6 +238,14 @@
           "files": {
             "package_files": [
               {
+                "package": "run-on-a-persons-computer",
+                "paths": [
+                  "from-old-trillion/computer/confined-run.mjs",
+                  "from-old-trillion/computer/confined-run.json"
+                ],
+                "at": "/opt/run-on-a-persons-computer"
+              },
+              {
                 "package": "audio-transcription",
                 "paths": [
                   "do-work",
@@ -284,7 +300,7 @@
           }
         },
         "result_selector": "$.result",
-        "verify": [{"kind":"sample-run","input":{"url":"https://videos.example.com/watch?v=sample"},"stand_in_programs":{"yt-dlp":"folder=\"\"; out=\"\"\nwhile [ $# -gt 0 ]; do [ \"$1\" = \"-o\" ] && out=\"$2\"; [ \"$1\" = \"--dump-single-json\" ] && info=1; shift; done\nif [ -n \"$info\" ]; then echo '{\"title\": \"Sample garden talk\", \"duration\": 12.5}'; exit 0; fi\nfolder=$(dirname \"$out\")\nprintf 'WEBVTT\\n\\n00:00:00.000 --> 00:00:02.500\\nWelcome to the sample garden talk.\\n\\n00:00:02.500 --> 00:00:05.000\\nToday we plant tomatoes.\\n' > \"$folder/captions.en.vtt\""}}],
+        "verify": [{"kind":"sample-run","input":{"url":"https://videos.example.com/watch?v=sample","link_reader":"yt-dlp"},"stand_in_programs":{"yt-dlp":"folder=\"\"; out=\"\"\nwhile [ $# -gt 0 ]; do [ \"$1\" = \"-o\" ] && out=\"$2\"; [ \"$1\" = \"--dump-single-json\" ] && info=1; shift; done\nif [ -n \"$info\" ]; then echo '{\"title\": \"Sample garden talk\", \"duration\": 12.5}'; exit 0; fi\nfolder=$(dirname \"$out\")\nprintf 'WEBVTT\\n\\n00:00:00.000 --> 00:00:02.500\\nWelcome to the sample garden talk.\\n\\n00:00:02.500 --> 00:00:05.000\\nToday we plant tomatoes.\\n' > \"$folder/captions.en.vtt\""}}],
         "needs": {"expected_seconds": 900, "network_egress": true, "memory_mb": 4096},
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],

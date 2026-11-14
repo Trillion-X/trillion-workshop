@@ -66,13 +66,13 @@ test('PGlite provisions PostgreSQL and executes arbitrary schema and row operati
   assert.equal(storage.rows.get('resource:customer-db').revision, 'revision:1');
   await call('transaction', { expected_revision: 'revision:1', statements: [
     { sql: 'CREATE SCHEMA sales' },
-    { sql: 'CREATE TABLE sales.synthetic-46ee21bed239 (id text PRIMARY KEY, stage text NOT NULL, amount numeric)' },
-    { sql: 'INSERT INTO sales.synthetic-46ee21bed239(id, stage, amount) VALUES ($1, $2, $3)', params: ['o-1', 'open', 1250] },
+    { sql: 'CREATE TABLE sales.deals (id text PRIMARY KEY, stage text NOT NULL, amount numeric)' },
+    { sql: 'INSERT INTO sales.deals(id, stage, amount) VALUES ($1, $2, $3)', params: ['o-1', 'open', 1250] },
   ] }, task('schema-and-first-row'));
 
   const shape = await call('schema', { expected_revision: 'revision:2', schema: 'sales' }, task('read-schema', 'revision:2'));
   assert.deepEqual(shape.columns.map(row => row.column_name), ['id', 'stage', 'amount']);
-  const result = await call('read', { expected_revision: 'revision:2', sql: 'SELECT stage, amount FROM sales.synthetic-46ee21bed239 WHERE id = $1', params: ['o-1'] }, task('read-row', 'revision:2'));
+  const result = await call('read', { expected_revision: 'revision:2', sql: 'SELECT stage, amount FROM sales.deals WHERE id = $1', params: ['o-1'] }, task('read-row', 'revision:2'));
   assert.deepEqual(result.rows, [{ stage: 'open', amount: '1250' }]);
   assert.equal(checks.length, 8, 'current resource rights are checked before each dispatch and again at each commit');
 });

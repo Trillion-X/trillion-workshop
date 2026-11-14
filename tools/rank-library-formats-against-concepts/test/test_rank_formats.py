@@ -108,7 +108,7 @@ class Readers(Fixture):
     def test_only_listed_title_templates_that_name_a_form_are_candidates(self):
         self.configured()
         rows = [r for r in rf.candidates() if r['key'].startswith('title_template_')]
-        self.assertEqual([r['key'] for r in rows], ['synthetic-77d734b88b9b'])
+        self.assertEqual([r['key'] for r in rows], ['title_template_' + '8'])
         self.assertEqual(rows[0]['stats'], '[N] days of [X] (tested) outliers')
         self.assertEqual(rows[0]['path'], 'bank.md template 8')
         self.assertEqual(rows[0]['text'], '[N] days of [X]: a long period, shown over time')
@@ -134,7 +134,7 @@ class Steps(Fixture):
         self.assertEqual(done.returncode, 0, done.stdout)
         lines = done.stdout.strip().split('\n')[:-1]
         self.assertEqual([l.split('\t')[0] for l in lines], ['F'] * 5 + ['C'] * 2)
-        self.assertEqual([l.split('\t')[1] for l in lines], ['tour', 'beta-002', 'gamma-003', 'synthetic-77d734b88b9b', 'own_one', 'A01', 'V13'])
+        self.assertEqual([l.split('\t')[1] for l in lines], ['tour', 'beta-002', 'gamma-003', 'title_template_' + '8', 'own_one', 'A01', 'V13'])
         self.assertEqual(answer['result']['candidates'], 5)
 
     def judged(self, name, rows):

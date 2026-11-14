@@ -43,6 +43,6 @@ Ported from old trillion `src/setup-plan.mjs` and `src/setup-installs.mjs` at ta
 
 ## Dependencies
 
-**Depends on:** `shared-code` (server instruction paragraphs, renamed tools, agent delivery), `keep-and-wake-ai-sessions-on-this-computer` (the harness manifest and server instructions), `set-up-my-devices-and-cameras` (device apps), `set-up-my-account` (site icon, conflicts), `start-from-any-landing-page` (entry points), `see-a-pursuit-through-the-lens` (the lens text), `pick-where-one-piece-of-work-runs-the-device` (the computer placement), `hand-off-jobs-between-agents` (tool runs for computers), `http-client` and `refuse-requests-to-private-addresses` (through agent delivery), and the modules `@noble/hashes`, `tldts`, `tldts-core` and `uqr`.
+**Depends on:** `shared-code` (server instruction paragraphs, renamed tools, agent delivery), `keep-and-wake-ai-sessions-on-this-computer` (the harness manifest and server instructions), `set-up-my-devices-and-cameras` (device apps), `set-up-my-account` (site icon, conflicts), `start-from-any-landing-page` (entry points), `see-a-pursuit-through-the-lens` (the lens text), `pick-where-one-piece-of-work-runs-the-device` (the computer placement), `hand-off-jobs-between-agents` (tool runs for computers), `http-client` and `refuse-requests-to-private-addresses` (through agent delivery), and the modules `@noble/hashes` and `uqr`.
 
 **Depended on by:** `tool-rows.json` (the row packs these files), `test/walk-a-new-person-through-first-setup.test.mjs`.

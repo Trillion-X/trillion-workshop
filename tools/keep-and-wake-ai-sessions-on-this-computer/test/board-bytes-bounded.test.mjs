@@ -38,8 +38,8 @@ function seeded(open, finished = 0) {
 }
 
 test('the screen rows weigh the same whatever a job says, and four times the jobs weigh about four times as much', () => {
-  const small = seeded(20).agents.board({ rows: 'screen' });
-  const large = seeded(80).agents.board({ rows: 'screen' });
+  const small = seeded(20).agents.board({ rows: 'screen', limit: 100 });
+  const large = seeded(80).agents.board({ rows: 'screen', limit: 100 });
   assert.equal(small.work.length, 20);
   assert.equal(large.work.length, 80);
   assert.ok(bytes(large) <= bytes(small) * 4.5, `4N jobs weigh ${bytes(large)} bytes against ${bytes(small)} for N`);

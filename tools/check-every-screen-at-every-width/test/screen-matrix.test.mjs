@@ -7,10 +7,6 @@
 // trillion-apps web/scripts/screen-matrix-screens.json and web/src/workspace/screens.mjs, so the first belongs to that
 // repository's lane; the deploy halves read scripts/deploy-worker.mjs and scripts/check-app-screens.mjs
 // (screenMatrixCheck, screenMatrixScope), which no repository holds any more (searched the three repos for both names).
-// Fails today (2026-11-06, this container's Chromium): "browser-computed names ..." (a control_name failure's selector
-// is now html > body > main > button, without the planted class, so `includes('empty-button')` is false though both
-// empty controls are refused); "a font that never loads ..." (no font failure is reported for p.missing); "words on a
-// decided colour ..." (the newer repeated_supporting_text probe flags "Get started" on decided-red in every view).
 // test/screen-matrix.test.mjs
 // parts/screen-matrix/check-screens.mjs refuses a deploy whose screens cannot be read. This plants one defect per
 // probe in a fixture page served from a tiny local server (low contrast, a font that never loads, text clipped
@@ -66,7 +62,7 @@ pages['/unnamed-controls'] = page('<h1>Unnamed controls</h1><button class="empty
 
 // The person decided their strong button is the thread red #ff1d1d with white semibold words (views.json decided_colours):
 // on it the words are judged at the 3:1 bold bar and anything still under is reported, never refused. Another red is not decided.
-pages['/decided-red'] = page('<h1>Decided red</h1><p><span class="strong">Get started</span></p><p class="plain">White body words on the decided red.</p>',
+pages['/decided-red'] = page('<h1>Decided red</h1><p><a class="strong" href="#start">Get started</a></p><p class="plain">White body words on the decided red.</p>',
   'body { background: #fff; color: #111; } .strong, .plain { display: inline-block; padding: 8px 14px; background: #ff1d1d; color: #fff; } .strong { font-weight: 600; } .plain { font-weight: 400; }');
 pages['/other-red'] = page('<h1>Another red</h1><p class="other">White words on a red nobody decided.</p>',
   'body { background: #fff; color: #111; } .other { display: inline-block; padding: 8px 14px; background: #e8483f; color: #fff; font-weight: 600; }');
@@ -134,8 +130,9 @@ test('a clean page passes in every mode and width', () => {
 test('browser-computed names accept native labels, aria-label and hidden aria-labelledby text, and reject empty controls', () => {
   assert.deepEqual(failing('clean', 'control_name'), [], 'named controls pass on the clean page');
   const rows = failing('unnamed-controls', 'control_name');
-  assert.ok(rows.some(row => row.selector.includes('empty-button')), 'an empty button is rejected');
-  assert.ok(rows.some(row => row.selector.includes('empty-input')), 'an empty text field is rejected');
+  // A control_name failure names its control by the class-free structural path the accessibility evidence is joined on.
+  assert.ok(rows.some(row => row.selector === 'html > body > main > button'), 'an empty button is rejected');
+  assert.ok(rows.some(row => row.selector === 'html > body > main > input'), 'an empty text field is rejected');
   assert.ok(rows.every(row => /no accessible name/.test(row.detail)), 'the report identifies missing computed names');
 });
 

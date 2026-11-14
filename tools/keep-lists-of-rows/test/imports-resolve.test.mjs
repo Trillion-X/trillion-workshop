@@ -1,11 +1,13 @@
 // Every relative import in tools/keep-lists-of-rows resolves to a file the Workshop holds, except the web shell's
-// screens that source-data/answered-by-the-web-shell.json names (type imports from bundled files only), and the files
-// node loads (lists.mjs) load with every file they reach.
+// screens that source-data/answered-by-the-web-shell.json names (type imports from bundled files only), the files a
+// moved screen leaves in the web app (moved-from.json names them in the screen's `stays`, and the client build answers
+// them), and the files node loads (lists.mjs) load with every file they reach.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import shell from '../source-data/answered-by-the-web-shell.json' with { type: 'json' };
+import moved from '../moved-from.json' with { type: 'json' };
 
 const tool = resolve(import.meta.dirname, '..');
 const workshop = resolve(tool, '../..');
@@ -25,6 +27,11 @@ function filesIn(folder) {
   });
 }
 const answered = target => shell.prefixes.some(prefix => relative(workshop, target).startsWith(prefix.path));
+// A moved screen keeps its web client imports as written, so a relative import of it lands under this tool's web/ folder at
+// the web client's own path; the receipt's `stays` lists the web app files the screen leaves there, and an import must
+// name one of them (a folder import its index file).
+const stays = new Map(moved.files.filter(entry => entry.stays).map(entry => [resolve(workshop, entry.to), new Set(entry.stays)]));
+const stayedInTheWebApp = (file, target) => EXTENSIONS.some(ext => stays.get(file)?.has(`${relative(tool, target)}${ext}`));
 
 test('every relative import in the tool resolves in the Workshop, or is a web shell screen the page answers', () => {
   const files = filesIn(tool);
@@ -32,6 +39,7 @@ test('every relative import in the tool resolves in the Workshop, or is a web sh
   for (const file of files) for (const spec of relativeImports(file)) {
     const target = resolve(dirname(file), spec);
     if (fileAt(target)) continue;
+    if (stayedInTheWebApp(file, target)) continue;
     (answered(target) ? byShell : unresolved).push(`${relative(tool, file)} -> ${spec}`);
   }
   assert.deepEqual(unresolved, []);

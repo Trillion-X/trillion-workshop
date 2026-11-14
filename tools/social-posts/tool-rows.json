@@ -1020,7 +1020,45 @@
             "contains": "missing"
           }
         ],
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "screen": {
+          "group": "content-publish",
+          "kind": "module",
+          "module": {
+            "package": "social-posts",
+            "entry": "web/src/workspace/posts-screen-mount.tsx"
+          },
+          "icon": "Send",
+          "label": "Posts",
+          "about": "Check a post is ready for each place it goes.",
+          "inputs": {
+            "post_id": {
+              "label": "Post",
+              "placeholder": "The post, from your posting calendar"
+            }
+          },
+          "takes_file": {
+            "takes": "seen-or-heard",
+            "label": "Post or schedule",
+            "icon": "Send",
+            "input": {
+              "media": {
+                "identity": {
+                  "from": "file",
+                  "field": "identity"
+                },
+                "name": {
+                  "from": "file",
+                  "field": "name"
+                },
+                "media_type": {
+                  "from": "file",
+                  "field": "type"
+                }
+              }
+            }
+          }
+        }
       }
     },
     {
@@ -1884,7 +1922,9 @@
           },
           "credential_injections": [
             {
-       "hosts": ["graph.instagram.com"],
+              "hosts": [
+                "graph.instagram.com"
+              ],
               "field_id": "access_token",
               "placement": {
                 "kind": "query",
@@ -2074,7 +2114,9 @@
           },
           "credential_injections": [
             {
-       "hosts": ["graph.facebook.com"],
+              "hosts": [
+                "graph.facebook.com"
+              ],
               "field_id": "page_access_token",
               "placement": {
                 "kind": "query",

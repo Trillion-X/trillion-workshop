@@ -359,14 +359,17 @@ export function refuseUnreadableSteps(decision) {
   (decision.input?.evidence ?? []).forEach((row, n) => mustRead('evidence', `${decision.id}:${n}`, row));
   return decision;
 }
-export async function readDecision(door, id, steps = []) {
+export async function readDecision(door, id, steps = [], { lost = false } = {}) {
   // The revision is read before the root: a commit between the two reads then leaves a revision older than the root,
   // which the write made from this read refuses, never a stale root under a newer revision it would be accepted against.
   const revision = await readRevision(door, id);
   const root = await door.read('decision', id);
   if (!root) return null;
   mustRead('decision', id, root);
-  const decision = refuseUnreadableSteps(await settled(door, get => joinDecision(id, root, get, steps)));
+  const joined = await settled(door, get => joinDecision(id, root, get, steps));
+  // `lost` is the repair's read (putBackSteps): it is handed the entries whose step cannot be read, to put them right from
+  // the case's own records; every other reader is refused them by name.
+  const decision = lost ? joined : refuseUnreadableSteps(joined);
   markRead(decision, revision);
   return decision;
 }

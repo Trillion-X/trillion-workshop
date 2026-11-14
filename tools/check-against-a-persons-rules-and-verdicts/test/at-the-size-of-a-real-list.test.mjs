@@ -126,15 +126,19 @@ test('tool:check-every-piece-is-covered finishes on a 40,707-row list (39,088 pi
 // A made-up skill file of about `bytes` bytes: headings, bold leads, lists, tables, ``` and ~~~ fences (one ~~~ fence
 // holding ``` lines, one ```` fence holding ~~~), and blank lines inside fences.
 function madeUpSkill(bytes) {
-  let text = '# Made-up skill\n\nA made-up opening paragraph.\n\n', part = 0;
-  while (Buffer.byteLength(text) < bytes) {
+  // The parts are kept in a list and joined once: measuring a string that grows by appending flattens it every turn.
+  const head = '# Made-up skill\n\nA made-up opening paragraph.\n\n', parts = [head];
+  let part = 0, size = Buffer.byteLength(head);
+  while (size < bytes) {
     part += 1;
-    text += `## Made-up part ${part}\n\n**Made-up rule ${part}.** Made-up words about a made-up thing, said plainly so a check can be written from them.\n\n`
+    const next = `## Made-up part ${part}\n\n**Made-up rule ${part}.** Made-up words about a made-up thing, said plainly so a check can be written from them.\n\n`
       + `- made-up item ${part} a\n- made-up item ${part} b\n  continued here.\n\n| Made-up | What |\n|---|---|\n| Row ${part} | value ${part} |\n\n`
       + `~~~sh\nmade-up-command ${part}\n\n\`\`\`\nnot a closing fence of ~~~\n\`\`\`\n~~~\n\n`
       + `\`\`\`\`md\n~~~\nmade-up inside ${part}\n\n~~~\n\`\`\`\`\n\n\`\`\`js\nconst madeUp = ${part};\n\nconsole.log(madeUp);\n\`\`\`\n\n`;
+    parts.push(next);
+    size += Buffer.byteLength(next);
   }
-  return text;
+  return parts.join('');
 }
 
 for (const [label, bytes] of [['31 KB', 31 * 1024], ['120 KB', 120 * 1024], ['4 MiB less 4 KiB', 4 * 1024 * 1024 - 4096]]) {

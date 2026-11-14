@@ -199,7 +199,64 @@
             ]
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "place": "reply-place:instagram",
+              "account": "account-one",
+              "now": "2026-11-12T12:00:00.000Z"
+            },
+            "records": [
+              {
+                "id": "account-snapshot:instagram-messages:account-one:state",
+                "type": "account-snapshot-part",
+                "value": {
+                  "kind": "state",
+                  "self_id": "owner-1",
+                  "cursor": null,
+                  "pulled_at": "2026-11-12T12:00:00.000Z"
+                }
+              },
+              {
+                "id": "account-snapshot:instagram-messages:account-one:thread:thread-1",
+                "type": "account-snapshot-part",
+                "value": {
+                  "kind": "thread",
+                  "seq": 1,
+                  "thread": {
+                    "id": "thread-1",
+                    "title": "thread-1",
+                    "messages": [
+                      {
+                        "id": "msg-1",
+                        "from": {
+                          "id": "visitor-1"
+                        },
+                        "created_time": "2026-11-12T11:55:00.000Z",
+                        "message": "what is the price"
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "id": "reply-rule:prices",
+                "type": "reply-rule",
+                "value": {
+                  "id": "rule:prices",
+                  "enabled": "on",
+                  "words": [
+                    "price"
+                  ],
+                  "mode": "any",
+                  "reply": "Hi, the price list is here."
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -390,7 +447,44 @@
             }
           ]
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "account_id": "service_connection:instagram:account-one",
+              "decision": {
+                "place": "reply-place:instagram",
+                "action": "send",
+                "kind": "dm",
+                "key": "msg-1:rule:prices",
+                "message_id": "msg-1",
+                "recipient": {
+                  "id": "visitor-1"
+                },
+                "reply_text": "Hi, the price list is here.",
+                "created_time": "2099-01-01T00:00:00.000Z"
+              }
+            },
+            "held": {
+              "access_token": "sample-held-token"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://graph.instagram.com/v21.0/me/messages"
+                },
+                "status": 200,
+                "body": {
+                  "recipient_id": "visitor-1",
+                  "message_id": "mid-1"
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-13"
+          }
+        ]
       }
     },
     {
@@ -592,7 +686,44 @@
             }
           ]
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "account_id": "service_connection:youtube:account-one",
+              "decision": {
+                "place": "reply-place:youtube",
+                "action": "send",
+                "kind": "comment",
+                "key": "comment-1:rule:prices",
+                "message_id": "comment-1",
+                "recipient": {},
+                "reply_text": "Hi, the price list is here.",
+                "created_time": "2026-11-12T11:55:00.000Z"
+              }
+            },
+            "held": {
+              "access_token": "sample-held-token"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://www.googleapis.com/youtube/v3/comments"
+                },
+                "status": 200,
+                "body": {
+                  "id": "reply-1",
+                  "snippet": {
+                    "parentId": "comment-1"
+                  }
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-13"
+          }
+        ]
       }
     }
   ]

@@ -123,6 +123,14 @@
                 "at": "/opt/node_modules/@noble/hashes"
               },
               {
+                "package": "run-on-a-persons-computer",
+                "paths": [
+                  "from-old-trillion/computer/confined-run.mjs",
+                  "from-old-trillion/computer/confined-run.json"
+                ],
+                "at": "/opt/run-on-a-persons-computer"
+              },
+              {
                 "package": "audio-transcription",
                 "paths": [
                   "do-work",
@@ -421,6 +429,14 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "run-on-a-persons-computer",
+                "paths": [
+                  "from-old-trillion/computer/confined-run.mjs",
+                  "from-old-trillion/computer/confined-run.json"
+                ],
+                "at": "/opt/run-on-a-persons-computer"
               },
               {
                 "package": "audio-transcription",

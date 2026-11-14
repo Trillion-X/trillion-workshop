@@ -3,10 +3,9 @@
 // wants to use your confidential information stored in 'Chromium Safe Storage'") on the person's screen. On
 // 2026-09-30 that prompt came from the web page recorder, which starts Chromium itself over the DevTools protocol and
 // so never got Playwright's own defaults. A Playwright launch must come through trillion-workshop/tools/headless-browser/launch.mjs; a
-// browser started by hand must read quiet-switches.json. Untracked files are source too, so they are read as well.
+// browser started by hand must read quiet-switches.json. Untracked files are source too, so they are read as well: the folders are walked, not asked of git, because a landing checks an export with no .git.
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import test from 'node:test';
 
@@ -30,8 +29,8 @@ export function loudLaunches(text) {
   return wrong;
 }
 
-const sourceFiles = () => execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '--', ...ROOTS], { cwd: root, encoding: 'utf8' })
-  .split('\n').filter(path => CODE.test(path) && !path.includes('node_modules/') && path !== HELPER && path !== TEST_HELPER && path !== SELF);
+const sourceFiles = () => ROOTS.flatMap(folder => readdirSync(resolve(root, folder), { recursive: true }).map(path => `${folder}/${path}`))
+  .filter(path => CODE.test(path) && !path.includes('node_modules/') && path !== HELPER && path !== TEST_HELPER && path !== SELF);
 
 test('the quiet switches keep the keychain out of it', () => {
   const { switches } = JSON.parse(readFileSync(resolve(root, `${WORKSHOP}headless-browser/quiet-switches.json`), 'utf8'));

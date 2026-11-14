@@ -177,7 +177,7 @@ test('a source whose allowlist label is not an author label cannot back a compon
   const sp=join(dir,'source.txt'),dp=join(dir,'current.md');writeFileSync(sp,src);writeFileSync(dp,doc);
   const at=doc.indexOf('Plain closing remark.'),quote=(id,source_id,s,start)=>({id,source_id,text:s,byte_start:start,byte_end:start+Buffer.byteLength(s)});
   const p=profile();p.protected_literals=[];p.required_components=['c'];p.original_sources=[{blake3:hash(src),authority:'external_lexical_reference'}];
-  const r=reviews(doc);r.source_bindings={schema:['source-span','bindings','v1'].join('-'),sources:[{id:'s',path:sp,blake3:hash(src)},{id:'d',path:dp,blake3:hash(doc)}],quotes:[quote('sq','s',src,0),quote('dq','d','Plain closing remark.',at)]};
+  const r=reviews(doc);r.source_bindings={schema:'synthetic-d245bc86d584',sources:[{id:'s',path:sp,blake3:hash(src)},{id:'d',path:dp,blake3:hash(doc)}],quotes:[quote('sq','s',src,0),quote('dq','d','Plain closing remark.',at)]};
   r.components=[{component_id:'c',source_quote_index:0,destination_quote_index:1,source_authority:'external_lexical_reference',relationship_review:'Made-up relationship.',reviewer_role:'root'}];
   assert.deepEqual(verifyWritingProfile(Buffer.from(doc),p,r).findings,[{kind:'invalid_component_review'}]);
   r.components[0].source_authority='author_text';assert.deepEqual(verifyWritingProfile(Buffer.from(doc),p,r).findings,[{kind:'component_source_not_authorized_original'}]);
