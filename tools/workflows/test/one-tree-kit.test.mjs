@@ -86,3 +86,23 @@ test('the trunk carries one daily wake, chooses from every workflow, heals into 
   assert.match(stepOf('plant-the-seed').do, /cause/);
   assert.ok(!recipe.input_schema.required.includes('seed'), 'a woken run takes its seeds from its cause');
 });
+
+test('a broad condition the trunk reports is written as a row the rewrite workflow wakes on, and only a Waiting row starts it', async () => {
+  const trunk = byId.get('workflow:grow-the-one-tree');
+  const rewrite = byId.get('workflow:rewrite-a-broad-condition');
+  assert.ok(rewrite, 'workflow:rewrite-a-broad-condition is published');
+  assert.deepEqual(recipeProblems(rewrite), []);
+  const [wake] = rewrite.wakes;
+  const choose = trunk.steps.find(step => step.id === 'choose-branches').do;
+  // The trunk writes the rows under the prefix the wake listens to, and the arrival source the wake names when absent.
+  assert.match(choose, new RegExp(`id ${wake.on.record.prefix}`));
+  assert.ok(choose.includes(wake.input.arrival_source), 'choose-branches writes the arrival source the wake names');
+  assert.equal(wake.input.start_at, rewrite.steps[0].id);
+  // The source row choose-branches writes keeps a Waiting row and drops a Done one, so marking a row Done starts nothing.
+  const { filterRecords } = await import('../../formulas/do-work/requests.mjs');
+  const { fields, tree } = JSON.parse(choose.match(/filter: the text (\{.*?\}\}\]\}\}), seed/)[1]);
+  const result = filterRecords({ records: [{ status: 'Waiting' }, { status: 'Done' }], fields, tree });
+  assert.deepEqual(result.incomplete, []);
+  assert.deepEqual(result.matches, [0]);
+  assert.match(trunk.steps.find(step => step.id === 'learn-and-prune').do, /record:calendar-task:one-tree-overrides-YEAR-MONTH-DAY/);
+});

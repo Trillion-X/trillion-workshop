@@ -1,0 +1,136 @@
+{
+  "start_here": "Say to your AI: \"Switch on the wake broad-found of workflow:rewrite-a-broad-condition, then rewrite the waiting broad condition record:broad-condition:make-one-piece-of-content--a-seed-names-a-subject now.\"",
+  "lists": [
+    {
+      "list": "list:broad-conditions",
+      "label": "Broad conditions",
+      "row_type": "record:broad-condition",
+      "holds": "One condition the one tree's chooser found too broad: the workflow it sits on, the condition's label, how many parts of one seed it kept of how many, the run that found it, and whether it was rewritten.",
+      "fields": [
+        { "id": "workflow", "kind": "text", "label": "Workflow", "alike": ["automation", "rule owner"] },
+        { "id": "condition", "kind": "text", "label": "Condition", "alike": ["rule", "trigger", "filter"] },
+        { "id": "kept_parts", "kind": "number", "label": "Parts it kept", "alike": ["matched", "hits"] },
+        { "id": "of", "kind": "number", "label": "Parts in the seed", "alike": ["total", "out of"] },
+        { "id": "run", "kind": "text", "label": "Run that found it", "alike": ["run id", "root task"] },
+        { "id": "status", "kind": "choice", "label": "Status", "alike": ["state", "stage"] },
+        { "id": "done", "kind": "long-text", "label": "What was done", "alike": ["resolution", "note"] }
+      ],
+      "example_rows": [
+        {
+          "id": "make-one-piece-of-content--a-seed-names-a-subject",
+          "values": {
+            "workflow": "workflow:make-one-piece-of-content-from-audience-to-publish",
+            "condition": "a seed names a subject",
+            "kept_parts": 9,
+            "of": 11,
+            "run": "record:calendar-task:example-tree-run-1",
+            "status": "Waiting"
+          }
+        },
+        {
+          "id": "personalized-reach-out--a-part-names-a-person",
+          "values": {
+            "workflow": "workflow:personalized-reach-out",
+            "condition": "a part names a person",
+            "kept_parts": 6,
+            "of": 8,
+            "run": "record:calendar-task:example-tree-run-2",
+            "status": "Done",
+            "done": "Rewritten to \"a part asks to contact a named company\" (kinds has outreach and people is not empty); the old condition is Off with its counts."
+          }
+        }
+      ],
+      "alike": ["a list of noisy alert rules to tune", "a spreadsheet of automation rules that fire too often", "a rules backlog"]
+    },
+    {
+      "list": "list:arrival-sources",
+      "label": "Arrival sources",
+      "row_type": "record:arrival-sources",
+      "holds": "What counts as an arrival for a woken run: the row type it reads, the filter that keeps a changed row, the paths that turn a kept row into a seed, and whether it is on.",
+      "fields": [
+        { "id": "label", "kind": "text", "label": "Label", "alike": ["name"] },
+        { "id": "read_type", "kind": "text", "label": "Row type read", "alike": ["type", "table"] },
+        { "id": "filter", "kind": "long-text", "label": "Filter", "alike": ["condition", "where"] },
+        { "id": "seed", "kind": "long-text", "label": "Seed paths", "alike": ["mapping"] },
+        { "id": "state", "kind": "choice", "label": "State", "alike": ["status", "on or off"] }
+      ],
+      "example_rows": [
+        {
+          "id": "broad-conditions-waiting",
+          "values": {
+            "label": "Broad conditions waiting for a rewrite",
+            "read_type": "record:broad-condition",
+            "filter": "{\"fields\": [{\"id\": \"status\", \"kind\": \"text\", \"path\": [\"status\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"status\", \"operator\": \"is_text\", \"params\": {\"text\": \"Waiting\"}}]}}",
+            "seed": "{\"words\": [\"condition\"], \"came_from\": [\"id\"], \"at\": [\"run\"]}",
+            "state": "On"
+          }
+        },
+        {
+          "id": "example-inputs",
+          "values": {
+            "label": "Notes I write in my inputs list",
+            "read_type": "record:inputs-arrivals",
+            "seed": "{\"words\": [\"words\"], \"came_from\": [\"id\"]}",
+            "state": "Off"
+          }
+        }
+      ],
+      "alike": ["a list of webhook sources", "an automation's trigger settings", "an inbox filter list"]
+    }
+  ],
+  "workflows": ["workflow:rewrite-a-broad-condition", "workflow:grow-the-one-tree"],
+  "tools": ["tool:start-a-recipe-run", "tool:filter-rows-by-rules", "tool:pour-example-rows-into-my-list"],
+  "instructions": [
+    "1. Install the one tree (workflow:grow-the-one-tree): its choose-branches step writes one record:broad-condition row, status Waiting, for each condition that kept more than half of a seed's parts, and writes record:arrival-sources:broad-conditions-waiting the first time.",
+    "2. Switch on the wake broad-found of workflow:rewrite-a-broad-condition (wake:switch at @own-records); from then on each Waiting row starts one run, and a row marked Done starts none.",
+    "3. Each run reads the broad row and that workflow's own row, writes one specific condition On and keeps the broad one Off with its reason, reads the row back and marks the broad row Done.",
+    "4. Read list:broad-conditions: every row Done names the condition it became; the next seed is chosen by the narrower condition."
+  ],
+  "worked_examples": [
+    {
+      "title": "A condition that kept 9 of 11 parts is narrowed",
+      "ask": "Rewrite the waiting broad condition on the content workflow now.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:rewrite-a-broad-condition",
+              "start_at": "rewrite",
+              "seeds": [{ "words": "a seed names a subject", "came_from": "record:broad-condition:make-one-piece-of-content--a-seed-names-a-subject", "at": "record:calendar-task:example-tree-run-1" }]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:rewrite-a-broad-condition",
+      "step": "rewrite",
+      "given": "record:broad-condition:make-one-piece-of-content--a-seed-names-a-subject: workflow workflow:make-one-piece-of-content-from-audience-to-publish, condition \"a seed names a subject\", kept_parts 9 of 11, status Waiting.",
+      "hands_back": "workflow \"workflow:make-one-piece-of-content-from-audience-to-publish\", new_condition \"a part asks for a piece of content about a subject\", done \"broad condition Off with 9 of 11; new condition keeps 2 of 11; row read back; broad row Done\"."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for rules that fire too often and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and list:broad-conditions as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:broad-conditions",
+      "into": {
+        "list": "list:noisy-rules",
+        "row_type": "record:noisy-rule",
+        "fields": [
+          { "id": "automation", "label": "Automation" },
+          { "id": "rule", "label": "Rule" },
+          { "id": "hits", "label": "Hits" },
+          { "id": "total", "label": "Total" },
+          { "id": "run_id", "label": "Run id" },
+          { "id": "state", "label": "State" },
+          { "id": "resolution", "label": "Resolution" }
+        ]
+      }
+    }
+  }
+}

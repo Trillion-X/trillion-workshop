@@ -3,12 +3,12 @@
  "source": {
   "view": "list-view:workflows:public",
   "list": "workflows",
-  "blake3": "15a6f17c5dda74ac1b31381ec32dca11d1c81d0603f90bcb22bd1cda04af2a44",
+  "blake3": "f537a092108292983d3214b1c1a47b35b0fd0f9b744bff20e27750c75f8033ea",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
    "canonical_rows_readback": false,
-   "reason": "Named local workflow candidates remain pending account synchronization. All other rows are complete current public-view readbacks; restored modes keep their canonical account identities and private Cambrian is excluded. Every-workflow-is-a-branch (2026-11-13): fires_when on the workflows that were tree branches and the trunk's choose-branches, fan-out, answer-and-change-log and learn-and-prune are local candidates until the account rows are written and read back (account read-modify-write is on hold).",
+   "reason": "Named local workflow candidates remain pending account synchronization. All other rows are complete current public-view readbacks; restored modes keep their canonical account identities and private Cambrian is excluded. Every-workflow-is-a-branch (2026-11-13): fires_when on the workflows that were tree branches and the trunk's choose-branches, fan-out, answer-and-change-log and learn-and-prune are local candidates until the account rows are written and read back (account read-modify-write is on hold). Rewrite-a-broad-condition (2026-11-14): published here so every account installs it; the account copies that proved it are removed once this lands.",
    "target_lists": [
     "workflows",
     "workflow-steps"
@@ -34,6 +34,7 @@
     "real-life-cases",
     "refresh-measurement-coverage",
     "research-what-everyone-says",
+    "rewrite-a-broad-condition",
     "run-a-linkedin-content-system",
     "turn-what-you-said-into-content"
    ],
@@ -1889,6 +1890,21 @@
     "recipe": "workflow:hand-to-an-agent",
     "title": "Hand it to one of your AIs",
     "fires_when": "[{\"label\": \"an item asks for work that another AI should take\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"for-another-ai\"]}}]}}, \"made_by\": \"rewritten\", \"state\": \"On\", \"evidence\": \"Rewritten on 2026-11-13 (lane every-workflow-is-a-branch): the earlier condition kept 13 or 14 of 14 parts of four ordinary seeds no one aimed, so it said nothing about which work a part is; the condition now requires the one situation this workflow is for.\"}, {\"label\": \"an item arrives that another AI should take, such as a note, memo, email, message or comment\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"person-task\"]}}]}}, \"made_by\": \"derived\", \"state\": \"Off\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words. Retired 2026-11-13: it kept most parts of four ordinary seeds no one aimed (rewritten in place by lane every-workflow-is-a-branch).\"}]"
+   }
+  },
+  {
+   "id": "rewrite-a-broad-condition",
+   "values": {
+    "title": "Rewrite a broad condition",
+    "recipe": "workflow:rewrite-a-broad-condition",
+    "job": "When the one tree reports that a workflow condition kept more than half of the parts of a seed, rewrite that condition around the one situation its workflow is for, with no one asking.",
+    "produces": "The workflow row with one specific condition On and the broad one Off with its reason, and the broad-condition row marked Done.",
+    "input_schema": "{\"type\":\"object\",\"properties\":{\"seeds\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"words\"],\"properties\":{\"words\":{\"type\":\"string\"},\"came_from\":{\"type\":\"string\"},\"at\":{\"type\":\"string\"}}},\"description\":\"The broad-condition rows that arrived, filled in by the starter from the arrival source; never given by hand.\"},\"arrival_source\":{\"type\":\"string\",\"description\":\"The person's row record:arrival-sources:broad-conditions-waiting, given by the wake.\"}}}",
+    "source": "{\"from\":\"decision case every-workflow-is-a-branch (Nov 14 2026): the chooser's broad report becomes a row, and an on-write wake turns each row into a run, with no one asking and no new service.\",\"proven\":\"On one account the same recipe, woken by a person's wake-declaration, rewrote a real broad condition and marked its row Done (9:31 AM CST Nov 14 2026); a Done write started a second run until the arrival source kept only rows still Waiting.\",\"starts\":\"By the wake broad-found when a record:broad-condition row is written and the arrival source record:arrival-sources:broad-conditions-waiting keeps it (status Waiting). The trunk's choose-branches writes that source when the person has none. The wake is off until the person switches it on.\"}",
+    "wakes": "[{\"id\":\"broad-found\",\"on\":{\"record\":{\"resource\":\"own-records\",\"prefix\":\"record:broad-condition:\"}},\"budget\":{\"steps\":10,\"wall_ms\":900000},\"input\":{\"start_at\":\"rewrite\",\"arrival_source\":\"record:arrival-sources:broad-conditions-waiting\"}}]",
+    "flags": [
+     "public"
+    ]
    }
   }
  ]

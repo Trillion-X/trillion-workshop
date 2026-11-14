@@ -463,7 +463,8 @@
     "workflow:make-one-piece-of-content-from-audience-to-publish",
     "workflow:make-the-piece-without-waiting-for-the-person",
     "workflow:personalized-reach-out",
-    "workflow:read-the-week-and-make-more-of-what-won"
+    "workflow:read-the-week-and-make-more-of-what-won",
+    "workflow:rewrite-a-broad-condition"
   ],
   "tools": [
     "tool:start-a-recipe-run",
