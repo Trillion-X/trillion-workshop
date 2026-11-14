@@ -127,3 +127,14 @@ test('the shipped tool row declares a files read right on the copy folders and a
   assert.ok(folders.length > 0);
   for (const folder of folders) assert.ok(invoke.records.rights.some(right => right.files && folder.startsWith(right.files) && right.operations.includes('read_file')), folder);
 });
+
+test('a kept answer names the source and head each citation was judged against, and a copy with no recorded head says so', async () => {
+  const d = door();
+  const kept = await submit(d, [finding('f1')]);
+  assert.ok(kept.judged_against.some(name => name.startsWith('madeup at HEAD at ') || /^madeup at HEAD at [0-9a-f]{12}$/.test(name)), kept.judged_against.join('|'));
+  assert.deepEqual(d.held.get(`${run}#answer:look`).value.judged_against, kept.judged_against, 'the kept row carries it');
+  const stamped = filesDoor(door(), copy({ '.source-copy.json': JSON.stringify({ ref: 'HEAD', head: 'abc123def456', copied_at: '2026-11-13T00:00:00Z' }) }));
+  assert.ok((await submitFrom(stamped, [finding('f1')], 'h1')).judged_against.some(name => name.endsWith('at abc123def456')));
+  const unstamped = (await submitFrom(filesDoor(door(), copy({})), [finding('f1')], 'h2')).judged_against;
+  assert.ok(unstamped.some(name => name.endsWith('head not recorded')), unstamped.join('|'));
+});

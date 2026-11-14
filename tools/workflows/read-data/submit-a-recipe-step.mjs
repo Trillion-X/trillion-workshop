@@ -74,10 +74,12 @@ export async function submitARecipeStep({ input = {}, task = {} } = {}, { door, 
   const blind = results.filter(result => result.evaluated === false && gates.has(result.kind));
   if (blind.length) throw new Error(`The answer to step "${stepId}" cannot be judged here: ${blind.map(result => `${result.says} (${result.reason})`).join('; ')}`);
   if (failed.length) throw new Error(`The answer to step "${stepId}" fails: ${failed.map(result => `${result.says} (failing: ${JSON.stringify(result.failing)})`).join('; ')}`);
-  const value = { kind: JOB_KIND, status: 'done', row: parent.row, label: `${parent.label}: answer of ${step.title ?? step.id}`, parent: run, step: stepId, answer, finished_by: 'workflow:submit-a-recipe-step' };
+  // Every source a passing citation was judged against, with the head it held, so the kept answer says what it was judged on.
+  const judgedAgainst = [...new Set([...looked.values()].flat().map(one => one.against).filter(Boolean))].sort();
+  const value = { kind: JOB_KIND, status: 'done', row: parent.row, label: `${parent.label}: answer of ${step.title ?? step.id}`, parent: run, step: stepId, answer, finished_by: 'workflow:submit-a-recipe-step', ...(judgedAgainst.length ? { judged_against: judgedAgainst } : {}) };
   await door.write([{ id, type: JOB_KIND, value }], { key: `${run}:${stepId}:answer` });
   return {
-    status: 'kept', answer_id: id,
+    status: 'kept', answer_id: id, ...(judgedAgainst.length ? { judged_against: judgedAgainst } : {}),
     checks: results.filter(result => result.passed).map(({ kind, says, passed }) => ({ kind, says, passed })),
     unchecked: results.filter(result => result.evaluated === false).map(({ kind, says, reason }) => ({ kind, says, reason })),
   };

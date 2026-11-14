@@ -36,6 +36,8 @@ async function sourceOf(rootName, root, door) {
       if (!existsSync(folder)) continue;
       return {
         name: `${rootName} at ${source.ref ?? 'HEAD'}`,
+        // The head a verdict is judged against: the commit the ref names now (a checkout is live), so a verdict says what it saw.
+        head: async () => git(folder, 'rev-parse', '--short=12', `${source.ref ?? 'HEAD'}^{commit}`).then(out => out.trim(), () => null),
         readFile: async path => git(folder, 'show', `${source.ref ?? 'HEAD'}:${path}`).catch(() => null),
         commitDate: async hash => git(folder, 'show', '-s', '--format=%cI', `${hash}^{commit}`).then(out => out.trim(), () => null),
       };
@@ -43,9 +45,12 @@ async function sourceOf(rootName, root, door) {
     if (source.files && door?.files) {
       const at = `${source.files.replace(/\/$/, '')}/`;
       const readText = async name => readWholeFile(door, name).then(done => (done.bytes ? done.bytes.toString('utf8') : null), () => null);
-      if (await readText(`${at}.source-copy.json`) === null) continue;
+      const stamp = await readText(`${at}.source-copy.json`);
+      if (stamp === null) continue;
       return {
         name: `${rootName} (the copy in ${source.files})`,
+        // The head the copy was made from, as the copy's own stamp records it (null when the stamp holds none: an unstamped copy).
+        head: async () => { try { return JSON.parse(stamp).head ?? null; } catch { return null; } },
         readFile: path => readText(`${at}${path}`),
         commitDate: async hash => {
           const dates = JSON.parse((await readText(`${at}.commit-dates.json`)) ?? '{}');
@@ -56,6 +61,12 @@ async function sourceOf(rootName, root, door) {
     }
   }
   return null;
+}
+
+// What a verdict names as the source it was judged against: the source and the head it held, or that its head is not recorded.
+async function judgedAgainst(source) {
+  const head = await source.head();
+  return head ? `${source.name} at ${head}` : `${source.name}, head not recorded`;
 }
 
 async function fileLine(row, cite, item, check, door) {
@@ -72,8 +83,9 @@ async function fileLine(row, cite, item, check, door) {
   if (at < 1 || at > lines.length) return { cite, ok: false, why: `${path} has ${lines.length} lines, not ${at}` };
   const quote = check.quote === undefined ? null : item?.[check.quote];
   if (check.quote !== undefined && !(typeof quote === 'string' && squash(quote))) return { cite, ok: false, why: `the quote in ${check.quote} is missing` };
-  if (quote !== null && !squash(lines[at - 1]).includes(squash(quote))) return { cite, ok: false, why: `line ${at} of ${path} does not hold the quoted text` };
-  return { cite, ok: true };
+  const against = await judgedAgainst(source);
+  if (quote !== null && !squash(lines[at - 1]).includes(squash(quote))) return { cite, ok: false, why: `line ${at} of ${path} does not hold the quoted text`, against };
+  return { cite, ok: true, against };
 }
 
 async function commit(row, cite, item, check, door) {
@@ -86,7 +98,8 @@ async function commit(row, cite, item, check, door) {
     const found = await source.commitDate(cite);
     if (!found) continue;
     const when = Date.parse(found);
-    return after !== null && !(when > after) ? { cite, ok: false, why: `commit is dated ${new Date(when).toISOString()}, not after ${new Date(after).toISOString()}` } : { cite, ok: true };
+    const against = await judgedAgainst(source);
+    return after !== null && !(when > after) ? { cite, ok: false, why: `commit is dated ${new Date(when).toISOString()}, not after ${new Date(after).toISOString()}`, against } : { cite, ok: true, against };
   }
   return blind ? { cite, ok: null, why: 'a repository has no source here, so the commit cannot be ruled out' } : { cite, ok: false, why: 'no such commit in any root' };
 }
