@@ -1,0 +1,1 @@
+import sys;p=sys.argv[1];s=open(p).read();a=sys.argv[2];b=sys.argv[3];open(p,"w").write(s.replace(a,b))

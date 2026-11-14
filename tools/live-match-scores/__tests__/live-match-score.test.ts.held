@@ -1,0 +1,482 @@
+import React from 'react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
+import { useBitfieldData } from '@bitfield/runtime-kit/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from '../../../test-helpers/vitest-shim.mjs';
+import { buildLinkMatchContextInput } from '../do-work/link-match-context.ts';
+import { buildAdvanceScoreEventInput, buildRecordScoreEventInput } from '../do-work/record-score-event.ts';
+import { buildStartLiveMatchInput } from '../do-work/start-live-match.ts';
+import {
+  liveMatchBoardRows,
+  liveMatchBoardProjection,
+  liveMatchScoreView,
+  nextSequenceForMatch,
+  readLiveMatchScoreState,
+  scorePointForSide,
+  scoreWithDelta,
+} from '../read-data/read-live-match-score.ts';
+import { LiveMatchScoreSurface } from '../show/LiveMatchScoreSurface.tsx';
+import type { LiveScorePayload } from '../read-data/live-match-score-types.ts';
+
+vi.mock('@bitfield/runtime-kit', () => ({
+  sendRequestToBitfieldTarget: vi.fn(async () => ({ ok: true })),
+}));
+
+vi.mock('@bitfield/runtime-kit/react', () => ({
+  useBitfieldData: vi.fn(),
+}));
+
+const now = new Date('2026-06-20T12:00:00.000Z');
+
+function seedRows() {
+  const start = buildStartLiveMatchInput({
+    matchId: 'live-match:1',
+    shareId: 'live-match-share:1',
+    initialEventId: 'live-score-event:0',
+    scoringRuleRef: 'scoring-rule:tennis-standard',
+    matchFormat: 'doubles',
+    teamAPlayers: ['Alex', 'Roger'],
+    teamBPlayers: ['Rafa', 'Novak'],
+    createdBy: 'user:1',
+    now,
+  });
+  const event = buildRecordScoreEventInput({
+    eventId: 'live-score-event:1',
+    matchId: 'live-match:1',
+    sequence: 1,
+    actorId: 'user:1',
+    score: {
+      setNumber: 1,
+      teamScores: {
+        'team-a': 2,
+        'team-b': 1,
+      },
+    },
+    now: new Date('2026-06-20T12:01:00.000Z'),
+  });
+  const context = buildLinkMatchContextInput({
+    contextId: 'live-match-context:1',
+    matchId: 'live-match:1',
+    tournamentId: 'tournament:summer',
+    scheduleRowId: 'schedule:1',
+    bracketMatchId: 'bracket:semi',
+    standingId: 'standing:a',
+    leaderboardId: 'leaderboard:club',
+    now,
+  });
+  return [
+    { payload: start.match_record },
+    { payload: start.initial_event_record },
+    { payload: event.event_record },
+    { payload: context.context_record },
+    {
+      payload: {
+        kind: 'live-match-board-schedule-row',
+        scheduleRowId: 'schedule:1',
+        matchId: 'live-match:1',
+        startsAt: '2026-06-20T12:00:00.000Z',
+        courtLabel: 'Court 1',
+        roundLabel: 'Semifinal',
+        status: 'live',
+      },
+    },
+    {
+      payload: {
+        kind: 'live-match-board-bracket-row',
+        bracketMatchId: 'bracket:semi',
+        matchId: 'live-match:1',
+        bracketLabel: 'Summer Draw',
+        roundLabel: 'Semifinal',
+        positionLabel: 'Top half',
+        winnerTeamId: 'team-a',
+        nextMatchId: 'bracket:final',
+      },
+    },
+    {
+      payload: {
+        kind: 'live-match-board-standing-row',
+        standingId: 'standing:a',
+        matchId: 'live-match:1',
+        teamId: 'team-a',
+        teamLabel: 'Alex / Roger',
+        divisionLabel: 'Division A',
+        rank: 1,
+        wins: 3,
+        losses: 0,
+        points: 9,
+      },
+    },
+    {
+      payload: {
+        kind: 'live-match-board-standing-row',
+        standingId: 'standing:a',
+        matchId: 'live-match:1',
+        teamId: 'team-b',
+        teamLabel: 'Rafa / Novak',
+        divisionLabel: 'Division A',
+        rank: 2,
+        wins: 2,
+        losses: 1,
+        points: 6,
+      },
+    },
+    {
+      payload: {
+        kind: 'live-match-board-leaderboard-row',
+        leaderboardId: 'leaderboard:club',
+        matchId: 'live-match:1',
+        subjectId: 'player:alex',
+        label: 'Alex',
+        rank: 1,
+        score: 1200,
+        movement: 'same',
+      },
+    },
+  ];
+}
+
+describe('live-match-score', () => {
+  beforeEach(() => {
+    vi.mocked(sendRequestToBitfieldTarget).mockClear();
+    vi.mocked(useBitfieldData).mockReset();
+  });
+
+  afterEach(() => {
+    cleanup();
+  });
+
+  it('represents the old ScoreFast start-match loop for tennis and doubles', () => {
+    const input = buildStartLiveMatchInput({
+      matchId: 'live-match:scorefast',
+      shareId: 'live-match-share:scorefast',
+      initialEventId: 'live-score-event:start',
+      scoringRuleRef: 'scoring-rule:tennis-standard',
+      matchFormat: 'doubles',
+      teamAPlayers: ['Alex', 'Roger'],
+      teamBPlayers: ['Rafa', 'Novak'],
+      createdBy: 'user:1',
+      now,
+    });
+
+    expect(input.match_record.teams[0].label).toBe('Alex / Roger');
+    expect(input.match_record.share.publicPath).toBe('/live/live-match%3Ascorefast');
+    expect(input.match_record.scoringModel).toMatchObject({ scoreUnit: 'game', gamesToWinSet: 6 });
+    expect(input.initial_event_record.score.teamScores).toEqual({ 'team-a': 0, 'team-b': 0 });
+    expect(buildStartLiveMatchInput({
+      scoringRuleRef: 'scoring-rule:pickleball-11',
+      matchFormat: 'singles',
+      teamAPlayers: ['Alex'],
+      teamBPlayers: ['Roger'],
+    }).match_record.scoringModel).toMatchObject({ scoreUnit: 'point', gamesToWinSet: 11, winBy: 2 });
+    expect(() => buildStartLiveMatchInput({
+      scoringRuleRef: 'scoring-rule:pickleball-11',
+      matchFormat: 'doubles',
+      teamAPlayers: ['Only one'],
+      teamBPlayers: ['Two', 'Players'],
+    })).toThrow(/Doubles needs two players/);
+  });
+
+  it('projects append-only score events into scorer, spectator, and board views', () => {
+    const state = readLiveMatchScoreState(seedRows());
+    const view = liveMatchScoreView(state, 'live-match:1');
+    const boardRows = liveMatchBoardRows(state);
+
+    expect(view?.score.teamScores).toEqual({ 'team-a': 2, 'team-b': 1 });
+    expect(view?.spectator).toMatchObject({
+      matchId: 'live-match:1',
+      publicPath: '/live/live-match%3A1',
+      eventCount: 2,
+    });
+    expect(view?.spectator).not.toHaveProperty('actorId');
+    expect(boardRows).toEqual([expect.objectContaining({
+      label: 'Alex / Roger vs Rafa / Novak',
+      scoreLine: '2-1',
+      tournamentId: 'tournament:summer',
+      bracketMatchId: 'bracket:semi',
+      schedule: expect.objectContaining({ courtLabel: 'Court 1', roundLabel: 'Semifinal' }),
+      bracket: expect.objectContaining({ bracketLabel: 'Summer Draw', nextMatchId: 'bracket:final' }),
+      standings: [
+        expect.objectContaining({ teamLabel: 'Alex / Roger', rank: 1, wins: 3 }),
+        expect.objectContaining({ teamLabel: 'Rafa / Novak', rank: 2, losses: 1 }),
+      ],
+      leaderboard: [
+        expect.objectContaining({ label: 'Alex', rank: 1, score: 1200 }),
+      ],
+    })]);
+    expect(nextSequenceForMatch(state, 'live-match:1')).toBe(2);
+  });
+
+  it('replays offline score taps by sequence without exposing pending taps to spectators', () => {
+    const rows = seedRows();
+    const pendingRow = {
+      payload: buildRecordScoreEventInput({
+        eventId: 'live-score-event:pending',
+        matchId: 'live-match:1',
+        sequence: 2,
+        actorId: 'user:1',
+        localState: 'pending-offline',
+        score: {
+          setNumber: 1,
+          teamScores: {
+            'team-a': 3,
+            'team-b': 1,
+          },
+        },
+        now: new Date('2026-06-20T12:02:00.000Z'),
+      }).event_record,
+    };
+    rows.push(pendingRow);
+
+    const pendingView = liveMatchScoreView(readLiveMatchScoreState(rows), 'live-match:1');
+    const pendingBoardRows = liveMatchBoardRows(readLiveMatchScoreState(rows));
+
+    expect(pendingView?.score.teamScores).toEqual({ 'team-a': 3, 'team-b': 1 });
+    expect(pendingView?.spectator.score.teamScores).toEqual({ 'team-a': 2, 'team-b': 1 });
+    expect(pendingBoardRows[0]?.scoreLine).toBe('2-1');
+
+    rows.push({
+      payload: buildRecordScoreEventInput({
+        eventId: 'live-score-event:reconciled',
+        matchId: 'live-match:1',
+        sequence: 2,
+        actorId: 'user:1',
+        localState: 'reconciled',
+        score: {
+          setNumber: 1,
+          teamScores: {
+            'team-a': 4,
+            'team-b': 1,
+          },
+        },
+        now: new Date('2026-06-20T12:03:00.000Z'),
+      }).event_record,
+    });
+
+    const view = liveMatchScoreView(readLiveMatchScoreState(rows), 'live-match:1');
+
+    expect(view?.score.teamScores).toEqual({ 'team-a': 4, 'team-b': 1 });
+    expect(view?.eventCount).toBe(3);
+    expect(view?.spectator.score.teamScores).toEqual({ 'team-a': 4, 'team-b': 1 });
+    expect(view?.spectator.eventCount).toBe(3);
+  });
+
+  it('advances tennis points through games, tiebreaks, sets, and match completion', () => {
+    const match = buildStartLiveMatchInput({
+      matchId: 'live-match:tennis-rules',
+      shareId: 'live-match-share:tennis-rules',
+      initialEventId: 'live-score-event:rules-start',
+      scoringRuleRef: 'scoring-rule:tennis-standard',
+      matchFormat: 'singles',
+      teamAPlayers: ['Alex'],
+      teamBPlayers: ['Roger'],
+      scoringModel: { setsToWin: 1 },
+      now,
+    }).match_record;
+
+    let score = match.scoringModel.scoreUnit === 'game'
+      ? scorePointForSide(match, {
+        setNumber: 1,
+        teamScores: { 'team-a': 0, 'team-b': 0 },
+        pointScores: { 'team-a': 0, 'team-b': 0 },
+        gameScores: { 'team-a': 0, 'team-b': 0 },
+        setScores: { 'team-a': 0, 'team-b': 0 },
+      }, 'team-a')
+      : undefined;
+
+    expect(score?.displayScores).toEqual({ 'team-a': '15', 'team-b': '0' });
+
+    for (let point = 0; point < 23; point += 1) {
+      score = scorePointForSide(match, score!, 'team-a');
+    }
+
+    expect(score?.gameScores).toEqual({ 'team-a': 0, 'team-b': 0 });
+    expect(score?.setScores).toEqual({ 'team-a': 1, 'team-b': 0 });
+    expect(score?.winnerTeamId).toBe('team-a');
+    expect(score?.scoringPhase).toBe('complete');
+  });
+
+  it('advances pickleball points and derives board standings and leaderboard from real score events', () => {
+    const start = buildStartLiveMatchInput({
+      matchId: 'live-match:pickleball-rules',
+      shareId: 'live-match-share:pickleball-rules',
+      initialEventId: 'live-score-event:pickleball-start',
+      scoringRuleRef: 'scoring-rule:pickleball-11',
+      matchFormat: 'doubles',
+      teamAPlayers: ['Alex', 'Roger'],
+      teamBPlayers: ['Rafa', 'Novak'],
+      scoringModel: { gamesToWinSet: 3 },
+      now,
+    });
+
+    let score = start.initial_event_record.score;
+    for (let point = 0; point < 2; point += 1) {
+      score = scorePointForSide(start.match_record, score, 'team-b');
+    }
+
+    const event = buildAdvanceScoreEventInput({
+      eventId: 'live-score-event:pickleball-finish',
+      match: start.match_record,
+      matchId: start.match_id,
+      currentScore: score,
+      side: 'team-b',
+      sequence: 1,
+      now: new Date('2026-06-20T12:04:00.000Z'),
+    });
+    const state = readLiveMatchScoreState([
+      { payload: start.match_record },
+      { payload: start.initial_event_record },
+      { payload: event.event_record },
+    ]);
+    const projection = liveMatchBoardProjection(state);
+
+    expect(event.event_record.score).toMatchObject({
+      teamScores: { 'team-a': 0, 'team-b': 3 },
+      setScores: { 'team-a': 0, 'team-b': 1 },
+      winnerTeamId: 'team-b',
+    });
+    expect(liveMatchScoreView(state, start.match_id)?.spectator.status).toBe('complete');
+    expect(projection.standings).toEqual([
+      expect.objectContaining({ teamLabel: 'Rafa / Novak', rank: 1, wins: 1, points: 3 }),
+      expect.objectContaining({ teamLabel: 'Alex / Roger', rank: 2, losses: 1, points: 0 }),
+    ]);
+    expect(projection.leaderboard).toEqual([
+      expect.objectContaining({ label: 'Rafa / Novak', rank: 1, score: 1 }),
+      expect.objectContaining({ label: 'Alex / Roger', rank: 2, score: 0 }),
+    ]);
+  });
+
+  it('SCR01 deletion test: a padel GOLDEN-POINT rule scores by win-by-1 at deuce from a DATA row, zero code', () => {
+    // Padel golden point = labeled ladder (0/15/30/40) but NO advantageLabel, so at
+    // deuce (40-40) the very next point WINS the game (win-by-1) — where tennis would
+    // show AD and need a 2-point lead. This proves the game-win constants are read
+    // from the rule MODEL, not a hardcoded tennis literal. The rule reaches this code
+    // path as a `scoringRuleRef` DATA row; no `sport ===` branch exists.
+    const padel = buildStartLiveMatchInput({
+      matchId: 'live-match:padel-rules',
+      shareId: 'live-match-share:padel-rules',
+      initialEventId: 'live-score-event:padel-start',
+      scoringRuleRef: 'scoring-rule:padel-golden-point',
+      matchFormat: 'doubles',
+      teamAPlayers: ['Alex', 'Roger'],
+      teamBPlayers: ['Rafa', 'Novak'],
+      // win the match on one game so the golden-point game win is observable as complete
+      scoringModel: { setsToWin: 1, gamesToWinSet: 1 },
+      now,
+    }).match_record;
+
+    // drive both sides to deuce: 3 points each -> displays 40-40, no winner yet
+    let score: LiveScorePayload = {
+      setNumber: 1,
+      teamScores: { 'team-a': 0, 'team-b': 0 },
+      pointScores: { 'team-a': 0, 'team-b': 0 },
+      gameScores: { 'team-a': 0, 'team-b': 0 },
+      setScores: { 'team-a': 0, 'team-b': 0 },
+    };
+    for (let p = 0; p < 3; p += 1) {
+      score = scorePointForSide(padel, score, 'team-a');
+      score = scorePointForSide(padel, score, 'team-b');
+    }
+    expect(score.displayScores).toEqual({ 'team-a': '40', 'team-b': '40' });
+    expect(score.winnerTeamId).toBeUndefined();
+
+    // golden point: ONE more point to team-a wins the game (win-by-1) -> match complete
+    score = scorePointForSide(padel, score, 'team-a');
+    expect(score.winnerTeamId).toBe('team-a');
+    expect(score.scoringPhase).toBe('complete');
+  });
+
+  it('validates score event sequencing and non-negative whole scores', () => {
+    const score = scoreWithDelta({
+      setNumber: 1,
+      teamScores: {
+        'team-a': 0,
+        'team-b': 4,
+      },
+    }, 'team-a', -1);
+
+    expect(score.teamScores['team-a']).toBe(0);
+    expect(() => buildRecordScoreEventInput({
+      matchId: 'live-match:1',
+      sequence: 0,
+      score,
+    })).toThrow(/sequence/);
+    expect(() => buildRecordScoreEventInput({
+      matchId: 'live-match:1',
+      sequence: 1,
+      score: {
+        setNumber: 1,
+        teamScores: {
+          'team-a': -1,
+          'team-b': 0,
+        },
+      },
+    })).toThrow(/whole numbers/);
+  });
+
+  it('renders match start through the start-match owner action', async () => {
+    vi.mocked(useBitfieldData).mockReturnValue([]);
+
+    render(React.createElement(LiveMatchScoreSurface, { userId: 'user:1' }));
+
+    fireEvent.change(screen.getByPlaceholderText('Player A'), { target: { value: 'Alex' } });
+    fireEvent.change(screen.getByPlaceholderText('Player B'), { target: { value: 'Roger' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Start match' }));
+
+    await waitFor(() => expect(sendRequestToBitfieldTarget).toHaveBeenCalledTimes(1));
+    expect(vi.mocked(sendRequestToBitfieldTarget).mock.calls[0]?.[0]).toMatchObject({
+      target: 'slot::workflow',
+      payload: {
+        definition_id: 'action:live-match-score.start-match',
+        input: {
+          match_record: {
+            scoringRuleRef: 'scoring-rule:tennis-standard',
+            matchFormat: 'singles',
+          },
+          initial_event_record: {
+            score: {
+              teamScores: {
+                'team-a': 0,
+                'team-b': 0,
+              },
+            },
+          },
+        },
+      },
+    });
+  });
+
+  it('renders score taps through append-only score events', async () => {
+    vi.mocked(useBitfieldData).mockReturnValue(seedRows());
+
+    render(React.createElement(LiveMatchScoreSurface, { userId: 'user:1' }));
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Point' })[0]);
+
+    await waitFor(() => expect(sendRequestToBitfieldTarget).toHaveBeenCalledTimes(1));
+    expect(vi.mocked(sendRequestToBitfieldTarget).mock.calls[0]?.[0]).toMatchObject({
+      payload: {
+        definition_id: 'action:live-match-score.record-event',
+        input: {
+          event_record: {
+            matchId: 'live-match:1',
+            sequence: 2,
+            score: {
+              pointScores: {
+                'team-a': 1,
+                'team-b': 0,
+              },
+              displayScores: {
+                'team-a': '15',
+                'team-b': '0',
+              },
+              teamScores: {
+                'team-a': 2,
+                'team-b': 1,
+              },
+            },
+          },
+        },
+      },
+    });
+  });
+});

@@ -1,0 +1,126 @@
+import { describe, it, expect } from '../../../test-helpers/vitest-shim.mjs';
+import { renderLaunchFromChatLaunch } from './render-launch-from-chat-launch.ts';
+
+// A faithful model of the live `cli:claude-stream` chat_launch descriptor
+// (admitted via /tmp/admit-claude-stream-and-select.mjs) — the streaming CLI.
+const CLAUDE_STREAM_LAUNCH = {
+  transport: 'process_session',
+  argv: [
+    'claude',
+    '-p',
+    '--output-format',
+    'stream-json',
+    '--include-partial-messages',
+    '--verbose',
+    { literal: '--model', when: 'model' },
+    { value: 'model', when: 'model' },
+    { value: 'prompt' },
+  ],
+  cwd: '.',
+  stream_parse_spec: {
+    lineFormat: 'jsonl',
+    events: [
+      { when: 'type==stream_event & event.type==content_block_delta & event.delta.type==text_delta', textPaths: ['event.delta.text'] },
+    ],
+  },
+};
+
+describe('renderLaunchFromChatLaunch', () => {
+  it('renders a process_session descriptor with the prompt substituted and stream spec forwarded', () => {
+    const rendered = renderLaunchFromChatLaunch(CLAUDE_STREAM_LAUNCH, { prompt: 'Write a haiku' });
+    expect(rendered).not.toBeNull();
+    const { descriptor, streamParseSpec } = rendered!;
+    // The bare positional {value:'prompt'} became the typed text.
+    expect(descriptor.process.argv[descriptor.process.argv.length - 1]).toBe('Write a haiku');
+    expect(descriptor.process.cwd).toBe('.');
+    expect(descriptor.process.timeout_ms).toBe(300000);
+    expect(descriptor.process.containment).toEqual({
+      kind: 'descendant_effect_contained',
+      pipe_eof_timeout_ms: 1000,
+      publications: [],
+    });
+    expect(streamParseSpec).toEqual(CLAUDE_STREAM_LAUNCH.stream_parse_spec);
+  });
+
+  it('drops both `when:"model"` argv entries when no model is chosen (no dangling --model)', () => {
+    const { descriptor } = renderLaunchFromChatLaunch(CLAUDE_STREAM_LAUNCH, { prompt: 'hi' })!;
+    expect(descriptor.process.argv).not.toContain('--model');
+    // …but includes them when a model IS chosen.
+    const withModel = renderLaunchFromChatLaunch(CLAUDE_STREAM_LAUNCH, { prompt: 'hi', model: 'claude-opus-4-8' })!;
+    const i = withModel.descriptor.process.argv.indexOf('--model');
+    expect(i).toBeGreaterThan(-1);
+    expect(withModel.descriptor.process.argv[i + 1]).toBe('claude-opus-4-8');
+  });
+
+  it('returns null for a non-process_session launch (one-shot fallback)', () => {
+    expect(renderLaunchFromChatLaunch({ ...CLAUDE_STREAM_LAUNCH, transport: 'process' }, { prompt: 'hi' })).toBeNull();
+    expect(renderLaunchFromChatLaunch({ ...CLAUDE_STREAM_LAUNCH, transport: 'http' }, { prompt: 'hi' })).toBeNull();
+    expect(renderLaunchFromChatLaunch(null, { prompt: 'hi' })).toBeNull();
+    expect(renderLaunchFromChatLaunch({}, { prompt: 'hi' })).toBeNull();
+  });
+
+  it('keeps an EMPTY positional slot (not a drop) when a non-optional value is absent', () => {
+    const launch = { transport: 'process_session', argv: ['run', { value: 'prompt' }, 'tail'] };
+    const { descriptor } = renderLaunchFromChatLaunch(launch, {})!;
+    // prompt absent → empty string preserves position; 'tail' stays after it.
+    expect(descriptor.process.argv).toEqual(['run', '', 'tail']);
+  });
+
+  it('drops an optional flag with no value entirely', () => {
+    const launch = { transport: 'process_session', argv: ['run', { value: 'session', optional: true }, 'end'] };
+    const { descriptor } = renderLaunchFromChatLaunch(launch, {})!;
+    expect(descriptor.process.argv).toEqual(['run', 'end']);
+  });
+
+  it("honors an OPEN `when` key beyond new/resume", () => {
+    const launch = { transport: 'process_session', argv: ['x', { literal: '--temp', when: 'temperature' }] };
+    expect(renderLaunchFromChatLaunch(launch, {})!.descriptor.process.argv).toEqual(['x']);
+    expect(renderLaunchFromChatLaunch(launch, { temperature: '0.7' })!.descriptor.process.argv).toEqual(['x', '--temp']);
+  });
+
+  it('applies new/resume structural gating', () => {
+    const launch = { transport: 'process_session', argv: ['x', { literal: '--continue', when: 'resume' }, { literal: '--fresh', when: 'new' }] };
+    expect(renderLaunchFromChatLaunch(launch, {})!.descriptor.process.argv).toEqual(['x', '--fresh']);
+    expect(renderLaunchFromChatLaunch(launch, { resume: true })!.descriptor.process.argv).toEqual(['x', '--continue']);
+  });
+
+  it('returns null when argv renders empty', () => {
+    expect(renderLaunchFromChatLaunch({ transport: 'process_session', argv: [{ value: 'x', optional: true }] }, {})).toBeNull();
+    expect(renderLaunchFromChatLaunch({ transport: 'process_session', argv: [] }, {})).toBeNull();
+  });
+
+  it('passes an inert literal env binding and rejects unresolved authority', () => {
+    const launch = {
+      transport: 'process_session',
+      argv: ['x'],
+      env: [
+        { kind: 'literal', name: 'FOO', value: 'bar', inert: true },
+      ],
+    };
+    const { descriptor } = renderLaunchFromChatLaunch(launch, {})!;
+    expect(descriptor.process.env).toEqual({ FOO: 'bar' });
+    expect(() => renderLaunchFromChatLaunch({
+      ...launch,
+      env: [{ kind: 'credential-handle', name: 'KEY', handleRef: 'h' }],
+    }, {})).toThrow(/explicitly inert literal/);
+  });
+
+  it('renders session_settings.text_grid when the launch declares one', () => {
+    const launch = { transport: 'process_session', argv: ['x'], session_text_grid: { columns: 120, rows: 40 } };
+    const { descriptor } = renderLaunchFromChatLaunch(launch, {})!;
+    expect(descriptor.session_settings).toEqual({ text_grid: { columns: 120, rows: 40 } });
+  });
+
+  it('rejects absolute executable and cwd authority before dispatch', () => {
+    expect(() => renderLaunchFromChatLaunch({
+      transport: 'process_session',
+      argv: ['/usr/bin/claude'],
+      cwd: '.',
+    }, {})).toThrow(/argv\[0\]/);
+    expect(() => renderLaunchFromChatLaunch({
+      transport: 'process_session',
+      argv: ['claude'],
+      cwd: '/tmp/project',
+    }, {})).toThrow(/portable and relative/);
+  });
+});

@@ -1,0 +1,13 @@
+{
+  "name": "make-packages-match-their-source",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Make the packages you choose match their source, in the places you choose, and prove it by reading each place back.",
+  "exports": {
+    ".": "./do-work/make-one-package-match-its-source.mjs"
+  },
+  "dependencies": {
+    "@noble/hashes": "2.3.0"
+  }
+}

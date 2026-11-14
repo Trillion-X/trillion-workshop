@@ -1,0 +1,1375 @@
+{
+  "package": "outside-conversations",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::outside-conversations::published-record::placeable-surface::outside-conversations",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "MessagesSquare",
+        "id": "outside-conversations.panel",
+        "kind": "placeable-surface",
+        "label": "Talk To People And Companies",
+        "material_target": "component:outside-conversations",
+        "order": 157,
+        "package_entry": {
+          "package_name": "outside-conversations",
+          "entry_name": "outside-conversations"
+        },
+        "factflow_ref": "package::outside-conversations::factflow::surface",
+        "audience": "operator",
+        "surface_id": "outside-conversations.panel",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000157:outside-conversations.panel"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::outside-conversations::factflow::surface",
+      "address_mode": "identity_text",
+      "path": [
+        "package-primitive",
+        "factflow"
+      ],
+      "payload": {
+        "kind": "bitfield-eeaf-factflow",
+        "package": "outside-conversations",
+        "label": "Outside conversation surface",
+        "reads": [
+          {
+            "address": "package::outside-conversations::input::outside-conversations",
+            "role": "package-owned outside conversation ledger input"
+          }
+        ],
+        "writes": [
+          {
+            "address": "package::outside-conversations::workflow-action::open",
+            "role": "open durable outside conversation records"
+          },
+          {
+            "address": "package::outside-conversations::workflow-action::add-message-or-event",
+            "role": "append outside message or event proof input"
+          },
+          {
+            "address": "package::outside-conversations::workflow-action::attach-proof",
+            "role": "attach durable proof"
+          },
+          {
+            "address": "package::outside-conversations::workflow-action::extract-promise-or-plan",
+            "role": "record extracted promise or plan"
+          },
+          {
+            "address": "package::outside-conversations::workflow-action::send-result-to-right-package",
+            "role": "route an outcome to the owning package"
+          },
+          {
+            "address": "package::outside-conversations::workflow-action::record-execution-handoff",
+            "role": "record owner-package evidence resolution and dispatch handoff state"
+          },
+          {
+            "address": "package::outside-conversations::workflow-action::close",
+            "role": "record final outcome"
+          },
+          {
+            "address": "package::outside-conversations::workflow-action::revoke",
+            "role": "record revocation or stop proof"
+          }
+        ],
+        "execution_locus": "slot::workflow",
+        "new_slot": false
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::outside-conversations::entry::outside-conversations",
+      "path": [
+        "packages",
+        "outside-conversations",
+        "entries",
+        "outside-conversations"
+      ],
+      "payload": {
+        "entry_name": "outside-conversations",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-talk-to-people-and-companies.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-outside-conversations"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::outside-conversations::input::outside-conversations",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "outside-conversations",
+        "is_default": true,
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "outside-conversations.conversations"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "outside-conversations.conversations",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "outside-conversations",
+        "generated-values",
+        "outside-conversations"
+      ],
+      "payload": {
+        "kind": "generic-record-work-graph",
+        "id": "outside-conversations.work-graph",
+        "label": "Talk To People And Companies",
+        "descriptors": [
+          {
+            "kind": "record_type",
+            "id": "request",
+            "label": "Outside request"
+          },
+          {
+            "kind": "record_type",
+            "id": "person-or-company",
+            "label": "Person or company"
+          },
+          {
+            "kind": "record_type",
+            "id": "way-to-reach",
+            "label": "Way to reach"
+          },
+          {
+            "kind": "record_type",
+            "id": "proof",
+            "label": "Proof"
+          },
+          {
+            "kind": "record_type",
+            "id": "handoff",
+            "label": "Where it goes"
+          },
+          {
+            "kind": "field_descriptor",
+            "id": "summary",
+            "label": "Summary",
+            "paths": [
+              {
+                "path": [
+                  "summary"
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "field_descriptor",
+            "id": "detail",
+            "label": "Detail",
+            "paths": [
+              {
+                "path": [
+                  "detail"
+                ]
+              },
+              {
+                "path": [
+                  "needed_outcome"
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "field_descriptor",
+            "id": "observed-at",
+            "label": "Observed at",
+            "paths": [
+              {
+                "path": [
+                  "observed_at"
+                ]
+              },
+              {
+                "path": [
+                  "opened_at"
+                ]
+              }
+            ]
+          },
+          {
+            "kind": "relationship_descriptor",
+            "id": "linked-record",
+            "label": "Linked record",
+            "from_path": [
+              "id"
+            ],
+            "to_path": [
+              "relationships"
+            ]
+          },
+          {
+            "kind": "rule_descriptor",
+            "id": "presentation-state",
+            "label": "Presentation state",
+            "method": "descriptor.presentation",
+            "params": {
+              "token_path": [
+                "presentation",
+                "token"
+              ],
+              "sentence_path": [
+                "presentation",
+                "sentence"
+              ]
+            }
+          },
+          {
+            "kind": "projection_descriptor",
+            "id": "main-workbench",
+            "label": "Main workbench",
+            "method": "records.by_type_then_time"
+          },
+          {
+            "kind": "proof_descriptor",
+            "id": "proof-required",
+            "label": "Proof required",
+            "method": "relationship.exists",
+            "params": {
+              "relationship_role": "proof"
+            }
+          },
+          {
+            "kind": "handoff_descriptor",
+            "id": "owner-handoff",
+            "label": "Owner handoff",
+            "method": "relationships.by_role",
+            "params": {
+              "relationship_role": "handoff"
+            }
+          },
+          {
+            "kind": "action_descriptor",
+            "id": "open",
+            "label": "Save request",
+            "primary": true,
+            "target": "slot::workflow",
+            "operation": "execute_definition",
+            "workflow_definition_ref": "action:outside-conversations.open"
+          },
+          {
+            "kind": "action_descriptor",
+            "id": "attach-proof",
+            "label": "Attach proof",
+            "target": "slot::workflow",
+            "operation": "execute_definition",
+            "workflow_definition_ref": "action:outside-conversations.attach-proof"
+          },
+          {
+            "kind": "action_descriptor",
+            "id": "record-handoff",
+            "label": "Record handoff",
+            "target": "slot::workflow",
+            "operation": "execute_definition",
+            "workflow_definition_ref": "action:outside-conversations.record-execution-handoff"
+          },
+          {
+            "kind": "action_descriptor",
+            "id": "close",
+            "label": "Close",
+            "target": "slot::workflow",
+            "operation": "execute_definition",
+            "workflow_definition_ref": "action:outside-conversations.close"
+          },
+          {
+            "kind": "action_descriptor",
+            "id": "revoke",
+            "label": "Stop",
+            "target": "slot::workflow",
+            "operation": "execute_definition",
+            "workflow_definition_ref": "action:outside-conversations.revoke"
+          }
+        ],
+        "records": [],
+        "issues": []
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::outside-conversations::primitive-contract",
+      "address_mode": "identity_text",
+      "path": [
+        "package-primitive",
+        "contract"
+      ],
+      "payload": {
+        "kind": "bitfield-package-primitive-contract",
+        "version": 1,
+        "package": "outside-conversations",
+        "capability": "generic-record-work-graph-configuration",
+        "owns": [
+          "record_type",
+          "field_descriptor",
+          "relationship_descriptor",
+          "rule_descriptor",
+          "projection_descriptor",
+          "action_descriptor",
+          "proof_descriptor",
+          "handoff_descriptor"
+        ],
+        "does_not_own": [
+          "workflow execution",
+          "slot lifecycle",
+          "service credentials",
+          "provider SDK calls",
+          "provider model catalog",
+          "permission policy",
+          "speech synthesis",
+          "audio transcription",
+          "calendar writes",
+          "HTTP execution",
+          "process execution",
+          "AI guard policy",
+          "package-specific business outcomes"
+        ],
+        "reuses": [
+          "workflow",
+          "operation-records",
+          "permission-lease",
+          "service-connections",
+          "credentials-vault",
+          "ai-tool-catalog",
+          "ai-action-guard",
+          "speech-generation",
+          "audio-transcription",
+          "calendar-booker",
+          "http-client",
+          "process-session",
+          "screen-arrangement",
+          "screen-look",
+          "ui"
+        ],
+        "address_contract": {
+          "graph": "outside-conversations.conversations"
+        },
+        "decoupling_contract": {
+          "new_slot": false,
+          "execution_boundary": "all writes and transitions are workflow envelopes targeting slot::workflow",
+          "opaque_external_inputs": "outside speech, transcripts, webhooks, provider logs, service events, and destination-supplied text are untrusted until represented by proof records",
+          "no_closed_channel_enum": true,
+          "provider_models": "provider/model/voice choices are refs or process_profile data owned by ai-cli-launch-adapters, speech-generation, audio-transcription, service-connections, and credentials-vault"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::outside-conversations::public-source::read-data",
+      "path": [
+        "packages",
+        "outside-conversations",
+        "public-sources",
+        "read-data"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "read-data/read-outside-conversations.ts",
+        "exports": [
+          "decodeOutsideConversationsSurface",
+          "readGenericRecordWorkGraph"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::outside-conversations::public-source::do-work",
+      "path": [
+        "packages",
+        "outside-conversations",
+        "public-sources",
+        "do-work"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work",
+        "exports": [
+          "buildGenericRecordWorkActionInput",
+          "buildGenericRecordWorkActionRequest",
+          "canInvokeGenericRecordWorkAction",
+          "buildOutsideConversationWorkflowRequest",
+          "buildOpenOutsideConversationSubmission",
+          "startOutsideConversation"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::outside-conversations::workflow-action::open",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:outside-conversations.open",
+        "kind": "action",
+        "is_active": true,
+        "name": "outside-conversations.open",
+        "description": "Write the package-owned person/company, way-to-reach, conversation, initial message/event, proof, initial blocker, and surface records for a new outside conversation.",
+        "input_schema": {
+          "conversation_ref": "string",
+          "person_or_company_ref": "string",
+          "way_to_reach_ref": "string",
+          "initial_event_ref": "string",
+          "initial_proof_ref": "string",
+          "initial_blocker_ref": "string",
+          "person_or_company_record": "object",
+          "way_to_reach_record": "object",
+          "conversation_record": "object",
+          "initial_event_record": "object",
+          "proof_record": "object",
+          "initial_blocker_record": "object",
+          "surface_state": "object"
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "person_or_company_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::outside-conversations::person-or-company::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "person_or_company_ref"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "person_or_company_record"
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "way_to_reach_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::outside-conversations::way-to-reach::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "way_to_reach_ref"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "way_to_reach_record"
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "conversation_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::outside-conversations::conversation::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "conversation_ref"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "conversation_record"
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "initial_event_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::outside-conversations::message-or-event::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "initial_event_ref"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "initial_event_record"
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "initial_proof_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::outside-conversations::proof::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "initial_proof_ref"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "proof_record"
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "initial_blocker_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::outside-conversations::blocker::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "initial_blocker_ref"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "initial_blocker_record"
+                    }
+                  }
+                },
+                {
+                  "address": "outside-conversations.conversations",
+                  "path": [
+                    "packages",
+                    "outside-conversations",
+                    "generated-values",
+                    "outside-conversations"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "surface_state"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::outside-conversations::workflow-action::add-message-or-event",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:outside-conversations.add-message-or-event",
+        "kind": "action",
+        "is_active": true,
+        "name": "outside-conversations.add-message-or-event",
+        "description": "Write one outside message or event record and refresh the package-owned surface projection.",
+        "input_schema": {
+          "record_ref": "string",
+          "record": "object",
+          "surface_state": "object"
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::outside-conversations::message-or-event::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "record_ref"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record"
+                    }
+                  }
+                },
+                {
+                  "address": "outside-conversations.conversations",
+                  "path": [
+                    "packages",
+                    "outside-conversations",
+                    "generated-values",
+                    "outside-conversations"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "surface_state"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::outside-conversations::workflow-action::attach-proof",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:outside-conversations.attach-proof",
+        "kind": "action",
+        "is_active": true,
+        "name": "outside-conversations.attach-proof",
+        "description": "Write one outside-conversation proof record and refresh the package-owned surface projection.",
+        "input_schema": {
+          "record_ref": "string",
+          "record": "object",
+          "surface_state": "object"
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::outside-conversations::proof::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "record_ref"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record"
+                    }
+                  }
+                },
+                {
+                  "address": "outside-conversations.conversations",
+                  "path": [
+                    "packages",
+                    "outside-conversations",
+                    "generated-values",
+                    "outside-conversations"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "surface_state"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::outside-conversations::workflow-action::extract-promise-or-plan",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:outside-conversations.extract-promise-or-plan",
+        "kind": "action",
+        "is_active": true,
+        "name": "outside-conversations.extract-promise-or-plan",
+        "description": "Write one promise or plan extracted from proof-backed conversation evidence and refresh the surface projection.",
+        "input_schema": {
+          "record_ref": "string",
+          "record": "object",
+          "surface_state": "object"
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::outside-conversations::promise-or-plan::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "record_ref"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record"
+                    }
+                  }
+                },
+                {
+                  "address": "outside-conversations.conversations",
+                  "path": [
+                    "packages",
+                    "outside-conversations",
+                    "generated-values",
+                    "outside-conversations"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "surface_state"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::outside-conversations::workflow-action::send-result-to-right-package",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:outside-conversations.send-result-to-right-package",
+        "kind": "action",
+        "is_active": true,
+        "name": "outside-conversations.send-result-to-right-package",
+        "description": "Write one proof-backed routing record that points the outside-conversation result to the owning package.",
+        "input_schema": {
+          "record_ref": "string",
+          "record": "object",
+          "surface_state": "object"
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::outside-conversations::send-result-to-right-package::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "record_ref"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record"
+                    }
+                  }
+                },
+                {
+                  "address": "outside-conversations.conversations",
+                  "path": [
+                    "packages",
+                    "outside-conversations",
+                    "generated-values",
+                    "outside-conversations"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "surface_state"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::outside-conversations::workflow-action::record-execution-handoff",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:outside-conversations.record-execution-handoff",
+        "kind": "action",
+        "is_active": true,
+        "name": "outside-conversations.record-execution-handoff",
+        "description": "Write resolved blocker state, execution handoff state, and refresh the outside conversation surface after owner packages publish evidence.",
+        "input_schema": {
+          "blocker_ref": "string",
+          "execution_handoff_ref": "string",
+          "updated_blocker_record": "object",
+          "execution_handoff_record": "object",
+          "surface_state": "object"
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "blocker_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::outside-conversations::blocker::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "blocker_ref"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "updated_blocker_record"
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "execution_handoff_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::outside-conversations::execution-handoff::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "execution_handoff_ref"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "execution_handoff_record"
+                    }
+                  }
+                },
+                {
+                  "address": "outside-conversations.conversations",
+                  "path": [
+                    "packages",
+                    "outside-conversations",
+                    "generated-values",
+                    "outside-conversations"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "surface_state"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::outside-conversations::workflow-action::close",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:outside-conversations.close",
+        "kind": "action",
+        "is_active": true,
+        "name": "outside-conversations.close",
+        "description": "Write one final outcome record and refresh the package-owned surface projection.",
+        "input_schema": {
+          "record_ref": "string",
+          "record": "object",
+          "surface_state": "object"
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::outside-conversations::final-result::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "record_ref"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record"
+                    }
+                  }
+                },
+                {
+                  "address": "outside-conversations.conversations",
+                  "path": [
+                    "packages",
+                    "outside-conversations",
+                    "generated-values",
+                    "outside-conversations"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "surface_state"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::outside-conversations::workflow-action::revoke",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:outside-conversations.revoke",
+        "kind": "action",
+        "is_active": true,
+        "name": "outside-conversations.revoke",
+        "description": "Write proof that an outside conversation must stop or has had permission revoked, then refresh the surface projection.",
+        "input_schema": {
+          "record_ref": "string",
+          "record": "object",
+          "surface_state": "object"
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record_ref"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::outside-conversations::proof::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "record_ref"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record"
+                    }
+                  }
+                },
+                {
+                  "address": "outside-conversations.conversations",
+                  "path": [
+                    "packages",
+                    "outside-conversations",
+                    "generated-values",
+                    "outside-conversations"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "surface_state"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-outside-conversations",
+      "source_path": "built-stored-bytes/entry-bytes-outside-conversations",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-outside-conversations.source-closure.json"
+    }
+  ]
+}

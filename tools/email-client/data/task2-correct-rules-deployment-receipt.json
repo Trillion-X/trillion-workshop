@@ -1,0 +1,78 @@
+{
+  "timestamp": "2026-07-19T02:13:07.445Z",
+  "deployment": {
+    "shell_url": "http://127.0.0.1:3012",
+    "partition": "bitfield-studio",
+    "total_records": 10,
+    "write_ok": true,
+    "write_count": 10,
+    "cursor_advanced": true
+  },
+  "readback_verification": {
+    "total": 10,
+    "found": 10,
+    "receipts": [
+      {
+        "address_label": "action:email-classify:add-receipts-label",
+        "address_mode": "identity_text",
+        "found": true,
+        "verification": "confirmed"
+      },
+      {
+        "address_label": "action:email-classify:add-pitches-label",
+        "address_mode": "identity_text",
+        "found": true,
+        "verification": "confirmed"
+      },
+      {
+        "address_label": "action:email-classify:add-important-label",
+        "address_mode": "identity_text",
+        "found": true,
+        "verification": "confirmed"
+      },
+      {
+        "address_label": "action:email-classify:add-newsletters-label",
+        "address_mode": "identity_text",
+        "found": true,
+        "verification": "confirmed"
+      },
+      {
+        "address_label": "action:email-classify:add-team-label",
+        "address_mode": "identity_text",
+        "found": true,
+        "verification": "confirmed"
+      },
+      {
+        "address_label": "trigger:email-classify:receipts",
+        "address_mode": "identity_text",
+        "found": true,
+        "verification": "confirmed"
+      },
+      {
+        "address_label": "trigger:email-classify:pitches",
+        "address_mode": "identity_text",
+        "found": true,
+        "verification": "confirmed"
+      },
+      {
+        "address_label": "trigger:email-classify:vip-important",
+        "address_mode": "identity_text",
+        "found": true,
+        "verification": "confirmed"
+      },
+      {
+        "address_label": "trigger:email-classify:newsletters",
+        "address_mode": "identity_text",
+        "found": true,
+        "verification": "confirmed"
+      },
+      {
+        "address_label": "trigger:email-classify:team",
+        "address_mode": "identity_text",
+        "found": true,
+        "verification": "confirmed"
+      }
+    ]
+  },
+  "note": "found:true is necessary but not sufficient. Functional acceptance deferred to post-boot reboot where loader census must show 5 rules delivered."
+}

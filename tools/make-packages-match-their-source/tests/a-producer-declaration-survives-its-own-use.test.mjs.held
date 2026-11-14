@@ -1,0 +1,120 @@
+// packages/make-packages-match-their-source/tests/a-producer-declaration-survives-its-own-use.test.mjs
+//
+// A stored_bytes row can say two different things, and until 2026-09-05 writing the
+// first deleted the second:
+//
+//   source_path  WHERE the bytes are
+//   build        WHAT MAKES the bytes
+//
+// Both materializers wrote `source_path` and then `delete`d `build`, on the reasoning
+// that a materialized row no longer needs instructions. It does. `build` is the ONLY
+// place in the corpus naming which producer makes a given blob, so deleting it on use
+// destroyed the record by the act of using it, and the loop that skips rows without a
+// `build` block then could not tell "already materialized" from "never had
+// instructions". The step was one-way.
+//
+// WHAT IT COST, so nobody re-argues this from taste. Commit e0022dc3e ran the sibling
+// converter across the corpus on 2026-09-02: 13,659 files, 805 build blocks removed.
+// Package ENTRY BUNDLES were unharmed, because their producer is bound through
+// `payload.kind === 'bitfield-package-entry'` and the delete never reached that. Rows
+// that are NOT entry bundles had no second binding, and three process scripts in
+// `hosted-public-app` are still stranded: `scripts/build-node-process-bytes.mjs` exists,
+// zero manifests declare it, and its only consumer is its own test. The script survived
+// and the capability did not, which is the distinction this file exists to keep true.
+//
+// FIXTURE SHAPE. A temp package set with ONE package holding ONE stored_bytes row that
+// declares a `build` block and already has its built output on disk. That is exactly the
+// state the deleted line fired on, and it needs no entry rows: with no
+// `bitfield-package-entry` thing, the entry loop is empty and this exercises the
+// stored-bytes normalization branch alone.
+import assert from "node:assert/strict";
+import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import test from "node:test";
+
+import { materializePackageEntryBytes } from "../do-work/materialize-package-entry-bytes-lib.mjs";
+
+const PRODUCER = {
+  sequence: {
+    inputs: [],
+    input_trees: [],
+    steps: [{
+      name: "build",
+      process: { argv: ["node", "make-the-bytes.mjs"], cwd: ".", containment: { kind: "leaf" } },
+      predecessor_outputs: [],
+    }],
+  },
+  output: { step: "build", mount_path: ".bitfield-build-output" },
+};
+
+const aSetWithABuiltRow = async (storedBytesRow) => {
+  const setRoot = await mkdtemp(join(tmpdir(), "producer-declaration-"));
+  const packageRoot = join(setRoot, "packages", "example");
+  await mkdir(join(packageRoot, "built-stored-bytes"), { recursive: true });
+  await writeFile(join(packageRoot, "built-stored-bytes", "example-bundle"), "the bytes\n");
+  await writeFile(
+    join(packageRoot, "things-to-store-and-run.json"),
+    `${JSON.stringify({ package: "example", things: [storedBytesRow] }, null, 2)}\n`,
+  );
+  return { setRoot, packageRoot };
+};
+
+const manifestAfterRun = async ({ setRoot, packageRoot }) => {
+  await materializePackageEntryBytes({ setRoot, packageNames: ["example"], log: () => {} });
+  const data = JSON.parse(await readFile(join(packageRoot, "things-to-store-and-run.json"), "utf8"));
+  return data.things[0];
+};
+
+test("the build block survives being materialized", async () => {
+  const fixture = await aSetWithABuiltRow({
+    type: "stored_bytes",
+    name: "example-bundle",
+    build: PRODUCER,
+  });
+  const row = await manifestAfterRun(fixture);
+
+  assert.equal(row.source_path, "built-stored-bytes/example-bundle", "the row points at the built output");
+  assert.ok(row.build, "the producer declaration is still there");
+  assert.deepEqual(
+    row.build.sequence.steps[0].process.argv,
+    ["node", "make-the-bytes.mjs"],
+    "and it still names the exact producer, which is the only record of it anywhere",
+  );
+});
+
+test("a row already pointing at its output is not rewritten", async () => {
+  // The old condition fired on `Object.hasOwn(row, 'build')`, so once the delete goes it
+  // would have reported a change on every run forever, rewriting the manifest to the
+  // bytes it already held. Idempotence here is not cosmetic: the loader reads this file
+  // to decide what a package contains, and a needless write is a torn-read window.
+  const fixture = await aSetWithABuiltRow({
+    type: "stored_bytes",
+    name: "example-bundle",
+    source_path: "built-stored-bytes/example-bundle",
+    build: PRODUCER,
+  });
+  const before = await readFile(join(fixture.packageRoot, "things-to-store-and-run.json"), "utf8");
+  await manifestAfterRun(fixture);
+  const after = await readFile(join(fixture.packageRoot, "things-to-store-and-run.json"), "utf8");
+
+  assert.equal(after, before, "a second run changes nothing");
+});
+
+test("a row whose output is absent is left alone entirely", async () => {
+  // The guard must not start claiming a source_path for bytes that were never built.
+  const setRoot = await mkdtemp(join(tmpdir(), "producer-declaration-"));
+  const packageRoot = join(setRoot, "packages", "example");
+  await mkdir(packageRoot, { recursive: true });
+  await writeFile(
+    join(packageRoot, "things-to-store-and-run.json"),
+    `${JSON.stringify({
+      package: "example",
+      things: [{ type: "stored_bytes", name: "never-built", build: PRODUCER }],
+    }, null, 2)}\n`,
+  );
+  const row = await manifestAfterRun({ setRoot, packageRoot });
+
+  assert.equal(row.source_path, undefined, "no output on disk means no source_path is invented");
+  assert.ok(row.build, "and the declaration is untouched");
+});

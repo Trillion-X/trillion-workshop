@@ -1,0 +1,94 @@
+{
+  "timestamp": "2026-07-19T01:35:35.763Z",
+  "method": "applyCurrentStateWritesLive (engine.operation.label-addressed)",
+  "addressing_mode": "label_hash (original label strings)",
+  "shell_url": "http://127.0.0.1:3012",
+  "partition": "bitfield-studio",
+  "total_attempts": 5,
+  "success": true,
+  "receipts": [
+    {
+      "label": "Auto-classify receipts",
+      "address_mode": "label_hash",
+      "found": false,
+      "verified_retracted": true
+    },
+    {
+      "label": "Auto-classify pitches",
+      "address_mode": "label_hash",
+      "found": false,
+      "verified_retracted": true
+    },
+    {
+      "label": "Auto-classify VIP senders to Important",
+      "address_mode": "label_hash",
+      "found": false,
+      "verified_retracted": true
+    },
+    {
+      "label": "Auto-classify newsletters",
+      "address_mode": "label_hash",
+      "found": false,
+      "verified_retracted": true
+    },
+    {
+      "label": "Auto-classify team mail",
+      "address_mode": "label_hash",
+      "found": false,
+      "verified_retracted": true
+    }
+  ],
+  "writeResult": {
+    "ok": true,
+    "dryRun": false,
+    "writeCount": 5,
+    "writeReply": {
+      "write_count": 5
+    },
+    "beforeCursor": 3285964760,
+    "afterCursor": 3285965745,
+    "cursorAdvanced": true,
+    "verification": [
+      {
+        "ok": true,
+        "partition_label": "bitfield-studio",
+        "address_label": "Auto-classify receipts",
+        "removed": true,
+        "found": false,
+        "payloadBytes": 0
+      },
+      {
+        "ok": true,
+        "partition_label": "bitfield-studio",
+        "address_label": "Auto-classify pitches",
+        "removed": true,
+        "found": false,
+        "payloadBytes": 0
+      },
+      {
+        "ok": true,
+        "partition_label": "bitfield-studio",
+        "address_label": "Auto-classify VIP senders to Important",
+        "removed": true,
+        "found": false,
+        "payloadBytes": 0
+      },
+      {
+        "ok": true,
+        "partition_label": "bitfield-studio",
+        "address_label": "Auto-classify newsletters",
+        "removed": true,
+        "found": false,
+        "payloadBytes": 0
+      },
+      {
+        "ok": true,
+        "partition_label": "bitfield-studio",
+        "address_label": "Auto-classify team mail",
+        "removed": true,
+        "found": false,
+        "payloadBytes": 0
+      }
+    ]
+  }
+}

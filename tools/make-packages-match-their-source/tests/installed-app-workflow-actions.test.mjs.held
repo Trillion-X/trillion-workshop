@@ -1,0 +1,234 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import test from "node:test";
+import { convergeInstalledPackageSource } from "../do-work/make-one-package-match-its-source.mjs";
+import { installedConvergenceOptionsFromArgs } from "../do-work/run-make-packages-match-their-source.mjs";
+
+test("installed-app CLI accepts and forwards explicit generic adoption", () => {
+  assert.deepEqual(installedConvergenceOptionsFromArgs([
+    "--app-id", "selected-app",
+    "--package", "future-product-records",
+    "--dry-run",
+    "--adopt-unversioned-source-records",
+  ]), {
+    appId: "selected-app",
+    packageName: "future-product-records",
+    dryRun: true,
+    adoptUnversionedSourceRecords: true,
+  });
+});
+
+test("installed-app CLI has no caller path, executable, transport, staging, or review escape", () => {
+  for (const forbidden of [
+    "--package-set-folder", "--packages-source-root", "--package-loader",
+    "--engine", "--status-file", "--places", "--scheme",
+    "--output", "--workspace", "--staging", "--commit", "--revision",
+    "--reviewed-proposal-multihash", "--expected-current-version-multihash",
+  ]) {
+    assert.throws(
+      () => installedConvergenceOptionsFromArgs([
+        "--app-id", "selected-app", "--package", "selected-package", forbidden, "caller-value",
+      ]),
+      new RegExp(`unsupported package convergence argument: ${forbidden.replaceAll("-", "\\-")}`),
+    );
+  }
+  assert.throws(
+    () => installedConvergenceOptionsFromArgs([
+      "--app-id", "selected-app", "--app-id", "another-app", "--package", "selected-package",
+    ]),
+    /--app-id may be named only once/,
+  );
+});
+
+test("bootstrap uses stable app identity and exactly the native report/apply owner", async () => {
+  for (const dryRun of [true, false]) {
+    const session = {};
+    const expected = {operation_count: 2, retract_count: 0};
+    const actual = await convergeInstalledPackageSource({appId:"selected-app", packageName:"selected-package", dryRun}, {
+      start: async selector => { assert.deepEqual(selector, {appId:"selected-app"}); return session; },
+      send: async (selected, target, input) => {
+        assert.equal(selected, session);
+        assert.equal(target, dryRun ? "package-set-runtime-state.report-package-source-delta" : "package-set-runtime-state.apply-package-source-convergence");
+        assert.deepEqual(input, {package:"selected-package"});
+        return expected;
+      },
+    });
+    assert.equal(actual, expected);
+  }
+});
+
+test("bootstrap forwards explicit generic adoption without naming a product", async () => {
+  await convergeInstalledPackageSource({
+    appId: "selected",
+    packageName: "future-product-records",
+    dryRun: true,
+    adoptUnversionedSourceRecords: true,
+  }, {
+    start: async () => ({}),
+    send: async (_session, target, input) => {
+      assert.equal(target, "package-set-runtime-state.report-package-source-delta");
+      assert.deepEqual(input, {
+        package: "future-product-records",
+        adopt_unversioned_source_records: true,
+      });
+      return {};
+    },
+  });
+});
+
+test("bootstrap never sends a review binding on a report and omits it for additive apply", async () => {
+  for (const dryRun of [true, false]) {
+    await convergeInstalledPackageSource({appId:"selected", packageName:"selected", dryRun}, {
+      start: async () => ({}),
+      send: async (_session, _target, input) => {
+        assert.deepEqual(input, {package:"selected"});
+        return {};
+      },
+    });
+  }
+});
+
+const descriptor = JSON.parse(readFileSync(new URL("../things-to-store-and-run.json", import.meta.url), "utf8"));
+const actions = new Map(
+  descriptor.things
+    .filter((thing) => thing?.payload?.kind === "action")
+    .map((thing) => [thing.payload.id, thing.payload]),
+);
+
+test("verified package-set source action is inspection-only", () => {
+  const action = actions.get("action:current-verified-package-set-source");
+  assert.match(action.description, /without changing live records/);
+  assert.equal(action.steps[0].kind, "ask");
+  assert.equal(action.steps[0].config.name, "package-set-runtime-state.current-verified-package-set-source");
+  assert.deepEqual(action.steps[0].config.input, {});
+});
+
+function argvFor(id) {
+  return actions.get(id).steps.find((step) => step.id === "run").config.input.argv;
+}
+
+test("native source compilation accepts package identity and no host authority overrides", () => {
+  const action = actions.get("action:compile-current-app-package-source");
+  assert.deepEqual(action.input_schema.required, ["package"]);
+  assert.deepEqual(Object.keys(action.input_schema.properties), ["package"]);
+  assert.equal(action.input_schema.additionalProperties, false);
+  assert.deepEqual(action.steps[0], {
+    id: "compile", kind: "ask", config: {
+      name: "package-set-runtime-state.compile-package-delta-source",
+      input: {package: {$kind: "binding", select: {from: "input", path: "package"}}},
+    },
+  });
+  assert.equal(JSON.stringify(action).includes("compute.process"), false);
+  assert.equal(action.steps.at(-1).config.value.select.key, "compile");
+});
+
+test("signed packages can enter a running app without already existing in its source bundle", () => {
+  const action = actions.get("action:install-signed-packages-from-pointers");
+  assert.ok(action, "the live signed-package installer must be published");
+  assert.deepEqual(action.input_schema.required, [
+    "package_set",
+    "source_package_set",
+    "package_identities",
+    "package_file_download_pointer_object_keys",
+    "publisher_trust_root_refs",
+  ]);
+  assert.equal(action.input_schema.additionalProperties, false);
+  assert.deepEqual(action.steps[0], {
+    id: "install",
+    kind: "ask",
+    config: {
+      name: "package-files.install-packages-from-pointers",
+      input: {$kind: "binding", select: {from: "input", path: ""}},
+    },
+  });
+  assert.equal(action.steps.at(-1).config.value.select.key, "install");
+  assert.doesNotMatch(JSON.stringify(action), /compute\.process|host path|carrier|dmg|bundle_version/i);
+});
+
+test("installed-app workflow actions select app identity without fabricating HTTP addressing", () => {
+  for (const id of [
+    "action:report-installed-app-package-source-delta",
+    "action:apply-installed-app-package-source-convergence",
+  ]) {
+    const action = actions.get(id);
+    assert.ok(action, `${id} must be published`);
+    assert.deepEqual(action.input_schema.required, ["package"]);
+    assert.equal(action.input_schema.additionalProperties, false);
+    assert.deepEqual(Object.keys(action.input_schema.properties), ["package", "adopt_unversioned_source_records"]);
+    assert.equal(action.steps[0].kind, "ask");
+    assert.match(action.steps[0].config.name, /^package-set-runtime-state\./);
+    assert.deepEqual(action.steps[0].config.input.adopt_unversioned_source_records,
+      {$kind:"binding", select:{from:"input", path:"adopt_unversioned_source_records"}});
+    assert.equal(action.steps[0].config.input.reviewed_proposal_multihash, undefined);
+    assert.doesNotMatch(JSON.stringify(action), /package_set_folder|package_loader|compute\.process|forwarding_socket|bf-fwd-/);
+  }
+});
+
+test("remote report runs inside the native owner with exact destination DATA and no helper process", () => {
+  const action = actions.get("action:report-package-source-delta");
+  assert.ok(action);
+  assert.deepEqual(action.input_schema.required, [
+    "package", "engine_host", "target_package_set", "target_partition", "engine_scheme",
+  ]);
+  assert.deepEqual(Object.keys(action.input_schema.properties), [
+    "package", "adopt_unversioned_source_records", "engine_host", "target_package_set", "target_partition", "engine_scheme",
+  ]);
+  assert.deepEqual(action.steps[0], {
+    id: "run",
+    kind: "ask",
+    config: {
+      name: "package-set-runtime-state.report-package-source-delta",
+      input: {
+        package: {$kind:"binding", select:{from:"input", path:"package"}},
+        adopt_unversioned_source_records: {$kind:"binding", select:{from:"input", path:"adopt_unversioned_source_records"}},
+        destination: {
+          engine_host: {$kind:"binding", select:{from:"input", path:"engine_host"}},
+          engine_scheme: {$kind:"binding", select:{from:"input", path:"engine_scheme"}},
+          package_set: {$kind:"binding", select:{from:"input", path:"target_package_set"}},
+          partition: {$kind:"binding", select:{from:"input", path:"target_partition"}},
+        },
+      },
+    },
+  });
+  assert.doesNotMatch(JSON.stringify(action), /compute\.process|package_loader|package_set_folder|run-make-packages/);
+});
+
+test("remote apply derives its basis inside the owner and contains no helper-process escape", () => {
+  const action = actions.get("action:apply-package-source-convergence");
+  assert.ok(action);
+  assert.deepEqual(action.input_schema.required, [
+    "package", "engine_host", "target_package_set", "target_partition", "engine_scheme",
+  ]);
+  assert.equal(action.steps[0].config.name, "package-set-runtime-state.apply-package-source-convergence");
+  assert.doesNotMatch(JSON.stringify(action), /expected_current_version_multihash|expected_remote_snapshot_cursor/);
+  assert.doesNotMatch(JSON.stringify(action), /compute\.process|package_loader|package_set_folder|run-make-packages/);
+});
+
+test("convergence actions cannot reintroduce caller-path helper processes or oversized timeouts", () => {
+  for (const id of ["action:report-package-source-delta", "action:apply-package-source-convergence"]) {
+    const action = actions.get(id);
+    assert.ok(action, `${id} must be published`);
+    const encoded = JSON.stringify(action);
+    assert.doesNotMatch(encoded, /compute\.process|run-make-packages|package_set_folder|package_loader|\/private\/|\/tmp\//);
+    const descriptors = action.steps
+      .flatMap((step) => step?.config?.input ? [step.config.input] : [])
+      .filter((input) => input && typeof input === "object");
+    for (const input of descriptors) {
+      const timeout = input?.descriptor?.process?.timeout_ms;
+      if (timeout !== undefined) assert.ok(timeout <= 300000, `${id} timeout exceeds the runtime ceiling`);
+    }
+  }
+});
+
+test("dry-run and mutating installed-app actions cannot be confused", () => {
+  assert.equal(actions.get("action:report-installed-app-package-source-delta").steps[0].config.name, "package-set-runtime-state.report-package-source-delta");
+  assert.equal(actions.get("action:apply-installed-app-package-source-convergence").steps[0].config.name, "package-set-runtime-state.apply-package-source-convergence");
+});
+
+test("the declared compatibility loader is portable and delegates to the real package loader", () => {
+  const source = readFileSync(new URL("../do-work/package-loader.mjs", import.meta.url), "utf8");
+  assert.match(source, /^#!\/bin\/bash/);
+  assert.match(source, /bitfield-runtime-kit\/target\/release\/package-loader/);
+  assert.doesNotMatch(source, /\/Users\//);
+  assert.doesNotMatch(source, /package-entry-byte-build-lib/);
+});

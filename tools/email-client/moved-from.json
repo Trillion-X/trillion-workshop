@@ -1,0 +1,273 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages: each names its source path and commit, the identity of its source bytes and of its bytes here. The first commit that holds them is the byte copy; later commits change import paths.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "email-address-made-up",
+      "find": "\\\\\u00750075007500750062rian+personal\u0040gmail.com",
+      "replace": "alex+personal@example.com",
+      "means": "An alias address of a real person; a public tree holds made-up addresses only."
+    },
+    {
+      "id": "email-address-support-made-up",
+      "find": "\\\\\u00750075007500750062rian+support\u0040gmail.com",
+      "replace": "alex+support@example.com",
+      "means": "An alias address of a real person; a public tree holds made-up addresses only."
+    },
+    {
+      "id": "proof-address-made-up",
+      "find": "\\\\u0075007500750070roof-account\u0040gmail.com",
+      "replace": "proof-account@example.com",
+      "means": "A proof mailbox address; a public tree holds made-up addresses only."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/email-client/__tests__/email-client-backend.test.mjs",
+      "commit": "b2503a6f793034178914991a4de30621982eeecc",
+      "to": "tools/email-client/__tests__/email-client-backend.test.mjs",
+      "source_identity": "1f:8296dd4e5d6ff8d6de33538e088e6d234ec36d12fe0dbc0824bff8f35706462c",
+      "identity": "1f:8296dd4e5d6ff8d6de33538e088e6d234ec36d12fe0dbc0824bff8f35706462c"
+    },
+    {
+      "from": "packages/email-client/__tests__/email-client-ui.test.ts",
+      "commit": "1dc651477ddd29b842065ab2b8cc774a4aa28a74",
+      "to": "tools/email-client/__tests__/email-client-ui.test.ts",
+      "source_identity": "1f:e721c8d8dedc03f739ac851fc37ef618a07d44a9ce74472b9c82a0f4c14c16dc",
+      "identity_at_move": "1f:e721c8d8dedc03f739ac851fc37ef618a07d44a9ce74472b9c82a0f4c14c16dc",
+      "byte_copy_commit": "090e34111c6224eaf8713fe3b82b07bd771c79a2"
+    },
+    {
+      "from": "packages/email-client/data/T2-write-batch-payload.json",
+      "commit": "a0f3e5e393add0de0ac987779b5313047fad7952",
+      "to": "tools/email-client/data/T2-write-batch-payload.json",
+      "calls": [
+        "proof-address-made-up"
+      ],
+      "source_identity": "1f:7e6804afe44018db25f3fb33fbf5b25db49cee3eac9828b5ffe6ae870411ca09",
+      "identity": "1f:4ed762714b589f988fa9171272a66f50cd237ac2931930aac32eabc00d149ee5"
+    },
+    {
+      "from": "packages/email-client/data/T3-route-descriptor-payload.json",
+      "commit": "fca0627748b1e484f960b96190b79d439f399242",
+      "to": "tools/email-client/data/T3-route-descriptor-payload.json",
+      "calls": [
+        "proof-address-made-up"
+      ],
+      "source_identity": "1f:6dc22816c21253ddff0bdb2a676c29cd3989f93a37f410eeff34751005300db5",
+      "identity": "1f:d06e52cc34d314059741810eee2615184539d8273eaa8d294b2d058be0821adf"
+    },
+    {
+      "from": "packages/email-client/data/T4-write-batch-payload.json",
+      "commit": "e30e45ca72e7739018abc9f22192df229bd92f5a",
+      "to": "tools/email-client/data/T4-write-batch-payload.json",
+      "source_identity": "1f:7a82e358890a8b80ee3e40f58176e9877f26ff070d44de0e9556da1e890329c9",
+      "identity": "1f:7a82e358890a8b80ee3e40f58176e9877f26ff070d44de0e9556da1e890329c9"
+    },
+    {
+      "from": "packages/email-client/data/T6-emergent-configurations-35-plus.json",
+      "commit": "5ba45f8c92b45931f44f882e5ed3607b1c0f23b7",
+      "to": "tools/email-client/data/T6-emergent-configurations-35-plus.json",
+      "source_identity": "1f:95203fd8ec37d54994f5542e2e1e80fc6f7d2a00cad5dfb12a2eff60bc6d63af",
+      "identity": "1f:95203fd8ec37d54994f5542e2e1e80fc6f7d2a00cad5dfb12a2eff60bc6d63af"
+    },
+    {
+      "from": "packages/email-client/data/T6-live-readback-receipts-full.json",
+      "commit": "2e8ff2cc29d7456b9f6ed76e67b22966ad92a524",
+      "to": "tools/email-client/data/T6-live-readback-receipts-full.json",
+      "source_identity": "1f:deb7160bf9c4ad6e892484cafee655d7f2d2c10fee00eb204435634885694146",
+      "identity": "1f:deb7160bf9c4ad6e892484cafee655d7f2d2c10fee00eb204435634885694146"
+    },
+    {
+      "from": "packages/email-client/data/T6-live-readback-receipts.json",
+      "commit": "74e119f708bee8716cadf6ec020cf4b3629af615",
+      "to": "tools/email-client/data/T6-live-readback-receipts.json",
+      "source_identity": "1f:d9cf10cb17e1c7117293169962b2cea72bc4cc1eeff3699715c52eba1e7f47c2",
+      "identity": "1f:d9cf10cb17e1c7117293169962b2cea72bc4cc1eeff3699715c52eba1e7f47c2"
+    },
+    {
+      "from": "packages/email-client/data/T6-write-batch-staged.json",
+      "commit": "5ba45f8c92b45931f44f882e5ed3607b1c0f23b7",
+      "to": "tools/email-client/data/T6-write-batch-staged.json",
+      "calls": [
+        "email-address-made-up",
+        "email-address-support-made-up"
+      ],
+      "source_identity": "1f:3727dff927184e0c7fe0925b3533f9d9b83f68b36b92a7da2ccfd65fd6d9d07a",
+      "identity": "1f:4cd287bbfa6bfba6c4af7665e122dd8b7bba88986a52449338014bf0b62ddf57"
+    },
+    {
+      "from": "packages/email-client/data/retraction-receipts-final.json",
+      "commit": "789084ab85da689e96dd2e341436d30918aaa7df",
+      "to": "tools/email-client/data/retraction-receipts-final.json",
+      "source_identity": "1f:902ca34aaf704f4fe2e25f9a0a01a3dbe341bd9bef71c5458da7a682a2e5d822",
+      "identity": "1f:902ca34aaf704f4fe2e25f9a0a01a3dbe341bd9bef71c5458da7a682a2e5d822"
+    },
+    {
+      "from": "packages/email-client/data/retraction-receipts-label-hash.json",
+      "commit": "789084ab85da689e96dd2e341436d30918aaa7df",
+      "to": "tools/email-client/data/retraction-receipts-label-hash.json",
+      "source_identity": "1f:d52fb81388ac821ddd13294b8ef9d1fd3f4e47aa90edc99e4f7d7cabfeaae133",
+      "identity": "1f:d52fb81388ac821ddd13294b8ef9d1fd3f4e47aa90edc99e4f7d7cabfeaae133"
+    },
+    {
+      "from": "packages/email-client/data/retraction-receipts.json",
+      "commit": "789084ab85da689e96dd2e341436d30918aaa7df",
+      "to": "tools/email-client/data/retraction-receipts.json",
+      "source_identity": "1f:f9e1ae34120e286ba2da44d14180670effa43c0e6941c9e9cee223fcbc9433de",
+      "identity": "1f:f9e1ae34120e286ba2da44d14180670effa43c0e6941c9e9cee223fcbc9433de"
+    },
+    {
+      "from": "packages/email-client/data/task2-correct-rules-deployment-receipt.json",
+      "commit": "c5791603749d3f3ba889ce10f0cd480a176308ff",
+      "to": "tools/email-client/data/task2-correct-rules-deployment-receipt.json",
+      "source_identity": "1f:0f678afe2c7e954bffee87a769e102bac4658906273b284ab06aad2319bec3ef",
+      "identity": "1f:0f678afe2c7e954bffee87a769e102bac4658906273b284ab06aad2319bec3ef"
+    },
+    {
+      "from": "packages/email-client/data/task2-correct-rules-staged-offline.json",
+      "commit": "d398f022a3ca70593a09bbb6f452916aa81bfec9",
+      "to": "tools/email-client/data/task2-correct-rules-staged-offline.json",
+      "source_identity": "1f:ca61bd8dd7fbb83aded6ed0fa1b5a6272d4e9d287015b2734b55c2ec12e4665a",
+      "identity": "1f:ca61bd8dd7fbb83aded6ed0fa1b5a6272d4e9d287015b2734b55c2ec12e4665a"
+    },
+    {
+      "from": "packages/email-client/data/task2-valid-rules-receipt.json",
+      "commit": "789084ab85da689e96dd2e341436d30918aaa7df",
+      "to": "tools/email-client/data/task2-valid-rules-receipt.json",
+      "source_identity": "1f:6cb304941c4803dbba9541ab1322d5a7119f85be2044c225c932994895f2a503",
+      "identity": "1f:6cb304941c4803dbba9541ab1322d5a7119f85be2044c225c932994895f2a503"
+    },
+    {
+      "from": "packages/email-client/do-work/request-mail-action.ts",
+      "commit": "64e2e500614832e5e7769ae2a99e165556ba620e",
+      "to": "tools/email-client/do-work/request-mail-action.ts",
+      "source_identity": "1f:dd41287ca674a4e77acc3c848c6bb14775b5590f779a234177d306a87c1ff63b",
+      "identity": "1f:dd41287ca674a4e77acc3c848c6bb14775b5590f779a234177d306a87c1ff63b"
+    },
+    {
+      "from": "packages/email-client/do-work/request-mail-status-notice.ts",
+      "commit": "d944228fa032318a8ad2add7138a9d78dfa0efe0",
+      "to": "tools/email-client/do-work/request-mail-status-notice.ts",
+      "source_identity": "1f:746c4217bbffb120a1ad10e70024e4b2182b86673b71d426dd6d07d5aee6531f",
+      "identity": "1f:746c4217bbffb120a1ad10e70024e4b2182b86673b71d426dd6d07d5aee6531f"
+    },
+    {
+      "from": "packages/email-client/do-work/request-task-from-mail.ts",
+      "commit": "d944228fa032318a8ad2add7138a9d78dfa0efe0",
+      "to": "tools/email-client/do-work/request-task-from-mail.ts",
+      "source_identity": "1f:8e98aab85fe7eec03ceec74b4714647fc3bcb5f379d46d04f8c0f3862cfdeddb",
+      "identity": "1f:8e98aab85fe7eec03ceec74b4714647fc3bcb5f379d46d04f8c0f3862cfdeddb"
+    },
+    {
+      "from": "packages/email-client/read-data/read-mail-workspace.ts",
+      "commit": "38e57c09d95842d0913daf529e18264a134ef626",
+      "to": "tools/email-client/read-data/read-mail-workspace.ts",
+      "source_identity": "1f:863a6568cfca8cab499e297090f4addd6add1f9a2fad8486c80df2029f86c9ad",
+      "identity": "1f:863a6568cfca8cab499e297090f4addd6add1f9a2fad8486c80df2029f86c9ad"
+    },
+    {
+      "from": "packages/email-client/show-ios-jscore/mount-email-client-jscore.js",
+      "commit": "64e2e500614832e5e7769ae2a99e165556ba620e",
+      "to": "tools/email-client/show-ios-jscore/mount-email-client-jscore.js",
+      "source_identity": "1f:2b9e575409822a4703de7559a4b3acd9569686ce4740f8d83dc33d0d590c457f",
+      "identity": "1f:2b9e575409822a4703de7559a4b3acd9569686ce4740f8d83dc33d0d590c457f"
+    },
+    {
+      "from": "packages/email-client/show-ios-jscore/mount-email-client-jscore.test.ts",
+      "commit": "422e50317271fc2e6bc188c0ffc832202b142963",
+      "to": "tools/email-client/show-ios-jscore/mount-email-client-jscore.test.ts",
+      "source_identity": "1f:359dcd950ed32c01b795e1d545eaf34938920647621a003c84d453bc5653655c",
+      "identity_at_move": "1f:359dcd950ed32c01b795e1d545eaf34938920647621a003c84d453bc5653655c",
+      "byte_copy_commit": "090e34111c6224eaf8713fe3b82b07bd771c79a2"
+    },
+    {
+      "from": "packages/email-client/show/MailComposer.tsx",
+      "commit": "39635907744f1bd9f8eba12da7d4398b1eb2226f",
+      "to": "tools/email-client/show/MailComposer.tsx",
+      "source_identity": "1f:d11fea3b0bdd844a0ef52abdd2d849a70e92c337d7a0e7fbcaddf1b83cf3a755",
+      "identity_at_move": "1f:d11fea3b0bdd844a0ef52abdd2d849a70e92c337d7a0e7fbcaddf1b83cf3a755",
+      "byte_copy_commit": "090e34111c6224eaf8713fe3b82b07bd771c79a2"
+    },
+    {
+      "from": "packages/email-client/show/MailSearchOverlay.tsx",
+      "commit": "d944228fa032318a8ad2add7138a9d78dfa0efe0",
+      "to": "tools/email-client/show/MailSearchOverlay.tsx",
+      "source_identity": "1f:75dbd97349331df2aba5ce4e895adae7c5a4ae87edb5ea16f415fe431ad06eb5",
+      "identity_at_move": "1f:75dbd97349331df2aba5ce4e895adae7c5a4ae87edb5ea16f415fe431ad06eb5",
+      "byte_copy_commit": "090e34111c6224eaf8713fe3b82b07bd771c79a2"
+    },
+    {
+      "from": "packages/email-client/show/MailStatusBanner.tsx",
+      "commit": "d944228fa032318a8ad2add7138a9d78dfa0efe0",
+      "to": "tools/email-client/show/MailStatusBanner.tsx",
+      "source_identity": "1f:b9112c4cacaba57ff6396b122c3a850e7cd275c7aff96fb5e831c97d2f1df345",
+      "identity_at_move": "1f:b9112c4cacaba57ff6396b122c3a850e7cd275c7aff96fb5e831c97d2f1df345",
+      "byte_copy_commit": "090e34111c6224eaf8713fe3b82b07bd771c79a2"
+    },
+    {
+      "from": "packages/email-client/show/MailWorkspace.tsx",
+      "commit": "bf68e4f8c6fe07a2a112e8ceb235ebe01013673e",
+      "to": "tools/email-client/show/MailWorkspace.tsx",
+      "source_identity": "1f:9905ae79cc149e4591419bbc6f2127c2d9aa5c2b65c2229725ae02db626430a8",
+      "identity_at_move": "1f:9905ae79cc149e4591419bbc6f2127c2d9aa5c2b65c2229725ae02db626430a8",
+      "byte_copy_commit": "090e34111c6224eaf8713fe3b82b07bd771c79a2"
+    },
+    {
+      "from": "packages/email-client/show/MailboxRail.tsx",
+      "commit": "7dab9bf5962fcfaddac9365e8a6b59f75b372d89",
+      "to": "tools/email-client/show/MailboxRail.tsx",
+      "source_identity": "1f:c6f80afbd398e3da63973d1ced0cdf4c1177e8b94152a8bea8f17595b728edb8",
+      "identity_at_move": "1f:c6f80afbd398e3da63973d1ced0cdf4c1177e8b94152a8bea8f17595b728edb8",
+      "byte_copy_commit": "090e34111c6224eaf8713fe3b82b07bd771c79a2"
+    },
+    {
+      "from": "packages/email-client/show/MessageList.tsx",
+      "commit": "7dab9bf5962fcfaddac9365e8a6b59f75b372d89",
+      "to": "tools/email-client/show/MessageList.tsx",
+      "source_identity": "1f:a953acb36c9960172c9e6beaec20ba07117cff1b042998bb312e3e33db08d6c5",
+      "identity_at_move": "1f:a953acb36c9960172c9e6beaec20ba07117cff1b042998bb312e3e33db08d6c5",
+      "byte_copy_commit": "090e34111c6224eaf8713fe3b82b07bd771c79a2"
+    },
+    {
+      "from": "packages/email-client/show/MessageRow.tsx",
+      "commit": "d944228fa032318a8ad2add7138a9d78dfa0efe0",
+      "to": "tools/email-client/show/MessageRow.tsx",
+      "source_identity": "1f:2b0812bfe00578a640cf840c9f850510dfe969bce4d2d8666f04477227d1e16d",
+      "identity_at_move": "1f:2b0812bfe00578a640cf840c9f850510dfe969bce4d2d8666f04477227d1e16d",
+      "byte_copy_commit": "090e34111c6224eaf8713fe3b82b07bd771c79a2"
+    },
+    {
+      "from": "packages/email-client/show/ThreadReader.tsx",
+      "commit": "99eaf1d0d9e2b8ecf70f82b1ce680a34f2baf5ec",
+      "to": "tools/email-client/show/ThreadReader.tsx",
+      "source_identity": "1f:54653e0d9e59991b531d8ee5d3774acd1be1678c067936f77a6cd222acbd9e75",
+      "identity_at_move": "1f:54653e0d9e59991b531d8ee5d3774acd1be1678c067936f77a6cd222acbd9e75",
+      "byte_copy_commit": "090e34111c6224eaf8713fe3b82b07bd771c79a2"
+    },
+    {
+      "from": "packages/email-client/show/mail-workspace-fixtures.ts",
+      "commit": "64e2e500614832e5e7769ae2a99e165556ba620e",
+      "to": "tools/email-client/show/mail-workspace-fixtures.ts",
+      "source_identity": "1f:44df98d263e7699f0e1e90892f10d953fa7f8f7d4bef8329b55b64bc18fff4b7",
+      "identity_at_move": "1f:44df98d263e7699f0e1e90892f10d953fa7f8f7d4bef8329b55b64bc18fff4b7",
+      "byte_copy_commit": "090e34111c6224eaf8713fe3b82b07bd771c79a2"
+    },
+    {
+      "from": "packages/email-client/show/mount-email-client.tsx",
+      "commit": "38e57c09d95842d0913daf529e18264a134ef626",
+      "to": "tools/email-client/show/mount-email-client.tsx",
+      "source_identity": "1f:e0fcd5e69c24b480b42bb2f7b1e6c16d71c7f95cde945bd44a588206148466b2",
+      "identity_at_move": "1f:e0fcd5e69c24b480b42bb2f7b1e6c16d71c7f95cde945bd44a588206148466b2",
+      "byte_copy_commit": "090e34111c6224eaf8713fe3b82b07bd771c79a2"
+    },
+    {
+      "from": "packages/email-client/things-to-store-and-run.json",
+      "commit": "ede9b87ed762d61956347e26535a8df5073befa9",
+      "to": "tools/email-client/things-to-store-and-run.json",
+      "source_identity": "1f:fc9919fba82792dce6fa48fa9f923db9dfccb640c7f62830c1e4dd815d404570",
+      "identity": "1f:fc9919fba82792dce6fa48fa9f923db9dfccb640c7f62830c1e4dd815d404570"
+    }
+  ]
+}

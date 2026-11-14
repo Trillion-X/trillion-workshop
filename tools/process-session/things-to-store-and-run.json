@@ -1,0 +1,453 @@
+{
+  "package": "process-session",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::process-session::checks",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": ["show/use-process-session-live-output.test.tsx", "do-work/run-owned-process.test.mjs", "do-work/owned-workspace.test.mjs"]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::process-session::workflow-action::start-authorized-assigned-work-session",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record", "workflow-definition"],
+      "payload": {
+        "id": "action:process-session:start-authorized-assigned-work-session",
+        "kind": "action",
+        "name": "Start assigned work",
+        "description": "Start saved work after checking its assigned worker, tools, permissions, guard and budget.",
+        "input_schema": {"type": "object", "required": ["sourceRecordRef", "workerRecordRef", "toolRecordRef"], "additionalProperties": true},
+        "steps": [
+          {"id": "start", "kind": "ask", "config": {"name": "process-session.start-authorized-assigned-work-session", "input": {"$kind": "binding", "select": {"from": "input"}}}},
+          {"id": "return", "kind": "return", "config": {"value": {"$kind": "binding", "select": {"from": "steps", "key": "start", "path": "output"}}}}
+        ],
+        "is_active": true,
+        "trigger_type": "manual",
+        "trigger_source": ""
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::process-session::operation-assignment-policy::private-local-owner",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "process-session.operation-assignment-policy/v1",
+        "policy_ref": "package::process-session::operation-assignment-policy::private-local-owner",
+        "policy_revision": "private-local-autonomous-safe-operator",
+        "state": "active",
+        "effect_class": "private-local",
+        "effect_boundary": "Safe reversible private work only. External messages, spend, publishing, credentials, production changes and irreversible effects remain with their authority owners.",
+        "start_action_ref": "action:process-session:start-authorized-assigned-work-session"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::process-session::input::liveProcessSessionEvents",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "input_name": "liveProcessSessionEvents",
+        "kind": "bitfield-input-descriptor",
+        "observation_contract": "exact_push",
+        "selected_payload": {
+          "value": { "source_bytes": { "bytes_to_value": "bytes" } },
+          "value_address": { "from": "params", "op": "path", "path": ["eventsAddress"] }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::process-session::target::outside-conversations-reach-process-session",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "configured-target-descriptor",
+        "target_key": "outside-conversations.reach.process-session",
+        "target": "compute.process_session",
+        "timeout_ms": 300000
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::process-session::public-source::run-owned-process",
+      "path": ["packages", "process-session", "public-sources", "run-owned-process"],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work/run-owned-process.mjs",
+        "contract": "Local Node embedding adapter for an already authorized caller-owned argv subprocess. Bounds output/time and terminates its POSIX process group on cancellation. Caller owns command selection, permissions, durable state and scheduling. Not an agent command dispatch or credential boundary."
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::process-session::public-source::owned-workspace",
+      "path": ["packages", "process-session", "public-sources", "owned-workspace"],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work/owned-workspace.mjs",
+        "contract": "Owner-private workspace lifecycle for local process work. Creates one contained workspace, binds its active POSIX process group, removes it after completion, and retires prior workspaces only when both their exact parent incarnation and bound group are gone."
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::process-session::public-source::read-data",
+      "path": [
+        "packages",
+        "process-session",
+        "public-sources",
+        "read-data"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "read-data",
+        "contract": "process-session read-data owns event feed decoding, launch descriptor rendering, EnvBinding/PathBinding validation, and configured process-session target selection for consumer packages"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::process-session::public-source::show",
+      "path": [
+        "packages",
+        "process-session",
+        "public-sources",
+        "show"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "show",
+        "contract": "process-session show owns the blind live-output consumer primitive (useProcessSessionLiveOutput): given a session stream handle it does the two-hop feed subscription + fold and returns growing text + terminal state, so consumer surfaces render live process output without knowing the event-feed wire format"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::process-session::public-source::envelope-client",
+      "path": [
+        "packages",
+        "process-session",
+        "public-sources",
+        "envelope-client"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "envelope-client",
+        "contract": "process-session envelope-client owns the dependency-injected start-session request builder, reply decoder, and caller-facing launch helper; execution remains exclusively owned by compute.process_session"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::process-session::public-source::do-work-run-assigned-work",
+      "path": [
+        "packages",
+        "process-session",
+        "public-sources",
+        "do-work-run-assigned-work"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work/run-assigned-work",
+        "contract": "process-session do-work/run-assigned-work owns the assigned-work session lifecycle: it builds start/stop compute.process_session requests from ordinary source records, Record Board action payloads, live ai-agent-profile records, owner-declared DATA launch templates, and optional team records, and proves guard, permission, and budget before an authorized launch. The rest of do-work stays private owner implementation."
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::process-session::published-record::target::process-session",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "target": "compute.process_session",
+        "target_key": "process-session",
+        "timeout_ms": 300000
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::process-session::capability-obligation::start-assigned-work-session",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "capability-obligation",
+        "obligation_ref": "obl:process-session.start-assigned-work-session",
+        "capability_ref": "capability:process-session.start-assigned-work-session",
+        "label": "Owner-assigned guarded worker launch",
+        "condition": {
+          "all": []
+        },
+        "params": {},
+        "failClosed": true
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::process-session::target::start-assigned-work-session",
+      "path": [
+        "packages",
+        "process-session",
+        "targets",
+        "start-assigned-work-session"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "start-assigned-work-session",
+        "export_name": "startAssignedWorkSession",
+        "source_path": "do-work/run-assigned-work.ts",
+        "target": "process-session.start-assigned-work-session"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::process-session::entry::start-assigned-work-session",
+      "path": [
+        "packages",
+        "process-session",
+        "entries",
+        "start-assigned-work-session"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "start-assigned-work-session",
+        "export_name": "startAssignedWorkSession",
+        "source_path": "do-work/run-assigned-work.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-start-assigned-work-session"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::process-session::target::start-authorized-assigned-work-session",
+      "path": [
+        "packages",
+        "process-session",
+        "targets",
+        "start-authorized-assigned-work-session"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "start-authorized-assigned-work-session",
+        "export_name": "startAuthorizedAssignedWorkSession",
+        "source_path": "do-work/run-assigned-work.ts",
+        "target": "process-session.start-authorized-assigned-work-session"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::process-session::entry::start-authorized-assigned-work-session",
+      "path": [
+        "packages",
+        "process-session",
+        "entries",
+        "start-authorized-assigned-work-session"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "start-authorized-assigned-work-session",
+        "export_name": "startAuthorizedAssignedWorkSession",
+        "source_path": "do-work/run-assigned-work.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-start-authorized-assigned-work-session"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::process-session::target::stop-assigned-work-session",
+      "path": [
+        "packages",
+        "process-session",
+        "targets",
+        "stop-assigned-work-session"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "stop-assigned-work-session",
+        "export_name": "stopAssignedWorkSession",
+        "source_path": "do-work/run-assigned-work.ts",
+        "target": "process-session.stop-assigned-work-session"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::process-session::entry::stop-assigned-work-session",
+      "path": [
+        "packages",
+        "process-session",
+        "entries",
+        "stop-assigned-work-session"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "stop-assigned-work-session",
+        "export_name": "stopAssignedWorkSession",
+        "source_path": "do-work/run-assigned-work.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-stop-assigned-work-session"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::process-session::target::start-assigned-record-work-session",
+      "path": [
+        "packages",
+        "process-session",
+        "targets",
+        "start-assigned-record-work-session"
+      ],
+      "payload": {
+        "kind": "package-target-descriptor",
+        "entry_name": "start-assigned-record-work-session",
+        "export_name": "startAssignedRecordWorkSession",
+        "source_path": "do-work/run-assigned-work.ts",
+        "target": "process-session.start-assigned-record-work-session"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::process-session::entry::start-assigned-record-work-session",
+      "path": [
+        "packages",
+        "process-session",
+        "entries",
+        "start-assigned-record-work-session"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "start-assigned-record-work-session",
+        "export_name": "startAssignedRecordWorkSession",
+        "source_path": "do-work/run-assigned-work.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-start-assigned-record-work-session"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::process-session::published-record::assigned-work-launch-template::local-codex",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "assigned-work-launch-template",
+        "id": "assigned-work-launch-template:local-codex",
+        "label": "Local Codex assigned work session",
+        "launch": {
+          "argv": [
+            "codex",
+            "exec",
+            "-m",
+            "gpt-5.5",
+            "-c",
+            "model_reasoning_effort=low",
+            "-s",
+            "read-only",
+            "--skip-git-repo-check",
+            "{{source.prompt}}"
+          ],
+          "cwd": {
+            "kind": "literal",
+            "value": ".",
+            "inert": true
+          },
+          "env": [
+            {
+              "kind": "literal",
+              "name": "BITFIELD_SOURCE_ID",
+              "value": "{{source.id}}",
+              "inert": true
+            },
+            {
+              "kind": "literal",
+              "name": "BITFIELD_WORKER_ID",
+              "value": "{{worker.id}}",
+              "inert": true
+            }
+          ],
+          "timeoutMs": 300000,
+          "model_binding": {
+            "argv_index": 3,
+            "executable": "codex"
+          }
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-start-assigned-work-session",
+      "source_path": "built-stored-bytes/entry-bytes-start-assigned-work-session",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-start-assigned-work-session.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-start-authorized-assigned-work-session",
+      "source_path": "built-stored-bytes/entry-bytes-start-authorized-assigned-work-session",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-start-authorized-assigned-work-session.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-stop-assigned-work-session",
+      "source_path": "built-stored-bytes/entry-bytes-stop-assigned-work-session",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-stop-assigned-work-session.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-start-assigned-record-work-session",
+      "source_path": "built-stored-bytes/entry-bytes-start-assigned-record-work-session",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-start-assigned-record-work-session.source-closure.json"
+    }
+  ]
+}

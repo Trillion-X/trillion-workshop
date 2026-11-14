@@ -39,3 +39,11 @@ Says what is still open on a trip, in the order to deal with it, and how far a c
 **Not carried:** the old operation records, action definitions, "mark packed" and "confirm" transitions, the create-a-thing actions, travel notes and candidate-fact evidence state, and the privacy classes (engine plumbing of the previous runtime, which writes through the records door now); the English reason sentences and the lane names (the person's words); the panel (a screen).
 
 **Depended on by:** Trillion, which reads `tool-rows.json` when it deploys.
+
+## Moved from bitfield-packages (byte for byte, not yet wired to a tool row)
+
+The original `packing-list` package: the packing list decoder (snake and camel field names), progress, items by category and the operation feed that turns packing items into operation records, with its test.
+
+`from-bitfield-packages/moved-from.json` names each moved file, its source path, the full source commit and both identities; every file is the package's own bytes except where its entry names `calls` (a real person's name, address or home path made generic) or an adaptation (`identity_at_move`: relative imports name their file extension, `vitest` reads the shim, a package's own files import each other at their new place). 3 files moved. Files that import the shared ui parts, the screen runtime or `useBitfieldData` run in the app, not in this tree's test command; their data layer is held until it is swapped to the records door.
+
+Tests that do not run in this tree are renamed `.held` (0); the receipt's `held` key says why for each. Every moved feature file has a port contract in `ports/from-bitfield-packages-*.json`.

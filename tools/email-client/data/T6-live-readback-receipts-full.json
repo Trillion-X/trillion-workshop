@@ -1,0 +1,264 @@
+{
+  "deployment": {
+    "timestamp": "2026-07-19T01:36:14.276Z",
+    "method": "applyCurrentStateWritesLive (canonical pattern, full batch)",
+    "shell_url": "http://127.0.0.1:3012",
+    "partition": "bitfield-studio",
+    "payload_count": 41,
+    "result_ok": true
+  },
+  "readback_verification": {
+    "method": "engine.operation.read-current per address (via applyCurrentStateWritesLive verification)",
+    "found_true": 41,
+    "found_false": 0,
+    "total": 41
+  },
+  "receipts": [
+    {
+      "address": "current-item::published-record::trigger-rule::email::split-inbox-important",
+      "found": true,
+      "kind": "email",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::trigger-rule::email::split-inbox-pitches",
+      "found": true,
+      "kind": "email",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::trigger-rule::email::split-inbox-receipts",
+      "found": true,
+      "kind": "email",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::trigger-rule::email::split-inbox-newsletters",
+      "found": true,
+      "kind": "email",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::trigger-rule::email::split-inbox-team",
+      "found": true,
+      "kind": "email",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::source-descriptor::personal-alias",
+      "found": true,
+      "kind": "personal-alias",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::source-descriptor::support-alias",
+      "found": true,
+      "kind": "support-alias",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::source-descriptor::noreply-alias",
+      "found": true,
+      "kind": "noreply-alias",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::timed-action::snooze::preset-1hr",
+      "found": true,
+      "kind": "snooze",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::timed-action::snooze::preset-4hr",
+      "found": true,
+      "kind": "snooze",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::timed-action::snooze::preset-tomorrow",
+      "found": true,
+      "kind": "snooze",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::timed-action::snooze::preset-monday",
+      "found": true,
+      "kind": "snooze",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::ai-agent-profile::team-leads",
+      "found": true,
+      "kind": "team-leads",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::ai-agent-profile::executives",
+      "found": true,
+      "kind": "executives",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::ai-instruction-blocks::professional",
+      "found": true,
+      "kind": "professional",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::ai-instruction-blocks::casual",
+      "found": true,
+      "kind": "casual",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::ai-instruction-blocks::support",
+      "found": true,
+      "kind": "support",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::ai-instruction-blocks::minimal",
+      "found": true,
+      "kind": "minimal",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::ai-instruction-blocks::full",
+      "found": true,
+      "kind": "full",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::ai-instruction-blocks::compact",
+      "found": true,
+      "kind": "compact",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::timed-action::1min",
+      "found": true,
+      "kind": "1min",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::timed-action::5min",
+      "found": true,
+      "kind": "5min",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::timed-action::2days",
+      "found": true,
+      "kind": "2days",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::timed-action::1week",
+      "found": true,
+      "kind": "1week",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::timed-action::friday",
+      "found": true,
+      "kind": "friday",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::ai-instruction-blocks::daily",
+      "found": true,
+      "kind": "daily",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::ai-instruction-blocks::weekly",
+      "found": true,
+      "kind": "weekly",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::ai-action-guard::evenings",
+      "found": true,
+      "kind": "evenings",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::ai-action-guard::weekends",
+      "found": true,
+      "kind": "weekends",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::service-connections::salesforce",
+      "found": true,
+      "kind": "salesforce",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::service-connections::hubspot",
+      "found": true,
+      "kind": "hubspot",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::ai-work-control::summarize",
+      "found": true,
+      "kind": "summarize",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::ai-work-control::draft-assist",
+      "found": true,
+      "kind": "draft-assist",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::ai-instruction-blocks::important",
+      "found": true,
+      "kind": "important",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::ai-instruction-blocks::pitches",
+      "found": true,
+      "kind": "pitches",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::ai-instruction-blocks::team",
+      "found": true,
+      "kind": "team",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::ai-instruction-blocks::unread",
+      "found": true,
+      "kind": "unread",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::ai-instruction-blocks::from-vip",
+      "found": true,
+      "kind": "from-vip",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::ai-instruction-blocks::attachments",
+      "found": true,
+      "kind": "attachments",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::ai-instruction-blocks::mark-read",
+      "found": true,
+      "kind": "mark-read",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::ai-instruction-blocks::archive",
+      "found": true,
+      "kind": "archive",
+      "verification_status": "read-current confirmed"
+    }
+  ]
+}

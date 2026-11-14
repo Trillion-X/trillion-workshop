@@ -1,0 +1,310 @@
+import assert from 'node:assert/strict';
+import { execFile } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import { mkdtemp, readFile, rm, writeFile, mkdir } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import test from 'node:test';
+import { promisify } from 'node:util';
+import { assertFinalEntryReadScopeContract } from '../do-work/package-entry-byte-build-lib.mjs';
+
+const run = promisify(execFile);
+
+test('entry definitions preserve own defaults and explicit borrowed names without merging dependency defaults', async (t) => {
+  const root = await fixture('none'); t.after(() => rm(root, { recursive: true, force: true }));
+  const dataPath = path.join(root, 'packages', 'demo', 'things-to-store-and-run.json');
+  const data = JSON.parse(await readFile(dataPath,'utf8'));
+  data.things.push({address:'own-default',payload:{kind:'bitfield-input-descriptor',is_default:true}});
+  data.things.find(row=>row.payload.entry_name==='default').payload.read_scope_package_data_packages=['alpha','beta'];
+  await writeFile(dataPath,JSON.stringify(data));
+  for (const name of ['alpha','beta']) {
+    const folder = path.join(root,'packages',name);
+    await mkdir(folder,{recursive:true});
+    await writeFile(path.join(folder,'things-to-store-and-run.json'),JSON.stringify({things:[
+      {address:name+'-default',payload:{kind:'bitfield-input-descriptor',input_name:'same-name',is_default:true}},
+      {address:name+'-unique',payload:{kind:'bitfield-input-descriptor',input_name:name,is_default:false}},
+    ]}));
+  }
+  await generate(root);
+  const source = await generated(root,'default');
+  const scope = JSON.parse(source.match(/const bitfieldPackageReadScope = createReadScopeFromPackageData\((.*)\);/)[1]);
+  assert.deepEqual(scope.things.filter(row=>row.payload.is_default).map(row=>row.address),['own-default']);
+  assert.ok(scope.things.some(row=>row.payload.input_name==='alpha'));
+  assert.ok(scope.things.some(row=>row.payload.input_name==='beta'));
+  assert.ok(!scope.things.some(row=>row.payload.input_name==='same-name'));
+  const contract = {
+    packageName: 'demo', entryName: 'default', packageSetRoot: root,
+    runtimeKitReactFile: path.join(root, 'packages/demo/.bitfield-entry-scope/default/runtime-kit-react.ts'),
+  };
+  await assert.rejects(assertFinalEntryReadScopeContract({ ...contract,
+    bundleSource: `var read = createUseBitfieldData(bitfieldPackageReadScope); read('same-name');`,
+  }), /direct entry reads request undeclared or ambiguous.*same-name/);
+  await assert.doesNotReject(assertFinalEntryReadScopeContract({ ...contract,
+    bundleSource: `var read = createUseBitfieldData(bitfieldPackageReadScope); var dependencyRead = createUseBitfieldData(scope); read('alpha'); dependencyRead('same-name');`,
+  }));
+});
+
+// Resolved from this file, not from the process cwd: the declared runner spawns with the set
+// folder as cwd, a hand run may not, and a cwd-relative path made the test pass or fail on
+// where it was typed from.
+const generator = path.resolve(import.meta.dirname, '../do-work/write-package-entry-scopes.mjs');
+
+async function fixture(mode) {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'bitfield-entry-scope-'));
+  await mkdir(path.join(root, 'what-packages-were-used-and-why'), { recursive: true });
+  await mkdir(path.join(root, 'packages', 'demo', 'show'), { recursive: true });
+  // The generator refuses a source_path that names no file, so the fixture's two declared
+  // sources exist. Their content is irrelevant to scope generation.
+  await writeFile(path.join(root, 'packages', 'demo', 'show', 'default.tsx'), 'export default function mount() {}\n');
+  await writeFile(path.join(root, 'packages', 'demo', 'show', 'sealed.tsx'), 'export default function mount() {}\n');
+  await writeFile(path.join(root, 'package-entry-scope-binding.json'), JSON.stringify({ scope_binding: {} }));
+  await writeFile(path.join(root, 'what-packages-were-used-and-why', 'what-packages-were-used-and-why.json'), JSON.stringify({ package_set: 'fixture-set', partition: 'fixture-partition' }));
+  await writeFile(path.join(root, 'packages', 'demo', 'things-to-store-and-run.json'), JSON.stringify({
+    things: [
+      { type: 'record', address: 'package::demo::input::z', payload: { kind: 'bitfield-input-descriptor', input_name: 'z' } },
+      { type: 'record', address: 'package::demo::input::a', payload: { kind: 'bitfield-input-descriptor', input_name: 'a' } },
+      { type: 'record', address: 'package::demo::entry::default', payload: { kind: 'bitfield-package-entry', entry_name: 'default', source_path: 'show/default.tsx' } },
+      { type: 'record', address: 'package::demo::entry::sealed', payload: { kind: 'bitfield-package-entry', entry_name: 'sealed', source_path: 'show/sealed.tsx', live_read_mode: mode } },
+    ],
+  }));
+  return root;
+}
+
+async function generate(root, env = {}) { return run(process.execPath, [generator], { cwd: root, env: { ...process.env, ...env } }); }
+async function generated(root, entry) { return readFile(path.join(root, 'packages', 'demo', '.bitfield-entry-scope', entry, 'runtime-kit-react.ts'), 'utf8'); }
+
+test('entries compile input definitions without a live preload or module-level await', async (t) => {
+  const root = await fixture('none'); t.after(() => rm(root, { recursive: true, force: true }));
+  await generate(root);
+  const source = await generated(root, 'default');
+  assert.match(source, /createReadScopeFromPackageData, createUseBitfieldData, createUseBitfieldFold/);
+  assert.doesNotMatch(source, /createLivePackageEntryReadScope|\bawait\b/);
+  assert.match(source, /"kind":"bitfield-input-descriptor"/);
+  assert.match(source, /"inputName": "a"[\s\S]*"inputName": "z"/);
+  assert.doesNotMatch(source, /partitionLabel|fixture-partition/);
+});
+
+test('live_read_mode none emits fail-closed sealed-prop hooks with no TLA', async (t) => {
+  const root = await fixture('none'); t.after(() => rm(root, { recursive: true, force: true }));
+  await generate(root);
+  const source = await generated(root, 'sealed');
+  assert.doesNotMatch(source, /createLivePackageEntryReadScope|createUseBitfieldData|createUseBitfieldFold|\bawait\b/);
+  assert.match(source, /live_read_mode: 'none'/);
+  assert.match(source, /export function useBitfieldData/);
+  assert.match(source, /export function useBitfieldFold/);
+  assert.match(source, /BPS_ENTRY_READ_0001_NO_LIVE_SCOPE/);
+});
+
+// A declared source that is not on disk used to produce a shim that failed one build later,
+// inside esbuild, with the declared path nowhere in the message. Four such declarations were
+// live on 2026-09-05 (a mount file never written, and three .mjs names for files renamed to
+// .js in June). The generator now names the declaration itself.
+test('a source_path that names no file fails at generation, naming the declaration', async (t) => {
+  const root = await fixture('none'); t.after(() => rm(root, { recursive: true, force: true }));
+  const dataPath = path.join(root, 'packages', 'demo', 'things-to-store-and-run.json');
+  const data = JSON.parse(await readFile(dataPath, 'utf8'));
+  data.things.find((thing) => thing.address === 'package::demo::entry::default').payload.source_path = 'show/never-written.tsx';
+  await writeFile(dataPath, JSON.stringify(data));
+  await assert.rejects(() => generate(root), /demo\/default source_path names a file that does not exist: show\/never-written\.tsx/);
+});
+
+// esbuild adds back exactly .tsx .ts .jsx .js .css .json when an import has no extension.
+// A declared .mjs module therefore keeps its extension in the shim; stripping it, as the
+// generator did until 2026-09-05, produced an import esbuild could never resolve, and the
+// June 2026 workaround was to rename a package's files while its manifest kept the old names.
+test('the shim keeps an extension esbuild will not add back', async (t) => {
+  const root = await fixture('none'); t.after(() => rm(root, { recursive: true, force: true }));
+  await writeFile(path.join(root, 'packages', 'demo', 'show', 'module.mjs'), 'export default function mount() {}\n');
+  const dataPath = path.join(root, 'packages', 'demo', 'things-to-store-and-run.json');
+  const data = JSON.parse(await readFile(dataPath, 'utf8'));
+  data.things.find((thing) => thing.address === 'package::demo::entry::default').payload.source_path = 'show/module.mjs';
+  await writeFile(dataPath, JSON.stringify(data));
+  await generate(root);
+  const shim = await readFile(path.join(root, 'packages', 'demo', '.bitfield-entry-scope', 'default', 'entry.ts'), 'utf8');
+  assert.match(shim, /from "\.\.\/\.\.\/show\/module\.mjs"/);
+  const sealedShim = await readFile(path.join(root, 'packages', 'demo', '.bitfield-entry-scope', 'sealed', 'entry.ts'), 'utf8');
+  assert.match(sealedShim, /from "\.\.\/\.\.\/show\/sealed"/);
+});
+
+test('invalid live_read_mode fails closed', async (t) => {
+  const root = await fixture('sometimes'); t.after(() => rm(root, { recursive: true, force: true }));
+  await assert.rejects(() => generate(root), /live_read_mode must be "none"/);
+});
+
+test('regeneration is deterministic', async (t) => {
+  const root = await fixture('none'); t.after(() => rm(root, { recursive: true, force: true }));
+  await generate(root);
+  const first = await generated(root, 'sealed');
+  await generate(root);
+  assert.equal(await generated(root, 'sealed'), first);
+});
+
+test('package and entry filters make focused generation explicit and fail closed', async (t) => {
+  const root = await fixture('none'); t.after(() => rm(root, { recursive: true, force: true }));
+  await generate(root, {
+    BITFIELD_PACKAGE_NAMES: 'demo',
+    BITFIELD_ENTRY_NAMES: 'sealed',
+  });
+  await assert.rejects(
+    () => readFile(path.join(root, 'packages', 'demo', '.bitfield-entry-scope', 'default', 'runtime-kit.ts')),
+    /ENOENT/,
+  );
+  await assert.rejects(() => generate(root, { BITFIELD_PACKAGE_NAMES: 'missing' }), /unknown package scope selection/);
+  await assert.rejects(
+    () => generate(root, { BITFIELD_PACKAGE_NAMES: 'demo', BITFIELD_ENTRY_NAMES: 'missing' }),
+    /no package entries matched/,
+  );
+});
+
+// A package is a guest. Which app's store it reads and writes is HOST identity,
+// supplied by the runtime at call time (readTrustedRuntimePartition). A generated
+// wrapper that names the app is not portable: a buyer downloading it from the
+// package store inherits the seller's app name and has to rename it, and one
+// rename becomes a 341-file edit.
+//
+// Data hooks resolve ordinary reads against the app serving their connection.
+// Explicit cross-partition operation owners keep using explicit protocol APIs.
+async function generatedSender(root, entry) {
+  return readFile(path.join(root, 'packages', 'demo', '.bitfield-entry-scope', entry, 'runtime-kit.ts'), 'utf8');
+}
+
+test('the target-sender wrapper names no app, whatever the host declares', async (t) => {
+  const root = await fixture('none'); t.after(() => rm(root, { recursive: true, force: true }));
+  await writeFile(path.join(root, 'package-set-partition.json'), JSON.stringify({
+    schema: 'bitfield-package-set-partition/declared-partition',
+    partition: 'some-other-app',
+  }));
+  await generate(root);
+  const source = await generatedSender(root, 'default');
+  assert.doesNotMatch(source, /"partition_label"/);
+  assert.doesNotMatch(source, /some-other-app/);
+});
+
+test('the same target-sender bytes are produced for two different host apps', async (t) => {
+  const first = await fixture('none'); t.after(() => rm(first, { recursive: true, force: true }));
+  await writeFile(path.join(first, 'package-set-partition.json'), JSON.stringify({
+    schema: 'bitfield-package-set-partition/declared-partition',
+    partition: 'seller-app',
+  }));
+  await generate(first);
+
+  const second = await fixture('none'); t.after(() => rm(second, { recursive: true, force: true }));
+  await writeFile(path.join(second, 'package-set-partition.json'), JSON.stringify({
+    schema: 'bitfield-package-set-partition/declared-partition',
+    partition: 'buyer-app',
+  }));
+  await generate(second);
+
+  // Byte-identical output is the portability proof: the buyer installs the seller's
+  // package unchanged. Any host value leaking back into generation breaks this.
+  assert.equal(await generatedSender(second, 'default'), await generatedSender(first, 'default'));
+});
+
+test('the same read-wrapper bytes are produced for two different host apps', async (t) => {
+  const first = await fixture('none'); t.after(() => rm(first, { recursive: true, force: true }));
+  await writeFile(path.join(first, 'package-set-partition.json'), JSON.stringify({
+    schema: 'bitfield-package-set-partition/declared-partition',
+    partition: 'seller-app',
+  }));
+  await generate(first);
+
+  const second = await fixture('none'); t.after(() => rm(second, { recursive: true, force: true }));
+  await writeFile(path.join(second, 'package-set-partition.json'), JSON.stringify({
+    schema: 'bitfield-package-set-partition/declared-partition',
+    partition: 'buyer-app',
+  }));
+  await generate(second);
+
+  const seller = await generated(first, 'default');
+  const buyer = await generated(second, 'default');
+  assert.equal(buyer, seller);
+  assert.doesNotMatch(seller, /partitionLabel|seller-app|buyer-app/);
+});
+
+test('excludes retracted input descriptors from generated provider shapes', async (t) => {
+  const root = await fixture('none'); t.after(() => rm(root, { recursive: true, force: true }));
+  const dataPath = path.join(root, 'packages', 'demo', 'things-to-store-and-run.json');
+  const data = JSON.parse(await readFile(dataPath, 'utf8'));
+  data.things.find((thing) => thing.address === 'package::demo::input::z').remove = true;
+  await writeFile(dataPath, JSON.stringify(data));
+  await generate(root, { BITFIELD_ENTRY_NAMES: 'default' });
+  assert.doesNotMatch(await generated(root, 'default'), /"inputName": "z"/);
+});
+
+test('prunes a scope folder whose entry the DATA no longer declares', async (t) => {
+  const root = await fixture('none'); t.after(() => rm(root, { recursive: true, force: true }));
+  // A renamed or removed entry used to leave its folder behind forever, because the
+  // generator only ever added. The leftover re-exports a source file that no longer
+  // exists, which fails the whole set's build. Five of these were live on 2026-09-03.
+  const orphan = path.join(root, 'packages', 'demo', '.bitfield-entry-scope', 'entry-that-was-renamed');
+  await mkdir(orphan, { recursive: true });
+  await writeFile(path.join(orphan, 'entry.ts'), 'export * from "../../show/deleted-source";\n');
+
+  await generate(root);
+  assert.equal(existsSync(orphan), false);
+  assert.equal(existsSync(path.join(root, 'packages', 'demo', '.bitfield-entry-scope', 'default')), true);
+});
+
+// REPLACED 2026-09-03: 'a selected run leaves other entries alone, because it has
+// not seen the whole DATA'.
+//
+// That test built a folder the DATA did NOT declare and asserted a narrowed run
+// left it in place. It was pinning a limitation as a requirement. The reason a
+// narrowed run had "not seen the whole DATA" was that the declared-name set was
+// filled after the selection filter, which was the defect rather than a
+// constraint. So the test guaranteed that orphans survive, which is how five of
+// them lived long enough to keep a retired app name alive in generated wrappers.
+//
+// Its legitimate half, that a narrowed run must not delete entries the DATA still
+// declares, is asserted in the replacement test below, which checks `default` and
+// `sealed` survive while the undeclared folder is removed.
+
+// A run narrowed with BITFIELD_ENTRY_NAMES must still remove a folder the DATA no
+// longer declares.
+//
+// Pruning used to be skipped entirely on a narrowed run, because the declared-name
+// set was filled AFTER the selection filter and so held only the selected entries:
+// pruning against it would have deleted every unselected entry's folder. The
+// consequence was that correctness depended on someone remembering to do a full
+// run, and orphans accumulated silently in between. Five of them survived long
+// enough to keep a retired app name alive inside generated wrappers and had to be
+// removed by hand.
+//
+// The fixture below is the exact shape that was broken: prune an entry that is NOT
+// the one being written. A test that selected the orphan itself would pass either
+// way.
+test('a narrowed run still prunes an entry the DATA no longer declares', async (t) => {
+  const root = await fixture('none');
+  t.after(() => rm(root, { recursive: true, force: true }));
+  await generate(root);
+
+  // A folder for an entry that was renamed away: present on disk, absent from DATA.
+  const scopeRoot = path.join(root, 'packages', 'demo', '.bitfield-entry-scope');
+  const orphan = path.join(scopeRoot, 'renamed-away');
+  await mkdir(orphan, { recursive: true });
+  await writeFile(path.join(orphan, 'runtime-kit-react.ts'), 'export {};');
+  assert.ok(existsSync(orphan), 'fixture must start with the orphan present');
+
+  // Narrow the run to a DIFFERENT entry than the orphan.
+  await generate(root, { BITFIELD_ENTRY_NAMES: 'sealed' });
+
+  assert.ok(!existsSync(orphan), 'a narrowed run must still prune an undeclared entry scope');
+  // The narrowing must not have pruned the entries it simply did not write.
+  assert.ok(
+    existsSync(path.join(scopeRoot, 'default')),
+    'narrowing the run must limit the WORK, never delete entries the DATA still declares',
+  );
+  assert.ok(existsSync(path.join(scopeRoot, 'sealed')));
+});
+
+test('scope generation does not require or infer a host partition', async (t) => {
+  const root = await fixture('none');
+  t.after(() => rm(root, { recursive: true, force: true }));
+  await writeFile(
+    path.join(root, 'what-packages-were-used-and-why', 'what-packages-were-used-and-why.json'),
+    JSON.stringify({ package_set: 'the-set' }),
+  );
+  await generate(root);
+  const source = await generated(root, 'default');
+  assert.doesNotMatch(source, /partitionLabel|the-set/);
+});

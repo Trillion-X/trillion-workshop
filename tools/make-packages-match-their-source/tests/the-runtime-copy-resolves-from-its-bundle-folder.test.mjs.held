@@ -1,0 +1,50 @@
+// packages/make-packages-match-their-source/tests/the-runtime-copy-resolves-from-its-bundle-folder.test.mjs
+//
+// An app's source bundle names its copied runtime relative to the bundle's own folder.
+// Convergence must find the package loader there, never relative to wherever the
+// command happened to start, and an absolute receipt path must still resolve to itself.
+
+import assert from "node:assert/strict";
+import path from "node:path";
+import test from "node:test";
+import { canonicalConvergenceLocations } from "../do-work/run-make-packages-match-their-source.mjs";
+
+const appId = "any-app";
+const bitfieldRoot = "/machine/bitfield";
+const bundleRoot = path.join(
+  bitfieldRoot,
+  "runtime-kit/app-open-source-bundles",
+  `app-open-source-bundle-${Buffer.from(appId, "utf8").toString("hex")}`,
+);
+const moduleFile = "/checkout/packages/make-packages-match-their-source/do-work/run-make-packages-match-their-source.mjs";
+
+function locate(receipt) {
+  const files = new Map([
+    ["/status.json", JSON.stringify({ bitfield_root: bitfieldRoot })],
+    [path.join(bundleRoot, "app-open-source-bundle.json"), JSON.stringify({ copy_files: { "bitfield-runtime-kit-copy-files": receipt } })],
+  ]);
+  const runtimeFolder = path.dirname(path.resolve(bundleRoot, receipt));
+  const present = new Set([
+    "/checkout/package-sets/any-app",
+    "/checkout/packages",
+    path.join(runtimeFolder, "bin/package-loader"),
+    path.join(runtimeFolder, "bin/open-bitfield-app"),
+  ]);
+  return canonicalConvergenceLocations(appId, {
+    moduleFile,
+    statusFile: "/status.json",
+    readFile: (file) => files.get(file),
+    exists: (file) => present.has(file),
+  });
+}
+
+test("a relative runtime copy resolves inside the app's bundle folder", () => {
+  const found = locate("copy-files/part-runtime/copied-file-receipt.json");
+  assert.equal(found.packageLoader, path.join(bundleRoot, "copy-files/part-runtime/bin/package-loader"));
+  assert.equal(found.opener, path.join(bundleRoot, "copy-files/part-runtime/bin/open-bitfield-app"));
+});
+
+test("an absolute runtime copy resolves to itself", () => {
+  const found = locate("/elsewhere/runtime/copied-file-receipt.json");
+  assert.equal(found.packageLoader, "/elsewhere/runtime/bin/package-loader");
+});

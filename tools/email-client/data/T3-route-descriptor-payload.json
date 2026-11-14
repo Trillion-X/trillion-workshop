@@ -1,0 +1,42 @@
+{
+  "write_batch": [
+    {
+      "type": "record",
+      "address": "package::service-connections::egress-route-descriptor::gmail-send",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "egress-route-descriptor",
+        "route_id": "egress:gmail-send",
+        "service_vendor": "google",
+        "destination_type": "email",
+        "transport_name": "gmail",
+        "connection_ref": "conn-gmail-proof-account",
+        "identity_address": "proof-account@example.com",
+        "request_template": {
+          "http_method": "POST",
+          "url": "https://www.googleapis.com/gmail/v1/users/me/messages/send",
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer ${vault:credential_handle}"
+          },
+          "body_template": {
+            "raw": "${compose:mime_base64url}"
+          }
+        },
+        "field_bindings": {
+          "to": "mime_headers.To",
+          "subject": "mime_headers.Subject",
+          "body_html": "mime_parts.text_html",
+          "body_text": "mime_parts.text_plain",
+          "inline_refs": "mime_parts.image_inline"
+        },
+        "idempotency_key_source": "thread_id:message_sha256",
+        "rate_limit_per_second": 1,
+        "max_retries": 2,
+        "retry_backoff_ms": [1000, 5000]
+      },
+      "remove": false
+    }
+  ]
+}

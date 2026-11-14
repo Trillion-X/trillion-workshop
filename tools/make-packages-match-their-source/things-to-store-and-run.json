@@ -1,0 +1,657 @@
+{
+  "package": "make-packages-match-their-source",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::make-packages-match-their-source::workflow-action::current-verified-package-set-source",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record", "workflow-definition"],
+      "payload": {
+        "kind": "action",
+        "id": "action:current-verified-package-set-source",
+        "name": "current-verified-package-set-source",
+        "description": "Verify the installed source selected for this app without changing live records.",
+        "input_schema": {"type": "object", "additionalProperties": false, "properties": {}},
+        "steps": [
+          {"id": "current", "kind": "ask", "config": {"name": "package-set-runtime-state.current-verified-package-set-source", "input": {}}},
+          {"id": "done", "kind": "return", "config": {"value": {"$kind": "binding", "select": {"from": "steps", "key": "current", "path": "output"}}}}
+        ],
+        "edges": [{"from": "current", "to": "done", "kind": "on_result"}],
+        "trigger_type": "manual", "trigger_source": "", "is_active": true, "version": 0, "extra": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::make-packages-match-their-source::workflow-action::compile-current-app-package-source",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record", "workflow-definition"],
+      "payload": {
+        "kind": "action",
+        "id": "action:compile-current-app-package-source",
+        "name": "compile-current-app-package-source",
+        "description": "Compile one package through the current app's native source owner. Source root, package-set and partition come from runtime authority; no caller executable, host path, or transport is accepted. Returns the canonical source plan without applying a package delta.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["package"],
+          "properties": {"package": {"type": "string", "minLength": 1}}
+        },
+        "steps": [
+          {
+            "id": "compile",
+            "kind": "ask",
+            "config": {
+              "name": "package-set-runtime-state.compile-package-delta-source",
+              "input": {"package": {"$kind": "binding", "select": {"from": "input", "path": "package"}}}
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {"value": {"$kind": "binding", "select": {"from": "steps", "key": "compile", "path": "output"}}}
+          }
+        ],
+        "edges": [{"from": "compile", "to": "done", "kind": "on_result"}],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::make-packages-match-their-source::contract",
+      "path": ["packages", "make-packages-match-their-source", "contract"],
+      "payload": {
+        "kind": "package-contract",
+        "package": "make-packages-match-their-source",
+        "owns": [
+          "reading package-set and partition identity from a caller-selected descriptor",
+          "compiling a caller-selected package source successor plan through package-loader",
+          "building one scoped atomic package-delta request per package",
+          "running a caller-declared list of (package, place) jobs, isolating failure to the job",
+          "submitting each request through a caller-supplied target client",
+          "forwarding a caller-selected signed-package pointer set to the runtime's existing package-file installer",
+      "receipt cursor and operation/package-version readback",
+      "deriving product-correction completion from the intended target's active package revision and durable matching behavior evidence",
+      "refusing change-set completion until every named package and package-set DATA revision is active on the same target"
+        ],
+        "does_not_own": [
+          "choosing which packages, places, package sets or partitions",
+          "discovering packages on a filesystem, which belongs to observed-content",
+          "engine address discovery or transport basis negotiation",
+          "credentials, spend, public/customer effects, or production deployment authority",
+          "package compiler internals or process admission policy",
+          "publisher trust, package-file verification, package compatibility or package-change admission",
+          "repair outside the selected package current-version closure"
+        ],
+        "composition": "Consumers mount an existing transport owner and pass its target client. This package never imports another package source.",
+        "why_this_name": "The previous name, update-one-package-in-a-running-app, welded a quantity and a deployment topology into an identity, and the signature grew to fit it: one package, one app. Neither was a property of the work. How many packages is DATA, and where an engine runs is an address, which is also DATA. A name carrying a count or a place silently specifies behaviour that nobody chose."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::make-packages-match-their-source::checks",
+      "path": ["packages", "make-packages-match-their-source", "checks"],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "tests/make-one-package-match-its-source.test.mjs",
+          "tests/a-loader-child-receives-the-build-policy-it-reads.test.mjs",
+          "tests/a-held-address-names-its-holder.test.mjs",
+          "tests/recorded-build-inputs-are-still-current.test.mjs",
+          "tests/the-builder-identity-moves-when-the-builder-does.test.mjs",
+          "tests/a-producer-declaration-survives-its-own-use.test.mjs",
+          "tests/a-built-blob-reports-what-it-consumed.test.mjs",
+          "tests/a-copied-blob-reports-what-it-consumed.test.mjs",
+          "tests/package-entry-byte-build-lib.test.mjs",
+          "tests/package-entry-at-alias.test.mjs",
+          "tests/write-package-entry-scopes.test.mjs",
+          "tests/materialize-package-entry-bytes.test.mjs",
+          "tests/materialize-package-stored-bytes-builds.test.mjs",
+          "tests/build-node-process-bytes.test.mjs",
+          "tests/a-package-cannot-reach-past-the-engine-undeclared.test.mjs",
+          "tests/the-runtime-hands-in-the-clock-and-the-entropy.test.mjs",
+          "tests/an-edit-may-select-a-row-by-any-field.test.mjs",
+          "tests/a-things-fragment-becomes-edits-without-retyping.test.mjs",
+        "tests/report-declared-paths-that-do-not-resolve.test.mjs",
+        "tests/bundle-one-source-entry.test.mjs",
+          "tests/a-source-built-slot-owner-prunes-legacy-fallback.test.mjs",
+          "tests/copy-declared-source.test.mjs",
+          "tests/join-declared-sources.test.mjs",
+        "tests/installed-app-workflow-actions.test.mjs",
+        "tests/package-set-records-needs-no-entry-build.test.mjs", "tests/fire-and-forget-writes-carry-the-runtime-they-call.test.mjs",
+        "tests/write-package-set-records-into-a-running-app.test.mjs",
+        "tests/the-runtime-copy-resolves-from-its-bundle-folder.test.mjs"
+        ]
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "make-one-package-match-its-source-node-source",
+      "source_path": "do-work/make-one-package-match-its-source.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "run-make-packages-match-their-source-node-source",
+      "source_path": "do-work/run-make-packages-match-their-source.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "run-hosted-package-from-canonical-checkout-node-source",
+      "source_path": "do-work/run-hosted-package-from-canonical-checkout.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "verify-product-correction-completion-node-source",
+      "source_path": "do-work/verify-product-correction-completion.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "build-entry-bytes-for-chosen-packages-node-source",
+      "source_path": "do-work/build-entry-bytes-for-chosen-packages.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "build-declared-stored-bytes-for-chosen-packages-node-source",
+      "source_path": "do-work/build-declared-stored-bytes-for-chosen-packages.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "build-declared-source-built-slots-for-chosen-packages-node-source",
+      "source_path": "do-work/build-declared-source-built-slots-for-chosen-packages.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "build-node-process-bytes-node-source",
+      "source_path": "do-work/build-node-process-bytes.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "copy-source-file-bytes-node-source",
+      "source_path": "do-work/copy-source-file-bytes.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "copy-declared-source-node-source",
+      "source_path": "do-work/copy-declared-source.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "join-declared-sources-node-source",
+      "source_path": "do-work/join-declared-sources.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "package-entry-byte-build-library-source",
+      "source_path": "do-work/package-entry-byte-build-lib.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "package-entry-no-reply-lowering-source",
+      "source_path": "do-work/package-entry-no-reply-lowering.mjs"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "package-entry-reach-past-the-engine-source",
+      "source_path": "do-work/package-entry-reach-past-the-engine.mjs"
+    },
+    {
+      "type": "record",
+      "address": "package::make-packages-match-their-source::workflow-action::install-signed-packages-from-pointers",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:install-signed-packages-from-pointers",
+        "kind": "action",
+        "name": "install-signed-packages-from-pointers",
+        "description": "Install caller-selected packages from exact signed package pointers into the selected package set through the runtime's existing package installer. Publisher trust, package compatibility and the scoped atomic package change remain enforced by their native owners.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "package_set",
+            "source_package_set",
+            "package_identities",
+            "package_file_download_pointer_object_keys",
+            "publisher_trust_root_refs"
+          ],
+          "properties": {
+            "package_set": {
+              "type": "string",
+              "minLength": 1
+            },
+            "source_package_set": {
+              "type": "string",
+              "minLength": 1
+            },
+            "package_identities": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "package_file_download_pointer_object_keys": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "publisher_trust_root_refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "install",
+            "kind": "ask",
+            "config": {
+              "name": "package-files.install-packages-from-pointers",
+              "input": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": ""
+                }
+              }
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "install",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "install",
+            "to": "done",
+            "kind": "on_result"
+          }
+        ],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::make-packages-match-their-source::workflow-action::report-package-source-delta",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record", "workflow-definition"],
+      "payload": {
+        "id": "action:report-package-source-delta",
+        "kind": "action",
+        "name": "report-package-source-delta",
+        "description": "Run the existing package convergence owner in dry-run mode for one caller-selected package and place, returning the exact drift report without changing the target engine.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "package",
+            "engine_host",
+            "target_package_set",
+            "target_partition",
+            "engine_scheme"
+          ],
+          "properties": {
+            "package": { "type": "string", "minLength": 1 },
+            "adopt_unversioned_source_records": { "type": "boolean", "default": false },
+            "engine_host": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Engine host with optional port; never a URL"
+            },
+            "target_package_set": { "type": "string", "minLength": 1 },
+            "target_partition": { "type": "string", "minLength": 1 },
+            "engine_scheme": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Engine URL scheme; use http for the local runtime engine"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "run",
+            "kind": "ask",
+            "config": {
+              "name": "package-set-runtime-state.report-package-source-delta",
+              "input": {
+                "package": {
+                  "$kind": "binding",
+                  "select": { "from": "input", "path": "package" }
+                },
+                "adopt_unversioned_source_records": {
+                  "$kind": "binding",
+                  "select": { "from": "input", "path": "adopt_unversioned_source_records" }
+                },
+                "destination": {
+                  "engine_host": {
+                    "$kind": "binding",
+                    "select": { "from": "input", "path": "engine_host" }
+                  },
+                  "engine_scheme": {
+                    "$kind": "binding",
+                    "select": { "from": "input", "path": "engine_scheme" }
+                  },
+                  "package_set": {
+                    "$kind": "binding",
+                    "select": { "from": "input", "path": "target_package_set" }
+                  },
+                  "partition": {
+                    "$kind": "binding",
+                    "select": { "from": "input", "path": "target_partition" }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": { "from": "steps", "key": "run", "path": "output" }
+              }
+            }
+          }
+        ],
+        "edges": [{ "from": "run", "to": "done", "kind": "on_result" }],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::make-packages-match-their-source::workflow-action::apply-package-source-convergence",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record", "workflow-definition"],
+      "payload": {
+        "id": "action:apply-package-source-convergence",
+        "kind": "action",
+        "name": "apply-package-source-convergence",
+        "description": "Apply one package change through the remote engine's atomic precondition-checked write, then read every source record back before returning success.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "package",
+            "engine_host",
+            "target_package_set",
+            "target_partition",
+            "engine_scheme"
+          ],
+          "properties": {
+            "package": { "type": "string", "minLength": 1 },
+            "adopt_unversioned_source_records": { "type": "boolean", "default": false },
+            "engine_host": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Engine host with optional port; never a URL"
+            },
+            "target_package_set": { "type": "string", "minLength": 1 },
+            "target_partition": { "type": "string", "minLength": 1 },
+            "engine_scheme": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Engine URL scheme"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "run",
+            "kind": "ask",
+            "config": {
+              "name": "package-set-runtime-state.apply-package-source-convergence",
+              "input": {
+                "package": { "$kind": "binding", "select": { "from": "input", "path": "package" } },
+                "adopt_unversioned_source_records": { "$kind": "binding", "select": { "from": "input", "path": "adopt_unversioned_source_records" } },
+                "destination": {
+                  "engine_host": { "$kind": "binding", "select": { "from": "input", "path": "engine_host" } },
+                  "engine_scheme": { "$kind": "binding", "select": { "from": "input", "path": "engine_scheme" } },
+                  "package_set": { "$kind": "binding", "select": { "from": "input", "path": "target_package_set" } },
+                  "partition": { "$kind": "binding", "select": { "from": "input", "path": "target_partition" } }
+                }
+              }
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": { "from": "steps", "key": "run", "path": "output" }
+              }
+            }
+          }
+        ],
+        "edges": [{ "from": "run", "to": "done", "kind": "on_result" }],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::make-packages-match-their-source::workflow-action::report-installed-app-package-source-delta",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:report-installed-app-package-source-delta",
+        "kind": "action",
+        "name": "report-installed-app-package-source-delta",
+        "description": "Report the complete scoped source delta through the selected app's native owner, including every retraction. Source location and partition come from runtime authority.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "package"
+          ],
+          "properties": {
+            "package": {
+              "type": "string",
+              "minLength": 1
+            },
+            "adopt_unversioned_source_records": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "run",
+            "kind": "ask",
+            "config": {
+              "name": "package-set-runtime-state.report-package-source-delta",
+              "input": {
+                "package": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "package"
+                  }
+                },
+                "adopt_unversioned_source_records": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "adopt_unversioned_source_records"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "run",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "run",
+            "to": "done",
+            "kind": "on_result"
+          }
+        ],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::make-packages-match-their-source::workflow-action::apply-installed-app-package-source-convergence",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:apply-installed-app-package-source-convergence",
+        "kind": "action",
+        "name": "apply-installed-app-package-source-convergence",
+        "description": "Converge one package through the selected app's native source and atomic delta owners with automatic basis checks, then return the existing delta receipt and readback.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "package"
+          ],
+          "properties": {
+            "package": {
+              "type": "string",
+              "minLength": 1
+            },
+            "adopt_unversioned_source_records": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "run",
+            "kind": "ask",
+            "config": {
+              "name": "package-set-runtime-state.apply-package-source-convergence",
+              "input": {
+                "package": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "package"
+                  }
+                },
+                "adopt_unversioned_source_records": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "adopt_unversioned_source_records"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "run",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ],
+        "edges": [
+          {
+            "from": "run",
+            "to": "done",
+            "kind": "on_result"
+          }
+        ],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+// packages/founder-growth-engine/__tests__/cross-section-union-lens.test.ts
+//
+// D5 — cross-section amalgamation conformance (no live engine).
+// Proves the founder cross-section union lens (DATA) amalgamates records from
+// MULTIPLE UNRELATED founder roots into ONE grouped feed, by reusing
+// context-feed's generic `projectRecords` evaluator BY ADDRESS (no god package).
+//
+// The union is pure DATA: heterogeneous records (a saved item, a creator-profile
+// fact, a scheduled post, an idea, an observation) — none sharing a schema — all
+// project into one common shape via path-fallback field readers (L090) and bucket
+// by `section`. A new root contributes records with its own `kind`; they
+// amalgamate with ZERO code change here.
+
+import { describe, it, expect } from '../../../test-helpers/vitest-shim.mjs';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+// @ts-ignore — JS evaluator from the context-feed package, reused by address (no re-implementation).
+import { projectRecords } from '../../context-feed/read-data/record-projection-lens.js';
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const LENS = JSON.parse(
+  readFileSync(path.resolve(HERE, '..', 'data', 'cross-section-union-lens.json'), 'utf8'),
+);
+
+// FIVE records from five UNRELATED founder roots — no shared field set beyond `is_active`.
+const MIXED_ROOTS = [
+  { id: 'cap-1', kind: 'captured-item', title: 'How To Do Great Work', text: 'pick something you have aptitude for…', source_ref: 'watch:1', observed_at: '2026-06-20T00:00:00Z', is_active: true },
+  { id: 'prof-1', kind: 'creator-profile-fact', name: 'Rick Macci — coaching profile', body: 'aggressive baseline development…', is_active: true },
+  { id: 'sch-1', kind: 'scheduled-action', label: 'Launch thread: Eden', scheduled_for: '2026-07-01T15:00:00Z', is_active: true },
+  { id: 'idea-1', kind: 'idea', headline: 'Onboarding hook: show the loop in 30s', description: 'lead with the aha', is_active: true },
+  { id: 'obs-1', kind: 'observation', summary: 'User watched 3 motor-learning talks', source_ref: 'feed:rss-1', is_active: true },
+];
+
+describe('D5 cross-section union lens — amalgamate all founder roots into one grouped feed', () => {
+  it('is a context-feed generic-record-projection-lens (reuse by address, not a new engine)', () => {
+    expect(LENS.kind).toBe('generic-record-projection-lens');
+    expect(typeof projectRecords).toBe('function');
+  });
+
+  it('UNIONS all five unrelated roots into rows (heterogeneous → one common shape, L090)', () => {
+    const feed = projectRecords(MIXED_ROOTS, LENS);
+    expect(feed.rows.map((r: any) => r.id).sort()).toEqual(['cap-1', 'idea-1', 'obs-1', 'prof-1', 'sch-1']);
+    // each root's title-equivalent resolved via path-fallback into the SAME field:
+    const byId = Object.fromEntries(feed.rows.map((r: any) => [r.id, r.fields]));
+    expect(byId['cap-1'].primary_text).toBe('How To Do Great Work');   // title
+    expect(byId['prof-1'].primary_text).toBe('Rick Macci — coaching profile'); // name
+    expect(byId['sch-1'].primary_text).toBe('Launch thread: Eden');    // label
+    expect(byId['idea-1'].primary_text).toBe('Onboarding hook: show the loop in 30s'); // headline
+    expect(byId['obs-1'].primary_text).toBe('User watched 3 motor-learning talks'); // observation summary → primary
+    expect(byId['obs-1'].supporting_text).toBeFalsy();                 // no body/notes/description on this root
+  });
+
+  it('GROUPS the union into cross-section buckets keyed by each root (the amalgamation view)', () => {
+    const feed = projectRecords(MIXED_ROOTS, LENS);
+    const group = feed.groups.find((g: any) => g.id === 'by-section');
+    expect(group).toBeTruthy();
+    const keys = group.buckets.map((b: any) => b.key).sort();
+    expect(keys).toEqual(['captured-item', 'creator-profile-fact', 'idea', 'observation', 'scheduled-action']);
+  });
+
+  it('a NEW root amalgamates with ZERO lens change (deletion/extension test, L069)', () => {
+    // drop in a sixth, never-seen root shape — it joins the union purely as DATA.
+    const withNewRoot = [...MIXED_ROOTS, { id: 'gap-1', kind: 'knowledge-gap', title: 'Gap: weak serve toss', is_active: true }];
+    const feed = projectRecords(withNewRoot, LENS);
+    expect(feed.rows.find((r: any) => r.id === 'gap-1').fields.primary_text).toBe('Gap: weak serve toss');
+    const group = feed.groups.find((g: any) => g.id === 'by-section');
+    expect(group.buckets.map((b: any) => b.key)).toContain('knowledge-gap');
+  });
+
+  it('inactive records are excluded by the DATA include predicate (no per-root filter code)', () => {
+    const withInactive = [...MIXED_ROOTS, { id: 'old-1', kind: 'captured-item', title: 'archived', is_active: false }];
+    const feed = projectRecords(withInactive, LENS);
+    expect(feed.rows.find((r: any) => r.id === 'old-1')).toBeUndefined();
+  });
+
+  it('the lens names NO single root — it is a generic union, not a per-root projection', () => {
+    // the lens reads via path-fallbacks; it must not hardcode one root as primary.
+    const fr = LENS.field_readers.find((f: any) => f.output === 'primary_text');
+    expect(fr.paths.length).toBeGreaterThanOrEqual(4); // title/label/name/summary/headline — many roots, no favourite
+  });
+});

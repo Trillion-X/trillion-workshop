@@ -1,0 +1,511 @@
+{
+  "package": "opponent-game-plan",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::opponent-game-plan::capability",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-package-capability",
+        "id": "capability:opponent-game-plan",
+        "package": "opponent-game-plan",
+        "label": "Opponent Game Plan",
+        "description": "Search an opponent, read player reports, add private scouting, request a match plan, and record which tactics worked.",
+        "owned_record_kinds": [
+          "subject",
+          "evidence",
+          "profile-projection",
+          "plan-request",
+          "result"
+        ],
+        "reuses": [
+          "workflow",
+          "model-response",
+          "practice-decision-loop",
+          "learning-progress",
+          "practice-protocol",
+          "spaced-repetition",
+          "ui",
+          "screen-look"
+        ],
+        "does_not_own": [
+          "generic decision primitive",
+          "payment/access truth",
+          "live score event stream",
+          "motion analysis",
+          "content production",
+          "customer follow-up"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::opponent-game-plan::placeable-surface::opponent-game-plan",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "Search",
+        "id": "opponent-game-plan.panel",
+        "kind": "placeable-surface",
+        "label": "Opponent Game Plan",
+        "material_target": "opponent-game-plan",
+        "order": 641,
+        "surface_id": "opponent-game-plan.panel",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000641:opponent-game-plan.panel",
+        "package_entry": {
+          "package_name": "opponent-game-plan",
+          "entry_name": "opponent-game-plan"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::opponent-game-plan::entry::opponent-game-plan",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "opponent-game-plan",
+        "entries",
+        "opponent-game-plan"
+      ],
+      "payload": {
+        "entry_name": "opponent-game-plan",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-opponent-game-plan.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-opponent-game-plan"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::opponent-game-plan::input::published-records",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "published-records",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "package::opponent-game-plan::game-plan-feed"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::opponent-game-plan::policy::evidence-confidence-policy-default",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "evidence-confidence-policy",
+        "policyId": "opponent-game-plan.evidence-confidence-policy.default",
+        "minimumConfidence": 0.5,
+        "missingConfidenceIsUsable": false
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::opponent-game-plan::workflow-action::add-report",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:opponent-game-plan.add-report",
+        "kind": "action",
+        "name": "opponent-game-plan-add-report",
+        "description": "Write a player subject and scouting evidence record.",
+        "input_schema": {
+          "player_id": "string",
+          "player_record": "object",
+          "evidence_id": "string",
+          "report_record": "object"
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "player_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::opponent-game-plan::subject::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "player_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "player_record"
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "evidence_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::opponent-game-plan::evidence::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "evidence_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "report_record"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::opponent-game-plan::workflow-action::add-court-zone-profile",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:opponent-game-plan.add-court-zone-profile",
+        "kind": "action",
+        "name": "opponent-game-plan-add-court-zone-profile",
+        "description": "Write a court-zone and shot-rating profile projection.",
+        "input_schema": {
+          "profile_id": "string",
+          "profile_record": "object"
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "profile_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::opponent-game-plan::profile-projection::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "profile_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "profile_record"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::opponent-game-plan::workflow-action::request-plan",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:opponent-game-plan.request-plan",
+        "kind": "action",
+        "name": "opponent-game-plan-request-plan",
+        "description": "Write a plan request built from self and opponent evidence, profile projections, and results.",
+        "input_schema": {
+          "request_id": "string",
+          "request_record": "object"
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "request_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::opponent-game-plan::plan-request::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "request_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "request_record"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::opponent-game-plan::workflow-action::record-result",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:opponent-game-plan.record-result",
+        "kind": "action",
+        "name": "opponent-game-plan-record-result",
+        "description": "Write a tactic outcome result.",
+        "input_schema": {
+          "result_id": "string",
+          "result_record": "object"
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "result_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::opponent-game-plan::result::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "result_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "result_record"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::opponent-game-plan::game-plan-feed",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "in": [
+                "subject",
+                "evidence",
+                "profile-projection",
+                "plan-request",
+                "result",
+                "evidence-confidence-policy"
+              ]
+            },
+            {
+              "path": [
+                "payload"
+              ],
+              "not_equals": "__bitfield_never__"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-opponent-game-plan",
+      "source_path": "built-stored-bytes/entry-bytes-opponent-game-plan",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-opponent-game-plan.source-closure.json"
+    }
+  ]
+}

@@ -39,3 +39,11 @@ Pulls together what a person has on file about an opponent, says which notes are
 **Not carried:** the builders that wrapped a player report, a court-zone profile and a tactic result into a record and submitted it to the old workflow slot (engine plumbing); the profile builder's closed lists of court zones, shot names and playing styles (the person's words now); the live-engine proof test (it read a running engine); and the screens. The record fields for a profile are neutral (`strongest`, `weakest`, `style`, `ratings`), so records written for the old package need those four renamed.
 
 **Depended on by:** Trillion, which reads `tool-rows.json` when it deploys.
+
+## Moved from bitfield-packages (byte for byte, not yet wired to a tool row)
+
+The original `opponent-game-plan` package: the plan screen, the request builders for a court-zone profile, a player report, a tactic result and a match plan, the read of the plan, its types and tests.
+
+`from-bitfield-packages/moved-from.json` names each moved file, its source path, the full source commit and both identities; every file is the package's own bytes except where its entry names `calls` (a real person's name, address or home path made generic) or an adaptation (`identity_at_move`: relative imports name their file extension, `vitest` reads the shim, a package's own files import each other at their new place). 11 files moved. Files that import the shared ui parts, the screen runtime or `useBitfieldData` run in the app, not in this tree's test command; their data layer is held until it is swapped to the records door.
+
+Tests that do not run in this tree are renamed `.held` (1); the receipt's `held` key says why for each. Every moved feature file has a port contract in `ports/from-bitfield-packages-*.json`.

@@ -1,0 +1,137 @@
+{
+  "package": "operation-records",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::operation-records::checks",
+      "path": [
+        "packages",
+        "operation-records",
+        "checks"
+      ],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "checks": [
+          "read-data/operation-action-invocation.test.ts",
+          "read-data/source-linked-record-review.test.ts"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::operation-records::public-source::invoke-operation-transition",
+      "path": ["packages", "operation-records", "public-sources", "invoke-operation-transition"],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "do-work/invoke-operation-transition"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::operation-records::primitive-contract",
+      "path": [
+        "package-primitive",
+        "contract"
+      ],
+      "payload": {
+        "kind": "bitfield-package-primitive-contract",
+        "version": 1,
+        "package": "operation-records",
+        "capability": "generic-operation-record-projection",
+        "owns": [
+          "operation-record-contract",
+          "operation-descriptor-contract",
+          "operation-transition-contract",
+          "operation-claim-contract",
+          "operation-ai-context-ref-contract",
+          "operation-action-invocation-descriptor-contract",
+          "operation-side-effect-contract",
+          "operation-projection-functions",
+          "source-linked-record-review-operation-relationship-contract"
+        ],
+        "does_not_own": [
+          "itinerary-facts",
+          "packing-facts",
+          "reservation-facts",
+          "credentials",
+          "payments",
+          "workflow-state",
+          "provider-transport"
+        ],
+        "reuse": {
+          "actions": "operation transitions name owner action descriptors but execute elsewhere",
+          "owner-packages": "owners translate internal facts into operation records"
+        },
+        "new_slot": false
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::operation-records::public-source::read-data",
+      "path": [
+        "packages",
+        "operation-records",
+        "public-sources",
+        "read-data"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "read-data"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::operation-records::input::operation-records",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "input_name": "operation-records",
+        "kind": "bitfield-input-descriptor",
+        "value": {"source_bytes": {"bytes_to_value": "json"}},
+        "value_address_label": "operation-records.current"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "operation-records.current",
+      "path": ["packages", "operation-records", "generated-values", "operation-records"],
+      "payload": {"operations": [], "claims": []},
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::operation-records::descriptor::source-linked-record-review",
+      "path": [
+        "current-item",
+        "published-record",
+        "operation-descriptor"
+      ],
+      "payload": {
+        "kind": "operation-descriptor",
+        "id": "operation.kind.source-linked-record-review",
+        "family": "operation.kind",
+        "label": "Review source-linked records",
+        "shortLabel": "Review",
+        "tone": "neutral",
+        "sortRank": 250,
+        "defaultModes": [
+          "review"
+        ],
+        "privacyClass": "public",
+        "relationship_contract": {
+          "source_evidence_refs": "source owner records or artifact refs",
+          "readable_text_refs": "text owner records or artifact refs",
+          "candidate_fact_refs": "target-owner proposal payload refs",
+          "decision_refs": "operation transition or decision record refs",
+          "receipt_refs": "target-owner write result refs",
+          "target_owner_action": "transition owner/action refs carried as data"
+        }
+      },
+      "remove": false
+    }
+  ]
+}

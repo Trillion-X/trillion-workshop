@@ -1,0 +1,115 @@
+import assert from 'node:assert/strict';
+import { execFile } from 'node:child_process';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+import test from 'node:test';
+import { promisify } from 'node:util';
+import { buildNodeProcessBytes } from '../do-work/build-node-process-bytes.mjs';
+
+const execFileAsync = promisify(execFile);
+const packageRoot = path.resolve(
+  import.meta.dirname,
+  '../../hosted-public-app',
+);
+
+test('bundles a Node process and all declared module dependencies into one artifact', async () => {
+  const temporary = await mkdtemp(path.join(tmpdir(), 'bitfield-node-process-build-'));
+  const output = path.join(temporary, 'materializer.mjs');
+  try {
+    await buildNodeProcessBytes({
+      packageRoot,
+      sourceFile: 'processes/materialize-hosted-projection-tree.mjs',
+      outputFile: output,
+    });
+    const source = await readFile(output, 'utf8');
+    assert.doesNotMatch(source, /from\s+["']@bitfield\/slot-protocol["']/);
+    const module = await import(`${pathToFileURL(output).href}?test=${Date.now()}`);
+    assert.equal(typeof module.materializeHostedProjectionTree, 'function');
+    await assert.rejects(
+      execFileAsync(process.execPath, [
+        output,
+        '--input-file',
+        path.join(temporary, 'missing-input.json'),
+        '--materialization-root',
+        path.join(temporary, 'materialized'),
+      ]),
+      (error) => (
+        error.code === 1
+        && /HPA_MATERIALIZE_0007_MOUNTED_FILE_INVALID/.test(error.stderr)
+        && !/ReferenceError/.test(error.stderr)
+      ),
+    );
+  } finally {
+    await rm(temporary, { recursive: true, force: true });
+  }
+});
+
+test('rejects a source file outside the declared package root', async () => {
+  const temporary = await mkdtemp(path.join(tmpdir(), 'bitfield-node-process-build-'));
+  try {
+    await assert.rejects(
+      buildNodeProcessBytes({
+        packageRoot,
+        sourceFile: '../make-packages-match-their-source/do-work/build-node-process-bytes.mjs',
+        outputFile: path.join(temporary, 'escaped.mjs'),
+      }),
+      /outside the package root/,
+    );
+  } finally {
+    await rm(temporary, { recursive: true, force: true });
+  }
+});
+
+test('builds a declared CSS output from the same esbuild source closure', async () => {
+  const temporary = await mkdtemp(path.join(tmpdir(), 'bitfield-node-process-css-build-'));
+  const fixture = path.join(temporary, 'fixture');
+  const output = path.join(temporary, 'public-entry-server.css');
+  try {
+    await mkdir(fixture, { recursive: true });
+    await writeFile(path.join(fixture, 'entry.mjs'), "import styles from './card.module.css'; console.log(styles.card);\n");
+    await writeFile(path.join(fixture, 'card.module.css'), '.card { font-family: Arial, sans-serif; }\n');
+    await buildNodeProcessBytes({
+      packageRoot: fixture,
+      sourceFile: 'entry.mjs',
+      outputFile: output,
+      outputKind: 'css',
+    });
+    const css = await readFile(output, 'utf8');
+    assert.match(css, /font-family: Arial, sans-serif/);
+  } finally {
+    await rm(temporary, { recursive: true, force: true });
+  }
+});
+
+test('keeps an explicitly declared optional native dependency outside one-file JavaScript', async () => {
+  const temporary = await mkdtemp(path.join(tmpdir(), 'bitfield-node-optional-native-'));
+  try {
+    await writeFile(path.join(temporary, 'entry.mjs'),
+      "try { await import('optional-native-addon'); } catch { /* optional acceleration */ }\n");
+    const output = path.join(temporary, 'entry.bundle.mjs');
+    await buildNodeProcessBytes({ packageRoot: temporary, sourceFile: 'entry.mjs',
+      outputFile: output, optionalExternalModules: ['optional-native-addon'] });
+    assert.match(await readFile(output, 'utf8'), /optional-native-addon/);
+    await assert.rejects(buildNodeProcessBytes({ packageRoot: temporary, sourceFile: 'entry.mjs',
+      outputFile: output, optionalExternalModules: ['../escape'] }), /plain package names/);
+  } finally {
+    await rm(temporary, { recursive: true, force: true });
+  }
+});
+
+test('bundles the hosted release verifier without embedding Playwright native watchers', async () => {
+  const temporary = await mkdtemp(path.join(tmpdir(), 'bitfield-hosted-release-builder-'));
+  try {
+    const output = path.join(temporary, 'run-provider-deploy.mjs');
+    await buildNodeProcessBytes({ packageRoot,
+      sourceFile: 'processes/run-provider-deploy.mjs', outputFile: output,
+      optionalExternalModules: ['fsevents'] });
+    const bytes = await readFile(output, 'utf8');
+    assert.match(bytes, /the viewport screenshot has no meaningful painted content/);
+    assert.doesNotMatch(bytes, /fsevents\.node/);
+  } finally {
+    await rm(temporary, { recursive: true, force: true });
+  }
+});

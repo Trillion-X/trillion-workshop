@@ -1,0 +1,80 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages: each names its source path and commit, the identity of its source bytes and of its bytes here. The first commit that holds them is the byte copy; later commits change import paths.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/outside-conversations/__tests__/backend-boundary.test.mjs",
+      "commit": "595dde75ceb919f7fbc4421003ce91ed8f6d4fcd",
+      "to": "tools/outside-conversations/__tests__/backend-boundary.test.mjs",
+      "source_identity": "1f:0e16c4f84cb0911fc692b6489324dc328528236c825aec8aaae35bff38f21931",
+      "identity": "1f:0e16c4f84cb0911fc692b6489324dc328528236c825aec8aaae35bff38f21931"
+    },
+    {
+      "from": "packages/outside-conversations/__tests__/generic-record-work-graph.test.ts",
+      "commit": "7f7b3268998b427d85b5b4d8fe0dbbd1dfb5a109",
+      "to": "tools/outside-conversations/__tests__/generic-record-work-graph.test.ts.held",
+      "source_identity": "1f:c1b289d10957254345e98a2cbfa30a2d5fe0fc4b75723d2df3033ffefef55a2d",
+      "identity": "1f:21208892649ca76898b2379b14f5a15d8f089c000c0990b310b56c0221dc0dd9",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
+    },
+    {
+      "from": "packages/outside-conversations/do-work/generic-record-work-actions.ts",
+      "commit": "595dde75ceb919f7fbc4421003ce91ed8f6d4fcd",
+      "to": "tools/outside-conversations/do-work/generic-record-work-actions.ts",
+      "source_identity": "1f:93db1703bb2c5b07215cfc73ef2ef5fa58a7a3fc6d244ed403c7916dfc93db30",
+      "identity_at_move": "1f:93db1703bb2c5b07215cfc73ef2ef5fa58a7a3fc6d244ed403c7916dfc93db30",
+      "byte_copy_commit": "090e34111c6224eaf8713fe3b82b07bd771c79a2"
+    },
+    {
+      "from": "packages/outside-conversations/do-work/request-outside-conversation-transition.ts",
+      "commit": "7f7b3268998b427d85b5b4d8fe0dbbd1dfb5a109",
+      "to": "tools/outside-conversations/do-work/request-outside-conversation-transition.ts",
+      "source_identity": "1f:7c9950df6deaf794fbb2ccc78313e6f6d196b003acb42948b99bf15653f4c848",
+      "identity_at_move": "1f:7c9950df6deaf794fbb2ccc78313e6f6d196b003acb42948b99bf15653f4c848",
+      "byte_copy_commit": "090e34111c6224eaf8713fe3b82b07bd771c79a2"
+    },
+    {
+      "from": "packages/outside-conversations/read-data/generic-record-work-graph.ts",
+      "commit": "474ad5bbfcf0ca417d9006e705fee85354e4edac",
+      "to": "tools/outside-conversations/read-data/generic-record-work-graph.ts",
+      "source_identity": "1f:001305722df6b9532b86072bb44993e86a01e8a3f22d3d6c78b89c59780cc43e",
+      "identity": "1f:001305722df6b9532b86072bb44993e86a01e8a3f22d3d6c78b89c59780cc43e"
+    },
+    {
+      "from": "packages/outside-conversations/read-data/read-outside-conversations.ts",
+      "commit": "595dde75ceb919f7fbc4421003ce91ed8f6d4fcd",
+      "to": "tools/outside-conversations/read-data/read-outside-conversations.ts",
+      "source_identity": "1f:6662205e02660d7556d321f6e96114dabb08e537b049631a5cf2419084b30845",
+      "identity_at_move": "1f:6662205e02660d7556d321f6e96114dabb08e537b049631a5cf2419084b30845",
+      "byte_copy_commit": "090e34111c6224eaf8713fe3b82b07bd771c79a2"
+    },
+    {
+      "from": "packages/outside-conversations/show/TalkToPeopleAndCompaniesPanel.tsx",
+      "commit": "474ad5bbfcf0ca417d9006e705fee85354e4edac",
+      "to": "tools/outside-conversations/show/TalkToPeopleAndCompaniesPanel.tsx",
+      "source_identity": "1f:f95fa495fc6c62ddf5d1ed6ab6f871e1d27f922b9aace8dd79db4baba91c231f",
+      "identity_at_move": "1f:f95fa495fc6c62ddf5d1ed6ab6f871e1d27f922b9aace8dd79db4baba91c231f",
+      "byte_copy_commit": "090e34111c6224eaf8713fe3b82b07bd771c79a2"
+    },
+    {
+      "from": "packages/outside-conversations/show/mount-talk-to-people-and-companies.tsx",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/outside-conversations/show/mount-talk-to-people-and-companies.tsx",
+      "source_identity": "1f:a07e77e0e617767c0ee1f7f434be263ca202360f0bc728f739b7afb041a63d14",
+      "identity_at_move": "1f:a07e77e0e617767c0ee1f7f434be263ca202360f0bc728f739b7afb041a63d14",
+      "byte_copy_commit": "090e34111c6224eaf8713fe3b82b07bd771c79a2"
+    },
+    {
+      "from": "packages/outside-conversations/things-to-store-and-run.json",
+      "commit": "7f7b3268998b427d85b5b4d8fe0dbbd1dfb5a109",
+      "to": "tools/outside-conversations/things-to-store-and-run.json",
+      "source_identity": "1f:6946ef7d4d4fef062ee215f3983e4e769364cc7a54eac1e8236904884425cebb",
+      "identity": "1f:6946ef7d4d4fef062ee215f3983e4e769364cc7a54eac1e8236904884425cebb"
+    }
+  ],
+  "held": {
+    "tools/outside-conversations/__tests__/generic-record-work-graph.test.ts.held": "needs @bitfield/runtime-kit, which this tree does not install (the screen's runtime or the retired package build)"
+  }
+}

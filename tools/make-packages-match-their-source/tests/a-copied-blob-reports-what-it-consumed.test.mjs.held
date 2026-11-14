@@ -1,0 +1,107 @@
+// packages/make-packages-match-their-source/tests/a-copied-blob-reports-what-it-consumed.test.mjs
+//
+// The sibling of `a-built-blob-reports-what-it-consumed.test.mjs`, for the other producer.
+//
+// That file covers blobs built by BUNDLING. This one covers blobs built by COPYING, which until
+// now had no producer at all: the copy was pasted inline into 29 manifests as `node -e`, so it
+// had no identity to record and nowhere to write a receipt. Every row it produced reported
+// nothing about its source, which is what `a-built-blob-must-declare-what-produced-it` reports.
+//
+// As with its sibling, this exercises the PRODUCER half directly. The converter half cannot be
+// run by an agent: `scripts/` is outside every declared run root.
+import assert from "node:assert/strict";
+import { mkdtemp, readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import test from "node:test";
+
+import {
+  copySourceFileBytes,
+  copiedSourceFileBytesBuilderId,
+} from "../do-work/copy-source-file-bytes.mjs";
+
+// A REAL package and a REAL declared copy source, for the same reason the sibling gives: the
+// receipt's job is to name real paths under real portable roots, and a synthetic fixture proves
+// the shape while saying nothing about the labelling, which is where a receipt goes wrong.
+const PACKAGE_ROOT = "/Users/example/dev/bitfield-packages/packages/local-files";
+const SOURCE_FILE = "show/mount-local-file-tree.tsx";
+
+const copyInto = async (receiptWanted) => {
+  const dir = await mkdtemp(join(tmpdir(), "copied-inputs-"));
+  const outputFile = join(dir, "output.bytes");
+  const receiptFile = join(dir, "source-closure.json");
+  await copySourceFileBytes({
+    packageRoot: PACKAGE_ROOT,
+    sourceFile: SOURCE_FILE,
+    outputFile,
+    receiptFile: receiptWanted ? receiptFile : null,
+    storedBytesName: "built-show-mount-local-file-tree",
+  });
+  return { outputFile, receiptFile };
+};
+
+test("the copied bytes are the source bytes", async () => {
+  const { outputFile } = await copyInto(false);
+  assert.deepEqual(
+    await readFile(outputFile),
+    await readFile(join(PACKAGE_ROOT, SOURCE_FILE)),
+    "a copy producer that transforms anything is not a copy producer",
+  );
+});
+
+test("the receipt names the source that produced the bytes", async () => {
+  const { outputFile, receiptFile } = await copyInto(true);
+  assert.ok(existsSync(outputFile), "the bytes are still written");
+
+  const receipt = JSON.parse(await readFile(receiptFile, "utf8"));
+  assert.equal(receipt.builder, copiedSourceFileBytesBuilderId, "the receipt says whose claim it is");
+  assert.equal(receipt.stored_bytes, "built-show-mount-local-file-tree");
+  assert.equal(receipt.package, "local-files");
+
+  const localPaths = receipt.package_local_inputs.map((input) => input.path);
+  assert.deepEqual(
+    localPaths,
+    [`package/${SOURCE_FILE}`],
+    "a copy reads exactly one file, so the receipt names exactly that file and nothing else",
+  );
+  assert.equal(receipt.build_input_count, 1);
+});
+
+test("the one recorded input carries a hash, or the receipt attests to nothing", async () => {
+  const { receiptFile } = await copyInto(true);
+  const receipt = JSON.parse(await readFile(receiptFile, "utf8"));
+  const [input] = receipt.package_local_inputs;
+  assert.match(input.multihash ?? "", /^1f:[0-9a-f]{64}$/, `${input.path} has no usable multihash`);
+  assert.equal(typeof input.byte_length, "number", `${input.path} has no byte length`);
+  assert.match(receipt.artifact_multihash, /^1f:[0-9a-f]{64}$/, "the artifact itself is bound too");
+});
+
+test("the receipt binds the artifact it actually wrote", async () => {
+  // Not the source. They are byte-identical for a copy TODAY, and a reader who assumes that is
+  // reading the wrong field the first time a producer does anything else.
+  const { outputFile, receiptFile } = await copyInto(true);
+  const receipt = JSON.parse(await readFile(receiptFile, "utf8"));
+  assert.equal(receipt.artifact_byte_length, (await readFile(outputFile)).byteLength);
+});
+
+test("offering no receipt path changes nothing about the copy", async () => {
+  // Absence is silence, not failure. Every inline caller this replaces passes no receipt path,
+  // and this is the assertion that says they all keep working unchanged.
+  const { outputFile, receiptFile } = await copyInto(false);
+  assert.ok(existsSync(outputFile), "the bytes are written exactly as before");
+  assert.equal(existsSync(receiptFile), false, "and nothing is written where nothing was asked for");
+});
+
+test("a source outside the package root is refused rather than served as package bytes", async () => {
+  // The inline `node -e` copied whatever path the manifest named, and a manifest is the least
+  // watched file in a package.
+  await assert.rejects(
+    copySourceFileBytes({
+      packageRoot: PACKAGE_ROOT,
+      sourceFile: "../make-packages-match-their-source/README.md",
+      outputFile: join(await mkdtemp(join(tmpdir(), "copied-escape-")), "output.bytes"),
+    }),
+    /resolves outside the package root/,
+  );
+});

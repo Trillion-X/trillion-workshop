@@ -1,0 +1,712 @@
+import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
+import { readFileSync } from 'node:fs';
+
+import processSessionContract from '@/packages/process-session/things-to-store-and-run.json';
+import {
+  assignedWorkPrompt,
+  buildAssignedWorkLaunchInputFromVisualDatabaseAction,
+  buildAssignedWorkLaunchDescriptor,
+  buildAssignedWorkTeamLaunchDescriptors,
+  buildStartAssignedWorkSessionRequest,
+  buildStopAssignedWorkSessionRequest,
+  readAssignedWorkProfileFromPublishedRows,
+  resolveAssignedWorkLaunchInputFromPublishedRows,
+  sourceIsAssignedToWorker,
+  startAuthorizedAssignedWorkSessionWithSender,
+  startAssignedWorkSessionWithSender,
+  type AssignedWorkProfile,
+  type AssignedWorkSourceRecord,
+} from './run-assigned-work.ts';
+
+// The builder takes the id minter as a VALUE, so a test supplies a fixed one and
+// never a real uuid. Every call site below names its own record address, so this
+// minter is the fallback that must not fire; a counter makes a stray call visible.
+function fixedTestIdMinter(): () => string {
+  let issued = 0;
+  return () => `fixed-test-id-${(issued += 1)}`;
+}
+
+const sourceRecord: AssignedWorkSourceRecord = {
+  id: 'visual-database::june-22::task-1',
+  owner: 'visual-database',
+  kind: 'task',
+  title: 'Write package plan',
+  objective: 'Create the system plan and attach proof.',
+  acceptanceCriteria: ['plan exists', 'proof is attached'],
+  assignedTo: ['ai-agent-profile:coder'],
+  attachments: [{ kind: 'file', label: 'Plan file', file_path: '/tmp/plan.md' }],
+  proofLinks: [{ kind: 'log-ref', address: 'visual-database.fields' }],
+  contextDescriptorRefs: ['visual-database.fields', 'visual-database.views'],
+  proofSinkRefs: ['visual-database::june-22::task-1', 'visual-database::june-22::root'],
+  estimatedCost: 0,
+  effectBoundary: 'Local reversible evidence work only; no external messages, spend, or publishing.',
+  state: 'ready',
+};
+
+const worker: AssignedWorkProfile = {
+  id: 'ai-agent-profile:coder',
+  label: 'Coder',
+  processLaunch: {
+    argv: ['codex', 'exec', '{{source.prompt}}'],
+    cwd: { kind: 'literal', value: '.', inert: true },
+    env: [
+      { kind: 'literal', name: 'BITFIELD_SOURCE_ID', value: '{{source.id}}', inert: true },
+      { kind: 'literal', name: 'BITFIELD_WORKER_ID', value: '{{worker.id}}', inert: true },
+    ],
+  },
+};
+
+const instructionSelection = Object.freeze({
+  kind: 'ai-agent-profile.instruction-role-section-selection/current',
+  source_closure_sha256: 'sha256:48a65d9b305cf02505863e6700f79f5660533953bb6f4c8da91ba8a530fd7fcd',
+  selection_hash: 'sha256:956fbbc02535add27d0d39b1412061cd1af54c66948a4963b40bde2fbef28629',
+  selected_section_refs: [
+    'ai-instruction-block:bounded-subagent-executor.identity',
+    'ai-instruction-block:bounded-subagent-executor.execution-contract',
+  ],
+});
+
+describe('AI Work Control assigned work runner', () => {
+  it('builds a process-session descriptor from ordinary source assignment data', () => {
+    const descriptor = buildAssignedWorkLaunchDescriptor({ source: sourceRecord, worker });
+
+    expect(sourceIsAssignedToWorker(sourceRecord, worker)).toBe(true);
+    expect(descriptor.process.argv[0]).toBe('codex');
+    expect(descriptor.process.argv[2]).toContain('Source: Write package plan');
+    expect(descriptor.process.argv[2]).toContain('Attachments:');
+    expect(descriptor.process.env).toMatchObject({
+      BITFIELD_SOURCE_ID: 'visual-database::june-22::task-1',
+      BITFIELD_WORKER_ID: 'ai-agent-profile:coder',
+    });
+    expect(Object.keys(descriptor).sort()).toEqual(['process', 'session_settings']);
+  });
+
+  it('preserves owner-declared process-session input mounts for authorized launches', () => {
+    const descriptor = buildAssignedWorkLaunchDescriptor({
+      source: sourceRecord,
+      worker: {
+        ...worker,
+        processLaunch: {
+          ...worker.processLaunch,
+          argv: ['claude', '-p', '--system-prompt-file', '.bitfield-harness/system-prompt.md', '{{source.objective}}'],
+          inputs: [
+            {
+              mount_path: '.bitfield-harness/system-prompt.md',
+              content_type: 'text/markdown',
+              source: {
+                kind: 'inline',
+                bytes: Buffer.from('SYSTEM PROMPT', 'utf8').toString('base64'),
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    expect(descriptor.process.inputs).toEqual([
+      {
+        mount_path: '.bitfield-harness/system-prompt.md',
+        content_type: 'text/markdown',
+        source: {
+          kind: 'inline',
+          bytes: Buffer.from('SYSTEM PROMPT', 'utf8').toString('base64'),
+        },
+      },
+    ]);
+    expect(descriptor.process.argv).toContain('.bitfield-harness/system-prompt.md');
+  });
+
+  it('expands a durable team record into one launch descriptor per member', () => {
+    const descriptors = buildAssignedWorkTeamLaunchDescriptors({
+      source: sourceRecord,
+      team: {
+        id: 'agent-team:june-22-plans',
+        label: 'June 22 planners',
+        memberRefs: ['ai-agent-profile:coder', 'ai-agent-profile:reviewer'],
+      },
+      workers: [
+        worker,
+        {
+          ...worker,
+          id: 'ai-agent-profile:reviewer',
+          label: 'Reviewer',
+        },
+      ],
+    });
+
+    expect(descriptors).toHaveLength(2);
+    expect(descriptors.map((descriptor) => descriptor.process.env.BITFIELD_WORKER_ID)).toEqual([
+      'ai-agent-profile:coder',
+      'ai-agent-profile:reviewer',
+    ]);
+  });
+
+  it('starts and stops assigned work only through process-session operations', () => {
+    expect(buildStartAssignedWorkSessionRequest({ source: sourceRecord, worker })).toMatchObject({
+      target: 'compute.process_session',
+      payload: {
+        operation: 'start_session',
+        descriptor: expect.objectContaining({
+          process: expect.objectContaining({
+            argv: expect.arrayContaining(['codex', 'exec']),
+          }),
+        }),
+      },
+    });
+
+    expect(buildStartAssignedWorkSessionRequest({
+      source: sourceRecord,
+      worker,
+      claimToken: 'owner-claim:task-1',
+      correlationRef: 'correlation:ignored-when-claimed',
+    }).payload).toMatchObject({
+      idempotency_key: 'owner-claim:task-1',
+    });
+
+    expect(buildStopAssignedWorkSessionRequest('process_session:abc')).toEqual({
+      target: 'compute.process_session',
+      payload: {
+        operation: 'append_session_command',
+        session_id: 'process_session:abc',
+        command: { kind: 'end_session' },
+      },
+    });
+  });
+
+  it('turns a Record Board assignee action into an assigned process session launch input', () => {
+    const launchInput = buildAssignedWorkLaunchInputFromVisualDatabaseAction({
+      operation: 'start_assigned_record_work_session',
+      action_id: 'start-assigned-record-work',
+      input: {
+        agent: 'ai-agent-profile:coder',
+        message: 'Write the full UI and system plan, then attach proof.',
+        title: 'Agent orchestration package',
+        record_address: 'visual-database::june-22::agent-orchestration',
+        priority: 'urgent',
+        status: 'ready',
+        acceptance_criteria: 'Plan file exists and proof is attached.',
+        record: {
+          id: 'j22-016',
+          title: 'Agent orchestration package',
+          address: 'visual-database::june-22::agent-orchestration',
+        },
+      },
+    }, fixedTestIdMinter());
+
+    expect(launchInput.source).toMatchObject({
+      id: 'visual-database::june-22::agent-orchestration',
+      owner: 'visual-database',
+      kind: 'record',
+      title: 'Agent orchestration package',
+      objective: 'Write the full UI and system plan, then attach proof.',
+      assignedTo: ['ai-agent-profile:coder'],
+      state: 'ready',
+    });
+    expect(launchInput.worker).toMatchObject({
+      id: 'ai-agent-profile:coder',
+    });
+    expect(launchInput.worker).not.toHaveProperty('processLaunch');
+    expect(launchInput.fallbackLaunchTemplate?.argv.join(' ')).toContain('codex exec');
+    const request = buildStartAssignedWorkSessionRequest(launchInput);
+    expect(request).toMatchObject({
+      target: 'compute.process_session',
+      payload: {
+        operation: 'start_session',
+        descriptor: expect.objectContaining({
+          process: expect.objectContaining({
+            argv: expect.arrayContaining(['codex', 'exec']),
+          }),
+        }),
+      },
+    });
+    expect(request.payload.descriptor.process.argv.join(' ')).toContain('codex exec');
+  });
+
+  it('uses a live profile launch policy before the package default fallback', () => {
+    const launchInput = buildAssignedWorkLaunchInputFromVisualDatabaseAction({
+      operation: 'start_assigned_record_work_session',
+      input: {
+        agent: 'ai-agent-profile:coder',
+        title: 'Backend package pass',
+        message: 'Inspect package state and write proof.',
+        record_address: 'visual-database::backend-pass',
+      },
+    }, fixedTestIdMinter());
+    const resolved = resolveAssignedWorkLaunchInputFromPublishedRows(launchInput, [{
+      address: 'ai-agent-profile:coder',
+      payload: {
+        kind: 'ai-agent-profile',
+        id: 'ai-agent-profile:coder',
+        label: 'Live Coder',
+        model_refs: ['ai-model-descriptor:gpt-5.5'],
+        instruction_refs: ['ai-instruction-block:backend-law'],
+        process_launch: {
+          argv: ['codex', 'exec', '--skip-git-repo-check', '{{source.prompt}}'],
+          cwd: { kind: 'literal', value: '.', inert: true },
+        },
+      },
+    }]);
+
+    const request = buildStartAssignedWorkSessionRequest(resolved);
+    expect(request.payload.descriptor.process.argv).toContain('--skip-git-repo-check');
+    expect(request.payload.descriptor.process.argv.join(' ')).toContain('Backend package pass');
+    expect(resolved.worker).toMatchObject({
+      label: 'Live Coder',
+      modelRefs: ['ai-model-descriptor:gpt-5.5'],
+      instructionRefs: ['ai-instruction-block:backend-law'],
+    });
+  });
+
+  it('keeps an explicit action launch ahead of the resolved live profile launch', () => {
+    const launchInput = buildAssignedWorkLaunchInputFromVisualDatabaseAction({
+      operation: 'start_assigned_record_work_session',
+      input: {
+        agent: 'ai-agent-profile:coder',
+        title: 'Route smoke',
+        message: 'Use a short process for route proof.',
+        record_address: 'visual-database::route-smoke',
+        process_launch: {
+          argv: ['node', '-e', 'console.log("ok")'],
+        },
+      },
+    }, fixedTestIdMinter());
+    const resolved = resolveAssignedWorkLaunchInputFromPublishedRows(launchInput, [{
+      payload: {
+        kind: 'ai-agent-profile',
+        id: 'ai-agent-profile:coder',
+        process_launch: {
+          argv: ['codex', 'exec', '--skip-git-repo-check', '{{source.prompt}}'],
+        },
+      },
+    }]);
+
+    expect(buildStartAssignedWorkSessionRequest(resolved).payload.descriptor.process.argv)
+      .toEqual(['node', '-e', 'console.log("ok")']);
+  });
+
+  it('launches non-task source records through the same assigned-work contract', () => {
+    const descriptor = buildAssignedWorkLaunchDescriptor({
+      source: {
+        id: 'support-ticket:42',
+        // Deliberately an owner that does NOT exist in this repo. The contract
+        // must not know its owners, and naming a real package here let the test
+        // pass for the wrong reason: it looked like a dependency, and it broke
+        // the day that package was deleted. An invented owner proves the point.
+        owner: 'made-up-owner-that-does-not-exist',
+        kind: 'support-ticket',
+        title: 'Refund question',
+        objective: 'Draft a reply with the attached policy.',
+        assignedTo: ['ai-agent-profile:coder'],
+        contextDescriptorRefs: ['made-up-owner-that-does-not-exist.fields'],
+        proofSinkRefs: ['support-ticket:42'],
+      },
+      worker,
+      correlationRef: 'assigned-work-run:support-ticket:42',
+    });
+
+    expect(descriptor.process.argv[2]).toContain('Source: Refund question');
+    expect(JSON.stringify(descriptor)).not.toContain('correlation_refs');
+  });
+
+  it('declares the active process-session target and never revives task-owned execution', () => {
+    const things = Array.isArray(processSessionContract.things) ? processSessionContract.things : [];
+    const activeThings = things.filter((thing) => thing.remove !== true);
+    const activeSerialized = JSON.stringify(activeThings);
+    const removedAddresses = new Set(things
+      .filter((thing) => thing.remove === true)
+      .map((thing) => thing.address));
+    const dispatchTargets = activeThings
+      .map((thing) => thing.payload)
+      .filter((payload): payload is { kind: string; target: string } =>
+        payload?.kind === 'package-target-descriptor' && typeof payload.target === 'string')
+      .map((payload) => payload.target);
+    const targetEntryNames = activeThings
+      .map((thing) => thing.payload)
+      .filter((payload): payload is { kind: string; entry_name: string } =>
+        payload?.kind === 'package-target-descriptor' && typeof payload.entry_name === 'string')
+      .map((payload) => payload.entry_name);
+    const packageEntryNames = new Set(activeThings
+      .map((thing) => thing.payload)
+      .filter((payload): payload is { kind: string; entry_name: string } =>
+        payload?.kind === 'bitfield-package-entry' && typeof payload.entry_name === 'string')
+      .map((payload) => payload.entry_name));
+
+    expect(activeSerialized).toContain('package::process-session::published-record::target::process-session');
+    expect(activeSerialized).toContain('package::process-session::published-record::assigned-work-launch-template::local-codex');
+    expect(activeSerialized).toContain('package::process-session::target::start-assigned-record-work-session');
+    expect(targetEntryNames.sort()).toEqual([
+      'start-assigned-record-work-session',
+      'start-assigned-work-session',
+      'start-authorized-assigned-work-session',
+      'stop-assigned-work-session',
+    ]);
+    for (const entryName of targetEntryNames) expect(packageEntryNames.has(entryName)).toBe(true);
+    expect(activeSerialized).toContain('compute.process_session');
+    expect(activeSerialized).toContain('startAssignedWorkSession');
+    expect(activeSerialized).toContain('startAssignedRecordWorkSession');
+    expect(activeSerialized).toContain('stopAssignedWorkSession');
+    expect(activeSerialized).not.toContain('startAssignedTaskSession');
+    expect(activeSerialized).not.toContain('stopAssignedTaskSession');
+    expect(activeSerialized).not.toContain('assigned-task-launch-template');
+    expect(activeSerialized).not.toContain('task_ref');
+    expect(activeSerialized).not.toContain('tasks.execute-task');
+    expect(activeSerialized).not.toContain('tasks.stop-task');
+    expect(activeSerialized).not.toContain('agent_task');
+    // The session-lifecycle owner is process-session. Every dispatch address the
+    // runtime resolves back to `package::process-session::target::<name>` must
+    // therefore carry the process-session owner segment, and no retracted row may
+    // be carried into this owner: retractions belong to the address they retract.
+    for (const target of dispatchTargets) expect(target.startsWith('process-session.')).toBe(true);
+    // Every shipped launch row must say where its model is, so no launcher can be
+    // added as DATA that the owner cannot prove. This is the structural half of
+    // the generic gate: the code names no launcher, the DATA names itself.
+    const launchRows = activeThings
+      .map((thing) => thing.payload)
+      .filter((payload): payload is { kind: string; launch: { argv: string[]; model_binding?: { argv_index: number } } } =>
+        payload?.kind === 'assigned-work-launch-template');
+    expect(launchRows.length).toBeGreaterThan(0);
+    for (const row of launchRows) {
+      const boundIndex = row.launch.model_binding?.argv_index;
+      expect(typeof boundIndex).toBe('number');
+      expect(typeof row.launch.argv[boundIndex as number]).toBe('string');
+    }
+    expect(activeSerialized).not.toContain('package::ai-work-control::');
+    expect(removedAddresses).toEqual(new Set());
+  });
+
+  it('renders the assignment prompt without needing a separate task family', () => {
+    expect(assignedWorkPrompt(sourceRecord, worker)).toContain('Assigned worker: Coder');
+    expect(assignedWorkPrompt(sourceRecord, worker)).toContain('Create the system plan and attach proof.');
+    expect(assignedWorkPrompt(sourceRecord, { ...worker, executionContract: 'Finish every in-bound step.' }))
+      .toContain('Effect boundary (hard limit): Local reversible evidence work only');
+    expect(assignedWorkPrompt(sourceRecord, { ...worker, executionContract: 'Finish every in-bound step.' }))
+      .toContain('Execution contract: Finish every in-bound step.');
+  });
+
+  it('returns owner-resolved worker model refs and the exact rendered process argv', async () => {
+    const calls: Array<{ target: string; payload: unknown }> = [];
+    const result = await startAssignedWorkSessionWithSender({ source: sourceRecord, worker }, async (request) => {
+      calls.push(request);
+      if (request.target === 'engine.operation.label-addressed') return { found: false };
+      return { result: 'session_started', session_id: 'process_session:test', snapshot: { event_feed_address: 'feed:test' } };
+    });
+    expect(result.runtimeProvenance).toMatchObject({
+      workerRef: 'ai-agent-profile:coder',
+      workerModelRefs: [],
+      renderedArgv: expect.arrayContaining(['codex', 'exec']),
+    });
+    expect(result.runtimeProvenance.instructionSelection).toBeNull();
+    expect(result.runtimeProvenance.sourceObjectiveSha256).toMatch(/^[0-9a-f]{64}$/);
+    expect(result.runtimeProvenance.mountedInputIdentities).toEqual([]);
+    expect(result.runtimeProvenance.finalInputIdentityDigest).toMatch(/^[0-9a-f]{64}$/);
+    expect(result.runtimeProvenance.renderedArgv.at(-1)).toContain('Source: Write package plan');
+    expect(calls.filter((call) => call.target === 'compute.process_session')).toHaveLength(1);
+  });
+
+  it('runs tool, guard, permission, and budget owners before one reservation-fenced process launch', async () => {
+    const calls: Array<{ target: string; payload: unknown }> = [];
+    const sourceRecordRef = sourceRecord.id;
+    const workerRecordRef = 'package::ai-agent-profile::agent::coder';
+    const toolRecordRef = 'package::ai-tool-catalog::tool::start-assigned-work-session';
+    const promptCasHash = 'sha256:17b2f1a318c73b396ec80b6c6999a1e39bf58d556d77b0d20bab76cd51ec7070';
+    const result = await startAuthorizedAssignedWorkSessionWithSender({
+      sourceRecordRef,
+      workerRecordRef,
+      toolRecordRef,
+    }, async request => {
+      calls.push(request);
+      if (request.target === 'engine.operation.label-addressed') {
+        const payload = request.payload as Record<string, unknown>;
+        if (payload.address_label === sourceRecordRef) return { found: true, payload: sourceRecord };
+        if (payload.address_label === workerRecordRef) return { found: true, payload: {
+          kind: 'ai-agent-profile', id: worker.id, label: worker.label, status: 'available',
+          model_refs: ['ai-model-descriptor:gpt-5.5'],
+          tool_refs: ['tool:start-assigned-work-session'],
+          execution_contract: 'Finish every in-bound step without asking Alex.',
+          instruction_selection: instructionSelection,
+          process_launch: {
+            argv: ['codex', 'exec', '-m', 'gpt-5.5', '--system-prompt-file', '.bitfield-harness/system-prompt.md', '{{source.prompt}}'],
+            model_binding: { argv_index: 3, executable: 'codex' },
+            inputs: [{
+              mount_path: '.bitfield-harness/system-prompt.md',
+              content_type: 'text/markdown',
+              source: { kind: 'blob_ref', hash: promptCasHash },
+            }],
+          },
+        } };
+        if (payload.address_label === toolRecordRef) return { found: true, payload: {
+          kind: 'ai-tool-descriptor', id: 'tool:start-assigned-work-session', status: 'active',
+          handler_ref: 'compute.process_session', guard_subject_ref: 'actor:ai-agent',
+          permission_capability_ref: 'capability:process-session.start-assigned-work-session',
+          guard_limit_ref: 'package::ai-action-guard::limit::start-assigned-work-session',
+          guard_state_ref: 'package::ai-action-guard::state::start-assigned-work-session',
+        } };
+        return { found: false };
+      }
+      if (request.target === 'ai-action-guard.evaluate-guard-policy') return {
+        allowed: true,
+        action_ref: 'compute.process_session',
+        subject_ref: 'actor:ai-agent',
+        basis_ref: 'ai-action-guard-owner-snapshot:a:b',
+      };
+      if (request.target === 'slot::workflow') {
+        const workflowPayload = request.payload as Record<string, unknown>;
+        expect(workflowPayload).toMatchObject({ operation: 'execute_definition', include_output: true, include_steps: false });
+        if (workflowPayload.definition_id === 'action:permission-lease.evaluate-capability') return { output: {
+          kind: 'obligation-decision',
+          capability_ref: 'capability:process-session.start-assigned-work-session',
+          allowed: true,
+          verdicts: [{ obligation_ref: 'obligation:read-only-process', satisfied: true }],
+          basis: ['permission-fact:1'],
+        } };
+        return { output: {
+          approved: true,
+          check_ref: 'budget-check:1',
+          reservation_ref: 'budget-reservation:1',
+        } };
+      }
+      return { result: 'session_started', session_id: 'process_session:authorized', snapshot: { event_feed_address: 'feed:authorized' } };
+    });
+
+    expect(result.authorizationProvenance).toEqual({
+      toolRecordRef,
+      guardBasisRef: 'ai-action-guard-owner-snapshot:a:b',
+      permissionBasisRefs: ['permission-fact:1'],
+      budgetCheckRef: 'budget-check:1',
+      budgetReservationRef: 'budget-reservation:1',
+      processIdempotencyKey: 'budget-reservation:1',
+    });
+    expect(readAssignedWorkProfileFromPublishedRows(
+      [{ address: workerRecordRef, payload: {
+        kind: 'ai-agent-profile',
+        id: worker.id,
+        instruction_selection: instructionSelection,
+      } }],
+      worker.id,
+    )?.instructionSelection).toBe(instructionSelection);
+    expect(result.runtimeProvenance.instructionSelection).toBe(instructionSelection);
+    expect(result.runtimeProvenance.sourceObjectiveSha256).toMatch(/^[0-9a-f]{64}$/);
+    expect(result.runtimeProvenance.mountedInputIdentities).toEqual([{
+      mountPath: '.bitfield-harness/system-prompt.md',
+      contentType: 'text/markdown',
+      executable: false,
+      sourceKind: 'blob_ref',
+      sourceHash: promptCasHash,
+    }]);
+    expect(result.runtimeProvenance.finalInputIdentityDigest).toMatch(/^[0-9a-f]{64}$/);
+    const process = calls.find(call => call.target === 'compute.process_session');
+    expect(process?.payload).toMatchObject({ idempotency_key: 'budget-reservation:1' });
+    expect(JSON.stringify(process?.payload)).toContain('Effect boundary (hard limit): Local reversible evidence work only');
+    expect(JSON.stringify(process?.payload)).toContain('Execution contract: Finish every in-bound step without asking Alex.');
+    expect(calls.map(call => call.target)).toEqual([
+      'engine.operation.label-addressed',
+      'engine.operation.label-addressed',
+      'engine.operation.label-addressed',
+      'ai-action-guard.evaluate-guard-policy',
+      'slot::workflow',
+      'slot::workflow',
+      'compute.process_session',
+    ]);
+  });
+
+  it('does not launch when permission has no owner obligation or budget denies', async () => {
+    const processCalls: unknown[] = [];
+    const request = {
+      sourceRecordRef: sourceRecord.id,
+      workerRecordRef: 'package::ai-agent-profile::agent::coder',
+      toolRecordRef: 'package::ai-tool-catalog::tool::start-assigned-work-session',
+    };
+    await expect(startAuthorizedAssignedWorkSessionWithSender(request, async envelope => {
+      if (envelope.target === 'engine.operation.label-addressed') {
+        const payload = envelope.payload as Record<string, unknown>;
+        if (payload.address_label === request.sourceRecordRef) return { found: true, payload: sourceRecord };
+        if (payload.address_label === request.workerRecordRef) return { found: true, payload: {
+          kind: 'ai-agent-profile', id: worker.id, status: 'available',
+          model_refs: ['ai-model-descriptor:gpt-5.5'],
+          tool_refs: ['tool:start-assigned-work-session'],
+          process_launch: {
+            ...worker.processLaunch,
+            argv: ['codex', 'exec', '-m', 'gpt-5.5', '{{source.prompt}}'],
+            model_binding: { argv_index: 3, executable: 'codex' },
+          },
+        } };
+        return { found: true, payload: {
+          kind: 'ai-tool-descriptor', id: 'tool:start-assigned-work-session', status: 'active', handler_ref: 'compute.process_session',
+          permission_capability_ref: 'capability:process-session.start-assigned-work-session',
+          guard_subject_ref: 'actor:ai-agent', guard_limit_ref: 'package::ai-action-guard::limit::start-assigned-work-session',
+          guard_state_ref: 'package::ai-action-guard::state::start-assigned-work-session',
+        } };
+      }
+      if (envelope.target === 'ai-action-guard.evaluate-guard-policy') return { allowed: true, action_ref: 'compute.process_session', subject_ref: 'actor:ai-agent', basis_ref: 'guard:basis' };
+      if (envelope.target === 'slot::workflow') return { output: { kind: 'obligation-decision', capability_ref: 'capability:process-session.start-assigned-work-session', allowed: true, verdicts: [{ obligation_ref: '', satisfied: true }], basis: [] } };
+      processCalls.push(envelope);
+      return {};
+    })).rejects.toThrow('at least one satisfied owner obligation');
+    expect(processCalls).toHaveLength(0);
+  });
+
+  it('fails closed before authorization when the owner profile is unavailable', async () => {
+    const request = {
+      sourceRecordRef: sourceRecord.id,
+      workerRecordRef: 'package::ai-agent-profile::agent::coder',
+      toolRecordRef: 'package::ai-tool-catalog::tool::start-assigned-work-session',
+    };
+    await expect(startAuthorizedAssignedWorkSessionWithSender(request, async envelope => {
+      const payload = envelope.payload as Record<string, unknown>;
+      if (payload.address_label === request.sourceRecordRef) return { found: true, payload: sourceRecord };
+      return { found: true, payload: {
+        kind: 'ai-agent-profile', id: worker.id, status: 'paused',
+        model_refs: ['ai-model-descriptor:gpt-5.5'], tool_refs: ['tool:start-assigned-work-session'],
+        process_launch: {
+          argv: ['codex', 'exec', '-m', 'gpt-5.5', '{{source.prompt}}'],
+          model_binding: { argv_index: 3, executable: 'codex' },
+        },
+      } };
+    })).rejects.toThrow('worker owner record is not available');
+  });
+
+  it('fails closed before authorization when a declared instruction snapshot is invalid', async () => {
+    const processCalls: unknown[] = [];
+    const request = {
+      sourceRecordRef: sourceRecord.id,
+      workerRecordRef: 'package::ai-agent-profile::agent::coder',
+      toolRecordRef: 'package::ai-tool-catalog::tool::start-assigned-work-session',
+    };
+    await expect(startAuthorizedAssignedWorkSessionWithSender(request, async envelope => {
+      const payload = envelope.payload as Record<string, unknown>;
+      if (payload.address_label === request.sourceRecordRef) return { found: true, payload: sourceRecord };
+      if (payload.address_label === request.workerRecordRef) return { found: true, payload: {
+        kind: 'ai-agent-profile',
+        id: worker.id,
+        status: 'available',
+        model_refs: ['ai-model-descriptor:gpt-5.5'],
+        tool_refs: ['tool:start-assigned-work-session'],
+        instruction_selection: { ...instructionSelection, selection_hash: 'mutable-selection-id' },
+        process_launch: { argv: ['codex', 'exec', '-m', 'gpt-5.5', '{{source.prompt}}'] },
+      } };
+      processCalls.push(envelope);
+      return { found: true, payload: {} };
+    })).rejects.toThrow('declares an invalid instruction_selection snapshot');
+    expect(processCalls).toHaveLength(0);
+  });
+
+  it('fails closed before authorization when the owner launch substitutes another model', async () => {
+    const request = {
+      sourceRecordRef: sourceRecord.id,
+      workerRecordRef: 'package::ai-agent-profile::agent::coder',
+      toolRecordRef: 'package::ai-tool-catalog::tool::start-assigned-work-session',
+    };
+    await expect(startAuthorizedAssignedWorkSessionWithSender(request, async envelope => {
+      const payload = envelope.payload as Record<string, unknown>;
+      if (payload.address_label === request.sourceRecordRef) return { found: true, payload: sourceRecord };
+      return { found: true, payload: {
+        kind: 'ai-agent-profile', id: worker.id, status: 'available',
+        model_refs: ['ai-model-descriptor:claude-opus-4-8'], tool_refs: ['tool:start-assigned-work-session'],
+        process_launch: {
+          argv: ['codex', 'exec', '-m', 'gpt-5.5', '{{source.prompt}}'],
+          model_binding: { argv_index: 3, executable: 'codex' },
+        },
+      } };
+    })).rejects.toThrow('worker process launch model does not match');
+  });
+
+  // The launcher is DATA. These four cases are the whole contract: this file
+  // knows no CLI, no vendor, no model family and no binary, so a container
+  // runner, a remote runner or a CLI invented tomorrow arrives as one launch
+  // row and zero code change here.
+  const authorizedProfileSender = (processLaunch: Record<string, unknown>, modelRefs: string[]) => (
+    async (envelope: { target: string; payload: unknown }) => {
+      const payload = envelope.payload as Record<string, unknown>;
+      if (payload.address_label === sourceRecord.id) return { found: true, payload: sourceRecord };
+      return { found: true, payload: {
+        kind: 'ai-agent-profile', id: worker.id, status: 'available',
+        model_refs: modelRefs,
+        tool_refs: ['tool:start-assigned-work-session'],
+        process_launch: processLaunch,
+      } };
+    }
+  );
+  const authorizedRequest = {
+    sourceRecordRef: sourceRecord.id,
+    workerRecordRef: 'package::ai-agent-profile::agent::coder',
+    toolRecordRef: 'package::ai-tool-catalog::tool::start-assigned-work-session',
+  };
+  const launcherRejection = async (processLaunch: Record<string, unknown>, modelRefs: string[]) => {
+    try {
+      await startAuthorizedAssignedWorkSessionWithSender(
+        authorizedRequest,
+        authorizedProfileSender(processLaunch, modelRefs),
+      );
+      return '(the launch was accepted with no owner rejection)';
+    } catch (error) {
+      return error instanceof Error ? error.message : String(error);
+    }
+  };
+
+  it('accepts a launcher it has never heard of when the launch row declares its own model binding', async () => {
+    const message = await launcherRejection({
+      argv: ['podman', 'run', '--rm', 'registry.invalid/runner', '--pick', 'some-model-invented-tomorrow', '{{source.prompt}}'],
+      model_binding: { argv_index: 5, executable: 'podman' },
+    }, ['ai-model-descriptor:some-model-invented-tomorrow']);
+    expect(message).not.toContain('model does not match');
+    expect(message).not.toContain('executable does not match');
+    expect(message).not.toContain('declares no model binding');
+  });
+
+  it('binds the model to the declared argv slot, so a substituted model is still caught for any launcher', async () => {
+    const message = await launcherRejection({
+      argv: ['podman', 'run', '--rm', 'registry.invalid/runner', '--pick', 'a-model-the-profile-never-declared', '{{source.prompt}}'],
+      model_binding: { argv_index: 5, executable: 'podman' },
+    }, ['ai-model-descriptor:some-model-invented-tomorrow']);
+    expect(message).toContain('worker process launch model does not match');
+  });
+
+  it('holds the declared launcher binary for any launcher', async () => {
+    const message = await launcherRejection({
+      argv: ['some-other-binary', 'run', '--rm', 'registry.invalid/runner', '--pick', 'some-model-invented-tomorrow', '{{source.prompt}}'],
+      model_binding: { argv_index: 5, executable: 'podman' },
+    }, ['ai-model-descriptor:some-model-invented-tomorrow']);
+    expect(message).toContain('worker process launch executable does not match');
+  });
+
+  it('fails closed when a launch row does not say where its model is', async () => {
+    const message = await launcherRejection({
+      argv: ['podman', 'run', '--rm', 'registry.invalid/runner', '--pick', 'some-model-invented-tomorrow', '{{source.prompt}}'],
+    }, ['ai-model-descriptor:some-model-invented-tomorrow']);
+    expect(message).toContain('declares no model binding');
+  });
+
+  it('does not use the package fallback for an authorized profile with no owner launch', async () => {
+    const request = {
+      sourceRecordRef: sourceRecord.id,
+      workerRecordRef: 'package::ai-agent-profile::agent::coder',
+      toolRecordRef: 'package::ai-tool-catalog::tool::start-assigned-work-session',
+    };
+    await expect(startAuthorizedAssignedWorkSessionWithSender(request, async envelope => {
+      const payload = envelope.payload as Record<string, unknown>;
+      if (payload.address_label === request.sourceRecordRef) return { found: true, payload: sourceRecord };
+      return { found: true, payload: {
+        kind: 'ai-agent-profile', id: worker.id, status: 'available',
+        model_refs: ['ai-model-descriptor:gpt-5.5'], tool_refs: ['tool:start-assigned-work-session'],
+      } };
+    })).rejects.toThrow('authorized assigned work requires an owner-declared process launch');
+  });
+});
+
+describe('process-session names no app', () => {
+  const source = readFileSync('packages/process-session/do-work/run-assigned-work.ts', 'utf8');
+
+  it('sends no partition_label on any engine request, so reads land in the app doing the asking', () => {
+    // The engine reads partition_label with optional_string_field and falls back to the
+    // partition the request arrived on. A value here can only ever name a DIFFERENT app
+    // than the one running, which is exactly what profile_partition_label did: it said
+    // bitfield-studio, so every worker-profile read went to a retired app's store.
+    expect(source).not.toContain('partition_label');
+    expect(source).not.toContain('partitionLabel');
+  });
+
+  it('carries no app name in its route DATA either', () => {
+    const contract = readFileSync('packages/process-session/things-to-store-and-run.json', 'utf8');
+    expect(contract).not.toContain('profile_partition_label');
+  });
+});

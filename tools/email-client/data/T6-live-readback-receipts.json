@@ -1,0 +1,48 @@
+{
+  "deployment": {
+    "timestamp": "2026-07-18T21:11:45.159Z",
+    "method": "applyCurrentStateWritesLive (canonical)",
+    "shell_url": "http://127.0.0.1:3012",
+    "partition": "bitfield-studio",
+    "payload_count": 5,
+    "result_ok": true
+  },
+  "readback_verification": {
+    "method": "engine.operation.read-current per address (via applyCurrentStateWritesLive verification)",
+    "found_true": 5,
+    "found_false": 0,
+    "total": 5
+  },
+  "receipts": [
+    {
+      "address": "current-item::published-record::trigger-rule::email::split-inbox-important",
+      "found": true,
+      "kind": "trigger-rule",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::trigger-rule::email::split-inbox-pitches",
+      "found": true,
+      "kind": "trigger-rule",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::trigger-rule::email::split-inbox-receipts",
+      "found": true,
+      "kind": "trigger-rule",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::trigger-rule::email::split-inbox-newsletters",
+      "found": true,
+      "kind": "trigger-rule",
+      "verification_status": "read-current confirmed"
+    },
+    {
+      "address": "current-item::published-record::trigger-rule::email::split-inbox-team",
+      "found": true,
+      "kind": "trigger-rule",
+      "verification_status": "read-current confirmed"
+    }
+  ]
+}

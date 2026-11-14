@@ -1,0 +1,73 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages: each names its source path and commit, the identity of its source bytes and of its bytes here. The first commit that holds them is the byte copy; later commits change import paths.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/practice-protocol/__tests__/practice-protocol.test.ts",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/practice-protocol/__tests__/practice-protocol.test.ts.held",
+      "source_identity": "1f:2510b904bd039f424c77970f87de1a85fd2ca588f3ce1ae58c43718735e87575",
+      "identity": "1f:a55f5f75441e2d20db5a0a0865b0deb949db04cd3a4562cd0b138fc55e9c7736",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
+    },
+    {
+      "from": "packages/practice-protocol/do-work/request-protocol-event.ts",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/practice-protocol/do-work/request-protocol-event.ts",
+      "source_identity": "1f:010ee20091aa7bb33b51622fb730a37bf7de89185436fa19c0e4f12a50a7dca5",
+      "identity_at_move": "1f:010ee20091aa7bb33b51622fb730a37bf7de89185436fa19c0e4f12a50a7dca5",
+      "byte_copy_commit": "090e34111c6224eaf8713fe3b82b07bd771c79a2"
+    },
+    {
+      "from": "packages/practice-protocol/read-data/practice-protocol-types.ts",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/practice-protocol/read-data/practice-protocol-types.ts",
+      "source_identity": "1f:ea4dd70fddf6072e35a2f12c2c0b2cb8acb3deba01821a53cf13bd5e83595dde",
+      "identity": "1f:ea4dd70fddf6072e35a2f12c2c0b2cb8acb3deba01821a53cf13bd5e83595dde"
+    },
+    {
+      "from": "packages/practice-protocol/read-data/read-practice-protocol.ts",
+      "commit": "8ac9732afa25751912dc247eb3093eb9baed63cc",
+      "to": "tools/practice-protocol/read-data/read-practice-protocol.ts",
+      "source_identity": "1f:c344f4a49f752a5b62f164ba52203cf905701badabd25be594e8f46c056dc96d",
+      "identity_at_move": "1f:c344f4a49f752a5b62f164ba52203cf905701badabd25be594e8f46c056dc96d",
+      "byte_copy_commit": "090e34111c6224eaf8713fe3b82b07bd771c79a2"
+    },
+    {
+      "from": "packages/practice-protocol/show/PracticeProtocolSurface.tsx",
+      "commit": "5e0b8b124509b2b9f88165228b31ef058a8a690d",
+      "to": "tools/practice-protocol/show/PracticeProtocolSurface.tsx",
+      "source_identity": "1f:1b5f15d586a1ec06430c811a36c4570f33c4ce0e5d9cf57de353356b2126f337",
+      "identity_at_move": "1f:1b5f15d586a1ec06430c811a36c4570f33c4ce0e5d9cf57de353356b2126f337",
+      "byte_copy_commit": "090e34111c6224eaf8713fe3b82b07bd771c79a2"
+    },
+    {
+      "from": "packages/practice-protocol/show/mount-practice-protocol.tsx",
+      "commit": "25f242cb0e96567cf5ab530c090ad157a5ef10dd",
+      "to": "tools/practice-protocol/show/mount-practice-protocol.tsx",
+      "source_identity": "1f:df4a454ce051db66af539606bf34e9cf20ea5aa726b3b282a9a83854f2854f7d",
+      "identity_at_move": "1f:df4a454ce051db66af539606bf34e9cf20ea5aa726b3b282a9a83854f2854f7d",
+      "byte_copy_commit": "090e34111c6224eaf8713fe3b82b07bd771c79a2"
+    },
+    {
+      "from": "packages/practice-protocol/tests/published-records-scoped-feed.test.ts",
+      "commit": "8353dc2cea8d1742514db1172aec2f723ece32fb",
+      "to": "tools/practice-protocol/tests/published-records-scoped-feed.test.ts",
+      "source_identity": "1f:aef44acda28e269e075ffe18a95deab3440f77cb810cbebebd0c344158d72119",
+      "identity_at_move": "1f:aef44acda28e269e075ffe18a95deab3440f77cb810cbebebd0c344158d72119",
+      "byte_copy_commit": "090e34111c6224eaf8713fe3b82b07bd771c79a2"
+    },
+    {
+      "from": "packages/practice-protocol/things-to-store-and-run.json",
+      "commit": "4ca9e35e27ab98b7f0280c8e8b025a7e78a222e0",
+      "to": "tools/practice-protocol/things-to-store-and-run.json",
+      "source_identity": "1f:c0dbd416a5f5f0683039ceca4f08c5f06f1e0465dbdcfd36461d5768b9f47ca8",
+      "identity": "1f:c0dbd416a5f5f0683039ceca4f08c5f06f1e0465dbdcfd36461d5768b9f47ca8"
+    }
+  ],
+  "held": {
+    "tools/practice-protocol/__tests__/practice-protocol.test.ts.held": "needs react, which this tree does not install (the screen's runtime or the retired package build)"
+  }
+}

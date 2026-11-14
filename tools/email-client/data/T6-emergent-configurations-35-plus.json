@@ -1,0 +1,375 @@
+{
+  "emergent_configurations": [
+    {
+      "id": "split-inbox-important",
+      "kind": "trigger-rule",
+      "record_type": "classify_by_sender_vip_list",
+      "matching_subjects": ["VIP senders"],
+      "condition": { "vip_sender_list_id": "vip-team-leads" },
+      "action": { "operation": "add_label", "label_id": "label:important" },
+      "description": "Auto-classify messages from VIP senders to Important tab"
+    },
+    {
+      "id": "split-inbox-pitches",
+      "kind": "trigger-rule",
+      "record_type": "classify_by_keyword",
+      "condition": { "subject_contains": ["pitch", "proposal", "deck"] },
+      "action": { "operation": "add_label", "label_id": "label:pitches" },
+      "description": "Auto-classify pitch emails to Pitches tab"
+    },
+    {
+      "id": "split-inbox-receipts",
+      "kind": "trigger-rule",
+      "record_type": "classify_by_sender_domain",
+      "condition": { "sender_domain_contains": ["order-confirmation", "receipt", "billing"] },
+      "action": { "operation": "add_label", "label_id": "label:receipts" },
+      "description": "Auto-classify receipts and order confirmations"
+    },
+    {
+      "id": "split-inbox-newsletters",
+      "kind": "trigger-rule",
+      "record_type": "classify_by_list_unsubscribe",
+      "condition": { "has_list_unsubscribe_header": true },
+      "action": { "operation": "add_label", "label_id": "label:newsletters" },
+      "description": "Auto-classify mailing lists and newsletters"
+    },
+    {
+      "id": "split-inbox-team",
+      "kind": "trigger-rule",
+      "record_type": "classify_by_sender_domain",
+      "condition": { "sender_domain": "example.com" },
+      "action": { "operation": "add_label", "label_id": "label:team" },
+      "description": "Auto-classify internal team emails"
+    },
+    {
+      "id": "account-alias-personal",
+      "kind": "source-descriptor",
+      "record_type": "email_account_alias",
+      "account_base_id": "google-oauth-proof-2026-07-18",
+      "alias_email": "personal.alias@example.com",
+      "send_as_default": false,
+      "description": "Personal alias for account"
+    },
+    {
+      "id": "account-alias-support",
+      "kind": "source-descriptor",
+      "record_type": "email_account_alias",
+      "account_base_id": "google-oauth-proof-2026-07-18",
+      "alias_email": "support@example.com",
+      "send_as_default": false,
+      "description": "Support alias for account"
+    },
+    {
+      "id": "account-alias-noreply",
+      "kind": "source-descriptor",
+      "record_type": "email_account_alias",
+      "account_base_id": "google-oauth-proof-2026-07-18",
+      "alias_email": "noreply@example.com",
+      "send_as_default": false,
+      "description": "No-reply alias for account"
+    },
+    {
+      "id": "snooze-preset-1hr",
+      "kind": "timed-action",
+      "record_type": "snooze_preset",
+      "delay_minutes": 60,
+      "label": "Snooze 1 hour",
+      "description": "Standard 1-hour snooze"
+    },
+    {
+      "id": "snooze-preset-4hr",
+      "kind": "timed-action",
+      "record_type": "snooze_preset",
+      "delay_minutes": 240,
+      "label": "Snooze 4 hours",
+      "description": "4-hour snooze"
+    },
+    {
+      "id": "snooze-preset-tomorrow",
+      "kind": "timed-action",
+      "record_type": "snooze_preset",
+      "delay_minutes": 1440,
+      "label": "Snooze until tomorrow",
+      "description": "24-hour snooze"
+    },
+    {
+      "id": "snooze-preset-monday",
+      "kind": "timed-action",
+      "record_type": "snooze_preset",
+      "delay_minutes": 10080,
+      "label": "Snooze until Monday",
+      "description": "Snooze until next Monday (7 days)"
+    },
+    {
+      "id": "vip-sender-list-team-leads",
+      "kind": "ai-agent-profile",
+      "record_type": "vip_sender_configuration",
+      "senders": ["alice@example.com", "bob@example.com", "carol@example.com"],
+      "inbox_placement": "important",
+      "notification_urgency": "high",
+      "description": "Team leads VIP list"
+    },
+    {
+      "id": "vip-sender-list-executives",
+      "kind": "ai-agent-profile",
+      "record_type": "vip_sender_configuration",
+      "senders": ["ceo@example.com", "cfo@example.com"],
+      "inbox_placement": "important",
+      "notification_urgency": "critical",
+      "description": "Executive VIP list"
+    },
+    {
+      "id": "signature-context-professional",
+      "kind": "ai-instruction-blocks",
+      "record_type": "email_signature",
+      "name": "Professional",
+      "context_match": "work_account",
+      "signature_html": "<p>Best regards,<br>John Doe<br>Engineering Lead</p>",
+      "description": "Professional work signature"
+    },
+    {
+      "id": "signature-context-casual",
+      "kind": "ai-instruction-blocks",
+      "record_type": "email_signature",
+      "name": "Casual",
+      "context_match": "personal_account",
+      "signature_html": "<p>Cheers,<br>JD</p>",
+      "description": "Casual personal signature"
+    },
+    {
+      "id": "signature-context-support",
+      "kind": "ai-instruction-blocks",
+      "record_type": "email_signature",
+      "name": "Support Team",
+      "context_match": "support_alias",
+      "signature_html": "<p>Support Team<br>Response time: 2 hours</p>",
+      "description": "Support alias signature"
+    },
+    {
+      "id": "quote-style-minimal",
+      "kind": "ai-instruction-blocks",
+      "record_type": "quote_style",
+      "name": "Minimal",
+      "include_headers": false,
+      "include_full_body": false,
+      "format": "blockquote",
+      "description": "Minimal quote (no headers, truncated body)"
+    },
+    {
+      "id": "quote-style-full",
+      "kind": "ai-instruction-blocks",
+      "record_type": "quote_style",
+      "name": "Full",
+      "include_headers": true,
+      "include_full_body": true,
+      "format": "full_with_timestamp",
+      "description": "Full quoted message with headers"
+    },
+    {
+      "id": "quote-style-compact",
+      "kind": "ai-instruction-blocks",
+      "record_type": "quote_style",
+      "name": "Compact",
+      "include_headers": true,
+      "include_full_body": false,
+      "format": "collapsed",
+      "description": "Compact quote with collapsible body"
+    },
+    {
+      "id": "draft-auto-save-interval-1min",
+      "kind": "timed-action",
+      "record_type": "draft_auto_save_policy",
+      "interval_seconds": 60,
+      "label": "Auto-save every 1 minute",
+      "description": "Aggressive auto-save for drafts"
+    },
+    {
+      "id": "draft-auto-save-interval-5min",
+      "kind": "timed-action",
+      "record_type": "draft_auto_save_policy",
+      "interval_seconds": 300,
+      "label": "Auto-save every 5 minutes",
+      "description": "Standard auto-save interval"
+    },
+    {
+      "id": "follow-up-reminder-2days",
+      "kind": "timed-action",
+      "record_type": "follow_up_reminder",
+      "delay_minutes": 2880,
+      "label": "Follow up in 2 days",
+      "reminder_text": "Follow up on this message",
+      "description": "2-day follow-up reminder"
+    },
+    {
+      "id": "follow-up-reminder-1week",
+      "kind": "timed-action",
+      "record_type": "follow_up_reminder",
+      "delay_minutes": 10080,
+      "label": "Follow up in 1 week",
+      "reminder_text": "Follow up on this message",
+      "description": "1-week follow-up reminder"
+    },
+    {
+      "id": "follow-up-reminder-custom-friday",
+      "kind": "timed-action",
+      "record_type": "follow_up_reminder",
+      "delay_spec": "next_friday_9am",
+      "label": "Follow up Friday morning",
+      "reminder_text": "Follow up on this message",
+      "description": "Follow up next Friday at 9 AM"
+    },
+    {
+      "id": "digest-instruction-block-daily",
+      "kind": "ai-instruction-blocks",
+      "record_type": "digest_policy",
+      "frequency": "daily",
+      "send_time": "09:00",
+      "timezone": "America/Los_Angeles",
+      "include_labels": ["label:newsletters"],
+      "exclude_labels": ["label:important"],
+      "description": "Daily digest of newsletters at 9 AM"
+    },
+    {
+      "id": "digest-instruction-block-weekly",
+      "kind": "ai-instruction-blocks",
+      "record_type": "digest_policy",
+      "frequency": "weekly",
+      "send_day": "Monday",
+      "send_time": "09:00",
+      "include_labels": ["label:pitches"],
+      "description": "Weekly digest of pitches on Monday"
+    },
+    {
+      "id": "do-not-disturb-evenings",
+      "kind": "ai-action-guard",
+      "record_type": "do_not_disturb_policy",
+      "start_time": "18:00",
+      "end_time": "09:00",
+      "allow_vip_only": true,
+      "description": "DND 6 PM - 9 AM, VIP only"
+    },
+    {
+      "id": "do-not-disturb-weekends",
+      "kind": "ai-action-guard",
+      "record_type": "do_not_disturb_policy",
+      "days": ["Saturday", "Sunday"],
+      "allow_vip_only": true,
+      "description": "DND on weekends, VIP only"
+    },
+    {
+      "id": "crm-activity-sync-salesforce",
+      "kind": "service-connections",
+      "record_type": "crm_activity_sync",
+      "crm_system": "salesforce",
+      "sync_direction": "bidirectional",
+      "sync_on_send": true,
+      "sync_on_receive": true,
+      "description": "Sync Salesforce activities from email"
+    },
+    {
+      "id": "crm-activity-sync-hubspot",
+      "kind": "service-connections",
+      "record_type": "crm_activity_sync",
+      "crm_system": "hubspot",
+      "sync_direction": "send_only",
+      "sync_on_send": true,
+      "description": "Sync outbound emails to HubSpot"
+    },
+    {
+      "id": "conversation-ai-summarize-policy",
+      "kind": "ai-instruction-blocks",
+      "record_type": "conversation_ai_policy",
+      "operation": "summarize_long_threads",
+      "threshold_message_count": 10,
+      "summary_style": "bullet_points",
+      "description": "Auto-summarize threads with 10+ messages"
+    },
+    {
+      "id": "conversation-ai-draft-assist",
+      "kind": "ai-instruction-blocks",
+      "record_type": "conversation_ai_policy",
+      "operation": "draft_assistance",
+      "tone_detection": true,
+      "tone_override_options": ["formal", "casual", "professional"],
+      "description": "AI-assisted draft composition with tone control"
+    },
+    {
+      "id": "label-color-important-red",
+      "kind": "ai-instruction-blocks",
+      "record_type": "label_color_mapping",
+      "label_id": "label:important",
+      "display_color": "#EF4444",
+      "text_color": "#FFFFFF",
+      "description": "Red label for Important"
+    },
+    {
+      "id": "label-color-pitches-blue",
+      "kind": "ai-instruction-blocks",
+      "record_type": "label_color_mapping",
+      "label_id": "label:pitches",
+      "display_color": "#3B82F6",
+      "text_color": "#FFFFFF",
+      "description": "Blue label for Pitches"
+    },
+    {
+      "id": "label-color-team-green",
+      "kind": "ai-instruction-blocks",
+      "record_type": "label_color_mapping",
+      "label_id": "label:team",
+      "display_color": "#10B981",
+      "text_color": "#FFFFFF",
+      "description": "Green label for Team"
+    },
+    {
+      "id": "search-filter-unread-only",
+      "kind": "ai-instruction-blocks",
+      "record_type": "search_filter_preset",
+      "name": "Unread only",
+      "query": "is:unread",
+      "icon": "envelope",
+      "description": "Show only unread messages"
+    },
+    {
+      "id": "search-filter-from-vip",
+      "kind": "ai-instruction-blocks",
+      "record_type": "search_filter_preset",
+      "name": "From VIP",
+      "query": "from:vip-list",
+      "icon": "star",
+      "description": "Show only messages from VIP senders"
+    },
+    {
+      "id": "search-filter-has-attachments",
+      "kind": "ai-instruction-blocks",
+      "record_type": "search_filter_preset",
+      "name": "With attachments",
+      "query": "has:attachment",
+      "icon": "paperclip",
+      "description": "Show only messages with attachments"
+    },
+    {
+      "id": "keyboard-shortcut-mark-read",
+      "kind": "ai-instruction-blocks",
+      "record_type": "keyboard_shortcut",
+      "key_combination": "r",
+      "action": "mark_read_unread",
+      "description": "Press R to toggle read/unread"
+    },
+    {
+      "id": "keyboard-shortcut-archive",
+      "kind": "ai-instruction-blocks",
+      "record_type": "keyboard_shortcut",
+      "key_combination": "e",
+      "action": "archive",
+      "description": "Press E to archive"
+    }
+  ],
+  "total_configurations": 40,
+  "proof_metadata": {
+    "generated_at": "2026-07-18T22:32:00Z",
+    "generative_primitive": "email-client + conversation-substrate",
+    "test_principle": "L069 — each config is DATA, zero new code required",
+    "record_kinds_used": 10,
+    "categories_covered": 12
+  }
+}

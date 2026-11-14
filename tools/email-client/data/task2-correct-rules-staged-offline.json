@@ -1,0 +1,486 @@
+{
+  "basis": {
+    "op": "write_batch",
+    "app_id": "bitfield-email-into-conversation-w3",
+    "partition": "bitfield-studio",
+    "comment": "OFFLINE STAGED: Correct trigger-rules + workflow-definitions (requires coordinator review)"
+  },
+  "write_batch": [
+    {
+      "address_label": "action:email-classify:add-receipts-label",
+      "address_mode": "identity_text",
+      "path_labels": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "kind": "workflow-definition",
+        "id": "action:email-classify:add-receipts-label",
+        "name": "Add receipts label",
+        "description": "Apply receipts label to message",
+        "steps": [
+          {
+            "id": "step:apply-label",
+            "kind": "action",
+            "operation": "apply-label",
+            "config": {
+              "label_id": "label:receipts",
+              "cascade": "thread"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "address_label": "action:email-classify:add-pitches-label",
+      "address_mode": "identity_text",
+      "path_labels": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "kind": "workflow-definition",
+        "id": "action:email-classify:add-pitches-label",
+        "name": "Add pitches label",
+        "description": "Apply pitches label to message",
+        "steps": [
+          {
+            "id": "step:apply-label",
+            "kind": "action",
+            "operation": "apply-label",
+            "config": {
+              "label_id": "label:pitches",
+              "cascade": "message"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "address_label": "action:email-classify:add-important-label",
+      "address_mode": "identity_text",
+      "path_labels": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "kind": "workflow-definition",
+        "id": "action:email-classify:add-important-label",
+        "name": "Add important label",
+        "description": "Apply important label to VIP messages",
+        "steps": [
+          {
+            "id": "step:apply-label",
+            "kind": "action",
+            "operation": "apply-label",
+            "config": {
+              "label_id": "label:important",
+              "cascade": "thread"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "address_label": "action:email-classify:add-newsletters-label",
+      "address_mode": "identity_text",
+      "path_labels": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "kind": "workflow-definition",
+        "id": "action:email-classify:add-newsletters-label",
+        "name": "Add newsletters label",
+        "description": "Apply newsletters label to message",
+        "steps": [
+          {
+            "id": "step:apply-label",
+            "kind": "action",
+            "operation": "apply-label",
+            "config": {
+              "label_id": "label:newsletters",
+              "cascade": "message"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "address_label": "action:email-classify:add-team-label",
+      "address_mode": "identity_text",
+      "path_labels": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "kind": "workflow-definition",
+        "id": "action:email-classify:add-team-label",
+        "name": "Add team label",
+        "description": "Apply team label to internal messages",
+        "steps": [
+          {
+            "id": "step:apply-label",
+            "kind": "action",
+            "operation": "apply-label",
+            "config": {
+              "label_id": "label:team",
+              "cascade": "message"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "address_label": "trigger:email-classify:receipts",
+      "address_mode": "identity_text",
+      "path_labels": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:email-classify:receipts",
+        "name": "Auto-classify receipts",
+        "topic": "data_state",
+        "trigger_type": "delta",
+        "is_active": true,
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "email-message"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "sender_domain"
+              },
+              "transform": [
+                {
+                  "op": "op:core.contains_any",
+                  "args": {
+                    "values": [
+                      "order-confirmation",
+                      "receipt",
+                      "billing"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:email-classify:add-receipts-label",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "message": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "address_label": "trigger:email-classify:pitches",
+      "address_mode": "identity_text",
+      "path_labels": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:email-classify:pitches",
+        "name": "Auto-classify pitches",
+        "topic": "data_state",
+        "trigger_type": "delta",
+        "is_active": true,
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "email-message"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "subject"
+              },
+              "transform": [
+                {
+                  "op": "op:core.contains_any",
+                  "args": {
+                    "values": [
+                      "pitch",
+                      "proposal",
+                      "deck"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:email-classify:add-pitches-label",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "message": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "address_label": "trigger:email-classify:vip-important",
+      "address_mode": "identity_text",
+      "path_labels": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:email-classify:vip-important",
+        "name": "Auto-classify VIP senders to Important",
+        "topic": "data_state",
+        "trigger_type": "delta",
+        "is_active": true,
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "email-message"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "sender_email"
+              },
+              "transform": [
+                {
+                  "op": "op:core.is_in_list",
+                  "args": {
+                    "list_id": "vip-team-leads"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:email-classify:add-important-label",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "message": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "address_label": "trigger:email-classify:newsletters",
+      "address_mode": "identity_text",
+      "path_labels": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:email-classify:newsletters",
+        "name": "Auto-classify newsletters",
+        "topic": "data_state",
+        "trigger_type": "delta",
+        "is_active": true,
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "email-message"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "headers.list-unsubscribe"
+              },
+              "transform": [
+                {
+                  "op": "op:core.present",
+                  "args": {}
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:email-classify:add-newsletters-label",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "message": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "address_label": "trigger:email-classify:team",
+      "address_mode": "identity_text",
+      "path_labels": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:email-classify:team",
+        "name": "Auto-classify team mail",
+        "topic": "data_state",
+        "trigger_type": "delta",
+        "is_active": true,
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "kind"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "email-message"
+                  }
+                }
+              ]
+            },
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "sender_domain"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "@company.internal"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:email-classify:add-team-label",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "message": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,293 @@
+// The loader child reads its process-admission policy from one environment variable, and only
+// the process that spawns it can set that variable. These tests pin that the publisher passes
+// what it derived, passes nothing when nothing was named, and refuses to pass anything it could
+// not decode. Every test calls the real exports; a fixture that asserts on its own inputs is a
+// hole with a green light on it.
+import assert from "node:assert/strict";
+import { mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import test from "node:test";
+
+import {
+  BUILD_POLICY_ENVIRONMENT_KEY,
+  bindObservedAuthoringAuthority,
+  bindObservedAuthoringRuntime,
+  compileOnePackageSourcePlan,
+  deriveBuildPolicyFromInstalledApp,
+} from "../do-work/make-one-package-match-its-source.mjs";
+
+const PACKAGE_SET = "fixture-set";
+const PARTITION = "fixture-partition";
+const PACKAGE = "alpha";
+const CANONICAL_POLICY = '{"host_root":"/tmp/fixture","roles":{"build":{"allow":["node"]}}}';
+
+test("authoring binds the observed native authority without changing runtime grants", () => {
+  const base = {
+    native_authority: {
+      absolute_path: "/installed/authority",
+      content_hash: `1f:${"1".repeat(64)}`,
+      expected_unix_mode: 0o755,
+    },
+    runtime_aliases: { node: { network_allowed: false } },
+  };
+  const environment = bindObservedAuthoringAuthority({
+    [BUILD_POLICY_ENVIRONMENT_KEY]: JSON.stringify(base),
+  }, {
+    executablePath: "/observed/bitfield-process-authority",
+    executableBytes: Buffer.from("current protocol executable"),
+    executableUnixMode: 0o755,
+  });
+  const policy = JSON.parse(environment[BUILD_POLICY_ENVIRONMENT_KEY]);
+  assert.equal(policy.native_authority.absolute_path, "/observed/bitfield-process-authority");
+  assert.match(policy.native_authority.content_hash, /^1f:[0-9a-f]{64}$/);
+  assert.notEqual(policy.native_authority.content_hash, base.native_authority.content_hash);
+  assert.equal(policy.native_authority.expected_unix_mode, 0o755);
+  assert.deepEqual(policy.runtime_aliases, base.runtime_aliases);
+});
+
+test("authoring binds the observed compiler as one full-computer runtime without root overlays", () => {
+  const base = {
+    native_authority: {
+      absolute_path: "/authority",
+      content_hash: `1f:${"1".repeat(64)}`,
+      expected_unix_mode: 0o755,
+    },
+    runtime_aliases: {},
+    external_providers: {},
+    publication_targets: {},
+    private_volumes: {},
+  };
+  const bytes = Buffer.from("exact compiler bytes");
+  const environment = bindObservedAuthoringRuntime({
+    [BUILD_POLICY_ENVIRONMENT_KEY]: JSON.stringify(base),
+  }, {
+    alias: "cargo",
+    executablePath: "/toolchain/bin/cargo",
+    executableBytes: bytes,
+    executableUnixMode: 0o755,
+    executableSearchPath: "/toolchain/bin:/usr/bin:/bin",
+    runtimeEnvironment: { CARGO_HOME: "/person/.cargo" },
+    networkAllowed: true,
+    maxRuntimeMs: 300_000,
+  });
+  const policy = JSON.parse(environment[BUILD_POLICY_ENVIRONMENT_KEY]);
+  assert.deepEqual(policy.native_authority, base.native_authority);
+  assert.deepEqual(policy.runtime_aliases.cargo, {
+    computer_access: "full",
+    environment: {
+      PATH: {
+        kind: "literal",
+        value: "/toolchain/bin:/usr/bin:/bin",
+      },
+      CARGO_HOME: {
+        kind: "literal",
+        value: "/person/.cargo",
+      },
+    },
+    execution: {
+      kind: "host_executable",
+      executable: {
+        absolute_path: "/toolchain/bin/cargo",
+        content_hash: "1f:de5d599a21ab090db04da6b80e0bdce1874768fd27afcba820ee57d09c9b7532",
+        expected_unix_mode: 0o755,
+      },
+      readable_roots: [],
+    },
+    network_allowed: true,
+    max_runtime_ms: 300_000,
+  });
+});
+
+test("authoring keeps the installed external-provider route for a declared compiler alias", () => {
+  const provider = {
+    kind: "external_provider",
+    provider: {
+      provider_id: "local-oci-engine",
+      immutable_runtime_artifact: "container-image@pinned-digest",
+      workspace_mount_path: "/bitfield/workspace",
+    },
+  };
+  const base = {
+    native_authority: {
+      absolute_path: "/authority",
+      content_hash: `1f:${"1".repeat(64)}`,
+      expected_unix_mode: 0o755,
+    },
+    runtime_aliases: { cargo: provider },
+    external_providers: { "local-oci-engine": { provider_id: "local-oci-engine" } },
+    publication_targets: {},
+    private_volumes: {},
+  };
+  const buildEnvironment = {
+    [BUILD_POLICY_ENVIRONMENT_KEY]: JSON.stringify(base),
+  };
+
+  const environment = bindObservedAuthoringRuntime(buildEnvironment, {
+    alias: "cargo",
+    executablePath: "/toolchain/bin/cargo",
+    executableBytes: Buffer.from("must not replace provider"),
+    executableUnixMode: 0o755,
+    executableSearchPath: "/toolchain/bin:/usr/bin:/bin",
+    runtimeEnvironment: { CARGO_HOME: "/person/.cargo" },
+    networkAllowed: true,
+    maxRuntimeMs: 300_000,
+  });
+
+  assert.equal(environment, buildEnvironment);
+  assert.deepEqual(JSON.parse(environment[BUILD_POLICY_ENVIRONMENT_KEY]).runtime_aliases.cargo, provider);
+});
+
+function sourcePlan() {
+  return {
+    schema: "bitfield.package_delta_source_plan/v1",
+    package_set: PACKAGE_SET,
+    partition: PARTITION,
+    package_name: PACKAGE,
+    record_writes: [{
+      address_label: "11",
+      address_mode: "multihash-hex",
+      path_labels: ["current-item", "published-record", "11"],
+      payload_base64: Buffer.from("record:11").toString("base64"),
+    }],
+    stored_byte_writes: [],
+    entry_writes: [],
+  };
+}
+
+async function descriptorFolder() {
+  const folder = await mkdtemp(join(tmpdir(), "build-policy-"));
+  await writeFile(join(folder, "package-set-partition.json"), JSON.stringify({
+    package_set: PACKAGE_SET,
+    partition: PARTITION,
+  }));
+  return folder;
+}
+
+test("the derivation asks the installed opener for exactly the named app and returns its bytes verbatim", async () => {
+  const invocations = [];
+  const environment = await deriveBuildPolicyFromInstalledApp({
+    appId: "trillion",
+    opener: import.meta.filename,
+    execFileAsync: async (command, args) => {
+      invocations.push({ command, args });
+      return { stdout: CANONICAL_POLICY };
+    },
+  });
+  assert.equal(invocations.length, 1);
+  assert.equal(invocations[0].command, import.meta.filename);
+  assert.deepEqual(invocations[0].args, [
+    "--print-process-admission-policy",
+    "--same-app-id", "trillion",
+  ]);
+  assert.deepEqual(environment, { [BUILD_POLICY_ENVIRONMENT_KEY]: CANONICAL_POLICY });
+});
+
+test("signed-source derivation asks the opener for exact bundle bytes and binds private volumes beside that bundle", async () => {
+  const invocations = [];
+  const bundle = "/tmp/fixture-root/bundle/app-open-source-bundle.json";
+  const environment = await deriveBuildPolicyFromInstalledApp({
+    sourceBundle: bundle,
+    opener: import.meta.filename,
+    exists: (path) => path === import.meta.filename || path === bundle,
+    execFileAsync: async (command, args) => {
+      invocations.push({ command, args });
+      return { stdout: CANONICAL_POLICY };
+    },
+  });
+  assert.deepEqual(invocations, [{
+    command: import.meta.filename,
+    args: [
+      "--print-process-admission-policy",
+      "--process-admission-source-bundle", bundle,
+      "--process-admission-candidate-host-root", "/tmp/fixture-root/bundle",
+    ],
+  }]);
+  assert.deepEqual(environment, { [BUILD_POLICY_ENVIRONMENT_KEY]: CANONICAL_POLICY });
+});
+
+test("signed-source derivation refuses an app identity conflict and a missing exact bundle", async () => {
+  const shared = {
+    sourceBundle: "/tmp/fixture-root/bundle/app-open-source-bundle.json",
+    opener: import.meta.filename,
+    exists: () => true,
+    execFileAsync: async () => {
+      throw new Error("must not be reached");
+    },
+  };
+  await assert.rejects(
+    deriveBuildPolicyFromInstalledApp({ ...shared, appId: "trillion" }),
+    /BUILD_POLICY_APP_AND_BUNDLE_CONFLICT/,
+  );
+  await assert.rejects(
+    deriveBuildPolicyFromInstalledApp({ ...shared, exists: () => false }),
+    /BUILD_POLICY_SOURCE_BUNDLE_MISSING/,
+  );
+});
+
+test("opener output that is not a JSON object is refused before anything is spawned", async () => {
+  for (const stdout of ["error: no such app", "[]", "null", '"text"']) {
+    await assert.rejects(
+      deriveBuildPolicyFromInstalledApp({
+        appId: "trillion",
+        opener: import.meta.filename,
+        execFileAsync: async () => ({ stdout }),
+      }),
+      (error) => ["BUILD_POLICY_INVALID_JSON", "BUILD_POLICY_NOT_AN_OBJECT"].includes(error.message),
+      `stdout ${JSON.stringify(stdout)} must be refused`,
+    );
+  }
+});
+
+test("a missing opener is named, not guessed around", async () => {
+  await assert.rejects(
+    deriveBuildPolicyFromInstalledApp({
+      appId: "trillion",
+      opener: "/nowhere/open-bitfield-app",
+      execFileAsync: async () => { throw new Error("must not be reached"); },
+    }),
+    /INSTALLED_OPENER_MISSING:\/nowhere\/open-bitfield-app/,
+  );
+});
+
+test("the loader child receives the derived policy in its environment, on top of the parent's", async () => {
+  const folder = await descriptorFolder();
+  const spawns = [];
+  await compileOnePackageSourcePlan({
+    packageSetFolder: folder,
+    packageName: PACKAGE,
+    packageSet: PACKAGE_SET,
+    partition: PARTITION,
+    packageLoader: import.meta.filename,
+    buildEnvironment: { [BUILD_POLICY_ENVIRONMENT_KEY]: CANONICAL_POLICY },
+    execFileAsync: async (command, args, options) => {
+      spawns.push({ command, args, options });
+      return { stdout: JSON.stringify(sourcePlan()) };
+    },
+  });
+  assert.equal(spawns.length, 1);
+  assert.equal(spawns[0].options.env[BUILD_POLICY_ENVIRONMENT_KEY], CANONICAL_POLICY);
+  assert.equal(spawns[0].options.env.PATH, process.env.PATH, "the parent's environment survives");
+});
+
+test("naming no app passes no policy, so the loader's own refusal stands", async () => {
+  const folder = await descriptorFolder();
+  const spawns = [];
+  await compileOnePackageSourcePlan({
+    packageSetFolder: folder,
+    packageName: PACKAGE,
+    packageSet: PACKAGE_SET,
+    partition: PARTITION,
+    packageLoader: import.meta.filename,
+    execFileAsync: async (command, args, options) => {
+      spawns.push({ command, args, options });
+      return { stdout: JSON.stringify(sourcePlan()) };
+    },
+  });
+  assert.equal(spawns.length, 1);
+  assert.equal(
+    Object.hasOwn(spawns[0].options.env, BUILD_POLICY_ENVIRONMENT_KEY),
+    Object.hasOwn(process.env, BUILD_POLICY_ENVIRONMENT_KEY),
+    "no key is invented when the caller named no app",
+  );
+});

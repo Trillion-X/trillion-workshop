@@ -1,0 +1,90 @@
+import assert from "node:assert/strict";
+import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import test from "node:test";
+
+import {
+  authoringExecutableDiscoveryAlias,
+  legacySourceBuiltSlotArtifactName,
+  reconcileLegacySourceBuiltSlotArtifact,
+} from "../do-work/build-declared-source-built-slots-for-chosen-packages.mjs";
+import { resolvePackageSourceLayout } from "../do-work/make-one-package-match-its-source.mjs";
+
+test("Darwin authoring binds the shell image the kernel actually maps", () => {
+  assert.equal(authoringExecutableDiscoveryAlias("sh", "darwin"), "bash");
+  assert.equal(authoringExecutableDiscoveryAlias("sh", "linux"), "sh");
+  assert.equal(authoringExecutableDiscoveryAlias("cargo", "darwin"), "cargo");
+});
+
+test("BUDAG split roots compile from the package checkout and keep identity in package-set DATA", () => {
+  assert.deepEqual(resolvePackageSourceLayout({
+    packageSetFolder: "/dev/bitfield-packages/package-sets/tennis",
+    packagesSourceRoot: "/dev/bitfield-packages/packages",
+  }), {
+    setFolder: "/dev/bitfield-packages/package-sets/tennis",
+    sourceRoot: "/dev/bitfield-packages/packages",
+    compileSetFolder: "/dev/bitfield-packages",
+  });
+  assert.throws(
+    () => resolvePackageSourceLayout({
+      packageSetFolder: "/dev/bitfield-packages/package-sets/tennis",
+      packagesSourceRoot: "/dev/generated/tenant/packages-copy",
+    }),
+    /PACKAGES_SOURCE_ROOT_NOT_PACKAGES_FOLDER/,
+  );
+});
+
+test("the legacy slot fallback name is derived from the declared slot name", () => {
+  assert.equal(legacySourceBuiltSlotArtifactName("http-client"), "http_client.wasm");
+  assert.equal(legacySourceBuiltSlotArtifactName("multi-word-slot"), "multi_word_slot.wasm");
+});
+
+test("a canonical source-built slot removes its obsolete legacy fallback", async () => {
+  const root = await mkdtemp(join(tmpdir(), "source-built-slot-"));
+  await mkdir(join(root, "slots"), { recursive: true });
+  await writeFile(join(root, "slots", "http-client"), "canonical bytes");
+  await writeFile(join(root, "slots", "http_client.wasm"), "legacy bytes");
+
+  const removed = await reconcileLegacySourceBuiltSlotArtifact({
+    packageRoot: root,
+    slotName: "http-client",
+    manifestData: { things: [{ type: "slot", name: "http-client", build: {} }] },
+  });
+
+  assert.equal(removed, true);
+  await assert.rejects(readFile(join(root, "slots", "http_client.wasm")), /ENOENT/);
+});
+
+test("a legacy fallback still declared by another byte source is retained", async () => {
+  const root = await mkdtemp(join(tmpdir(), "source-built-slot-"));
+  await mkdir(join(root, "slots"), { recursive: true });
+  await writeFile(join(root, "slots", "http-client"), "canonical bytes");
+  await writeFile(join(root, "slots", "http_client.wasm"), "legacy bytes");
+  const manifestData = {
+    things: [
+      { type: "slot", name: "http-client", build: {} },
+      { type: "stored_bytes", name: "legacy", source_path: "slots/http_client.wasm" },
+    ],
+  };
+
+  await assert.rejects(
+    reconcileLegacySourceBuiltSlotArtifact({ packageRoot: root, slotName: "http-client", manifestData }),
+    /SOURCE_BUILT_SLOT_LEGACY_ARTIFACT_STILL_DECLARED/,
+  );
+});
+
+test("a legacy fallback is never removed before its canonical artifact exists", async () => {
+  const root = await mkdtemp(join(tmpdir(), "source-built-slot-"));
+  await mkdir(join(root, "slots"), { recursive: true });
+  await writeFile(join(root, "slots", "http_client.wasm"), "legacy bytes");
+
+  await assert.rejects(
+    reconcileLegacySourceBuiltSlotArtifact({
+      packageRoot: root,
+      slotName: "http-client",
+      manifestData: { things: [{ type: "slot", name: "http-client", build: {} }] },
+    }),
+    /SOURCE_BUILT_SLOT_CANONICAL_ARTIFACT_MISSING/,
+  );
+});

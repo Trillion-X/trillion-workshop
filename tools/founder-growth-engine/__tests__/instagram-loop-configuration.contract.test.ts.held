@@ -1,0 +1,244 @@
+import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+
+const packageData = JSON.parse(
+  readFileSync(path.resolve(process.cwd(), 'packages/founder-growth-engine/things-to-store-and-run.json'), 'utf8'),
+) as {
+  things: Array<{
+    type?: string;
+    address?: string;
+    path?: string[];
+    live_write_policy?: string;
+    payload?: Record<string, any>;
+    payload_bytes?: Record<string, any>;
+  }>;
+};
+
+const byAddress = (address: string) => packageData.things.find((thing) => thing.address === address);
+const CONFIG_ADDRESS =
+  'package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop';
+const CAPABILITY_ADDRESS =
+  'package::founder-growth-engine::external-capability-contract::instagram-v25';
+
+describe('emerging Instagram content loop configuration', () => {
+  it('is DATA composition and fails closed while required authority/configuration is absent', () => {
+    const config = byAddress(CONFIG_ADDRESS)?.payload;
+    expect(config).toMatchObject({
+      kind: 'founder-growth-engine.automation-configuration',
+      state: 'blocked-setup-required',
+      owns_logic: false,
+      external_capability_contract_ref: CAPABILITY_ADDRESS,
+      fixed_constraints: {
+        graph_version: 'v25.0',
+        maximum_creator_followers: 1000,
+        creator_limit: 10,
+        allow_scraping: false,
+      },
+    });
+    expect(config?.activation_gate).toMatchObject({
+      kind: 'all-required-values-present',
+      fail_closed: true,
+    });
+    const addresses = config?.required_configuration_addresses;
+    expect(Object.keys(addresses)).toHaveLength(15);
+    for (const address of Object.values(addresses) as string[]) {
+      expect(address).toMatch(/^package::founder-growth-engine::configuration-value::/);
+      expect(byAddress(address)?.payload?.kind).toBe('founder-growth-engine.configuration-value');
+      expect(byAddress(address)?.live_write_policy).toBe('seed-only');
+    }
+    expect(byAddress(addresses.category)?.payload?.value).toBe('');
+    expect(byAddress(addresses.absolute_view_threshold)?.payload?.value).toBeNull();
+    expect(byAddress(addresses.instagram_connection_ref)?.payload?.value).toBe('');
+    expect(byAddress(addresses.authorized_face_asset_ref)?.payload?.value).toBe('');
+    expect(byAddress(addresses.authorized_voice_asset_ref)?.payload?.value).toBe('');
+  });
+
+  it('stores the researched v25 official capability boundary as machine-readable DATA', () => {
+    const capability = byAddress(CAPABILITY_ADDRESS)?.payload;
+    expect(capability).toMatchObject({
+      kind: 'external-service-capability-contract',
+      provider: 'meta-instagram-graph',
+      api_version: 'v25.0',
+      documented_limits: {
+        unique_hashtags_per_instagram_user_per_rolling_seven_days: 30,
+        api_published_posts_per_rolling_twenty_four_hours: 50,
+      },
+    });
+    expect(capability?.supported_operations).toContain(
+      'known-public-professional-username-business-discovery',
+    );
+    expect(capability?.unsupported_operations).toEqual(expect.arrayContaining([
+      'arbitrary-semantic-account-search-by-category',
+      'arbitrary-third-party-post-webhooks',
+      'undocumented-private-api-or-no-login-scraping',
+    ]));
+  });
+
+  it('routes each job to an existing generic owner instead of autonomous-worker', () => {
+    const refs = byAddress(CONFIG_ADDRESS)?.payload?.owner_action_refs;
+    expect(Object.values(refs)).toEqual(expect.arrayContaining([
+      'package::observed-content::workflow-action::observe-content-sources',
+      'package::timed-action::workflow-action::write-scheduled-action',
+      'package::progression-evaluator::workflow-action::compute-and-write-measure',
+      'package::ai-action-guard::target::request-guard-check',
+      'package::media-composition::workflow-action::submit-media-composition-intent',
+      'package::content-distribution::workflow-action::submit-publish-intent',
+      'package::content-analytics::workflow-action::record-content-analytics-observation',
+      'package::knowledge-records::workflow-action::write-source',
+    ]));
+    expect(JSON.stringify(refs)).not.toContain('autonomous-worker');
+
+    for (const ref of Object.values(refs) as string[]) {
+      const packageName = ref.split('::')[1];
+      const ownerData = JSON.parse(
+        readFileSync(
+          path.resolve(process.cwd(), `packages/${packageName}/things-to-store-and-run.json`),
+          'utf8',
+        ),
+      ) as { things: Array<{ address?: string }> };
+      expect(
+        ownerData.things.some((thing) => thing.address === ref),
+        `missing owner record ${ref}`,
+      ).toBe(true);
+    }
+  });
+
+  it('names the seven surfaces where setup, work, drafts, distribution, and results appear', () => {
+    const surfaces = byAddress(CONFIG_ADDRESS)?.payload?.result_surface_refs;
+    expect(Object.keys(surfaces)).toEqual([
+      'setup',
+      'recommended_actions',
+      'operator_activity',
+      'paired_performance',
+      'draft_and_approval',
+      'distribution',
+      'connection_setup',
+    ]);
+    for (const ref of Object.values(surfaces)) {
+      expect(ref).toMatch(/^package::founder-growth-engine-screens::placeable-surface::/);
+    }
+  });
+
+  it('publishes editable setup controls as scoped DATA and one owner write boundary', () => {
+    const controls = packageData.things.filter(
+      (thing: any) =>
+        thing.payload?.kind === 'setting-control'
+        && thing.path?.join('/') === 'founder-growth-engine/emerging-instagram-content-loop/setting-controls',
+    );
+    expect(controls).toHaveLength(10);
+    expect(controls.map((thing: any) => thing.payload.control)).toEqual(expect.arrayContaining([
+      'text-input',
+      'number-input',
+      'tag-list',
+      'record-picker',
+      'record-multi-picker',
+      'confirmation-toggle',
+    ]));
+    const referenceControls = controls.filter((thing: any) => (
+      thing.payload.write?.payload?.input?.record?.payload?.value_type === 'address-ref'
+      || thing.payload.write?.payload?.input?.record?.payload?.value_type === 'address-ref-list'
+    ));
+    expect(referenceControls.every((thing: any) => (
+      thing.payload.control === 'record-picker'
+      || thing.payload.control === 'record-multi-picker'
+      || thing.payload.control === 'confirmation-toggle'
+    ))).toBe(true);
+    expect(referenceControls.every((thing: any) => (
+      thing.payload.control === 'confirmation-toggle'
+      || thing.payload.options_source?.require_label === true
+    ))).toBe(true);
+    for (const control of referenceControls as any[]) {
+      const labelPaths = control.payload.options_source?.label_paths ?? [];
+      expect(labelPaths).not.toContainEqual(['id']);
+      expect(labelPaths).not.toContainEqual(['payload', 'id']);
+      expect(labelPaths).not.toContainEqual(['payload', 'destination_id']);
+    }
+    const voiceControl = controls.find(
+      (thing: any) => thing.payload.id === 'emerging-instagram-content-loop.authorized-voice-asset-ref',
+    ) as any;
+    expect(voiceControl.payload.options_source.filters).toEqual(expect.arrayContaining([
+      { path: ['payload', 'approval_evidence_ref'], truthy: true },
+      { path: ['payload', 'consent_evidence_ref'], truthy: true },
+    ]));
+    expect(voiceControl.payload.options_source.allow_clear).toBe(true);
+    const instagramControl = controls.find(
+      (thing: any) => thing.payload.id === 'emerging-instagram-content-loop.instagram-connection-ref',
+    ) as any;
+    const rightsPolicyControl = controls.find(
+      (thing: any) => thing.payload.id === 'emerging-instagram-content-loop.rights-policy-ref',
+    ) as any;
+    expect(instagramControl.payload.options_source.allow_clear).toBe(true);
+    expect(rightsPolicyControl.payload.options_source.allow_clear).toBe(true);
+    for (const control of controls as any[]) {
+      expect(control.payload.write).toMatchObject({
+        target: 'slot::workflow',
+        payload: {
+          operation: 'execute_definition',
+          definition_id: 'action:founder-growth-engine.write-configuration-value',
+        },
+        value_path: ['input', 'record', 'payload', 'value'],
+      });
+    }
+    expect(
+      byAddress('package::founder-growth-engine::workflow-action::write-configuration-value')?.payload,
+    ).toMatchObject({
+      kind: 'action',
+      id: 'action:founder-growth-engine.write-configuration-value',
+    });
+  });
+
+  it('materializes bounded live feeds for every workspace result family', () => {
+    const feedAddresses = [
+      'setup-controls',
+      'next-moves',
+      'operator-activity',
+      'content-results',
+      'distribution-attempts',
+      'configuration-values',
+      'media-assets',
+      'face-assets',
+      'voice-profiles',
+      'rights-policies',
+      'distribution-destinations',
+    ].map((name) => `package::founder-growth-engine::surface-feed::${name}`);
+    for (const address of feedAddresses) {
+      expect(byAddress(address)?.type).toBe('record_from_matching_records');
+    }
+    expect(
+      (byAddress('package::founder-growth-engine::surface-feed::destination-options') as any)
+        ?.remove,
+    ).toBe(true);
+    expect(
+      (byAddress('package::founder-growth-engine::surface-feed::face-assets') as any)
+        ?.payload_bytes?.rows?.match?.[0]?.in,
+    ).toEqual(['image-generation.result']);
+  });
+
+  it('does not own a provider catalog or operational destination readiness', () => {
+    const serialized = JSON.stringify(packageData.things);
+    expect(serialized).not.toContain('"destination_refs"');
+    expect(serialized).not.toContain('"destinations": [');
+    const retired = byAddress(
+      'package::founder-growth-engine::surface-record::destination-option::instagram',
+    );
+    expect(retired?.remove).toBe(true);
+    expect(retired).not.toHaveProperty('payload');
+  });
+
+  it('publishes a real visible setup blocker instead of fake observations or publish success', () => {
+    const blocker = byAddress(
+      'package::founder-growth-engine::setup-blocker::emerging-instagram-content-loop',
+    )?.payload;
+    expect(blocker).toMatchObject({
+      kind: 'action-intent-receipt',
+      status: 'draft-only-final',
+      source_ref: CONFIG_ADDRESS,
+      fields: {
+        dispatch_status: 'draft-only-final',
+      },
+    });
+    expect(blocker?.fields.artifact).toContain('category');
+    expect(blocker?.fields.artifact).toContain('Public Content Access');
+  });
+});

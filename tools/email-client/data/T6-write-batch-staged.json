@@ -1,0 +1,532 @@
+{
+  "basis": {
+    "op": "write_batch",
+    "app_id": "bitfield-email-into-conversation-w3",
+    "partition": "runtime-standard"
+  },
+  "write_batch": [
+    {
+      "address": "trigger-rule::email::split-inbox-important",
+      "basis_id": "split-inbox-important-v1",
+      "content": {
+        "kind": "trigger-rule",
+        "name": "Auto-classify VIP senders to Important",
+        "trigger": {
+          "event": "message_received",
+          "condition": { "vip_sender_list_id": "vip-team-leads" }
+        },
+        "action": {
+          "operation": "add_label",
+          "label_id": "label:important",
+          "cascade": "thread"
+        }
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "trigger-rule::email::split-inbox-pitches",
+      "basis_id": "split-inbox-pitches-v1",
+      "content": {
+        "kind": "trigger-rule",
+        "name": "Auto-classify pitches",
+        "trigger": {
+          "event": "message_received",
+          "condition": { "subject_contains": ["pitch", "proposal", "deck"] }
+        },
+        "action": {
+          "operation": "add_label",
+          "label_id": "label:pitches"
+        }
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "trigger-rule::email::split-inbox-receipts",
+      "basis_id": "split-inbox-receipts-v1",
+      "content": {
+        "kind": "trigger-rule",
+        "name": "Auto-classify receipts",
+        "trigger": {
+          "event": "message_received",
+          "condition": { "sender_domain_contains": ["order-confirmation", "receipt", "billing"] }
+        },
+        "action": {
+          "operation": "add_label",
+          "label_id": "label:receipts"
+        }
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "trigger-rule::email::split-inbox-newsletters",
+      "basis_id": "split-inbox-newsletters-v1",
+      "content": {
+        "kind": "trigger-rule",
+        "name": "Auto-classify newsletters",
+        "trigger": {
+          "event": "message_received",
+          "condition": { "has_list_unsubscribe_header": true }
+        },
+        "action": {
+          "operation": "add_label",
+          "label_id": "label:newsletters"
+        }
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "trigger-rule::email::split-inbox-team",
+      "basis_id": "split-inbox-team-v1",
+      "content": {
+        "kind": "trigger-rule",
+        "name": "Auto-classify internal team",
+        "trigger": {
+          "event": "message_received",
+          "condition": { "sender_domain_literal": "@company.internal" }
+        },
+        "action": {
+          "operation": "add_label",
+          "label_id": "label:team"
+        }
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "email-account-alias::personal-alias",
+      "basis_id": "alias-personal-v1",
+      "content": {
+        "kind": "source-descriptor",
+        "type": "email_account_alias",
+        "account_base_id": "gmail-account::primary",
+        "alias_email": "alex+personal@example.com",
+        "send_as_default": false,
+        "display_name": "Personal"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "email-account-alias::support-alias",
+      "basis_id": "alias-support-v1",
+      "content": {
+        "kind": "source-descriptor",
+        "type": "email_account_alias",
+        "account_base_id": "gmail-account::primary",
+        "alias_email": "alex+support@example.com",
+        "send_as_default": false,
+        "display_name": "Support"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "email-account-alias::noreply-alias",
+      "basis_id": "alias-noreply-v1",
+      "content": {
+        "kind": "source-descriptor",
+        "type": "email_account_alias",
+        "account_base_id": "gmail-account::primary",
+        "alias_email": "noreply@example.com",
+        "send_as_default": false,
+        "display_name": "No-reply"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "timed-action::snooze::preset-1hr",
+      "basis_id": "snooze-1hr-v1",
+      "content": {
+        "kind": "timed-action",
+        "type": "snooze_preset",
+        "delay_minutes": 60,
+        "label": "Snooze 1 hour",
+        "action_target": "action:snooze-mail-item"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "timed-action::snooze::preset-4hr",
+      "basis_id": "snooze-4hr-v1",
+      "content": {
+        "kind": "timed-action",
+        "type": "snooze_preset",
+        "delay_minutes": 240,
+        "label": "Snooze 4 hours",
+        "action_target": "action:snooze-mail-item"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "timed-action::snooze::preset-tomorrow",
+      "basis_id": "snooze-tomorrow-v1",
+      "content": {
+        "kind": "timed-action",
+        "type": "snooze_preset",
+        "delay_minutes": 1440,
+        "label": "Snooze until tomorrow",
+        "action_target": "action:snooze-mail-item"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "timed-action::snooze::preset-monday",
+      "basis_id": "snooze-monday-v1",
+      "content": {
+        "kind": "timed-action",
+        "type": "snooze_preset",
+        "delay_minutes": 10080,
+        "label": "Snooze until Monday",
+        "action_target": "action:snooze-mail-item"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "vip-sender-list::team-leads",
+      "basis_id": "vip-team-leads-v1",
+      "content": {
+        "kind": "ai-agent-profile",
+        "type": "vip_sender_configuration",
+        "senders": ["alice@example.com", "bob@example.com", "carol@example.com"],
+        "inbox_placement": "important",
+        "notification_urgency": "high"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "vip-sender-list::executives",
+      "basis_id": "vip-execs-v1",
+      "content": {
+        "kind": "ai-agent-profile",
+        "type": "vip_sender_configuration",
+        "senders": ["ceo@example.com", "cfo@example.com"],
+        "inbox_placement": "important",
+        "notification_urgency": "critical"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "email-signature::professional",
+      "basis_id": "sig-professional-v1",
+      "content": {
+        "kind": "ai-instruction-blocks",
+        "type": "email_signature",
+        "name": "Professional",
+        "context_match": "work_account",
+        "signature_html": "<p>Best regards,<br>John Doe<br>Engineering Lead</p>"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "email-signature::casual",
+      "basis_id": "sig-casual-v1",
+      "content": {
+        "kind": "ai-instruction-blocks",
+        "type": "email_signature",
+        "name": "Casual",
+        "context_match": "personal_account",
+        "signature_html": "<p>Cheers,<br>JD</p>"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "email-signature::support",
+      "basis_id": "sig-support-v1",
+      "content": {
+        "kind": "ai-instruction-blocks",
+        "type": "email_signature",
+        "name": "Support Team",
+        "context_match": "support_alias",
+        "signature_html": "<p>Support Team<br>Response time: 2 hours</p>"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "quote-style::minimal",
+      "basis_id": "quote-minimal-v1",
+      "content": {
+        "kind": "ai-instruction-blocks",
+        "type": "quote_style",
+        "name": "Minimal",
+        "include_headers": false,
+        "include_full_body": false,
+        "format": "blockquote"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "quote-style::full",
+      "basis_id": "quote-full-v1",
+      "content": {
+        "kind": "ai-instruction-blocks",
+        "type": "quote_style",
+        "name": "Full",
+        "include_headers": true,
+        "include_full_body": true,
+        "format": "full_with_timestamp"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "quote-style::compact",
+      "basis_id": "quote-compact-v1",
+      "content": {
+        "kind": "ai-instruction-blocks",
+        "type": "quote_style",
+        "name": "Compact",
+        "include_headers": true,
+        "include_full_body": false,
+        "format": "collapsed"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "draft-auto-save::1min",
+      "basis_id": "autosave-1min-v1",
+      "content": {
+        "kind": "timed-action",
+        "type": "draft_auto_save_policy",
+        "interval_seconds": 60,
+        "label": "Auto-save every 1 minute"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "draft-auto-save::5min",
+      "basis_id": "autosave-5min-v1",
+      "content": {
+        "kind": "timed-action",
+        "type": "draft_auto_save_policy",
+        "interval_seconds": 300,
+        "label": "Auto-save every 5 minutes"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "follow-up-reminder::2days",
+      "basis_id": "followup-2d-v1",
+      "content": {
+        "kind": "timed-action",
+        "type": "follow_up_reminder",
+        "delay_minutes": 2880,
+        "label": "Follow up in 2 days",
+        "reminder_text": "Follow up on this message"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "follow-up-reminder::1week",
+      "basis_id": "followup-1w-v1",
+      "content": {
+        "kind": "timed-action",
+        "type": "follow_up_reminder",
+        "delay_minutes": 10080,
+        "label": "Follow up in 1 week",
+        "reminder_text": "Follow up on this message"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "follow-up-reminder::friday",
+      "basis_id": "followup-fri-v1",
+      "content": {
+        "kind": "timed-action",
+        "type": "follow_up_reminder",
+        "delay_spec": "next_friday_9am",
+        "label": "Follow up Friday morning",
+        "reminder_text": "Follow up on this message"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "digest-policy::daily",
+      "basis_id": "digest-daily-v1",
+      "content": {
+        "kind": "ai-instruction-blocks",
+        "type": "digest_policy",
+        "frequency": "daily",
+        "send_time": "09:00",
+        "timezone": "America/Los_Angeles",
+        "include_labels": ["label:newsletters"],
+        "exclude_labels": ["label:important"]
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "digest-policy::weekly",
+      "basis_id": "digest-weekly-v1",
+      "content": {
+        "kind": "ai-instruction-blocks",
+        "type": "digest_policy",
+        "frequency": "weekly",
+        "send_day": "Monday",
+        "send_time": "09:00",
+        "include_labels": ["label:pitches"]
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "do-not-disturb::evenings",
+      "basis_id": "dnd-evenings-v1",
+      "content": {
+        "kind": "ai-action-guard",
+        "type": "do_not_disturb_policy",
+        "start_time": "18:00",
+        "end_time": "09:00",
+        "allow_vip_only": true
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "do-not-disturb::weekends",
+      "basis_id": "dnd-weekends-v1",
+      "content": {
+        "kind": "ai-action-guard",
+        "type": "do_not_disturb_policy",
+        "days": ["Saturday", "Sunday"],
+        "allow_vip_only": true
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "crm-sync::salesforce",
+      "basis_id": "crm-sf-v1",
+      "content": {
+        "kind": "service-connections",
+        "type": "crm_activity_sync",
+        "crm_system": "salesforce",
+        "sync_direction": "bidirectional",
+        "sync_on_send": true,
+        "sync_on_receive": true
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "crm-sync::hubspot",
+      "basis_id": "crm-hs-v1",
+      "content": {
+        "kind": "service-connections",
+        "type": "crm_activity_sync",
+        "crm_system": "hubspot",
+        "sync_direction": "send_only",
+        "sync_on_send": true
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "conversation-ai::summarize",
+      "basis_id": "ai-summarize-v1",
+      "content": {
+        "kind": "ai-instruction-blocks",
+        "type": "conversation_ai_policy",
+        "operation": "summarize_long_threads",
+        "threshold_message_count": 10,
+        "summary_style": "bullet_points"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "conversation-ai::draft-assist",
+      "basis_id": "ai-draft-v1",
+      "content": {
+        "kind": "ai-instruction-blocks",
+        "type": "conversation_ai_policy",
+        "operation": "draft_assistance",
+        "tone_detection": true,
+        "tone_override_options": ["formal", "casual", "professional"]
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "label-color::important",
+      "basis_id": "color-important-v1",
+      "content": {
+        "kind": "ai-instruction-blocks",
+        "type": "label_color_mapping",
+        "label_id": "label:important",
+        "display_color": "#EF4444",
+        "text_color": "#FFFFFF"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "label-color::pitches",
+      "basis_id": "color-pitches-v1",
+      "content": {
+        "kind": "ai-instruction-blocks",
+        "type": "label_color_mapping",
+        "label_id": "label:pitches",
+        "display_color": "#3B82F6",
+        "text_color": "#FFFFFF"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "label-color::team",
+      "basis_id": "color-team-v1",
+      "content": {
+        "kind": "ai-instruction-blocks",
+        "type": "label_color_mapping",
+        "label_id": "label:team",
+        "display_color": "#10B981",
+        "text_color": "#FFFFFF"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "search-filter::unread",
+      "basis_id": "filter-unread-v1",
+      "content": {
+        "kind": "ai-instruction-blocks",
+        "type": "search_filter_preset",
+        "name": "Unread only",
+        "query": "is:unread",
+        "icon": "envelope"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "search-filter::from-vip",
+      "basis_id": "filter-vip-v1",
+      "content": {
+        "kind": "ai-instruction-blocks",
+        "type": "search_filter_preset",
+        "name": "From VIP",
+        "query": "from:vip-list",
+        "icon": "star"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "search-filter::attachments",
+      "basis_id": "filter-attach-v1",
+      "content": {
+        "kind": "ai-instruction-blocks",
+        "type": "search_filter_preset",
+        "name": "With attachments",
+        "query": "has:attachment",
+        "icon": "paperclip"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "keyboard-shortcut::mark-read",
+      "basis_id": "shortcut-r-v1",
+      "content": {
+        "kind": "ai-instruction-blocks",
+        "type": "keyboard_shortcut",
+        "key_combination": "r",
+        "action": "mark_read_unread"
+      },
+      "skip_if_exists": true
+    },
+    {
+      "address": "keyboard-shortcut::archive",
+      "basis_id": "shortcut-e-v1",
+      "content": {
+        "kind": "ai-instruction-blocks",
+        "type": "keyboard_shortcut",
+        "key_combination": "e",
+        "action": "archive"
+      },
+      "skip_if_exists": true
+    }
+  ]
+}

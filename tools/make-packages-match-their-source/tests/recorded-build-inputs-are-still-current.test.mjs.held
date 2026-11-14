@@ -1,0 +1,121 @@
+// packages/make-packages-match-their-source/tests/recorded-build-inputs-are-still-current.test.mjs
+//
+// The pre-build currency predicate decides whether a package's entry bytes can be
+// left alone. A wrong NO costs seconds. A wrong YES ships stale bytes with no error
+// anywhere, which is why this file exists before any call site returns through it.
+//
+// An earlier version of the predicate checked only `package_local_inputs` and was
+// called sound. It was not: that field holds the inputs whose kind is
+// `package-source`, and every cross-package import is grouped under
+// `external_input_closures` instead. A sibling package could change while every
+// local input stayed byte-identical.
+//
+// FIXTURE SHAPE. The package root is a REAL package, so root resolution, labels and
+// on-disk files are the real ones; only the RECEIPT is synthetic, written to a temp
+// dir and passed as `receiptAbs`. Mutating a receipt copy is how a changed sibling,
+// a truncated member list and a pre-enumeration receipt are expressed without
+// touching any source file.
+import assert from "node:assert/strict";
+import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
+import test from "node:test";
+import { fileURLToPath } from "node:url";
+
+import { makeHashCodeHexFromBytes } from "@bitfield/slot-protocol";
+
+import { recordedBuildInputsAreStillCurrent } from "../do-work/materialize-package-entry-bytes-lib.mjs";
+
+const PACKAGE_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "request-intake");
+const RECEIPT = join(
+  PACKAGE_ROOT,
+  "built-stored-bytes/entry-bytes-structured-selection.source-closure.json",
+);
+
+// `request-intake` is the package that made the local-half-only bug visible: its
+// bundle reaches into `ask-questions-sort-answers-follow-up` and `coordination-session`,
+// so its receipt is the one where checking only the local half is provably wrong.
+const receiptIsEnumerated = async () => {
+  if (!existsSync(RECEIPT)) return null;
+  const receipt = JSON.parse(await readFile(RECEIPT, "utf8"));
+  const closures = receipt?.external_input_closures ?? [];
+  if (!closures.length || !Array.isArray(closures[0]?.inputs)) return null;
+  return receipt;
+};
+
+const withReceipt = async (receipt) => {
+  const dir = await mkdtemp(join(tmpdir(), "closure-currency-"));
+  const file = join(dir, "receipt.json");
+  await writeFile(file, JSON.stringify(receipt));
+  return file;
+};
+
+const check = (receiptAbs) =>
+  recordedBuildInputsAreStillCurrent({ packageRoot: PACKAGE_ROOT, receiptAbs });
+
+test("an untouched closure may skip", async (t) => {
+  const receipt = await receiptIsEnumerated();
+  if (!receipt) return t.skip("receipt absent or written before member enumeration");
+  assert.equal(await check(RECEIPT), true, "nothing changed, so the rebuild is unnecessary");
+});
+
+// CONTROL. Every rebuild case below reads a receipt from a temp path while the skip case
+// above reads the real one, so "temp path" and "mutated" change together and a failure
+// caused by the path alone would look exactly like the predicate working. This isolates
+// the variable: an UNMODIFIED copy at a temp path must still skip. Without it the three
+// tests below pass for a reason nobody checked.
+test("the temp path itself does not force a rebuild", async (t) => {
+  const receipt = await receiptIsEnumerated();
+  if (!receipt) return t.skip("receipt absent or written before member enumeration");
+  assert.equal(await check(await withReceipt(receipt)), true, "only the contents may decide");
+});
+
+test("a changed CROSS-PACKAGE member rebuilds", async (t) => {
+  const receipt = await receiptIsEnumerated();
+  if (!receipt) return t.skip("receipt absent or written before member enumeration");
+
+  // Find a member outside this package. Its hash is what the local-half-only version
+  // never looked at, so this is the exact case that used to ship stale bytes.
+  const closure = receipt.external_input_closures.find((entry) =>
+    (entry.inputs ?? []).some((input) => String(input.path).startsWith("package-set/")),
+  );
+  assert.ok(closure, "request-intake must have a cross-package closure member");
+
+  const mutated = structuredClone(receipt);
+  const target = mutated.external_input_closures.find((entry) => entry.owner === closure.owner);
+  const member = target.inputs.find((input) => String(input.path).startsWith("package-set/"));
+  member.multihash = `1f:${"0".repeat(64)}`;
+  // Keep the closure hash consistent with the edited list, so the ONLY thing that can
+  // fail is the on-disk comparison. Without this the test would pass for the wrong
+  // reason, catching the enumeration check rather than the member check.
+  target.multihash = multihashOfJson(target.inputs);
+
+  assert.equal(await check(await withReceipt(mutated)), false, "a sibling package changed");
+});
+
+test("a truncated inputs list rebuilds", async (t) => {
+  const receipt = await receiptIsEnumerated();
+  if (!receipt) return t.skip("receipt absent or written before member enumeration");
+
+  const mutated = structuredClone(receipt);
+  const target = mutated.external_input_closures.find((entry) => (entry.inputs ?? []).length > 0);
+  target.inputs = [];
+  // input_count and the recorded hash still describe the full list, so a dropped member
+  // cannot verify against the files that remain.
+  assert.equal(await check(await withReceipt(mutated)), false, "the member list was truncated");
+});
+
+test("a receipt written before member enumeration rebuilds", async (t) => {
+  const receipt = await receiptIsEnumerated();
+  if (!receipt) return t.skip("receipt absent or written before member enumeration");
+
+  const mutated = structuredClone(receipt);
+  for (const entry of mutated.external_input_closures) delete entry.inputs;
+  // Indistinguishable from a member list that was dropped, so it must not be trusted.
+  assert.equal(await check(await withReceipt(mutated)), false, "no members to verify");
+});
+
+function multihashOfJson(value) {
+  return makeHashCodeHexFromBytes(new TextEncoder().encode(JSON.stringify(value)));
+}

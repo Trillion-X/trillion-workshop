@@ -1,0 +1,126 @@
+// The engine refuses a proposal whose live metadata names another package, and its receipt
+// names no address. The publisher has already read that row; these tests pin that it names the
+// holder before submitting, that a row naming THIS package is not a holder, and that a live row
+// with no payload (tombstoned) is not a ghost holder.
+import assert from "node:assert/strict";
+import test from "node:test";
+
+import {
+  HELD_BY_ANOTHER_PACKAGE,
+  addressesHeldByAnotherPackage,
+  buildPackageDeltaRequest,
+  packageCurrentVersionAddressLabel,
+} from "../do-work/make-one-package-match-its-source.mjs";
+
+const PACKAGE_SET = "fixture-set";
+const PARTITION = "fixture-partition";
+const PACKAGE = "alpha";
+const OTHER = "beta";
+const RECORD = "11";
+const METADATA = "22";
+
+function metadataPayload(sourcePackage) {
+  return Buffer.from(JSON.stringify({
+    schema: "package_record_source_metadata",
+    source_package: sourcePackage,
+    authority_class_address: "authority-class::impl",
+    resolved_address_wire_hex: RECORD,
+    resolved_address_text: `package::${sourcePackage}::record::${RECORD}`,
+    path_labels: ["current-item", "published-record", RECORD],
+  })).toString("base64");
+}
+
+function plan() {
+  return {
+    schema: "bitfield.package_delta_source_plan/v1",
+    package_set: PACKAGE_SET,
+    partition: PARTITION,
+    package_name: PACKAGE,
+    record_writes: [{
+      address_label: RECORD,
+      address_mode: "multihash-hex",
+      path_labels: ["current-item", "published-record", RECORD],
+      payload_base64: Buffer.from(`record:${RECORD}`).toString("base64"),
+    }, {
+      address_label: METADATA,
+      address_mode: "multihash-hex",
+      path_labels: ["package-record-source-metadata"],
+      payload_base64: metadataPayload(PACKAGE),
+    }],
+    stored_byte_writes: [],
+    entry_writes: [],
+  };
+}
+
+function inventory(liveMetadataPayloadBase64) {
+  const currentByWireHex = new Map([
+    [RECORD, { payload_multihash: liveMetadataPayloadBase64 == null ? null : "1f:aa", payload_base64: liveMetadataPayloadBase64 == null ? null : Buffer.from("old").toString("base64"), path_labels: ["current-item", "published-record", RECORD] }],
+    [METADATA, { payload_multihash: liveMetadataPayloadBase64 == null ? null : "1f:bb", payload_base64: liveMetadataPayloadBase64, path_labels: ["package-record-source-metadata"] }],
+  ]);
+  return {
+    packageSet: PACKAGE_SET,
+    partition: PARTITION,
+    packageName: PACKAGE,
+    versionLabel: packageCurrentVersionAddressLabel(PARTITION, PACKAGE),
+    versionMultihash: null,
+    currentVersionRecord: null,
+    currentByWireHex,
+  };
+}
+
+function proofs() {
+  return [{ record_address_wire_hex: RECORD, metadata_address_wire_hex: METADATA }];
+}
+
+test("a live metadata row naming another package is reported with that package's name", () => {
+  const held = addressesHeldByAnotherPackage({
+    desiredProofs: proofs(),
+    liveInventory: inventory(metadataPayload(OTHER)),
+    packageSet: PACKAGE_SET,
+    packageName: PACKAGE,
+  });
+  assert.deepEqual(held.map((row) => [row.package, row.record_address_wire_hex]), [[OTHER, RECORD]]);
+});
+
+test("a live metadata row naming this package is not a holder, and a tombstoned one is not a ghost", () => {
+  for (const live of [metadataPayload(PACKAGE), null]) {
+    const held = addressesHeldByAnotherPackage({
+      desiredProofs: proofs(),
+      liveInventory: inventory(live),
+      packageSet: PACKAGE_SET,
+      packageName: PACKAGE,
+    });
+    assert.deepEqual(held, [], `live=${live === null ? "tombstoned" : "self"}`);
+  }
+});
+
+test("a package-set name is not part of a version address, so renaming one cannot move a package", () => {
+  // This replaced a test that pinned how a rename was SURVIVED: the live twins
+  // named the retired set, the caller named the new one, and a special branch
+  // admitted that exact pair so an app could still reach its own records. The
+  // branch could not fire when the version record itself was under the old
+  // name, which is the state a real app reached, and every package in it became
+  // unreachable. The name is out of the identity, so the transition has nothing
+  // to survive.
+  assert.equal(
+    packageCurrentVersionAddressLabel(PARTITION, PACKAGE),
+    `package-current-version::${PARTITION}::${PACKAGE}`,
+  );
+});
+
+test("building a request against a held address fails closed, naming the holder, before any submission", () => {
+  assert.throws(
+    () => buildPackageDeltaRequest({
+      packageSet: PACKAGE_SET,
+      partition: PARTITION,
+      packageName: PACKAGE,
+      preparedPlan: plan(),
+      liveInventory: inventory(metadataPayload(OTHER)),
+    }),
+    (error) => {
+      assert.match(error.message, new RegExp(`^${HELD_BY_ANOTHER_PACKAGE}:1:${PACKAGE}:${OTHER}=${RECORD}`));
+      assert.equal(error.held_by_another_package[0].package, OTHER);
+      return true;
+    },
+  );
+});

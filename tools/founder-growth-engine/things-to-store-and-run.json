@@ -1,0 +1,3821 @@
+{
+  "package": "founder-growth-engine",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::capability::data-wiring",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "founder-growth-engine.data-wiring",
+        "package_job": "admit data-only workflow, trigger, instruction, view, and schedule connector records",
+        "owns_logic": false,
+        "reused_addresses": [
+          "package::ai-records-producer::workflow-action::run-ai-records-production",
+          "package::ideas::input::ideas",
+          "entity|action:publish-ideas",
+          "package::timed-action::workflow-action::write-scheduled-action",
+          "package::content-distribution::workflow-action::submit-publish-intent",
+          "package::content-distribution::workflow-action::run-publish-intent",
+          "package::content-distribution::destination::youtube",
+          "package::content-distribution::destination::x",
+          "package::content-distribution::destination::linkedin",
+          "package::content-distribution::destination::instagram",
+          "package::content-distribution::destination::beehiiv",
+          "package::content-distribution::destination::ghost",
+          "package::content-distribution::destination::tiktok"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::external-capability-contract::instagram-v25",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "external-service-capability-contract",
+        "id": "instagram-graph-v25",
+        "provider": "meta-instagram-graph",
+        "api_version": "v25.0",
+        "checked_at": "2026-07-24",
+        "supported_operations": [
+          "authorized-professional-account-hashtag-search",
+          "known-public-professional-username-business-discovery",
+          "supported-public-media-counter-snapshots",
+          "owned-professional-account-media-insights",
+          "owned-professional-account-reels-publishing",
+          "owned-professional-account-webhooks"
+        ],
+        "unsupported_operations": [
+          "arbitrary-semantic-account-search-by-category",
+          "private-or-personal-account-monitoring",
+          "arbitrary-third-party-post-webhooks",
+          "arbitrary-third-party-historical-insights",
+          "undocumented-private-api-or-no-login-scraping"
+        ],
+        "documented_limits": {
+          "unique_hashtags_per_instagram_user_per_rolling_seven_days": 30,
+          "api_published_posts_per_rolling_twenty_four_hours": 50
+        },
+        "required_authority_refs": [
+          "instagram-professional-account",
+          "instagram-provider-public-content-capability",
+          "instagram-access-token-and-permissions",
+          "authorized-publishing-destination"
+        ],
+        "research_ref": "founder-growth-engine/research/2026-07-24-instagram-official-capability-contract/CSSOT.md",
+        "primary_source_urls": [
+          "https://developers.facebook.com/docs/graph-api/changelog/version25.0/",
+          "https://developers.facebook.com/documentation/instagram-platform/instagram-api-with-facebook-login/hashtag-search",
+          "https://developers.facebook.com/docs/features-reference/instagram-public-content-access/",
+          "https://developers.facebook.com/documentation/instagram-platform/instagram-graph-api/reference/ig-user/business_discovery",
+          "https://developers.facebook.com/documentation/instagram-platform/webhooks",
+          "https://developers.facebook.com/documentation/instagram-platform/content-publishing",
+          "https://developers.facebook.com/documentation/instagram-platform/reference/instagram-media/insights"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "founder-growth-engine.automation-configuration",
+        "id": "emerging-instagram-content-loop",
+        "label": "Emerging Instagram content loop",
+        "state": "blocked-setup-required",
+        "owns_logic": false,
+        "external_capability_contract_ref": "package::founder-growth-engine::external-capability-contract::instagram-v25",
+        "execution_model": {
+          "source_observation": "scheduled",
+          "traction_detection": "event-driven-after-observation",
+          "transformation": "event-driven-after-qualified-traction",
+          "publishing": "guarded-owner-action",
+          "performance_learning": "event-driven-after-paired-observation"
+        },
+        "required_configuration_addresses": {
+          "category": "package::founder-growth-engine::configuration-value::category",
+          "resolved_hashtag_refs": "package::founder-growth-engine::configuration-value::resolved-hashtag-refs",
+          "absolute_view_threshold": "package::founder-growth-engine::configuration-value::absolute-view-threshold",
+          "snapshot_cadence_ref": "package::founder-growth-engine::configuration-value::snapshot-cadence-ref",
+          "audience_relative_traction_formula_ref": "package::founder-growth-engine::configuration-value::audience-relative-traction-formula-ref",
+          "acceleration_formula_ref": "package::founder-growth-engine::configuration-value::acceleration-formula-ref",
+          "similarity_formula_ref": "package::founder-growth-engine::configuration-value::similarity-formula-ref",
+          "instagram_connection_ref": "package::founder-growth-engine::configuration-value::instagram-connection-ref",
+          "authorized_face_asset_ref": "package::founder-growth-engine::configuration-value::authorized-face-asset-ref",
+          "authorized_voice_asset_ref": "package::founder-growth-engine::configuration-value::authorized-voice-asset-ref",
+          "authorized_media_asset_refs": "package::founder-growth-engine::configuration-value::authorized-media-asset-refs",
+          "rights_policy_ref": "package::founder-growth-engine::configuration-value::rights-policy-ref",
+          "eligible_network_channel_refs": "package::founder-growth-engine::configuration-value::eligible-network-channel-refs",
+          "channel_relevance_formula_ref": "package::founder-growth-engine::configuration-value::channel-relevance-formula-ref"
+        },
+        "activation_gate": {
+          "kind": "all-required-values-present",
+          "value_addresses_from": "required_configuration_addresses",
+          "empty_values": [
+            null,
+            "",
+            []
+          ],
+          "fail_closed": true
+        },
+        "fixed_constraints": {
+          "graph_version": "v25.0",
+          "maximum_creator_followers": 1000,
+          "creator_limit": 10,
+          "allow_scraping": false,
+          "allow_private_or_personal_account_monitoring": false,
+          "require_source_provenance": true,
+          "require_similarity_guard": true,
+          "require_publish_idempotency": true
+        },
+        "owner_action_refs": {
+          "observe_sources": "package::observed-content::workflow-action::observe-content-sources",
+          "admit_observations": "package::observed-content::workflow-action::admit-observation-batch",
+          "relate_media_evidence": "package::content-media-evidence::workflow-action::create-relation",
+          "schedule": "package::timed-action::workflow-action::write-scheduled-action",
+          "evaluate_due": "package::timed-action::workflow-action::evaluate-due-scheduled-actions-v3",
+          "score": "package::progression-evaluator::workflow-action::compute-and-write-measure",
+          "guard": "package::ai-action-guard::target::request-guard-check",
+          "compose_media": "package::media-composition::workflow-action::submit-media-composition-intent",
+          "submit_publish": "package::content-distribution::workflow-action::submit-publish-intent",
+          "run_publish": "package::content-distribution::workflow-action::run-publish-intent",
+          "record_result": "package::content-analytics::workflow-action::record-content-analytics-observation",
+          "publish_memory": "package::ai-memory::workflow-action::publish-agent-memories"
+        },
+        "result_surface_refs": {
+          "setup": "package::founder-growth-engine-screens::placeable-surface::setup",
+          "recommended_actions": "package::founder-growth-engine-screens::placeable-surface::next-moves",
+          "operator_activity": "package::founder-growth-engine-screens::placeable-surface::operator-actions",
+          "paired_performance": "package::founder-growth-engine-screens::placeable-surface::content-results",
+          "compose_and_publish": "package::founder-growth-engine-screens::placeable-surface::write-post",
+          "distribution": "package::founder-growth-engine-screens::placeable-surface::distribution",
+          "connection_setup": "package::founder-growth-engine-screens::placeable-surface::connections"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::setup-blocker::emerging-instagram-content-loop",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "action-intent-receipt",
+        "id": "founder-growth-engine.setup-blocker.emerging-instagram-content-loop",
+        "status": "draft-only-final",
+        "source_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+        "fields": {
+          "capability": "Configure the Emerging Instagram content loop",
+          "dispatch_status": "draft-only-final",
+          "artifact": "Set category, view threshold, observation cadence, traction/acceleration/similarity formulas, an authenticated Instagram connection with Public Content Access, authorized face/voice/media assets, rights policy, eligible network channels, and the channel-relevance formula. The loop remains fail-closed until every required reference is present."
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ai-records-producer::instruction::summarize",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-records-producer.instruction",
+        "id": "instr:summarize",
+        "label": "Summarize addressed observation",
+        "description": "DATA instruction used by founder-growth-engine trigger:summarize-new-observations. The producer reads the addressed observed-content ledger entry and emits summary/note records.",
+        "wrap_prefix": "Read the addressed observation ledger entry supplied in input_refs. Return compact founder-useful records: what happened, durable claims, useful notes, and source refs. Return ONLY machine-readable JSON items matching the requested output kind."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ai-records-producer::instruction::draft-post",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-records-producer.instruction",
+        "id": "instr:draft-post",
+        "label": "Draft post instruction",
+        "description": "Wrap instruction for the draft-post DATA configuration — turns a saved insight or topic into ready-to-post social posts (one card per variant). Mirrors the breakdown multi-item JSON-array contract.",
+        "wrap_prefix": "Turn the following into exactly 3 ready-to-post social posts. Each post stands alone: a scroll-stopping first line, a tight value-packed body, one clear takeaway. Plain text ONLY — no markdown, no asterisks, no hashtags, no preamble, no labels or commentary between posts. Return ONLY a JSON array of exactly 3 post strings, nothing else. Source: "
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ai-records-producer::instruction::research",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-records-producer.instruction",
+        "id": "instr:research",
+        "label": "Research instruction",
+        "description": "Free-text research over a typed topic (board tool), returns concrete findings as one card per item. Mirrors the breakdown JSON-array contract — does NOT read input_refs (that is instr:summarize/daily-brief for the backend ledger pipeline).",
+        "wrap_prefix": "Research the following topic and return 5-8 concrete, specific, non-obvious findings, angles, or facts — each a complete standalone insight a founder could act on. Plain text, no markdown, no preamble. Return ONLY a JSON array of finding strings. Topic: "
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::ai-records-producer::instruction::daily-brief",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-records-producer.instruction",
+        "id": "instr:daily-brief",
+        "label": "Daily brief from addressed owner records",
+        "description": "DATA instruction for a brief surface that reads exact owner-addressed records, including AI results when present; no brief logic lives in founder-growth-engine.",
+        "wrap_prefix": "Read only the exact owner records supplied in input_refs. Produce a concise daily brief: what is ready, what is waiting, why it matters, what happens next, and whether Alex must act. Include new observations, useful notes, synthesis prompts, ready ideas, and scheduled next actions only when the addressed evidence supports them. Mark unsupported claims unknown. Return ONLY machine-readable JSON items matching the requested output kind."
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::workflow-action::write-insight-as-idea",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:founder-growth-engine.write-insight-as-idea",
+        "kind": "action",
+        "is_active": true,
+        "name": "write-insight-as-idea",
+        "description": "Direct DATA bridge from synthesis or answer records to the existing ideas attribute-fact publish path. This writes idea facts only; ideas publishes through its own action and triggers.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "idea_id",
+            "content"
+          ],
+          "properties": {
+            "idea_id": {
+              "type": "string"
+            },
+            "content": {
+              "type": "string"
+            },
+            "source_ref": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "array"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "write_idea_facts",
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "idea_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "entity|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "idea_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [],
+                  "payload": {
+                    "table": "entity",
+                    "id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "idea_id"
+                      }
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "idea_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "entity_types|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "idea_id"
+                              }
+                            },
+                            "|type:idea"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "type:idea"
+                  ],
+                  "payload": {
+                    "table": "entity_types",
+                    "entity_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "idea_id"
+                      }
+                    },
+                    "type_id": "type:idea"
+                  }
+                },
+                {
+                  "address": "type_properties|type:idea|prop:idea:content",
+                  "path": [
+                    "type:idea",
+                    "prop:idea:content"
+                  ],
+                  "payload": {
+                    "table": "type_properties",
+                    "type_id": "type:idea",
+                    "property_id": "prop:idea:content"
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "idea_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "attribute_fact|",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "idea_id"
+                              }
+                            },
+                            "|prop:idea:content|type:idea"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "prop:idea:content"
+                  ],
+                  "payload": {
+                    "table": "attribute_fact",
+                    "subject_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "idea_id"
+                      }
+                    },
+                    "property_id": "prop:idea:content",
+                    "type_id": "type:idea",
+                    "value_json": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "content"
+                      },
+                      "transform": [
+                        {
+                          "op": "op:core.stringify",
+                          "args": {
+                            "format": "json"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "version": 1,
+        "extra": {
+          "reuses": [
+            "package::ideas::input::ideas",
+            "entity|action:publish-ideas"
+          ]
+        },
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "entity|trigger:summarize-new-observations",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": {
+        "table": "entity",
+        "id": "trigger:summarize-new-observations"
+      }
+    },
+    {
+      "type": "record",
+      "address": "entity_types|trigger:summarize-new-observations|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "type:trigger"
+      ],
+      "payload": {
+        "table": "entity_types",
+        "entity_id": "trigger:summarize-new-observations",
+        "type_id": "type:trigger"
+      }
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:summarize-new-observations|prop:trigger:slug|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:slug"
+      ],
+      "payload": {
+        "table": "attribute_fact",
+        "subject_id": "trigger:summarize-new-observations",
+        "property_id": "prop:trigger:slug",
+        "type_id": "type:trigger",
+        "value_json": "\"summarize-new-observations\""
+      }
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:summarize-new-observations|prop:trigger:is_active|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:is_active"
+      ],
+      "payload": {
+        "table": "attribute_fact",
+        "subject_id": "trigger:summarize-new-observations",
+        "property_id": "prop:trigger:is_active",
+        "type_id": "type:trigger",
+        "value_json": "true"
+      }
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:summarize-new-observations|prop:trigger:dispatch_target|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:dispatch_target"
+      ],
+      "payload": {
+        "table": "attribute_fact",
+        "subject_id": "trigger:summarize-new-observations",
+        "property_id": "prop:trigger:dispatch_target",
+        "type_id": "type:trigger",
+        "value_json": "\"slot::workflow\""
+      }
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:summarize-new-observations|prop:trigger:match_condition|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:match_condition"
+      ],
+      "payload": {
+        "table": "attribute_fact",
+        "subject_id": "trigger:summarize-new-observations",
+        "property_id": "prop:trigger:match_condition",
+        "type_id": "type:trigger",
+        "value_json": "{\"conditions\": [{\"$bind\": {\"select\": {\"from\": \"envelope\", \"path\": \"address_text\"}, \"transform\": [{\"op\": \"op:core.starts_with\", \"args\": {\"prefix\": \"package::observed-content::ledger::\"}}]}}]}"
+      }
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:summarize-new-observations|prop:trigger:payload_template|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:payload_template"
+      ],
+      "payload": {
+        "table": "attribute_fact",
+        "subject_id": "trigger:summarize-new-observations",
+        "property_id": "prop:trigger:payload_template",
+        "type_id": "type:trigger",
+        "value_json": "{\"operation\": \"execute_definition\", \"definition_id\": \"action:run-ai-records-production\", \"input\": {\"request_id\": {\"$kind\": \"binding\", \"select\": {\"from\": \"envelope\", \"path\": \"address_text\"}, \"transform\": [{\"op\": \"op:core.concat\", \"args\": {\"values\": [\"founder-growth-engine:summarize:\", {\"$kind\": \"binding\", \"select\": {\"from\": \"envelope\", \"path\": \"address_text\"}}]}}]}, \"target_group_ref\": \"package::founder-growth-engine::group::observations\", \"instruction_text\": \"Summarize the changed observed-content ledger entry addressed in input_refs.\", \"input\": {\"instruction_ref\": \"package::ai-records-producer::instruction::summarize\", \"wrap_instruction_ref\": \"instr:summarize\", \"output_kind\": \"observation-summary\", \"input_refs\": [{\"$kind\": \"binding\", \"select\": {\"from\": \"envelope\", \"path\": \"address_text\"}}]}}}"
+      }
+    },
+    {
+      "type": "record",
+      "address": "entity|trigger:insight-to-idea",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": {
+        "table": "entity",
+        "id": "trigger:insight-to-idea"
+      }
+    },
+    {
+      "type": "record",
+      "address": "entity_types|trigger:insight-to-idea|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "type:trigger"
+      ],
+      "payload": {
+        "table": "entity_types",
+        "entity_id": "trigger:insight-to-idea",
+        "type_id": "type:trigger"
+      }
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:insight-to-idea|prop:trigger:slug|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:slug"
+      ],
+      "payload": {
+        "table": "attribute_fact",
+        "subject_id": "trigger:insight-to-idea",
+        "property_id": "prop:trigger:slug",
+        "type_id": "type:trigger",
+        "value_json": "\"insight-to-idea\""
+      }
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:insight-to-idea|prop:trigger:is_active|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:is_active"
+      ],
+      "payload": {
+        "table": "attribute_fact",
+        "subject_id": "trigger:insight-to-idea",
+        "property_id": "prop:trigger:is_active",
+        "type_id": "type:trigger",
+        "value_json": "true"
+      }
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:insight-to-idea|prop:trigger:dispatch_target|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:dispatch_target"
+      ],
+      "payload": {
+        "table": "attribute_fact",
+        "subject_id": "trigger:insight-to-idea",
+        "property_id": "prop:trigger:dispatch_target",
+        "type_id": "type:trigger",
+        "value_json": "\"slot::workflow\""
+      }
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:insight-to-idea|prop:trigger:match_condition|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:match_condition"
+      ],
+      "payload": {
+        "table": "attribute_fact",
+        "subject_id": "trigger:insight-to-idea",
+        "property_id": "prop:trigger:match_condition",
+        "type_id": "type:trigger",
+        "value_json": "{\"conditions\": [{\"$bind\": {\"select\": {\"from\": \"envelope\", \"path\": \"address_text\"}, \"transform\": [{\"op\": \"op:core.or\", \"args\": {\"values\": [{\"$kind\": \"binding\", \"select\": {\"from\": \"envelope\", \"path\": \"address_text\"}, \"transform\": [{\"op\": \"op:core.starts_with\", \"args\": {\"prefix\": \"package::ai-records-producer::result::\"}}]}, {\"$kind\": \"binding\", \"select\": {\"from\": \"change\", \"path\": \"kind\"}, \"transform\": [{\"op\": \"op:core.equals\", \"args\": {\"value\": \"post-session-reflection\"}}]}, {\"$kind\": \"binding\", \"select\": {\"from\": \"change\", \"path\": \"kind\"}, \"transform\": [{\"op\": \"op:core.equals\", \"args\": {\"value\": \"answer-synthesis\"}}]}]}}]}}]}"
+      }
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:insight-to-idea|prop:trigger:payload_template|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:payload_template"
+      ],
+      "payload": {
+        "table": "attribute_fact",
+        "subject_id": "trigger:insight-to-idea",
+        "property_id": "prop:trigger:payload_template",
+        "type_id": "type:trigger",
+        "value_json": "{\"operation\": \"execute_definition\", \"definition_id\": \"action:founder-growth-engine.write-insight-as-idea\", \"input\": {\"idea_id\": {\"$kind\": \"binding\", \"select\": {\"from\": \"change\", \"path\": \"id\"}, \"transform\": [{\"op\": \"op:core.concat\", \"args\": {\"values\": [\"idea:\", {\"$kind\": \"binding\", \"select\": {\"from\": \"change\", \"path\": \"id\"}}]}}]}, \"content\": {\"$kind\": \"binding\", \"select\": {\"from\": \"change\", \"path\": \"text\"}}, \"source_ref\": {\"$kind\": \"binding\", \"select\": {\"from\": \"envelope\", \"path\": \"address_text\"}}, \"tags\": [\"founder-growth-engine\", \"synthesis\"]}}"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::input::daily-brief-results",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "daily-brief-results",
+        "is_default": true,
+        "value_address_label": "founder-growth-engine.daily-brief-results",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          },
+          "projection": {
+            "op": "rows",
+            "fields": [
+              {
+                "column": 0,
+                "key": "result_ref",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "result_kind",
+                "required": false,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "metadata",
+                "required": false,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::schedule::best-time-distribution-policy",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "scheduled-action",
+        "descriptor"
+      ],
+      "payload": {
+        "kind": "scheduled-action.rule-descriptor",
+        "method": "data-configured-rule",
+        "owner_package_ref": "package::timed-action::capability::generic-scheduled-action-graph",
+        "write_action_ref": "package::timed-action::workflow-action::write-scheduled-action",
+        "result_shape": [
+          "allowed",
+          "tone",
+          "reason_refs",
+          "next_action_refs"
+        ],
+        "rule_id": "founder-growth-engine.best-time-distribution-policy",
+        "time_window_policy": {
+          "timezone_source": "profile-or-runtime-context",
+          "slot_selection": "best-time-policy-data",
+          "fallback_windows": [
+            {
+              "label": "weekday-morning",
+              "local_start": "09:00",
+              "local_end": "11:00"
+            },
+            {
+              "label": "weekday-afternoon",
+              "local_start": "14:00",
+              "local_end": "16:00"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::schedule::publish-action-descriptor",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "scheduled-action",
+        "descriptor"
+      ],
+      "payload": {
+        "kind": "scheduled-action.action-descriptor",
+        "owner_package_ref": "package::timed-action::descriptor::action",
+        "dispatch_slot": "slot::workflow",
+        "submit_definition_id": "action:submit-publish-intent",
+        "run_definition_id": "action:run-publish-intent",
+        "submit_action_ref": "package::content-distribution::workflow-action::submit-publish-intent",
+        "run_action_ref": "package::content-distribution::workflow-action::run-publish-intent",
+        "destination_selection": {
+          "kind": "owner-feed-selection",
+          "source_address": "package::content-distribution::surface-feed::destination-options",
+          "selection_mode": "caller-authored-opaque-refs"
+        },
+        "idempotency_material": [
+          "record_id",
+          "operation"
+        ],
+        "dispatch_shape": {
+          "name": "any slot address (this package uses slot::workflow execute_definition)",
+          "input": "opaque payload the row itself carries"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::schedule::destinations",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "founder-growth-engine.destination-set",
+        "scheduler_ref": "package::timed-action::workflow-action::write-scheduled-action",
+        "distribution_submit_ref": "package::content-distribution::workflow-action::submit-publish-intent",
+        "distribution_run_ref": "package::content-distribution::workflow-action::run-publish-intent",
+        "destination_selection": {
+          "kind": "owner-feed-selection",
+          "source_address": "package::content-distribution::surface-feed::destination-options",
+          "selection_mode": "caller-authored-opaque-refs"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::workflow-action::write-one-captured-item-from-observation",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:write-one-captured-item-from-observation",
+        "kind": "action",
+        "is_active": true,
+        "name": "write-one-captured-item-from-observation",
+        "description": "Project ONE observed-content observation into a captured-item record the Saved/Your-stuff feed reads. Carries payload.text so summarize-saved-items can summarize from rich content. No AI/logic here — pure map+write.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "obs"
+          ],
+          "properties": {
+            "obs": {
+              "type": "object"
+            }
+          }
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "obs.cursor"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::founder-growth-engine-screens::captured-item::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "obs.cursor"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "address_mode": "identity_text",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "obs.cursor"
+                      }
+                    },
+                    "kind": "captured-item",
+                    "title": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "obs.payload.title"
+                      }
+                    },
+                    "sourceLabel": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "obs.payload.host"
+                      }
+                    },
+                    "summary": "",
+                    "tags": [],
+                    "note": "",
+                    "savedAtLabel": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "obs.payload.observed_at"
+                      }
+                    },
+                    "statusKey": "new",
+                    "url": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "obs.payload.url"
+                      }
+                    },
+                    "text": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "obs.payload.text"
+                      }
+                    },
+                    "sourceObservationRef": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "obs.cursor"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "version": 1,
+        "extra": {
+          "reuses": [
+            "package::observed-content::ledger"
+          ]
+        },
+        "extra_properties": {}
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::workflow-action::project-observations-to-captured-items",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:project-observations-to-captured-items",
+        "kind": "action",
+        "is_active": true,
+        "name": "project-observations-to-captured-items",
+        "description": "Fan out a freshly-written observed-content ledger batch into one captured-item per observation (loop dispatch). Unifies auto-capture with the manual-paste captured-item the Saved feed reads.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "observations"
+          ],
+          "properties": {
+            "observations": {
+              "type": "array"
+            }
+          }
+        },
+        "steps": [
+          {
+            "kind": "loop",
+            "config": {
+              "source": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "observations"
+                }
+              },
+              "item_var": "obs",
+              "parallel": false,
+              "max_iterations": 64,
+              "definition_id": "action:write-one-captured-item-from-observation",
+              "inputs": {
+                "obs": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "loop",
+                    "path": "obs"
+                  }
+                }
+              }
+            },
+            "join": "all"
+          }
+        ],
+        "edges": [],
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|action:write-one-captured-item-from-observation",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": {
+        "table": "entity",
+        "id": "action:write-one-captured-item-from-observation"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|action:write-one-captured-item-from-observation|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "type:action"
+      ],
+      "payload": {
+        "table": "entity_types",
+        "entity_id": "action:write-one-captured-item-from-observation",
+        "type_id": "type:action"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|action:project-observations-to-captured-items",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": {
+        "table": "entity",
+        "id": "action:project-observations-to-captured-items"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|action:project-observations-to-captured-items|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "type:action"
+      ],
+      "payload": {
+        "table": "entity_types",
+        "entity_id": "action:project-observations-to-captured-items",
+        "type_id": "type:action"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|trigger:project-observations-to-captured-items",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": {
+        "table": "entity",
+        "id": "trigger:project-observations-to-captured-items"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|trigger:project-observations-to-captured-items|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "type:trigger"
+      ],
+      "payload": {
+        "table": "entity_types",
+        "entity_id": "trigger:project-observations-to-captured-items",
+        "type_id": "type:trigger"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:project-observations-to-captured-items|prop:trigger:slug|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:slug"
+      ],
+      "payload": {
+        "table": "attribute_fact",
+        "subject_id": "trigger:project-observations-to-captured-items",
+        "property_id": "prop:trigger:slug",
+        "type_id": "type:trigger",
+        "value_json": "\"project-observations-to-captured-items\""
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:project-observations-to-captured-items|prop:trigger:is_active|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:is_active"
+      ],
+      "payload": {
+        "table": "attribute_fact",
+        "subject_id": "trigger:project-observations-to-captured-items",
+        "property_id": "prop:trigger:is_active",
+        "type_id": "type:trigger",
+        "value_json": "true"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:project-observations-to-captured-items|prop:trigger:match_condition|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:match_condition"
+      ],
+      "payload": {
+        "table": "attribute_fact",
+        "subject_id": "trigger:project-observations-to-captured-items",
+        "property_id": "prop:trigger:match_condition",
+        "type_id": "type:trigger",
+        "value_json": "{\"conditions\": [{\"$bind\": {\"select\": {\"from\": \"envelope\", \"path\": \"address_text\"}, \"transform\": [{\"op\": \"op:core.starts_with\", \"args\": {\"prefix\": \"package::observed-content::ledger::\"}}]}}, {\"$bind\": {\"select\": {\"from\": \"envelope\", \"path\": \"is_retraction\"}, \"transform\": [{\"op\": \"op:core.equals\", \"args\": {\"value\": false}}]}}]}"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:project-observations-to-captured-items|prop:trigger:dispatch_target|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:dispatch_target"
+      ],
+      "payload": {
+        "table": "attribute_fact",
+        "subject_id": "trigger:project-observations-to-captured-items",
+        "property_id": "prop:trigger:dispatch_target",
+        "type_id": "type:trigger",
+        "value_json": "\"slot::workflow\""
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:project-observations-to-captured-items|prop:trigger:payload_template|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:payload_template"
+      ],
+      "payload": {
+        "table": "attribute_fact",
+        "subject_id": "trigger:project-observations-to-captured-items",
+        "property_id": "prop:trigger:payload_template",
+        "type_id": "type:trigger",
+        "value_json": "{\"operation\": \"execute_definition\", \"definition_id\": \"action:project-observations-to-captured-items\", \"input\": {\"observations\": {\"$kind\": \"binding\", \"select\": {\"from\": \"change\", \"path\": \"accepted\"}}}}"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::workflow-action::score-and-rank-next-moves",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:score-and-rank-next-moves",
+        "kind": "action",
+        "is_active": true,
+        "name": "score-and-rank-next-moves",
+        "description": "Read next-move candidates and facts, score each candidate with its DATA score_formula via formula-engine, then materialize ranked next-move records with null-honest health.",
+        "input_schema": {
+          "type": "object",
+          "required": [],
+          "properties": {
+            "next-move-candidates": {
+              "type": "array"
+            },
+            "next-move-inputs": {
+              "type": "array"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "find_candidates",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "published-record",
+                "where": {
+                  "all": [
+                    {
+                      "field": "kind",
+                      "in": [
+                        "next-move-candidate"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": "find_facts",
+            "join": "any",
+            "join_config": null,
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "published-record",
+                "where": {
+                  "all": [
+                    {
+                      "field": "kind",
+                      "in": [
+                        "next-move-input"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "kind": "loop",
+            "config": {
+              "source": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "find_candidates",
+                  "path": "output.items"
+                },
+                "resolve_nested_bindings": false
+              },
+              "item_var": "candidate",
+              "parallel": false,
+              "max_iterations": 128,
+              "definition_id": "action:founder-growth-engine.score-one-next-move",
+              "inputs": {
+                "candidate": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "loop",
+                    "path": "candidate"
+                  },
+                  "resolve_nested_bindings": false
+                },
+                "facts": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "find_facts",
+                    "path": "output.items"
+                  },
+                  "resolve_nested_bindings": false
+                }
+              }
+            },
+            "id": "score_candidates",
+            "join": "all",
+            "join_config": null
+          },
+          {
+            "kind": "return",
+            "config": {
+              "value": {
+                "ok": true
+              }
+            }
+          }
+        ],
+        "edges": [],
+        "version": 1,
+        "extra": {
+          "recipe_home": "founder-growth-engine",
+          "null_honesty": "missing inputs produce null score, never 0 or NaN"
+        },
+        "extra_properties": {}
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|action:score-and-rank-next-moves",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": {
+        "table": "entity",
+        "id": "action:score-and-rank-next-moves"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|action:score-and-rank-next-moves|type:action",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": {
+        "table": "entity_types",
+        "entity_id": "action:score-and-rank-next-moves",
+        "type_id": "type:action"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|action:score-and-rank-next-moves|prop:action:description|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:action:description"
+      ],
+      "payload": {
+        "table": "attribute_fact",
+        "subject_id": "action:score-and-rank-next-moves",
+        "property_id": "prop:action:description",
+        "type_id": "type:action",
+        "value_json": "\"Read next-move candidates and facts, score each candidate with its DATA score_formula via formula-engine, then materialize ranked next-move records with null-honest health.\""
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|action:score-and-rank-next-moves|prop:action:is_active|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:action:is_active"
+      ],
+      "payload": {
+        "table": "attribute_fact",
+        "subject_id": "action:score-and-rank-next-moves",
+        "property_id": "prop:action:is_active",
+        "type_id": "type:action",
+        "value_json": "true"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|action:score-and-rank-next-moves|prop:action:slug|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:action:slug"
+      ],
+      "payload": {
+        "table": "attribute_fact",
+        "subject_id": "action:score-and-rank-next-moves",
+        "property_id": "prop:action:slug",
+        "type_id": "type:action",
+        "value_json": "\"score-and-rank-next-moves\""
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|action:score-and-rank-next-moves|prop:action:workflow_steps|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:action:workflow_steps"
+      ],
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOmFjdGlvbjp3b3JrZmxvd19zdGVwcyIsCiAgInN1YmplY3RfaWQiOiAiYWN0aW9uOnNjb3JlLWFuZC1yYW5rLW5leHQtbW92ZXMiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTphY3Rpb24iLAogICJ2YWx1ZV9qc29uIjogIlt7XCJpZFwiOiBcImZpbmRfY2FuZGlkYXRlc1wiLCBcImpvaW5cIjogXCJhbnlcIiwgXCJqb2luX2NvbmZpZ1wiOiBudWxsLCBcImtpbmRcIjogXCJhc2tcIiwgXCJjb25maWdcIjoge1wibmFtZVwiOiBcInNsb3Q6OmZpbmQtY3VycmVudC1pdGVtc1wiLCBcImlucHV0XCI6IHtcIm9wZXJhdGlvblwiOiBcImZpbmQtY3VycmVudC1pdGVtc1wiLCBcImluXCI6IFwicHVibGlzaGVkLXJlY29yZFwiLCBcIndoZXJlXCI6IHtcImFsbFwiOiBbe1wiZmllbGRcIjogXCJraW5kXCIsIFwiaW5cIjogW1wibmV4dC1tb3ZlLWNhbmRpZGF0ZVwiXX1dfX19fSwge1wiaWRcIjogXCJmaW5kX2ZhY3RzXCIsIFwiam9pblwiOiBcImFueVwiLCBcImpvaW5fY29uZmlnXCI6IG51bGwsIFwia2luZFwiOiBcImFza1wiLCBcImNvbmZpZ1wiOiB7XCJuYW1lXCI6IFwic2xvdDo6ZmluZC1jdXJyZW50LWl0ZW1zXCIsIFwiaW5wdXRcIjoge1wib3BlcmF0aW9uXCI6IFwiZmluZC1jdXJyZW50LWl0ZW1zXCIsIFwiaW5cIjogXCJwdWJsaXNoZWQtcmVjb3JkXCIsIFwid2hlcmVcIjoge1wiYWxsXCI6IFt7XCJmaWVsZFwiOiBcImtpbmRcIiwgXCJpblwiOiBbXCJuZXh0LW1vdmUtaW5wdXRcIl19XX19fX0sIHtcImtpbmRcIjogXCJsb29wXCIsIFwiY29uZmlnXCI6IHtcInNvdXJjZVwiOiB7XCIka2luZFwiOiBcImJpbmRpbmdcIiwgXCJzZWxlY3RcIjoge1wiZnJvbVwiOiBcInN0ZXBzXCIsIFwia2V5XCI6IFwiZmluZF9jYW5kaWRhdGVzXCIsIFwicGF0aFwiOiBcIm91dHB1dC5pdGVtc1wifSwgXCJyZXNvbHZlX25lc3RlZF9iaW5kaW5nc1wiOiBmYWxzZX0sIFwiaXRlbV92YXJcIjogXCJjYW5kaWRhdGVcIiwgXCJwYXJhbGxlbFwiOiBmYWxzZSwgXCJtYXhfaXRlcmF0aW9uc1wiOiAxMjgsIFwiZGVmaW5pdGlvbl9pZFwiOiBcImFjdGlvbjpmb3VuZGVyLWdyb3d0aC1lbmdpbmUuc2NvcmUtb25lLW5leHQtbW92ZVwiLCBcImlucHV0c1wiOiB7XCJjYW5kaWRhdGVcIjoge1wiJGtpbmRcIjogXCJiaW5kaW5nXCIsIFwic2VsZWN0XCI6IHtcImZyb21cIjogXCJsb29wXCIsIFwicGF0aFwiOiBcImNhbmRpZGF0ZVwifSwgXCJyZXNvbHZlX25lc3RlZF9iaW5kaW5nc1wiOiBmYWxzZX0sIFwiZmFjdHNcIjoge1wiJGtpbmRcIjogXCJiaW5kaW5nXCIsIFwic2VsZWN0XCI6IHtcImZyb21cIjogXCJzdGVwc1wiLCBcImtleVwiOiBcImZpbmRfZmFjdHNcIiwgXCJwYXRoXCI6IFwib3V0cHV0Lml0ZW1zXCJ9LCBcInJlc29sdmVfbmVzdGVkX2JpbmRpbmdzXCI6IGZhbHNlfX19LCBcImlkXCI6IFwic2NvcmVfY2FuZGlkYXRlc1wiLCBcImpvaW5cIjogXCJhbGxcIiwgXCJqb2luX2NvbmZpZ1wiOiBudWxsfSwge1wia2luZFwiOiBcInJldHVyblwiLCBcImNvbmZpZ1wiOiB7XCJ2YWx1ZVwiOiB7XCJva1wiOiB0cnVlfX19XSIKfQ==",
+      "payload": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:score-and-rank-next-moves-on-input-change|prop:trigger:topic|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:topic"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6dG9waWMiLAogICJzdWJqZWN0X2lkIjogInRyaWdnZXI6c2NvcmUtYW5kLXJhbmstbmV4dC1tb3Zlcy1vbi1pbnB1dC1jaGFuZ2UiLAogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInR5cGVfaWQiOiAidHlwZTp0cmlnZ2VyIiwKICAidmFsdWVfanNvbiI6ICJcImF0dHJpYnV0ZV9jaGFuZ2VkXCIiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:score-and-rank-next-moves-on-input-change|prop:trigger:match_condition|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:match_condition"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6bWF0Y2hfY29uZGl0aW9uIiwKICAic3ViamVjdF9pZCI6ICJ0cmlnZ2VyOnNjb3JlLWFuZC1yYW5rLW5leHQtbW92ZXMtb24taW5wdXQtY2hhbmdlIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6dHJpZ2dlciIsCiAgInZhbHVlX2pzb24iOiAie1wiY29uZGl0aW9uc1wiOlt7XCIkYmluZFwiOntcInNlbGVjdFwiOntcImZyb21cIjpcImNoYW5nZVwiLFwicGF0aFwiOlwicHJvcGVydHlfaWRcIn0sXCJ0cmFuc2Zvcm1cIjpbe1wib3BcIjpcIm9wOmNvcmUuaW5fbGlzdFwiLFwiYXJnc1wiOntcInZhbHVlc1wiOltcInByb3A6YnVzaW5lc3MtZXZlbnQ6cmV2ZW51ZV9kZWx0YVwiLFwicHJvcDpsZXZlcjplZmZvcnRcIixcInByb3A6aHlwb3RoZXNpczpleHBlY3RlZF9saWZ0XCIsXCJwcm9wOmh5cG90aGVzaXM6Y29uZmlkZW5jZVwiLFwicHJvcDpoeXBvdGhlc2lzOmVmZm9ydFwiLFwicHJvcDpjb250ZW50LWFuYWx5dGljcy5vYnNlcnZhdGlvbjptZXRyaWNzXCIsXCJwcm9wOnJldmVudWU6bmV0X2NlbnRzXCIsXCJwcm9wOnJldmVudWU6YnlfY29ob3J0XCIsXCJwcm9wOmJ1c2luZXNzLWV2ZW50OnZpc2l0b3JcIixcInByb3A6YnVzaW5lc3MtZXZlbnQ6YXR0cmlidXRlZF9yZXZlbnVlXCIsXCJwcm9wOnNwZW5kOmNlbnRzXCIsXCJwcm9wOnVuaXQtZWNvbm9taWNzOmx0dl90b19jYWNcIixcInByb3A6dW5pdC1lY29ub21pY3M6cGF5YmFja19wZXJpb2RzXCIsXCJwcm9wOnVuaXQtZWNvbm9taWNzOmx0dl9jZW50c1wiLFwicHJvcDp1bml0LWVjb25vbWljczpjYWNfY2VudHNcIixcInByb3A6aWRlYTpkZW1hbmRfc2lnbmFsXCIsXCJwcm9wOnVuaXQtZWNvbm9taWNzOmdyb3NzX21hcmdpblwiLFwicHJvcDpidXNpbmVzcy1ldmVudDphdHRyaWJ1dGVkX3ZhbHVlXCIsXCJwcm9wOnRyYWZmaWMtYXR0cmlidXRpb246c291cmNlXCIsXCJwcm9wOmJ1c2luZXNzLWV2ZW50OnR5cGVcIixcInByb3A6YnVzaW5lc3MtZXZlbnQ6cmV2ZW51ZV9kZWx0YV9zdW1cIixcInByb3A6YnVzaW5lc3MtZXZlbnQ6ZXZlbnRfY291bnRcIixcInByb3A6YnVzaW5lc3MtZXZlbnQ6cmV0YWluZWRfcmV2ZW51ZVwiLFwicHJvcDphY3Rpb246Y29zdFwiLFwicHJvcDptYXJrZXQ6ZGVtYW5kXCIsXCJwcm9wOm1hcmtldDptYXJnaW5cIixcInByb3A6bGVhcm5pbmctcHJvZ3Jlc3M6KlwiXX19XX19XX0iCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:score-and-rank-next-moves-on-input-change|prop:trigger:dispatch_target|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:dispatch_target"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6ZGlzcGF0Y2hfdGFyZ2V0IiwKICAic3ViamVjdF9pZCI6ICJ0cmlnZ2VyOnNjb3JlLWFuZC1yYW5rLW5leHQtbW92ZXMtb24taW5wdXQtY2hhbmdlIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6dHJpZ2dlciIsCiAgInZhbHVlX2pzb24iOiAiXCJzbG90Ojp3b3JrZmxvd1wiIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|trigger:score-and-rank-next-moves-on-input-change|prop:trigger:output_template|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:trigger:output_template"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJwcm9wZXJ0eV9pZCI6ICJwcm9wOnRyaWdnZXI6b3V0cHV0X3RlbXBsYXRlIiwKICAic3ViamVjdF9pZCI6ICJ0cmlnZ2VyOnNjb3JlLWFuZC1yYW5rLW5leHQtbW92ZXMtb24taW5wdXQtY2hhbmdlIiwKICAidGFibGUiOiAiYXR0cmlidXRlX2ZhY3QiLAogICJ0eXBlX2lkIjogInR5cGU6dHJpZ2dlciIsCiAgInZhbHVlX2pzb24iOiAie1wib3BlcmF0aW9uXCI6XCJleGVjdXRlX2RlZmluaXRpb25cIixcImRlZmluaXRpb25faWRcIjpcImFjdGlvbjpzY29yZS1hbmQtcmFuay1uZXh0LW1vdmVzXCIsXCJpbmNsdWRlX3N0ZXBzXCI6ZmFsc2UsXCJpbmNsdWRlX291dHB1dFwiOmZhbHNlLFwiaW5wdXRcIjp7XCJjaGFuZ2VcIjp7XCIka2luZFwiOlwiYmluZGluZ1wiLFwic2VsZWN0XCI6e1wiZnJvbVwiOlwiY2hhbmdlXCIsXCJwYXRoXCI6XCJcIn19LFwiZW52ZWxvcGVcIjp7XCIka2luZFwiOlwiYmluZGluZ1wiLFwic2VsZWN0XCI6e1wiZnJvbVwiOlwiZW52ZWxvcGVcIixcInBhdGhcIjpcIlwifX19fSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|trigger:score-and-rank-next-moves-on-input-change|type:trigger",
+      "address_mode": "identity_text",
+      "path": [
+        "type:trigger"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJlbnRpdHlfaWQiOiAidHJpZ2dlcjpzY29yZS1hbmQtcmFuay1uZXh0LW1vdmVzLW9uLWlucHV0LWNoYW5nZSIsCiAgInRhYmxlIjogImVudGl0eV90eXBlcyIsCiAgInR5cGVfaWQiOiAidHlwZTp0cmlnZ2VyIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|trigger:score-and-rank-next-moves-on-input-change",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "ewogICJpZCI6ICJ0cmlnZ2VyOnNjb3JlLWFuZC1yYW5rLW5leHQtbW92ZXMtb24taW5wdXQtY2hhbmdlIiwKICAidGFibGUiOiAiZW50aXR5Igp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::workflow-action::score-one-next-move",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "workflow-definition",
+        "id": "action:founder-growth-engine.score-one-next-move",
+        "description": "Score ONE next-move candidate: evaluate its DATA score_formula + verdict_formula via slot::formula-engine (BindingEvalRequest) and write the next-move record. Blind: all formulas + labels ride the candidate DATA.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "candidate",
+            "facts"
+          ],
+          "properties": {
+            "candidate": {
+              "type": "object"
+            },
+            "facts": {
+              "type": "array"
+            }
+          }
+        },
+        "is_active": true,
+        "steps": [
+          {
+            "id": "score",
+            "kind": "ask",
+            "join": "any",
+            "join_config": null,
+            "config": {
+              "name": "slot::formula-engine",
+              "input": {
+                "binding": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "candidate.score_formula"
+                  },
+                  "resolve_nested_bindings": false
+                },
+                "context": {
+                  "facts": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "facts"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "verdict",
+            "kind": "ask",
+            "join": "any",
+            "join_config": null,
+            "config": {
+              "name": "slot::formula-engine",
+              "input": {
+                "binding": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "candidate.verdict_formula"
+                  },
+                  "resolve_nested_bindings": false
+                },
+                "context": {
+                  "score": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "score",
+                      "path": "output.result"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "stamp",
+            "kind": "ask",
+            "join": "any",
+            "join_config": null,
+            "config": {
+              "name": "slot::formula-engine",
+              "input": {
+                "binding": {
+                  "$kind": "opaque-json",
+                  "value": {
+                    "$kind": "binding",
+                    "transform": [
+                      {
+                        "op": "op:core.dt_now",
+                        "args": {}
+                      }
+                    ]
+                  }
+                },
+                "context": {}
+              }
+            }
+          },
+          {
+            "id": "severity",
+            "kind": "ask",
+            "join": "any",
+            "join_config": null,
+            "config": {
+              "name": "slot::formula-engine",
+              "input": {
+                "binding": {
+                  "$kind": "opaque-json",
+                  "value": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "context",
+                      "path": "score"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.is_null",
+                        "args": {}
+                      },
+                      {
+                        "op": "op:core.if",
+                        "args": {
+                          "then": "warning",
+                          "else": "info"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "context": {
+                  "score": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "score",
+                      "path": "output.result"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "write_next_move",
+            "kind": "write",
+            "join": "any",
+            "join_config": null,
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "candidate.candidate_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::founder-growth-engine::next-move::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "candidate.candidate_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "address_mode": "identity_text",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "kind": "next-move",
+                    "candidate_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "candidate.candidate_id"
+                      }
+                    },
+                    "label": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "candidate.label"
+                      }
+                    },
+                    "stage": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "candidate.stage"
+                      }
+                    },
+                    "score": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "score",
+                        "path": "output.result"
+                      }
+                    },
+                    "verdict": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "verdict",
+                        "path": "output.result"
+                      }
+                    },
+                    "health": {
+                      "severity": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "severity",
+                          "path": "output.result"
+                        }
+                      }
+                    },
+                    "inputs": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "candidate.input_fact_refs"
+                      }
+                    },
+                    "start_target": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "candidate.start_target"
+                      }
+                    },
+                    "measured_at": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "stamp",
+                        "path": "output.result"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "join": "any",
+            "join_config": null,
+            "config": {
+              "value": {
+                "ok": true
+              }
+            }
+          }
+        ],
+        "name": "Score one next move",
+        "edges": [],
+        "version": 1,
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "extra": {},
+        "extra_properties": {}
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity|action:founder-growth-engine.score-one-next-move",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_base64": "ewogICJ0YWJsZSI6ICJlbnRpdHkiLAogICJpZCI6ICJhY3Rpb246Zm91bmRlci1ncm93dGgtZW5naW5lLnNjb3JlLW9uZS1uZXh0LW1vdmUiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "entity_types|action:founder-growth-engine.score-one-next-move|type:action",
+      "address_mode": "identity_text",
+      "path": [],
+      "payload": null,
+      "payload_base64": "ewogICJ0YWJsZSI6ICJlbnRpdHlfdHlwZXMiLAogICJlbnRpdHlfaWQiOiAiYWN0aW9uOmZvdW5kZXItZ3Jvd3RoLWVuZ2luZS5zY29yZS1vbmUtbmV4dC1tb3ZlIiwKICAidHlwZV9pZCI6ICJ0eXBlOmFjdGlvbiIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|action:founder-growth-engine.score-one-next-move|prop:action:slug|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:action:slug"
+      ],
+      "payload": null,
+      "payload_base64": "ewogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInN1YmplY3RfaWQiOiAiYWN0aW9uOmZvdW5kZXItZ3Jvd3RoLWVuZ2luZS5zY29yZS1vbmUtbmV4dC1tb3ZlIiwKICAicHJvcGVydHlfaWQiOiAicHJvcDphY3Rpb246c2x1ZyIsCiAgInR5cGVfaWQiOiAidHlwZTphY3Rpb24iLAogICJ2YWx1ZV9qc29uIjogIlwic2NvcmUtb25lLW5leHQtbW92ZVwiIgp9",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|action:founder-growth-engine.score-one-next-move|prop:action:description|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:action:description"
+      ],
+      "payload": null,
+      "payload_base64": "ewogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInN1YmplY3RfaWQiOiAiYWN0aW9uOmZvdW5kZXItZ3Jvd3RoLWVuZ2luZS5zY29yZS1vbmUtbmV4dC1tb3ZlIiwKICAicHJvcGVydHlfaWQiOiAicHJvcDphY3Rpb246ZGVzY3JpcHRpb24iLAogICJ0eXBlX2lkIjogInR5cGU6YWN0aW9uIiwKICAidmFsdWVfanNvbiI6ICJcIlNjb3JlIE9ORSBuZXh0LW1vdmUgY2FuZGlkYXRlOiBldmFsdWF0ZSBpdHMgREFUQSBzY29yZV9mb3JtdWxhICsgdmVyZGljdF9mb3JtdWxhIHZpYSBzbG90Ojpmb3JtdWxhLWVuZ2luZSAoQmluZGluZ0V2YWxSZXF1ZXN0KSBhbmQgd3JpdGUgdGhlIG5leHQtbW92ZSByZWNvcmQuIEJsaW5kOiBhbGwgZm9ybXVsYXMgKyBsYWJlbHMgcmlkZSB0aGUgY2FuZGlkYXRlIERBVEEuXCIiCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|action:founder-growth-engine.score-one-next-move|prop:action:is_active|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:action:is_active"
+      ],
+      "payload": null,
+      "payload_base64": "ewogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInN1YmplY3RfaWQiOiAiYWN0aW9uOmZvdW5kZXItZ3Jvd3RoLWVuZ2luZS5zY29yZS1vbmUtbmV4dC1tb3ZlIiwKICAicHJvcGVydHlfaWQiOiAicHJvcDphY3Rpb246aXNfYWN0aXZlIiwKICAidHlwZV9pZCI6ICJ0eXBlOmFjdGlvbiIsCiAgInZhbHVlX2pzb24iOiAidHJ1ZSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|action:founder-growth-engine.score-one-next-move|prop:action:input_schema|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:action:input_schema"
+      ],
+      "payload": null,
+      "payload_base64": "ewogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInN1YmplY3RfaWQiOiAiYWN0aW9uOmZvdW5kZXItZ3Jvd3RoLWVuZ2luZS5zY29yZS1vbmUtbmV4dC1tb3ZlIiwKICAicHJvcGVydHlfaWQiOiAicHJvcDphY3Rpb246aW5wdXRfc2NoZW1hIiwKICAidHlwZV9pZCI6ICJ0eXBlOmFjdGlvbiIsCiAgInZhbHVlX2pzb24iOiAie1widHlwZVwiOiBcIm9iamVjdFwiLCBcInJlcXVpcmVkXCI6IFtcImNhbmRpZGF0ZVwiLCBcImZhY3RzXCJdLCBcInByb3BlcnRpZXNcIjoge1wiY2FuZGlkYXRlXCI6IHtcInR5cGVcIjogXCJvYmplY3RcIn0sIFwiZmFjdHNcIjoge1widHlwZVwiOiBcImFycmF5XCJ9fX0iCn0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|action:founder-growth-engine.score-one-next-move|prop:action:workflow_steps|type:action",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:action:workflow_steps"
+      ],
+      "payload": null,
+      "payload_base64": "ewogICJ0YWJsZSI6ICJhdHRyaWJ1dGVfZmFjdCIsCiAgInN1YmplY3RfaWQiOiAiYWN0aW9uOmZvdW5kZXItZ3Jvd3RoLWVuZ2luZS5zY29yZS1vbmUtbmV4dC1tb3ZlIiwKICAicHJvcGVydHlfaWQiOiAicHJvcDphY3Rpb246d29ya2Zsb3dfc3RlcHMiLAogICJ0eXBlX2lkIjogInR5cGU6YWN0aW9uIiwKICAidmFsdWVfanNvbiI6ICJbe1wiaWRcIjogXCJzY29yZVwiLCBcImtpbmRcIjogXCJhc2tcIiwgXCJqb2luXCI6IFwiYW55XCIsIFwiam9pbl9jb25maWdcIjogbnVsbCwgXCJjb25maWdcIjoge1wibmFtZVwiOiBcInNsb3Q6OmZvcm11bGEtZW5naW5lXCIsIFwiaW5wdXRcIjoge1wiYmluZGluZ1wiOiB7XCIka2luZFwiOiBcImJpbmRpbmdcIiwgXCJzZWxlY3RcIjoge1wiZnJvbVwiOiBcImlucHV0XCIsIFwicGF0aFwiOiBcImNhbmRpZGF0ZS5zY29yZV9mb3JtdWxhXCJ9LCBcInJlc29sdmVfbmVzdGVkX2JpbmRpbmdzXCI6IGZhbHNlfSwgXCJjb250ZXh0XCI6IHtcImZhY3RzXCI6IHtcIiRraW5kXCI6IFwiYmluZGluZ1wiLCBcInNlbGVjdFwiOiB7XCJmcm9tXCI6IFwiaW5wdXRcIiwgXCJwYXRoXCI6IFwiZmFjdHNcIn19fX19fSwge1wiaWRcIjogXCJ2ZXJkaWN0XCIsIFwia2luZFwiOiBcImFza1wiLCBcImpvaW5cIjogXCJhbnlcIiwgXCJqb2luX2NvbmZpZ1wiOiBudWxsLCBcImNvbmZpZ1wiOiB7XCJuYW1lXCI6IFwic2xvdDo6Zm9ybXVsYS1lbmdpbmVcIiwgXCJpbnB1dFwiOiB7XCJiaW5kaW5nXCI6IHtcIiRraW5kXCI6IFwiYmluZGluZ1wiLCBcInNlbGVjdFwiOiB7XCJmcm9tXCI6IFwiaW5wdXRcIiwgXCJwYXRoXCI6IFwiY2FuZGlkYXRlLnZlcmRpY3RfZm9ybXVsYVwifSwgXCJyZXNvbHZlX25lc3RlZF9iaW5kaW5nc1wiOiBmYWxzZX0sIFwiY29udGV4dFwiOiB7XCJzY29yZVwiOiB7XCIka2luZFwiOiBcImJpbmRpbmdcIiwgXCJzZWxlY3RcIjoge1wiZnJvbVwiOiBcInN0ZXBzXCIsIFwia2V5XCI6IFwic2NvcmVcIiwgXCJwYXRoXCI6IFwib3V0cHV0LnJlc3VsdFwifX19fX19LCB7XCJpZFwiOiBcInN0YW1wXCIsIFwia2luZFwiOiBcImFza1wiLCBcImpvaW5cIjogXCJhbnlcIiwgXCJqb2luX2NvbmZpZ1wiOiBudWxsLCBcImNvbmZpZ1wiOiB7XCJuYW1lXCI6IFwic2xvdDo6Zm9ybXVsYS1lbmdpbmVcIiwgXCJpbnB1dFwiOiB7XCJiaW5kaW5nXCI6IHtcIiRraW5kXCI6IFwib3BhcXVlLWpzb25cIiwgXCJ2YWx1ZVwiOiB7XCIka2luZFwiOiBcImJpbmRpbmdcIiwgXCJ0cmFuc2Zvcm1cIjogW3tcIm9wXCI6IFwib3A6Y29yZS5kdF9ub3dcIiwgXCJhcmdzXCI6IHt9fV19fSwgXCJjb250ZXh0XCI6IHt9fX19LCB7XCJpZFwiOiBcInNldmVyaXR5XCIsIFwia2luZFwiOiBcImFza1wiLCBcImpvaW5cIjogXCJhbnlcIiwgXCJqb2luX2NvbmZpZ1wiOiBudWxsLCBcImNvbmZpZ1wiOiB7XCJuYW1lXCI6IFwic2xvdDo6Zm9ybXVsYS1lbmdpbmVcIiwgXCJpbnB1dFwiOiB7XCJiaW5kaW5nXCI6IHtcIiRraW5kXCI6IFwib3BhcXVlLWpzb25cIiwgXCJ2YWx1ZVwiOiB7XCIka2luZFwiOiBcImJpbmRpbmdcIiwgXCJzZWxlY3RcIjoge1wiZnJvbVwiOiBcImNvbnRleHRcIiwgXCJwYXRoXCI6IFwic2NvcmVcIn0sIFwidHJhbnNmb3JtXCI6IFt7XCJvcFwiOiBcIm9wOmNvcmUuaXNfbnVsbFwiLCBcImFyZ3NcIjoge319LCB7XCJvcFwiOiBcIm9wOmNvcmUuaWZcIiwgXCJhcmdzXCI6IHtcInRoZW5cIjogXCJ3YXJuaW5nXCIsIFwiZWxzZVwiOiBcImluZm9cIn19XX19LCBcImNvbnRleHRcIjoge1wic2NvcmVcIjoge1wiJGtpbmRcIjogXCJiaW5kaW5nXCIsIFwic2VsZWN0XCI6IHtcImZyb21cIjogXCJzdGVwc1wiLCBcImtleVwiOiBcInNjb3JlXCIsIFwicGF0aFwiOiBcIm91dHB1dC5yZXN1bHRcIn19fX19fSwge1wiaWRcIjogXCJ3cml0ZV9uZXh0X21vdmVcIiwgXCJraW5kXCI6IFwid3JpdGVcIiwgXCJqb2luXCI6IFwiYW55XCIsIFwiam9pbl9jb25maWdcIjogbnVsbCwgXCJjb25maWdcIjoge1wiaXRlbXNcIjogW3tcImFkZHJlc3NcIjoge1wiJGtpbmRcIjogXCJiaW5kaW5nXCIsIFwic2VsZWN0XCI6IHtcImZyb21cIjogXCJpbnB1dFwiLCBcInBhdGhcIjogXCJjYW5kaWRhdGUuY2FuZGlkYXRlX2lkXCJ9LCBcInRyYW5zZm9ybVwiOiBbe1wib3BcIjogXCJvcDpjb3JlLmNvbmNhdFwiLCBcImFyZ3NcIjoge1widmFsdWVzXCI6IFtcInBhY2thZ2U6OmZvdW5kZXItZ3Jvd3RoLWVuZ2luZTo6bmV4dC1tb3ZlOjpcIiwge1wiJGtpbmRcIjogXCJiaW5kaW5nXCIsIFwic2VsZWN0XCI6IHtcImZyb21cIjogXCJpbnB1dFwiLCBcInBhdGhcIjogXCJjYW5kaWRhdGUuY2FuZGlkYXRlX2lkXCJ9fV19fV19LCBcImFkZHJlc3NfbW9kZVwiOiBcImlkZW50aXR5X3RleHRcIiwgXCJwYXRoXCI6IFtcImN1cnJlbnQtaXRlbVwiLCBcInB1Ymxpc2hlZC1yZWNvcmRcIl0sIFwicGF5bG9hZFwiOiB7XCJraW5kXCI6IFwibmV4dC1tb3ZlXCIsIFwiY2FuZGlkYXRlX2lkXCI6IHtcIiRraW5kXCI6IFwiYmluZGluZ1wiLCBcInNlbGVjdFwiOiB7XCJmcm9tXCI6IFwiaW5wdXRcIiwgXCJwYXRoXCI6IFwiY2FuZGlkYXRlLmNhbmRpZGF0ZV9pZFwifX0sIFwibGFiZWxcIjoge1wiJGtpbmRcIjogXCJiaW5kaW5nXCIsIFwic2VsZWN0XCI6IHtcImZyb21cIjogXCJpbnB1dFwiLCBcInBhdGhcIjogXCJjYW5kaWRhdGUubGFiZWxcIn19LCBcInN0YWdlXCI6IHtcIiRraW5kXCI6IFwiYmluZGluZ1wiLCBcInNlbGVjdFwiOiB7XCJmcm9tXCI6IFwiaW5wdXRcIiwgXCJwYXRoXCI6IFwiY2FuZGlkYXRlLnN0YWdlXCJ9fSwgXCJzY29yZVwiOiB7XCIka2luZFwiOiBcImJpbmRpbmdcIiwgXCJzZWxlY3RcIjoge1wiZnJvbVwiOiBcInN0ZXBzXCIsIFwia2V5XCI6IFwic2NvcmVcIiwgXCJwYXRoXCI6IFwib3V0cHV0LnJlc3VsdFwifX0sIFwidmVyZGljdFwiOiB7XCIka2luZFwiOiBcImJpbmRpbmdcIiwgXCJzZWxlY3RcIjoge1wiZnJvbVwiOiBcInN0ZXBzXCIsIFwia2V5XCI6IFwidmVyZGljdFwiLCBcInBhdGhcIjogXCJvdXRwdXQucmVzdWx0XCJ9fSwgXCJoZWFsdGhcIjoge1wic2V2ZXJpdHlcIjoge1wiJGtpbmRcIjogXCJiaW5kaW5nXCIsIFwic2VsZWN0XCI6IHtcImZyb21cIjogXCJzdGVwc1wiLCBcImtleVwiOiBcInNldmVyaXR5XCIsIFwicGF0aFwiOiBcIm91dHB1dC5yZXN1bHRcIn19fSwgXCJpbnB1dHNcIjoge1wiJGtpbmRcIjogXCJiaW5kaW5nXCIsIFwic2VsZWN0XCI6IHtcImZyb21cIjogXCJpbnB1dFwiLCBcInBhdGhcIjogXCJjYW5kaWRhdGUuaW5wdXRfZmFjdF9yZWZzXCJ9fSwgXCJzdGFydF90YXJnZXRcIjoge1wiJGtpbmRcIjogXCJiaW5kaW5nXCIsIFwic2VsZWN0XCI6IHtcImZyb21cIjogXCJpbnB1dFwiLCBcInBhdGhcIjogXCJjYW5kaWRhdGUuc3RhcnRfdGFyZ2V0XCJ9fSwgXCJtZWFzdXJlZF9hdFwiOiB7XCIka2luZFwiOiBcImJpbmRpbmdcIiwgXCJzZWxlY3RcIjoge1wiZnJvbVwiOiBcInN0ZXBzXCIsIFwia2V5XCI6IFwic3RhbXBcIiwgXCJwYXRoXCI6IFwib3V0cHV0LnJlc3VsdFwifX19fV19fSwge1wiaWRcIjogXCJkb25lXCIsIFwia2luZFwiOiBcInJldHVyblwiLCBcImpvaW5cIjogXCJhbnlcIiwgXCJqb2luX2NvbmZpZ1wiOiBudWxsLCBcImNvbmZpZ1wiOiB7XCJ2YWx1ZVwiOiB7XCJva1wiOiB0cnVlfX19XSIKfQ==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::workflow-action::write-configuration-value",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:founder-growth-engine.write-configuration-value",
+        "kind": "action",
+        "is_active": true,
+        "name": "write-configuration-value",
+        "description": "Write one caller-supplied Founder Growth Engine configuration value record. The action owns only this package's configuration write boundary; fields, values, and addresses remain DATA.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "record"
+          ],
+          "properties": {
+            "record": {
+              "type": "object"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "write_value",
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record.address"
+                    }
+                  },
+                  "address_mode": "identity_text",
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "record.payload"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "version": 1,
+        "extra": {
+          "scope": "founder-growth-engine.configuration-value"
+        },
+        "extra_properties": {}
+      },
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::founder-growth-engine::surface-feed::setup-controls",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "founder-growth-engine",
+          "emerging-instagram-content-loop",
+          "setting-controls"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "setting-control"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::founder-growth-engine::surface-feed::configuration-values",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "founder-growth-engine.configuration-value"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::founder-growth-engine::surface-feed::media-assets",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "in": [
+                "local-files.source-ref",
+                "cloud-files.source-ref",
+                "image-generation.result",
+                "speech-generation.result",
+                "media"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::founder-growth-engine::surface-feed::face-assets",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "in": [
+                "image-generation.result"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::founder-growth-engine::surface-feed::voice-profiles",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "speech-generation.voice-profile"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::founder-growth-engine::surface-feed::rights-policies",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "founder-growth-engine.rights-policy"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::founder-growth-engine::surface-feed::distribution-destinations",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "content-distribution",
+          "content-media-evidence"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "generic.target-record"
+            },
+            {
+              "path": [
+                "payload",
+                "role"
+              ],
+              "equals": "destinations"
+            },
+            {
+              "path": [
+                "payload",
+                "connection_enabled"
+              ],
+              "equals": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::founder-growth-engine::surface-feed::next-moves",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "founder-growth-engine",
+          "emerging-instagram-content-loop",
+          "next-moves"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "founder-growth-engine.next-move"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::founder-growth-engine::surface-feed::operator-activity",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "founder-growth-engine",
+          "emerging-instagram-content-loop",
+          "operator-activity"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "action-intent-receipt"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::founder-growth-engine::surface-feed::content-results",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "founder-growth-engine",
+          "emerging-instagram-content-loop",
+          "content-results"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "founder-growth-engine.content-result"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::founder-growth-engine::surface-feed::distribution-attempts",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "founder-growth-engine",
+          "emerging-instagram-content-loop",
+          "distribution-attempts"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "founder-growth-engine.distribution-attempt"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::founder-growth-engine::surface-feed::destination-options",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "founder-growth-engine",
+          "emerging-instagram-content-loop",
+          "destination-options"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "cell_table",
+        "columns": [
+          {
+            "column": 0,
+            "source": {
+              "path": [
+                "record",
+                "payload_json_text"
+              ],
+              "parse": {
+                "format": "json",
+                "after_parse_path": [
+                  "role"
+                ]
+              }
+            },
+            "value": {
+              "value_to_bytes": "non_empty_text"
+            }
+          },
+          {
+            "column": 1,
+            "source": {
+              "path": [
+                "record",
+                "payload_json_text"
+              ],
+              "parse": {
+                "format": "json",
+                "after_parse_path": [
+                  "id"
+                ]
+              }
+            },
+            "value": {
+              "value_to_bytes": "non_empty_text"
+            }
+          },
+          {
+            "column": 2,
+            "source": {
+              "path": [
+                "record",
+                "payload_json_text"
+              ],
+              "parse": {
+                "format": "json",
+                "after_parse_path": [
+                  "label"
+                ]
+              }
+            },
+            "value": {
+              "value_to_bytes": "text"
+            }
+          },
+          {
+            "column": 3,
+            "source": {
+              "path": [
+                "record",
+                "payload_json_text"
+              ],
+              "parse": {
+                "format": "json",
+                "after_parse_path": [
+                  "detail"
+                ]
+              }
+            },
+            "value": {
+              "value_to_bytes": "text"
+            }
+          },
+          {
+            "column": 4,
+            "source": {
+              "path": [
+                "record",
+                "payload_json_text"
+              ],
+              "parse": {
+                "format": "json",
+                "after_parse_path": [
+                  "status"
+                ]
+              }
+            },
+            "value": {
+              "value_to_bytes": "text"
+            }
+          },
+          {
+            "column": 5,
+            "source": {
+              "path": [
+                "record",
+                "payload_json_text"
+              ],
+              "parse": {
+                "format": "json",
+                "after_parse_path": [
+                  "status_line"
+                ]
+              }
+            },
+            "value": {
+              "value_to_bytes": "text"
+            }
+          },
+          {
+            "column": 6,
+            "source": {
+              "path": [
+                "record",
+                "payload_json_text"
+              ],
+              "parse": {
+                "format": "json",
+                "after_parse_path": [
+                  "can_publish"
+                ]
+              }
+            },
+            "value": {
+              "value_to_bytes": "json"
+            }
+          },
+          {
+            "column": 7,
+            "source": {
+              "path": [
+                "record",
+                "payload_json_text"
+              ],
+              "parse": {
+                "format": "json",
+                "after_parse_path": [
+                  "disabled_reason"
+                ]
+              }
+            },
+            "value": {
+              "value_to_bytes": "text"
+            }
+          },
+          {
+            "column": 8,
+            "source": {
+              "path": [
+                "record",
+                "payload_json_text"
+              ],
+              "parse": {
+                "format": "json",
+                "after_parse_path": [
+                  "action_id"
+                ]
+              }
+            },
+            "value": {
+              "value_to_bytes": "text"
+            }
+          },
+          {
+            "column": 9,
+            "source": {
+              "path": [
+                "record",
+                "payload_json_text"
+              ],
+              "parse": {
+                "format": "json",
+                "after_parse_path": [
+                  "metadata_fields"
+                ]
+              }
+            },
+            "value": {
+              "value_to_bytes": "json"
+            }
+          },
+          {
+            "column": 10,
+            "source": {
+              "path": [
+                "record",
+                "payload_json_text"
+              ],
+              "parse": {
+                "format": "json",
+                "after_parse_path": [
+                  "blocker_message"
+                ]
+              }
+            },
+            "value": {
+              "value_to_bytes": "text"
+            }
+          }
+        ]
+      },
+      "remove": true
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::surface-record::next-move::finish-setup",
+      "address_mode": "identity_text",
+      "path": [
+        "founder-growth-engine",
+        "emerging-instagram-content-loop",
+        "next-moves"
+      ],
+      "payload": {
+        "kind": "founder-growth-engine.next-move",
+        "id": "emerging-instagram-content-loop.finish-setup",
+        "label": "Finish setup",
+        "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+        "fields": {
+          "title": "Finish setup",
+          "rank": 1,
+          "status": "needs-you",
+          "reason": "Finish every remaining required Setup choice. Monitoring and publishing stay off until Setup is complete."
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::surface-record::operator-activity::waiting-for-setup",
+      "address_mode": "identity_text",
+      "path": [
+        "founder-growth-engine",
+        "emerging-instagram-content-loop",
+        "operator-activity"
+      ],
+      "payload": {
+        "kind": "action-intent-receipt",
+        "id": "emerging-instagram-content-loop.waiting-for-setup",
+        "label": "Waiting for setup",
+        "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+        "status": "draft-only-final",
+        "fields": {
+          "capability": "Waiting for you to finish setup",
+          "dispatch_status": "draft-only-final",
+          "artifact": "No monitoring or publishing has started. Your operator stays off until every required Setup choice is complete."
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::surface-record::content-result::waiting-for-setup",
+      "address_mode": "identity_text",
+      "path": [
+        "founder-growth-engine",
+        "emerging-instagram-content-loop",
+        "content-results"
+      ],
+      "payload": {
+        "kind": "founder-growth-engine.content-result",
+        "id": "emerging-instagram-content-loop.results-waiting-for-setup",
+        "label": "No monitored posts yet",
+        "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+        "fields": {
+          "title": "No monitored posts yet",
+          "status": "waiting-for-setup",
+          "detail": "Complete Setup first. Performance for the original post and your version will appear here as posts are monitored."
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::surface-record::distribution-attempt::waiting-for-setup",
+      "address_mode": "identity_text",
+      "path": [
+        "founder-growth-engine",
+        "emerging-instagram-content-loop",
+        "distribution-attempts"
+      ],
+      "payload": {
+        "kind": "founder-growth-engine.distribution-attempt",
+        "id": "emerging-instagram-content-loop.distribution-waiting-for-setup",
+        "label": "Publishing is off",
+        "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+        "fields": {
+          "title": "Publishing is off",
+          "status": "waiting-for-setup",
+          "detail": "No publish attempt has been made. Publishing attempts and their results will appear here."
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::surface-record::destination-option::instagram",
+      "address_mode": "identity_text",
+      "path": [
+        "founder-growth-engine",
+        "emerging-instagram-content-loop",
+        "destination-options"
+      ],
+      "remove": true
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::rights-policy::transform-with-provenance",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "founder-growth-engine.rights-policy",
+        "id": "transform-with-provenance",
+        "label": "Transform with provenance",
+        "description": "Use only public or authorized source material, preserve source provenance, extract ideas rather than expression, require a materially original script and visual treatment, and block publishing when similarity or rights evidence is uncertain.",
+        "require_source_provenance": true,
+        "require_authorized_likeness_and_voice": true,
+        "require_material_transformation": true,
+        "require_similarity_guard": true,
+        "block_automatically_when_uncertain": true,
+        "fail_closed": true
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::configuration-value::category",
+      "address_mode": "identity_text",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "founder-growth-engine.configuration-value",
+        "id": "emerging-instagram-content-loop.category",
+        "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+        "key": "category",
+        "value_type": "text",
+        "value": ""
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::configuration-value::resolved-hashtag-refs",
+      "address_mode": "identity_text",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "founder-growth-engine.configuration-value",
+        "id": "emerging-instagram-content-loop.resolved-hashtag-refs",
+        "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+        "key": "resolved_hashtag_refs",
+        "value_type": "string-list",
+        "value": []
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::configuration-value::absolute-view-threshold",
+      "address_mode": "identity_text",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "founder-growth-engine.configuration-value",
+        "id": "emerging-instagram-content-loop.absolute-view-threshold",
+        "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+        "key": "absolute_view_threshold",
+        "value_type": "non-negative-integer",
+        "value": null
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::configuration-value::snapshot-cadence-ref",
+      "address_mode": "identity_text",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "founder-growth-engine.configuration-value",
+        "id": "emerging-instagram-content-loop.snapshot-cadence-ref",
+        "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+        "key": "snapshot_cadence_ref",
+        "value_type": "address-ref",
+        "value": "package::founder-growth-engine::observation-cadence::emerging-instagram-content-loop"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::configuration-value::audience-relative-traction-formula-ref",
+      "address_mode": "identity_text",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "founder-growth-engine.configuration-value",
+        "id": "emerging-instagram-content-loop.audience-relative-traction-formula-ref",
+        "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+        "key": "audience_relative_traction_formula_ref",
+        "value_type": "address-ref",
+        "value": "package::founder-growth-engine::formula-binding::audience-relative-traction"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::configuration-value::acceleration-formula-ref",
+      "address_mode": "identity_text",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "founder-growth-engine.configuration-value",
+        "id": "emerging-instagram-content-loop.acceleration-formula-ref",
+        "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+        "key": "acceleration_formula_ref",
+        "value_type": "address-ref",
+        "value": "package::founder-growth-engine::formula-binding::view-acceleration"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::configuration-value::similarity-formula-ref",
+      "address_mode": "identity_text",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "founder-growth-engine.configuration-value",
+        "id": "emerging-instagram-content-loop.similarity-formula-ref",
+        "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+        "key": "similarity_formula_ref",
+        "value_type": "address-ref",
+        "value": "package::founder-growth-engine::formula-binding::rewrite-similarity-guard"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::configuration-value::instagram-connection-ref",
+      "address_mode": "identity_text",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "founder-growth-engine.configuration-value",
+        "id": "emerging-instagram-content-loop.instagram-connection-ref",
+        "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+        "key": "instagram_connection_ref",
+        "value_type": "address-ref",
+        "value": ""
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::configuration-value::authorized-face-asset-ref",
+      "address_mode": "identity_text",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "founder-growth-engine.configuration-value",
+        "id": "emerging-instagram-content-loop.authorized-face-asset-ref",
+        "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+        "key": "authorized_face_asset_ref",
+        "value_type": "address-ref",
+        "value": ""
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::configuration-value::authorized-voice-asset-ref",
+      "address_mode": "identity_text",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "founder-growth-engine.configuration-value",
+        "id": "emerging-instagram-content-loop.authorized-voice-asset-ref",
+        "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+        "key": "authorized_voice_asset_ref",
+        "value_type": "address-ref",
+        "value": ""
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::configuration-value::authorized-media-asset-refs",
+      "address_mode": "identity_text",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "founder-growth-engine.configuration-value",
+        "id": "emerging-instagram-content-loop.authorized-media-asset-refs",
+        "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+        "key": "authorized_media_asset_refs",
+        "value_type": "address-ref-list",
+        "value": []
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::configuration-value::rights-policy-ref",
+      "address_mode": "identity_text",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "founder-growth-engine.configuration-value",
+        "id": "emerging-instagram-content-loop.rights-policy-ref",
+        "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+        "key": "rights_policy_ref",
+        "value_type": "address-ref",
+        "value": "package::founder-growth-engine::rights-policy::transform-with-provenance"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::configuration-value::eligible-network-channel-refs",
+      "address_mode": "identity_text",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "founder-growth-engine.configuration-value",
+        "id": "emerging-instagram-content-loop.eligible-network-channel-refs",
+        "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+        "key": "eligible_network_channel_refs",
+        "value_type": "address-ref-list",
+        "value": []
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::configuration-value::channel-relevance-formula-ref",
+      "address_mode": "identity_text",
+      "live_write_policy": "seed-only",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "founder-growth-engine.configuration-value",
+        "id": "emerging-instagram-content-loop.channel-relevance-formula-ref",
+        "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+        "key": "channel_relevance_formula_ref",
+        "value_type": "address-ref",
+        "value": "package::founder-growth-engine::formula-binding::channel-relevance"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::observation-cadence::emerging-instagram-content-loop",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "timed-action.cadence-descriptor",
+        "id": "emerging-instagram-content-loop.observation-cadence",
+        "label": "Check monitored sources every 15 minutes",
+        "interval_seconds": 900,
+        "jitter_seconds": 90,
+        "maximum_parallel_runs": 1,
+        "dispatch_target": "package::observed-content::workflow-action::observe-content-sources"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::formula-binding::audience-relative-traction",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "formula-binding",
+        "id": "emerging-instagram-content-loop.audience-relative-traction",
+        "label": "Views relative to audience size",
+        "expression": "views / max(follower_count, 1)",
+        "required_inputs": [
+          "views",
+          "follower_count"
+        ],
+        "output": "views_per_follower",
+        "fail_closed": true
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::formula-binding::view-acceleration",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "formula-binding",
+        "id": "emerging-instagram-content-loop.view-acceleration",
+        "label": "View velocity change",
+        "expression": "(current_views - prior_views) / max(elapsed_seconds, 1)",
+        "required_inputs": [
+          "current_views",
+          "prior_views",
+          "elapsed_seconds"
+        ],
+        "output": "views_per_second",
+        "fail_closed": true
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::formula-binding::rewrite-similarity-guard",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "formula-binding",
+        "id": "emerging-instagram-content-loop.rewrite-similarity-guard",
+        "label": "Source-to-rewrite similarity guard",
+        "operation": "cosine-similarity",
+        "required_inputs": [
+          "source_embedding",
+          "rewrite_embedding"
+        ],
+        "comparison": {
+          "operator": "less-than-or-equal",
+          "threshold_from": "rights_policy.maximum_similarity"
+        },
+        "fail_closed": true
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::formula-binding::channel-relevance",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "formula-binding",
+        "id": "emerging-instagram-content-loop.channel-relevance",
+        "label": "Best matching authorized channel",
+        "expression": "topic_affinity * audience_fit * format_fit",
+        "required_inputs": [
+          "topic_affinity",
+          "audience_fit",
+          "format_fit"
+        ],
+        "output": "channel_relevance_score",
+        "fail_closed": true
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::setting-control::category",
+      "address_mode": "identity_text",
+      "path": [
+        "founder-growth-engine",
+        "emerging-instagram-content-loop",
+        "setting-controls"
+      ],
+      "payload": {
+        "kind": "setting-control",
+        "id": "emerging-instagram-content-loop.category",
+        "title": "Content category",
+        "description": "Describe the topic in normal words, such as “founder-led marketing” or “AI tools for coaches.” No special format is required.",
+        "control": "text-input",
+        "order": 10,
+        "placeholder": "Example: AI tools for founders",
+        "commit_label": "Save category",
+        "value": {
+          "feed_label": "package::founder-growth-engine::surface-feed::configuration-values",
+          "record_addresses": [
+            "package::founder-growth-engine::configuration-value::category"
+          ],
+          "source_value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          },
+          "property_ids": [],
+          "keys": [
+            "value"
+          ],
+          "default": ""
+        },
+        "write": {
+          "target": "slot::workflow",
+          "payload": {
+            "operation": "execute_definition",
+            "definition_id": "action:founder-growth-engine.write-configuration-value",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "record": {
+                "address": "package::founder-growth-engine::configuration-value::category",
+                "payload": {
+                  "kind": "founder-growth-engine.configuration-value",
+                  "id": "emerging-instagram-content-loop.category",
+                  "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+                  "key": "category",
+                  "value_type": "text",
+                  "value": ""
+                }
+              }
+            }
+          },
+          "value_path": [
+            "input",
+            "record",
+            "payload",
+            "value"
+          ]
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::setting-control::resolved-hashtag-refs",
+      "address_mode": "identity_text",
+      "path": [
+        "founder-growth-engine",
+        "emerging-instagram-content-loop",
+        "setting-controls"
+      ],
+      "payload": {
+        "kind": "setting-control",
+        "id": "emerging-instagram-content-loop.resolved-hashtag-refs",
+        "title": "Starting hashtags",
+        "description": "Add the public hashtags that should seed official Instagram discovery. Separate several with spaces or commas, or press Enter after each one. # symbols and letter case are normalized for you.",
+        "control": "tag-list",
+        "order": 20,
+        "placeholder": "Add a hashtag",
+        "commit_label": "Save hashtags",
+        "collection": {
+          "display_prefix": "#",
+          "strip_prefix": "#",
+          "case": "lowercase",
+          "maximum_items": 30
+        },
+        "value": {
+          "feed_label": "package::founder-growth-engine::surface-feed::configuration-values",
+          "record_addresses": [
+            "package::founder-growth-engine::configuration-value::resolved-hashtag-refs"
+          ],
+          "source_value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          },
+          "property_ids": [],
+          "keys": [
+            "value"
+          ],
+          "default": []
+        },
+        "write": {
+          "target": "slot::workflow",
+          "payload": {
+            "operation": "execute_definition",
+            "definition_id": "action:founder-growth-engine.write-configuration-value",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "record": {
+                "address": "package::founder-growth-engine::configuration-value::resolved-hashtag-refs",
+                "payload": {
+                  "kind": "founder-growth-engine.configuration-value",
+                  "id": "emerging-instagram-content-loop.resolved-hashtag-refs",
+                  "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+                  "key": "resolved_hashtag_refs",
+                  "value_type": "string-list",
+                  "value": []
+                }
+              }
+            }
+          },
+          "value_path": [
+            "input",
+            "record",
+            "payload",
+            "value"
+          ]
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::setting-control::absolute-view-threshold",
+      "address_mode": "identity_text",
+      "path": [
+        "founder-growth-engine",
+        "emerging-instagram-content-loop",
+        "setting-controls"
+      ],
+      "payload": {
+        "kind": "setting-control",
+        "id": "emerging-instagram-content-loop.absolute-view-threshold",
+        "title": "Views threshold",
+        "description": "A post becomes a candidate when it crosses this many views; rapid acceleration can qualify it earlier.",
+        "control": "number-input",
+        "order": 30,
+        "placeholder": "10000",
+        "min": 1,
+        "step": 1,
+        "commit_label": "Save threshold",
+        "value": {
+          "feed_label": "package::founder-growth-engine::surface-feed::configuration-values",
+          "record_addresses": [
+            "package::founder-growth-engine::configuration-value::absolute-view-threshold"
+          ],
+          "source_value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          },
+          "property_ids": [],
+          "keys": [
+            "value"
+          ],
+          "default": null
+        },
+        "write": {
+          "target": "slot::workflow",
+          "payload": {
+            "operation": "execute_definition",
+            "definition_id": "action:founder-growth-engine.write-configuration-value",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "record": {
+                "address": "package::founder-growth-engine::configuration-value::absolute-view-threshold",
+                "payload": {
+                  "kind": "founder-growth-engine.configuration-value",
+                  "id": "emerging-instagram-content-loop.absolute-view-threshold",
+                  "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+                  "key": "absolute_view_threshold",
+                  "value_type": "non-negative-integer",
+                  "value": null
+                }
+              }
+            }
+          },
+          "value_path": [
+            "input",
+            "record",
+            "payload",
+            "value"
+          ]
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::setting-control::instagram-connection-ref",
+      "address_mode": "identity_text",
+      "path": [
+        "founder-growth-engine",
+        "emerging-instagram-content-loop",
+        "setting-controls"
+      ],
+      "payload": {
+        "kind": "setting-control",
+        "id": "emerging-instagram-content-loop.instagram-connection-ref",
+        "title": "Instagram connection",
+        "description": "Uses a connected Instagram Business or Creator account. Your existing eligible account is selected automatically when there is only one.",
+        "control": "record-picker",
+        "order": 40,
+        "commit_label": "Use this account",
+        "options_source": {
+          "feed_label": "service-connections",
+          "source_value": {
+            "projection": {
+              "fields": [
+                {
+                  "column": 0,
+                  "key": "id",
+                  "required": true,
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "non_empty_text"
+                    }
+                  }
+                },
+                {
+                  "column": 1,
+                  "key": "serviceName",
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "text"
+                    }
+                  }
+                },
+                {
+                  "column": 2,
+                  "key": "serviceVendor",
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "text"
+                    }
+                  }
+                },
+                {
+                  "column": 12,
+                  "key": "can_send",
+                  "value": {
+                    "source_bytes": {
+                      "bytes_to_value": "byte_boolean"
+                    }
+                  }
+                }
+              ],
+              "op": "rows"
+            },
+            "source_bytes": {
+              "bytes_to_value": "cell_table"
+            }
+          },
+          "value_paths": [
+            [
+              "id"
+            ]
+          ],
+          "label_paths": [
+            [
+              "serviceName"
+            ]
+          ],
+          "description_paths": [],
+          "filters": [
+            {
+              "path": [
+                "serviceVendor"
+              ],
+              "equals": "instagram"
+            },
+            {
+              "path": [
+                "can_send"
+              ],
+              "equals": true
+            }
+          ],
+          "require_label": true,
+          "allow_clear": true,
+          "clear_label": "Clear account choice",
+          "placeholder": "Choose an Instagram account",
+          "empty_message": "No connected Instagram Business or Creator account is available. Connect one in the Connected services tab and it will appear here automatically.",
+          "auto_select": "single-option"
+        },
+        "value": {
+          "feed_label": "package::founder-growth-engine::surface-feed::configuration-values",
+          "record_addresses": [
+            "package::founder-growth-engine::configuration-value::instagram-connection-ref"
+          ],
+          "source_value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          },
+          "property_ids": [],
+          "keys": [
+            "value"
+          ],
+          "default": ""
+        },
+        "write": {
+          "target": "slot::workflow",
+          "payload": {
+            "operation": "execute_definition",
+            "definition_id": "action:founder-growth-engine.write-configuration-value",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "record": {
+                "address": "package::founder-growth-engine::configuration-value::instagram-connection-ref",
+                "payload": {
+                  "kind": "founder-growth-engine.configuration-value",
+                  "id": "emerging-instagram-content-loop.instagram-connection-ref",
+                  "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+                  "key": "instagram_connection_ref",
+                  "value_type": "address-ref",
+                  "value": ""
+                }
+              }
+            }
+          },
+          "value_path": [
+            "input",
+            "record",
+            "payload",
+            "value"
+          ]
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::setting-control::authorized-face-asset-ref",
+      "address_mode": "identity_text",
+      "path": [
+        "founder-growth-engine",
+        "emerging-instagram-content-loop",
+        "setting-controls"
+      ],
+      "payload": {
+        "kind": "setting-control",
+        "id": "emerging-instagram-content-loop.authorized-face-asset-ref",
+        "title": "Authorized face",
+        "description": "Choose the saved image or video to use for your likeness. Media already in your library appears here automatically.",
+        "control": "record-picker",
+        "order": 60,
+        "commit_label": "Use this face",
+        "options_source": {
+          "feed_label": "package::founder-growth-engine::surface-feed::face-assets",
+          "source_value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          },
+          "value_paths": [
+            [
+              "record",
+              "address"
+            ],
+            [
+              "address"
+            ],
+            [
+              "payload",
+              "id"
+            ]
+          ],
+          "label_paths": [
+            [
+              "payload",
+              "display_name"
+            ],
+            [
+              "payload",
+              "name"
+            ],
+            [
+              "payload",
+              "label"
+            ],
+            [
+              "payload",
+              "filename"
+            ],
+            [
+              "payload",
+              "prompt"
+            ]
+          ],
+          "description_paths": [
+            [
+              "payload",
+              "media_type"
+            ],
+            [
+              "payload",
+              "mime_type"
+            ]
+          ],
+          "filters": [],
+          "require_label": true,
+          "allow_clear": true,
+          "clear_label": "Clear face choice",
+          "placeholder": "Choose an authorized face asset",
+          "empty_message": "No media assets are available yet. Add an image or video to your media library and it will appear here automatically."
+        },
+        "value": {
+          "feed_label": "package::founder-growth-engine::surface-feed::configuration-values",
+          "record_addresses": [
+            "package::founder-growth-engine::configuration-value::authorized-face-asset-ref"
+          ],
+          "source_value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          },
+          "property_ids": [],
+          "keys": [
+            "value"
+          ],
+          "default": ""
+        },
+        "write": {
+          "target": "slot::workflow",
+          "payload": {
+            "operation": "execute_definition",
+            "definition_id": "action:founder-growth-engine.write-configuration-value",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "record": {
+                "address": "package::founder-growth-engine::configuration-value::authorized-face-asset-ref",
+                "payload": {
+                  "kind": "founder-growth-engine.configuration-value",
+                  "id": "emerging-instagram-content-loop.authorized-face-asset-ref",
+                  "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+                  "key": "authorized_face_asset_ref",
+                  "value_type": "address-ref",
+                  "value": ""
+                }
+              }
+            }
+          },
+          "value_path": [
+            "input",
+            "record",
+            "payload",
+            "value"
+          ]
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::setting-control::authorized-voice-asset-ref",
+      "address_mode": "identity_text",
+      "path": [
+        "founder-growth-engine",
+        "emerging-instagram-content-loop",
+        "setting-controls"
+      ],
+      "payload": {
+        "kind": "setting-control",
+        "id": "emerging-instagram-content-loop.authorized-voice-asset-ref",
+        "title": "Authorized voice",
+        "description": "Choose a saved voice profile.",
+        "control": "record-picker",
+        "order": 70,
+        "commit_label": "Use this voice",
+        "options_source": {
+          "feed_label": "package::founder-growth-engine::surface-feed::voice-profiles",
+          "source_value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          },
+          "value_paths": [
+            [
+              "record",
+              "address"
+            ],
+            [
+              "address"
+            ],
+            [
+              "payload",
+              "profile_ref"
+            ]
+          ],
+          "label_paths": [
+            [
+              "payload",
+              "display_name"
+            ]
+          ],
+          "description_paths": [],
+          "filters": [],
+          "require_label": true,
+          "allow_clear": true,
+          "clear_label": "Clear voice choice",
+          "placeholder": "Choose a saved voice",
+          "empty_message": "No voice profile is saved yet. Create one in Make voice audio and it will appear here automatically."
+        },
+        "value": {
+          "feed_label": "package::founder-growth-engine::surface-feed::configuration-values",
+          "record_addresses": [
+            "package::founder-growth-engine::configuration-value::authorized-voice-asset-ref"
+          ],
+          "source_value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          },
+          "property_ids": [],
+          "keys": [
+            "value"
+          ],
+          "default": ""
+        },
+        "write": {
+          "target": "slot::workflow",
+          "payload": {
+            "operation": "execute_definition",
+            "definition_id": "action:founder-growth-engine.write-configuration-value",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "record": {
+                "address": "package::founder-growth-engine::configuration-value::authorized-voice-asset-ref",
+                "payload": {
+                  "kind": "founder-growth-engine.configuration-value",
+                  "id": "emerging-instagram-content-loop.authorized-voice-asset-ref",
+                  "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+                  "key": "authorized_voice_asset_ref",
+                  "value_type": "address-ref",
+                  "value": ""
+                }
+              }
+            }
+          },
+          "value_path": [
+            "input",
+            "record",
+            "payload",
+            "value"
+          ]
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::setting-control::authorized-media-asset-refs",
+      "address_mode": "identity_text",
+      "path": [
+        "founder-growth-engine",
+        "emerging-instagram-content-loop",
+        "setting-controls"
+      ],
+      "payload": {
+        "kind": "setting-control",
+        "id": "emerging-instagram-content-loop.authorized-media-asset-refs",
+        "title": "Authorized media library",
+        "description": "Choose every saved image, clip, or brand asset this automation may reuse. New library assets appear here automatically.",
+        "control": "record-multi-picker",
+        "order": 80,
+        "commit_label": "Save media",
+        "options_source": {
+          "feed_label": "package::founder-growth-engine::surface-feed::media-assets",
+          "source_value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          },
+          "value_paths": [
+            [
+              "record",
+              "address"
+            ],
+            [
+              "address"
+            ],
+            [
+              "payload",
+              "id"
+            ]
+          ],
+          "label_paths": [
+            [
+              "payload",
+              "display_name"
+            ],
+            [
+              "payload",
+              "name"
+            ],
+            [
+              "payload",
+              "label"
+            ],
+            [
+              "payload",
+              "filename"
+            ],
+            [
+              "payload",
+              "prompt"
+            ]
+          ],
+          "description_paths": [
+            [
+              "payload",
+              "media_type"
+            ],
+            [
+              "payload",
+              "mime_type"
+            ]
+          ],
+          "filters": [],
+          "require_label": true,
+          "placeholder": "Choose media assets",
+          "empty_message": "No media assets are available yet. Add files to your media library and they will appear here automatically."
+        },
+        "value": {
+          "feed_label": "package::founder-growth-engine::surface-feed::configuration-values",
+          "record_addresses": [
+            "package::founder-growth-engine::configuration-value::authorized-media-asset-refs"
+          ],
+          "source_value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          },
+          "property_ids": [],
+          "keys": [
+            "value"
+          ],
+          "default": []
+        },
+        "write": {
+          "target": "slot::workflow",
+          "payload": {
+            "operation": "execute_definition",
+            "definition_id": "action:founder-growth-engine.write-configuration-value",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "record": {
+                "address": "package::founder-growth-engine::configuration-value::authorized-media-asset-refs",
+                "payload": {
+                  "kind": "founder-growth-engine.configuration-value",
+                  "id": "emerging-instagram-content-loop.authorized-media-asset-refs",
+                  "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+                  "key": "authorized_media_asset_refs",
+                  "value_type": "address-ref-list",
+                  "value": []
+                }
+              }
+            }
+          },
+          "value_path": [
+            "input",
+            "record",
+            "payload",
+            "value"
+          ]
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::setting-control::rights-policy-ref",
+      "address_mode": "identity_text",
+      "path": [
+        "founder-growth-engine",
+        "emerging-instagram-content-loop",
+        "setting-controls"
+      ],
+      "payload": {
+        "kind": "setting-control",
+        "id": "emerging-instagram-content-loop.rights-policy-ref",
+        "title": "Rights and originality policy",
+        "description": "Choose the policy that controls source use, transformation, attribution, and maximum similarity. Policy records appear as choices rather than IDs.",
+        "control": "record-picker",
+        "order": 90,
+        "commit_label": "Use this policy",
+        "options_source": {
+          "feed_label": "package::founder-growth-engine::surface-feed::rights-policies",
+          "source_value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          },
+          "value_paths": [
+            [
+              "record",
+              "address"
+            ],
+            [
+              "address"
+            ],
+            [
+              "payload",
+              "id"
+            ]
+          ],
+          "label_paths": [
+            [
+              "payload",
+              "label"
+            ]
+          ],
+          "description_paths": [
+            [
+              "payload",
+              "description"
+            ]
+          ],
+          "filters": [],
+          "require_label": true,
+          "allow_clear": true,
+          "clear_label": "Clear policy choice",
+          "placeholder": "Choose a rights policy",
+          "empty_message": "No eligible rights policy is available."
+        },
+        "value": {
+          "feed_label": "package::founder-growth-engine::surface-feed::configuration-values",
+          "record_addresses": [
+            "package::founder-growth-engine::configuration-value::rights-policy-ref"
+          ],
+          "source_value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          },
+          "property_ids": [],
+          "keys": [
+            "value"
+          ],
+          "default": ""
+        },
+        "write": {
+          "target": "slot::workflow",
+          "payload": {
+            "operation": "execute_definition",
+            "definition_id": "action:founder-growth-engine.write-configuration-value",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "record": {
+                "address": "package::founder-growth-engine::configuration-value::rights-policy-ref",
+                "payload": {
+                  "kind": "founder-growth-engine.configuration-value",
+                  "id": "emerging-instagram-content-loop.rights-policy-ref",
+                  "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+                  "key": "rights_policy_ref",
+                  "value_type": "address-ref",
+                  "value": ""
+                }
+              }
+            }
+          },
+          "value_path": [
+            "input",
+            "record",
+            "payload",
+            "value"
+          ]
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::founder-growth-engine::setting-control::eligible-network-channel-refs",
+      "address_mode": "identity_text",
+      "path": [
+        "founder-growth-engine",
+        "emerging-instagram-content-loop",
+        "setting-controls"
+      ],
+      "payload": {
+        "kind": "setting-control",
+        "id": "emerging-instagram-content-loop.eligible-network-channel-refs",
+        "title": "Eligible network channels",
+        "description": "Choose the destinations the relevance rule may use. You see channel names; the underlying destination records stay internal.",
+        "control": "record-multi-picker",
+        "order": 100,
+        "commit_label": "Save channels",
+        "options_source": {
+          "feed_label": "package::founder-growth-engine::surface-feed::distribution-destinations",
+          "source_value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          },
+          "value_paths": [
+            [
+              "record",
+              "address"
+            ],
+            [
+              "address"
+            ],
+            [
+              "payload",
+              "destination_id"
+            ]
+          ],
+          "label_paths": [
+            [
+              "payload",
+              "label"
+            ]
+          ],
+          "description_paths": [
+            [
+              "payload",
+              "description"
+            ],
+            [
+              "payload",
+              "account_label"
+            ]
+          ],
+          "section_paths": [
+            [
+              "payload",
+              "category"
+            ]
+          ],
+          "filters": [],
+          "require_label": true,
+          "placeholder": "Choose network channels",
+          "empty_message": "No publishing destinations are available yet. Add destination records in Content distribution and they will appear here automatically."
+        },
+        "value": {
+          "feed_label": "package::founder-growth-engine::surface-feed::configuration-values",
+          "record_addresses": [
+            "package::founder-growth-engine::configuration-value::eligible-network-channel-refs"
+          ],
+          "source_value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          },
+          "property_ids": [],
+          "keys": [
+            "value"
+          ],
+          "default": []
+        },
+        "write": {
+          "target": "slot::workflow",
+          "payload": {
+            "operation": "execute_definition",
+            "definition_id": "action:founder-growth-engine.write-configuration-value",
+            "include_output": false,
+            "include_steps": false,
+            "input": {
+              "record": {
+                "address": "package::founder-growth-engine::configuration-value::eligible-network-channel-refs",
+                "payload": {
+                  "kind": "founder-growth-engine.configuration-value",
+                  "id": "emerging-instagram-content-loop.eligible-network-channel-refs",
+                  "automation_ref": "package::founder-growth-engine::automation-configuration::emerging-instagram-content-loop",
+                  "key": "eligible_network_channel_refs",
+                  "value_type": "address-ref-list",
+                  "value": []
+                }
+              }
+            }
+          },
+          "value_path": [
+            "input",
+            "record",
+            "payload",
+            "value"
+          ]
+        }
+      },
+      "remove": false
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "kind": "generic-record-projection-lens",
+  "id": "founder-growth-engine.cross-section-union-lens",
+  "description": "D5 cross-section amalgamation: ONE context-feed projection lens that UNIONS records from EVERY founder root (saved items, creator/topic profiles, scheduled posts, ideas, observations) into one feed, grouped by section. It reuses context-feed's generic projectRecords evaluator by ADDRESS (no god package); the union is pure DATA — a new root contributes records with its own kind and they amalgamate with ZERO code. Field readers use path-fallbacks (L090) so heterogeneous records from unrelated roots all project into one common shape without the lens knowing any root's internal schema.",
+  "row_id_field": "hidden_id",
+  "status": "ready",
+  "include": {
+    "all": [
+      { "path": ["is_active"], "op": "not_equals", "right": false }
+    ]
+  },
+  "field_readers": [
+    {
+      "output": "hidden_id",
+      "paths": [["id"], ["context_ref"], ["contextRef"], ["source_ref"], ["sourceRef"]],
+      "value": "text",
+      "on_missing": "omit-row"
+    },
+    {
+      "output": "primary_text",
+      "paths": [["title"], ["label"], ["name"], ["summary"], ["headline"]],
+      "value": "text",
+      "on_missing": "empty"
+    },
+    {
+      "output": "supporting_text",
+      "paths": [["text"], ["body"], ["notes"], ["prompt_text"], ["promptText"], ["description"]],
+      "value": "text",
+      "on_missing": "empty"
+    },
+    {
+      "output": "section",
+      "paths": [["section"], ["kind"]],
+      "value": "text",
+      "default": "other"
+    },
+    {
+      "output": "source_ref",
+      "paths": [["source_ref"], ["sourceRef"]],
+      "value": "text",
+      "on_missing": "empty"
+    },
+    {
+      "output": "freshness_value",
+      "paths": [["observed_at"], ["observedAt"], ["scheduled_for"], ["scheduledFor"], ["created_at"], ["createdAt"]],
+      "value": "text",
+      "on_missing": "empty"
+    }
+  ],
+  "groups": [
+    { "id": "by-section", "label": "Section", "field": "section", "default_key": "other", "labels": {} }
+  ]
+}

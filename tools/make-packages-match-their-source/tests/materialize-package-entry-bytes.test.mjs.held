@@ -1,0 +1,50 @@
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import test from 'node:test';
+import { fileURLToPath } from 'node:url';
+
+const script = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'do-work', 'materialize-package-entry-bytes.mjs');
+
+test('existing built bytes without current source closure cannot be silently reused', () => {
+  const root = mkdtempSync(path.join(tmpdir(), 'materialize-entry-link-'));
+  try {
+    const packageRoot = path.join(root, 'packages', 'sample');
+    const builtRoot = path.join(packageRoot, 'built-stored-bytes');
+    mkdirSync(builtRoot, { recursive: true });
+    const builtPath = path.join(builtRoot, 'entry-bytes-sample');
+    const builtBytes = Buffer.from('already-built-entry-bytes');
+    writeFileSync(builtPath, builtBytes);
+    writeFileSync(path.join(packageRoot, 'things-to-store-and-run.json'), `${JSON.stringify({
+      things: [
+        {
+          type: 'record',
+          payload: { kind: 'bitfield-package-entry', package_name: 'sample', entry_name: 'sample' },
+        },
+        {
+          type: 'stored_bytes',
+          name: 'entry-bytes-sample',
+          build: { sequence: { steps: [{ name: 'obsolete-rebuild' }] } },
+        },
+      ],
+    }, null, 2)}\n`);
+
+    let error;
+    try {
+      execFileSync(process.execPath, [script, root], { encoding: 'utf8' });
+    } catch (caught) {
+      error = caught;
+    }
+    assert.ok(error, 'unreceipted existing bytes must not be accepted');
+    assert.match(String(error.stdout), /FAIL sample\/sample/);
+    assert.deepEqual(
+      readFileSync(builtPath),
+      builtBytes,
+      'failure must preserve the previous artifact for diagnosis/compensation',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});

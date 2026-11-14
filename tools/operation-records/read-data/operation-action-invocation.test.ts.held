@@ -1,0 +1,156 @@
+import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
+import { buildOperationActionInvocationDescriptor } from './operation-action-invocation.ts';
+import type { OperationClaim, OperationRecord, OperationTransition } from './operation-records.ts';
+
+const operation: OperationRecord = {
+  id: 'operation:owner:1',
+  ownerPackage: 'owner',
+  source: { package: 'owner', type: 'record', id: 'record:1' },
+  kindDescriptor: 'owner.kind.work',
+  stateDescriptor: 'owner.state.ready',
+  priority: 'board-review',
+  priorityDescriptor: 'owner.priority.board-review',
+  linkRefs: [],
+  dependencyRefs: [],
+  evidenceRefs: ['evidence:1'],
+  candidateFactRefs: ['candidate:1'],
+  operationClaimRefs: ['claim:1'],
+  budgetReservationRefs: [],
+  credentialHandleRefs: [],
+  providerHandleRefs: [],
+  serviceConnectionHandleRefs: [],
+  transitions: [],
+  display: { title: 'Do work', status: 'Ready', reason: '', detail: [] },
+  privacyClass: 'private-to-owner',
+  modeHints: ['next'],
+  sortKey: '1',
+};
+
+const transition: OperationTransition = {
+  id: 'transition:run',
+  ownerPackage: 'owner',
+  actionDefinitionId: 'action:owner:run',
+  target: 'slot::workflow',
+  label: 'Run',
+  input: { recordId: 'record:1' },
+  idempotencyKey: 'idem:1',
+  evidenceRefs: ['evidence:1'],
+  candidateFactRefs: ['candidate:1'],
+  requiresClaim: true,
+  modeHints: ['next'],
+};
+(operation as { transitions: OperationTransition[] }).transitions = [transition];
+
+const claim: OperationClaim = {
+  id: 'claim:1',
+  operationRef: 'operation:owner:1',
+  actorRef: 'actor:agent',
+  claimToken: 'token:1',
+  status: 'active',
+  expiresAt: '2026-05-29T11:00:00Z',
+};
+
+describe('operation owner action invocation descriptors', () => {
+  it('builds a generic owner-addressed descriptor with operation, evidence, candidate, and claim refs', () => {
+    expect(buildOperationActionInvocationDescriptor(operation, transition, {
+      claim,
+      nowIso: '2026-05-29T10:00:00Z',
+    })).toMatchObject({
+      target: 'slot::workflow',
+      operationRef: 'operation:owner:1',
+      transitionRef: 'transition:run',
+      claimRef: 'claim:1',
+      payload: {
+        definition_id: 'action:owner:run',
+        input: {
+          recordId: 'record:1',
+          operationId: 'operation:owner:1',
+          transitionId: 'transition:run',
+          operationClaimToken: 'token:1',
+          evidenceRefs: ['evidence:1'],
+          candidateFactRefs: ['candidate:1'],
+          idempotencyKey: 'idem:1',
+        },
+      },
+    });
+  });
+
+  it('rejects a transition altered after the owner attached it', () => {
+    expect(() => buildOperationActionInvocationDescriptor(operation, {
+      ...transition,
+      ownerPackage: 'other',
+    }, { claim })).toThrow(/does not match its exact owner action/);
+  });
+
+  it('routes an exact attached transition to its deeper owner package', () => {
+    const review = { ...transition, id: 'transition:approve', ownerPackage: 'progression-evaluator',
+      actionDefinitionId: 'action:progression-evaluator:approve', requiresClaim: false };
+    const reviewedOperation = { ...operation, transitions: [review] };
+    expect(buildOperationActionInvocationDescriptor(reviewedOperation, review)).toMatchObject({
+      payload: { definition_id: 'action:progression-evaluator:approve' },
+      transitionRef: 'transition:approve',
+    });
+  });
+
+  it('allows review text and complete Conversations identity only on a declared correction', () => {
+    const correct = { ...transition, modeHints: ['requires-review-reason'], requiresClaim: false };
+    const correctedOperation = { ...operation, transitions: [correct] };
+    expect(buildOperationActionInvocationDescriptor(correctedOperation, {
+      ...correct, input: { ...correct.input, review_reason: 'Use the corrected source.' },
+    }).payload.input.review_reason).toBe('Use the corrected source.');
+    expect(() => buildOperationActionInvocationDescriptor(correctedOperation, {
+      ...correct, input: { ...correct.input, destination: 'foreign' },
+    })).toThrow(/unauthorized owner input/);
+    const conversationCorrection = { ...correct, modeHints: ['requires-review-reason', 'correction'] };
+    const conversationOperation = { ...operation, transitions: [conversationCorrection] };
+    expect(buildOperationActionInvocationDescriptor(conversationOperation, {
+      ...conversationCorrection,
+      input: { ...conversationCorrection.input, review_reason: 'Use green.',
+        subject_ref: 'room:a', conversation_ref: 'conversation:a', correction_turn_ref: 'turn:a',
+        correction_handoff_ref: 'package::conversations::background-work-correction-handoff::turn:a' },
+    }).payload.input).toMatchObject({ subject_ref: 'room:a', conversation_ref: 'conversation:a', correction_turn_ref: 'turn:a',
+      correction_handoff_ref: 'package::conversations::background-work-correction-handoff::turn:a' });
+    expect(() => buildOperationActionInvocationDescriptor(conversationOperation, {
+      ...conversationCorrection,
+      input: { ...conversationCorrection.input, subject_ref: 'room:a', conversation_ref: 'conversation:a' },
+    })).toThrow(/unauthorized owner input/);
+    expect(() => buildOperationActionInvocationDescriptor(correctedOperation, {
+      ...correct,
+      input: { ...correct.input, subject_ref: 'room:a', conversation_ref: 'conversation:a', correction_turn_ref: 'turn:a',
+        correction_handoff_ref: 'package::conversations::background-work-correction-handoff::turn:a' },
+    })).toThrow(/unauthorized owner input/);
+  });
+
+  it('requires a current claim when the transition declares claim authority', () => {
+    expect(() => buildOperationActionInvocationDescriptor(operation, transition)).toThrow(/requires a current operation claim/);
+    expect(() => buildOperationActionInvocationDescriptor(operation, transition, {
+      claim: { ...claim, expiresAt: '2026-05-29T09:00:00Z' },
+      nowIso: '2026-05-29T10:00:00Z',
+    })).toThrow(/not current/);
+    expect(() => buildOperationActionInvocationDescriptor(operation, transition, {
+      claim: { ...claim, supersededBy: 'claim:2' },
+      nowIso: '2026-05-29T10:00:00Z',
+    })).toThrow(/not current/);
+  });
+
+  it('preserves human-decision evidence and candidate refs without UI-local booleans', () => {
+    const approve = {
+      ...transition,
+      id: 'transition:approve',
+      actionDefinitionId: 'action:owner:approve',
+      actorRef: 'user:1',
+      expiresAt: '2026-05-29T12:00:00Z',
+    };
+    const decision = buildOperationActionInvocationDescriptor(
+      { ...operation, transitions: [approve] },
+      approve,
+      { claim, nowIso: '2026-05-29T10:00:00Z' },
+    );
+
+    expect(decision.payload.input).toMatchObject({
+      evidenceRefs: ['evidence:1'],
+      candidateFactRefs: ['candidate:1'],
+      operationClaimActor: 'actor:agent',
+    });
+  });
+});

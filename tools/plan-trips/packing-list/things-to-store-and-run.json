@@ -1,0 +1,446 @@
+{
+  "package": "packing-list",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::packing-list::placeable-surface::packing-list",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "remove": true
+    },
+    {
+      "type": "record",
+      "address": "package::packing-list::entry::packing-list",
+      "path": [
+        "packages",
+        "packing-list",
+        "entries",
+        "packing-list"
+      ],
+      "remove": true
+    },
+    {
+      "type": "record",
+      "address": "package::packing-list::operation-feed::contract",
+      "path": [
+        "current-item",
+        "published-record",
+        "operation-feed"
+      ],
+      "payload": {
+        "kind": "bitfield-owner-operation-feed",
+        "version": 1,
+        "package": "packing-list",
+        "owner_translation": true,
+        "source_address_label": "packing-list.surface-state",
+        "produced_by": "read-data/packing-list.ts#decodePackingOperationFeed",
+        "output_contract": "operation-records.OperationRecord[]",
+        "does_not_own": [
+          "trip-schedule",
+          "reservation-state",
+          "workflow-state"
+        ],
+        "new_slot": false
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::packing-list::factflow::surface",
+      "path": [
+        "package-primitive",
+        "factflow"
+      ],
+      "payload": {
+        "kind": "bitfield-eeaf-factflow",
+        "version": 1,
+        "package": "packing-list",
+        "journal": {
+          "address_label": "packing-list.journal"
+        },
+        "fact_sources": [
+          {
+            "address": "package::packing-list::surface-state",
+            "role": "genesis fact source"
+          },
+          {
+            "address": "package::packing-list::entry::packing-list",
+            "role": "surface materialization source"
+          }
+        ],
+        "genesis": [
+          {
+            "address": "package::packing-list::surface-state",
+            "policy": "seed user-owned state when no newer journal facts exist"
+          }
+        ],
+        "blockers": [
+          {
+            "address": "package::packing-list::blocker::eeaf-live-writes",
+            "message": "UI actions must append intents through workflow or EEAF before projection refresh is accepted"
+          }
+        ],
+        "evidence": [
+          {
+            "address": "package::packing-list::proof::factflow",
+            "proves": [
+              "surface factflow declared",
+              "projection declared",
+              "materialization declared"
+            ]
+          }
+        ],
+        "interpreter_facts": {
+          "facts": [
+            {
+              "descriptor": "packing_list"
+            },
+            {
+              "descriptor": "packing_section"
+            },
+            {
+              "descriptor": "packing_item"
+            },
+            {
+              "descriptor": "packed_state"
+            }
+          ],
+          "intents": [
+            {
+              "descriptor": "add_packing_item",
+              "write_target": "slot::workflow"
+            },
+            {
+              "descriptor": "toggle_packed",
+              "write_target": "slot::workflow"
+            },
+            {
+              "descriptor": "generate_from_trip",
+              "write_target": "slot::workflow"
+            }
+          ],
+          "effects": [
+            {
+              "descriptor": "write_packing_fact"
+            },
+            {
+              "descriptor": "append_packing_audit"
+            },
+            {
+              "descriptor": "project_missing_required"
+            }
+          ],
+          "validation": [
+            {
+              "descriptor": "packing-list.machine-readable-state",
+              "rule": "state facts must be JSON-compatible records"
+            }
+          ],
+          "permissions": [
+            {
+              "descriptor": "packing-list.user-owned-state",
+              "rule": "current workspace user may mutate own facts through declared intents"
+            }
+          ],
+          "projections": [
+            {
+              "address_label": "packing_list.current_items"
+            },
+            {
+              "address_label": "packing_list.required_missing"
+            },
+            {
+              "address_label": "packing_list.trip_context"
+            },
+            {
+              "address_label": "packing_list.operation_feed"
+            }
+          ],
+          "materializations": [
+            {
+              "input_name": "surface-state",
+              "address_label": "packing-list.surface-state",
+              "bytes_to_value": "json"
+            }
+          ]
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::packing-list::bitfield-input::surface-state",
+      "path": [
+        "package-primitive",
+        "factflow",
+        "materialization"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "surface-state",
+        "is_default": true,
+        "value_address_label": "packing-list.surface-state",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "packing-list.surface-state",
+      "path": [
+        "package-primitive",
+        "factflow",
+        "genesis"
+      ],
+      "payload_base64": "eyJpZCI6InBhY2tpbmctbGlzdDpkZWZhdWx0IiwidHJpcFJlZiI6InRyaXA6ZGVmYXVsdCIsIm5hbWUiOiJMYXVuY2ggVHJpcCBQYWNraW5nIiwiaXRlbXMiOlt7ImlkIjoicGFjazpwYXNzcG9ydCIsImxpc3RJZCI6InBhY2tpbmctbGlzdDpkZWZhdWx0IiwibGFiZWwiOiJQYXNzcG9ydCBhbmQgSUQiLCJjYXRlZ29yeSI6IkRvY3VtZW50cyIsInN0YXR1cyI6InBhY2tlZCIsInF1YW50aXR5Ijp7ImNvdW50IjoxfSwiY29udGFpbmVyUmVmIjoiYmFnOnBlcnNvbmFsIiwidGFza1JlZiI6InRhc2s6cGFzc3BvcnQifSx7ImlkIjoicGFjazpjaGFyZ2VyIiwibGlzdElkIjoicGFja2luZy1saXN0OmRlZmF1bHQiLCJsYWJlbCI6IkxhcHRvcCBjaGFyZ2VyIiwiY2F0ZWdvcnkiOiJXb3JrIGdlYXIiLCJzdGF0dXMiOiJwYWNrZWQiLCJxdWFudGl0eSI6eyJjb3VudCI6MX0sImNvbnRhaW5lclJlZiI6ImJhZzpiYWNrcGFjayIsInRhc2tSZWYiOiJ0YXNrOndvcmstZ2VhciJ9LHsiaWQiOiJwYWNrOm5vdGVib29rIiwibGlzdElkIjoicGFja2luZy1saXN0OmRlZmF1bHQiLCJsYWJlbCI6Ik5vdGVib29rIiwiY2F0ZWdvcnkiOiJXb3JrIGdlYXIiLCJzdGF0dXMiOiJwbGFubmVkIiwicXVhbnRpdHkiOnsiY291bnQiOjF9LCJjb250YWluZXJSZWYiOiJiYWc6YmFja3BhY2sifSx7ImlkIjoicGFjazpzaGlydCIsImxpc3RJZCI6InBhY2tpbmctbGlzdDpkZWZhdWx0IiwibGFiZWwiOiJUcmF2ZWwgc2hpcnRzIiwiY2F0ZWdvcnkiOiJDbG90aGVzIiwic3RhdHVzIjoiYWNxdWlyZWQiLCJxdWFudGl0eSI6eyJjb3VudCI6M30sImNvbnRhaW5lclJlZiI6ImJhZzpjYXJyeS1vbiJ9LHsiaWQiOiJwYWNrOnJhaW4iLCJsaXN0SWQiOiJwYWNraW5nLWxpc3Q6ZGVmYXVsdCIsImxhYmVsIjoiUmFpbiBzaGVsbCIsImNhdGVnb3J5IjoiQ2xvdGhlcyIsInN0YXR1cyI6Im1pc3NpbmciLCJxdWFudGl0eSI6eyJjb3VudCI6MX0sInRhc2tSZWYiOiJ0YXNrOmJ1eS1yYWluLXNoZWxsIn0seyJpZCI6InBhY2s6dG9pbGV0cnkiLCJsaXN0SWQiOiJwYWNraW5nLWxpc3Q6ZGVmYXVsdCIsImxhYmVsIjoiVG9pbGV0cnkga2l0IiwiY2F0ZWdvcnkiOiJQZXJzb25hbCIsInN0YXR1cyI6InBsYW5uZWQiLCJxdWFudGl0eSI6eyJjb3VudCI6MX0sImNvbnRhaW5lclJlZiI6ImJhZzpjYXJyeS1vbiJ9XX0=",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::packing-list::primitive-contract",
+      "path": [
+        "package-primitive",
+        "contract"
+      ],
+      "payload": {
+        "kind": "bitfield-package-primitive-contract",
+        "version": 1,
+        "package": "packing-list",
+        "capability": "generic-packing-list",
+        "owns": [
+          "packing-list-records",
+          "packing-item-records",
+          "container-records",
+          "quantity-and-status-records",
+          "traveler-or-category-assignment-records",
+          "item-dependency-records"
+        ],
+        "does_not_own": [
+          "trip-schedule",
+          "reservation-state",
+          "journal-documents",
+          "task-execution-engine",
+          "personal-trip-details",
+          "package-set-identity"
+        ],
+        "reuse": {
+          "tasks": "packing todos and reminders",
+          "journal": "item notes by reference",
+          "itinerary": "trip/day references",
+          "workflow": "packing status actions"
+        },
+        "new_slot": false,
+        "blocker": null
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::packing-list::schema",
+      "path": [
+        "package-primitive",
+        "schema"
+      ],
+      "payload": {
+        "kind": "packing-list-schema",
+        "version": 1,
+        "entities": {
+          "packing_list": {
+            "id": "text",
+            "trip_ref": "optional itinerary trip ref",
+            "name": "text",
+            "scope": "structured_json"
+          },
+          "packing_item": {
+            "id": "text",
+            "list_id": "text",
+            "label": "text",
+            "quantity": "structured_json",
+            "status": [
+              "planned",
+              "packed",
+              "missing",
+              "not-needed",
+              "acquired"
+            ],
+            "category": "text",
+            "traveler_ref": "optional_text",
+            "container_ref": "optional_text",
+            "task_ref": "optional tasks ref",
+            "journal_note_ref": "optional journal note ref"
+          },
+          "packing_container": {
+            "id": "text",
+            "list_id": "text",
+            "label": "text",
+            "capacity": "structured_json"
+          },
+          "packing_dependency": {
+            "id": "text",
+            "source_item_id": "text",
+            "target_item_id": "text",
+            "relation": [
+              "requires",
+              "replaces",
+              "conflicts",
+              "packs-with"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::packing-list::workflow-action::packing-list-update-status",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:packing-list:update-status",
+        "kind": "action",
+        "name": "packing-list-update-status",
+        "description": "Record a packing-list status-change intent through the package workflow boundary.",
+        "input_schema": {},
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "itemId"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::packing-list::intent::update-status::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "itemId"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record",
+                    "workflow-intent"
+                  ],
+                  "payload": {
+                    "kind": "packing-list.update-status",
+                    "item_id": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "itemId"
+                      }
+                    },
+                    "status": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "status"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::packing-list::workflow-action::packing-list-update",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:packing-list:update",
+        "kind": "action",
+        "name": "packing-list-update",
+        "description": "Write the packing-list package surface state from a package-owned workflow request.",
+        "input_schema": {},
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": "packing-list.surface-state",
+                  "path": [
+                    "package-primitive",
+                    "factflow",
+                    "genesis"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": ""
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::packing-list::public-source::read-data",
+      "path": [
+        "packages",
+        "packing-list",
+        "public-sources",
+        "read-data"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "read-data"
+      },
+      "remove": false
+    }
+  ]
+}

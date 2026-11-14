@@ -1,0 +1,91 @@
+// packages/make-packages-match-their-source/tests/the-builder-identity-moves-when-the-builder-does.test.mjs
+//
+// The pre-build skip asks whether a package's inputs changed. It is silent about a BUILDER that
+// changed what it emits while reading identical inputs, and that silence has a price: every
+// receipt in the set carried a field the consumer's reader stopped accepting, each one still
+// perfectly current by input hash, and a projection died on the first of them. The wider case is
+// worse because nothing reports it at all, since an edit to a byte-shaping module changes the
+// artifact and no package input moves.
+//
+// `entryByteBuilderSourceIdentity` is what closes that. These tests drive it over fixture module
+// graphs rather than over the real builder, so they prove the PROPERTY (the identity follows the
+// builder's transitive source) instead of pinning today's hash, which would have to be edited
+// every time the builder legitimately changes and would therefore prove nothing.
+
+import { strict as assert } from "node:assert";
+import { mkdtemp, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
+import test from "node:test";
+
+import { entryByteBuilderSourceIdentity } from "../do-work/package-entry-byte-build-lib.mjs";
+
+/** A two-module graph: the entry imports a sibling, which imports a third. */
+async function fixtureGraph({ deepestBody }) {
+  const dir = await mkdtemp(join(tmpdir(), "builder-identity-"));
+  await writeFile(join(dir, "entry.mjs"), "import { a } from './middle.mjs';\nexport { a };\n");
+  await writeFile(join(dir, "middle.mjs"), "import { a } from './deepest.mjs';\nexport { a };\n");
+  await writeFile(join(dir, "deepest.mjs"), deepestBody);
+  return join(dir, "entry.mjs");
+}
+
+test("the same source reads the same identity twice", async () => {
+  const entryFile = await fixtureGraph({ deepestBody: "export const a = 1;\n" });
+  assert.equal(
+    await entryByteBuilderSourceIdentity({ entryFile }),
+    await entryByteBuilderSourceIdentity({ entryFile }),
+  );
+});
+
+test("a change two imports deep moves the identity", async () => {
+  const before = await fixtureGraph({ deepestBody: "export const a = 1;\n" });
+  const after = await fixtureGraph({ deepestBody: "export const a = 2;\n" });
+  assert.notEqual(
+    await entryByteBuilderSourceIdentity({ entryFile: before }),
+    await entryByteBuilderSourceIdentity({ entryFile: after }),
+  );
+});
+
+test("two identical graphs in different directories read the same identity", async () => {
+  // The stamp is compared across runs and across machines, so the identity must depend on the
+  // builder's source and not on where the checkout happens to live. Keying by absolute path
+  // would pass every other test here and fail only on a second machine.
+  const here = await fixtureGraph({ deepestBody: "export const a = 1;\n" });
+  const elsewhere = await fixtureGraph({ deepestBody: "export const a = 1;\n" });
+  assert.notEqual(here, elsewhere);
+  assert.equal(
+    await entryByteBuilderSourceIdentity({ entryFile: here }),
+    await entryByteBuilderSourceIdentity({ entryFile: elsewhere }),
+  );
+});
+
+test("an import that cannot be read still yields an identity, and a different one", async () => {
+  // Every uncertainty over-invalidates. An unresolvable module must not throw, because throwing
+  // from the identity would take down the materializer; and it must not read the same as a graph
+  // whose modules all resolved, because that would silently license a skip.
+  const readable = await fixtureGraph({ deepestBody: "export const a = 1;\n" });
+  const broken = await mkdtemp(join(tmpdir(), "builder-identity-"));
+  await writeFile(join(broken, "entry.mjs"), "import { a } from './middle.mjs';\nexport { a };\n");
+  await writeFile(join(broken, "middle.mjs"), "import { a } from './deepest.mjs';\nexport { a };\n");
+  const brokenEntry = join(broken, "entry.mjs");
+
+  const identity = await entryByteBuilderSourceIdentity({ entryFile: brokenEntry });
+  assert.equal(typeof identity, "string");
+  assert.notEqual(identity, await entryByteBuilderSourceIdentity({ entryFile: readable }));
+});
+
+test("a bare specifier is not walked", async () => {
+  // Installed dependencies are pinned by the dependency store. Following them would make the
+  // identity depend on node_modules layout, which changes for reasons that have nothing to do
+  // with what the builder emits.
+  const dir = await mkdtemp(join(tmpdir(), "builder-identity-"));
+  await writeFile(join(dir, "entry.mjs"), "import esbuild from 'esbuild';\nexport { esbuild };\n");
+  const identity = await entryByteBuilderSourceIdentity({ entryFile: join(dir, "entry.mjs") });
+  assert.equal(typeof identity, "string");
+});
+
+test("the real builder has an identity", async () => {
+  const identity = await entryByteBuilderSourceIdentity();
+  assert.equal(typeof identity, "string");
+  assert.ok(identity.length > 0);
+});

@@ -1,0 +1,126 @@
+{
+  "write_batch": [
+    {
+      "type": "record",
+      "address": "package::ai-instruction-blocks::instruction-block::gmail-triage-classify",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-instruction-block",
+        "id": "instruction:gmail-triage-classify",
+        "name": "Gmail Triage Classifier",
+        "description": "Given a Gmail thread (subject + latest atoms), classify into user-configured labels/categories",
+        "system_prompt": "You are an email triage assistant. Your job is to read an email thread and classify it into exactly ONE of the user's configured label categories. Reply with ONLY the label name in all-caps, nothing else.",
+        "user_prompt_template": "Thread subject: {thread_subject}\n\nRecent messages:\n{thread_latest_atoms_text}\n\nClassify this thread into one label (pick the BEST match): {user_labels_comma_separated}",
+        "output_format": "single_line_label",
+        "model_preference": "balanced",
+        "temperature": 0.3,
+        "max_tokens": 50
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-instruction-blocks::instruction-block::gmail-draft-reply",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-instruction-block",
+        "id": "instruction:gmail-draft-reply",
+        "name": "Gmail Draft Reply Generator",
+        "description": "Given a Gmail thread and the user's profile, generate a reply composition (approval-gated, no auto-send)",
+        "system_prompt": "You are an email reply assistant. Generate a professional, concise reply in the user's voice. The reply is plain text. Be brief; respect the user's established tone.",
+        "user_prompt_template": "User profile:\nName: {user_name}\nRole: {user_role}\nVoice sample: {user_email_sample}\n\nThread so far:\n{thread_full_text}\n\nGenerate a reply composition (plain text).",
+        "output_format": "plain_text_composition",
+        "model_preference": "balanced",
+        "temperature": 0.7,
+        "max_tokens": 500
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-instruction-blocks::instruction-block::gmail-summarize-thread",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-instruction-block",
+        "id": "instruction:gmail-summarize-thread",
+        "name": "Gmail Thread Summarizer",
+        "description": "Given a Gmail thread, produce a 1-2 sentence summary of key points",
+        "system_prompt": "You are an email summarizer. Read a thread and produce a concise 1-2 sentence summary of the main topic and any action items.",
+        "user_prompt_template": "Thread:\n{thread_full_text}\n\nSummarize in 1-2 sentences.",
+        "output_format": "plain_text",
+        "model_preference": "fast",
+        "temperature": 0.3,
+        "max_tokens": 100
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::guard-rule::gmail-draft-reply-requires-approval",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-action-guard",
+        "id": "guard:gmail-draft-reply-requires-approval",
+        "name": "Gmail Draft Reply — Approval Required",
+        "description": "Draft replies MUST be approved before sending (no auto-send path)",
+        "action_id": "action:run-ai-records-production",
+        "instruction_block_ref": "instruction:gmail-draft-reply",
+        "approval_required": true,
+        "confidence_threshold": null,
+        "content_policy_checks": ["spam_filter", "tone_analysis"],
+        "on_violation": "block_and_notify"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::ai-action-guard::guard-rule::gmail-triage-classify-no-approval",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-action-guard",
+        "id": "guard:gmail-triage-classify-no-approval",
+        "name": "Gmail Triage — No Approval Needed",
+        "description": "Classification labels are low-risk; apply directly unless confidence is low",
+        "action_id": "action:run-ai-records-production",
+        "instruction_block_ref": "instruction:gmail-triage-classify",
+        "approval_required": false,
+        "confidence_threshold": 0.85,
+        "on_low_confidence": "require_approval"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::timed-action::scheduled-action::gmail-snooze-resurface",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "timed-action.scheduled-action",
+        "id": "action:gmail-snooze-resurface",
+        "name": "Gmail Snooze Resurface",
+        "description": "After snooze duration expires, resurface thread in inbox",
+        "owner_action_id": "action:gmail-snooze-resurface-thread",
+        "dispatch_target": "runtime-partition",
+        "time_window_config": {
+          "duration_minutes_default": 480,
+          "duration_options": [30, 60, 480, 1440, 10080],
+          "scheduled_time_field": "snooze_until_timestamp"
+        },
+        "execution_config": {
+          "run_once": true,
+          "on_expiry_action": {
+            "kind": "update_thread_state",
+            "action": "remove_snooze_flag",
+            "notify_user": true
+          }
+        }
+      },
+      "remove": false
+    }
+  ]
+}

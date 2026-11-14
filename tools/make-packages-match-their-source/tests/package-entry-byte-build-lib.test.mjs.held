@@ -1,0 +1,817 @@
+// Tests for the self-mounting-entry build gate (assertReactEntryBundleSelfMounts).
+// L063: makes the entire category of useRef-null live-mount crashes (a React UI
+// entry whose mount export is a bare component, no ReactDOM root) impossible to
+// ship — caught at build time instead of discovered at runtime in production.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdtemp, mkdir, realpath, rm, symlink, writeFile } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import esbuild from 'esbuild';
+
+test('bundled dependency hooks keep package-local defaults without preloading current values', async (t) => {
+  const fixture = await sourceOwnerFixture(t);
+  const { packageSetRoot, packageRoot } = fixture;
+  const owner = path.join(fixture.runtimeKitRoot, 'owner.ts');
+  await writeFile(owner, `
+export function createReadScopeFromPackageData(data) {
+  const defaults = data.things.filter(row => row.payload.is_default);
+  if (defaults.length > 1) throw new Error('defaults collided');
+  return data;
+}
+export const createUseBitfieldData = scope => name => name
+  ? scope.things.find(row => row.payload.input_name === name)?.payload.value_address_label
+  : scope.things.find(row => row.payload.is_default)?.payload.value_address_label;
+export const createUseBitfieldFold = createUseBitfieldData;
+`);
+  for (const name of ['alpha', 'beta']) {
+    const root = path.join(packageSetRoot, 'packages', name);
+    await mkdir(root, { recursive: true });
+    await writeFile(path.join(root, 'things-to-store-and-run.json'), JSON.stringify({
+      things: [
+        {address: name + '-input', payload: {kind:'bitfield-input-descriptor',input_name:'same-name',is_default:true,value_address_label:name+'-current'}},
+        {address: name + '-private', payload: {kind:'private-record',secret:'not-in-entry-bytes'}},
+      ],
+    }));
+    await writeFile(path.join(root, 'read.ts'), "import {useBitfieldData} from '@bitfield/runtime-kit/react'; export const read = () => [useBitfieldData(), useBitfieldData('same-name')];");
+  }
+  const entry = path.join(packageRoot, 'entry.ts');
+  await writeFile(entry, "import {read as a} from '../alpha/read';import {read as b} from '../beta/read';export const result = [a(),b()];");
+  const result = await esbuild.build({
+    absWorkingDir: packageRoot,
+    entryPoints:[entry], bundle:true, write:false, format:'esm', platform:'node', metafile:true,
+    alias:{'@bitfield/runtime-kit/internal/owner-surface':owner},
+    plugins:[createPackageReadScopePlugin({packageSetRoot,packageRoot,runtimeKitReactFile:path.join(packageRoot,'unused.ts')})],
+  });
+  const code = result.outputFiles[0].text;
+  assert.doesNotMatch(code, /createLivePackageEntryReadScope|not-in-entry-bytes/);
+  const module = await import('data:text/javascript;base64,' + Buffer.from(code).toString('base64'));
+  assert.deepEqual(module.result,[['alpha-current','alpha-current'],['beta-current','beta-current']]);
+  const receipt = await packageEntryBuildInputReceipt({...fixture,metafile:result.metafile});
+  assert.ok(receipt.some(row=>row.path==='package-set/packages/alpha/things-to-store-and-run.json'));
+  assert.ok(receipt.some(row=>row.path==='package-set/packages/beta/things-to-store-and-run.json'));
+  for (const hook of ['useBitfieldData', 'useBitfieldFold']) {
+    await writeFile(path.join(packageSetRoot, 'packages', 'alpha', 'read.ts'),
+      `import {${hook} as readInput} from '@bitfield/runtime-kit/react'; const name = 'foreign-only'; export const read = () => readInput({input:name,params:{}});`);
+    await assert.rejects(esbuild.build({
+      absWorkingDir: packageRoot, entryPoints:[entry], bundle:true, write:false, format:'esm', platform:'node', logLevel:'silent',
+      alias:{'@bitfield/runtime-kit/internal/owner-surface':owner},
+      plugins:[createPackageReadScopePlugin({packageSetRoot,packageRoot,runtimeKitReactFile:path.join(packageRoot,'unused.ts')})],
+    }), /alpha.*requests input\(s\) absent from its owning package: foreign-only/);
+  }
+});
+
+import {
+  assertEntrySourceSelfMounts,
+  assertFinalEntryReadScopeContract,
+  assertPackageTargetSourceUsesRuntimeContextSecond,
+  assertReactEntryBundleSelfMounts,
+  commonPathAncestor,
+  createPackageReadScopePlugin,
+  declaredPackageSetPartitionSchema,
+  declaredProviderInputMembershipPolicy,
+  escapeRawControlCharacters,
+  normalizeEntryBundleBuildPaths,
+  packageEntryBuildInputReceipt,
+  packageEntryDependencyRoot,
+  packageEntryArtifactPublicationDecision,
+  staticReadScopeSelectorAnalysisFromFinalBundle,
+  staticReadScopeSelectorsFromSource,
+} from '../do-work/package-entry-byte-build-lib.mjs';
+
+test('entry artifacts escape raw control characters without deleting separators', () => {
+  const escaped = escapeRawControlCharacters(`const key="left\u0000right";const unit="\u001f";\n`);
+  assert.equal(escaped, 'const key="left\\u0000right";const unit="\\u001f";\n');
+  assert.equal(Buffer.from(escaped).includes(0), false);
+});
+
+async function sourceOwnerFixture(t) {
+  const packageSetRoot = await mkdtemp(path.join(os.tmpdir(), 'package-source-owner-'));
+  t.after(() => rm(packageSetRoot, { recursive: true, force: true }));
+  const packageRoot = path.join(packageSetRoot, 'packages', 'consumer');
+  const runtimeKitRoot = path.join(packageSetRoot, 'node_modules', '@bitfield', 'runtime-kit');
+  await mkdir(packageRoot, { recursive: true });
+  await mkdir(runtimeKitRoot, { recursive: true });
+  return {
+    packageSetRoot,
+    packageRoot,
+    dependencyRoot: path.join(packageSetRoot, 'node_modules'),
+    runtimeKitRoot,
+    externalAliases: {},
+  };
+}
+
+async function inputReceipt(fixture, inputPaths) {
+  return packageEntryBuildInputReceipt({
+    ...fixture,
+    metafile: {
+      inputs: Object.fromEntries(inputPaths.map((inputPath) => [
+        path.relative(fixture.packageRoot, inputPath),
+        {},
+      ])),
+    },
+  });
+}
+
+// The exact failing signature: renders React UI (jsx-runtime) but bundles no
+// ReactDOM root. This is what crashed checkout in production.
+const BARE_COMPONENT_BUNDLE =
+  '/*! react/jsx-runtime */ function CheckoutFlow(){return jsx("div",{});} '
+  + 'exports.useRef=function(v){return ReactSharedInternals.H.useRef(v)} '
+  + 'export { CheckoutFlow as mount };';
+
+const SELF_MOUNTING_BUNDLE =
+  '/*! react/jsx-runtime */ import { createRoot } from "react-dom/client"; '
+  + 'function mount({el}){const r=createRoot(el);r.render(jsx(CheckoutFlow,{}));return ()=>r.unmount();} '
+  + 'export { mount };';
+
+const NON_REACT_TARGET_SENDER = // prepare/start/complete-checkout-target shape
+  'export const sendRequestToBitfieldTarget = createPackageEntryTargetSender(binding);';
+
+test('flags a React-UI entry that bundles no ReactDOM root (the checkout bug)', () => {
+  assert.throws(
+    () => assertReactEntryBundleSelfMounts('checkout', 'checkout', BARE_COMPONENT_BUNDLE, false),
+    /renders React UI but bundles no ReactDOM root/,
+  );
+});
+
+test('passes a self-mounting React entry (createRoot bundled)', () => {
+  assert.doesNotThrow(
+    () => assertReactEntryBundleSelfMounts('checkout', 'checkout', SELF_MOUNTING_BUNDLE, false),
+  );
+});
+
+test('passes a hydrateRoot self-mounting entry', () => {
+  const bundle = SELF_MOUNTING_BUNDLE.replace('createRoot', 'hydrateRoot');
+  assert.doesNotThrow(
+    () => assertReactEntryBundleSelfMounts('x', 'x', bundle, false),
+  );
+});
+
+test('ignores non-React entries (no JSX runtime)', () => {
+  assert.doesNotThrow(
+    () => assertReactEntryBundleSelfMounts('checkout', 'start-checkout-target', NON_REACT_TARGET_SENDER, false),
+  );
+});
+
+test('ignores node-platform target entries even if shaped like React UI', () => {
+  assert.doesNotThrow(
+    () => assertReactEntryBundleSelfMounts('checkout', 'start-checkout-target', BARE_COMPONENT_BUNDLE, true),
+  );
+});
+
+// The source-file check. Found 2026-09-05: fourteen bare-component entries passed the
+// bundle check above because the `ui` barrel put `createRoot` in the bundle unused. The
+// property "this entry's mount export calls a root mount" is only visible in the declared
+// source, so the source is what gets judged.
+const BARE_COMPONENT_SOURCE =
+  "import React from 'react';\n"
+  + "import { Container } from '@/packages/ui';\n"
+  + 'export function AgentWalletPanel() { const ref = React.useRef(null); return <Container ref={ref} />; }\n';
+
+const SELF_MOUNTING_SOURCE =
+  "import React from 'react';\n"
+  + "import { mountReactSurface } from '@/packages/ui/show/react-surface-mount';\n"
+  + "import { AgentWalletPanel } from './AgentWalletPanel';\n"
+  + 'export default function mount({ el }) { return mountReactSurface(el, <AgentWalletPanel />); }\n';
+
+const NON_REACT_SOURCE =
+  "import { createPackageEntryTargetSender } from '@bitfield/runtime-kit/internal/owner-surface';\n"
+  + 'export async function startCheckoutTarget(input, _context, sender = createPackageEntryTargetSender()) { return sender(input); }\n';
+
+test('source check flags a bare component even when the ui barrel would bundle createRoot', () => {
+  assert.throws(
+    () => assertEntrySourceSelfMounts('agent-wallet', 'agent-wallet', 'show/AgentWalletPanel.tsx', BARE_COMPONENT_SOURCE, false),
+    /never names a root mount/,
+  );
+});
+
+test('source check passes a wrapper that names mountReactSurface', () => {
+  assert.doesNotThrow(
+    () => assertEntrySourceSelfMounts('agent-wallet', 'agent-wallet-surface', 'show/mount-agent-wallet.tsx', SELF_MOUNTING_SOURCE, false),
+  );
+});
+
+test('source check passes a wrapper that names createRoot directly', () => {
+  const source = SELF_MOUNTING_SOURCE.replace('mountReactSurface', 'createRoot');
+  assert.doesNotThrow(() => assertEntrySourceSelfMounts('x', 'x', 'show/mount-x.tsx', source, false));
+});
+
+test('source check treats a .ts file with generics as React only when it imports react', () => {
+  const generics = 'export function readRows(input: Array<string>): Map<string, number> { return new Map(); }\n';
+  assert.doesNotThrow(() => assertEntrySourceSelfMounts('x', 'read-rows', 'read-data/read-rows.ts', generics, false));
+  const reactInTs = "import React from 'react';\nexport function Panel() { return React.createElement('div'); }\n";
+  assert.throws(
+    () => assertEntrySourceSelfMounts('x', 'panel', 'show/panel.ts', reactInTs, false),
+    /never names a root mount/,
+  );
+});
+
+test('source check ignores non-React sources and node-platform targets', () => {
+  assert.doesNotThrow(() => assertEntrySourceSelfMounts('checkout', 'start-checkout-target', 'do-work/start-checkout-target.ts', NON_REACT_SOURCE, false));
+  assert.doesNotThrow(() => assertEntrySourceSelfMounts('checkout', 'start-checkout-target', 'show/Flow.tsx', BARE_COMPONENT_SOURCE, true));
+});
+
+test('package target source accepts input-only and reserved context signatures', () => {
+  assert.doesNotThrow(() => assertPackageTargetSourceUsesRuntimeContextSecond(
+    'record-board',
+    'materialize-selection-target',
+    'inputOnly',
+    'export async function inputOnly(input) { return input; }',
+  ));
+  assert.doesNotThrow(() => assertPackageTargetSourceUsesRuntimeContextSecond(
+    'record-board',
+    'materialize-selection-target',
+    'withContext',
+    'export async function withContext(input, _context, sender = realSender) { return sender(input); }',
+  ));
+});
+
+test('package target source rejects dependency injection in runtime-context position', () => {
+  assert.throws(
+    () => assertPackageTargetSourceUsesRuntimeContextSecond(
+      'record-board',
+      'materialize-selection-target',
+      'broken',
+      'export async function broken(input, sender = realSender) { return sender(input); }',
+    ),
+    /reserves argument two for Runtime Kit context; found sender/,
+  );
+});
+
+test('package target source rejects a lookup bag that is merely NAMED context', () => {
+  // suggested-match and interactive-demo-maker, 2026-09-05: the name passed, the body read
+  // fields the runtime never sends, and the first live dispatch would have thrown.
+  assert.throws(
+    () => assertPackageTargetSourceUsesRuntimeContextSecond(
+      'interactive-demo-maker',
+      'workspace-action',
+      'buildRequest',
+      'export function buildRequest(action, context) {\n'
+      + "  if (!context.operation_id) throw new Error('operation_id is required');\n"
+      + '  return { target: action.target, payload: { record_ref: context.record_ref ?? null } };\n'
+      + '}\n',
+    ),
+    /reads context\.operation_id; the runner sends only runtime and packageData on the target context/,
+  );
+  assert.throws(
+    () => assertPackageTargetSourceUsesRuntimeContextSecond(
+      'x', 'y', 'target',
+      "export const target = (input, context) => ({ row: context?.['row'] });\n",
+    ),
+    /reads context\.row/,
+  );
+});
+
+test('package target source accepts a body that reads only what the runner sends', () => {
+  // `runtime` and `packageData` are both serialized by the runner's package_target_context.
+  // The first version of this check trusted the JS BitfieldRuntimeContext type, which declares
+  // only `runtime`, and rejected material-delivery's correct `context?.packageData` reads.
+  assert.doesNotThrow(() => assertPackageTargetSourceUsesRuntimeContextSecond(
+    'x', 'y', 'target',
+    "import { readTrustedRuntimePartition } from '@bitfield/runtime-kit/internal/owner-surface';\n"
+    + 'export async function target(input, context) {\n'
+    + '  const partition = readTrustedRuntimePartition(context);\n'
+    + '  const label = context.runtime?.partition_label;\n'
+    + '  return { partition, label };\n'
+    + '}\n',
+  ));
+  assert.doesNotThrow(() => assertPackageTargetSourceUsesRuntimeContextSecond(
+    'material-delivery', 'request-private-object', 'requestPrivateObject',
+    'export function requestPrivateObject(input, context) {\n'
+    + "  const config = readConfig(context?.packageData);\n"
+    + "  const things = context['packageData']?.things ?? [];\n"
+    + '  return { config, things };\n'
+    + '}\n',
+  ));
+});
+
+test('package target source does not blame a helper that also takes a context parameter', () => {
+  assert.doesNotThrow(() => assertPackageTargetSourceUsesRuntimeContextSecond(
+    'x', 'y', 'target',
+    'function helper(context) { return context.descriptors; }\n'
+    + 'export function target(input, _context) { return helper(input); }\n',
+  ));
+});
+
+test('package target source resolves exported aliases before checking the ABI', () => {
+  assert.doesNotThrow(() => assertPackageTargetSourceUsesRuntimeContextSecond(
+    'product-access',
+    'authorize',
+    'target',
+    'async function implementation(input) { return input; }\nexport const target = implementation;',
+  ));
+});
+
+test('entry bundle build paths become stable package-set labels', () => {
+  const root = '/private/tmp/trillion-source/runtime-kit/package-sets/trillion';
+  const source = [
+    `"${root}/packages/chat/.bitfield-entry-scope/chat/runtime-kit.ts"`,
+    '"../../../../private/tmp/trillion-source/runtime-kit/package-sets/trillion/node_modules/react/index.js"',
+  ].join('\n');
+  const portable = normalizeEntryBundleBuildPaths(source, root, '/Users/example/dev/ai-command-center');
+  assert.doesNotMatch(portable, /private\/tmp|Users\/example/);
+  assert.equal((portable.match(/bitfield-package-set/g) ?? []).length, 2);
+});
+
+test('entry bundle build paths normalize external dependencies outside the package set', () => {
+  const packageSetRoot = '/private/tmp/trillion-package-set';
+  const packageRoot = `${packageSetRoot}/packages/access-rule`;
+  const externalRoot = '/Users/example/.bitfield/runtime-kit/package-sets/dependencies';
+  const source = [
+    `"${externalRoot}/react/index.js"`,
+    '"../../../../../Users/example/.bitfield/runtime-kit/package-sets/dependencies/react/cjs/react.production.js"',
+  ].join('\n');
+  const portable = normalizeEntryBundleBuildPaths(
+    source,
+    packageSetRoot,
+    '/Users/example/dev/ai-command-center',
+    { moduleRoot: packageRoot, externalRoots: [externalRoot] },
+  );
+  assert.doesNotMatch(portable, /\/Users\/|Users\/example/);
+  assert.equal((portable.match(/bitfield-builder-external/g) ?? []).length, 2);
+});
+
+test('entry bundle path normalization never rewrites program string data', () => {
+  const packageSetRoot = '/fixture-root/bitfield-packages';
+  const source = [
+    'const dependencyFolder = "node_modules";',
+    'const skippedNames = new Set(["node_modules"]);',
+    '"node_modules/@noble/hashes/blake3.js"',
+  ].join('\n');
+  const portable = normalizeEntryBundleBuildPaths(
+    source,
+    packageSetRoot,
+    packageSetRoot,
+    { externalRoots: [`${packageSetRoot}/node_modules`] },
+  );
+  assert.match(portable, /dependencyFolder = "node_modules"/);
+  assert.match(portable, /Set\(\["node_modules"\]\)/);
+  assert.match(portable, /"bitfield-builder-external\/@noble\/hashes\/blake3\.js"/);
+});
+
+test('artifact publication reuses only exact bytes plus exact closure receipt', () => {
+  const nextArtifact = {
+    bytes: new TextEncoder().encode('current-entry'),
+    receipt: {
+      schema: 'bitfield.package-entry-source-closure-receipt/hash-bound-build-inputs',
+      closure_multihash: '1f:closure',
+      artifact_multihash: '1f:artifact',
+    },
+  };
+  const expectedReceipt = `${JSON.stringify(nextArtifact.receipt, null, 2)}\n`;
+  assert.equal(packageEntryArtifactPublicationDecision({
+    currentBytes: nextArtifact.bytes,
+    currentReceipt: expectedReceipt,
+    nextArtifact,
+  }).disposition, 'reuse');
+  assert.equal(packageEntryArtifactPublicationDecision({
+    currentBytes: new TextEncoder().encode('stale-entry'),
+    currentReceipt: expectedReceipt,
+    nextArtifact,
+  }).disposition, 'publish');
+  assert.equal(packageEntryArtifactPublicationDecision({
+    currentBytes: nextArtifact.bytes,
+    currentReceipt: null,
+    nextArtifact,
+  }).disposition, 'publish');
+});
+
+test('transitive dependency inputs receive one content-bound portable owner root', () => {
+  assert.equal(
+    commonPathAncestor([
+      '/workspace/node_modules/.store/react/react.js',
+      '/workspace/node_modules/.store/lucide/icon.js',
+      '/workspace/node_modules/direct/index.js',
+    ]),
+    '/workspace/node_modules',
+  );
+  assert.equal(commonPathAncestor(['/first/root/a', '/second/root/b']), null);
+});
+
+test('an isolated package set can select one explicit external dependency owner root', async (t) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'entry-dependency-owner-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const dependencyRoot = path.join(root, 'dependency-owner');
+  await mkdir(dependencyRoot, { recursive: true });
+  assert.equal(packageEntryDependencyRoot({
+    packageSetRoot: path.join(root, 'isolated-set'),
+    explicitRoot: dependencyRoot,
+  }), await realpath(dependencyRoot));
+  assert.throws(
+    () => packageEntryDependencyRoot({ packageSetRoot: root, explicitRoot: 'relative/dependencies' }),
+    /must be an absolute path/,
+  );
+});
+
+test('package entry closure accepts only package-local source and generated entry scope', async (t) => {
+  const fixture = await sourceOwnerFixture(t);
+  const source = path.join(fixture.packageRoot, 'show', 'screen.tsx');
+  const generated = path.join(
+    fixture.packageRoot,
+    '.bitfield-entry-scope',
+    'screen',
+    'runtime-kit.ts',
+  );
+  await mkdir(path.dirname(source), { recursive: true });
+  await mkdir(path.dirname(generated), { recursive: true });
+  await writeFile(source, 'export const screen = true;');
+  await writeFile(generated, 'export const runtime = true;');
+
+  const receipt = await inputReceipt(fixture, [source, generated]);
+  assert.deepEqual(
+    receipt.map(({ kind, path: inputPath }) => ({ kind, path: inputPath })),
+    [
+      { kind: 'builder-generated', path: 'package/.bitfield-entry-scope/screen/runtime-kit.ts' },
+      { kind: 'package-source', path: 'package/show/screen.tsx' },
+    ],
+  );
+});
+
+// Until 2026-08-21 these two asserted REJECTION. The builder was widened that day so shared
+// UI (`packages/ui`, `packages/screen-look`) is imported rather than copied, and the tests
+// were not touched; nothing ran this directory, so they failed silently for fifteen days
+// (found 2026-09-05 when the file moved under a runner that a package declares). The
+// receipt path is pinned byte-for-byte because 22,837 live receipt rows carry it inside a
+// hashed closure.
+test('package entry closure accepts a relative sibling-package source import as package-set owned', async (t) => {
+  const fixture = await sourceOwnerFixture(t);
+  const sibling = path.join(fixture.packageSetRoot, 'packages', 'sibling', 'show.tsx');
+  await mkdir(path.dirname(sibling), { recursive: true });
+  await writeFile(sibling, 'export const sibling = true;');
+
+  const receipt = await inputReceipt(fixture, [sibling]);
+  assert.deepEqual(
+    receipt.map(({ kind, path: inputPath }) => ({ kind, path: inputPath })),
+    [{ kind: 'builder-generated', path: 'package-set/packages/sibling/show.tsx' }],
+  );
+});
+
+test('package entry closure accepts an @-alias after it resolves to sibling-package source', async (t) => {
+  const fixture = await sourceOwnerFixture(t);
+  const aliasResolvedSibling = path.join(
+    fixture.packageSetRoot,
+    'packages',
+    'sibling',
+    'aliased-show.tsx',
+  );
+  await mkdir(path.dirname(aliasResolvedSibling), { recursive: true });
+  await writeFile(aliasResolvedSibling, 'export const sibling = true;');
+
+  const receipt = await inputReceipt(fixture, [aliasResolvedSibling]);
+  assert.equal(receipt[0].path, 'package-set/packages/sibling/aliased-show.tsx');
+});
+
+// The widening accepted ANYTHING under the set root, not only `packages/`. The three tests
+// below are the ones that caught it: each puts source under the set root but outside
+// `packages/`, and each must still be refused.
+
+test('node target closure rejects transitive local source outside its package', async (t) => {
+  const fixture = await sourceOwnerFixture(t);
+  const processHelper = path.join(fixture.packageSetRoot, 'process-host', 'spawn-helper.ts');
+  await mkdir(path.dirname(processHelper), { recursive: true });
+  await writeFile(processHelper, 'export const spawn = true;');
+
+  await assert.rejects(
+    () => inputReceipt(fixture, [processHelper]),
+    /package entry build input has no portable owner root/,
+  );
+});
+
+test('package entry closure rejects raw desktop seed or product source', async (t) => {
+  const fixture = await sourceOwnerFixture(t);
+  const productSource = path.join(fixture.packageSetRoot, 'desktop', 'resources', 'seed', 'journey.tsx');
+  await mkdir(path.dirname(productSource), { recursive: true });
+  await writeFile(productSource, 'export const productJourney = true;');
+
+  await assert.rejects(
+    () => inputReceipt(fixture, [productSource]),
+    /package entry build input has no portable owner root/,
+  );
+});
+
+test('package entry closure rejects a package-local symlink that escapes ownership', async (t) => {
+  const fixture = await sourceOwnerFixture(t);
+  const productSource = path.join(fixture.packageSetRoot, 'product-source', 'journey.tsx');
+  const disguisedLocalSource = path.join(fixture.packageRoot, 'show', 'journey.tsx');
+  await mkdir(path.dirname(productSource), { recursive: true });
+  await mkdir(path.dirname(disguisedLocalSource), { recursive: true });
+  await writeFile(productSource, 'export const productJourney = true;');
+  await symlink(productSource, disguisedLocalSource);
+
+  await assert.rejects(
+    () => inputReceipt(fixture, [disguisedLocalSource]),
+    /package entry build input has no portable owner root/,
+  );
+});
+
+test('package entry closure rejects generated output as new source input', async (t) => {
+  const fixture = await sourceOwnerFixture(t);
+  const output = path.join(
+    fixture.packageRoot,
+    '.bitfield-entry-byte-memory',
+    'screen.js',
+  );
+  await mkdir(path.dirname(output), { recursive: true });
+  await writeFile(output, 'export const compiledOutput = true;');
+
+  await assert.rejects(
+    () => inputReceipt(fixture, [output]),
+    /generated output cannot be a package entry source input/,
+  );
+});
+
+// The test that stood here pinned `readOptionalEntryManifest`, a reader of
+// `entry-to-package-data-map.json` whose only consumer looked up a field zero packages set
+// and zero receipts carried. The reader was deleted on 2026-09-05 together with that lookup;
+// the map file is still a test fixture for four packages and nothing at build time reads it.
+
+test('finds direct, object, aliased, and statically memoized read-scope selectors while ignoring comments', () => {
+  const selectors = staticReadScopeSelectorsFromSource(`
+    import { useBitfieldData as read } from '@bitfield/runtime-kit/react';
+    // read('comment-only')
+    const constantInput = 'constant-object-input';
+    const memo = React.useMemo(() => ({ input: 'memo-input', params: { id: 'x' } }), []);
+    const direct = { input: 'object-input', params: {} };
+    const label = 'string-input';
+    read('literal-input'); read({ input: 'object-call', params: {} }); read({ input: constantInput, params: {} }); read(memo); read(direct); read(label);
+  `);
+  assert.deepEqual(selectors, ['constant-object-input', 'literal-input', 'memo-input', 'object-call', 'object-input', 'string-input']);
+});
+
+test('reads direct, object, static binding, and memo selectors from final esbuild bytes only', () => {
+  const analysis = staticReadScopeSelectorAnalysisFromFinalBundle(`
+    // liveRead('comment-only')
+    var liveRead = createUseBitfieldData(scope);
+    var constantInput = 'constant-object-input';
+    var label = 'string-input';
+    const memo = import_react.default.useMemo(() => ({ input: 'memo-input', params: {} }), []);
+    liveRead('literal-input'); liveRead({ input: 'object-input' }); liveRead({ input: constantInput, params: {} }); liveRead(label); liveRead(memo);
+  `);
+  assert.deepEqual(analysis, {
+    selectors: ['constant-object-input', 'literal-input', 'memo-input', 'object-input', 'string-input'],
+    unresolved: [],
+    selectorless: [],
+  });
+});
+
+test('resolves a selector forwarded through a local custom hook only when every caller is static', () => {
+  const staticAnalysis = staticReadScopeSelectorAnalysisFromFinalBundle(`
+    var liveRead = createUseBitfieldData(scope);
+    function useOptional(selector) { try { return liveRead(selector); } catch { return []; } }
+    useOptional('mark-operations'); useOptional('mark-styles');
+  `);
+  assert.deepEqual(staticAnalysis, {
+    selectors: ['mark-operations', 'mark-styles'],
+    unresolved: [],
+    selectorless: [],
+  });
+  const dynamicAnalysis = staticReadScopeSelectorAnalysisFromFinalBundle(`
+    var liveRead = createUseBitfieldData(scope);
+    function useOptional(selector) { return liveRead(selector); }
+    useOptional(getSelector());
+  `);
+  assert.equal(dynamicAnalysis.selectors.length, 0);
+  assert.equal(dynamicAnalysis.unresolved.length, 1);
+});
+
+
+async function scopeContractFixture(t, { partition = 'trillion', descriptorPartition, inputs = [] } = {}) {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'entry-read-scope-contract-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  await mkdir(path.join(root, 'packages', 'consumer', '.bitfield-entry-scope', 'screen'), { recursive: true });
+  await writeFile(path.join(root, 'package-set-partition.json'), JSON.stringify({
+    schema: declaredPackageSetPartitionSchema, partition,
+  }));
+  const wrapper = path.join(root, 'packages', 'consumer', '.bitfield-entry-scope', 'screen', 'runtime-kit-react.ts');
+  const descriptor = {
+    packageName: 'consumer', entryName: 'screen', packages: [{ packageName: 'consumer', inputs }],
+  };
+  if (descriptorPartition !== undefined) descriptor.partitionLabel = descriptorPartition;
+  await writeFile(wrapper, `export const bitfieldGeneratedLiveReadScopeDescriptor = ${JSON.stringify(descriptor)} as const;`);
+  return { root, wrapper, packageRoot: path.join(root, 'packages', 'consumer') };
+}
+
+test('rejects app identity baked into a reusable generated wrapper', async (t) => {
+  const fixture = await scopeContractFixture(t, { descriptorPartition: 'bitfield-studio' });
+  await assert.rejects(
+    assertFinalEntryReadScopeContract({
+      packageName: 'consumer', entryName: 'screen', packageRoot: fixture.packageRoot,
+      packageSetRoot: fixture.root, runtimeKitReactFile: fixture.wrapper,
+      metafile: { inputs: {} }, bundleSource: '',
+    }),
+    /BPS_ENTRY_READ_0101_WRAPPER_APP_IDENTITY/,
+  );
+});
+
+test('admits a reusable wrapper with no generated app identity', async (t) => {
+  const fixture = await scopeContractFixture(t, { partition: 'some-app-invented-later' });
+  await assert.doesNotReject(assertFinalEntryReadScopeContract({
+    packageName: 'consumer', entryName: 'screen', packageRoot: fixture.packageRoot,
+    packageSetRoot: fixture.root, runtimeKitReactFile: fixture.wrapper,
+    metafile: { inputs: {} }, bundleSource: '',
+  }));
+});
+
+test('rejects an inlined cross-package object-selector missing from the exact provider shape', async (t) => {
+  const fixture = await scopeContractFixture(t);
+  const sibling = path.join(fixture.root, 'packages', 'sibling', 'show.tsx');
+  await mkdir(path.dirname(sibling), { recursive: true });
+  await writeFile(sibling, `import { useBitfieldData as read } from '@bitfield/runtime-kit/react'; const selector = React.useMemo(() => ({ input: 'retracted-input' }), []); export const x = read(selector);`);
+  await assert.rejects(
+    () => assertFinalEntryReadScopeContract({
+      packageName: 'consumer', entryName: 'screen', packageRoot: fixture.packageRoot,
+      packageSetRoot: fixture.root, runtimeKitReactFile: fixture.wrapper,
+      metafile: { inputs: { '../sibling/show.tsx': {} } },
+      bundleSource: `var read = createUseBitfieldData(scope); read({ input: 'retracted-input' });`,
+    }),
+    /BPS_ENTRY_READ_0102_CONSUMER_NOT_IN_PROVIDER_SHAPE.*retracted-input/,
+  );
+});
+
+test('rejects an unresolved selector in the final esbuild closure rather than silently omitting it', async (t) => {
+  const fixture = await scopeContractFixture(t);
+  const sibling = path.join(fixture.root, 'packages', 'sibling', 'show.tsx');
+  await mkdir(path.dirname(sibling), { recursive: true });
+  await writeFile(sibling, `import { useBitfieldData as read } from '@bitfield/runtime-kit/react'; const selector = getSelector(); export const x = read(selector);`);
+  await assert.rejects(
+    () => assertFinalEntryReadScopeContract({
+      packageName: 'consumer', entryName: 'screen', packageRoot: fixture.packageRoot,
+      packageSetRoot: fixture.root, runtimeKitReactFile: fixture.wrapper,
+      metafile: { inputs: { '../sibling/show.tsx': {} } },
+      bundleSource: `var read = createUseBitfieldData(scope); const selector = getSelector(); read(selector);`,
+    }),
+    /BPS_ENTRY_READ_0105_DYNAMIC_CONSUMER_SELECTOR.*read\(selector\)/,
+  );
+});
+
+test('allows an explicitly declared runtime choice only within provider-scope membership', async (t) => {
+  const fixture = await scopeContractFixture(t, {
+    inputs: [{ inputName: 'declared-input', address: 'package::consumer::input::declared-input' }],
+  });
+  await assert.doesNotReject(
+    () => assertFinalEntryReadScopeContract({
+      packageName: 'consumer', entryName: 'screen', packageRoot: fixture.packageRoot,
+      packageSetRoot: fixture.root, runtimeKitReactFile: fixture.wrapper,
+      bundleSource: `var read = createUseBitfieldData(scope); read(inputName);`,
+      dynamicReadSelectorPolicy: declaredProviderInputMembershipPolicy,
+    }),
+  );
+});
+
+test('rejects an unknown dynamic-selector policy instead of weakening the scope guard', async (t) => {
+  const fixture = await scopeContractFixture(t);
+  await assert.rejects(
+    () => assertFinalEntryReadScopeContract({
+      packageName: 'consumer', entryName: 'screen', packageRoot: fixture.packageRoot,
+      packageSetRoot: fixture.root, runtimeKitReactFile: fixture.wrapper,
+      bundleSource: `var read = createUseBitfieldData(scope); read(inputName);`,
+      dynamicReadSelectorPolicy: 'allow-anything',
+    }),
+    /BPS_ENTRY_READ_0107_DYNAMIC_SELECTOR_POLICY_INVALID/,
+  );
+});
+
+test('allows selectorless default-input reads from a live entry scope', async (t) => {
+  const fixture = await scopeContractFixture(t, { inputs: [{ inputName: 'default-input', address: 'package::consumer::input::default-input', isDefault: true }] });
+  await assert.doesNotReject(
+    () => assertFinalEntryReadScopeContract({
+      packageName: 'consumer', entryName: 'screen', packageRoot: fixture.packageRoot,
+      packageSetRoot: fixture.root, runtimeKitReactFile: fixture.wrapper,
+      metafile: { inputs: {} }, bundleSource: `var read = createUseBitfieldData(scope); read();`,
+    }),
+  );
+});
+
+test('does not mistake a same-named final-bundle function declaration for a hook call', () => {
+  const analysis = staticReadScopeSelectorAnalysisFromFinalBundle(`
+    var read = createUseBitfieldData(scope);
+    function read() { return null; }
+    read('declared-input');
+  `);
+  assert.deepEqual(analysis, { selectors: ['declared-input'], unresolved: [], selectorless: [] });
+});
+
+test('final read analysis preserves regex literals containing comment delimiters and quotes', () => {
+  const source = 'var read = createUseBitfieldData(scope);\nconst pattern = /["/*]/;\nread("actual");';
+  assert.deepEqual(staticReadScopeSelectorAnalysisFromFinalBundle(source), {
+    selectors: ['actual'], unresolved: [], selectorless: [],
+  });
+});
+
+test('final read analysis ignores quoted diagnostics but retains real calls and template expressions', () => {
+  const source = [
+    'var useBitfieldData = createUseBitfieldData(scope);',
+    "const message = 'useBitfieldData() without an input handle requires a Bitfield read scope';",
+    'const other = "useBitfieldData(\\\"not-an-input\\\")";',
+    'const pattern = /useBitfieldData\\(\\)/;',
+    '`useBitfieldData() is text ${useBitfieldData("actual-template-input")}`;',
+    'useBitfieldData();',
+  ].join('\n');
+  assert.deepEqual(staticReadScopeSelectorAnalysisFromFinalBundle(source), {
+    selectors: ['actual-template-input'], unresolved: [], selectorless: [{ hookName: 'useBitfieldData' }],
+  });
+  assert.deepEqual(staticReadScopeSelectorAnalysisFromFinalBundle(source.split('\n').slice(0, 4).join('\n')), {
+    selectors: [], unresolved: [], selectorless: [],
+  });
+});
+
+test('does not reject a dynamic hook in a module completely removed from the final entry bytes', async (t) => {
+  const fixture = await scopeContractFixture(t);
+  const sibling = path.join(fixture.root, 'packages', 'sibling', 'dead.tsx');
+  await mkdir(path.dirname(sibling), { recursive: true });
+  await writeFile(sibling, `import { useBitfieldData as read } from '@bitfield/runtime-kit/react'; const selector = getSelector(); export const x = read(selector);`);
+  await assert.doesNotReject(
+    () => assertFinalEntryReadScopeContract({
+      packageName: 'consumer', entryName: 'screen', packageRoot: fixture.packageRoot,
+      packageSetRoot: fixture.root, runtimeKitReactFile: fixture.wrapper,
+      metafile: { inputs: { '../sibling/dead.tsx': {} } }, bundleSource: '',
+    }),
+  );
+});
+
+test('rejects static and dynamic reads from a sealed live_read_mode none entry', async (t) => {
+  const fixture = await scopeContractFixture(t);
+  await writeFile(fixture.wrapper, `export const bitfieldGeneratedLiveReadScopeDescriptor = { live_read_mode: 'none' } as const;`);
+  await assert.rejects(
+    () => assertFinalEntryReadScopeContract({
+      packageName: 'consumer', entryName: 'screen', packageRoot: fixture.packageRoot,
+      packageSetRoot: fixture.root, runtimeKitReactFile: fixture.wrapper, metafile: { inputs: {} },
+      bundleSource: `var read = createUseBitfieldData(scope); read(); read('static-input'); const selector = getSelector(); read(selector);`,
+    }),
+    (error) => /BPS_ENTRY_READ_0106_SEALED_ENTRY_LIVE_READ/.test(error.message)
+      && error.message.includes('static-input')
+      && error.message.includes('read(selector)')
+      && error.message.includes('read()'),
+  );
+});
+
+// The canonical partition resolver must never substitute the SET NAME for the
+// PARTITION. Those are two facts. They carry the same string for today's
+// single-partition sets, so a substitution is invisible until the first set where
+// they differ, which is exactly the set this work exists to make possible.
+//
+// The legacy branch used to end `requiredPartition(legacy.partition ?? legacy.package_set)`.
+// That is the same substitution that caused the 2026-09-03 retraction of 124 live
+// group records: the owner looked up an ownership marker under one identity, found
+// none, and treated live records as unowned orphans. It was unreachable when
+// removed (every present set has package-set-partition.json), which is why it had
+// to go: dead code holding a live conflation fires silently for the first set that
+// lacks a descriptor.
+//
+// Every fixture here gives the two facts DIFFERENT values. A fixture that mirrors
+// production, where they match, cannot fail when they are conflated.
+{
+  // This import used to read `./package-entry-byte-build-lib.mjs`, a file that never existed
+  // beside the test. The rejection surfaced only after every other test had finished, so the
+  // runner reported 41 passes and exit 1, and the block below never registered a single test.
+  // Found 2026-09-05 when the file moved under a runner a package declares.
+  const { readCanonicalPackageSetPartition } = await import('../do-work/package-entry-byte-build-lib.mjs');
+
+  async function setRoot(t, { descriptor, legacy }) {
+    const root = await mkdtemp(path.join(os.tmpdir(), 'package-set-partition-'));
+    t.after(() => rm(root, { recursive: true, force: true }));
+    if (descriptor) {
+      await writeFile(path.join(root, 'package-set-partition.json'), JSON.stringify(descriptor));
+    }
+    if (legacy) {
+      await mkdir(path.join(root, 'what-packages-were-used-and-why'), { recursive: true });
+      await writeFile(
+        path.join(root, 'what-packages-were-used-and-why', 'what-packages-were-used-and-why.json'),
+        JSON.stringify(legacy),
+      );
+    }
+    return root;
+  }
+
+  test('the descriptor partition wins and is not confused with the set name', async (t) => {
+    const root = await setRoot(t, {
+      descriptor: {
+        schema: 'bitfield-package-set-partition/declared-partition',
+        partition: 'the-partition',
+        set_name: 'the-set',
+      },
+    });
+    assert.equal(await readCanonicalPackageSetPartition(root), 'the-partition');
+  });
+
+  test('the legacy file states its own partition, distinct from its set name', async (t) => {
+    const root = await setRoot(t, {
+      legacy: { partition: 'the-partition', package_set: 'the-set' },
+    });
+    assert.equal(await readCanonicalPackageSetPartition(root), 'the-partition');
+  });
+
+  test('a legacy file with only a set name FAILS instead of substituting it', async (t) => {
+    const root = await setRoot(t, { legacy: { package_set: 'the-set' } });
+    await assert.rejects(
+      () => readCanonicalPackageSetPartition(root),
+      (error) => {
+        assert.match(error.message, /package_set but no partition/);
+        assert.match(error.message, /two facts/);
+        return true;
+      },
+      'a missing partition must be an error, never the set name',
+    );
+  });
+}

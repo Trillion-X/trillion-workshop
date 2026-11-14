@@ -1,0 +1,937 @@
+{
+  "package": "poker-table",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::poker-table::placeable-surface::poker-table",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "Club",
+        "id": "poker-table.panel",
+        "kind": "placeable-surface",
+        "label": "Poker",
+        "material_target": "poker-table",
+        "order": 700,
+        "route_paths": [
+          "/poker/table"
+        ],
+        "route_prefixes": [
+          "/poker/table"
+        ],
+        "surface_id": "poker-table.panel",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000700:poker-table.panel",
+        "package_entry": {
+          "package_name": "poker-table",
+          "entry_name": "poker-table"
+        },
+        "surface_input": {
+          "poker_surface": "workspace",
+          "frame_fit": "fill"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::poker-table::placeable-surface::poker-table-table",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "Table",
+        "id": "poker-table.table",
+        "kind": "placeable-surface",
+        "label": "Poker table",
+        "material_target": "poker-table",
+        "order": 700,
+        "route_paths": [
+          "/poker/table"
+        ],
+        "route_prefixes": [
+          "/poker/table"
+        ],
+        "surface_id": "poker-table.table",
+        "surface_input": {
+          "poker_surface": "table"
+        },
+        "placement_labels": [
+          "poker-workspace"
+        ],
+        "placement_order_key": "000000700:poker-table.table",
+        "package_entry": {
+          "package_name": "poker-table",
+          "entry_name": "poker-table"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::poker-table::entry::poker-table",
+      "path": [
+        "packages",
+        "poker-table",
+        "entries",
+        "poker-table"
+      ],
+      "payload": {
+        "entry_name": "poker-table",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-poker-table.tsx",
+        "dynamic_read_selector_policy": "declared-provider-input-membership",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-poker-table"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::poker-table::entry::poker-table-native-core",
+      "path": [
+        "packages",
+        "poker-table",
+        "entries",
+        "poker-table-native-core"
+      ],
+      "payload": {
+        "entry_name": "poker-table-native-core",
+        "kind": "bitfield-package-entry",
+        "source_path": "show-ios-jscore/poker-table-native-core.ts",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-poker-table-native-core"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::poker-table::native-screen-command-entry",
+      "path": [
+        "package-primitive",
+        "native-screen-command-entry"
+      ],
+      "payload": null,
+      "remove": true
+    },
+    {
+      "type": "record",
+      "address": "package::poker-table::bitfield-input::table-list",
+      "path": [
+        "package-primitive",
+        "factflow",
+        "materialization"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "table-list",
+        "value_address_label": "poker-table.room-list",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::poker-table::bitfield-input::surface-state",
+      "path": [
+        "package-primitive",
+        "factflow",
+        "materialization"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "surface-state",
+        "is_default": true,
+        "selected_payload": {
+          "value_address_label": {
+            "from": "params",
+            "op": "path",
+            "path": [
+              "valueAddressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::poker-table::bitfield-input::authority-state",
+      "path": [
+        "package-primitive",
+        "factflow",
+        "materialization"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "authority-state",
+        "selected_payload": {
+          "value_address_label": {
+            "from": "params",
+            "op": "path",
+            "path": [
+              "valueAddressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::poker-table::bitfield-input::private-hand",
+      "path": [
+        "package-primitive",
+        "factflow",
+        "materialization"
+      ],
+      "payload": {
+        "kind": "bitfield-input-descriptor",
+        "input_name": "private-hand",
+        "selected_payload": {
+          "value_address_label": {
+            "from": "params",
+            "op": "path",
+            "path": [
+              "valueAddressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::poker-table::primitive-contract",
+      "path": [
+        "package-primitive",
+        "contract"
+      ],
+      "payload": {
+        "kind": "bitfield-package-primitive-contract",
+        "version": 1,
+        "package": "poker-table",
+        "capability": "poker-table-surface",
+        "source_evidence": [
+          "local-poker React table surface",
+          "local-poker chip motion layer",
+          "poker table design surface prototype"
+        ],
+        "owns": [
+          "seat-rendering-contract",
+          "community-card-rendering-contract",
+          "pot-and-side-pot-display-contract",
+          "player-action-control-contract",
+          "result-and-event-log-display-contract",
+          "private-card-peek-surface-contract",
+          "host-control-surface-contract",
+          "room-sync-status-projection-contract"
+        ],
+        "does_not_own": [
+          "deck-shuffle",
+          "hand-ranking",
+          "chip-settlement",
+          "bot-policy",
+          "room-membership",
+          "room-sync-engine",
+          "transport-provider",
+          "sound-synthesis",
+          "package-set-identity"
+        ],
+        "reuse": {
+          "poker-rules": "rule-authoritative state and allowed actions",
+          "connectable-services": "transport provider references without transport implementation",
+          "screen-arrangement": "placeable table surface",
+          "screen-look": "visual token realization",
+          "sound": "optional event audio keyed by event kind",
+          "sync-status": "descriptor-projected sync status vocabulary",
+          "engine.operation": "table controls commit protocol write-batch bytes for public, authority, and private state facts"
+        },
+        "new_slot": false,
+        "blocker": null
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::poker-table::surface-contract",
+      "path": [
+        "package-primitive",
+        "surface"
+      ],
+      "payload": {
+        "kind": "poker-table-surface-contract",
+        "version": 1,
+        "inputs": {
+          "public_table_state": "poker-rules public state snapshot or projected rows",
+          "private_player_state": "current player's hole cards and reveal state",
+          "available_actions": "rule-authorized action list",
+          "room_sync_status": "generic SyncMesh cursor, peer count, provider reference, and blocker projection",
+          "event_log": "machine-readable event rows"
+        },
+        "surfaces": [
+          "lobby",
+          "table",
+          "player-hand",
+          "action-panel",
+          "host-controls",
+          "room-sync",
+          "result-panel",
+          "event-log"
+        ],
+        "control_requests": [
+          "join",
+          "configure-table",
+          "start-game",
+          "fold",
+          "check-call",
+          "raise",
+          "all-in",
+          "toggle-reveal",
+          "next-hand",
+          "kick-player",
+          "join-room",
+          "leave-room",
+          "publish-local-delta",
+          "ingest-remote-delta",
+          "reset-table"
+        ],
+        "renderer_law": {
+          "private_cards": "only private_player_state may render unrevealed hole cards",
+          "public_cards": "public hole cards render only after rule-owned reveal",
+          "room_sync": "renderer may show sync health and emit workflow intents; it never owns or chooses transport",
+          "authority": "controls send engine.operation write-batch requests; renderer does not keep durable table state in React"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::poker-table::room-sync-contract",
+      "path": [
+        "package-primitive",
+        "room-sync-contract"
+      ],
+      "payload": {
+        "kind": "poker-room-sync-contract",
+        "version": 1,
+        "package": "poker-table",
+        "capability": "generic-room-sync-projection-and-intents",
+        "engine_primitive": "SyncMesh causal-log delta exchange",
+        "frame_contract": "CarrierFrame::DeltaBatch exact addressed bytes",
+        "transport_provider": "external package or host adapter referenced through connectable-services/process-connectors",
+        "owns": [
+          "sync-health-projection",
+          "sync-cursor-display",
+          "room-action-intent-shapes"
+        ],
+        "does_not_own": [
+          "socket-implementation",
+          "bluetooth-implementation",
+          "wifi-implementation",
+          "transport-selection",
+          "remote-envelope-ingest-authority"
+        ],
+        "operations": [
+          "join-room",
+          "leave-room",
+          "publish-local-delta",
+          "ingest-remote-delta",
+          "invite-participant",
+          "kick-participant"
+        ],
+        "reuse": [
+          "engine.operation",
+          "connectable-services",
+          "process-connectors",
+          "sync-status"
+        ],
+        "new_slot": false
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::poker-table::package-spec::chip-motion",
+      "path": [
+        "package-primitive",
+        "related-package-spec"
+      ],
+      "payload": {
+        "kind": "package-spec",
+        "package": "chip-motion",
+        "capability": "decorative-chip-motion",
+        "source_evidence": "local-poker chip motion layer",
+        "owns": [
+          "chip-motion-visual-state",
+          "reduced-motion-respect",
+          "pot-delta-animation"
+        ],
+        "input_contract": {
+          "amount": "non_negative_number",
+          "active": "boolean",
+          "event_kind": "optional poker event kind"
+        },
+        "does_not_own": [
+          "pot-authority",
+          "chip-settlement",
+          "game-rules"
+        ],
+        "reuse": [
+          "screen-look",
+          "ui"
+        ],
+        "new_slot": false
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::poker-table::package-spec::bot-player",
+      "path": [
+        "package-primitive",
+        "related-package-spec"
+      ],
+      "payload": {
+        "kind": "package-spec",
+        "package": "bot-player",
+        "capability": "normal-player-decision-policy",
+        "owns": [
+          "bot-seat-config",
+          "decision-policy-records",
+          "normal-player-action-requests"
+        ],
+        "input_contract": {
+          "public_table_state": "poker-rules public state",
+          "bot_private_state": "only that bot player's private cards",
+          "risk_profile": "package-set config"
+        },
+        "does_not_own": [
+          "rule-authority",
+          "privileged-card-access",
+          "table-state-mutation"
+        ],
+        "reuse": [
+          "workflow"
+        ],
+        "new_slot": false
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::poker-table::package-spec::friend-room",
+      "path": [
+        "package-primitive",
+        "related-package-spec"
+      ],
+      "payload": {
+        "kind": "package-spec",
+        "package": "friend-room",
+        "capability": "small-room-membership-and-visibility-routing",
+        "owns": [
+          "room-members",
+          "host-selection",
+          "join-intents",
+          "kick-events",
+          "per-participant-private-targets"
+        ],
+        "input_contract": {
+          "room_id": "text",
+          "participant_id": "text",
+          "display_name": "text",
+          "membership_event": [
+            "join",
+            "leave",
+            "kick",
+            "host-transfer"
+          ]
+        },
+        "does_not_own": [
+          "poker-rule-law",
+          "table-rendering",
+          "transport-provider"
+        ],
+        "reuse": [
+          "workflow",
+          "connectable-services"
+        ],
+        "new_slot": false
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::poker-table::input::placeable-surface-list-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "placeable-surface-list-by-address-label",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::poker-table::input::placeable-surface-list",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "placeable-surface-list",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "address": "placeable-surface-list::main-workspace",
+            "missing": "empty",
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "placeable-surface-list::main-workspace"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::poker-table::input::placeable-surfaces",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "placeable-surfaces",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "address": "placeable-surfaces",
+            "missing": "empty",
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "placeable-surfaces"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::poker-table::input::pokerWorkspaceLayoutState",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "pokerWorkspaceLayoutState",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "poker-workspace-layout-state"
+      },
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::poker-table::published-records-feed",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "equals": "reply-template"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::poker-table::input::published-records",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "published-records",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "package::poker-table::published-records-feed"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::poker-table::input::layout-presets",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "layout-presets",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "op": "rows",
+            "fields": [
+              {
+                "column": 0,
+                "key": "id",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "name",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "layout",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 3,
+                "key": "created_at",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              }
+            ]
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "layout-presets"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::poker-table::input::package-entry-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "package-entry-by-address-label",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "bytes"
+            }
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "poker-workspace-layout-state",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "containers": {
+          "poker-workspace-table": {
+            "id": "poker-workspace-table",
+            "groupId": "poker-workspace-table-group"
+          },
+          "poker-workspace-rules": {
+            "id": "poker-workspace-rules",
+            "groupId": "poker-workspace-rules-group"
+          },
+          "poker-workspace-connect": {
+            "id": "poker-workspace-connect",
+            "groupId": "poker-workspace-connect-group"
+          }
+        },
+        "tabGroups": {
+          "poker-workspace-table-group": {
+            "tabIds": [
+              "poker-workspace-table-tab"
+            ],
+            "activeTabId": "poker-workspace-table-tab"
+          },
+          "poker-workspace-rules-group": {
+            "tabIds": [
+              "poker-workspace-rules-tab"
+            ],
+            "activeTabId": "poker-workspace-rules-tab"
+          },
+          "poker-workspace-connect-group": {
+            "tabIds": [
+              "poker-workspace-connect-tab"
+            ],
+            "activeTabId": "poker-workspace-connect-tab"
+          }
+        },
+        "tabs": {
+          "poker-workspace-table-tab": {
+            "id": "poker-workspace-table-tab",
+            "title": "Poker table",
+            "target": null,
+            "packageEntry": {
+              "packageName": "poker-table",
+              "entryName": "poker-table"
+            },
+            "materialTarget": "poker-table",
+            "icon": "Table",
+            "closable": true,
+            "metadata": {
+              "placeable_surface_id": "poker-table.table",
+              "placeable_surface_material_target": "poker-table",
+              "surfaceInput": {
+                "poker_surface": "table"
+              }
+            }
+          },
+          "poker-workspace-rules-tab": {
+            "id": "poker-workspace-rules-tab",
+            "title": "Poker rules",
+            "target": null,
+            "packageEntry": {
+              "packageName": "poker-rules",
+              "entryName": "poker-rules"
+            },
+            "materialTarget": "poker-rules",
+            "icon": "Club",
+            "closable": true,
+            "metadata": {
+              "placeable_surface_id": "poker-rules.panel",
+              "placeable_surface_material_target": "poker-rules"
+            }
+          },
+          "poker-workspace-connect-tab": {
+            "id": "poker-workspace-connect-tab",
+            "title": "Connect devices",
+            "target": null,
+            "packageEntry": {
+              "packageName": "shared-room-connection",
+              "entryName": "shared-room-connection"
+            },
+            "materialTarget": "shared-room-connection",
+            "icon": "QrCode",
+            "closable": true,
+            "metadata": {
+              "placeable_surface_id": "shared-room-connection.panel",
+              "placeable_surface_material_target": "shared-room-connection"
+            }
+          }
+        },
+        "layouts": [
+          {
+            "type": "tiled",
+            "root": {
+              "kind": "split",
+              "dir": "row",
+              "children": [
+                {
+                  "kind": "leaf",
+                  "containerId": "poker-workspace-table"
+                },
+                {
+                  "kind": "split",
+                  "dir": "column",
+                  "children": [
+                    {
+                      "kind": "leaf",
+                      "containerId": "poker-workspace-rules"
+                    },
+                    {
+                      "kind": "leaf",
+                      "containerId": "poker-workspace-connect"
+                    }
+                  ],
+                  "sizes": [
+                    0.58,
+                    0.42
+                  ]
+                }
+              ],
+              "sizes": [
+                0.68,
+                0.32
+              ]
+            }
+          },
+          {
+            "type": "floating",
+            "containers": [
+              {
+                "containerId": "poker-workspace-table",
+                "x": 40,
+                "y": 64,
+                "w": 980,
+                "h": 700,
+                "z": 1
+              },
+              {
+                "containerId": "poker-workspace-rules",
+                "x": 1040,
+                "y": 64,
+                "w": 500,
+                "h": 400,
+                "z": 2
+              },
+              {
+                "containerId": "poker-workspace-connect",
+                "x": 1040,
+                "y": 484,
+                "w": 500,
+                "h": 280,
+                "z": 3
+              }
+            ],
+            "camera": {
+              "scale": 1,
+              "tx": 0,
+              "ty": 0,
+              "min": 0.55,
+              "max": 1.75
+            }
+          },
+          {
+            "type": "overlay",
+            "containers": []
+          }
+        ],
+        "surface": "grid",
+        "focusedContainerId": "poker-workspace-table",
+        "maximizedContainerId": null
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-poker-table-native-core",
+      "source_path": "built-stored-bytes/entry-bytes-poker-table-native-core",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-poker-table-native-core.source-closure.json"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-poker-table",
+      "source_path": "built-stored-bytes/entry-bytes-poker-table",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-poker-table.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "package::poker-table::input::selector-source-by-address-label",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "selector-source-by-address-label",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": {
+            "op": "path",
+            "from": "params",
+            "path": [
+              "addressLabel"
+            ]
+          },
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::poker-table::reaches-past-the-engine::network",
+      "path": [
+        "current-item",
+        "reaches-past-the-engine"
+      ],
+      "payload": {
+        "kind": "reaches-past-the-engine",
+        "reach_class": "network",
+        "why": "RETRACTED 2026-09-09: this surface no longer reaches past the engine at all. It declared one route, the engine's own /open-locations, read to learn the address another device on the same network could use to reach this running app, and put into the invite link a host hands another player. That route is deleted, because an app running on one machine has no address another device can dial: the same-network answer was only ever meaningful for a deployment reachable by name, and for exactly those the page's own origin already IS that name. The invite link is now built from window.location alone, which is not a reach. The declaration is retracted rather than reworded, because a package's reach surface must shrink when its reach does."
+      },
+      "remove": true
+    }
+  ]
+}

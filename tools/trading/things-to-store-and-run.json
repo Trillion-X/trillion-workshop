@@ -1,0 +1,1082 @@
+{
+  "package": "portfolio-connector",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::portfolio-connector::placeable-surface::portfolio-connector",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "Wallet",
+        "id": "portfolio-connector.panel",
+        "kind": "placeable-surface",
+        "label": "Account",
+        "material_target": "portfolio-connector",
+        "factflow_ref": "package::portfolio-connector::factflow::surface",
+        "order": 781,
+        "surface_id": "portfolio-connector.panel",
+        "placement_labels": [
+          "trading-workspace"
+        ],
+        "placement_order_key": "000000781:portfolio-connector.panel",
+        "package_entry": {
+          "package_name": "portfolio-connector",
+          "entry_name": "portfolio-connector"
+        },
+        "materialTarget": "portfolio-connector",
+        "placementLabels": [
+          "trading-workspace"
+        ],
+        "orderKey": "000000781:portfolio-connector.panel"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::portfolio-connector::factflow::surface",
+      "address_mode": "identity_text",
+      "path": [
+        "package-primitive",
+        "factflow"
+      ],
+      "payload": {
+        "kind": "bitfield-eeaf-factflow",
+        "journal": {
+          "address_label": "portfolio-connector.surface.journal"
+        },
+        "fact_sources": [
+          {
+            "address": "package::portfolio-connector::primitive-contract"
+          },
+          {
+            "address": "package::portfolio-connector::capability-operation-graph"
+          },
+          {
+            "address": "package::portfolio-connector::paper-account::default"
+          }
+        ],
+        "genesis": [
+          {
+            "address": "package::portfolio-connector::placeable-surface::portfolio-connector"
+          }
+        ],
+        "blockers": [
+          {
+            "address_label": "portfolio-connector.blocker.account-portal"
+          },
+          {
+            "address_label": "portfolio-connector.blocker.cpd-10f"
+          }
+        ],
+        "evidence": [
+          {
+            "address": "package::portfolio-connector::entry::portfolio-connector"
+          },
+          {
+            "address": "package::portfolio-connector::primitive-contract"
+          },
+          {
+            "address": "package::portfolio-connector::capability-operation-graph"
+          }
+        ],
+        "interpreter_facts": {
+          "facts": [
+            {
+              "address_label": "portfolio-connector.facts.account-connection"
+            }
+          ],
+          "intents": [
+            {
+              "address_label": "portfolio-connector.intent.sync-account"
+            }
+          ],
+          "effects": [
+            {
+              "address_label": "portfolio-connector.effect.project-portfolio-snapshot"
+            }
+          ],
+          "validation": [
+            {
+              "address_label": "portfolio-connector.validation.provider-response"
+            }
+          ],
+          "permissions": [
+            {
+              "address_label": "portfolio-connector.permission.credentials-vault-handle"
+            }
+          ],
+          "projections": [
+            {
+              "address_label": "portfolio-connector.projection.surface"
+            }
+          ],
+          "materializations": [
+            {
+              "address_label": "portfolio-connector.materialization.placeable-surface"
+            }
+          ]
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::portfolio-connector::entry::portfolio-connector",
+      "path": [
+        "packages",
+        "portfolio-connector",
+        "entries",
+        "portfolio-connector"
+      ],
+      "payload": {
+        "entry_name": "portfolio-connector",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-portfolio-connector.tsx",
+        "dynamic_read_selector_policy": "declared-provider-input-membership",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-portfolio-connector"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::portfolio-connector::input::account-cycle",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "account-cycle",
+        "is_default": false,
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          },
+          "projection": {
+            "op": "path",
+            "path": [
+              0
+            ]
+          }
+        },
+        "value_address_label": "agent:trading-momentum.last-cycle"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::portfolio-connector::input::account-metrics",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "account-metrics",
+        "is_default": false,
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "account:board.metrics"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::portfolio-connector::input::account-fields",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "account-fields",
+        "is_default": false,
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "account:board.fields"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::portfolio-connector::input::account-views",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "account-views",
+        "is_default": false,
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "account:board.views"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::portfolio-connector::primitive-contract",
+      "path": [
+        "package-primitive",
+        "contract"
+      ],
+      "payload": {
+        "kind": "bitfield-package-primitive-contract",
+        "version": 1,
+        "package": "portfolio-connector",
+        "capability": "broker-account",
+        "owns": [
+          "portfolio_connection",
+          "portfolio_account",
+          "portfolio_position",
+          "portfolio_cash_balance",
+          "portfolio_snapshot"
+        ],
+        "reuses": [
+          "credentials-vault",
+          "http-client",
+          "process-connectors",
+          "connectable-services",
+          "observability",
+          "record_from_matching_records"
+        ],
+        "blockers": [
+          "Provider connection",
+          "Connected account"
+        ],
+        "new_slot": false
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::portfolio-connector::capability-operation-graph",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "capability-operation-graph"
+      ],
+      "payload": {
+        "kind": "bitfield-capability-operation-graph",
+        "version": 1,
+        "package": "portfolio-connector",
+        "capability": "broker-account",
+        "autonomy_boundary": "refreshes broker account data when asked; it does not place orders",
+        "operations": [
+          {
+            "id": "operation:portfolio-connector.declare-account-sync-intent",
+            "owner": "portfolio-connector",
+            "executes_via": [
+              "workflow",
+              "http-client",
+              "credentials-vault"
+            ],
+            "inputs": [
+              "account_ref",
+              "credential_ref",
+              "provider_ref",
+              "idempotency_key"
+            ],
+            "produces": [
+              "portfolio_sync_intent",
+              "portfolio_sync_request",
+              "portfolio_sync_audit_ref"
+            ],
+            "blockers": [
+              "Connected account",
+              "Provider connection"
+            ]
+          },
+          {
+            "id": "operation:portfolio-connector.project-portfolio-snapshot",
+            "owner": "portfolio-connector",
+            "executes_via": [
+              "record_from_matching_records"
+            ],
+            "inputs": [
+              "provider_response_ref",
+              "account_ref"
+            ],
+            "produces": [
+              "portfolio_account",
+              "portfolio_position",
+              "portfolio_cash_balance",
+              "portfolio_snapshot"
+            ],
+            "blockers": [
+              "Provider connection"
+            ]
+          }
+        ],
+        "evidence_outputs": [
+          "portfolio_sync_audit_ref",
+          "source_fingerprint_ref",
+          "accepted_state_noop_ref"
+        ],
+        "execution_boundaries": {
+          "credentials-vault": "owns credential handles",
+          "http-client": "owns provider HTTP",
+          "workflow": "runs account refresh steps",
+          "trade-audit": "saves downstream order history"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::portfolio-connector::paper-account::default",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "portfolio_account",
+        "account_ref": "paper-account:default",
+        "mode": "paper",
+        "broker": "paper-simulator",
+        "credential_ref": null,
+        "buying_power": 100000,
+        "equity": 100000,
+        "currency": "USD",
+        "status": "active",
+        "source": "package-default-paper-mode"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::portfolio-connector::public-source::read-data",
+      "path": [
+        "packages",
+        "portfolio-connector",
+        "public-sources",
+        "read-data"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "read-data"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::portfolio-connector::account-config::default",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "account-config"
+      ],
+      "payload": {
+        "kind": "brokerage_account_config",
+        "connection_id": "service_connection:alpaca",
+        "mode": "paper",
+        "request": {
+          "url": "https://paper-api.alpaca.markets/v2/account",
+          "method": "GET",
+          "headers": {
+            "accept": "application/json"
+          },
+          "credential_injections": [
+            {
+              "field_id": "api_key_id",
+              "placement": {
+                "kind": "header",
+                "name": "APCA-API-KEY-ID"
+              }
+            },
+            {
+              "field_id": "api_secret_key",
+              "placement": {
+                "kind": "header",
+                "name": "APCA-API-SECRET-KEY"
+              }
+            }
+          ]
+        },
+        "account_address": "portfolio-connector.account"
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::portfolio-connector::workflow-action::pull-brokerage-account",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:pull-brokerage-account",
+        "kind": "action",
+        "name": "pull-brokerage-account",
+        "description": "Pull the connected brokerage account state and publish it.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "account_config_address"
+          ],
+          "properties": {}
+        },
+        "steps": [
+          {
+            "id": "read_config",
+            "kind": "ask",
+            "config": {
+              "name": "engine.operation.label-addressed",
+              "input": {
+                "operation_label": "engine.operation.read-current",
+                "address_label": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "account_config_address"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "id": "prepare_request",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "python3",
+                  "-c",
+                  "import json,sys\nout=sys.argv[1]; data=json.loads(sys.argv[2])\ncfg=(data.get('payload') if data.get('found') else None) or {}\nreq=cfg.get('request') or {}\nhx=lambda s:''.join(format(b,'02x') for b in s.encode())\ninj=[{'secret_name':'service-connection-'+hx(cfg.get('connection_id',''))+'-field-'+hx(i.get('field_id','')),'placement':i.get('placement')} for i in (req.get('credential_injections') or [])]\nplan={'url':req.get('url',''),'method':req.get('method','GET'),'headers':req.get('headers') or {},'injections':inj,'account_address':cfg.get('account_address'),'config_found':bool(data.get('found'))}\njson.dump(plan,open(out,'w'))\nprint(json.dumps(plan))",
+                  "account-plan.json",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "read_config",
+                      "path": "output.text"
+                    }
+                  }
+                ],
+                "cwd": null,
+                "timeout_ms": 60000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "account-plan.json",
+                    "content_type": "application/json"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "mint_handles",
+            "kind": "loop",
+            "config": {
+              "source": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "prepare_request",
+                  "path": "output.captured_fds.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  },
+                  {
+                    "op": "op:core.lookup",
+                    "args": {
+                      "key": "injections"
+                    }
+                  }
+                ]
+              },
+              "item_var": "injection",
+              "parallel": false,
+              "definition_id": "action:mint-credential-injection-handle"
+            }
+          },
+          {
+            "id": "http_fetch",
+            "kind": "ask",
+            "config": {
+              "name": "slot::http-client",
+              "input": {
+                "url": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "prepare_request",
+                    "path": "output.captured_fds.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "url"
+                      }
+                    }
+                  ]
+                },
+                "method": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "prepare_request",
+                    "path": "output.captured_fds.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "method"
+                      }
+                    }
+                  ]
+                },
+                "headers": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "prepare_request",
+                    "path": "output.captured_fds.0.bytes.base64"
+                  },
+                  "transform": [
+                    {
+                      "op": "op:core.decode",
+                      "args": {
+                        "encoding": "base64"
+                      }
+                    },
+                    {
+                      "op": "op:core.json_parse"
+                    },
+                    {
+                      "op": "op:core.lookup",
+                      "args": {
+                        "key": "headers"
+                      }
+                    }
+                  ]
+                },
+                "body": null,
+                "credential_injections": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "mint_handles",
+                    "path": "output"
+                  }
+                },
+                "timeout_ms": 30000
+              }
+            }
+          },
+          {
+            "id": "normalize_account",
+            "kind": "ask",
+            "config": {
+              "name": "compute.process",
+              "input": {
+                "argv": [
+                  "python3",
+                  "-c",
+                  "import json,sys\nout=sys.argv[1]\ntry: resp=json.loads(sys.argv[2])\nexcept Exception: resp={}\nbody=resp.get('body') if isinstance(resp,dict) else None\nif isinstance(body,list):\n    try: body=bytes(body).decode('utf-8')\n    except Exception: body=None\nif isinstance(body,str):\n    try: body=json.loads(body)\n    except Exception: body=None\nacct=body if isinstance(body,dict) else {}\nsc=resp.get('status_code') if isinstance(resp,dict) else None\nok=bool(acct.get('account_number') or acct.get('id'))\nview={'state':'live' if ok else 'error','http_status':sc,'account':{k:acct.get(k) for k in ('account_number','status','currency','cash','portfolio_value','buying_power','equity','long_market_value','short_market_value','daytrade_count','pattern_day_trader') if k in acct},'fetched_at':__import__('datetime').datetime.now(__import__('datetime').timezone.utc).isoformat()}\njson.dump(view,open(out,'w'))\nprint(json.dumps(view))",
+                  "account-view.json",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "http_fetch",
+                      "path": "output.text"
+                    }
+                  }
+                ],
+                "cwd": null,
+                "timeout_ms": 60000,
+                "termination_grace_ms": 1000,
+                "expected_termination": null,
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": "account-view.json",
+                    "content_type": "application/json"
+                  }
+                ],
+                "containment": {
+                  "kind": "descendant_effect_contained",
+                  "pipe_eof_timeout_ms": 1000,
+                  "publications": []
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              }
+            }
+          },
+          {
+            "id": "write_account",
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "prepare_request",
+                      "path": "output.captured_fds.0.bytes.base64"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      },
+                      {
+                        "op": "op:core.json_parse"
+                      },
+                      {
+                        "op": "op:core.lookup",
+                        "args": {
+                          "key": "account_address"
+                        }
+                      }
+                    ]
+                  },
+                  "path": [],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "normalize_account",
+                      "path": "output.captured_fds.0.bytes.base64"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.decode",
+                        "args": {
+                          "encoding": "base64"
+                        }
+                      },
+                      {
+                        "op": "op:core.json_parse"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "return_result",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "normalize_account",
+                  "path": "output.captured_fds.0.bytes.base64"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.decode",
+                    "args": {
+                      "encoding": "base64"
+                    }
+                  },
+                  {
+                    "op": "op:core.json_parse"
+                  },
+                  {
+                    "op": "op:core.lookup",
+                    "args": {
+                      "key": "state"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::portfolio-connector::trigger-rule::pull-account-on-connection-change",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "id": "trigger:pull-account-on-connection-change",
+        "topic": "attribute_changed",
+        "trigger_type": "delta",
+        "is_active": true,
+        "match_condition": {
+          "conditions": [
+            {
+              "$bind": {
+                "select": {
+                  "from": "change",
+                  "path": "property_id"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.in_list",
+                    "args": {
+                      "values": [
+                        "prop:connection:credential_handle",
+                        "prop:connection:connected_at"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:pull-brokerage-account",
+            "include_steps": false,
+            "include_output": false,
+            "input": {
+              "account_config_address": "package::portfolio-connector::account-config::default"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-portfolio-connector",
+      "source_path": "built-stored-bytes/entry-bytes-portfolio-connector",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-portfolio-connector.source-closure.json"
+    },
+    {
+      "type": "record",
+      "address": "account:board.metrics",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "visual-database.fields",
+        "version": 1,
+        "descriptors": [
+          {
+            "id": "buying_power",
+            "label": "Buying power",
+            "role": "badge",
+            "order": 0,
+            "shape": "money",
+            "paths": [
+              [
+                "buying_power"
+              ],
+              [
+                "payload",
+                "buying_power"
+              ]
+            ],
+            "editable": false
+          },
+          {
+            "id": "unrealized_pl",
+            "label": "Unrealized P&L",
+            "role": "badge",
+            "order": 1,
+            "shape": "signed-money",
+            "paths": [
+              [
+                "unrealized_pl"
+              ],
+              [
+                "payload",
+                "unrealized_pl"
+              ]
+            ],
+            "editable": false
+          },
+          {
+            "id": "positions_count",
+            "label": "Positions",
+            "role": "badge",
+            "order": 2,
+            "shape": "integer",
+            "paths": [
+              [
+                "positions_count"
+              ],
+              [
+                "payload",
+                "positions_count"
+              ]
+            ],
+            "editable": false
+          },
+          {
+            "id": "open_orders",
+            "label": "Open orders",
+            "role": "badge",
+            "order": 3,
+            "shape": "integer",
+            "paths": [
+              [
+                "open_orders"
+              ],
+              [
+                "payload",
+                "open_orders"
+              ]
+            ],
+            "editable": false
+          }
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "account:board.fields",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "visual-database.fields",
+        "version": 1,
+        "descriptors": [
+          {
+            "id": "symbol",
+            "label": "Symbol",
+            "role": "title",
+            "order": 0,
+            "shape": "text",
+            "paths": [
+              [
+                "symbol"
+              ],
+              [
+                "payload",
+                "symbol"
+              ]
+            ],
+            "editable": false
+          },
+          {
+            "id": "qty",
+            "label": "Qty",
+            "role": "badge",
+            "order": 1,
+            "shape": "text",
+            "paths": [
+              [
+                "qty"
+              ],
+              [
+                "payload",
+                "qty"
+              ]
+            ],
+            "editable": false
+          },
+          {
+            "id": "market_value",
+            "label": "Value",
+            "role": "badge",
+            "order": 2,
+            "shape": "text",
+            "paths": [
+              [
+                "market_value"
+              ],
+              [
+                "payload",
+                "market_value"
+              ]
+            ],
+            "editable": false
+          },
+          {
+            "id": "unrealized_pl",
+            "label": "Gain/Loss",
+            "role": "badge",
+            "order": 3,
+            "shape": "text",
+            "paths": [
+              [
+                "unrealized_pl"
+              ],
+              [
+                "payload",
+                "unrealized_pl"
+              ]
+            ],
+            "editable": false
+          },
+          {
+            "id": "state",
+            "label": "State",
+            "role": "status",
+            "order": 4,
+            "shape": "choice",
+            "editable": false,
+            "paths": [
+              [
+                "state"
+              ],
+              [
+                "payload",
+                "state"
+              ],
+              [
+                "side"
+              ],
+              [
+                "payload",
+                "side"
+              ]
+            ],
+            "domain": {
+              "values": [
+                {
+                  "id": "long",
+                  "label": "Long",
+                  "tone": "success",
+                  "order": 0
+                },
+                {
+                  "id": "short",
+                  "label": "Short",
+                  "tone": "warning",
+                  "order": 1
+                },
+                {
+                  "id": "pending",
+                  "label": "Pending",
+                  "tone": "info",
+                  "order": 2,
+                  "pulse": true
+                }
+              ]
+            }
+          },
+          {
+            "id": "id",
+            "label": "Id",
+            "role": "id",
+            "order": 99,
+            "shape": "text",
+            "paths": [
+              [
+                "id"
+              ],
+              [
+                "payload",
+                "id"
+              ]
+            ],
+            "editable": false
+          }
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "account:board.views",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "visual-database.views",
+        "version": 1,
+        "views": [
+          {
+            "id": "holdings",
+            "label": "Holdings",
+            "kind": "list",
+            "order": 0,
+            "lanes": [],
+            "filters": []
+          }
+        ]
+      },
+      "remove": false
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "write_batch": [
+    {
+      "type": "record",
+      "address": "package::service-connections::connection::gmail-proof-account",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "service-connections.connection",
+        "connection_id": "conn-gmail-proof-account",
+        "service_name": "gmail",
+        "service_vendor": "google",
+        "credential_handle": "vault://google-oauth-proof-2026-07-18",
+        "status_ref": "connection-status:connected",
+        "scopes": [
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/gmail.send"
+        ],
+        "connected_at": "2026-07-18T19:00:00Z",
+        "credential_handle_refs": [],
+        "proof_refs": [],
+        "blocker_refs": [],
+        "event_refs": [],
+        "can_connect": true,
+        "can_send": true,
+        "can_retry": true,
+        "is_pending": false
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::observed-content::source-descriptor::gmail-proof-account",
+      "address_mode": "identity_text",
+      "path": ["current-item", "observed-content-source-descriptor"],
+      "payload": {
+        "kind": "observed-content.source-descriptor",
+        "source_ref": "source:gmail::proof-account",
+        "display_label": "Gmail — proof account (T2 execution)",
+        "decoder_capability_ref": "capability:decode-gmail-mailbox",
+        "decoder_descriptor": {
+          "account_address": "proof-account@example.com",
+          "connection_ref": "conn-gmail-proof-account",
+          "history_cursor": ""
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::observed-content::trigger-rule::gmail-observe-cadence",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record", "trigger-rule"],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:gmail-observe-cadence",
+        "name": "Gmail Observe Cadence",
+        "description": "On each clock::tick, dispatch action:observe-content-sources to sync Gmail threads via the gmail-mailbox-decoder",
+        "is_active": true,
+        "match_condition": {
+          "event_type": "clock::tick"
+        },
+        "dispatch_action": {
+          "action_id": "action:observe-content-sources",
+          "action_partition": "runtime-partition"
+        },
+        "is_retraction": false
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::observed-content::trigger-rule::gmail-attachment-staging",
+      "address_mode": "identity_text",
+      "path": ["current-item", "published-record", "trigger-rule"],
+      "payload": {
+        "kind": "trigger-rule",
+        "id": "trigger:gmail-attachment-staging",
+        "name": "Gmail Attachment Staging",
+        "description": "When decoder emits attachment-ref facts, stage to CAS via content-media-evidence",
+        "is_active": true,
+        "match_condition": {
+          "property_id": "prop:decoded_attachment_ref"
+        },
+        "dispatch_action": {
+          "action_id": "action:content-media-evidence.stage-media",
+          "action_partition": "runtime-partition"
+        },
+        "is_retraction": false
+      },
+      "remove": false
+    }
+  ]
+}

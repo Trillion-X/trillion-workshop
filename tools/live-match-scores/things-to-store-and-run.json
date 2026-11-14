@@ -1,0 +1,412 @@
+{
+  "package": "live-match-score",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::live-match-score::capability",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-package-capability",
+        "id": "capability:live-match-score",
+        "package": "live-match-score",
+        "label": "Live Match Score",
+        "description": "Score a tennis or pickleball match, append score events, share a spectator-safe live link, and project current matches into a live board.",
+        "owned_record_kinds": [
+          "live-match",
+          "live-score-event",
+          "live-match-context-link",
+          "live-match-board-schedule-row",
+          "live-match-board-bracket-row",
+          "live-match-board-standing-row",
+          "live-match-board-leaderboard-row"
+        ],
+        "reuses": [
+          "workflow",
+          "ui",
+          "screen-look"
+        ],
+        "does_not_own": [
+          "payment/access truth",
+          "public route enforcement",
+          "Runtime Kit app opening",
+          "tournament bracket authority",
+          "customer follow-up"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::live-match-score::placeable-surface::live-match-score",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "Timer",
+        "id": "live-match-score.panel",
+        "kind": "placeable-surface",
+        "label": "Live Score",
+        "material_target": "live-match-score",
+        "order": 645,
+        "surface_id": "live-match-score.panel",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000645:live-match-score.panel",
+        "package_entry": {
+          "package_name": "live-match-score",
+          "entry_name": "live-match-score"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::live-match-score::entry::live-match-score",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "live-match-score",
+        "entries",
+        "live-match-score"
+      ],
+      "payload": {
+        "entry_name": "live-match-score",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-live-match-score.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-live-match-score"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::live-match-score::live-match-score-owned-feed",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "record",
+                "address"
+              ],
+              "contains": "live-match-score::"
+            },
+            {
+              "path": [
+                "payload"
+              ],
+              "not_equals": "__bitfield_never__"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::live-match-score::input::published-records",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "published-records",
+        "kind": "bitfield-input-descriptor",
+        "selected_payload": {
+          "value_address_label": "package::live-match-score::live-match-score-owned-feed",
+          "value": {
+            "source_bytes": {
+              "bytes_to_value": "json"
+            }
+          }
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::live-match-score::workflow-action::start-match",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:live-match-score.start-match",
+        "kind": "action",
+        "name": "live-match-score-start-match",
+        "description": "Write a live match and its initial score event.",
+        "input_schema": {
+          "match_id": "string",
+          "event_id": "string",
+          "match_record": "object",
+          "initial_event_record": "object"
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "match_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::live-match-score::match::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "match_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "match_record"
+                    }
+                  }
+                },
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "event_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::live-match-score::event::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "event_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "initial_event_record"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::live-match-score::workflow-action::record-event",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:live-match-score.record-event",
+        "kind": "action",
+        "name": "live-match-score-record-event",
+        "description": "Append one score event to a live match.",
+        "input_schema": {
+          "event_id": "string",
+          "event_record": "object"
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "event_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::live-match-score::event::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "event_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "event_record"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::live-match-score::workflow-action::link-context",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:live-match-score.link-match-context",
+        "kind": "action",
+        "name": "live-match-score-link-match-context",
+        "description": "Write tournament, schedule, bracket, standing, or leaderboard context for a match.",
+        "input_schema": {
+          "context_id": "string",
+          "context_record": "object"
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "context_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::live-match-score::context::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "context_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "context_record"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-live-match-score",
+      "source_path": "built-stored-bytes/entry-bytes-live-match-score",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-live-match-score.source-closure.json"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "operation": "retract-boot-poison",
+  "timestamp": "2026-07-19T01:31:32.337Z",
+  "shell_url": "http://127.0.0.1:3012",
+  "partition": "bitfield-studio",
+  "records_retracted": 5,
+  "result_ok": true,
+  "verification_all_retracted": false,
+  "receipts": [
+    {
+      "address": "current-item::published-record::trigger-rule::email::split-inbox-important",
+      "address_mode": "label_hash",
+      "found": true,
+      "verification_status": "ERROR: still in log"
+    },
+    {
+      "address": "current-item::published-record::trigger-rule::email::split-inbox-pitches",
+      "address_mode": "label_hash",
+      "found": true,
+      "verification_status": "ERROR: still in log"
+    },
+    {
+      "address": "current-item::published-record::trigger-rule::email::split-inbox-receipts",
+      "address_mode": "label_hash",
+      "found": true,
+      "verification_status": "ERROR: still in log"
+    },
+    {
+      "address": "current-item::published-record::trigger-rule::email::split-inbox-newsletters",
+      "address_mode": "label_hash",
+      "found": true,
+      "verification_status": "ERROR: still in log"
+    },
+    {
+      "address": "current-item::published-record::trigger-rule::email::split-inbox-team",
+      "address_mode": "label_hash",
+      "found": true,
+      "verification_status": "ERROR: still in log"
+    }
+  ]
+}

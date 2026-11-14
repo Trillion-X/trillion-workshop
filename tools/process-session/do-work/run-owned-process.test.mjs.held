@@ -1,0 +1,220 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import {runOwnedProcess,groupCleanupError,describeOwnedProcessFailure} from './run-owned-process.mjs';
+import {spawn,ChildProcess} from 'node:child_process';
+import {once} from 'node:events';
+
+test('cleanup diagnostics distinguish EPERM probe failure from exhausted live-group wait',()=>{
+ const cause=Object.assign(new Error('sensitive command must not be copied'),{code:'EPERM',errno:-1,syscall:'kill'});
+ const unexpected=describeOwnedProcessFailure(groupCleanupError('unexpected-probe-error',42,5000,undefined,cause));
+ assert.equal(unexpected.cleanup.reason,'unexpected-probe-error');
+ assert.equal(unexpected.cleanup.probe_unix_ms,5000);
+ assert.deepEqual(unexpected.causes,[{},{code:'EPERM',errno:-1,syscall:'kill'}]);
+ assert.equal(JSON.stringify(unexpected).includes('sensitive'),false);
+ const exhausted=describeOwnedProcessFailure(groupCleanupError('exhausted-wait',42,7000,5000,undefined));
+ assert.equal(exhausted.cleanup.reason,'exhausted-wait');
+ assert.equal(exhausted.cleanup.wait_elapsed_ms,2000);
+ assert.equal(exhausted.process_stopped,false);
+});
+
+test('diagnostic serialization bounds cycles and ignores hostile getters and arbitrary fields',()=>{
+ const error=new Error('private');error.cause=error;
+ Object.defineProperty(error,'code',{get(){throw Error('getter called');}});
+ error.env={secret:'private'};error.big=1n;error.toJSON=()=>{throw Error('toJSON called');};
+ const serialized=JSON.stringify(describeOwnedProcessFailure(error));
+ assert.equal(serialized.includes('private'),false);
+ assert.equal(JSON.parse(serialized).causes.at(-1).cycle,true);
+ let chain=new Error();for(let i=0;i<8;i++)chain=new Error('private',{cause:chain});
+ const bounded=describeOwnedProcessFailure(chain);
+ assert.equal(bounded.causes.length,4);assert.equal(bounded.cause_chain_truncated,true);
+});
+
+test('EPERM is only observed until ESRCH; no signal follows supervisor close',async()=>{
+ const original=process.kill;let probes=0,signals=0;
+ process.kill=function(pid,signal){
+  if(pid<0){
+   if(signal!==0){signals++;throw Error('post-close signal');}
+   if(++probes===1)throw Object.assign(new Error(),{code:'EPERM',errno:-1,syscall:'kill'});
+  }
+  return original.call(process,pid,signal);
+ };
+ try{
+  await runOwnedProcess(process.execPath,['-e','process.stdout.write("done")']);
+  assert.ok(probes>=2);assert.equal(signals,0);
+ }finally{process.kill=original;}
+});
+
+test('persistent EPERM and possibly reused live group refuse at the existing deadline without signaling',async()=>{
+ for(const mode of ['denied','present']){
+  const original=process.kill;let probes=0,signals=0;
+  let ownership;
+  process.kill=function(pid,signal){
+   if(pid<0){
+    if(signal!==0){signals++;throw Error('must not signal reused group');}
+    probes++;
+    if(mode==='denied')throw Object.assign(new Error(),{code:'EPERM',errno:-1,syscall:'kill'});
+    return true;
+   }
+   return original.call(process,pid,signal);
+  };
+  try{
+   await assert.rejects(runOwnedProcess(process.execPath,['-e','process.exit(0)'],{onTermination:(_termination,value)=>{ownership=value;}}),error=>{
+    const d=describeOwnedProcessFailure(error);
+    assert.equal(d.cleanup.reason,'exhausted-wait');
+    assert.ok(d.cleanup.wait_elapsed_ms>=1990);
+    if(mode==='denied')assert.equal(d.causes[1].code,'EPERM');
+    return error.processStopped===false;
+   });
+   assert.ok(probes>1);assert.equal(signals,0);assert.equal(ownership.processGroupStopped,false);
+  }finally{process.kill=original;}
+ }
+});
+
+test('non-EPERM group probe failure refuses immediately with the syscall cause',async()=>{
+ const original=process.kill;
+ process.kill=function(pid,signal){
+  if(pid<0&&signal===0)throw Object.assign(new Error(),{code:'EIO',errno:-5,syscall:'kill'});
+  return original.call(process,pid,signal);
+ };
+ try{
+  await assert.rejects(runOwnedProcess(process.execPath,['-e','process.exit(0)']),error=>{
+   const d=describeOwnedProcessFailure(error);
+   assert.equal(d.cleanup.reason,'unexpected-probe-error');assert.equal(d.causes[1].code,'EIO');
+   return error.processStopped===false;
+  });
+ }finally{process.kill=original;}
+});
+
+test('worker success cannot mask supervisor self-cleanup failure',async t=>{
+ const root=fs.mkdtempSync(path.join(os.tmpdir(),'supervisor-failure-'));
+ t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
+ const preload=path.join(root,'deny-self-signal.cjs');
+ fs.writeFileSync(preload,`if(process.argv[1]?.endsWith('owned-process-lifetime.mjs')){
+  const original=process.kill;
+  process.kill=function(pid,signal){
+   if(pid===-process.pid&&signal==='SIGKILL')throw Object.assign(new Error('denied'),{code:'EPERM'});
+   return original.call(process,pid,signal);
+  };
+ }`);
+ let observed;
+ await assert.rejects(runOwnedProcess(process.execPath,['-e','process.exit(0)'],{
+  env:{...process.env,NODE_OPTIONS:'--require='+JSON.stringify(preload)},
+  onTermination:value=>{observed=value;},
+ }),error=>{
+  assert.equal(error.code,'SUPERVISOR_EXIT_FAILED');
+  assert.deepEqual(describeOwnedProcessFailure(error).owner_termination,{
+   worker_exit_code:0,supervisor_exit_code:1,supervisor_exit_signal:null,
+  });
+  return true;
+ });
+ assert.deepEqual(observed,{worker_exit_code:0,supervisor_exit_code:1,supervisor_exit_signal:null});
+});
+
+test('supervisor exit ends signaling authority while inherited pipes delay close',async t=>{
+ const root=fs.mkdtempSync(path.join(os.tmpdir(),'supervisor-exit-pipes-'));
+ t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
+ const preload=path.join(root,'deny-self-signal.cjs');
+ fs.writeFileSync(preload,`if(process.argv[1]?.endsWith('owned-process-lifetime.mjs')){
+  process.kill=()=>{throw Object.assign(new Error('denied'),{code:'EPERM'});};
+ }`);
+ for(const mode of ['abort','timeout','pending-escalation']){
+  const originalKill=process.kill,originalEmit=ChildProcess.prototype.emit;
+  const listeners=new Set(process.listeners('exit')),controller=new AbortController();
+  let exited=false,closed=false,exitAt,closeAt,preExitSignals=0,postExitSignals=0,exitHook,supervisorPid;
+  process.kill=function(pid,signal){
+   if(pid<0){
+    if(signal!==0){if(exited)postExitSignals++;else preExitSignals++;return true;}
+    // Simulated reused group remains present: completion must refuse.
+    return true;
+   }
+   return originalKill.call(process,pid,signal);
+  };
+  ChildProcess.prototype.emit=function(event,...args){
+   if(event==='spawn'&&supervisorPid===undefined)supervisorPid=this.pid;
+   const result=originalEmit.call(this,event,...args);
+   if(this.pid===supervisorPid&&event==='exit'){
+    exited=true;exitAt=Date.now();assert.equal(closed,false);
+    exitHook();
+    if(mode==='abort')controller.abort(new Error('cancel after exit'));
+   }
+   if(this.pid===supervisorPid&&event==='close'){closed=true;closeAt=Date.now();}
+   return result;
+  };
+  // The worker exits only after its descendant owns inherited stdout/stderr.
+  // That descendant exits naturally; no test cleanup signals are needed.
+  const descendant=`process.send('ready');setTimeout(()=>process.exit(0),1700)`;
+  const worker=`const c=require('node:child_process').spawn(process.execPath,['-e',${JSON.stringify(descendant)}],{stdio:['ignore','inherit','inherit','ipc']});c.once('message',()=>{process.stdout.write('ready');setTimeout(()=>process.exit(0),30);});`;
+  try{
+   const pending=runOwnedProcess(process.execPath,['-e',worker],{
+    env:{...process.env,NODE_OPTIONS:'--require='+JSON.stringify(preload)},
+    signal:controller.signal,timeoutMs:mode==='timeout'?1000:10000,graceMs:200,
+    onStdout:()=>{if(mode==='pending-escalation')controller.abort(new Error('cancel before exit'));},
+   });
+   exitHook=process.listeners('exit').find(listener=>!listeners.has(listener));
+   await assert.rejects(pending,error=>{
+    assert.equal(error.cleanupDiagnostics?.reason,'exhausted-wait');
+    assert.equal(error.ownerTermination.supervisor_exit_code,1);
+    assert.match(error.cause.message,mode==='timeout'?/time limit/:/cancel/);
+    return error.processStopped===false;
+   });
+   assert.ok(exited&&closed);assert.ok(closeAt-exitAt>1000);
+   assert.equal(preExitSignals,mode==='pending-escalation'?1:0,mode);
+   assert.equal(postExitSignals,0,mode);
+  }finally{process.kill=originalKill;ChildProcess.prototype.emit=originalEmit;}
+ }
+});
+
+test('successful cleanup reports worker result and actual supervisor signal independently',async()=>{
+ let observed,ownership,started;
+ assert.equal(await runOwnedProcess(process.execPath,['-e','process.stdout.write("ok")'],{
+  onStart:value=>{started=value;},
+  onTermination:(value,state)=>{observed=value;ownership=state;},
+ }),'ok');
+ assert.equal(started.supervisorPid>0,true);
+ assert.equal(started.groupId,process.platform==='win32'?null:started.supervisorPid);
+ assert.deepEqual(observed,{worker_exit_code:0,supervisor_exit_code:null,supervisor_exit_signal:'SIGKILL'});
+ assert.equal(ownership.processGroupStopped,true);
+ assert.equal(await runOwnedProcess(process.execPath,['-e','process.stdout.write("ok")'],{
+  onTermination:()=>{throw Error('diagnostic consumer unavailable');},
+ }),'ok');
+});
+
+test('owned commands return output and reject process errors and output overflow',async()=>{
+ assert.equal(await runOwnedProcess(process.execPath,['-e','process.stdout.write("actual output")']),'actual output');
+ await assert.rejects(runOwnedProcess(process.execPath,['-e','process.stderr.write("failed");process.exit(2)']),/failed/);
+ await assert.rejects(runOwnedProcess(process.execPath,['-e','process.stdout.write("x".repeat(10000))'],{maxBytes:100,graceMs:20}),/too much output/);
+});
+
+test('streamed output reaches the caller before exit and observer failure stops the process',async()=>{
+ const chunks=[],errors=[];const controller=new AbortController();
+ await assert.rejects(runOwnedProcess(process.execPath,['-e','process.stdout.write("ready");process.stderr.write("building");setInterval(()=>{},1000)'],{signal:controller.signal,graceMs:20,onStdout:chunk=>{chunks.push(chunk);},onStderr:chunk=>{errors.push(chunk);controller.abort(new Error('Read then stopped'));}}),/Read then stopped/);
+ assert.equal(chunks.join(''),'ready');assert.equal(errors.join(''),'building');
+ await assert.rejects(runOwnedProcess(process.execPath,['-e','process.stdout.write("ready");setInterval(()=>{},1000)'],{graceMs:20,onStdout:()=>{throw new Error('Consumer stopped');}}),/Consumer stopped/);
+});
+
+test('normal leader exit cleans remaining descendants instead of leaking a background process',async t=>{
+ const root=fs.mkdtempSync(path.join(os.tmpdir(),'owned-exit-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));const marker=path.join(root,'child');
+ const descendant=`require('node:fs').writeFileSync(${JSON.stringify(marker)},String(process.pid));process.send('ready');setInterval(()=>{},1000)`;
+ await runOwnedProcess(process.execPath,['-e',`const c=require('node:child_process').spawn(process.execPath,['-e',${JSON.stringify(descendant)}],{stdio:['ignore','ignore','ignore','ipc']});c.once('message',()=>process.exit(0));`]);
+ const pid=Number(fs.readFileSync(marker));assert.throws(()=>process.kill(pid,0),{code:'ESRCH'});
+});
+
+test('embedding parent SIGKILL closes the lifetime pipe and stops its child group',async t=>{
+ const root=fs.mkdtempSync(path.join(os.tmpdir(),'owned-parent-exit-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));const marker=path.join(root,'child');
+ const source=`require('node:fs').writeFileSync(${JSON.stringify(marker)},String(process.pid));setInterval(()=>{},1000)`;
+ const parent=spawn(process.execPath,['--input-type=module','-e',`import {runOwnedProcess} from ${JSON.stringify(new URL('./run-owned-process.mjs',import.meta.url).href)};await runOwnedProcess(process.execPath,['-e',${JSON.stringify(source)}]);`],{stdio:'ignore'});
+ t.after(()=>{try{parent.kill('SIGKILL');}catch{}});
+ let deadline=Date.now()+3000;while(!fs.existsSync(marker)&&Date.now()<deadline)await new Promise(r=>setTimeout(r,10));assert.ok(fs.existsSync(marker));const pid=Number(fs.readFileSync(marker));
+ const ended=once(parent,'exit');parent.kill('SIGKILL');await ended;
+ let gone=false;deadline=Date.now()+3000;while(Date.now()<deadline){try{process.kill(pid,0);}catch(error){if(error.code==='ESRCH'){gone=true;break;}}await new Promise(r=>setTimeout(r,10));}assert.equal(gone,true);
+});
+test('cancellation stops an ignoring descendant before reporting completion',async t=>{
+ const root=fs.mkdtempSync(path.join(os.tmpdir(),'owned-process-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));const marker=path.join(root,'child');const controller=new AbortController();
+ const source=`const {spawn}=require('node:child_process');spawn(process.execPath,['-e',${JSON.stringify(`process.on('SIGTERM',()=>{});require('node:fs').writeFileSync(${JSON.stringify(marker)},String(process.pid));setInterval(()=>{},1000)`)}],{stdio:'inherit'});setInterval(()=>{},1000)`;
+ const pending=runOwnedProcess(process.execPath,['-e',source],{signal:controller.signal,graceMs:30});
+ const deadline=Date.now()+3000;while(!fs.existsSync(marker)&&Date.now()<deadline)await new Promise(r=>setTimeout(r,10));assert.ok(fs.existsSync(marker));const pid=Number(fs.readFileSync(marker));controller.abort(new Error('Stopped by caller'));
+ await assert.rejects(pending,/Stopped by caller/);assert.throws(()=>process.kill(pid,0),{code:'ESRCH'});
+});

@@ -1,0 +1,1 @@
+const fs=require("fs");fs.writeFileSync(process.argv[2],process.argv.slice(3).map(f=>fs.readFileSync(f)).join(""))

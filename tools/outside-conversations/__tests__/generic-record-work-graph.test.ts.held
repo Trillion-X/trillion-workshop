@@ -1,0 +1,106 @@
+import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
+
+import { buildGenericRecordWorkActionRequest } from '../do-work/generic-record-work-actions.ts';
+import { buildOutsideConversationTransitionRequest } from '../do-work/request-outside-conversation-transition.ts';
+import { readGenericRecordWorkGraph } from '../read-data/generic-record-work-graph.ts';
+
+function graphWithRecords(records: Array<Record<string, unknown>>) {
+  return {
+    kind: 'generic-record-work-graph',
+    id: 'fixture.graph',
+    label: 'Fixture graph',
+    descriptors: [
+      { kind: 'record_type', id: 'request', label: 'Request' },
+      { kind: 'record_type', id: 'event', label: 'Event' },
+      { kind: 'field_descriptor', id: 'summary', label: 'Summary', paths: [{ path: ['summary'] }] },
+      { kind: 'field_descriptor', id: 'state-token', label: 'State token', paths: [{ path: ['presentation', 'token'] }] },
+      { kind: 'relationship_descriptor', id: 'proof-link', label: 'Proof link', from_path: ['id'], to_path: ['relationships'] },
+      { kind: 'rule_descriptor', id: 'presentation-state', label: 'Presentation state', method: 'descriptor.presentation' },
+      { kind: 'projection_descriptor', id: 'workbench', label: 'Workbench', method: 'records.by_type_then_time' },
+      { kind: 'proof_descriptor', id: 'proof-required', label: 'Proof required', method: 'relationship.exists' },
+      { kind: 'handoff_descriptor', id: 'owner-handoff', label: 'Owner handoff', method: 'relationships.by_role' },
+      {
+        kind: 'action_descriptor',
+        id: 'save-request',
+        label: 'Save request',
+        target: 'slot::workflow',
+        operation: 'execute_definition',
+        workflow_definition_ref: 'action:fixture.save-request',
+      },
+    ],
+    records,
+  };
+}
+
+describe('generic record work graph', () => {
+  it('materializes outside-conversations-shaped data through descriptors', () => {
+    const projection = readGenericRecordWorkGraph(graphWithRecords([
+      {
+        id: 'outside-request:1',
+        record_type_id: 'request',
+        summary: 'Ask a company for confirmation and proof.',
+        presentation: {
+          token: 'waiting-on-proof',
+          sentence: 'Proof is required before routing the result.',
+        },
+        relationships: [{ id: 'proof-link', to: 'proof:1', role: 'proof' }],
+      },
+    ]));
+
+    expect(projection.records).toHaveLength(1);
+    expect(projection.records[0].fields.summary).toBe('Ask a company for confirmation and proof.');
+    expect(projection.records[0].fields['state-token']).toBe('waiting-on-proof');
+    expect(projection.proof.recordCountsByTypeId.request).toBe(1);
+    expect(projection.actions[0].target).toBe('slot::workflow');
+  });
+
+  it('materializes adversarial lead campaign event labels as data only', () => {
+    const projection = readGenericRecordWorkGraph(graphWithRecords([
+      {
+        id: 'lead:1',
+        record_type_id: 'request',
+        summary: 'Lead lost after campaign event follow-up.',
+        presentation: { token: 'lost', sentence: 'Campaign event follow-up is closed.' },
+      },
+      {
+        id: 'campaign-event:1',
+        record_type_id: 'event',
+        summary: 'Campaign event happened.',
+        relationships: [{ id: 'proof-link', to: 'lead:1', role: 'source' }],
+      },
+    ]));
+
+    expect(projection.recordsByTypeId.request[0].fields.summary).toContain('Lead lost');
+    expect(projection.recordsByTypeId.event[0].label).toBe('Campaign event happened.');
+    expect(projection.proof.recordCountsByTypeId).toEqual({ request: 1, event: 1 });
+  });
+
+  it('builds workflow requests from open action descriptors', () => {
+    const projection = readGenericRecordWorkGraph(graphWithRecords([]));
+    const request = buildGenericRecordWorkActionRequest({
+      action: projection.actions[0],
+      values: { summary: 'Save this request' },
+      projectionRevision: projection.graph.revision,
+    });
+
+    expect(request.target).toBe('slot::workflow');
+    expect(request.payload.operation).toBe('execute_definition');
+    expect(request.payload.definition_id).toBe('action:fixture.save-request');
+    expect(request.payload.input.summary).toBe('Save this request');
+  });
+
+  it('binds an execution handoff to one durable effect, correlation, and exact authorization', () => {
+    const action = readGenericRecordWorkGraph(graphWithRecords([])).actions[0];
+    const request = buildOutsideConversationTransitionRequest({
+      action,
+      correlationRef: 'conversation:one',
+      effectRef: 'effect:call:one',
+      authorizationRef: 'grant:exact-call',
+    });
+    expect(request.payload.input).toMatchObject({
+      correlation_ref: 'conversation:one',
+      effect_ref: 'effect:call:one',
+      authorization_ref: 'grant:exact-call',
+    });
+  });
+});

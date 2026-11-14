@@ -1,0 +1,506 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages: each names its source path and commit, the identity of its source bytes and of its bytes here. The first commit that holds them is the byte copy; later commits change import paths.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "home-path-made-generic",
+      "find": "[/]Users[/]brianakhtar",
+      "replace": "/Users/example",
+      "means": "A path to one person's home folder; a public tree holds made-up paths only."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/make-packages-match-their-source/do-work/append-text-file.py",
+      "commit": "a94ecca21a9f63bd7b39cc774fd00c83e371ea54",
+      "to": "tools/make-packages-match-their-source/do-work/append-text-file.py",
+      "source_identity": "1f:5ffe3d44749fe2f3c226bdd65275572747d51acae998dde0c804e7151ab589cc",
+      "identity": "1f:5ffe3d44749fe2f3c226bdd65275572747d51acae998dde0c804e7151ab589cc"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/apply-declared-manifest-record-edits.mjs",
+      "commit": "e82872f3659115517b369e6e1bd6e6925ad9a975",
+      "to": "tools/make-packages-match-their-source/do-work/apply-declared-manifest-record-edits.mjs",
+      "source_identity": "1f:24cb8b7217124bb5aec0066aa8252b9adaee9739aa397fdebeabfeee4adf3554",
+      "identity": "1f:24cb8b7217124bb5aec0066aa8252b9adaee9739aa397fdebeabfeee4adf3554"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/build-browser-island-bytes.mjs",
+      "commit": "5a78bcd1636b48887a9e685cb6a5ff05e60013f9",
+      "to": "tools/make-packages-match-their-source/do-work/build-browser-island-bytes.mjs",
+      "source_identity": "1f:ddbbbaa5e8dbf06686e614374893dc2b3c958dd24003b8848a2ecbaa91f1e375",
+      "identity": "1f:ddbbbaa5e8dbf06686e614374893dc2b3c958dd24003b8848a2ecbaa91f1e375"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/build-declared-source-built-slots-for-chosen-packages.mjs",
+      "commit": "a910f9fa3d491166ecaa12cf160cd0102f8d5d63",
+      "to": "tools/make-packages-match-their-source/do-work/build-declared-source-built-slots-for-chosen-packages.mjs",
+      "source_identity": "1f:6934373fb7dc09d6dcf3314f0ea5432e138e849fc24438bd8fea66c791a6bd91",
+      "identity": "1f:6934373fb7dc09d6dcf3314f0ea5432e138e849fc24438bd8fea66c791a6bd91"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/build-declared-stored-bytes-for-chosen-packages.mjs",
+      "commit": "5b23de4fcdd5060d3eab673e4ea29e6baf2e5fb4",
+      "to": "tools/make-packages-match-their-source/do-work/build-declared-stored-bytes-for-chosen-packages.mjs",
+      "source_identity": "1f:1183a548eb8804934b76de504396f1738db1837c5d63b31356fa480711307a31",
+      "identity": "1f:1183a548eb8804934b76de504396f1738db1837c5d63b31356fa480711307a31"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/build-entry-bytes-for-chosen-packages.mjs",
+      "commit": "685ecb615831ad95a4d1f045009848005721d4b4",
+      "to": "tools/make-packages-match-their-source/do-work/build-entry-bytes-for-chosen-packages.mjs",
+      "source_identity": "1f:83dad78062b7f89011de9b2618eae4858adde755fc80ccf44bf4f8ebe51c65d3",
+      "identity": "1f:83dad78062b7f89011de9b2618eae4858adde755fc80ccf44bf4f8ebe51c65d3"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/build-node-process-bytes.mjs",
+      "commit": "0d494880ca820b942b87d129d071c58b8ee5369e",
+      "to": "tools/make-packages-match-their-source/do-work/build-node-process-bytes.mjs",
+      "source_identity": "1f:506887183a704077ca89f38062979cf10baa8c4a85b36dedc9ff3a0b367d41d3",
+      "identity": "1f:506887183a704077ca89f38062979cf10baa8c4a85b36dedc9ff3a0b367d41d3"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/build-package-entry-byte.mjs",
+      "commit": "209f79eedda4a470b379ee30f21aa9e973475389",
+      "to": "tools/make-packages-match-their-source/do-work/build-package-entry-byte.mjs",
+      "source_identity": "1f:1397177a92f87503f9163b579665a794098b9f5b28403f6802f114f8016ac42c",
+      "identity": "1f:1397177a92f87503f9163b579665a794098b9f5b28403f6802f114f8016ac42c"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/bundle-one-source-entry.mjs",
+      "commit": "209f79eedda4a470b379ee30f21aa9e973475389",
+      "to": "tools/make-packages-match-their-source/do-work/bundle-one-source-entry.mjs",
+      "source_identity": "1f:9b0ce641ca911ccec04bde63f2887ca67c756a28e64113e85797a746b34ad707",
+      "identity": "1f:9b0ce641ca911ccec04bde63f2887ca67c756a28e64113e85797a746b34ad707"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/concat-files.cjs",
+      "commit": "a94ecca21a9f63bd7b39cc774fd00c83e371ea54",
+      "to": "tools/make-packages-match-their-source/do-work/concat-files.cjs",
+      "source_identity": "1f:2bb2b9e70fcfea088556ec22e4db1bff7fb6bec24575349674cee90370b5a1fa",
+      "identity": "1f:2bb2b9e70fcfea088556ec22e4db1bff7fb6bec24575349674cee90370b5a1fa"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/copy-declared-source.mjs",
+      "commit": "c20d44dc151f236e658016877d6673cbd8b1bed8",
+      "to": "tools/make-packages-match-their-source/do-work/copy-declared-source.mjs",
+      "source_identity": "1f:0b691aa1d6f8b58702e72602561359a8952269c7a5711a61207e80016811286e",
+      "identity": "1f:0b691aa1d6f8b58702e72602561359a8952269c7a5711a61207e80016811286e"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/copy-source-file-bytes.mjs",
+      "commit": "209f79eedda4a470b379ee30f21aa9e973475389",
+      "to": "tools/make-packages-match-their-source/do-work/copy-source-file-bytes.mjs",
+      "source_identity": "1f:1f784d57ac3a405f20d1e5a2c56ab4000cb628e569e5d3457c61862d36e400bf",
+      "identity": "1f:1f784d57ac3a405f20d1e5a2c56ab4000cb628e569e5d3457c61862d36e400bf"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/edits-from-a-things-fragment.mjs",
+      "commit": "463a70da65fd8172c2fcc72fc7567d12e05e0f1a",
+      "to": "tools/make-packages-match-their-source/do-work/edits-from-a-things-fragment.mjs",
+      "source_identity": "1f:6761a2016446714f795a1046f26141e3a000e889aeb884f390140bf413aa3561",
+      "identity": "1f:6761a2016446714f795a1046f26141e3a000e889aeb884f390140bf413aa3561"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/find-text-in-file.py",
+      "commit": "a94ecca21a9f63bd7b39cc774fd00c83e371ea54",
+      "to": "tools/make-packages-match-their-source/do-work/find-text-in-file.py",
+      "source_identity": "1f:792df1eabe88049a3a8b3724dcf60762ddad1cc022953e1b49bee89a8f019aaa",
+      "identity": "1f:792df1eabe88049a3a8b3724dcf60762ddad1cc022953e1b49bee89a8f019aaa"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/join-declared-sources.mjs",
+      "commit": "c20d44dc151f236e658016877d6673cbd8b1bed8",
+      "to": "tools/make-packages-match-their-source/do-work/join-declared-sources.mjs",
+      "source_identity": "1f:3ce4358e237e356d94c0f62d274b15559dc0147a90e664290c95c9ad6a6d1b55",
+      "identity": "1f:3ce4358e237e356d94c0f62d274b15559dc0147a90e664290c95c9ad6a6d1b55"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/list-workflow-actions.py",
+      "commit": "a94ecca21a9f63bd7b39cc774fd00c83e371ea54",
+      "to": "tools/make-packages-match-their-source/do-work/list-workflow-actions.py",
+      "source_identity": "1f:3c5e2de907bea123fe830bb2f84efc1200a5f21f66660e0b75d504f9e5845054",
+      "identity": "1f:3c5e2de907bea123fe830bb2f84efc1200a5f21f66660e0b75d504f9e5845054"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/make-one-package-match-its-source.mjs",
+      "commit": "107b363c2efe27c967b3ba8047b2a1e819fb902a",
+      "to": "tools/make-packages-match-their-source/do-work/make-one-package-match-its-source.mjs",
+      "source_identity": "1f:02c47522bb3e5c0a433fb4cb31a5ad0498d2f0b47e394c4a4c1d812a0913fb3c",
+      "identity": "1f:02c47522bb3e5c0a433fb4cb31a5ad0498d2f0b47e394c4a4c1d812a0913fb3c"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/materialize-package-entry-bytes-lib.mjs",
+      "commit": "0f1ab4257baf5118403ae4f939fba6d63cf72bff",
+      "to": "tools/make-packages-match-their-source/do-work/materialize-package-entry-bytes-lib.mjs",
+      "source_identity": "1f:67aa66a8bb2196ded336b8692bae8384e324d96b494845b8f4a0b034866d8e58",
+      "identity": "1f:67aa66a8bb2196ded336b8692bae8384e324d96b494845b8f4a0b034866d8e58"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/materialize-package-entry-bytes.mjs",
+      "commit": "209f79eedda4a470b379ee30f21aa9e973475389",
+      "to": "tools/make-packages-match-their-source/do-work/materialize-package-entry-bytes.mjs",
+      "source_identity": "1f:72aad90a37032fe0ca548181de5a911173547b9629ac976f4963de466f30aeab",
+      "identity": "1f:72aad90a37032fe0ca548181de5a911173547b9629ac976f4963de466f30aeab"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/materialize-package-stored-bytes-builds.mjs",
+      "commit": "5b23de4fcdd5060d3eab673e4ea29e6baf2e5fb4",
+      "to": "tools/make-packages-match-their-source/do-work/materialize-package-stored-bytes-builds.mjs",
+      "source_identity": "1f:83cfbb2ef3b887e18ee1e3d841ef1003e037f95a12b9fce762db22479ed20441",
+      "identity": "1f:83cfbb2ef3b887e18ee1e3d841ef1003e037f95a12b9fce762db22479ed20441"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/package-entry-at-alias.mjs",
+      "commit": "014b6c563c85ef06432826c20fc2e7bad435989c",
+      "to": "tools/make-packages-match-their-source/do-work/package-entry-at-alias.mjs",
+      "source_identity": "1f:194269dccd22022306b853307403824d7a413f6095b6f1814ba318590f0aecb7",
+      "identity": "1f:194269dccd22022306b853307403824d7a413f6095b6f1814ba318590f0aecb7"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/package-entry-byte-build-lib.mjs",
+      "commit": "014b6c563c85ef06432826c20fc2e7bad435989c",
+      "to": "tools/make-packages-match-their-source/do-work/package-entry-byte-build-lib.mjs",
+      "source_identity": "1f:062a8c827dfff4a0b824200beec29bedb6108828a16c06d2772fefe827cf11c6",
+      "identity": "1f:062a8c827dfff4a0b824200beec29bedb6108828a16c06d2772fefe827cf11c6"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/package-entry-no-reply-lowering.mjs",
+      "commit": "8c73ad5971e94c0a82f6d7c0ee9366ef681d80f4",
+      "to": "tools/make-packages-match-their-source/do-work/package-entry-no-reply-lowering.mjs",
+      "source_identity": "1f:711c4663a92448358f5be2abce27ba42fb89a6124bcf5ca73a2ef0bdd95baf28",
+      "identity": "1f:711c4663a92448358f5be2abce27ba42fb89a6124bcf5ca73a2ef0bdd95baf28"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/package-entry-reach-past-the-engine.mjs",
+      "commit": "209f79eedda4a470b379ee30f21aa9e973475389",
+      "to": "tools/make-packages-match-their-source/do-work/package-entry-reach-past-the-engine.mjs",
+      "source_identity": "1f:07dfb1619c5d9594d145073bdbc96e969bf69fd455cd3af99664e74205a1c565",
+      "identity": "1f:07dfb1619c5d9594d145073bdbc96e969bf69fd455cd3af99664e74205a1c565"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/package-loader.mjs",
+      "commit": "b3dfd10802af58a45e0d608a13757590b743f35a",
+      "to": "tools/make-packages-match-their-source/do-work/package-loader.mjs",
+      "source_identity": "1f:49fe5734243654111775b9738de392356f8c032e303cf1622f6bf4f2203931a1",
+      "identity": "1f:49fe5734243654111775b9738de392356f8c032e303cf1622f6bf4f2203931a1"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/read-text-file.py",
+      "commit": "a94ecca21a9f63bd7b39cc774fd00c83e371ea54",
+      "to": "tools/make-packages-match-their-source/do-work/read-text-file.py",
+      "source_identity": "1f:6a15f14ea09c10e57c99d00daece00d268e7287acbddd330152038dcbf7866cf",
+      "identity": "1f:6a15f14ea09c10e57c99d00daece00d268e7287acbddd330152038dcbf7866cf"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/replace-all-text.py",
+      "commit": "a94ecca21a9f63bd7b39cc774fd00c83e371ea54",
+      "to": "tools/make-packages-match-their-source/do-work/replace-all-text.py",
+      "source_identity": "1f:e757e071bb220ac59d322fff2609b8a564e5fd0cb8d7eacb1f00ffbdcac368b9",
+      "identity": "1f:e757e071bb220ac59d322fff2609b8a564e5fd0cb8d7eacb1f00ffbdcac368b9"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/report-declared-paths-that-do-not-resolve.mjs",
+      "commit": "a84db4d99aabf3ee6dd293d53945eb93806c096b",
+      "to": "tools/make-packages-match-their-source/do-work/report-declared-paths-that-do-not-resolve.mjs",
+      "source_identity": "1f:5d19ad18eb940f027befb7a06dd35d4f1aa1410e8c6c32701a8b5ac4dd5129d7",
+      "identity": "1f:5d19ad18eb940f027befb7a06dd35d4f1aa1410e8c6c32701a8b5ac4dd5129d7"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/run-hosted-package-from-canonical-checkout.mjs",
+      "commit": "1431c405e61698f1c2073ac6f8a630dd13efdaee",
+      "to": "tools/make-packages-match-their-source/do-work/run-hosted-package-from-canonical-checkout.mjs",
+      "source_identity": "1f:ebedea3e64bf82215f0035e640576fd48e20f3c2c58a0ff3f119ff00628d8033",
+      "identity": "1f:ebedea3e64bf82215f0035e640576fd48e20f3c2c58a0ff3f119ff00628d8033"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/run-make-packages-match-their-source.mjs",
+      "commit": "107b363c2efe27c967b3ba8047b2a1e819fb902a",
+      "to": "tools/make-packages-match-their-source/do-work/run-make-packages-match-their-source.mjs",
+      "source_identity": "1f:6459bc8a687dc315774d3c5aefd02a9a030401c715099b3414d5171fe5f733ba",
+      "identity": "1f:6459bc8a687dc315774d3c5aefd02a9a030401c715099b3414d5171fe5f733ba"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/run-report-declared-paths-that-do-not-resolve.mjs",
+      "commit": "a84db4d99aabf3ee6dd293d53945eb93806c096b",
+      "to": "tools/make-packages-match-their-source/do-work/run-report-declared-paths-that-do-not-resolve.mjs",
+      "source_identity": "1f:9f4b6ca13f7c522f38a710620127761e4bb80aa5a45111e6ba6699a8376d61c8",
+      "identity": "1f:9f4b6ca13f7c522f38a710620127761e4bb80aa5a45111e6ba6699a8376d61c8"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/verify-product-correction-completion.mjs",
+      "commit": "4209dca7062e0d9e6a0e20363c7ac37e63711f76",
+      "to": "tools/make-packages-match-their-source/do-work/verify-product-correction-completion.mjs",
+      "source_identity": "1f:f1085f7bb0ef38341f10a8f202b4f9fe26d33f6a78c1207461878c6becbc6f2c",
+      "identity": "1f:f1085f7bb0ef38341f10a8f202b4f9fe26d33f6a78c1207461878c6becbc6f2c"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/write-built-bytes-at-their-live-address.mjs",
+      "commit": "0fa8e9c09b89fe13092ec8abacc29a19194cda59",
+      "to": "tools/make-packages-match-their-source/do-work/write-built-bytes-at-their-live-address.mjs",
+      "source_identity": "1f:bbaeac3857efd0f50eaf367155bcf3185695c2615aac51be57ec71b9395d1075",
+      "identity": "1f:bbaeac3857efd0f50eaf367155bcf3185695c2615aac51be57ec71b9395d1075"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/write-built-entry-bytes-into-a-running-app.mjs",
+      "commit": "2e7ecf4e2acc96727413c49bc45321221d5de61a",
+      "to": "tools/make-packages-match-their-source/do-work/write-built-entry-bytes-into-a-running-app.mjs",
+      "source_identity": "1f:7545f6e626449ed42d9faf53c9ade9bcbf81a39bd245cb19eae4cb99eff1d6f8",
+      "identity": "1f:7545f6e626449ed42d9faf53c9ade9bcbf81a39bd245cb19eae4cb99eff1d6f8"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/write-package-entry-scopes.mjs",
+      "commit": "51194a1aae753a2c4e98d2a603f1aa13fbca9e4f",
+      "to": "tools/make-packages-match-their-source/do-work/write-package-entry-scopes.mjs",
+      "source_identity": "1f:6ec5afd481f66ef8ec90da54787d5d53a9c9dc4fa2cf0a191eb49b59fdfb2ee4",
+      "identity": "1f:6ec5afd481f66ef8ec90da54787d5d53a9c9dc4fa2cf0a191eb49b59fdfb2ee4"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/do-work/write-package-set-records-into-a-running-app.mjs",
+      "commit": "a0033d8a3af5955087f7c75576791e2a30037752",
+      "to": "tools/make-packages-match-their-source/do-work/write-package-set-records-into-a-running-app.mjs",
+      "source_identity": "1f:68dbb2ab092631df47d97100016198ee231e47cace92de3b02c24b3b762946a6",
+      "identity": "1f:68dbb2ab092631df47d97100016198ee231e47cace92de3b02c24b3b762946a6"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/package.json",
+      "commit": "9e89e54a496b14d43e5eb04a7f39b41029576a9d",
+      "to": "tools/make-packages-match-their-source/package.json",
+      "source_identity": "1f:03b2de62c0502294398fa0e57b7a6597423c20040303def6e74dfd075e9f341a",
+      "identity": "1f:03b2de62c0502294398fa0e57b7a6597423c20040303def6e74dfd075e9f341a"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/a-built-blob-reports-what-it-consumed.test.mjs",
+      "commit": "209f79eedda4a470b379ee30f21aa9e973475389",
+      "to": "tools/make-packages-match-their-source/tests/a-built-blob-reports-what-it-consumed.test.mjs.held",
+      "calls": [
+        "home-path-made-generic"
+      ],
+      "source_identity": "1f:cd102ebcff4084c50d29fb110b3e5f571900479a0ed4c85cc2236a6ad8d2e5b4",
+      "identity": "1f:76e3381b66cee8ff5a1c2cce488825eb72308f70a9817c72cc550d91f3f76e8b"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/a-copied-blob-reports-what-it-consumed.test.mjs",
+      "commit": "209f79eedda4a470b379ee30f21aa9e973475389",
+      "to": "tools/make-packages-match-their-source/tests/a-copied-blob-reports-what-it-consumed.test.mjs.held",
+      "calls": [
+        "home-path-made-generic"
+      ],
+      "source_identity": "1f:d9aee7362ce66bb01e86aaca39d0a1019194565869671b3fed536b1dc03e6bd2",
+      "identity": "1f:ad96ecad8e9b642078b73f26a42f51e291246974e9c538f9e6dbd3eadb20374b"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/a-held-address-names-its-holder.test.mjs",
+      "commit": "e1b9fa57ed1ccf31f2a816ed5e76c41770aece94",
+      "to": "tools/make-packages-match-their-source/tests/a-held-address-names-its-holder.test.mjs.held",
+      "source_identity": "1f:eb435710b4adf749dde2b6a9fccc32ae4525de03385b2aed10adfaf12e4a43cb",
+      "identity": "1f:eb435710b4adf749dde2b6a9fccc32ae4525de03385b2aed10adfaf12e4a43cb"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/a-loader-child-receives-the-build-policy-it-reads.test.mjs",
+      "commit": "a910f9fa3d491166ecaa12cf160cd0102f8d5d63",
+      "to": "tools/make-packages-match-their-source/tests/a-loader-child-receives-the-build-policy-it-reads.test.mjs.held",
+      "source_identity": "1f:043f10fdec1c9e0c2c36227bdd1535c0f41f8523c0c1d4d54630b56f9e16e0a8",
+      "identity": "1f:043f10fdec1c9e0c2c36227bdd1535c0f41f8523c0c1d4d54630b56f9e16e0a8"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/a-package-cannot-reach-past-the-engine-undeclared.test.mjs",
+      "commit": "209f79eedda4a470b379ee30f21aa9e973475389",
+      "to": "tools/make-packages-match-their-source/tests/a-package-cannot-reach-past-the-engine-undeclared.test.mjs",
+      "source_identity": "1f:06aeba9f02aadc6053530211d7fcb59676a645319db74681fb30d45e493df859",
+      "identity": "1f:06aeba9f02aadc6053530211d7fcb59676a645319db74681fb30d45e493df859"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/a-producer-declaration-survives-its-own-use.test.mjs",
+      "commit": "209f79eedda4a470b379ee30f21aa9e973475389",
+      "to": "tools/make-packages-match-their-source/tests/a-producer-declaration-survives-its-own-use.test.mjs.held",
+      "source_identity": "1f:271483a8200cf7e097c82c1e66548194ce9f5b2a4cf233766128d3e72cfb18fd",
+      "identity": "1f:271483a8200cf7e097c82c1e66548194ce9f5b2a4cf233766128d3e72cfb18fd"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/a-source-built-slot-owner-prunes-legacy-fallback.test.mjs",
+      "commit": "101fcc284d560425289235d4dfe65f052058f787",
+      "to": "tools/make-packages-match-their-source/tests/a-source-built-slot-owner-prunes-legacy-fallback.test.mjs.held",
+      "source_identity": "1f:d80b2d8b9ba55230dd3781f2290a8b81ac4a0dfbb8a48a6e96b15fe0ef1649da",
+      "identity": "1f:d80b2d8b9ba55230dd3781f2290a8b81ac4a0dfbb8a48a6e96b15fe0ef1649da"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/a-things-fragment-becomes-edits-without-retyping.test.mjs",
+      "commit": "463a70da65fd8172c2fcc72fc7567d12e05e0f1a",
+      "to": "tools/make-packages-match-their-source/tests/a-things-fragment-becomes-edits-without-retyping.test.mjs",
+      "source_identity": "1f:1fba815322865774f19a49719c9f06ef030cbe53952d675137cd06730efa5d1c",
+      "identity": "1f:1fba815322865774f19a49719c9f06ef030cbe53952d675137cd06730efa5d1c"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/an-edit-may-select-a-row-by-any-field.test.mjs",
+      "commit": "e82872f3659115517b369e6e1bd6e6925ad9a975",
+      "to": "tools/make-packages-match-their-source/tests/an-edit-may-select-a-row-by-any-field.test.mjs",
+      "source_identity": "1f:fde84c5c21c193bd940364eafcb6d051979f361416e65efe5094fd69b053bdcd",
+      "identity": "1f:fde84c5c21c193bd940364eafcb6d051979f361416e65efe5094fd69b053bdcd"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/build-node-process-bytes.test.mjs",
+      "commit": "3574d3f99b21763f6790ccca211c0f7df4d7ff51",
+      "to": "tools/make-packages-match-their-source/tests/build-node-process-bytes.test.mjs.held",
+      "source_identity": "1f:b0dfc64830813638afe49537fd3fb7c6a04f2b54fcdd8b1c18f3f2286bea101d",
+      "identity": "1f:b0dfc64830813638afe49537fd3fb7c6a04f2b54fcdd8b1c18f3f2286bea101d"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/bundle-one-source-entry.test.mjs",
+      "commit": "ea9e9269c5a989dca6ff5a9057c53565c3bd1f63",
+      "to": "tools/make-packages-match-their-source/tests/bundle-one-source-entry.test.mjs",
+      "source_identity": "1f:14b2d9ad54c68313b86fb27297892cd47249a850cb4b9cd0dde716bdc628e24c",
+      "identity": "1f:14b2d9ad54c68313b86fb27297892cd47249a850cb4b9cd0dde716bdc628e24c"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/copy-declared-source.test.mjs",
+      "commit": "c20d44dc151f236e658016877d6673cbd8b1bed8",
+      "to": "tools/make-packages-match-their-source/tests/copy-declared-source.test.mjs",
+      "source_identity": "1f:3052e1ec2bf0f20ac7cc8e06c0cf4e1122762b724f76395f652730cf8cbf1b3b",
+      "identity": "1f:3052e1ec2bf0f20ac7cc8e06c0cf4e1122762b724f76395f652730cf8cbf1b3b"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/fire-and-forget-writes-carry-the-runtime-they-call.test.mjs",
+      "commit": "8c73ad5971e94c0a82f6d7c0ee9366ef681d80f4",
+      "to": "tools/make-packages-match-their-source/tests/fire-and-forget-writes-carry-the-runtime-they-call.test.mjs",
+      "source_identity": "1f:2275b382c33d410b2c4eae5bdc93060670369429cc5269c810564c7f205934be",
+      "identity": "1f:2275b382c33d410b2c4eae5bdc93060670369429cc5269c810564c7f205934be"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/installed-app-workflow-actions.test.mjs",
+      "commit": "783e299842a8d8d4cd8c27b6004b623ed77dbc18",
+      "to": "tools/make-packages-match-their-source/tests/installed-app-workflow-actions.test.mjs.held",
+      "source_identity": "1f:82e14c4e80ec5379f2c6c0315ca336458be561cc8679c2c17878b2c7cc02eca4",
+      "identity": "1f:82e14c4e80ec5379f2c6c0315ca336458be561cc8679c2c17878b2c7cc02eca4"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/join-declared-sources.test.mjs",
+      "commit": "c20d44dc151f236e658016877d6673cbd8b1bed8",
+      "to": "tools/make-packages-match-their-source/tests/join-declared-sources.test.mjs",
+      "source_identity": "1f:05545f92b3b079053006ae2e74098e73d412112c2a5ed7d8f4bfe09f8b917df6",
+      "identity": "1f:05545f92b3b079053006ae2e74098e73d412112c2a5ed7d8f4bfe09f8b917df6"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/make-one-package-match-its-source.test.mjs",
+      "commit": "107b363c2efe27c967b3ba8047b2a1e819fb902a",
+      "to": "tools/make-packages-match-their-source/tests/make-one-package-match-its-source.test.mjs.held",
+      "calls": [
+        "home-path-made-generic"
+      ],
+      "source_identity": "1f:f33b780a9635eebccb3971ac3dda3989b98307b54cc3d68b84b2efb5be3489d6",
+      "identity": "1f:6405d0b13fbe50eec4856793c2df2d00d21c0a1d11a9b49b967be965cc6155c1"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/materialize-package-entry-bytes.test.mjs",
+      "commit": "209f79eedda4a470b379ee30f21aa9e973475389",
+      "to": "tools/make-packages-match-their-source/tests/materialize-package-entry-bytes.test.mjs.held",
+      "source_identity": "1f:2c1cc0743d4d4f300d9ae28a4e8e9803788a4bb2f90899c640e02e92069c615b",
+      "identity": "1f:2c1cc0743d4d4f300d9ae28a4e8e9803788a4bb2f90899c640e02e92069c615b"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/materialize-package-stored-bytes-builds.test.mjs",
+      "commit": "209f79eedda4a470b379ee30f21aa9e973475389",
+      "to": "tools/make-packages-match-their-source/tests/materialize-package-stored-bytes-builds.test.mjs",
+      "source_identity": "1f:9909f419edcab4e192c923d3de149aa277ada2d6fde7596f2489551357cdefcf",
+      "identity": "1f:9909f419edcab4e192c923d3de149aa277ada2d6fde7596f2489551357cdefcf"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/package-entry-at-alias.test.mjs",
+      "commit": "014b6c563c85ef06432826c20fc2e7bad435989c",
+      "to": "tools/make-packages-match-their-source/tests/package-entry-at-alias.test.mjs",
+      "source_identity": "1f:e3927efc880d7948002058bc9dd7a99c2d7f12effa243433b1598de853bf3cf3",
+      "identity": "1f:e3927efc880d7948002058bc9dd7a99c2d7f12effa243433b1598de853bf3cf3"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/package-entry-byte-build-lib.test.mjs",
+      "commit": "51194a1aae753a2c4e98d2a603f1aa13fbca9e4f",
+      "to": "tools/make-packages-match-their-source/tests/package-entry-byte-build-lib.test.mjs.held",
+      "source_identity": "1f:c32549bb7f297ad8d13920155018ba7a0f4c97b08e4d769eb2aac0c5d38e3789",
+      "identity": "1f:c32549bb7f297ad8d13920155018ba7a0f4c97b08e4d769eb2aac0c5d38e3789"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/package-set-records-needs-no-entry-build.test.mjs",
+      "commit": "5f0a55d1aaabd32160e4d93c569154e07adf3575",
+      "to": "tools/make-packages-match-their-source/tests/package-set-records-needs-no-entry-build.test.mjs.held",
+      "source_identity": "1f:75fc289ad488460cbf97ae3614104db6f698692bd3e06dd3d2b18f3fd7e6cb81",
+      "identity": "1f:75fc289ad488460cbf97ae3614104db6f698692bd3e06dd3d2b18f3fd7e6cb81"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/recorded-build-inputs-are-still-current.test.mjs",
+      "commit": "209f79eedda4a470b379ee30f21aa9e973475389",
+      "to": "tools/make-packages-match-their-source/tests/recorded-build-inputs-are-still-current.test.mjs.held",
+      "source_identity": "1f:c5fd6c70bf0ae1edba666fc59fdc7b320a42db3e099c412f014eedf3a169de55",
+      "identity": "1f:c5fd6c70bf0ae1edba666fc59fdc7b320a42db3e099c412f014eedf3a169de55"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/report-declared-paths-that-do-not-resolve.test.mjs",
+      "commit": "a84db4d99aabf3ee6dd293d53945eb93806c096b",
+      "to": "tools/make-packages-match-their-source/tests/report-declared-paths-that-do-not-resolve.test.mjs",
+      "source_identity": "1f:91777a2af17f98f44df2d192734499e64dbf0f06464f8a35a195e59c775f7dff",
+      "identity": "1f:91777a2af17f98f44df2d192734499e64dbf0f06464f8a35a195e59c775f7dff"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/the-builder-identity-moves-when-the-builder-does.test.mjs",
+      "commit": "209f79eedda4a470b379ee30f21aa9e973475389",
+      "to": "tools/make-packages-match-their-source/tests/the-builder-identity-moves-when-the-builder-does.test.mjs.held",
+      "source_identity": "1f:857f318dc3d6b64aafef173632d15b57cb09a2407b2812d2bcc5d9c8b50ca622",
+      "identity": "1f:857f318dc3d6b64aafef173632d15b57cb09a2407b2812d2bcc5d9c8b50ca622"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/the-runtime-copy-resolves-from-its-bundle-folder.test.mjs",
+      "commit": "e87434aeadb9e06958d6d9ae20cd2f25b04cc5d0",
+      "to": "tools/make-packages-match-their-source/tests/the-runtime-copy-resolves-from-its-bundle-folder.test.mjs.held",
+      "source_identity": "1f:5d34aff1404650ac0e884303554afcd0244fa3cfa187e07cad712640512a7719",
+      "identity": "1f:5d34aff1404650ac0e884303554afcd0244fa3cfa187e07cad712640512a7719"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/the-runtime-hands-in-the-clock-and-the-entropy.test.mjs",
+      "commit": "27e978f228ba3c17cafa8e2df452d106bba4efa8",
+      "to": "tools/make-packages-match-their-source/tests/the-runtime-hands-in-the-clock-and-the-entropy.test.mjs.held",
+      "source_identity": "1f:122e667935f2cd3b84de3b9a78537345c7548819f13f4c4ab1b4f51368f3c9c7",
+      "identity": "1f:122e667935f2cd3b84de3b9a78537345c7548819f13f4c4ab1b4f51368f3c9c7"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/write-package-entry-scopes.test.mjs",
+      "commit": "51194a1aae753a2c4e98d2a603f1aa13fbca9e4f",
+      "to": "tools/make-packages-match-their-source/tests/write-package-entry-scopes.test.mjs.held",
+      "source_identity": "1f:673b3caef7faa9bd5f08920622ab948239513343b6d6496f746ef19c467e69aa",
+      "identity": "1f:673b3caef7faa9bd5f08920622ab948239513343b6d6496f746ef19c467e69aa"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/tests/write-package-set-records-into-a-running-app.test.mjs",
+      "commit": "a0033d8a3af5955087f7c75576791e2a30037752",
+      "to": "tools/make-packages-match-their-source/tests/write-package-set-records-into-a-running-app.test.mjs.held",
+      "source_identity": "1f:015f75b164cbee028669eef5ab9242a05f4518043389b4db2af3bbf4a23e7c85",
+      "identity": "1f:015f75b164cbee028669eef5ab9242a05f4518043389b4db2af3bbf4a23e7c85"
+    },
+    {
+      "from": "packages/make-packages-match-their-source/things-to-store-and-run.json",
+      "commit": "e87434aeadb9e06958d6d9ae20cd2f25b04cc5d0",
+      "to": "tools/make-packages-match-their-source/things-to-store-and-run.json",
+      "source_identity": "1f:1aa2211e3b113e2377c5485a7b1bcd84e598a0b8eb4f41be6056439db6c331c4",
+      "identity": "1f:1aa2211e3b113e2377c5485a7b1bcd84e598a0b8eb4f41be6056439db6c331c4"
+    }
+  ],
+  "held": {
+    "tools/make-packages-match-their-source/tests/a-built-blob-reports-what-it-consumed.test.mjs.held": "needs rollup, which this tree does not install (the screen's runtime or the retired package build)",
+    "tools/make-packages-match-their-source/tests/a-copied-blob-reports-what-it-consumed.test.mjs.held": "needs rollup, which this tree does not install (the screen's runtime or the retired package build)",
+    "tools/make-packages-match-their-source/tests/a-held-address-names-its-holder.test.mjs.held": "imports tools/send-requests-to-an-engine/read-data/find-the-running-app-and-send-requests-to-it.mjs, which is not here or is written without a file extension by a file already in this tree",
+    "tools/make-packages-match-their-source/tests/a-loader-child-receives-the-build-policy-it-reads.test.mjs.held": "imports tools/send-requests-to-an-engine/read-data/find-the-running-app-and-send-requests-to-it.mjs, which is not here or is written without a file extension by a file already in this tree",
+    "tools/make-packages-match-their-source/tests/a-producer-declaration-survives-its-own-use.test.mjs.held": "needs @bitfield/slot-protocol, which this tree does not install (the screen's runtime or the retired package build)",
+    "tools/make-packages-match-their-source/tests/a-source-built-slot-owner-prunes-legacy-fallback.test.mjs.held": "imports tools/converge-installed-apps-to-their-current-handle/do-work/converge-installed-apps-to-their-curre, which is not here or is written without a file extension by a file already in this tree",
+    "tools/make-packages-match-their-source/tests/build-node-process-bytes.test.mjs.held": "needs rollup, which this tree does not install (the screen's runtime or the retired package build)",
+    "tools/make-packages-match-their-source/tests/installed-app-workflow-actions.test.mjs.held": "imports tools/send-requests-to-an-engine/read-data/find-the-running-app-and-send-requests-to-it.mjs, which is not here or is written without a file extension by a file already in this tree",
+    "tools/make-packages-match-their-source/tests/make-one-package-match-its-source.test.mjs.held": "imports tools/send-requests-to-an-engine/read-data/find-the-running-app-and-send-requests-to-it.mjs, which is not here or is written without a file extension by a file already in this tree",
+    "tools/make-packages-match-their-source/tests/materialize-package-entry-bytes.test.mjs.held": "needs @bitfield/slot-protocol, which this tree does not install (the screen's runtime or the retired package build)",
+    "tools/make-packages-match-their-source/tests/package-entry-byte-build-lib.test.mjs.held": "needs rollup, which this tree does not install (the screen's runtime or the retired package build)",
+    "tools/make-packages-match-their-source/tests/package-set-records-needs-no-entry-build.test.mjs.held": "imports tools/send-requests-to-an-engine/read-data/find-the-running-app-and-send-requests-to-it.mjs, which is not here or is written without a file extension by a file already in this tree",
+    "tools/make-packages-match-their-source/tests/recorded-build-inputs-are-still-current.test.mjs.held": "needs @bitfield/slot-protocol, which this tree does not install (the screen's runtime or the retired package build)",
+    "tools/make-packages-match-their-source/tests/the-builder-identity-moves-when-the-builder-does.test.mjs.held": "needs rollup, which this tree does not install (the screen's runtime or the retired package build)",
+    "tools/make-packages-match-their-source/tests/the-runtime-copy-resolves-from-its-bundle-folder.test.mjs.held": "imports tools/send-requests-to-an-engine/read-data/find-the-running-app-and-send-requests-to-it.mjs, which is not here or is written without a file extension by a file already in this tree",
+    "tools/make-packages-match-their-source/tests/the-runtime-hands-in-the-clock-and-the-entropy.test.mjs.held": "builds a file with the package's bundler, which this tree does not install",
+    "tools/make-packages-match-their-source/tests/write-package-entry-scopes.test.mjs.held": "needs rollup, which this tree does not install (the screen's runtime or the retired package build)",
+    "tools/make-packages-match-their-source/tests/write-package-set-records-into-a-running-app.test.mjs.held": "imports tools/send-requests-to-an-engine/read-data/find-the-running-app-and-send-requests-to-it.mjs, which is not here or is written without a file extension by a file already in this tree"
+  }
+}

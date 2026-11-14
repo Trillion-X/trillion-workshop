@@ -1,0 +1,90 @@
+// packages/make-packages-match-their-source/tests/a-built-blob-reports-what-it-consumed.test.mjs
+//
+// A checked-in built blob is only trustworthy if something records what source produced it.
+// Entry bundles have carried that record for a while, as a `.source-closure.json` beside the
+// bytes naming every input with its hash. Blobs built by the GENERAL converter carried none,
+// for any of the 34 manifests that declare a build, which is why the declared rule
+// `a-built-blob-must-declare-what-produced-it` reports rows nobody can verify.
+//
+// The seam is deliberately not "teach the converter about esbuild". The converter offers a
+// path through `BITFIELD_PACKAGE_BUILD_RECEIPT` and copies whatever appears there; a producer
+// that writes nothing is materialized exactly as before. So the converter stays ignorant of
+// every producer, and each producer opts in by reporting what it read. `build-node-process-bytes.mjs`
+// is the first to do so, and it is the one whose three stranded blobs started this.
+//
+// This file exercises the PRODUCER half directly. The converter half cannot be run by an
+// agent: `scripts/` is outside every declared run root.
+import assert from "node:assert/strict";
+import { mkdtemp, readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import test from "node:test";
+
+import {
+  buildNodeProcessBytes,
+  nodeProcessBytesBuilderId,
+} from "../do-work/build-node-process-bytes.mjs";
+
+// A REAL package and a REAL process script, because the receipt's whole job is to name real
+// paths under real portable roots. A synthetic fixture would prove the shape and not the
+// labelling, and the labelling is where a receipt goes wrong.
+const PACKAGE_ROOT = "/Users/example/dev/bitfield-packages/packages/hosted-public-app";
+const SOURCE_FILE = "processes/materialize-hosted-projection-tree.mjs";
+
+const buildInto = async (receiptWanted) => {
+  const dir = await mkdtemp(join(tmpdir(), "consumed-inputs-"));
+  const outputFile = join(dir, "output.bytes");
+  const receiptFile = join(dir, "source-closure.json");
+  await buildNodeProcessBytes({
+    packageRoot: PACKAGE_ROOT,
+    sourceFile: SOURCE_FILE,
+    outputFile,
+    receiptFile: receiptWanted ? receiptFile : null,
+    storedBytesName: "materialize-hosted-projection-tree",
+  });
+  return { outputFile, receiptFile };
+};
+
+test("the receipt names the source that produced the bytes", async () => {
+  const { outputFile, receiptFile } = await buildInto(true);
+  assert.ok(existsSync(outputFile), "the bytes are still built");
+
+  const receipt = JSON.parse(await readFile(receiptFile, "utf8"));
+  assert.equal(receipt.builder, nodeProcessBytesBuilderId, "the receipt says whose claim it is");
+  assert.equal(receipt.stored_bytes, "materialize-hosted-projection-tree");
+  assert.equal(receipt.package, "hosted-public-app");
+
+  const localPaths = receipt.package_local_inputs.map((input) => input.path);
+  assert.ok(
+    localPaths.includes(`package/${SOURCE_FILE}`),
+    `the entry source must appear among the recorded inputs, got ${JSON.stringify(localPaths)}`,
+  );
+  assert.ok(receipt.build_input_count >= 1, "at least the entry source was counted");
+});
+
+test("every recorded input carries a hash, or the receipt attests to nothing", async () => {
+  // A receipt whose inputs are named but not hashed is a list, not an attestation: a reader
+  // could not tell a changed file from an unchanged one, which is the only question it exists
+  // to answer.
+  const { receiptFile } = await buildInto(true);
+  const receipt = JSON.parse(await readFile(receiptFile, "utf8"));
+  const everyInput = [
+    ...receipt.package_local_inputs,
+    ...receipt.external_input_closures.flatMap((closure) => closure.inputs ?? []),
+  ];
+  assert.ok(everyInput.length > 0, "the receipt records something");
+  for (const input of everyInput) {
+    assert.match(input.multihash ?? "", /^1f:[0-9a-f]{64}$/, `${input.path} has no usable multihash`);
+    assert.equal(typeof input.byte_length, "number", `${input.path} has no byte length`);
+  }
+  assert.match(receipt.artifact_multihash, /^1f:[0-9a-f]{64}$/, "the artifact itself is bound too");
+});
+
+test("offering no receipt path changes nothing about the build", async () => {
+  // Absence is silence, not failure. Every existing caller passes no receipt path, and this is
+  // the assertion that says they all keep working.
+  const { outputFile, receiptFile } = await buildInto(false);
+  assert.ok(existsSync(outputFile), "the bytes are built exactly as before");
+  assert.equal(existsSync(receiptFile), false, "and nothing is written where nothing was asked for");
+});

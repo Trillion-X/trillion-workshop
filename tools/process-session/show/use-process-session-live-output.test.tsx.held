@@ -1,0 +1,21 @@
+import { renderHook, cleanup } from '@testing-library/react';
+import { afterEach, expect, it, vi } from '../../../test-helpers/vitest-shim.mjs';
+
+vi.mock('@bitfield/runtime-kit/react', async () => {
+  const { createReadScopeFromPackageData, createUseBitfieldData, createUseBitfieldFold } = await import('@bitfield/runtime-kit/internal/owner-surface');
+  const { default: data } = await import('../things-to-store-and-run.json');
+  const scope = createReadScopeFromPackageData(data);
+  return { useBitfieldData: createUseBitfieldData(scope), useBitfieldFold: createUseBitfieldFold(scope) };
+});
+
+import { useProcessSessionLiveOutput } from './use-process-session-live-output.ts';
+afterEach(cleanup);
+
+it('mounts an idle consumer against the hook owner scope without reading a feed', () => {
+  const fetchSpy = vi.spyOn(globalThis, 'fetch');
+  try {
+    const { result } = renderHook(() => useProcessSessionLiveOutput(null));
+    expect(result.current.text).toBe('');
+    expect(fetchSpy).not.toHaveBeenCalled();
+  } finally { fetchSpy.mockRestore(); }
+});

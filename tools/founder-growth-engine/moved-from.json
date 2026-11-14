@@ -1,0 +1,94 @@
+{
+  "about": "Files moved here byte for byte from bitfield-packages: each names its source path and commit, the identity of its source bytes and of its bytes here. The first commit that holds them is the byte copy; later commits change import paths.",
+  "source": "Trillion-X/bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "person-name-made-up",
+      "find": "\u0042rian",
+      "replace": "Alex",
+      "means": "A real person's first name in a test, a label or an AI instruction; a public tree holds made-up data only."
+    },
+    {
+      "id": "home-path-made-generic",
+      "find": "[/]Users[/]brianakhtar",
+      "replace": "/Users/example",
+      "means": "A path to one person's home folder; a public tree holds made-up paths only."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/founder-growth-engine/__tests__/cross-section-union-lens.test.ts",
+      "commit": "fd64da06f4f70137b87e8dc592c4c787fbd73941",
+      "to": "tools/founder-growth-engine/__tests__/cross-section-union-lens.test.ts.held",
+      "source_identity": "1f:34b54abecb1eaada2264e287891b40401df205cc3dd97c0416b38de4bfb64881",
+      "identity": "1f:90db96d0a281f8c27c0a279fc9b71180e03bb5757ecea33142eef926689e0cc5",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
+    },
+    {
+      "from": "packages/founder-growth-engine/__tests__/insight-to-idea.conformance.test.ts",
+      "commit": "044e64654f9e9ff07e52f6dcb4b488b062d19edd",
+      "to": "tools/founder-growth-engine/__tests__/insight-to-idea.conformance.test.ts",
+      "source_identity": "1f:9ca6b70c5723fdf23c0dd6a2bd1ee910ded8a59e506fa74f02bf9c52e7329425",
+      "identity_at_move": "1f:9ca6b70c5723fdf23c0dd6a2bd1ee910ded8a59e506fa74f02bf9c52e7329425",
+      "byte_copy_commit": "090e34111c6224eaf8713fe3b82b07bd771c79a2"
+    },
+    {
+      "from": "packages/founder-growth-engine/__tests__/instagram-loop-configuration.contract.test.ts",
+      "commit": "7229c0c1d5311ff11cc55bb6ccf31843fe305b83",
+      "to": "tools/founder-growth-engine/__tests__/instagram-loop-configuration.contract.test.ts.held",
+      "source_identity": "1f:677ea5c492945df9ba60b73774f896223ff28eccda1f0b071c8ec78a10d86992",
+      "identity": "1f:4952b9ef114a603ad668807dd7b2e77f96907dc00e749f1c090c346d4a5946da",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
+    },
+    {
+      "from": "packages/founder-growth-engine/__tests__/next-move-action.admit.test.ts",
+      "commit": "7229c0c1d5311ff11cc55bb6ccf31843fe305b83",
+      "to": "tools/founder-growth-engine/__tests__/next-move-action.admit.test.ts.held",
+      "source_identity": "1f:8204d2f28b86e8b2537e84f91a597398d1538618587643c73685155598d77303",
+      "identity": "1f:88b8718d4de530e04e419942a336836c277ca12c108c62c5f2c91c206dea80d1",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
+    },
+    {
+      "from": "packages/founder-growth-engine/__tests__/next-move-trigger.admit.test.ts",
+      "commit": "6adbfc5fb12f508ef98c206bf67e43eb44e88d95",
+      "to": "tools/founder-growth-engine/__tests__/next-move-trigger.admit.test.ts",
+      "source_identity": "1f:028e052fc1e41d5aead13a9e9d0c193428c929b5fd7cf7df75ad062dc02a79c9",
+      "identity_at_move": "1f:028e052fc1e41d5aead13a9e9d0c193428c929b5fd7cf7df75ad062dc02a79c9",
+      "byte_copy_commit": "090e34111c6224eaf8713fe3b82b07bd771c79a2"
+    },
+    {
+      "from": "packages/founder-growth-engine/__tests__/next-moves.e2e.mjs",
+      "commit": "fe39d35349110cdaaf45b9a308e0e044f0a73bd6",
+      "to": "tools/founder-growth-engine/__tests__/next-moves.e2e.mjs.held",
+      "calls": [
+        "home-path-made-generic"
+      ],
+      "source_identity": "1f:570ce027d13fa20e23b5b2cf97e230092e160056508c0ba813d6111c2b5a9b44",
+      "identity": "1f:9d1b9594629ea780f0fdf334a66bbbe48b655fbddc86887b0edeced0690c35d8"
+    },
+    {
+      "from": "packages/founder-growth-engine/data/cross-section-union-lens.json",
+      "commit": "fd64da06f4f70137b87e8dc592c4c787fbd73941",
+      "to": "tools/founder-growth-engine/data/cross-section-union-lens.json",
+      "source_identity": "1f:919efc13d3905b45e585a671badf4d9f03332a04700899f5c6b753727ecfa672",
+      "identity": "1f:919efc13d3905b45e585a671badf4d9f03332a04700899f5c6b753727ecfa672"
+    },
+    {
+      "from": "packages/founder-growth-engine/things-to-store-and-run.json",
+      "commit": "b33f8aa3967b8b64d5db16d400c01e0fb23d8969",
+      "to": "tools/founder-growth-engine/things-to-store-and-run.json",
+      "calls": [
+        "person-name-made-up"
+      ],
+      "source_identity": "1f:c8700c02b4e9e7003183448a2c4eef43003c34c2668e7b40035046a2bac84fdd",
+      "identity": "1f:8411c9ab7cb76460f4080a0016550c403ff4997ab6d6538654507e8ac04f2d2c"
+    }
+  ],
+  "held": {
+    "tools/founder-growth-engine/__tests__/cross-section-union-lens.test.ts.held": "imports tools/context-feed/read-data/record-projection-lens.js, which is not here or is written without a file extension by a file already in this tree",
+    "tools/founder-growth-engine/__tests__/instagram-loop-configuration.contract.test.ts.held": "reads packages/founder-growth-engine/things-to-store-and-run.json at a path of the source tree that this tree does not have",
+    "tools/founder-growth-engine/__tests__/next-move-action.admit.test.ts.held": "does not pass in this tree: {\"kind\":\"next-move\",\"candidate_id\":{\"$kind\":\"binding\",\"select\":{\"from\":\"input\",\"path\":\"candidate.can",
+    "tools/founder-growth-engine/__tests__/next-moves.e2e.mjs.held": "needs playwright, which this tree does not install (the screen's runtime or the retired package build)"
+  }
+}

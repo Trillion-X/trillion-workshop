@@ -1,0 +1,960 @@
+{
+  "package": "email-client",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::email-client::checks",
+      "path": ["packages", "email-client", "checks"],
+      "payload": {
+        "kind": "package-checks-descriptor",
+        "_comment": "Moved out of the per-package list in the repo package.json, where it was the scripts entries test:email and test:email-ui. The package now says what verifies it, so nothing has to be added to a central list for it to be checked. The UI proof became a .test.ts on 2026-09-05: it had been spawning a bare tsc that this repo does not install, and vitest transforms TypeScript itself, so the compile step was deleted rather than repaired.",
+        "checks": [
+          "__tests__/email-client-backend.test.mjs",
+          "__tests__/email-client-ui.test.ts"
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::email-client::published-record::placeable-surface::email-client",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "Mail",
+        "id": "email-client.email",
+        "kind": "placeable-surface",
+        "label": "Email",
+        "material_target": "component:email-client",
+        "order": 267,
+        "package_entry": {
+          "package_name": "email-client",
+          "entry_name": "email-client"
+        },
+        "things_to_put_on_screen": [
+          {
+            "source_path": "packages/email-client/show-ios-jscore/mount-email-client-jscore.js",
+            "required_capabilities": [
+              "can-put-thing-on-screen-using-screen-commands"
+            ],
+            "lifecycle_key": "component:email-client:jscore",
+            "props": {
+              "entry_function": "bitfieldMount"
+            }
+          }
+        ],
+        "surface_id": "email-client.email",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000267:email-client.email"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::email-client::published-records",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "cell_table",
+        "columns": [
+          {
+            "column": 0,
+            "source": {
+              "path": [
+                "record",
+                "address"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "non_empty_text"
+            }
+          },
+          {
+            "column": 1,
+            "source": {
+              "path": [
+                "record",
+                "payload_json_text"
+              ]
+            },
+            "value": {
+              "value_to_bytes": "json_text"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "record",
+      "address": "package::email-client::contract::communication-work-items",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "communication-work-item-contract",
+        "owns": [
+          "communication workspace projection",
+          "visible draft and status state",
+          "source links",
+          "descriptor-driven action requests"
+        ],
+        "reads": [
+          "communication work item records",
+          "view descriptors",
+          "action descriptors",
+          "relationship descriptors",
+          "status descriptors"
+        ],
+        "asks_owners_to_do": [
+          "account connection and repair",
+          "transport actions",
+          "source-linked task creation",
+          "user notice delivery",
+          "broader conversation coordination"
+        ],
+        "does_not_own": [
+          "credentials",
+          "service/provider transport",
+          "provider endpoints",
+          "task records",
+          "notification delivery",
+          "conversation records"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::email-client::workflow-action::owner-action",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:email-client.owner-action",
+        "kind": "action",
+        "name": "email-client-owner-action",
+        "description": "Record one email owner-action handoff from the Email surface so provider transport, task, or notice owners can execute it.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "correlation_id",
+            "action_id"
+          ],
+          "properties": {
+            "correlation_id": {
+              "type": "string"
+            },
+            "action_id": {
+              "type": "string"
+            },
+            "operation": {
+              "type": "string"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "write_owner_action",
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "correlation_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "email-client.queued-action::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "correlation_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "email-client",
+                    "owner-action"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "done",
+            "kind": "return",
+            "config": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "write_owner_action",
+                  "path": "output"
+                }
+              }
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::email-client::input::communication-work-items",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "communication-work-items",
+        "is_default": true,
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "projection": {
+            "fields": [
+              {
+                "column": 0,
+                "key": "address",
+                "required": true,
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "non_empty_text"
+                  }
+                }
+              },
+              {
+                "column": 1,
+                "key": "name",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 2,
+                "key": "statusRef",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "text"
+                  }
+                }
+              },
+              {
+                "column": 3,
+                "key": "scopeRefs",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "json"
+                  }
+                }
+              },
+              {
+                "column": 4,
+                "key": "canSend",
+                "value": {
+                  "source_bytes": {
+                    "bytes_to_value": "byte_boolean"
+                  }
+                }
+              }
+            ],
+            "op": "rows"
+          },
+          "source_bytes": {
+            "bytes_to_value": "cell_table"
+          }
+        },
+        "value_address_label": "communication-work-items"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::email-client::input::email-client-setup-actions",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "email-client-setup-actions",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json",
+            "missing": "empty"
+          }
+        },
+        "value_address_label": "email-client-setup-actions"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::email-client::workflow-action::publish-mail-accounts",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:email-client.publish-mail-accounts",
+        "kind": "action",
+        "name": "email-client-publish-mail-accounts",
+        "description": "Re-project mail-capable connected accounts from service-connections facts into the communication-work-items feed so the Email surface renders them.",
+        "steps": [
+          {
+            "kind": "ask",
+            "config": {
+              "name": "slot::find-current-items",
+              "input": {
+                "operation": "find-current-items",
+                "in": "attribute_fact",
+                "select": [
+                  "subject_id",
+                  "property_id",
+                  "value_json"
+                ],
+                "where": {
+                  "all": [
+                    {
+                      "field": "property_id",
+                      "in": [
+                        "prop:connection:service_name",
+                        "prop:connection_state:status_ref",
+                        "prop:connection_state:scope_refs",
+                        "prop:connection_state:can_send"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": "communication-work-items",
+                  "path": [],
+                  "payload_bytes": {
+                    "rows": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "step_0",
+                        "path": "output.items"
+                      }
+                    },
+                    "group_by": {
+                      "path": [
+                        "subject_id"
+                      ]
+                    },
+                    "columns": [
+                      {
+                        "column": 0,
+                        "source": {
+                          "path": [
+                            "subject_id"
+                          ]
+                        },
+                        "value": {
+                          "value_to_bytes": "non_empty_text"
+                        }
+                      },
+                      {
+                        "column": 1,
+                        "match": [
+                          {
+                            "path": [
+                              "property_id"
+                            ],
+                            "equals": "prop:connection:service_name"
+                          }
+                        ],
+                        "source": {
+                          "path": [
+                            "value_json"
+                          ],
+                          "parse": {
+                            "format": "json"
+                          }
+                        },
+                        "value": {
+                          "value_to_bytes": "text"
+                        }
+                      },
+                      {
+                        "column": 2,
+                        "match": [
+                          {
+                            "path": [
+                              "property_id"
+                            ],
+                            "equals": "prop:connection_state:status_ref"
+                          }
+                        ],
+                        "source": {
+                          "path": [
+                            "value_json"
+                          ],
+                          "parse": {
+                            "format": "json"
+                          }
+                        },
+                        "value": {
+                          "value_to_bytes": "text"
+                        }
+                      },
+                      {
+                        "column": 3,
+                        "match": [
+                          {
+                            "path": [
+                              "property_id"
+                            ],
+                            "equals": "prop:connection_state:scope_refs"
+                          }
+                        ],
+                        "source": {
+                          "path": [
+                            "value_json"
+                          ],
+                          "parse": {
+                            "format": "json"
+                          }
+                        },
+                        "value": {
+                          "value_to_bytes": "json"
+                        }
+                      },
+                      {
+                        "column": 4,
+                        "match": [
+                          {
+                            "path": [
+                              "property_id"
+                            ],
+                            "equals": "prop:connection_state:can_send"
+                          }
+                        ],
+                        "source": {
+                          "path": [
+                            "value_json"
+                          ],
+                          "parse": {
+                            "format": "json"
+                          }
+                        },
+                        "value": {
+                          "value_to_bytes": "byte_boolean"
+                        }
+                      }
+                    ],
+                    "value_to_bytes": "cell_table"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 0,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::email-client::trigger-rule::publish-mail-accounts-on-change",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "id": "trigger:email-client.publish-mail-accounts-on-change",
+        "topic": "data_state",
+        "kind": "trigger-rule",
+        "name": "publish-mail-accounts-on-change",
+        "description": "Re-project mail-capable connected accounts into communication-work-items when connection facts change so the Email surface updates live.",
+        "trigger_type": "delta",
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "property_id"
+              },
+              "transform": [
+                {
+                  "op": "op:core.in_list",
+                  "args": {
+                    "values": [
+                      "prop:connection:service_name",
+                      "prop:connection:service_vendor",
+                      "prop:connection_state:status_ref",
+                      "prop:connection_state:scope_refs",
+                      "prop:connection_state:can_send"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:email-client.publish-mail-accounts",
+            "include_steps": false,
+            "include_output": false,
+            "input": {
+              "change": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": ""
+                }
+              },
+              "envelope": {
+                "$kind": "binding",
+                "select": {
+                  "from": "envelope",
+                  "path": ""
+                }
+              }
+            }
+          }
+        },
+        "is_active": true,
+        "version": 1,
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::email-client::trigger-rule::publish-mail-accounts-on-workspace-loaded",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "trigger-rule"
+      ],
+      "payload": {
+        "id": "trigger:email-client.publish-mail-accounts-on-workspace-loaded",
+        "topic": "data_state",
+        "kind": "trigger-rule",
+        "name": "publish-mail-accounts-on-workspace-loaded",
+        "description": "Re-project mail-capable connected accounts into communication-work-items when the workspace loads, so already-connected accounts backfill without waiting for a new change.",
+        "trigger_type": "delta",
+        "match_condition": {
+          "conditions": [
+            {
+              "$kind": "binding",
+              "select": {
+                "from": "change",
+                "path": "properties.event_type"
+              },
+              "transform": [
+                {
+                  "op": "op:core.equals",
+                  "args": {
+                    "value": "workspace_loaded"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "dispatch": {
+          "target": "slot::workflow",
+          "output_template": {
+            "operation": "execute_definition",
+            "definition_id": "action:email-client.publish-mail-accounts",
+            "include_steps": false,
+            "include_output": false,
+            "input": {
+              "change": {
+                "$kind": "binding",
+                "select": {
+                  "from": "change",
+                  "path": ""
+                }
+              },
+              "envelope": {
+                "$kind": "binding",
+                "select": {
+                  "from": "envelope",
+                  "path": ""
+                }
+              }
+            }
+          }
+        },
+        "is_active": true,
+        "version": 1,
+        "extra_properties": {}
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "communication-work-items",
+      "address_mode": "label_hash",
+      "path": [
+        "packages",
+        "email-client",
+        "generated-values",
+        "communication-work-items"
+      ],
+      "payload": null,
+      "payload_text": null,
+      "payload_base64": "UlRCTAAAAAAAAAAABQAAAA==",
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "email-client-setup-actions",
+      "address_mode": "label_hash",
+      "path": [
+        "packages",
+        "email-client",
+        "generated-values",
+        "email-client-setup-actions"
+      ],
+      "payload": [
+        {
+          "id": "email-client.setup-account",
+          "label": "Add account",
+          "target": "service-connections.settings",
+          "operation": "surface.open",
+          "role": "setup",
+          "values": {
+            "title": "Connect an email account",
+            "materialTarget": "component:service-connections-settings",
+            "packageEntry": {
+              "packageName": "service-connections",
+              "entryName": "service-connections-settings"
+            }
+          }
+        }
+      ],
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::email-client::entry::email-client",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-package-entry",
+        "entry_name": "email-client",
+        "source_path": "show/mount-email-client.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-email-client"
+        }
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::email-client::native-screen-command-entry",
+      "path": [
+        "package-primitive",
+        "native-screen-command-entry"
+      ],
+      "payload": {
+        "kind": "bitfield-native-screen-command-entry",
+        "source_path": "show-ios-jscore/mount-email-client-jscore.js",
+        "readme_path": "show-ios-jscore/README.md"
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "show-ios-jscore-readme",
+      "source_path": "show-ios-jscore/README.md"
+    },
+    {
+      "type": "stored_bytes",
+      "name": "built-show-ios-jscore-mount-email-client-jscore",
+      "build": {
+        "sequence": {
+          "inputs": [],
+          "input_trees": [],
+          "steps": [
+            {
+              "name": "build",
+              "process": {
+                "argv": [
+                  "node",
+                  "-e",
+                  "const fs=require('fs'); const request=JSON.parse(fs.readFileSync(process.env.BITFIELD_PACKAGE_BUILD_REQUEST,'utf8')); fs.copyFileSync(request.source_file, process.env.BITFIELD_PACKAGE_BUILD_OUTPUT);"
+                ],
+                "cwd": ".",
+                "timeout_ms": 30000,
+                "termination_grace_ms": 1000,
+                "expected_termination": {
+                  "kind": "exited",
+                  "code": 0
+                },
+                "env": {},
+                "inputs": [],
+                "input_trees": [],
+                "outputs": [
+                  {
+                    "mount_path": ".bitfield-build-output"
+                  }
+                ],
+                "containment": {
+                  "kind": "leaf"
+                },
+                "capture_fds": [
+                  1,
+                  2
+                ],
+                "collected_files": []
+              },
+              "workspace_bindings": {
+                "environment": [],
+                "arguments": []
+              },
+              "predecessor_outputs": []
+            }
+          ]
+        },
+        "output": {
+          "step": "build",
+          "mount_path": ".bitfield-build-output"
+        },
+        "request": {
+          "source_file": "show-ios-jscore/mount-email-client-jscore.js",
+          "source_kind": "application/javascript"
+        }
+      }
+    },
+    {
+      "type": "record",
+      "address": "attribute_fact|component:email-client|prop:extension:things_to_put_on_screen|type:extension",
+      "address_mode": "identity_text",
+      "path": [
+        "prop:extension:things_to_put_on_screen"
+      ],
+      "payload_template": {
+        "payload": {
+          "property_id": "prop:extension:things_to_put_on_screen",
+          "subject_id": "component:email-client",
+          "table": "attribute_fact",
+          "type_id": "type:extension",
+          "value_json": [
+            {
+              "artifact": {
+                "hash": ""
+              },
+              "required_capabilities": [
+                "can-put-thing-on-screen-using-screen-commands"
+              ],
+              "lifecycle_key": "component:email-client:screen-commands",
+              "props": {
+                "entry_function": "bitfieldMount"
+              },
+              "environment": {},
+              "dependencies": {}
+            }
+          ]
+        },
+        "replacements": [
+          {
+            "path": [
+              "value_json",
+              "0",
+              "artifact",
+              "hash"
+            ],
+            "value": {
+              "type": "stored_bytes_content_hash",
+              "name": "built-show-ios-jscore-mount-email-client-jscore",
+              "encoding": "string"
+            }
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::email-client::public-source::read-data",
+      "path": [
+        "packages",
+        "email-client",
+        "public-sources",
+        "read-data"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "source_path": "read-data/read-mail-workspace.ts",
+        "exports": [
+          "readMailWorkspace"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::email-client::public-source::mail-actions",
+      "path": [
+        "packages",
+        "email-client",
+        "public-sources",
+        "mail-actions"
+      ],
+      "payload": {
+        "kind": "bitfield-package-public-source",
+        "sources": [
+          {
+            "source_path": "do-work/request-mail-action.ts",
+            "exports": [
+              "buildMailActionRequest"
+            ]
+          },
+          {
+            "source_path": "do-work/request-task-from-mail.ts",
+            "exports": [
+              "buildTaskFromMailRequest"
+            ]
+          },
+          {
+            "source_path": "do-work/request-mail-status-notice.ts",
+            "exports": [
+              "assertHumanMailStatus",
+              "buildMailStatusNotice"
+            ]
+          }
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::email-client::surface-reachability::email-client-email",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "surface.reachability",
+        "surface_id": "email-client.email",
+        "entry": {
+          "from": "surface-picker",
+          "query": "email"
+        },
+        "vocabulary": [
+          "email",
+          "inbox",
+          "mail",
+          "gmail",
+          "messages",
+          "compose"
+        ],
+        "must_see": [
+          "account-rail",
+          "message-list"
+        ],
+        "must_act": [
+          "compose",
+          "connect-account"
+        ],
+        "empty_ok": [
+          "connect-account"
+        ]
+      },
+      "payload_text": null,
+      "payload_base64": null,
+      "remove": false
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-email-client",
+      "source_path": "built-stored-bytes/entry-bytes-email-client",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-email-client.source-closure.json"
+    }
+  ]
+}

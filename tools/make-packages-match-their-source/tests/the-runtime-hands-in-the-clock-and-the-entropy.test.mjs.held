@@ -1,0 +1,67 @@
+// packages/make-packages-match-their-source/tests/the-runtime-hands-in-the-clock-and-the-entropy.test.mjs
+//
+// The replacement owner for the two reaches the border closes most often. A package module
+// cannot compile `Date.now()` or `Math.random()`; it reads the runtime's `ambient` facts through
+// these two readers instead, and they fail closed.
+//
+// The readers are compiled HERE through the same resolution every entry bundle uses: the
+// workspace's `@bitfield/runtime-kit/internal/owner-surface`, bundled by esbuild exactly as the
+// entry-byte builder does it. That proves the door a package actually walks through, not a copy.
+// (Node cannot type-strip a `.ts` under node_modules directly, which is why esbuild is the reader.)
+//
+// The kit's own vitest suite covers the same functions in more detail; this file exists because
+// a declared Node runner reaches THIS folder and no declared runner reaches the kit from here.
+import assert from 'node:assert/strict';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import test from 'node:test';
+import esbuild from 'esbuild';
+
+const setRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
+
+async function readersFromTheWorkspaceKit() {
+  // The leaf module the owner surface re-exports, compiled from the workspace's kit. The owner
+  // surface itself drags React in, which is right for a bundle and wrong for a reader test.
+  const built = await esbuild.build({
+    entryPoints: [path.join(setRoot, 'node_modules', '@bitfield', 'runtime-kit', 'src', 'trusted-runtime-partition.ts')],
+    bundle: true,
+    write: false,
+    format: 'esm',
+    platform: 'node',
+  });
+  const code = new TextDecoder().decode(built.outputFiles[0].contents);
+  return import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
+}
+
+test('the clock is read from the runtime and refused from anywhere else', async () => {
+  const { readTrustedRuntimeClockMs } = await readersFromTheWorkspaceKit();
+  assert.equal(readTrustedRuntimeClockMs({ runtime: { ambient: { time_unix_ms: 1_800_000_000_000 } } }), 1_800_000_000_000);
+  for (const context of [undefined, null, {}, { runtime: {} }, { runtime: { ambient: {} } },
+    { runtime: { ambient: { time_unix_ms: '1' } } }, { runtime: { ambient: { time_unix_ms: -1 } } }]) {
+    assert.throws(() => readTrustedRuntimeClockMs(context), /no trusted clock/);
+  }
+});
+
+test('identities are minted from the entropy: distinct within a request, identical on replay, refused without it', async () => {
+  const { createTrustedRuntimeIdMinter } = await readersFromTheWorkspaceKit();
+  const context = { runtime: { ambient: { entropy_hex: 'ab'.repeat(32) } } };
+  const first = createTrustedRuntimeIdMinter(context);
+  const ids = [first(), first(), first()];
+  assert.equal(new Set(ids).size, 3);
+  for (const id of ids) assert.match(id, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+  const replay = createTrustedRuntimeIdMinter(context);
+  assert.deepEqual([replay(), replay(), replay()], ids);
+  const other = createTrustedRuntimeIdMinter({ runtime: { ambient: { entropy_hex: 'cd'.repeat(32) } } });
+  assert.notEqual(other(), ids[0]);
+  assert.throws(() => createTrustedRuntimeIdMinter({}), /no trusted entropy/);
+});
+
+test('the entropy is read from the runtime and refused from anywhere else', async () => {
+  const { readTrustedRuntimeEntropyHex } = await readersFromTheWorkspaceKit();
+  const entropy = 'ab'.repeat(32);
+  assert.equal(readTrustedRuntimeEntropyHex({ runtime: { ambient: { entropy_hex: entropy } } }), entropy);
+  for (const context of [undefined, {}, { runtime: { ambient: { entropy_hex: 'AB'.repeat(32) } } },
+    { runtime: { ambient: { entropy_hex: 'ab'.repeat(31) } } }, { runtime: { ambient: { entropy_hex: 7 } } }]) {
+    assert.throws(() => readTrustedRuntimeEntropyHex(context), /no trusted entropy/);
+  }
+});

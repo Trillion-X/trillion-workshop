@@ -1,0 +1,227 @@
+{
+  "package": "practice-protocol",
+  "things": [
+    {
+      "type": "record",
+      "address": "package::practice-protocol::capability",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "bitfield-package-capability",
+        "id": "capability:practice-protocol",
+        "package": "practice-protocol",
+        "label": "Practice Protocol",
+        "description": "Show a practice plan, current step, completion state, and step action for any domain.",
+        "owned_record_kinds": [
+          "practice-protocol",
+          "practice-protocol-step",
+          "practice-protocol-state",
+          "practice-protocol-event-request"
+        ],
+        "reuses": [
+          "learning-progress",
+          "spaced-repetition",
+          "workflow",
+          "ui",
+          "screen-look"
+        ],
+        "does_not_own": [
+          "domain drills",
+          "progress projection",
+          "achievement rules",
+          "review scheduling",
+          "AI coach feedback",
+          "video analysis truth"
+        ]
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::practice-protocol::placeable-surface::practice-protocol",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "icon": "ListChecks",
+        "id": "practice-protocol.panel",
+        "kind": "placeable-surface",
+        "label": "Practice Protocol",
+        "material_target": "practice-protocol",
+        "order": 651,
+        "surface_id": "practice-protocol.panel",
+        "placement_labels": [
+          "main-workspace"
+        ],
+        "placement_order_key": "000000651:practice-protocol.panel",
+        "package_entry": {
+          "package_name": "practice-protocol",
+          "entry_name": "practice-protocol"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::practice-protocol::entry::practice-protocol",
+      "address_mode": "identity_text",
+      "path": [
+        "packages",
+        "practice-protocol",
+        "entries",
+        "practice-protocol"
+      ],
+      "payload": {
+        "entry_name": "practice-protocol",
+        "kind": "bitfield-package-entry",
+        "source_path": "show/mount-practice-protocol.tsx",
+        "entry_bytes": {
+          "stored_bytes": "entry-bytes-practice-protocol"
+        }
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::practice-protocol::input::published-records",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "input_name": "published-records",
+        "kind": "bitfield-input-descriptor",
+        "value": {
+          "source_bytes": {
+            "bytes_to_value": "json"
+          }
+        },
+        "value_address_label": "package::practice-protocol::protocol-feed"
+      },
+      "remove": false
+    },
+    {
+      "type": "record",
+      "address": "package::practice-protocol::workflow-action::request-protocol-event",
+      "address_mode": "identity_text",
+      "path": [
+        "current-item",
+        "published-record",
+        "workflow-definition"
+      ],
+      "payload": {
+        "id": "action:practice-protocol.request-protocol-event",
+        "kind": "action",
+        "name": "practice-protocol-request-protocol-event",
+        "description": "Write one practice protocol event request for a caller-supplied target.",
+        "input_schema": {
+          "request_id": "string",
+          "request_record": "object"
+        },
+        "steps": [
+          {
+            "kind": "write",
+            "config": {
+              "items": [
+                {
+                  "address": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "request_id"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "values": [
+                            "package::practice-protocol::request::",
+                            {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "input",
+                                "path": "request_id"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "path": [
+                    "current-item",
+                    "published-record"
+                  ],
+                  "payload": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "request_record"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "edges": [],
+        "trigger_type": "manual",
+        "trigger_source": "",
+        "is_active": true,
+        "version": 1,
+        "extra": {},
+        "extra_properties": {}
+      },
+      "remove": false
+    },
+    {
+      "type": "record_from_matching_records",
+      "address": "package::practice-protocol::protocol-feed",
+      "path": [],
+      "matching_record_paths": [
+        [
+          "current-item",
+          "published-record"
+        ]
+      ],
+      "payload_bytes": {
+        "value_to_bytes": "json_array",
+        "rows": {
+          "source": {
+            "path": []
+          },
+          "match": [
+            {
+              "path": [
+                "payload",
+                "kind"
+              ],
+              "in": [
+                "practice-protocol",
+                "practice-protocol-step",
+                "practice-protocol-state"
+              ]
+            },
+            {
+              "path": [
+                "payload"
+              ],
+              "not_equals": "__bitfield_never__"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "stored_bytes",
+      "name": "entry-bytes-practice-protocol",
+      "source_path": "built-stored-bytes/entry-bytes-practice-protocol",
+      "source_closure_receipt_path": "built-stored-bytes/entry-bytes-practice-protocol.source-closure.json"
+    }
+  ]
+}

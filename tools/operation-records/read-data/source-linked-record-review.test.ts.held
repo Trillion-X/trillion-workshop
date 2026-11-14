@@ -1,0 +1,114 @@
+import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
+import { buildOperationActionInvocationDescriptor } from './operation-action-invocation.ts';
+import { buildSourceLinkedRecordReviewGraph } from './source-linked-record-review.ts';
+
+describe('source-linked record review operation graph', () => {
+  it('links source evidence, readable text, proposals, decisions, target writes, and receipts without owner branches', () => {
+    const graph = buildSourceLinkedRecordReviewGraph({
+      id: 'operation:review:voice-1',
+      source: { package: 'capture-owner', type: 'recorded-source', id: 'source:1' },
+      evidence: [
+        {
+          id: 'evidence:source:1',
+          package: 'capture-owner',
+          sourceKind: 'recorded-source',
+          sourceRef: 'source:1',
+          contentAddressRef: 'cas:source',
+        },
+        {
+          id: 'evidence:text:1',
+          package: 'text-owner',
+          sourceKind: 'readable-text',
+          sourceRef: 'text:1',
+          contentAddressRef: 'cas:text',
+        },
+      ],
+      target: {
+        ownerPackage: 'target-owner',
+        actionDefinitionId: 'action:target-owner:accept-proposal',
+      },
+      candidateFacts: [
+        {
+          id: 'candidate:1',
+          targetRecordRef: 'target-record:1',
+          payload: { title: 'Call the client', proof_refs: ['evidence:source:1'] },
+          confidence: 0.91,
+        },
+      ],
+      decisionRefs: ['decision:accepted:1'],
+      receiptRefs: ['receipt:target-write:1'],
+      display: {
+        title: 'Review suggestions',
+        status: 'Ready',
+      },
+    });
+
+    expect(graph.operation.ownerPackage).toBe('target-owner');
+    expect(graph.operation.kindDescriptor).toBe('operation.kind.source-linked-record-review');
+    expect(graph.operation.evidenceRefs).toEqual(['evidence:source:1', 'evidence:text:1']);
+    expect(graph.operation.candidateFactRefs).toEqual(['candidate:1']);
+    expect(graph.operation.linkRefs).toEqual(['receipt:target-write:1', 'decision:accepted:1']);
+    expect(graph.operation.relationshipEdgeRefs).toEqual([
+      'operation:review:voice-1:evidence:evidence:source:1',
+      'operation:review:voice-1:evidence:evidence:text:1',
+      'operation:review:voice-1:candidate:candidate:1',
+      'operation:review:voice-1:decision:decision:accepted:1',
+      'operation:review:voice-1:receipt:receipt:target-write:1',
+    ]);
+    expect(graph.candidateFacts[0]).toMatchObject({
+      targetOwnerPackage: 'target-owner',
+      operationKind: 'operation.kind.source-linked-record-review',
+      sourceEvidenceRefs: ['evidence:source:1', 'evidence:text:1'],
+    });
+    expect(graph.operation.transitions[0]).toMatchObject({
+      ownerPackage: 'target-owner',
+      actionDefinitionId: 'action:target-owner:accept-proposal',
+      target: 'slot::workflow',
+      candidateFactRefs: ['candidate:1'],
+      evidenceRefs: ['evidence:source:1', 'evidence:text:1'],
+    });
+  });
+
+  it('keeps target owner/action refs as data for unrelated source-derived record loops', () => {
+    const cases = [
+      ['meeting', 'follow-up-owner', 'action:follow-up-owner:accept'],
+      ['document', 'checklist-owner', 'action:checklist-owner:accept'],
+      ['conversation', 'support-owner', 'action:support-owner:accept'],
+    ] as const;
+
+    for (const [sourceType, ownerPackage, actionDefinitionId] of cases) {
+      const graph = buildSourceLinkedRecordReviewGraph({
+        id: `operation:review:${sourceType}`,
+        source: { package: 'source-owner', type: sourceType, id: `source:${sourceType}` },
+        evidence: [{ id: `evidence:${sourceType}`, package: 'source-owner', sourceKind: sourceType, sourceRef: `source:${sourceType}` }],
+        target: { ownerPackage, actionDefinitionId },
+        candidateFacts: [{ id: `candidate:${sourceType}`, targetRecordRef: `target:${sourceType}`, payload: { sourceType } }],
+      });
+
+      expect(graph.operation.ownerPackage).toBe(ownerPackage);
+      expect(graph.operation.transitions[0]?.actionDefinitionId).toBe(actionDefinitionId);
+      expect(graph.candidateFacts[0]?.proposedPatch).toEqual({ sourceType });
+    }
+  });
+
+  it('feeds the existing operation action invocation primitive without a review-specific executor', () => {
+    const graph = buildSourceLinkedRecordReviewGraph({
+      id: 'operation:review:one',
+      source: { package: 'source-owner', type: 'source', id: 'source:1' },
+      evidence: [{ id: 'evidence:1', package: 'source-owner', sourceKind: 'source', sourceRef: 'source:1' }],
+      target: { ownerPackage: 'target-owner', actionDefinitionId: 'action:accept' },
+      candidateFacts: [{ id: 'candidate:1', targetRecordRef: 'target:1', payload: { title: 'Do it' } }],
+    });
+
+    const invocation = buildOperationActionInvocationDescriptor(graph.operation, graph.operation.transitions[0]!);
+
+    expect(invocation.target).toBe('slot::workflow');
+    expect(invocation.payload.definition_id).toBe('action:accept');
+    expect(invocation.payload.input).toMatchObject({
+      operationId: 'operation:review:one',
+      evidenceRefs: ['evidence:1'],
+      candidateFactRefs: ['candidate:1'],
+      idempotencyKey: 'source-linked-review:operation:review:one:candidate:1',
+    });
+  });
+});

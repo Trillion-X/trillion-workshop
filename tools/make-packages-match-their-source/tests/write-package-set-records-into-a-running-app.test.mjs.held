@@ -1,0 +1,79 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+
+import { writesByMatchingLiveRecords, writesFromRecordFile } from '../do-work/write-package-set-records-into-a-running-app.mjs';
+
+test('a prefixed record set may publish its rows for current kind discovery', () => {
+  const document = {
+    address_prefix: 'package-set-record::content-question-routes',
+    path_labels: ['current-item', 'published-record'],
+    records: [{ kind: 'content-generation.question-source-route', id: 'route:tennis' }],
+  };
+  const [write] = writesFromRecordFile(JSON.stringify(document), {
+    partitionLabel: 'trillion', fileName: 'content-question-routes.json',
+  });
+  assert.equal(write.address_label, 'package-set-record::content-question-routes::route:tennis');
+  assert.deepEqual(write.path_labels, ['current-item', 'published-record']);
+  assert.deepEqual(JSON.parse(Buffer.from(write.payload_base64, 'base64').toString('utf8')),
+    document.records[0]);
+});
+
+test('a record-set edit updates both the document read by the app and its individual rows', async () => {
+  const document = {
+    kind: 'package-set-records',
+      records: [{ kind: 'commercial-offer', id: 'offer:patron', price_options: [{ amount_cents: 5000 }] }],
+  };
+  const scan = async (_session, _partition, path) => ({ entries: path.length === 4
+    ? [{ address: '1f:offer', payload: { id: 'offer:patron' } }]
+    : [{ address: '1f:set', payload: { kind: 'package-set-records' } }] });
+  const writes = await writesByMatchingLiveRecords({}, JSON.stringify(document), {
+    partitionLabel: 'tennis', packageSet: 'tennis', recordSet: 'commercial-offer-records',
+  }, scan);
+  assert.deepEqual(writes.map((write) => [write.address_label, write.payload]), [
+    ['1f:set', document],
+    ['1f:offer', document.records[0]],
+  ]);
+});
+
+test('an absent source row with an explicit canonical address is admitted by label', async () => {
+  const document = {
+    kind: 'package-set-records',
+    records: [{
+      id: 'ai-model-descriptor:ethos-gemini-content',
+      address: 'ai-model-descriptor:ethos-gemini-content',
+      path: ['current-item', 'published-record'],
+      kind: 'ai-model-descriptor',
+      model_id: 'gemini-2.5-flash',
+    }],
+  };
+  const scan = async (_session, _partition, path) => ({ entries: path.length === 4
+    ? []
+    : [{ address: '1f:set', payload: { kind: 'package-set-records' } }] });
+  const writes = await writesByMatchingLiveRecords({}, JSON.stringify(document), {
+    partitionLabel: 'tennis', packageSet: 'tennis', recordSet: 'ai-system-records',
+  }, scan);
+  assert.deepEqual(writes.at(-1), {
+    address_label: 'ai-model-descriptor:ethos-gemini-content',
+    address_mode: 'identity_text',
+    path_labels: ['current-item', 'published-record'],
+    payload: document.records[0],
+  });
+});
+
+test('a sidebar collection writes the consumer identity rather than a package-set copy', async () => {
+  const label = 'package::group::group::{"family":"group.collection","parts":{"id":"information-being-acted-on"}}';
+  const payload = { groupRef: { family: 'group.collection', parts: { id: 'information-being-acted-on' } }, memberOrder: ['surface:audience-questions'] };
+  const document = { kind: 'package-set-records', records: [{ id: 'information-being-acted-on', address_label_text: label, address: '1f:legacy', path: ['current-item', 'published-record'], payload }] };
+  const scan = async (_session, _partition, path) => ({ entries: path.length === 4
+    ? [{ address: '1f:package-set-copy', payload: { id: 'information-being-acted-on' } }]
+    : [{ address: '1f:set', payload: { kind: 'package-set-records' } }] });
+  const writes = await writesByMatchingLiveRecords({}, JSON.stringify(document), {
+    partitionLabel: 'trillion', packageSet: 'trillion', recordSet: 'sidebar-surface-collections',
+  }, scan);
+  assert.deepEqual(writes.at(-1), {
+    address_label: label,
+    address_mode: 'identity_text',
+    path_labels: ['current-item', 'published-record'],
+    payload,
+  });
+});

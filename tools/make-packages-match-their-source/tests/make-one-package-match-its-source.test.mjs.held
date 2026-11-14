@@ -1,0 +1,1396 @@
+import assert from "node:assert/strict";
+import { mkdir, mkdtemp, readdir, readFile, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import test from "node:test";
+
+import {
+  buildPackageDeltaRequest,
+  compileOnePackageSourcePlan,
+  hashCodeHexFromBytes,
+  inventoryLivePackage,
+  LIVE_INVENTORY_FULL_READ_CONCURRENCY,
+  LIVE_INVENTORY_READ_CONCURRENCY,
+  metadataAddressWireHexForRecord,
+  packageCurrentVersionAddressLabel,
+  packageSetIdentityFrom,
+  makeOnePackageMatchItsSource,
+  PRODUCT_CORRECTION_EVIDENCE_SCHEMA,
+  reactiveSinkWireHexesFromSelectedSource,
+  retainedLiveDataPathsFromSelectedSource,
+  verifyProductCorrectionChangeSetCompletion,
+  verifyProductCorrectionCompletion,
+} from "../do-work/make-one-package-match-its-source.mjs";
+import { installedConvergenceOptionsFromArgs } from "../do-work/run-make-packages-match-their-source.mjs";
+
+test("live-only ownership recovery is explicit and cannot be combined with source adoption", () => {
+  const options = installedConvergenceOptionsFromArgs([
+    "--app-id", "fixture-app", "--package", "package-set-records", "--adopt-live-ownership-only",
+  ]);
+  assert.equal(options.adoptLiveOwnershipOnly, true);
+  assert.throws(() => installedConvergenceOptionsFromArgs([
+    "--app-id", "fixture-app", "--package", "package-set-records",
+    "--adopt-live-ownership-only", "--adopt-unversioned-source-records",
+  ]), /choose one explicit adoption mode/);
+});
+
+test("live inventory bounds full ownership reads below hash-only record reads", () => {
+  assert.equal(LIVE_INVENTORY_FULL_READ_CONCURRENCY, 8);
+  assert.ok(LIVE_INVENTORY_READ_CONCURRENCY > LIVE_INVENTORY_FULL_READ_CONCURRENCY);
+});
+
+// Two tests stood here for `resolveLivePackageIdentity`, which scanned a
+// running app to learn WHICH PACKAGE SET owned a package so a caller could
+// scope a delta to whatever name the live rows carried. The set name is no
+// longer part of a package's identity, so there is nothing to resolve and
+// nothing for a historical name to outrank. Nothing but these tests ever
+// called it.
+
+
+
+const PACKAGE_SET = "fixture-set";
+const PARTITION = "fixture-partition";
+const PACKAGE = "alpha";
+const VERSION_LABEL = packageCurrentVersionAddressLabel(PARTITION, PACKAGE);
+
+test("source convergence CLI accepts only installed app and package identities", async () => {
+  const frontDoor = await readFile(new URL("../do-work/run-make-packages-match-their-source.mjs", import.meta.url), "utf8");
+  assert.match(frontDoor, /convergeInstalledPackageSource/);
+  assert.doesNotMatch(frontDoor, /["']--(?:package-set-folder|packages-source-root|package-loader|status-file|places|engine|scheme)["']/);
+  assert.doesNotMatch(frontDoor, /native-artifact|baseline|signing-key|source-revision|commit-materialized|reviewed-proposal/);
+});
+const A_RECORD = "11";
+const A_METADATA = "22";
+const B_RECORD = "33";
+const B_METADATA = "44";
+const REACTIVE_RECORD = "55";
+const REACTIVE_METADATA = "66";
+
+test("root execution environment declares the publisher's direct hash dependency", async () => {
+  const repository = JSON.parse(await readFile(new URL("../../../package.json", import.meta.url), "utf8"));
+  const owner = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
+  const source = await readFile(new URL("../do-work/make-one-package-match-its-source.mjs", import.meta.url), "utf8");
+  assert.match(source, /from ["']@noble\/hashes\/blake3\.js["']/);
+  assert.equal(repository.dependencies["@noble/hashes"], owner.dependencies["@noble/hashes"]);
+});
+
+test("package identity comes only from the descriptor and never from a folder basename", async () => {
+  const folder = await identityFolder("stated-set", "stated-partition");
+  assert.deepEqual(packageSetIdentityFrom(folder), {
+    descriptorPath: join(folder, "package-set-partition.json"),
+    package_set: "stated-set",
+    partition: "stated-partition",
+  });
+});
+
+test("an incomplete identity fails before package-loader or running-app contact", async () => {
+  const folder = await mkdtemp(join(tmpdir(), "wrong-set-"));
+  let loaderRuns = 0;
+  let targetRuns = 0;
+  await assert.rejects(
+    makeOnePackageMatchItsSource({
+      packageSetFolder: folder,
+      packageName: PACKAGE,
+      packageLoader: import.meta.filename,
+      client: clientThatCounts(() => { targetRuns += 1; }),
+      execFileAsync: async () => {
+        loaderRuns += 1;
+        return { stdout: "{}" };
+      },
+    }),
+    /PACKAGE_SET_IDENTITY_DESCRIPTOR_MISSING:/,
+  );
+  assert.equal(loaderRuns, 0);
+  assert.equal(targetRuns, 0);
+});
+
+test("compiler reply scope mismatch fails before live contact", async () => {
+  const folder = await identityFolder();
+  const plan = sourcePlan();
+  plan.package_set = "different-set";
+  let targetRuns = 0;
+  await assert.rejects(
+    makeOnePackageMatchItsSource({
+      packageSetFolder: folder,
+      packageName: PACKAGE,
+      packageLoader: import.meta.filename,
+      client: clientThatCounts(() => { targetRuns += 1; }),
+      execFileAsync: async () => ({ stdout: JSON.stringify(plan) }),
+    }),
+    /PACKAGE_LOADER_REPLY_SCOPE_MISMATCH/,
+  );
+  assert.equal(targetRuns, 0);
+});
+
+test("package-loader is invoked once with both package-set and partition facts", async () => {
+  const folder = await identityFolder();
+  const plan = sourcePlan();
+  const invocations = [];
+  const compiled = await compileOnePackageSourcePlan({
+    packageSetFolder: folder,
+    packageName: PACKAGE,
+    packageSet: PACKAGE_SET,
+    partition: PARTITION,
+    packageLoader: import.meta.filename,
+    readFile: () => "import test from 'node:test';",
+    execFileAsync: async (command, args) => {
+      invocations.push({ command, args });
+      return { stdout: JSON.stringify(plan) };
+    },
+  });
+  assert.equal(compiled.package_name, PACKAGE);
+  assert.equal(invocations.length, 1);
+  // A .mjs loader is not executable on its own, so it is run as `node <loader> ...` and the loader
+  // IS the first argument. This assertion used to omit it while the fixture passed
+  // `import.meta.filename`, so the test contradicted its own input and failed the moment the
+  // two-branch spawn landed. It could contradict itself because it never asserted `command`:
+  // checking the arguments while ignoring the program is checking half a spawn, and the half it
+  // skipped is the half that decides what the arguments MEAN.
+  assert.equal(invocations[0].command, process.execPath);
+  assert.deepEqual(invocations[0].args, [
+    import.meta.filename,
+    "compile-package-delta-source",
+    "--source-root", folder,
+    "--partition", PARTITION,
+    "--package", PACKAGE,
+    "--package-set", PACKAGE_SET,
+  ]);
+});
+
+test("separate BUDAG roots compile without copying packages into the package set", async () => {
+  const packageSetOwner = await mkdtemp(join(tmpdir(), "package-set-owner-"));
+  const packageOwner = await mkdtemp(join(tmpdir(), "package-source-owner-"));
+  const setFolder = join(packageSetOwner, PACKAGE_SET);
+  await mkdir(setFolder, { recursive: true });
+  await writeFile(join(setFolder, "package-set-partition.json"), JSON.stringify({
+    schema: "bitfield-package-set-partition/v1",
+    set_name: PACKAGE_SET,
+    partition: PARTITION,
+  }));
+  const packagesSourceRoot = join(packageOwner, "packages");
+  await mkdir(join(packagesSourceRoot, PACKAGE), { recursive: true });
+  await writeFile(join(packagesSourceRoot, PACKAGE, "things-to-store-and-run.json"), JSON.stringify({
+    package: PACKAGE,
+    things: [],
+  }));
+  const invocations = [];
+  await compileOnePackageSourcePlan({
+    packageSetFolder: setFolder,
+    packagesSourceRoot,
+    packageName: PACKAGE,
+    packageSet: PACKAGE_SET,
+    partition: PARTITION,
+    packageLoader: import.meta.filename,
+    readFile: () => "import test from 'node:test';",
+    execFileAsync: async (command, args) => {
+      invocations.push({ command, args });
+      return { stdout: JSON.stringify(sourcePlan()) };
+    },
+  });
+  const setFlag = invocations[0].args.indexOf("--package-set-source-root");
+  const packagesFlag = invocations[0].args.indexOf("--packages-source-root");
+  assert.equal(invocations[0].args[setFlag + 1], setFolder);
+  assert.equal(invocations[0].args[packagesFlag + 1], packagesSourceRoot);
+  assert.equal(invocations[0].args.includes("--source-root"), false);
+  assert.equal(existsSync(join(setFolder, "packages")), false, "no copied package tree was created");
+});
+
+test("a reusable package can keep its source owner while targeting a migrated package-set identity", async () => {
+  const folder = await identityFolder();
+  const invocations = [];
+  await compileOnePackageSourcePlan({
+    packageSetFolder: folder,
+    packageName: PACKAGE,
+    packageSet: "live-legacy-set",
+    sourcePackageSet: PACKAGE_SET,
+    partition: PARTITION,
+    packageLoader: import.meta.filename,
+    readFile: () => "import test from 'node:test';",
+    execFileAsync: async (command, args) => {
+      invocations.push({ command, args });
+      const plan = sourcePlan();
+      plan.package_set = "live-legacy-set";
+      return { stdout: JSON.stringify(plan) };
+    },
+  });
+  assert.deepEqual(invocations[0].args.slice(1, 7), [
+    "compile-package-delta-source",
+    "--source-root", folder,
+    "--source-package-set", PACKAGE_SET,
+    "--partition",
+  ]);
+});
+
+test("an executable shebang owns dispatch even when its compatibility path ends in .mjs", async () => {
+  const folder = await identityFolder();
+  const plan = sourcePlan();
+  const invocations = [];
+  const executableShim = "/tools/package-loader.mjs";
+  await compileOnePackageSourcePlan({
+    packageSetFolder: folder,
+    packageName: PACKAGE,
+    packageSet: PACKAGE_SET,
+    partition: PARTITION,
+    packageLoader: executableShim,
+    exists: () => true,
+    readFile: () => "#!/bin/bash\nexec /current/package-loader \"$@\"\n",
+    execFileAsync: async (command, args) => {
+      invocations.push({ command, args });
+      return { stdout: JSON.stringify(plan) };
+    },
+  });
+  assert.equal(invocations.length, 1);
+  assert.equal(invocations[0].command, executableShim);
+  assert.equal(invocations[0].args[0], "compile-package-delta-source");
+  assert.ok(!invocations[0].args.includes(executableShim));
+});
+
+test("a loader that is NOT javascript is the program itself, and is not repeated as an argument", async () => {
+  // The other side of the same branch, which nothing exercised. A test that only ever ran the
+  // js-loader path proves nothing about the binary path, and the binary path is the one the real
+  // runtime uses, so the covered direction was the rarer one.
+  //
+  // A directory stands in for a binary because the only thing the code asks of a loader is that it
+  // EXISTS and does not end in .mjs or .js. `exists` is not injected here, so this has to be a real
+  // path on disk rather than an invented name.
+  //
+  // The loader and the package-set folder are DELIBERATELY different paths. The first draft used
+  // the same value for both, and the "loader is not repeated in args" assertion then matched the
+  // legitimate `--package-set-folder` value and failed against correct code. Two facts sharing one
+  // value blinds any assertion that cannot tell which one it found.
+  const folder = await identityFolder();
+  const loaderThatIsNotJavascript = import.meta.dirname;
+  const plan = sourcePlan();
+  const invocations = [];
+  await compileOnePackageSourcePlan({
+    packageSetFolder: folder,
+    packageName: PACKAGE,
+    packageSet: PACKAGE_SET,
+    partition: PARTITION,
+    packageLoader: loaderThatIsNotJavascript,
+    execFileAsync: async (command, args) => {
+      invocations.push({ command, args });
+      return { stdout: JSON.stringify(plan) };
+    },
+  });
+  assert.equal(invocations.length, 1);
+  assert.equal(invocations[0].command, loaderThatIsNotJavascript);
+  assert.equal(invocations[0].args[0], "compile-package-delta-source");
+  // The loader must not appear as an argument at all. Asserting only args[0] would pass if it were
+  // repeated later in the list, which is the shape a copy-paste of the js branch would produce.
+  assert.ok(
+    !invocations[0].args.includes(loaderThatIsNotJavascript),
+    `the loader was repeated as an argument: ${JSON.stringify(invocations[0].args)}`,
+  );
+});
+
+test("a rejected scope submits no repair request before the package-delta rejection", async () => {
+  const folder = await identityFolder();
+  const plan = sourcePlan();
+  const engine = new FakeEngine();
+  engine.packageDeltaHandler = () => ({
+    schema: "bitfield.package_delta_receipt/v1",
+    outcome: "rejected",
+    reason_code: "PACKAGE_DELTA_TARGET_SCOPE_MISMATCH",
+    cursor_before: "0",
+    cursor_after: "0",
+    current_version_payload_multihash: null,
+  });
+  await assert.rejects(
+    makeOnePackageMatchItsSource({
+      packageSetFolder: folder,
+      packageName: PACKAGE,
+      packageLoader: import.meta.filename,
+      client: engine.client(),
+      execFileAsync: async () => ({ stdout: JSON.stringify(plan) }),
+    }),
+    /PACKAGE_DELTA_TARGET_SCOPE_MISMATCH/,
+  );
+  assert.deepEqual(engine.submittedTargets, [
+      "engine.operation.label-addressed",
+      "engine.operation.label-addressed",
+      "engine.operation.label-addressed",
+      "engine.operation.label-addressed",
+      "engine.operation.label-addressed",
+      "engine.operation.label-addressed",
+      "engine.operation.label-addressed",
+      "package-set-runtime-state.apply-package-delta",
+    "engine.operation.label-addressed",
+  ]);
+  assert.equal(engine.packageDeltaCount, 1);
+  assert.equal(engine.cursor, 0);
+  assert.equal(engine.current.size, 0);
+});
+
+test("first update creates paired ownership, atomic marker, cursor receipt, and fold proof", async () => {
+  const folder = await identityFolder();
+  const plan = sourcePlan();
+  const engine = new FakeEngine();
+  const result = await makeOnePackageMatchItsSource({
+    packageSetFolder: folder,
+    packageName: PACKAGE,
+    packageLoader: import.meta.filename,
+    client: engine.client(),
+    execFileAsync: async () => ({ stdout: JSON.stringify(plan) }),
+  });
+  assert.equal(result.outcome, "applied");
+  assert.equal(result.stats.create_count, 2);
+  assert.equal(result.stats.update_count, 0);
+  assert.equal(result.stats.retract_count, 0);
+  assert.equal(result.verification.all_operations_match, true);
+  assert.equal(engine.packageDeltaCount, 1);
+  assert.equal(Object.hasOwn(engine.lastPackageDeltaRequest, "package_set"), false);
+  assert.ok(engine.current.has(A_RECORD));
+  assert.ok(engine.current.has(A_METADATA));
+  const version = JSON.parse(engine.current.get(VERSION_LABEL).payload_base64.toString("utf8"));
+  assert.equal(version.schema, "bitfield.package_current_version/v1");
+  assert.deepEqual(version.records.map((record) => record.record_address_wire_hex), [A_RECORD]);
+});
+
+test("a declared failing package check rejects before the live delta", async () => {
+  const folder = await identityFolder();
+  const manifestPath = join(folder, "packages", PACKAGE, "things-to-store-and-run.json");
+  const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+  manifest.things.push({
+    type: "record",
+    address: `package::${PACKAGE}::checks`,
+    payload: { kind: "package-checks-descriptor", checks: ["show/missing-render-check.test.tsx"] },
+  });
+  await writeFile(manifestPath, JSON.stringify(manifest));
+  const engine = new FakeEngine();
+  await assert.rejects(makeOnePackageMatchItsSource({
+    packageSetFolder: folder,
+    packageName: PACKAGE,
+    packageLoader: import.meta.filename,
+    client: engine.client(),
+    execFileAsync: async () => ({ stdout: JSON.stringify(sourcePlan()) }),
+  }), /PACKAGE_DECLARED_CHECKS_FAILED:alpha:show\/missing-render-check\.test\.tsx:no_runner/);
+  assert.equal(engine.packageDeltaCount, 0);
+});
+
+test("completion is derived only from matching active target state and durable behavior evidence", async () => {
+  const folder = await identityFolder();
+  const plan = sourcePlan();
+  const engine = new FakeEngine();
+  const accepted = await makeOnePackageMatchItsSource({
+    packageSetFolder: folder,
+    packageName: PACKAGE,
+    packageLoader: import.meta.filename,
+    client: engine.client(),
+    execFileAsync: async () => ({ stdout: JSON.stringify(plan) }),
+  });
+  const targetRef = "installed-app:fixture";
+  const evidenceAddress = "product-correction-evidence::fixture";
+  const evidence = {
+    schema: PRODUCT_CORRECTION_EVIDENCE_SCHEMA,
+    outcome: "passed",
+    target_ref: targetRef,
+    package_set: PACKAGE_SET,
+    partition: PARTITION,
+    package_ref: PACKAGE,
+    proposal_multihash: accepted.proposal_multihash,
+    active_version_payload_multihash: accepted.receipt.current_version_payload_multihash,
+    result_multihash: `1f:${"c".repeat(64)}`,
+  };
+  engine.current.set(evidenceAddress, liveEntry(Buffer.from(JSON.stringify(evidence)), ["product-correction-evidence"]));
+
+  const completed = await verifyProductCorrectionCompletion({
+    client: engine.client(),
+    targetRef,
+    packageSet: PACKAGE_SET,
+    partition: PARTITION,
+    packageName: PACKAGE,
+    proposalMultihash: accepted.proposal_multihash,
+    currentVersionMultihash: accepted.receipt.current_version_payload_multihash,
+    evidenceAddress,
+  });
+  assert.equal(completed.state, "complete");
+  assert.equal(completed.active_version_payload_multihash, accepted.receipt.current_version_payload_multihash);
+  assert.equal(completed.evidence_revision_multihash, payloadHash(engine.current.get(evidenceAddress)));
+
+  await assert.rejects(
+    verifyProductCorrectionCompletion({
+      client: engine.client(),
+      targetRef: "hosted-app:somewhere-else",
+      packageSet: PACKAGE_SET,
+      partition: PARTITION,
+      packageName: PACKAGE,
+      proposalMultihash: accepted.proposal_multihash,
+      currentVersionMultihash: accepted.receipt.current_version_payload_multihash,
+      evidenceAddress,
+    }),
+    /PRODUCT_CORRECTION_EVIDENCE_DOES_NOT_MATCH_ACTIVE_CHANGE/,
+  );
+
+  plan.record_writes[0] = recordWrite(A_RECORD, Buffer.from("a later accepted revision"));
+  const later = await makeOnePackageMatchItsSource({
+    packageSetFolder: folder,
+    packageName: PACKAGE,
+    packageLoader: import.meta.filename,
+    client: engine.client(),
+    execFileAsync: async () => ({ stdout: JSON.stringify(plan) }),
+  });
+  assert.notEqual(later.receipt.current_version_payload_multihash, accepted.receipt.current_version_payload_multihash);
+  await assert.rejects(
+    verifyProductCorrectionCompletion({
+      client: engine.client(),
+      targetRef,
+      packageSet: PACKAGE_SET,
+      partition: PARTITION,
+      packageName: PACKAGE,
+      proposalMultihash: accepted.proposal_multihash,
+      currentVersionMultihash: accepted.receipt.current_version_payload_multihash,
+      evidenceAddress,
+    }),
+    /PRODUCT_CORRECTION_ACTIVE_VERSION_MISMATCH/,
+  );
+});
+
+test("a preview result cannot certify a target that still runs the old package revision", async () => {
+  const engine = new FakeEngine();
+  const evidenceAddress = "product-correction-evidence::preview";
+  engine.current.set(evidenceAddress, liveEntry(Buffer.from(JSON.stringify({
+    schema: PRODUCT_CORRECTION_EVIDENCE_SCHEMA,
+    outcome: "passed",
+    target_ref: "preview:fixture",
+    package_set: PACKAGE_SET,
+    partition: PARTITION,
+    package_ref: PACKAGE,
+    proposal_multihash: `1f:${"a".repeat(64)}`,
+    active_version_payload_multihash: `1f:${"b".repeat(64)}`,
+    result_multihash: `1f:${"c".repeat(64)}`,
+  })), ["product-correction-evidence"]));
+  await assert.rejects(
+    verifyProductCorrectionCompletion({
+      client: engine.client(),
+      targetRef: "installed-app:fixture",
+      packageSet: PACKAGE_SET,
+      partition: PARTITION,
+      packageName: PACKAGE,
+      proposalMultihash: `1f:${"a".repeat(64)}`,
+      currentVersionMultihash: `1f:${"b".repeat(64)}`,
+      evidenceAddress,
+    }),
+    /PRODUCT_CORRECTION_ACTIVE_VERSION_MISMATCH/,
+  );
+});
+
+test("a package plus package-set DATA correction cannot complete in a half-active state", async () => {
+  const plan = sourcePlan();
+  const engine = new FakeEngine();
+  const accepted = await makeOnePackageMatchItsSource({
+    packageSetFolder: await identityFolder(),
+    packageName: PACKAGE,
+    packageLoader: import.meta.filename,
+    client: engine.client(),
+    execFileAsync: async () => ({ stdout: JSON.stringify(plan) }),
+  });
+  const dataPackage = "package-set-records";
+  const dataProposal = `1f:${"d".repeat(64)}`;
+  const dataVersionLabel = packageCurrentVersionAddressLabel(PARTITION, dataPackage);
+  const dataVersion = liveEntry(Buffer.from(JSON.stringify({
+    schema: "bitfield.package_current_version/v1",
+    package_set: PACKAGE_SET,
+    partition: PARTITION,
+    package_ref: dataPackage,
+    proposal_multihash: dataProposal,
+    previous_version_payload_multihash: null,
+    records: [],
+  })), ["package-current-version", PACKAGE_SET, dataPackage]);
+  const changes = [
+    {
+      packageSet: PACKAGE_SET,
+      partition: PARTITION,
+      packageName: PACKAGE,
+      proposalMultihash: accepted.proposal_multihash,
+      currentVersionMultihash: accepted.receipt.current_version_payload_multihash,
+    },
+    {
+      packageSet: PACKAGE_SET,
+      partition: PARTITION,
+      packageName: dataPackage,
+      proposalMultihash: dataProposal,
+      currentVersionMultihash: payloadHash(dataVersion),
+    },
+  ];
+  const evidenceAddress = "product-correction-evidence::mixed";
+  await assert.rejects(
+    verifyProductCorrectionChangeSetCompletion({
+      client: engine.client(),
+      targetRef: "installed-app:fixture",
+      changes,
+      evidenceAddress,
+    }),
+    /PRODUCT_CORRECTION_CHANGE_SET_INCOMPLETE:package-set-records/,
+  );
+
+  engine.current.set(dataVersionLabel, dataVersion);
+  const activeChanges = changes.map((change) => ({
+    package_set: change.packageSet,
+    partition: change.partition,
+    package_ref: change.packageName,
+    proposal_multihash: change.proposalMultihash,
+    active_version_payload_multihash: change.currentVersionMultihash,
+  }));
+  engine.current.set(evidenceAddress, liveEntry(Buffer.from(JSON.stringify({
+    schema: PRODUCT_CORRECTION_EVIDENCE_SCHEMA,
+    outcome: "passed",
+    target_ref: "installed-app:fixture",
+    active_changes: activeChanges,
+    result_multihash: `1f:${"e".repeat(64)}`,
+  })), ["product-correction-evidence"]));
+  const completed = await verifyProductCorrectionChangeSetCompletion({
+    client: engine.client(),
+    targetRef: "installed-app:fixture",
+    changes,
+    evidenceAddress,
+  });
+  assert.equal(completed.state, "complete");
+  assert.deepEqual(completed.active_changes.map((change) => change.package_ref), [PACKAGE, dataPackage]);
+});
+
+test("source retractions apply through the same atomic package delta without a second approval", async () => {
+  const folder = await identityFolder();
+  const plan = sourcePlan([
+    recordWrite(A_RECORD),
+    metadataWrite(A_METADATA),
+    recordWrite(B_RECORD),
+    metadataWrite(B_METADATA, B_RECORD),
+  ]);
+  const engine = new FakeEngine();
+  const invoke = {
+    packageSetFolder: folder,
+    packageName: PACKAGE,
+    packageLoader: import.meta.filename,
+    client: engine.client(),
+    execFileAsync: async () => ({ stdout: JSON.stringify(plan) }),
+  };
+  await makeOnePackageMatchItsSource(invoke);
+  const afterFirst = engine.packageDeltaCount;
+
+  // The source stops owning B, so convergence removes the source-owned rows in the same
+  // atomic request. Exact package ownership and predecessor bases are the safety boundary.
+  plan.record_writes = plan.record_writes.filter(
+    (write) => write.address_label !== B_RECORD && write.address_label !== B_METADATA,
+  );
+
+  const converged = await makeOnePackageMatchItsSource(invoke);
+  assert.equal(converged.outcome, "applied");
+  assert.equal(converged.stats.retract_count, 2);
+  assert.equal(engine.packageDeltaCount, afterFirst + 1);
+  assert.equal(engine.current.has(B_RECORD), false);
+  assert.equal(engine.current.has(B_METADATA), false);
+});
+
+test("matching source and live folds return source-already-current without another delta", async () => {
+  const folder = await identityFolder();
+  const plan = sourcePlan();
+  const engine = new FakeEngine();
+  const invoke = {
+    packageSetFolder: folder,
+    packageName: PACKAGE,
+    packageLoader: import.meta.filename,
+    client: engine.client(),
+    execFileAsync: async () => ({ stdout: JSON.stringify(plan) }),
+  };
+  await makeOnePackageMatchItsSource(invoke);
+  const before = engine.packageDeltaCount;
+  const second = await makeOnePackageMatchItsSource(invoke);
+  assert.equal(second.outcome, "source-already-current");
+  assert.equal(second.stats.unchanged_count, 2);
+  assert.equal(engine.packageDeltaCount, before);
+});
+
+test("canonical dry-run previews the exact checkout delta without applying it", async () => {
+  const folder = await identityFolder();
+  const plan = sourcePlan();
+  const engine = new FakeEngine();
+  const report = await makeOnePackageMatchItsSource({
+    packageSetFolder: folder,
+    packageName: PACKAGE,
+    packageLoader: import.meta.filename,
+    client: engine.client(),
+    execFileAsync: async () => ({ stdout: JSON.stringify(plan) }),
+    dryRun: true,
+  });
+  assert.equal(report.outcome, "canonical-source-delta-preview");
+  assert.equal(report.stats.create_count, 2);
+  assert.deepEqual(report.differences.map((row) => row.action), ["create", "create"]);
+  assert.equal(engine.packageDeltaCount, 0);
+});
+
+test("removed source rows become explicit paired tombstones in one atomic request", async () => {
+  const plan = sourcePlan([
+    recordWrite(A_RECORD),
+    metadataWrite(A_METADATA),
+    recordWrite(B_RECORD),
+    metadataWrite(B_METADATA, B_RECORD),
+  ]);
+  const engine = new FakeEngine();
+  await seedLivePackage(engine, plan);
+  plan.record_writes = plan.record_writes.filter((write) => write.address_label !== B_RECORD && write.address_label !== B_METADATA);
+  const inventory = await inventoryLivePackage({
+    client: engine.client(),
+    packageSet: PACKAGE_SET,
+    partition: PARTITION,
+    packageName: PACKAGE,
+    preparedPlan: plan,
+  });
+  const request = buildPackageDeltaRequest({
+    packageSet: PACKAGE_SET,
+    partition: PARTITION,
+    packageName: PACKAGE,
+    preparedPlan: plan,
+    liveInventory: inventory,
+  });
+  assert.equal(packageOperation(request, B_RECORD).successor.state, "tombstone");
+  assert.equal(packageOperation(request, B_METADATA).successor.state, "tombstone");
+  assert.equal(packageDeltaStats(request).retract_count, 2);
+});
+
+test("no-retraction apply refuses changed source before any live package delta", async () => {
+  const prior = sourcePlan([
+    recordWrite(A_RECORD), metadataWrite(A_METADATA),
+    recordWrite(B_RECORD), metadataWrite(B_METADATA, B_RECORD),
+  ]);
+  const engine = new FakeEngine();
+  await seedLivePackage(engine, prior);
+  const updated = sourcePlan([recordWrite(A_RECORD), metadataWrite(A_METADATA)]);
+  await assert.rejects(makeOnePackageMatchItsSource({
+    packageSetFolder: await identityFolder(), packageName: PACKAGE,
+    packageLoader: import.meta.filename, client: engine.client(),
+    execFileAsync: async () => ({ stdout: JSON.stringify(updated) }),
+    onlyIfNoRetractions: true,
+  }), /PACKAGE_DELTA_RETRACTIONS_REFUSED:alpha:2/);
+  assert.equal(engine.packageDeltaCount, 0);
+  assert.ok(engine.current.has(B_RECORD));
+});
+
+test("declared live DATA survives an implementation update byte-for-byte", async () => {
+  const retainedPath = ["prop:observed_content:source_descriptor"];
+  const prior = sourcePlan([
+    recordWrite(A_RECORD), metadataWrite(A_METADATA),
+    recordWrite(B_RECORD, Buffer.from("private source configuration")),
+    metadataWrite(B_METADATA, B_RECORD, `package::${PACKAGE}::source::legacy`, retainedPath),
+  ]);
+  const engine = new FakeEngine();
+  await seedLivePackage(engine, prior);
+  const beforeRecord = engine.current.get(B_RECORD);
+  const beforeMetadata = engine.current.get(B_METADATA);
+  const updated = sourcePlan([recordWrite(A_RECORD, Buffer.from("changed implementation")), metadataWrite(A_METADATA)]);
+  const folder = await identityFolder();
+  await writeRetainedPolicy(folder, [retainedPath]);
+
+  const preview = await makeOnePackageMatchItsSource({
+    packageSetFolder: folder, packageName: PACKAGE, packageLoader: import.meta.filename,
+    client: engine.client(), execFileAsync: async () => ({ stdout: JSON.stringify(updated) }), dryRun: true,
+  });
+  assert.equal(preview.stats.retract_count, 0);
+  assert.equal(preview.stats.retained_live_data_count, 1);
+  assert.equal(engine.packageDeltaCount, 0);
+
+  const result = await makeOnePackageMatchItsSource({
+    packageSetFolder: folder, packageName: PACKAGE, packageLoader: import.meta.filename,
+    client: engine.client(), execFileAsync: async () => ({ stdout: JSON.stringify(updated) }),
+  });
+  assert.equal(result.stats.retract_count, 0);
+  assert.equal(engine.current.get(B_RECORD), beforeRecord);
+  assert.equal(engine.current.get(B_METADATA), beforeMetadata);
+  assert.ok(engine.lastPackageDeltaRequest.ownership_proofs.some((proof) => proof.record_address_wire_hex === B_RECORD));
+});
+
+test("retention policy cannot protect implementation paths or duplicate data paths", async () => {
+  const folder = await identityFolder();
+  await writeRetainedPolicy(folder, [["packages", "alpha", "do-work"]]);
+  assert.throws(() => retainedLiveDataPathsFromSelectedSource({ packageSetFolder: folder, packageName: PACKAGE }),
+    /PACKAGE_RETAINED_LIVE_DATA_PATH_INVALID/);
+  await writeRetainedPolicy(folder, [["prop:source"], ["prop:source"]]);
+  assert.throws(() => retainedLiveDataPathsFromSelectedSource({ packageSetFolder: folder, packageName: PACKAGE }),
+    /PACKAGE_RETAINED_LIVE_DATA_PATH_DUPLICATE/);
+});
+
+test("live ownership omitted by the current-version pointer is still retired", async () => {
+  const orphanRecord = `1f20${"77".repeat(32)}`;
+  const orphanMetadata = metadataAddressWireHexForRecord(orphanRecord);
+  const orphanMetadataPayload = {
+    schema: "package_record_source_metadata",
+    package_set: PACKAGE_SET,
+    source_package: PACKAGE,
+    source_address: "retired-source-row",
+    authority_class_address: "authority-class::impl",
+    resolved_address_wire_hex: orphanRecord,
+    path: ["retired", "implementation"],
+  };
+  const engine = new FakeEngine({
+    scanEntries: [{ address: orphanMetadata, payload: orphanMetadataPayload }],
+  });
+  const plan = sourcePlan();
+  await seedLivePackage(engine, plan);
+  engine.current.set(orphanRecord, liveEntry(Buffer.from("obsolete implementation"), orphanMetadataPayload.path));
+  engine.current.set(orphanMetadata, liveEntry(
+    Buffer.from(JSON.stringify(orphanMetadataPayload)),
+    ["package-record-source-metadata"],
+  ));
+
+  const result = await makeOnePackageMatchItsSource({
+    packageSetFolder: await identityFolder(),
+    packageName: PACKAGE,
+    packageLoader: import.meta.filename,
+    client: engine.client(),
+    execFileAsync: async () => ({ stdout: JSON.stringify(plan) }),
+  });
+
+  assert.equal(result.outcome, "applied");
+  assert.equal(result.stats.retract_count, 2);
+  assert.equal(engine.current.has(orphanRecord), false);
+  assert.equal(engine.current.has(orphanMetadata), false);
+});
+
+test("legacy signed-package notes about ownership metadata do not block source updates", async () => {
+  const plan = sourcePlan();
+  const legacyNote = {
+    schema: "package_record_source_metadata",
+    package_set: PACKAGE_SET,
+    source_package: PACKAGE,
+    source_address: `legacy-signed-package-use::old-bundle::${A_METADATA}`,
+    authority_class_address: "authority-class::impl",
+    resolved_address_wire_hex: A_METADATA,
+    path: [],
+  };
+  const engine = new FakeEngine({
+    scanEntries: [{ address: metadataAddressWireHexForRecord(A_METADATA), payload: legacyNote }],
+  });
+  await seedLivePackage(engine, plan);
+  const inventory = await inventoryLivePackage({
+    client: engine.client(), packageSet: PACKAGE_SET, partition: PARTITION,
+    packageName: PACKAGE, preparedPlan: plan,
+  });
+  assert.equal(inventory.ownedRecords.some((row) => row.record_address_wire_hex === A_METADATA), false);
+});
+
+test("an obsolete ownership chain retracts each live address exactly once", () => {
+  const plan = sourcePlan();
+  const metadataForB = metadataWrite(B_METADATA, B_RECORD);
+  const chainTail = metadataWrite(REACTIVE_METADATA, B_METADATA);
+  const liveInventory = {
+    currentVersion: { payload_multihash: "1f:old-version" },
+    currentVersionRecord: {
+      schema: "bitfield.package_current_version/v1",
+      package_set: PACKAGE_SET,
+      partition: PARTITION,
+      package_ref: PACKAGE,
+      records: [
+        {
+          record_address_wire_hex: B_METADATA,
+          metadata_address_wire_hex: REACTIVE_METADATA,
+          path_labels: [],
+        },
+        {
+          record_address_wire_hex: B_RECORD,
+          metadata_address_wire_hex: B_METADATA,
+          path_labels: ["old-record"],
+        },
+      ],
+    },
+    currentByWireHex: new Map([
+      [B_RECORD, {
+        payload_multihash: hashCodeHexFromBytes(Buffer.from("old record")),
+        payload_base64: Buffer.from("old record").toString("base64"),
+        path_labels: ["old-record"],
+      }],
+      [B_METADATA, {
+        payload_multihash: hashCodeHexFromBytes(Buffer.from(metadataForB.payload_base64, "base64")),
+        payload_base64: metadataForB.payload_base64,
+        path_labels: ["package-record-source-metadata"],
+      }],
+      [REACTIVE_METADATA, {
+        payload_multihash: hashCodeHexFromBytes(Buffer.from(chainTail.payload_base64, "base64")),
+        payload_base64: chainTail.payload_base64,
+        path_labels: ["package-record-source-metadata"],
+      }],
+    ]),
+    adoptingUnversionedSourceRecords: false,
+  };
+
+  const request = buildPackageDeltaRequest({
+    packageSet: PACKAGE_SET,
+    partition: PARTITION,
+    packageName: PACKAGE,
+    preparedPlan: plan,
+    liveInventory,
+  });
+  const tombstones = request.operations.filter((operation) => operation.successor.state === "tombstone");
+  assert.deepEqual(
+    tombstones.map((operation) => operation.address_wire_hex).sort(),
+    [B_RECORD, B_METADATA, REACTIVE_METADATA].sort(),
+  );
+  assert.equal(tombstones.filter((operation) => operation.address_wire_hex === B_METADATA).length, 1);
+  assert.deepEqual(packageOperation(request, B_METADATA).path_labels, []);
+});
+
+test("package-set DATA needs no synthetic package manifest to prove it has no reactive sinks", () => {
+  assert.deepEqual(reactiveSinkWireHexesFromSelectedSource({
+    packageSetFolder: "/a/source/set",
+    packageName: "package-set-records",
+    preparedPlan: { record_writes: [], stored_byte_writes: [], entry_writes: [] },
+    readFile: () => { throw new Error("package-set DATA has no package manifest"); },
+  }), []);
+});
+
+test("package-set DATA applies without a synthetic declared-check runner", async () => {
+  const folder = await identityFolder();
+  const engine = new FakeEngine();
+  const result = await makeOnePackageMatchItsSource({
+    packageSetFolder: folder,
+    packageName: "package-set-records",
+    packageLoader: import.meta.filename,
+    client: engine.client(),
+    execFileAsync: async () => ({ stdout: JSON.stringify(sourcePlanForPackage("package-set-records")) }),
+  });
+  assert.equal(result.outcome, "applied");
+  assert.equal(engine.packageDeltaCount, 1);
+});
+
+test("engine-owned reactive sinks are omitted from desired writes and stale tombstones", async () => {
+  const folder = await identityFolder();
+  await writeReactiveSourceDeclaration(folder);
+  const plan = sourcePlan([
+    recordWrite(A_RECORD),
+    metadataWrite(A_METADATA),
+    recordWrite(REACTIVE_RECORD, Buffer.from("engine-computed sink"), ["engine-owned", "published-record"]),
+    metadataWrite(
+      REACTIVE_METADATA,
+      REACTIVE_RECORD,
+      `package::${PACKAGE}::published-records`,
+      ["engine-owned", "published-record"],
+    ),
+  ]);
+  const engine = new FakeEngine();
+  await seedLivePackage(engine, plan);
+  plan.record_writes[0] = recordWrite(A_RECORD, Buffer.from("changed ordinary record"));
+
+  const result = await makeOnePackageMatchItsSource({
+    packageSetFolder: folder,
+    packageName: PACKAGE,
+    packageLoader: import.meta.filename,
+    client: engine.client(),
+    execFileAsync: async () => ({ stdout: JSON.stringify(plan) }),
+  });
+
+  assert.equal(result.outcome, "applied");
+  assert.equal(result.stats.update_count, 1);
+  assert.equal(result.stats.retract_count, 0);
+  const operationAddresses = engine.lastPackageDeltaRequest.operations.map((operation) => operation.address_wire_hex);
+  assert.equal(operationAddresses.includes(REACTIVE_RECORD), false);
+  assert.equal(operationAddresses.includes(REACTIVE_METADATA), false);
+  const successorVersion = JSON.parse(engine.current.get(VERSION_LABEL).payload_base64.toString("utf8"));
+  assert.deepEqual(successorVersion.records.map((record) => record.record_address_wire_hex), [A_RECORD]);
+});
+
+test("a markerless live candidate fails closed before package-delta submission", async () => {
+  const plan = sourcePlan();
+  const engine = new FakeEngine();
+  engine.current.set(A_RECORD, liveEntry(Buffer.from("legacy row"), ["old"]));
+  await assert.rejects(
+    makeOnePackageMatchItsSource({
+      packageSetFolder: await identityFolder(),
+      packageName: PACKAGE,
+      packageLoader: import.meta.filename,
+      client: engine.client(),
+      execFileAsync: async () => ({ stdout: JSON.stringify(plan) }),
+    }),
+    new RegExp(`PACKAGE_CURRENT_VERSION_MISSING_LIVE_ROW_PRESENT:${A_RECORD}`),
+  );
+  assert.equal(engine.packageDeltaCount, 0);
+  assert.ok(engine.current.has(A_RECORD));
+});
+
+test("explicit adoption creates ownership for source rows and preserves unknown orphan rows", async () => {
+  const plan = sourcePlan();
+  const engine = new FakeEngine();
+  const originalRecord = Buffer.from(plan.record_writes[0].payload_base64, "base64");
+  const originalMetadata = Buffer.from(plan.record_writes[1].payload_base64, "base64");
+  engine.current.set(A_RECORD, liveEntry(originalRecord, plan.record_writes[0].path_labels));
+  engine.current.set(A_METADATA, liveEntry(originalMetadata, plan.record_writes[1].path_labels));
+  engine.current.set(B_RECORD, liveEntry(Buffer.from("unrelated orphan"), ["unknown-product", "row"]));
+
+  const result = await makeOnePackageMatchItsSource({
+    packageSetFolder: await identityFolder(),
+    packageName: PACKAGE,
+    packageLoader: import.meta.filename,
+    client: engine.client(),
+    execFileAsync: async () => ({ stdout: JSON.stringify(plan) }),
+    adoptUnversionedSourceRecords: true,
+  });
+
+  assert.equal(result.outcome, "applied");
+  assert.equal(result.adopted_unversioned_source_records, true);
+  assert.equal(result.stats.retract_count, 0);
+  assert.equal(result.stats.update_count, 0);
+  assert.equal(result.stats.unchanged_count, 2);
+  assert.equal(engine.lastPackageDeltaRequest.operations.length, 0);
+  assert.ok(engine.current.has(B_RECORD), "an address absent from source must remain untouched");
+  const version = JSON.parse(engine.current.get(VERSION_LABEL).payload_base64.toString("utf8"));
+  assert.deepEqual(version.records.map((record) => record.record_address_wire_hex), [A_RECORD]);
+});
+
+test("live-ownership-only adoption versions divergent live bytes without applying desired source", async () => {
+  const canonicalMetadata = metadataAddressWireHexForRecord(A_RECORD);
+  const plan = sourcePlan([recordWrite(A_RECORD), metadataWrite(canonicalMetadata)]);
+  const liveRecord = Buffer.from("live content differs from current source");
+  const liveMetadata = Buffer.from(plan.record_writes[1].payload_base64, "base64");
+  const engine = new FakeEngine({ scanEntries: [{
+    address: canonicalMetadata,
+    payload: JSON.parse(liveMetadata.toString("utf8")),
+  }] });
+  engine.current.set(A_RECORD, liveEntry(liveRecord, plan.record_writes[0].path_labels));
+  engine.current.set(canonicalMetadata, liveEntry(liveMetadata, plan.record_writes[1].path_labels));
+  const input = {
+    packageSetFolder: await identityFolder(),
+    packageName: PACKAGE,
+    packageLoader: import.meta.filename,
+    client: engine.client(),
+    execFileAsync: async () => ({ stdout: JSON.stringify(plan) }),
+    adoptLiveOwnershipOnly: true,
+  };
+  const preview = await makeOnePackageMatchItsSource({ ...input, dryRun: true });
+  assert.equal(preview.outcome, "live-ownership-adoption-preview");
+  assert.equal(preview.live_owned_pair_count, 1);
+  assert.deepEqual(preview.differences, []);
+  const result = await makeOnePackageMatchItsSource(input);
+  assert.equal(result.adopted_live_ownership_only, true);
+  assert.deepEqual(engine.lastPackageDeltaRequest.operations, []);
+  assert.deepEqual(engine.current.get(A_RECORD).payload_base64, liveRecord);
+  assert.deepEqual(engine.current.get(canonicalMetadata).payload_base64, liveMetadata);
+  assert.ok(engine.current.has(VERSION_LABEL));
+});
+
+test("one package-set record set updates without retiring another set's live ownership", () => {
+  const selectedMetadata = metadataWrite(A_METADATA);
+  const selected = JSON.parse(Buffer.from(selectedMetadata.payload_base64, "base64").toString("utf8"));
+  selected.source_package = "package-set-records";
+  selected.source_address = "package-set-records::selected";
+  selectedMetadata.payload_base64 = Buffer.from(JSON.stringify(selected)).toString("base64");
+  const otherMetadata = metadataWrite(B_METADATA, B_RECORD);
+  const other = JSON.parse(Buffer.from(otherMetadata.payload_base64, "base64").toString("utf8"));
+  other.source_package = "package-set-records";
+  other.source_address = "package-set-records::other";
+  otherMetadata.payload_base64 = Buffer.from(JSON.stringify(other)).toString("base64");
+  const desired = {
+    ...sourcePlan([recordWrite(A_RECORD, Buffer.from("selected new")), selectedMetadata]),
+    package_name: "package-set-records",
+  };
+  const current = new Map([
+    [A_RECORD, { payload_multihash: hashCodeHexFromBytes(Buffer.from("selected old")), path_labels: recordWrite(A_RECORD).path_labels }],
+    [A_METADATA, { payload_multihash: hashCodeHexFromBytes(Buffer.from(selectedMetadata.payload_base64, "base64")), payload_base64: selectedMetadata.payload_base64 }],
+    [B_RECORD, { payload_multihash: hashCodeHexFromBytes(Buffer.from("other unchanged")), path_labels: recordWrite(B_RECORD).path_labels }],
+    [B_METADATA, { payload_multihash: hashCodeHexFromBytes(Buffer.from(otherMetadata.payload_base64, "base64")), payload_base64: otherMetadata.payload_base64 }],
+  ]);
+  const request = buildPackageDeltaRequest({
+    packageSet: PACKAGE_SET, partition: PARTITION, packageName: "package-set-records",
+    selectedRecordSet: "selected", preparedPlan: desired,
+    liveInventory: {
+      currentByWireHex: current,
+      currentVersion: { payload_multihash: "1f:old-version" },
+      ownedRecords: [
+        { record_address_wire_hex: A_RECORD, metadata_address_wire_hex: A_METADATA, path_labels: recordWrite(A_RECORD).path_labels },
+        { record_address_wire_hex: B_RECORD, metadata_address_wire_hex: B_METADATA, path_labels: recordWrite(B_RECORD).path_labels },
+      ],
+    },
+  });
+  assert.deepEqual(request.operations.map((operation) => operation.address_wire_hex), [A_RECORD]);
+  assert.deepEqual(request.ownership_proofs.map((proof) => proof.record_address_wire_hex), [A_RECORD, B_RECORD]);
+});
+
+test("legacy version inventory cannot become the canonical version basis", async () => {
+  const originalPlan = sourcePlan();
+  const engine = new FakeEngine();
+  await seedLivePackage(engine, originalPlan);
+  const legacyLabel = `package-current-version::${PACKAGE_SET}::${PARTITION}::${PACKAGE}`;
+  engine.current.set(legacyLabel, engine.current.get(VERSION_LABEL));
+  engine.current.delete(VERSION_LABEL);
+  const changedPlan = sourcePlan([
+    recordWrite(A_RECORD, Buffer.from("updated record")),
+    metadataWrite(A_METADATA),
+  ]);
+
+  const result = await makeOnePackageMatchItsSource({
+    packageSetFolder: await identityFolder(),
+    packageName: PACKAGE,
+    packageLoader: import.meta.filename,
+    client: engine.client(),
+    execFileAsync: async () => ({ stdout: JSON.stringify(changedPlan) }),
+  });
+
+  assert.equal(result.outcome, "applied");
+  assert.deepEqual(engine.lastPackageDeltaRequest.expected_current_version, { state: "absent" });
+  assert.deepEqual(engine.lastPackageDeltaRequest.operations.map((operation) => operation.address_wire_hex), [A_RECORD]);
+  assert.ok(engine.current.has(legacyLabel), "legacy ownership evidence remains readable");
+  assert.ok(engine.current.has(VERSION_LABEL), "the native owner publishes the canonical version");
+});
+
+test("matching legacy rows still establish the canonical version exactly once", async () => {
+  const plan = sourcePlan();
+  const engine = new FakeEngine();
+  await seedLivePackage(engine, plan);
+  const legacyLabel = `package-current-version::${PACKAGE_SET}::${PARTITION}::${PACKAGE}`;
+  engine.current.set(legacyLabel, engine.current.get(VERSION_LABEL));
+  engine.current.delete(VERSION_LABEL);
+  const input = {
+    packageSetFolder: await identityFolder(),
+    packageName: PACKAGE,
+    packageLoader: import.meta.filename,
+    client: engine.client(),
+    execFileAsync: async () => ({ stdout: JSON.stringify(plan) }),
+  };
+
+  const first = await makeOnePackageMatchItsSource(input);
+  assert.equal(first.outcome, "applied");
+  assert.deepEqual(engine.lastPackageDeltaRequest.expected_current_version, { state: "absent" });
+  assert.deepEqual(engine.lastPackageDeltaRequest.operations, []);
+  assert.ok(engine.current.has(VERSION_LABEL));
+  const second = await makeOnePackageMatchItsSource(input);
+  assert.equal(second.outcome, "source-already-current");
+  assert.equal(engine.packageDeltaCount, 1);
+});
+
+test("explicit adoption is DATA-generic for a package identity unknown to the owner", async () => {
+  const unknownPackage = "future-product-records";
+  const folder = await identityFolder(PACKAGE_SET, PARTITION, unknownPackage);
+  const plan = sourcePlanForPackage(unknownPackage);
+  const engine = new FakeEngine();
+  engine.current.set(A_RECORD, liveEntry(Buffer.from(plan.record_writes[0].payload_base64, "base64"), plan.record_writes[0].path_labels));
+
+  const result = await makeOnePackageMatchItsSource({
+    packageSetFolder: folder,
+    packageName: unknownPackage,
+    packageLoader: import.meta.filename,
+    client: engine.client(),
+    execFileAsync: async () => ({ stdout: JSON.stringify(plan) }),
+    adoptUnversionedSourceRecords: true,
+  });
+
+  assert.equal(result.outcome, "applied");
+  assert.equal(result.stats.retract_count, 0);
+  assert.equal(engine.lastPackageDeltaRequest.package_ref, unknownPackage);
+  assert.deepEqual(engine.lastPackageDeltaRequest.operations.map((operation) =>
+    operation.address_wire_hex), [A_METADATA]);
+});
+
+test("fold mismatch is a failure even when the package-delta receipt says applied", async () => {
+  const folder = await identityFolder();
+  const plan = sourcePlan();
+  const engine = new FakeEngine({ corruptFoldReadback: true });
+  await assert.rejects(
+    makeOnePackageMatchItsSource({
+      packageSetFolder: folder,
+      packageName: PACKAGE,
+      packageLoader: import.meta.filename,
+      client: engine.client(),
+      execFileAsync: async () => ({ stdout: JSON.stringify(plan) }),
+    }),
+    new RegExp(`PACKAGE_DELTA_FOLD_READBACK_MISMATCH:${A_RECORD}`),
+  );
+  assert.equal(engine.packageDeltaCount, 1);
+});
+
+test("package source contains no app, customer, founder path, or speculative repair identity", async () => {
+  const root = new URL("..", import.meta.url);
+  const files = productionPackageFiles(root);
+  assert.ok(files.length >= 4);
+  const combined = (await Promise.all(files.map(async (file) => [
+    file,
+    await readFile(file, "utf8"),
+  ])));
+  for (const [file, text] of combined) {
+    assert.equal(/trillion/i.test(text), false, file);
+    assert.equal(text.includes("/Users/example"), false, file);
+    assert.equal(text.includes("healOrphansBeforeDelta"), false, file);
+    assert.equal(text.includes("PACKAGE_DELTA_PRE_SUBMIT_REPAIR"), false, file);
+  }
+});
+
+async function identityFolder(packageSet = PACKAGE_SET, partition = PARTITION, packageName = PACKAGE) {
+  const folder = await mkdtemp(join(tmpdir(), "package-owner-"));
+  await writeFile(join(folder, "package-set-partition.json"), JSON.stringify({
+    schema: "bitfield-package-set-partition/v1",
+    set_name: packageSet,
+    partition,
+  }));
+  const sourceFolder = join(folder, "packages", packageName);
+  await mkdir(sourceFolder, { recursive: true });
+  await writeFile(join(sourceFolder, "things-to-store-and-run.json"), JSON.stringify({
+    package: packageName,
+    things: [],
+  }));
+  return folder;
+}
+
+async function writeReactiveSourceDeclaration(folder) {
+  const sourcePath = join(folder, "packages", PACKAGE, "things-to-store-and-run.json");
+  const source = JSON.parse(await readFile(sourcePath, "utf8"));
+  source.things.push({
+    type: "record_from_matching_records",
+    address: `package::${PACKAGE}::published-records`,
+    path: ["engine-owned", "published-record"],
+    matching_record_paths: [["current-item", "published-record"]],
+  });
+  await writeFile(sourcePath, JSON.stringify(source));
+}
+
+async function writeRetainedPolicy(folder, paths) {
+  const sourcePath = join(folder, "packages", PACKAGE, "things-to-store-and-run.json");
+  const source = JSON.parse(await readFile(sourcePath, "utf8"));
+  source.things = source.things.filter((thing) => thing?.payload?.kind !== "bitfield-package-retained-live-data-policy");
+  source.things.push({
+    type: "record", address: `package::${PACKAGE}::retained-live-data-policy`,
+    payload: { kind: "bitfield-package-retained-live-data-policy", path_labels: paths },
+  });
+  await writeFile(sourcePath, JSON.stringify(source));
+}
+
+function sourcePlan(writes = [recordWrite(A_RECORD), metadataWrite(A_METADATA)]) {
+  return {
+    schema: "bitfield.package_delta_source_plan/v1",
+    package_set: PACKAGE_SET,
+    partition: PARTITION,
+    package_name: PACKAGE,
+    record_writes: writes,
+    stored_byte_writes: [],
+    entry_writes: [],
+  };
+}
+
+function sourcePlanForPackage(packageName) {
+  const metadata = metadataWrite(A_METADATA);
+  const decoded = JSON.parse(Buffer.from(metadata.payload_base64, "base64").toString("utf8"));
+  decoded.source_package = packageName;
+  decoded.source_address = `package::${packageName}::record::${A_RECORD}`;
+  metadata.payload_base64 = Buffer.from(JSON.stringify(decoded)).toString("base64");
+  return {
+    ...sourcePlan([recordWrite(A_RECORD), metadata]),
+    package_name: packageName,
+  };
+}
+
+function recordWrite(address = A_RECORD, payload = Buffer.from(`record:${address}`)) {
+  return {
+    address_label: address,
+    address_mode: "multihash-hex",
+    path_labels: ["current-item", "published-record", address],
+    payload_base64: payload.toString("base64"),
+  };
+}
+
+function metadataWrite(address = A_METADATA, resolved = A_RECORD, sourceAddress = `package::${PACKAGE}::record::${resolved}`, path = null) {
+  const payload = Buffer.from(JSON.stringify({
+    schema: "package_record_source_metadata",
+    package_set: PACKAGE_SET,
+    source_package: PACKAGE,
+    authority_class_address: "authority-class::impl",
+    resolved_address_wire_hex: resolved,
+    path: path ?? ["current-item", "published-record", resolved],
+    source_address: sourceAddress,
+  }));
+  return {
+    address_label: address,
+    address_mode: "multihash-hex",
+    path_labels: ["package-record-source-metadata"],
+    payload_base64: payload.toString("base64"),
+  };
+}
+
+async function seedLivePackage(engine, plan) {
+  const writes = [...plan.record_writes, ...plan.stored_byte_writes, ...plan.entry_writes];
+  const metadataByResolved = new Map();
+  for (const write of writes.filter((candidate) => candidate.path_labels[0] === "package-record-source-metadata")) {
+    const metadata = JSON.parse(Buffer.from(write.payload_base64, "base64").toString("utf8"));
+    metadataByResolved.set(metadata.resolved_address_wire_hex, write);
+  }
+  const records = [];
+  for (const record of writes.filter((write) => write.path_labels[0] !== "package-record-source-metadata")) {
+    const metadata = metadataByResolved.get(record.address_label);
+    if (metadata == null) continue;
+    records.push({
+      record_address_wire_hex: record.address_label,
+      metadata_address_wire_hex: metadata.address_label,
+      path_labels: record.path_labels,
+    });
+    engine.current.set(record.address_label, liveEntry(Buffer.from(record.payload_base64, "base64"), record.path_labels));
+    engine.current.set(metadata.address_label, liveEntry(Buffer.from(metadata.payload_base64, "base64"), metadata.path_labels));
+  }
+  const version = Buffer.from(JSON.stringify({
+    schema: "bitfield.package_current_version/v1",
+    package_set: PACKAGE_SET,
+    partition: PARTITION,
+    package_ref: PACKAGE,
+    proposal_multihash: "old-proposal",
+    previous_version_payload_multihash: null,
+    records: records.sort((left, right) => left.record_address_wire_hex.localeCompare(right.record_address_wire_hex)),
+  }));
+  engine.current.set(VERSION_LABEL, liveEntry(version, ["package-current-version", PACKAGE_SET, PACKAGE]));
+}
+
+class FakeEngine {
+  constructor({ corruptFoldReadback = false, scanEntries = [] } = {}) {
+    this.current = new Map();
+    this.cursor = 0;
+    this.packageDeltaCount = 0;
+    this.submittedTargets = [];
+    this.corruptFoldReadback = corruptFoldReadback;
+    this.packageDeltaHandler = null;
+    this.lastPackageDeltaRequest = null;
+    this.scanEntries = scanEntries;
+  }
+
+  client() {
+    return {
+      postBytes: async (target, body) => {
+        this.submittedTargets.push(target);
+        const request = JSON.parse(Buffer.from(body).toString("utf8"));
+        if (target === "engine.operation.label-addressed") return response(this.engineOperation(request));
+      if (target !== "package-set-runtime-state.apply-package-delta") return response({ error: "unknown target" }, 404);
+      this.packageDeltaCount += 1;
+      this.lastPackageDeltaRequest = request;
+      return response(this.packageDeltaHandler ? this.packageDeltaHandler(request) : this.commit(request));
+      },
+    };
+  }
+
+  engineOperation(request) {
+    if (request.operation_label === "engine.operation.current-cursor") return { cursor: this.cursor };
+    if (request.operation_label === "engine.operation.scan-current-under-path") {
+      return { entries: this.scanEntries, next_cursor: null, hit_limit: false };
+    }
+    if (request.operation_label !== "engine.operation.read-current") return { error: "unknown operation" };
+    const entry = this.current.get(request.address_label);
+    return entry == null
+      ? { found: false }
+      : { found: true, payload_base64: entry.payload_base64.toString("base64") };
+  }
+
+  commit(request) {
+    const before = this.cursor;
+    const versionLabel = packageCurrentVersionAddressLabel(request.partition,
+      request.package_ref,
+    );
+    for (const operation of request.operations) {
+      if (!basisMatches(this.current.get(operation.address_wire_hex), operation.basis)) {
+        return this.rejected(request, "PACKAGE_DELTA_STALE_BASIS", before);
+      }
+    }
+    const next = new Map(this.current);
+    for (const operation of request.operations) {
+      if (operation.successor.state === "tombstone") next.delete(operation.address_wire_hex);
+      else next.set(operation.address_wire_hex, liveEntry(Buffer.from(operation.successor.payload_base64, "base64"), operation.path_labels));
+    }
+    const tombstoned = new Set(request.operations
+      .filter((operation) => operation.successor.state === "tombstone")
+      .map((operation) => operation.address_wire_hex));
+    const versionEntry = liveEntry(Buffer.from(JSON.stringify({
+      schema: "bitfield.package_current_version/v1",
+      package_set: request.package_set,
+      partition: request.partition,
+      package_ref: request.package_ref,
+      proposal_multihash: request.proposal_multihash,
+      previous_version_payload_multihash: payloadHash(this.current.get(versionLabel)),
+      records: request.ownership_proofs
+        .filter((proof) => !tombstoned.has(proof.record_address_wire_hex))
+        .map((proof) => ({
+          record_address_wire_hex: proof.record_address_wire_hex,
+          metadata_address_wire_hex: proof.metadata_address_wire_hex,
+          path_labels: JSON.parse(Buffer.from(proof.metadata_payload_base64, "base64").toString("utf8")).path,
+        }))
+        .sort((left, right) => left.record_address_wire_hex.localeCompare(right.record_address_wire_hex)),
+    })), ["package-current-version", request.package_set, request.package_ref]);
+    next.set(versionLabel, versionEntry);
+    this.current = next;
+    this.cursor += 1;
+    if (this.corruptFoldReadback) this.current.set(A_RECORD, liveEntry(Buffer.from("wrong bytes"), ["wrong"]));
+    return {
+      schema: "bitfield.package_delta_receipt/v1",
+      outcome: "applied",
+      cursor_before: String(before),
+      cursor_after: String(this.cursor),
+      current_version_payload_multihash: payloadHash(versionEntry),
+    };
+  }
+
+  rejected(request, reason, cursor) {
+    return {
+      schema: "bitfield.package_delta_receipt/v1",
+      outcome: "rejected",
+      reason_code: reason,
+      cursor_before: String(cursor),
+      cursor_after: String(cursor),
+      current_version_payload_multihash: payloadHash(this.current.get(
+        packageCurrentVersionAddressLabel(request.partition, request.package_ref),
+      )),
+    };
+  }
+}
+
+function clientThatCounts(onPost) {
+  return {
+    postBytes: async () => {
+      onPost();
+      return response({ error: "unexpected contact" }, 500);
+    },
+  };
+}
+
+function response(body, status = 200) {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    text: async () => JSON.stringify(body),
+  };
+}
+
+function liveEntry(payload, pathLabels) {
+  return { payload_base64: payload, path_labels: pathLabels };
+}
+
+function basisMatches(entry, basis) {
+  if (basis.state === "absent") return entry == null;
+  return entry != null && payloadHash(entry) === basis.payload_multihash;
+}
+
+function payloadHash(entry) {
+  return entry == null ? null : hashCodeHexFromBytes(entry.payload_base64);
+}
+
+function packageOperation(request, address) {
+  return request.operations.find((operation) => operation.address_wire_hex === address);
+}
+
+function packageDeltaStats(request) {
+  return request[Symbol.for("bitfield.package_delta.plan_stats")];
+}
+
+async function packageFiles(root, prefix = "") {
+  const entries = await readdir(new URL(prefix, root), { withFileTypes: true });
+  const files = [];
+  for (const entry of entries) {
+    const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) {
+      if (entry.name === "node_modules" || entry.name === ".git") continue;
+      files.push(...await packageFiles(root, relative));
+    } else {
+      files.push(new URL(relative, root));
+    }
+  }
+  return files;
+}
+
+assert.equal(existsSync(import.meta.filename), true);
+
+function productionPackageFiles(root) {
+  return [
+    new URL("README.md", root),
+    new URL("package.json", root),
+    new URL("things-to-store-and-run.json", root),
+    new URL("do-work/make-one-package-match-its-source.mjs", root),
+  ];
+}
