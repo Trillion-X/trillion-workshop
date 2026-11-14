@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { decodeReservations, reservationsByStatus } from '../read-data/reservations.ts';
+import { decodeReservations, reservationsByStatus } from '../read-data/reservation-tracker.ts';
 
 test('reservations decode and group by status', () => {
   const reservations = decodeReservations([

@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/save-what-you-watch-and-read/do-work/process-scripts/acquire-activity-source.py",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/save-what-you-watch-and-read/do-work/process-scripts/acquire-activity-source.py",
+      "source_identity": "1f:4c4a9c0817e9de858601ef52351b289679ce16258cd0da41bc327b2da6fa20e8",
+      "identity": "1f:4c4a9c0817e9de858601ef52351b289679ce16258cd0da41bc327b2da6fa20e8"
+    }
+  ]
+}

@@ -2,24 +2,39 @@
  * A finite pool of interchangeable units, held by idempotent holds, with an
  * ordered queue when the pool is exhausted and automatic promotion on release.
  *
- * That is seats, rooms, appointment slots, class places, quota, licences,
- * parking bays and rate-limit tokens. None of those names appear below: a
- * caller's word for a kind of unit is a `unit_class`.
+ * That is seats, hotel rooms, appointment slots, class registrations, GPU quota,
+ * license entitlements, parking bays and rate-limit tokens. None of those names
+ * appear below, which is the point: the first instance was welded into the type
+ * system as `seat` and is now a caller's word for a `unit_class`.
  *
- * Every function takes a ledger and returns the next ledger. Nothing is kept
- * in memory between calls, so the ledger record is the whole truth:
+ * WHY THESE ARE FUNCTIONS AND NOT A CLASS. The previous shape held three things
+ * in instance state: the ledger records, a promise chain serializing writes, and
+ * a Map of results keyed by idempotency key. All three are owned by the log, and
+ * none of the three worked here:
  *
- *   - Idempotency is READ FROM THE RECORD. A hold carries the key that made
- *     it, so a repeated key finds its own earlier hold, across restarts and
- *     across workers, because both read the same record.
- *   - Time is an input, never an ambient clock. A function that reads a clock
- *     cannot be replayed.
- *   - `reserved_by_class` is DATA, one entry per named class. A class that is
- *     not named draws on the unreserved remainder, so a caller can invent a
- *     class with no change here.
+ *   - the Map died with the process, so the same idempotency key double-claimed
+ *     after any restart. Idempotency that forgets is not idempotency.
+ *   - the promise chain serialized one process, while two workers against one
+ *     pool could still oversubscribe it, which is the single thing a capacity
+ *     ledger exists to prevent.
+ *   - the records copy could only drift from the durable one.
+ *
+ * So the class provided none of the three guarantees it existed to provide, and
+ * it could not be a package target either, because Runtime Kit invokes a target
+ * as `(input, context)` and a constructor is not that.
+ *
+ * Idempotency is now READ FROM THE RECORD: a hold carries the key that created
+ * it, so a repeat key finds its own prior hold in the ledger the log already
+ * stores. That is durable across restarts and across workers for free, because
+ * the log is what both of them read. Serialization belongs to the log's append
+ * order and is not reimplemented here.
+ *
+ * Time is an input, never `Date.now()` read inside. A function that reads an
+ * ambient clock cannot be replayed, and replay is how an append-only log
+ * rebuilds state.
  */
 
-import type { Reservation } from '../read-data/reservations.ts';
+import type { Reservation } from '../read-data/reservation-tracker';
 
 export type LedgerState = string;
 export type UnitClass = string;
@@ -494,6 +509,88 @@ function normalizeWaitlistRanks(ledger: CapacityLedgerRecord): CapacityLedgerRec
       return typeof rank === 'number' ? { ...entry, rank } : entry;
     }),
   };
+}
+
+/**
+ * THE PACKAGE TARGET. Runtime Kit invokes a target as `(input, context)`, so
+ * argument two is the runtime's and injection would start at argument three.
+ *
+ * The request carries its own operation name and the ledger it applies to, so
+ * this function never learns what operations exist: it looks one up. Adding an
+ * operation registers an entry in the map below and edits no dispatch code, and
+ * an unknown name is refused by name rather than falling through to a default,
+ * because a capacity operation that silently does nothing is the failure mode
+ * this whole package exists to prevent.
+ */
+export interface CapacityLedgerRequest {
+  operation: string;
+  ledger?: CapacityLedgerRecord;
+  open?: OpenCapacityLedgerInput;
+  hold?: HoldUnitInput;
+  join_waitlist?: JoinWaitlistInput;
+  promote_waitlist?: PromoteWaitlistInput;
+  release?: ReleaseUnitInput;
+  expire?: ExpireHoldsInput;
+  title?: string;
+}
+
+export interface CapacityLedgerResult {
+  ledger: CapacityLedgerRecord;
+  result?: unknown;
+  projection?: Reservation;
+}
+
+function requireLedger(request: CapacityLedgerRequest): CapacityLedgerRecord {
+  if (!request.ledger) throw new Error(`capacity-ledger operation '${request.operation}' requires a ledger`);
+  return request.ledger;
+}
+
+function requireField<T>(value: T | undefined, operation: string, field: string): T {
+  if (value === undefined) throw new Error(`capacity-ledger operation '${operation}' requires '${field}'`);
+  return value;
+}
+
+const CAPACITY_LEDGER_OPERATIONS: Record<string, (request: CapacityLedgerRequest) => CapacityLedgerResult> = {
+  open: (request) => ({
+    ledger: openCapacityLedger(requireField(request.open, 'open', 'open')),
+  }),
+  read: (request) => {
+    const ledger = requireLedger(request);
+    return { ledger: readCapacityLedger(ledger), projection: capacityLedgerProjection(ledger, request.title) };
+  },
+  hold: (request) => {
+    const transition = holdUnit(requireLedger(request), requireField(request.hold, 'hold', 'hold'));
+    return { ledger: transition.ledger, result: transition.result };
+  },
+  join_waitlist: (request) => {
+    const transition = joinWaitlist(requireLedger(request), requireField(request.join_waitlist, 'join_waitlist', 'join_waitlist'));
+    return { ledger: transition.ledger, result: transition.result };
+  },
+  promote_waitlist: (request) => {
+    const transition = promoteWaitlist(requireLedger(request), requireField(request.promote_waitlist, 'promote_waitlist', 'promote_waitlist'));
+    return { ledger: transition.ledger, result: transition.result };
+  },
+  release: (request) => {
+    const transition = releaseUnit(requireLedger(request), requireField(request.release, 'release', 'release'));
+    return { ledger: transition.ledger, result: transition.result };
+  },
+  expire: (request) => {
+    const transition = expireHolds(requireLedger(request), requireField(request.expire, 'expire', 'expire'));
+    return { ledger: transition.ledger, result: transition.result };
+  },
+};
+
+export function applyCapacityLedgerOperation(
+  request: CapacityLedgerRequest,
+  _context?: unknown,
+): CapacityLedgerResult {
+  const operation = CAPACITY_LEDGER_OPERATIONS[request.operation];
+  if (!operation) {
+    throw new Error(
+      `capacity-ledger has no operation '${request.operation}'. Known operations: ${Object.keys(CAPACITY_LEDGER_OPERATIONS).sort().join(', ')}`,
+    );
+  }
+  return operation(request);
 }
 
 export function releaseUnit(

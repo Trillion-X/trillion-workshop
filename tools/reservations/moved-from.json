@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/reservation-tracker/do-work/capacity-ledger.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/reservations/do-work/capacity-ledger.ts",
+      "source_identity": "1f:b4df9fd9c3d5062abdcb799ae288f3c9f34c09f12d0c0dfc5ab32472eeac7a1c",
+      "identity": "1f:b4df9fd9c3d5062abdcb799ae288f3c9f34c09f12d0c0dfc5ab32472eeac7a1c"
+    },
+    {
+      "from": "packages/reservation-tracker/read-data/reservation-tracker.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/reservations/read-data/reservation-tracker.ts",
+      "source_identity": "1f:92a64cc8fee8c1c39f6170673b1b4b0693fca3a82da43af711338cb70c342642",
+      "identity": "1f:92a64cc8fee8c1c39f6170673b1b4b0693fca3a82da43af711338cb70c342642"
+    },
+    {
+      "from": "packages/reservation-tracker/do-work/capacity-ledger.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/reservations/do-work/capacity-ledger.test.ts",
+      "source_identity": "1f:d10bafa5254f4af07924fc06a4a69940a4e71ea5946ed577f71beed32106bcce",
+      "identity": "1f:08a3bfa3fa8db0d62e83b580ea03eca31f3a00c364046f1d23ce183250c6c478"
+    },
+    {
+      "from": "packages/reservation-tracker/read-data/reservation-tracker.test.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/reservations/read-data/reservation-tracker.test.ts",
+      "source_identity": "1f:9388197b22c331aece6bfa68b46eaa6625452ef6c37e20d40b3b673c7fe0e4fd",
+      "identity": "1f:b32d345603d5e520ed86e5c7c875107a597be67e3001c51e4c05db63f7fd11b9"
+    }
+  ]
+}

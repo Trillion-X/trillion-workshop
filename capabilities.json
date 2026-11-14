@@ -1330,7 +1330,7 @@
       "capability": "save what a person watches, reads and bookmarks elsewhere: X bookmarks, Pinterest pins, files that match a pattern",
       "owner": ["tools/save-what-you-watch-and-read/"],
       "entry": "tools/save-what-you-watch-and-read/tool-rows.json",
-      "evidence": "save-what-you-watch-and-read README.md:1 turns outside activity records into observation batches; each connector pulls one source",
+      "evidence": "save-what-you-watch-and-read README.md:1 turns outside activity records into observation batches; each connector pulls one source; the original acquire-activity-source.py moved byte for byte from bitfield-packages d926b7adb8ca24159ee64f47e7d9cae254f5b641 (receipt tools/save-what-you-watch-and-read/moved-from.json) and is not wired: it hashes with SHA-256 where the rule is BLAKE3, so a lead decides before any row runs it",
       "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/save-what-you-watch-and-read/", "bitfield-packages/packages/x-bookmarks-decoder/", "bitfield-packages/packages/pinterest-pins-decoder/", "bitfield-packages/packages/file-glob-observer/"]}
     },
     {
@@ -1588,7 +1588,7 @@
       "capability": "track reservations and the capacity left",
       "owner": ["tools/reservations/"],
       "entry": "tools/reservations/tool-rows.json",
-      "evidence": "reservation-tracker: reservation status changes and capacity ledger",
+      "evidence": "reservation-tracker: reservation status changes and capacity ledger; the original capacity-ledger.ts (with its dispatcher applyCapacityLedgerOperation), reservation-tracker.ts (with the operation-record feed) and their two tests moved byte for byte from bitfield-packages d926b7adb8ca24159ee64f47e7d9cae254f5b641 (receipt tools/reservations/moved-from.json); the package manifest things-to-store-and-run.json stays in the source, held",
       "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/reservation-tracker/"]}
     },
     {

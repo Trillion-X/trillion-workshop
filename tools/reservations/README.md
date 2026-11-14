@@ -1,6 +1,6 @@
 # tools/reservations/
 
-A finite pool of places (seats, rooms, appointment slots, parking bays, licences) kept in one `capacity-ledger` record in the person's own records, and a person's reservations sorted by status. Ported from bitfield-packages `packages/reservation-tracker`: the ledger steps and the reservation reader are the package's, without the old engine's target wrapper and operation-record shape.
+A finite pool of places (seats, rooms, appointment slots, parking bays, licences) kept in one `capacity-ledger` record in the person's own records, and a person's reservations sorted by status. Moved byte for byte from bitfield-packages `packages/reservation-tracker` (receipt `moved-from.json`): the ledger steps with their dispatcher, the reservation reader with its operation-record feed, and the package's two test files.
 
 - **The record is the truth.** A hold carries the idempotency key that made it, so the same key sent again finds its own hold. Nothing lives in memory between runs.
 - **Classes are data.** `reserved_by_class` holds places kept back for each named class. A class that is not named shares what is left, so an AI can invent a class with no change to the tool.
@@ -12,8 +12,9 @@ A finite pool of places (seats, rooms, appointment slots, parking bays, licences
 
 | File | Purpose |
 |------|---------|
-| `do-work/capacity-ledger.ts` | The pure steps: `openCapacityLedger`, `holdUnit`, `joinWaitlist`, `promoteWaitlist`, `releaseUnit`, `expireHolds`, `capacityLedgerProjection`. Each takes a ledger and returns the next one. Copied; the header and the type import changed, and the old package-target dispatcher is gone. |
-| `read-data/reservations.ts` | `decodeReservations` (either spelling, rows with no id dropped) and `reservationsByStatus`. The old operation-record builder is not carried. |
+| `do-work/capacity-ledger.ts` | The pure steps: `openCapacityLedger`, `holdUnit`, `joinWaitlist`, `promoteWaitlist`, `releaseUnit`, `expireHolds`, `capacityLedgerProjection`. Each takes a ledger and returns the next one. Moved from the package unchanged; it also holds the old package-target dispatcher `applyCapacityLedgerOperation`. |
+| `read-data/reservation-tracker.ts` | `decodeReservations` (either spelling, rows with no id dropped), `reservationsByStatus`, and the operation-record feed `buildReservationOperations` / `decodeReservationOperationFeed`. Moved from the package unchanged. |
+| `do-work/capacity-ledger.test.ts`, `read-data/reservation-tracker.test.ts` | The package's own tests, moved with only their import paths changed. |
 | `do-work/reservations.mjs` | The tool seam: each export reads the ledger through the records door, applies one step, writes it and reads it back. |
 | `tool-rows.json` | Eight rows. |
 | `part.json` | No public files. |

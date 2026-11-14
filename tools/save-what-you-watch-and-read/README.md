@@ -95,3 +95,7 @@ the export file is the seam it calls.
 the BLAKE3 identity). Every row packs both folders, so the commands run with the two folders beside each other.
 
 The live way in to a person's X bookmarks and likes is `tool:read-my-saved-x-posts` above; the `x-bookmarks` row here only decodes an export file the person already has.
+
+## Carried, not wired
+
+`do-work/process-scripts/acquire-activity-source.py` is the original Bitfield acquisition leaf (plan entry in, observed-content batch out, with cursor, no_action, authorization and provenance), moved byte for byte from bitfield-packages (receipt `moved-from.json`). No tool row runs it: it identifies content with SHA-256 where this repository's rule is BLAKE3, and `read-data/observe_activity.py` (a different, shorter shape) is what the rows run. A lead decides which stays before the wiring is changed.

@@ -10,7 +10,7 @@
 // The run's clock is the time. A caller cannot choose `occurred_at`, so it cannot expire holds early or
 // keep one alive: expiry is given as seconds from now.
 import { openCapacityLedger, holdUnit, joinWaitlist, promoteWaitlist, releaseUnit, expireHolds, capacityLedgerProjection } from './capacity-ledger.ts';
-import { decodeReservations, reservationsByStatus } from '../read-data/reservations.ts';
+import { decodeReservations, reservationsByStatus } from '../read-data/reservation-tracker.ts';
 
 const KIND = 'capacity-ledger';
 const RESERVATION_KIND = 'reservation';
