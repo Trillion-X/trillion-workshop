@@ -1,0 +1,9 @@
+{
+  "exports": {
+    "effect-outcomes.json": "effect-outcomes.json",
+    "failure": "failure.mjs",
+    "failure-codes.json": "failure-codes.json",
+    "made-controls": "made-controls.mjs",
+    "platform-failures.json": "platform-failures.json"
+  }
+}

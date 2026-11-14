@@ -1,4 +1,7 @@
 {
+  "exports": {
+    "kept-answers": "src/kept-answers.mjs"
+  },
   "imported_by": [
     "Trillion-X/trillion"
   ]

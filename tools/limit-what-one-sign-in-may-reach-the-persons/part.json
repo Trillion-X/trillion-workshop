@@ -1,4 +1,7 @@
 {
+  "exports": {
+    "reach": "src/reach.mjs"
+  },
   "imported_by": [
     "Trillion-X/trillion"
   ]

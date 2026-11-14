@@ -1,4 +1,8 @@
 {
+  "exports": {
+    "inputs.json": "src/workspace/inputs.json",
+    "looks.json": "src/workspace/looks.json"
+  },
   "imported_by": [
     "Trillion-X/trillion"
   ]

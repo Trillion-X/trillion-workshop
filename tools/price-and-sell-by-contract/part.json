@@ -1,4 +1,7 @@
 {
+  "exports": {
+    "commercial-events": "src/commercial-events.mjs"
+  },
   "imported_by": [
     "Trillion-X/trillion"
   ]

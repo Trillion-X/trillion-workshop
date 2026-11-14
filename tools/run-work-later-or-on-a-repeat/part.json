@@ -1,4 +1,9 @@
 {
+  "exports": {
+    "materialize-recurring-windows": "do-work/materialize-recurring-windows.ts",
+    "quiet-hours.json": "do-work/quiet-hours.json",
+    "wall-time": "do-work/wall-time.ts"
+  },
   "imported_by": [
     "tools/keep-and-wake-ai-sessions-on-this-computer",
     "tools/keep-lists-of-rows",

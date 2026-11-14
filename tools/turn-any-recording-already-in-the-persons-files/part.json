@@ -1,4 +1,7 @@
 {
+  "exports": {
+    "recording.json": "src/workspace/recording.json"
+  },
   "imported_by": [
     "Trillion-X/trillion"
   ]

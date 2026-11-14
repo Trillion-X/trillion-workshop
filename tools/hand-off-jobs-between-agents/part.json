@@ -1,4 +1,7 @@
 {
+  "exports": {
+    "agent-tool-runs": "src/agent-tool-runs.mjs"
+  },
   "imported_by": [
     "Trillion-X/trillion"
   ]

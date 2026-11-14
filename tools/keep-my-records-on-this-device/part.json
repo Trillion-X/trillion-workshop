@@ -1,4 +1,8 @@
 {
+  "exports": {
+    "account-copy": "do-work/account-copy.mjs",
+    "frame-dictionaries.json": "do-work/frame-dictionaries.json"
+  },
   "public": [
     "do-work/wasm-sqlite-host.mjs",
     "do-work/device-copy-worker.mjs",

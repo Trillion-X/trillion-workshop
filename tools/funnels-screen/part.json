@@ -1,4 +1,8 @@
 {
+  "exports": {
+    "score-candidates": "read-data/score-candidates.ts",
+    "stage-projection": "read-data/stage-projection.ts"
+  },
   "imported_by": [
     "Trillion-X/trillion-apps",
     "Trillion-X/trillion"

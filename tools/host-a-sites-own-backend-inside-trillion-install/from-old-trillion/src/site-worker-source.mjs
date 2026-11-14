@@ -1,5 +1,5 @@
 import { checkedSourceBuildInputs } from '../../../assemble-and-publish-an-app-project/src/source-build-inputs.mjs';
-import { publicAppFilePath, publicAppMediaType, MAX_PUBLIC_APP_FILE_BYTES, MAX_PUBLIC_APP_BYTES, MAX_PUBLIC_APP_FILES } from 'trillion-workshop/tools/shared-code/src/public-app-files.mjs';
+import { publicAppFilePath, publicAppMediaType, MAX_PUBLIC_APP_FILE_BYTES, MAX_PUBLIC_APP_BYTES, MAX_PUBLIC_APP_FILES } from '../../../shared-code/src/public-app-files.mjs';
 
 export const SITE_WORKER_SOURCE_MANIFEST_PATH = 'trillion-site-worker.json';
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);

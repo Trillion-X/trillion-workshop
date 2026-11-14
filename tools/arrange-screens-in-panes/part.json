@@ -1,4 +1,15 @@
 {
+  "exports": {
+    "arrangement-history": "read-data/arrangement-history.ts",
+    "layout-library": "read-data/layout-library.ts",
+    "layout-types": "read-data/layout-types.ts",
+    "placeable-surface-tab": "show/placeable-surface-tab.ts",
+    "read-screen-arrangement": "read-data/read-screen-arrangement.ts",
+    "save-layout-state": "do-work/save-layout-state.ts",
+    "starter-layouts": "read-data/starter-layouts.ts",
+    "surface-modes": "read-data/surface-modes.ts",
+    "tab-bar-placement": "read-data/tab-bar-placement.ts"
+  },
   "public": [
     "read-data/starter-layouts.ts",
     "show/surface-placement.ts",

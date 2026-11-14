@@ -1,1 +1,9 @@
-{"public": ["read-data/needs-you-hold.mjs", "read-data/required-cover.mjs", "read-data/hold-rows.json"]}
+{"public": ["read-data/needs-you-hold.mjs", "read-data/required-cover.mjs", "read-data/hold-rows.json"],
+  "exports": {
+    "hold": "do-work/hold.mjs",
+    "needs-you-hold": "read-data/needs-you-hold.mjs",
+    "required-cover": "read-data/required-cover.mjs",
+    "tool-rows.json": "tool-rows.json",
+    "waiting-nudge": "read-data/waiting-nudge.mjs"
+  }
+}

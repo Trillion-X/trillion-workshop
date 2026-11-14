@@ -1,0 +1,6 @@
+{
+  "exports": {
+    "passkey-account": "passkey-account.mjs",
+    "sign-in-methods.json": "sign-in-methods.json"
+  }
+}

@@ -11,7 +11,7 @@ import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
 import { salesPageHtml } from '../read-data/sales-page.mjs';
 
-const look = () => readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/screen-look/show/sales-page.css')), 'utf8');
+const look = () => readFileSync(new URL(import.meta.resolve('../../screen-look/show/sales-page.css')), 'utf8');
 
 // The visible words of a page row, top to bottom: what a reader of the page reads.
 const wordsOf = row => row.sections.flatMap(section => [section.heading, section.body,

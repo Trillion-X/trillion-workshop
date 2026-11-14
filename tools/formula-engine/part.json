@@ -1,4 +1,15 @@
 {
+  "exports": {
+    "built": "built-stored-bytes/evaluate-over-rows",
+    "built/*": "built-stored-bytes/evaluate-over-rows/*",
+    "compile-rules": "rules/compile-rules.mjs",
+    "evaluate-over-rows": "rules/evaluate-over-rows.mjs",
+    "evaluate-over-rows_bg.wasm": "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm",
+    "evaluation-guards": "rules/evaluation-guards.mjs",
+    "filter-rows-by-rules": "rules/filter-rows-by-rules.mjs",
+    "rule-operators.json": "rules/rule-operators.json",
+    "rules/*": "rules/*"
+  },
   "public": [
     "rules/filter-records.mjs",
     "rules/compile-rules.mjs",

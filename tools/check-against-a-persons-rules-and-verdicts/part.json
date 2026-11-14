@@ -1,4 +1,7 @@
 {
+  "exports": {
+    "piece-sweep": "do-work/piece-sweep.mjs"
+  },
   "public": [
     "do-work/branch.mjs",
     "do-work/rules-and-verdicts.mjs",

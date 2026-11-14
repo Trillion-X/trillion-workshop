@@ -1,4 +1,15 @@
 {
+  "exports": {
+    "byte-identity": "do-work/byte-identity.mjs",
+    "content-chunks": "do-work/content-chunks.mjs",
+    "content-chunks-built": "built-stored-bytes/content-chunks",
+    "content_chunks": "built-stored-bytes/content-chunks/content_chunks.js",
+    "content_chunks_bg.wasm": "built-stored-bytes/content-chunks/content_chunks_bg.wasm",
+    "identity.json": "built-stored-bytes/content-chunks/identity.json",
+    "send-retry": "do-work/send-retry.mjs",
+    "send-settings.json": "send-settings.json",
+    "send-window": "do-work/send-window.mjs"
+  },
   "imported_by": [
     "tools/run-on-a-persons-computer",
     "Trillion-X/trillion-apps",

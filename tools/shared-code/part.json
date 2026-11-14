@@ -1,4 +1,16 @@
 {
+  "exports": {
+    "agent-delivery": "src/agent-delivery.mjs",
+    "agent-store-for-tests": "test/agent-store-for-tests.mjs",
+    "agents": "src/agents.mjs",
+    "built-worker-folder": "scripts/built-worker-folder.mjs",
+    "data-rows": "src/data-rows.mjs",
+    "handoff-result-source": "src/handoff-result-source.mjs",
+    "public-app-element-addresses": "src/public-app-element-addresses.mjs",
+    "public-app-files": "src/public-app-files.mjs",
+    "repo-explorer": "src/repo-explorer.mjs",
+    "typed-operation-contract": "src/typed-operation-contract.mjs"
+  },
   "imported_by": [
     "Trillion-X/trillion"
   ]

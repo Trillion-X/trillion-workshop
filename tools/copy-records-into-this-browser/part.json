@@ -1,4 +1,7 @@
 {
+  "exports": {
+    "record-copies.json": "src/record-copies.json"
+  },
   "imported_by": [
     "Trillion-X/trillion"
   ]

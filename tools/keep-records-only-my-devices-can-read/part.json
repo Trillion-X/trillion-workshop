@@ -1,4 +1,8 @@
 {
+  "exports": {
+    "sealed-records": "do-work/sealed-records.mjs",
+    "sealed-records.json": "do-work/sealed-records.json"
+  },
   "public": [
     "do-work/sealed-records.mjs",
     "do-work/sealed-copy.mjs"

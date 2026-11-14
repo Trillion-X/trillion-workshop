@@ -1,4 +1,11 @@
 {
+  "exports": {
+    "declared-effects": "read-data/declared-effects.ts",
+    "derive-tool-rows-from-sources": "do-work/derive-tool-rows-from-sources.mjs",
+    "read-ai-tool-catalog": "read-data/read-ai-tool-catalog.ts",
+    "read-openapi": "do-work/read-openapi.mjs",
+    "talk-to-a-tool-server": "do-work/talk-to-a-tool-server.mjs"
+  },
   "imported_by": [
     "tools/messages-screen",
     "Trillion-X/trillion-apps"

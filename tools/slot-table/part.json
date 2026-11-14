@@ -1,4 +1,7 @@
 {
+  "exports": {
+    "slot-table": "do-work/slot-table.mjs"
+  },
   "public": [
     "do-work/slot-table.mjs"
   ]

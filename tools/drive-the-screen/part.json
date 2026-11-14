@@ -1,3 +1,6 @@
 {
+  "exports": {
+    "work-places": "read-data/work-places.mjs"
+  },
   "public": []
 }

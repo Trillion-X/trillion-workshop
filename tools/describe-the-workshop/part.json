@@ -1,0 +1,6 @@
+{
+  "exports": {
+    "workshop-sample-rules": "read-data/workshop-sample-rules.mjs",
+    "workshop-sample-rules.json": "read-data/workshop-sample-rules.json"
+  }
+}

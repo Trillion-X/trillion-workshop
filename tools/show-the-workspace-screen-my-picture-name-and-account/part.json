@@ -1,4 +1,7 @@
 {
+  "exports": {
+    "workspace-page": "src/workspace-page.mjs"
+  },
   "imported_by": [
     "Trillion-X/trillion"
   ]

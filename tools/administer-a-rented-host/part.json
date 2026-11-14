@@ -1,4 +1,7 @@
 {
+  "exports": {
+    "administration-arguments": "do-work/administration-arguments.mjs"
+  },
   "public": [
     "do-work/administration-arguments.mjs"
   ]

@@ -1,4 +1,10 @@
 {
+  "exports": {
+    "guided-overlay-defaults.json": "guided-overlay-defaults.json",
+    "tour-library": "read-data/tour-library.ts",
+    "trigger-intake": "engine/trigger-intake.ts",
+    "walkthrough-eeaf": "read-data/walkthrough-eeaf.ts"
+  },
   "public": [
     "guided-overlay-defaults.json",
     "read-data/walkthrough-eeaf.ts",

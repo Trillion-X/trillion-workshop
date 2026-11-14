@@ -1,1 +1,7 @@
-{"public": ["read-data/screen-spec.mjs", "read-data/view-patch.mjs", "read-data/declared-props.json"], "imported_by": ["Trillion-X/trillion"]}
+{"public": ["read-data/screen-spec.mjs", "read-data/view-patch.mjs", "read-data/declared-props.json"], "imported_by": ["Trillion-X/trillion"],
+  "exports": {
+    "screen-spec": "read-data/screen-spec.mjs",
+    "screen-spec.json": "read-data/screen-spec.json",
+    "view-patch.json": "read-data/view-patch.json"
+  }
+}

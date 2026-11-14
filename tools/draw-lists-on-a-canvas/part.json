@@ -1,0 +1,5 @@
+{
+  "exports": {
+    "marks-to-svg": "read-data/marks-to-svg.ts"
+  }
+}

@@ -1,4 +1,7 @@
 {
+  "exports": {
+    "decision-evals.json": "src/decision-evals.json"
+  },
   "imported_by": [
     "Trillion-X/trillion"
   ]

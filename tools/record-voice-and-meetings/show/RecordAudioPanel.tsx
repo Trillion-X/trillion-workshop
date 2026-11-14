@@ -108,11 +108,11 @@ import { captureJournal, pauseLiveRecording, resumeLiveRecording, stopLiveRecord
 import { RecordingLibrary, type RecordingLibraryConfiguration } from './RecordingLibrary';
 import { ArrangedContents } from '../../screen-arrangement/show/ArrangedContents';
 import recordingLibraryLayout from '../read-data/recording-library.json';
-import { selectDescriptorAuthority } from '../../visual-database/do-work/migrate-descriptor-aggregates';
-import { foldAddressedDescriptorFactsFromPublishedFeed } from '../../visual-database/read-data/addressed-descriptors';
-import { visualDatabaseInputsFromAddressedDescriptors } from '../../visual-database/read-data/descriptor-projection';
-import { decodeVisualDatabaseModel } from '../../visual-database/read-data/visual-database';
-import { useAddressedCellExpressionOwner } from '../../visual-database/show/use-addressed-cell-expression-owner';
+import { selectDescriptorAuthority } from '../../keep-lists-of-rows/do-work/migrate-descriptor-aggregates';
+import { foldAddressedDescriptorFactsFromPublishedFeed } from '../../keep-lists-of-rows/read-data/addressed-descriptors';
+import { visualDatabaseInputsFromAddressedDescriptors } from '../../keep-lists-of-rows/read-data/descriptor-projection';
+import { decodeVisualDatabaseModel } from '../../keep-lists-of-rows/read-data/visual-database';
+import { useAddressedCellExpressionOwner } from '../../keep-lists-of-rows/show/use-addressed-cell-expression-owner';
 
 import { errorWords } from '../../ui/show/safe-error-card/sanitize-error-text';
 function RecordingBoard({ onOpenRecording, configuration, initialConfigurationId, ruleOperators, loadFilterRecords }: {

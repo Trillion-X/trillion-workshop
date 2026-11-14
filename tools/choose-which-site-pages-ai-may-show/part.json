@@ -1,4 +1,8 @@
 {
+  "exports": {
+    "public-app-ai-app.json": "src/public-app-ai-app.json",
+    "public-app-ai-pages": "src/public-app-ai-pages.mjs"
+  },
   "imported_by": [
     "Trillion-X/trillion"
   ]

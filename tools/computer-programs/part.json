@@ -1,4 +1,8 @@
 {
+  "exports": {
+    "part.json": "part.json",
+    "program-here": "read-data/program-here.mjs"
+  },
   "imported_by": [
     "tools/media-composition",
     "tools/run-on-a-persons-computer"

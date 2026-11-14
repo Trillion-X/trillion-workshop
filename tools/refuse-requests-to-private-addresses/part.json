@@ -1,4 +1,7 @@
 {
+  "exports": {
+    "public-address": "public-address.mjs"
+  },
   "imported_by": [
     "tools/ai-tool-catalog",
     "Trillion-X/trillion-apps"

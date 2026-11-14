@@ -1,4 +1,13 @@
 {
+  "exports": {
+    "content-media-evidence": "read-data/content-media-evidence.ts",
+    "heard-words": "read-data/heard-words.mjs",
+    "meeting-join-recording": "do-work/meeting-join-recording.ts",
+    "meeting-settings": "read-data/meeting-settings.mjs",
+    "meeting-settings.json": "read-data/meeting-settings.json",
+    "meeting-start-settings.json": "read-data/meeting-start-settings.json",
+    "recording-widgets.json": "read-data/recording-widgets.json"
+  },
   "imported_by": [
     "Trillion-X/trillion-apps",
     "Trillion-X/trillion"

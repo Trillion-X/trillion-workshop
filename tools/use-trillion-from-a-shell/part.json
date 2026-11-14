@@ -1,4 +1,7 @@
 {
+  "exports": {
+    "local-door": "do-work/local-door.mjs"
+  },
   "public": [
     "do-work/local-door.mjs"
   ]

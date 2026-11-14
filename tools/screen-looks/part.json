@@ -1,4 +1,7 @@
 {
+  "exports": {
+    "look-over-time": "read-data/look-over-time.mjs"
+  },
   "public": [
     "read-data/resolve-screen-look-palette.js",
     "read-data/look-document-css.js",

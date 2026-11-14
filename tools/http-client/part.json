@@ -1,4 +1,11 @@
 {
+  "exports": {
+    "request-scopes": "do-work/request-scopes.mjs",
+    "request-scopes.json": "do-work/request-scopes.json",
+    "resolved-address": "do-work/resolved-address.mjs",
+    "resolved-address.json": "do-work/resolved-address.json",
+    "same-origin": "do-work/same-origin.mjs"
+  },
   "imported_by": [
     "tools/refuse-requests-to-private-addresses",
     "tools/run-on-a-persons-computer",

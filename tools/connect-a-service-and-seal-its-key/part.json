@@ -1,4 +1,9 @@
 {
+  "exports": {
+    "calendar-connection-options": "read-data/calendar-connection-options.ts",
+    "external-effect-attempt": "do-work/external-effect-attempt.ts",
+    "records.json": "records.json"
+  },
   "imported_by": [
     "Trillion-X/trillion-apps",
     "Trillion-X/trillion"

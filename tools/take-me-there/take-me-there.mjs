@@ -32,7 +32,7 @@
 import settings from './take-me-there.json' with { type: 'json' };
 import surfaces from './workspace/screens.mjs';
 import { screensAtAddress } from './workspace/addresses.mjs';
-import { batchCard, batchRows, thingKeyOf } from 'trillion-workshop/tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs';
+import { batchCard, batchRows, thingKeyOf } from '../hold-one-thing-until-done/read-data/needs-you-hold.mjs';
 import { openOf } from './waiting-nudge.mjs';
 import itemLinks from './item-links.json' with { type: 'json' };
 

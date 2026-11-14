@@ -1,4 +1,8 @@
 {
+  "exports": {
+    "device-distribution": "src/device-distribution.mjs",
+    "devices.json": "src/devices.json"
+  },
   "imported_by": [
     "Trillion-X/trillion"
   ]

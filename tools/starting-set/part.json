@@ -1,4 +1,7 @@
 {
+  "exports": {
+    "shipped-defaults.json": "shipped-defaults.json"
+  },
   "public": [],
   "imported_by": ["Trillion-X/trillion-rust src/runtime/workshop/shipped_defaults.rs"]
 }

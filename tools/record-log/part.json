@@ -1,4 +1,15 @@
 {
+  "exports": {
+    "erasable": "do-work/erasable.mjs",
+    "json-members": "do-work/json-members.mjs",
+    "kept-runs": "do-work/kept-runs.mjs",
+    "maintenance-pacing.json": "do-work/maintenance-pacing.json",
+    "record-digest": "do-work/record-digest.mjs",
+    "record-model": "do-work/record-model.mjs",
+    "record-stamps": "do-work/record-stamps.mjs",
+    "record-sync": "do-work/record-sync.mjs",
+    "store-size.json": "do-work/store-size.json"
+  },
   "public": [
     "do-work/kept-runs.mjs",
     "do-work/record-digest.mjs",

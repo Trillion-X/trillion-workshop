@@ -1,4 +1,11 @@
 {
+  "exports": {
+    "css-resource-urls": "parts/ui/read-data/css-resource-urls.mjs",
+    "public-app-capabilities": "src/public-app-capabilities.mjs",
+    "public-app-definition": "src/public-app-definition.mjs",
+    "public-app-editor-model": "src/public-app-editor-model.mjs",
+    "public-app-published-contract": "src/public-app-published-contract.mjs"
+  },
   "imported_by": [
     "Trillion-X/trillion"
   ]

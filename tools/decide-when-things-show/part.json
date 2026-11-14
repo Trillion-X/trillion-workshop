@@ -1,1 +1,5 @@
-{"public": ["do-work/show-rules.mjs", "read-data/show-rules-store.mjs", "read-data/account-facts.mjs", "read-data/declared-controls.mjs"]}
+{"public": ["do-work/show-rules.mjs", "read-data/show-rules-store.mjs", "read-data/account-facts.mjs", "read-data/declared-controls.mjs"],
+  "exports": {
+    "open-choices.json": "read-data/open-choices.json"
+  }
+}

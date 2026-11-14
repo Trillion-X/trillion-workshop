@@ -1,4 +1,8 @@
 {
+  "exports": {
+    "account-transcription": "src/account-transcription.mjs",
+    "transcript-words": "src/transcript-words.mjs"
+  },
   "public": [
     "src/account-transcription.mjs",
     "src/transcript-words.mjs",

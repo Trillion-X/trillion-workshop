@@ -1,4 +1,10 @@
 {
+  "exports": {
+    "heavy-work": "do-work/heavy-work.mjs",
+    "place-cache-folder": "do-work/place-cache-folder.mjs",
+    "process-admission": "do-work/process-admission.mjs",
+    "stream-output-text": "read-data/stream-output-text.ts"
+  },
   "public": [
     "envelope-client/start-process-session.ts",
     "read-data/accumulate-process-session-output.ts",

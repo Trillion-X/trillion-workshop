@@ -17,7 +17,7 @@ import { fileURLToPath } from 'node:url';
 import { conventions, listFor } from './saved-source.mjs';
 import { postsIn } from './x-posts.mjs';
 
-// The quiet switches (trillion-workshop/tools/headless-browser/quiet-switches.json) go first on every browser this run starts,
+// The quiet switches (../../headless-browser/quiet-switches.json) go first on every browser this run starts,
 // so macOS never asks for the login keychain; the tool row carries the file to /opt/headless-browser beside this folder.
 const quietSwitches = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../headless-browser/quiet-switches.json'), 'utf8')).switches;
 

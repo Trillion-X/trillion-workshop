@@ -1,1 +1,5 @@
-{"public": ["src/life-map.mjs"], "imported_by": ["Trillion-X/trillion"]}
+{"public": ["src/life-map.mjs"], "imported_by": ["Trillion-X/trillion"],
+  "exports": {
+    "life-map": "src/life-map.mjs"
+  }
+}

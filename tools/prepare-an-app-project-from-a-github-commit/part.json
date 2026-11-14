@@ -1,4 +1,7 @@
 {
+  "exports": {
+    "native-xcode-source": "src/native-xcode-source.mjs"
+  },
   "imported_by": [
     "Trillion-X/trillion"
   ]

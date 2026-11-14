@@ -1,1 +1,6 @@
-{"public": ["do-work/stream-an-answer-in-keyed-parts.mjs", "src/keyed-parts.mjs"]}
+{"public": ["do-work/stream-an-answer-in-keyed-parts.mjs", "src/keyed-parts.mjs"],
+  "exports": {
+    "keyed-parts": "src/keyed-parts.mjs",
+    "keyed-parts.json": "src/keyed-parts.json"
+  }
+}

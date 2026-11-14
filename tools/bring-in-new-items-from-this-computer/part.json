@@ -1,4 +1,17 @@
 {
+  "exports": {
+    "README.md": "computer/connections/README.md",
+    "computer-sources": "computer/computer-sources.mjs",
+    "computer-sources.json": "computer/computer-sources.json",
+    "computer/*": "computer/*",
+    "imessage": "computer/connections/imessage.mjs",
+    "incoming-items": "computer/connections/incoming-items.mjs",
+    "own-writes": "computer/own-writes.mjs",
+    "own-writes.json": "computer/own-writes.json",
+    "read-new-items": "computer/read-new-items.mjs",
+    "read-new-items.json": "computer/read-new-items.json",
+    "whatsapp": "computer/connections/whatsapp.mjs"
+  },
   "imported_by": [
     "Trillion-X/trillion"
   ]

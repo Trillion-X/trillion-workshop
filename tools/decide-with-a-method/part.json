@@ -1,1 +1,7 @@
-{"public": ["read-data/decision-outcome.mjs"]}
+{"public": ["read-data/decision-outcome.mjs"],
+  "exports": {
+    "decision-progress.json": "read-data/decision-progress.json",
+    "public-address.json": "read-data/public-address.json",
+    "what-helped-words.json": "read-data/what-helped-words.json"
+  }
+}

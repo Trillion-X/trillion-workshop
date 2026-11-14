@@ -1,4 +1,19 @@
 {
+  "exports": {
+    "LoadingMark": "show/loading-mark/LoadingMark.tsx",
+    "command-history": "show/canvas-history/command-history.ts",
+    "copy-text": "show/clipboard/copy-text.ts",
+    "css-resource-urls": "read-data/css-resource-urls.mjs",
+    "declared-props.json": "declared-props.json",
+    "declared-selector": "read-data/declared-selector.ts",
+    "index": "show/loading-mark/index.ts",
+    "lazy-motion": "motion/lazy-motion.tsx",
+    "loading-mark-html": "show/loading-mark/loading-mark-html.mjs",
+    "record-value": "show/record-picker/record-value.ts",
+    "sanitize-error-text": "show/safe-error-card/sanitize-error-text.ts",
+    "stitch": "show/loading-mark/stitch.ts",
+    "things-to-store-and-run.json": "things-to-store-and-run.json"
+  },
   "side_effects": [
     "*.css",
     "show/record-views/designs/offer-designed-views.tsx",

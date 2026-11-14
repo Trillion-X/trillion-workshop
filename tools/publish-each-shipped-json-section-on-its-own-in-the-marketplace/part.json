@@ -1,4 +1,7 @@
 {
+  "exports": {
+    "marketplace-content-source-id": "src/marketplace-content-source-id.mjs"
+  },
   "imported_by": [
     "Trillion-X/trillion"
   ]

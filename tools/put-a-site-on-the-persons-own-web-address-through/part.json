@@ -1,4 +1,7 @@
 {
+  "exports": {
+    "share-link-routing": "src/share-link-routing.mjs"
+  },
   "imported_by": [
     "Trillion-X/trillion"
   ]

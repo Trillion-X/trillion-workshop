@@ -1,0 +1,7 @@
+{
+  "exports": {
+    "join-records": "read-data/join-records.mjs",
+    "message-task-canvas": "message-task-canvas.mjs",
+    "work-map-sources.json": "read-data/work-map-sources.json"
+  }
+}

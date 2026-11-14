@@ -1,4 +1,8 @@
 {
+  "exports": {
+    "configurations": "src/configurations.mjs",
+    "record-model-tools": "src/record-model-tools.mjs"
+  },
   "imported_by": [
     "Trillion-X/trillion"
   ]

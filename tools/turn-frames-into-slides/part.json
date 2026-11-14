@@ -1,3 +1,8 @@
 {
+  "exports": {
+    "group-graph": "read-data/group-graph.ts",
+    "node-ref": "read-data/node-ref.ts",
+    "visual-layer-types": "read-data/visual-layer-types.ts"
+  },
   "public": ["read-data/board-deck.ts", "read-data/board-svg.ts", "read-data/board-frames.ts", "read-data/group-board-model.ts"]
 }

@@ -1,4 +1,9 @@
 {
+  "exports": {
+    "admission": "admission.mjs",
+    "launch": "launch.mjs",
+    "quiet-switches.json": "quiet-switches.json"
+  },
   "public": [
     "quiet-switches.json",
     "devtools.mjs",

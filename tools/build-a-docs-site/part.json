@@ -1,4 +1,7 @@
 {
+  "exports": {
+    "build-docs-site": "parts/docs-site/do-work/build-docs-site.mjs"
+  },
   "imported_by": [
     "Trillion-X/trillion"
   ]

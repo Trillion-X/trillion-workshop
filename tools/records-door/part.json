@@ -1,1 +1,7 @@
-{"public": ["read-data/records-door.mjs", "read-data/settled-write.mjs", "read-data/byte-pages.mjs", "read-data/stdio-mcp-door.mjs", "read-data/lists-door.mjs", "read-data/whole-file.mjs"]}
+{"public": ["read-data/records-door.mjs", "read-data/settled-write.mjs", "read-data/byte-pages.mjs", "read-data/stdio-mcp-door.mjs", "read-data/lists-door.mjs", "read-data/whole-file.mjs"],
+  "exports": {
+    "fake-door": "test/fake-door.mjs",
+    "lists-door": "read-data/lists-door.mjs",
+    "records-door": "read-data/records-door.mjs"
+  }
+}

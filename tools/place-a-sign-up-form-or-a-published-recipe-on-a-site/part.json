@@ -1,4 +1,7 @@
 {
+  "exports": {
+    "public-app-visitor-view": "src/public-app-visitor-view.mjs"
+  },
   "imported_by": [
     "Trillion-X/trillion"
   ]

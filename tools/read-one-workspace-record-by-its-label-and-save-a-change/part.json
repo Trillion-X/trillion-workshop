@@ -1,4 +1,7 @@
 {
+  "exports": {
+    "native-workspace-records": "src/native-workspace-records.mjs"
+  },
   "imported_by": [
     "Trillion-X/trillion"
   ]

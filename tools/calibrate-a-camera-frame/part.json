@@ -1,1 +1,5 @@
-{"public": ["do-work/calibrate-a-camera-frame.mjs", "src/frame-calibration.mjs"]}
+{"public": ["do-work/calibrate-a-camera-frame.mjs", "src/frame-calibration.mjs"],
+  "exports": {
+    "frame-calibration": "src/frame-calibration.mjs"
+  }
+}

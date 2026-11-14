@@ -1,1 +1,6 @@
-{"public": []}
+{"public": [],
+  "exports": {
+    "escape-html": "read-data/escape-html.mjs",
+    "markup-tree": "read-data/markup-tree.mjs"
+  }
+}

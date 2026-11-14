@@ -1,1 +1,16 @@
-{"public": ["read-data/setup-steps.mjs", "read-data/get-started-screen.mjs", "do-work/see-what-is-left-to-set-up.mjs"]}
+{"public": ["read-data/setup-steps.mjs", "read-data/get-started-screen.mjs", "do-work/see-what-is-left-to-set-up.mjs"],
+  "exports": {
+    "ask-your-ai": "read-data/ask-your-ai.mjs",
+    "computer-sources.json": "read-data/computer-sources.json",
+    "conflicts": "read-data/conflicts.mjs",
+    "failure": "read-data/failure.mjs",
+    "harnesses": "read-data/harnesses.mjs",
+    "harnesses.json": "read-data/harnesses.json",
+    "personal-hold": "read-data/personal-hold.mjs",
+    "rule-decisions": "read-data/rule-decisions.mjs",
+    "setup-access.json": "read-data/setup-access.json",
+    "show-rules.json": "read-data/show-rules.json",
+    "sidebar-rules": "read-data/sidebar-rules.mjs",
+    "site-icon-url": "read-data/site-icon-url.mjs"
+  }
+}

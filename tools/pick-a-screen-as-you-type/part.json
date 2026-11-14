@@ -1,1 +1,5 @@
-{"public": ["do-work/pick-a-screen-as-you-type.mjs", "src/input-parsers.mjs", "src/instant-screens.mjs", "src/word-match.mjs"]}
+{"public": ["do-work/pick-a-screen-as-you-type.mjs", "src/input-parsers.mjs", "src/instant-screens.mjs", "src/word-match.mjs"],
+  "exports": {
+    "word-match": "src/word-match.mjs"
+  }
+}

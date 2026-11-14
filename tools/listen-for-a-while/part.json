@@ -1,3 +1,9 @@
 {
+  "exports": {
+    "private-mode": "read-data/private-mode.mjs",
+    "private-mode.json": "read-data/private-mode.json",
+    "recording-rules": "read-data/recording-rules.mjs",
+    "recording-rules.json": "read-data/recording-rules.json"
+  },
   "public": []
 }

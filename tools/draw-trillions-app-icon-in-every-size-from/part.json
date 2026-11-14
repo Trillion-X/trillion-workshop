@@ -1,4 +1,7 @@
 {
+  "exports": {
+    "make-opening-cover": "scripts/make-opening-cover.mjs"
+  },
   "imported_by": [
     "Trillion-X/trillion"
   ]

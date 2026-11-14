@@ -1,4 +1,7 @@
 {
+  "exports": {
+    "base64": "do-work/base64.mjs"
+  },
   "imported_by": [
     "tools/keep-and-wake-ai-sessions-on-this-computer",
     "tools/record-log",

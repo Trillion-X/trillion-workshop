@@ -4,13 +4,13 @@ import {RecordViews, type FieldDescriptor, type RecordView, type RecordViewConte
 import {Button} from '../../ui';
 import {useRecordConfigurations, type RecordConfigurationBinding} from '../../ui/show/record-views/use-record-configurations';
 import {formatFactValue} from '../../ui/show/fact-chips/FactChips';
-import {extractFieldValue, type VisualDatabaseFieldDescriptor, type VisualDatabaseModel, type VisualDatabaseViewDescriptor} from '../../visual-database/read-data/visual-database';
+import {extractFieldValue, type VisualDatabaseFieldDescriptor, type VisualDatabaseModel, type VisualDatabaseViewDescriptor} from '../../keep-lists-of-rows/read-data/visual-database';
 import {removeRecording, setRecordingName, setRecordingNotes, setRecordingSubtitle} from '../do-work/record-audio-requests';
 import library from '../read-data/recording-library.json';
 
 export type RecordingLibraryConfiguration = RecordConfigurationBinding & {target: string; openPath: string};
 export const recordingLibraryTarget = library.identity;
-type ExpressionProps = Pick<React.ComponentProps<typeof import('../../visual-database/show/VisualDatabaseSurface').VisualDatabaseSurface>, 'cellExpressionInputs' | 'evaluatorDescriptors' | 'dispatchDerived'>;
+type ExpressionProps = Pick<React.ComponentProps<typeof import('../../keep-lists-of-rows/show/VisualDatabaseSurface').VisualDatabaseSurface>, 'cellExpressionInputs' | 'evaluatorDescriptors' | 'dispatchDerived'>;
 type Props = ExpressionProps & {
   model: VisualDatabaseModel;
   onOpenRecording?: (recordingId: string) => void;
@@ -23,7 +23,7 @@ type Props = ExpressionProps & {
 };
 type RecordViewsProps = React.ComponentProps<typeof RecordViews>;
 type LibraryData = typeof library;
-const LegacySectionSurface = lazyPart(() => import('../../visual-database/show/VisualDatabaseSurface'), module => module.VisualDatabaseSurface);
+const LegacySectionSurface = lazyPart(() => import('../../keep-lists-of-rows/show/VisualDatabaseSurface'), module => module.VisualDatabaseSurface);
 
 const descriptorFor = (model: VisualDatabaseModel, id: string) => model.fields.find(field => field.id === id);
 const knownLegacyIds = new Set((library as LibraryData).views.map(spec => spec.legacy_id));

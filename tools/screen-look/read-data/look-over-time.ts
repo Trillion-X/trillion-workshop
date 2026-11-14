@@ -28,7 +28,7 @@ import {
   type LookPoint,
   type LookPreset,
   type Rgba,
-} from 'trillion-workshop/tools/screen-looks/read-data/look-over-time.mjs';
+} from '../../screen-looks/read-data/look-over-time.mjs';
 
 export {
   blendValue,

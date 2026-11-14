@@ -1,6 +1,6 @@
 // Compatibility exports for Trillion's time owners. Workshop owns the shared algorithms.
 
-import * as shared from 'trillion-workshop/tools/wall-time/read-data/wall-time.mjs';
+import * as shared from '../../wall-time/read-data/wall-time.mjs';
 
 export type DstGapPolicy = 'skip' | 'next-valid';
 export type DstFoldPolicy = 'earlier' | 'later' | 'both';

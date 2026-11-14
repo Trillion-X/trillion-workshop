@@ -1,4 +1,7 @@
 {
+  "exports": {
+    "page-sections-html": "parts/ui/show/server-rendered-page/page-sections-html.mjs"
+  },
   "imported_by": [
     "Trillion-X/trillion"
   ]

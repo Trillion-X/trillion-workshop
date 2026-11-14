@@ -1,0 +1,6 @@
+{
+  "exports": {
+    "json-expansion": "json-expansion.mjs",
+    "sql-statement-execution": "sql-statement-execution.mjs"
+  }
+}

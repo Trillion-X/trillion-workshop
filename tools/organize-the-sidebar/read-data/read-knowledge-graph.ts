@@ -17,7 +17,7 @@
 // Fail-closed: a malformed descriptor is skipped (never fatal); nodes are deduped
 //   by id across sources; empty inputs → an empty projection (no fake nodes).
 
-import { readConnectionGraph } from 'trillion-workshop/tools/relationship-graph/read-data/read-connection-graph.ts';
+import { readConnectionGraph } from '../../relationship-graph/read-data/read-connection-graph.ts';
 
 export type KnowledgeGraphProjection = {
   readonly nodes: ReadonlyArray<{ readonly id: string; readonly attributes: unknown }>;

@@ -1,1 +1,14 @@
-{"public": []}
+{"public": [],
+  "exports": {
+    "certificate-request.cnf": "certificate-request.cnf",
+    "devices.json": "devices.json",
+    "ftp-receiver": "do-work/ftp-receiver.mjs",
+    "keychain": "do-work/keychain.mjs",
+    "know-which-devices": "do-work/know-which-devices.mjs",
+    "receive-settings.json": "receive-settings.json",
+    "send-what-arrives-to-a-namespace": "do-work/send-what-arrives-to-a-namespace.mjs",
+    "set-up-this-computer": "do-work/set-up-this-computer.mjs",
+    "tell-the-account": "do-work/tell-the-account.mjs",
+    "this-computers-address": "do-work/this-computers-address.mjs"
+  }
+}

@@ -1,4 +1,7 @@
 {
+  "exports": {
+    "derive-open-slots": "do-work/derive-open-slots.ts"
+  },
   "imported_by": [
     "Trillion-X/trillion-apps",
     "Trillion-X/trillion"

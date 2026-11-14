@@ -1,3 +1,7 @@
 {
+  "exports": {
+    "speak": "read-data/speak.mjs",
+    "speak-with-mlx.py": "do-work/speak-with-mlx.py"
+  },
   "public": []
 }

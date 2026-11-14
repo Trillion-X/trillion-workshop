@@ -1,0 +1,8 @@
+{
+  "exports": {
+    "carry-tables-into-records": "carry-tables-into-records.mjs",
+    "file-previews.json": "workspace/file-previews.json",
+    "file-type": "file-type.mjs",
+    "namespace-store": "namespace-store.mjs"
+  }
+}
