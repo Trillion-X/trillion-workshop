@@ -1,0 +1,4 @@
+{
+  "_what": "Holds on publishing: a row { held_from, reason, until, owner } refuses to publish any engine commit at or after held_from on the branch's first-parent line (publish and accept, publish-an-engine-release.mjs heldBy), and names the reason. It is read at each publish. A hold is lifted only by removing its row: there is no flag, argument or environment value that lifts it. The Mac app release obeys the same rows for the engine it carries (trillion-apps scripts/check-engine-hold.mjs).",
+  "holds": []
+}

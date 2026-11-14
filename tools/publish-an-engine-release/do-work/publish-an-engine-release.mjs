@@ -28,6 +28,7 @@ import { tarGz, untarGz } from '../../keep-and-wake-ai-sessions-on-this-computer
 import { gitSshCommand, overSsh } from './git-ssh.mjs';
 import { addRelease, checkCommit, checkEntry, checkTarget, ENGINE_KIND, feedStatusOf, mayPublish, newestFor, newSigningKey, publicKeyHex, readFeed, roads, settings, signEntry, signerOf } from './release-feed.mjs';
 
+const HOLDS_FILE = join(dirname(fileURLToPath(import.meta.url)), '..', 'read-data', 'holds.json');
 const refuse = (message, exit = 1) => Object.assign(new Error(message), { exit });
 const BLOCK = 512;
 const absolute = (path, what) => {
@@ -127,10 +128,37 @@ export async function fetchRepository({ repository, branch, source, token }) {
  * scripts/release-macos-app.sh, `git show -s --format=%ct`), so a release from this feed runs on a Mac only when it is
  * newer than the engine the app carries, and the computers that already follow the feed see a larger number.
  */
-export async function sequenceOf({ source, branch, commit }) {
+export async function sequenceOf({ source, branch, commit, holds = [] }) {
   const line = (await git(source, ['rev-list', '--first-parent', `refs/remotes/origin/${branch}`])).split('\n');
   if (!line.includes(commit)) throw refuse(`Commit ${commit} is not on ${branch}'s first-parent line: only a commit the branch itself moved to is published.`, 3);
+  const held = heldBy(holds, line, commit);
+  if (held) throw refuse(held, 3);
   return commitTime(source, commit);
+}
+
+/** The holds DATA (read-data/holds.json `holds`, read at each use so removing a row lifts it at once): each row is
+ *  `{ held_from, reason, until, owner }`. A hold is lifted only by removing its row, never by a flag or an argument. */
+export function readHolds(file = HOLDS_FILE) {
+  const rows = JSON.parse(readFileSync(file, 'utf8')).holds;
+  if (!Array.isArray(rows)) throw refuse('read-data/holds.json needs a holds list.', 2);
+  for (const row of rows) {
+    if (!row || !/^[0-9a-f]{40}$/.test(row.held_from ?? '') || typeof row.reason !== 'string' || !row.reason || typeof row.owner !== 'string' || !row.owner || typeof row.until !== 'string' || !row.until) {
+      throw refuse('A hold row needs held_from (a full commit), reason, until and owner.', 2);
+    }
+  }
+  return rows;
+}
+
+/** The words a hold refuses `commit` with, or null. `line` is the branch's first-parent line, newest first: a commit at or after
+ *  `held_from` has an index at or below it. A hold whose commit is not on the line holds everything (it cannot be placed). Pure. */
+export function heldBy(holds, line, commit) {
+  for (const row of holds) {
+    const at = line.indexOf(row.held_from);
+    if (at >= 0 && line.indexOf(commit) > at) continue;
+    return `Held: ${row.reason} (owner ${row.owner}, until ${row.until}). No commit at or after ${row.held_from} is published while this row is in read-data/holds.json; remove the row to lift it.`
+      + (at < 0 ? ' The held commit is not on this branch\'s first-parent line, so nothing is published.' : '');
+  }
+  return null;
 }
 
 /** A commit's time in seconds: the one sequence rule every engine build uses (see sequenceOf). */
@@ -339,7 +367,7 @@ const binaryOf = kind => kind.binary ?? settings.binary;
 
 /** Publish one commit: build, pack, sign, and add it to the feed. A kind that packs provided files (`publishProvided`) takes
  *  the files the request names instead of a commit's tree. */
-export async function publish(request, { token = '', commit: asked, credentials = process.env.CREDENTIALS_DIRECTORY } = {}) {
+export async function publish(request, { token = '', commit: asked, credentials = process.env.CREDENTIALS_DIRECTORY, holds = readHolds() } = {}) {
   const kind = kindOf(request);
   if (kind.pack === PROVIDED_FILES) return publishProvided(request, kind);
   const { repository, branch } = request;
@@ -354,7 +382,8 @@ export async function publish(request, { token = '', commit: asked, credentials 
   const darwin = withRoads(kind) ? darwinOf(request, credentials) : null;
   const tip = await fetchRepository({ repository, branch, source, token });
   const commit = checkCommit(asked ?? tip);
-  const sequence = await sequenceOf({ source, branch, commit });
+  // A hold names an engine commit: it applies to the engine kind, never to the Workshop's own tree.
+  const sequence = await sequenceOf({ source, branch, commit, holds: kind.build ? holds : [] });
   const env = kind.build ? buildEnvironment({ commit, sequence }) : undefined;
   const target = kind.target ?? await hostTarget(request.toolchain?.rustc ?? 'rustc', env);
   const host = roads.targets.find(row => row.build === 'host');
@@ -580,7 +609,7 @@ export async function publishDarwin({ request, darwin, source, work, client, tar
  * this feed, so every computer's existing `public_keys` (the Mac app's carried ones too) take it with no config or app
  * change: this builder vouches for what an accepted key signed. Anything else is refused and the feed is unchanged.
  */
-export async function accept(request, { token = '', entry: offered, body } = {}) {
+export async function accept(request, { token = '', entry: offered, body, holds = readHolds() } = {}) {
   const kind = kindOf(request);
   const { repository, branch } = request;
   const accepted = request.accept_entries_from ?? [];
@@ -596,7 +625,7 @@ export async function accept(request, { token = '', entry: offered, body } = {})
   mkdirSync(feedFolder, { recursive: true, mode: 0o755 });
   const source = join(work, 'verify-source');
   await fetchRepository({ repository, branch, source, token });
-  const sequence = await sequenceOf({ source, branch, commit });
+  const sequence = await sequenceOf({ source, branch, commit, holds });
   if (sequence !== candidate.sequence) throw refuse(`The entry says ${commit} is sequence ${candidate.sequence}, but it is ${sequence} on ${branch}'s first-parent line.`, 3);
   const before = mayPublish(readFeed(readText(feedFile(feedFolder, kind)), kind.feed_file), candidate);
   if (before.already) return answerOf(before.already, { publicKey, already: true, dropped: 0, held: readFeed(readText(feedFile(feedFolder, kind)), kind.feed_file).releases.length });

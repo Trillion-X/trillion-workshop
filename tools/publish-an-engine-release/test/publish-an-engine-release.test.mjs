@@ -15,6 +15,7 @@ import { runInProgress, archiveRelease, CREDENTIAL_HELPER, filesUnder, makeKey, 
 import { tarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
 import { attemptsOf, behindFeed, catchUp, countAttempt, makeQueue, makeReceiver, readDelivery, runPublish, signatureHolds } from '../do-work/receive-pushes.mjs';
 import { builderConfig, installBuilder, receiverUnit, SHIPPED, shippedTarball } from '../do-work/install-a-builder.mjs';
+import { heldBy, readHolds } from '../do-work/publish-an-engine-release.mjs';
 
 const here = fileURLToPath(new URL('.', import.meta.url));
 const PUBLISH = fileURLToPath(new URL('../do-work/publish-an-engine-release.mjs', import.meta.url));
@@ -575,4 +576,38 @@ test('the receiver runs publish for a pushed commit and keeps how it went in las
   assert.equal(older.exit, 3);
   assert.match(older.error, /older than the feed's newest/);
   assert.ok(![kept, ...said].some(text => text.includes(canary)));
+});
+
+const HOLD = (heldFrom, extra = {}) => ({ held_from: heldFrom, reason: 'Better Auth cutover not proven; nm_ removed', until: 'the cutover is proven', owner: 'better-auth-now', ...extra });
+
+test('a commit at or after a hold is refused with its reason and one before it publishes', async () => {
+  const { remote, commits } = repository(4);
+  const { request, envFile } = builder(remote);
+  const holds = [HOLD(commits[2])];
+  const before = await publish(request, { commit: commits[1], holds });
+  assert.equal(before.sequence, BASE_TIME + 2, 'a commit before held_from publishes');
+  writeFileSync(envFile, '');
+  for (const commit of [commits[2], commits[3]]) {
+    await assert.rejects(publish(request, { commit, holds }), error => error.exit === 3 && /Held: Better Auth cutover not proven; nm_ removed \(owner better-auth-now/.test(error.message), `refused ${commit}`);
+  }
+  assert.equal(readFileSync(envFile, 'utf8'), '', 'nothing was built');
+  assert.deepEqual([...new Set(readFeed(readFileSync(join(request.feed_folder, 'feed.json'), 'utf8')).releases.map(entry => entry.sequence))], [BASE_TIME + 2], 'only the commit before the hold is in the feed');
+});
+
+test('the hold is lifted only by removing its row: with the row gone the same commit publishes', async () => {
+  const { remote, commits } = repository(3);
+  const { request } = builder(remote);
+  await assert.rejects(publish(request, { commit: commits[2], holds: [HOLD(commits[1])] }), /Held:/);
+  assert.equal((await publish(request, { commit: commits[2], holds: [] })).sequence, BASE_TIME + 3);
+});
+
+test('a hold names its owner, reason and end, a commit not on the branch holds everything, and the shipped DATA has the rows list', () => {
+  assert.equal(heldBy([], ['b', 'a'], 'b'), null);
+  assert.equal(heldBy([HOLD('a'.repeat(40))], ['b'.repeat(40), 'a'.repeat(40), 'c'.repeat(40)], 'c'.repeat(40)), null);
+  assert.match(heldBy([HOLD('a'.repeat(40))], ['b'.repeat(40), 'a'.repeat(40)], 'a'.repeat(40)), /Held:/, 'the held commit itself is held');
+  assert.match(heldBy([HOLD('d'.repeat(40))], ['b'.repeat(40), 'a'.repeat(40)], 'a'.repeat(40)), /not on this branch's first-parent line/);
+  assert.ok(Array.isArray(readHolds()));
+  const dir = folder(), file = join(dir, 'holds.json');
+  writeFileSync(file, JSON.stringify({ holds: [{ held_from: 'abc', reason: 'r' }] }));
+  assert.throws(() => readHolds(file), /needs held_from/);
 });
