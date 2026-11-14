@@ -9,7 +9,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { applyHostLayout, hostLayoutDifferences, SITE_BLOCK } from '../do-work/start-a-computer.mjs';
 import { renderLayout } from '../do-work/render-layout.mjs';
-import { newSigningKey, publicKeyHex, signEntry } from '../../publish-an-engine-release/do-work/release-feed.mjs';
+import { newSigningKey, publicKeyHex, signEntry } from 'trillion-workshop/tools/publish-an-engine-release/do-work/release-feed.mjs';
 
 const key = newSigningKey(), stranger = newSigningKey();
 const OLD = 'a'.repeat(40), NEW = 'b'.repeat(40), FORGED = 'c'.repeat(40), PINNED = 'd'.repeat(40);

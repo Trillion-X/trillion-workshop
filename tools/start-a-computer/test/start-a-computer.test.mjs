@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { accessSync, constants, realpathSync } from 'node:fs';
 import { delimiter, isAbsolute } from 'node:path';
-import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+import { makeHashCodeHexFromBytes } from 'trillion-workshop/tools/content-identity/read-data/identity.mjs';
 import {
   machineProvider, nameProvider, providerClient, rentMachine, releaseMachine, readMachine, readPrice, pointName,
   forgetName, fingerprintOf,

@@ -24,8 +24,8 @@ import { readFileSync, createReadStream } from 'node:fs';
 import { isAbsolute, dirname, basename, resolve as resolvePath, posix } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { verifyEntry } from '../../publish-an-engine-release/do-work/release-feed.mjs';
+import { makeHashCodeHexFromBytes } from 'trillion-workshop/tools/content-identity/read-data/identity.mjs';
+import { verifyEntry } from 'trillion-workshop/tools/publish-an-engine-release/do-work/release-feed.mjs';
 import {
   machineProvider, nameProvider, providerClient, rentMachine, readMachine, releaseMachine, readPrice, pointName,
   forgetName, readLease,
@@ -714,9 +714,10 @@ export async function hostLayoutOf(request, readRow = readOwnRecord) {
 
 /** One of the person's own rows, read through their door (the key `trillion login` keeps). */
 async function readOwnRecord(id) {
-  const { credentialFor, doorFor, trillionClient } = await import('../../use-trillion-from-a-shell/do-work/trillion.mjs');
+  const { credentialFor, doorFor, trillionClient, opWhole } = await import('trillion-workshop/tools/use-trillion-from-a-shell/do-work/trillion.mjs');
   const credential = await credentialFor();
-  const answer = await trillionClient({ door: doorFor({ credential }), credential }).op('@own-records', 'records:read', { id });
+  // A row larger than one answer comes back as byte pages (an engine unit that carries its own new_accounts): read it whole.
+  const answer = await opWhole(trillionClient({ door: doorFor({ credential }), credential }), '@own-records', 'records:read', { id });
   return answer?.value;
 }
 
