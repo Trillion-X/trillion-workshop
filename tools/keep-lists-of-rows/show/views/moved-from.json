@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from the original Bitfield package packages/visual-database that no Workshop or apps copy held (tests and fixtures, expression authoring, migrations and their targets, record form, tables home, mounts, selection binding, iOS JavaScriptCore mount, direct-view data, proof and performance evidence). Each names its source path and commit, the identity of its source bytes and of its bytes here. Only the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/visual-database/show/views/NodeGraphView.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/show/views/NodeGraphView.test.tsx",
+      "source_identity": "1f:894f3d6abebb91dbcef95a7213aaaeff189246d267afc9e5e28326d4f56d582b",
+      "identity": "1f:894f3d6abebb91dbcef95a7213aaaeff189246d267afc9e5e28326d4f56d582b"
+    },
+    {
+      "from": "packages/visual-database/show/views/NodeGraphView.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/show/views/NodeGraphView.tsx",
+      "source_identity": "1f:55e0215f578244e03b8c77232d57d1a26d6cd4679d117ab6850ab0d0195dd054",
+      "identity": "1f:55e0215f578244e03b8c77232d57d1a26d6cd4679d117ab6850ab0d0195dd054"
+    }
+  ]
+}

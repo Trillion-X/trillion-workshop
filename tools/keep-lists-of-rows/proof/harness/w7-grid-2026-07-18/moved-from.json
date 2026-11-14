@@ -1,0 +1,42 @@
+{
+  "about": "Files moved here byte for byte from the original Bitfield package packages/visual-database that no Workshop or apps copy held (tests and fixtures, expression authoring, migrations and their targets, record form, tables home, mounts, selection binding, iOS JavaScriptCore mount, direct-view data, proof and performance evidence). Each names its source path and commit, the identity of its source bytes and of its bytes here. Only the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "made-up-computer-user",
+      "find": "(?<=/Users/|USER: '|LOGNAME: ')[a-z]+",
+      "replace": "example",
+      "means": "This repository is public and holds made-up data only: the account name of the computer the package was written on, in a home-folder path or an environment value, becomes a made-up one. Nothing else in the file changes.",
+      "files": [
+        "tools/keep-lists-of-rows/proof/harness/w7-grid-2026-07-18/build.mjs"
+      ]
+    },
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/visual-database/proof/harness/w7-grid-2026-07-18/build.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/proof/harness/w7-grid-2026-07-18/build.mjs",
+      "source_identity": "1f:a1d5a3ac23ca56ce341d8c6d6acc103a726315ab7f964476d94e04d887ba53c0",
+      "identity": "1f:e611574de00b12074c29f29e626bf52e0b2a29dccb14f594798c81102873b19f",
+      "calls": [
+        "made-up-computer-user",
+        "private-notes-path"
+      ]
+    },
+    {
+      "from": "packages/visual-database/proof/harness/w7-grid-2026-07-18/mount.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/proof/harness/w7-grid-2026-07-18/mount.tsx",
+      "source_identity": "1f:64cab5e35a4fa321248aa1f26a13f8a309f243c08fa675fed1c68b909a6760ab",
+      "identity": "1f:64cab5e35a4fa321248aa1f26a13f8a309f243c08fa675fed1c68b909a6760ab"
+    }
+  ]
+}

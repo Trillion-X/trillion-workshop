@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from the original Bitfield package packages/visual-database that no Workshop or apps copy held (tests and fixtures, expression authoring, migrations and their targets, record form, tables home, mounts, selection binding, iOS JavaScriptCore mount, direct-view data, proof and performance evidence). Each names its source path and commit, the identity of its source bytes and of its bytes here. Only the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/visual-database/show-ios-jscore/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/show-ios-jscore/README.md",
+      "source_identity": "1f:48099ca2593f981a9a56301a8e2df44428bccc3c872746d11f5661df6fd24a95",
+      "identity": "1f:48099ca2593f981a9a56301a8e2df44428bccc3c872746d11f5661df6fd24a95"
+    },
+    {
+      "from": "packages/visual-database/show-ios-jscore/mount-visual-database-jscore.js",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/show-ios-jscore/mount-visual-database-jscore.js",
+      "source_identity": "1f:bd004a3638fa799c47c19471762cb47d8a13c06ab8f0ca3c2bba8fbe05682635",
+      "identity": "1f:bd004a3638fa799c47c19471762cb47d8a13c06ab8f0ca3c2bba8fbe05682635"
+    }
+  ]
+}

@@ -1,0 +1,5760 @@
+{
+  "schema": "visual-database.direct-view-data-catalog/v1",
+  "views": [
+    {
+      "view_id": "empty-add-formula",
+      "descriptor": {
+        "id": "empty-add-formula",
+        "label": "Empty Add Formula",
+        "kind": "table",
+        "order": 1000,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.blank"
+      }
+    },
+    {
+      "view_id": "saved-after-readback",
+      "descriptor": {
+        "id": "saved-after-readback",
+        "label": "Saved After Readback",
+        "kind": "table",
+        "order": 1010,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.saved"
+      }
+    },
+    {
+      "view_id": "completion-help",
+      "descriptor": {
+        "id": "completion-help",
+        "label": "Completion Help",
+        "kind": "table",
+        "order": 1020,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.completion"
+      }
+    },
+    {
+      "view_id": "point-range",
+      "descriptor": {
+        "id": "point-range",
+        "label": "Point Range",
+        "kind": "table",
+        "order": 1030,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.references"
+      }
+    },
+    {
+      "view_id": "point-compose-focus",
+      "descriptor": {
+        "id": "point-compose-focus",
+        "label": "Point Compose Focus",
+        "kind": "table",
+        "order": 1040,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.references"
+      }
+    },
+    {
+      "view_id": "function-field-catalog",
+      "descriptor": {
+        "id": "function-field-catalog",
+        "label": "Function Field Catalog",
+        "kind": "table",
+        "order": 1050,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.catalog"
+      }
+    },
+    {
+      "view_id": "positioned-repair",
+      "descriptor": {
+        "id": "positioned-repair",
+        "label": "Positioned Repair",
+        "kind": "table",
+        "order": 1060,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.invalid"
+      }
+    },
+    {
+      "view_id": "empty",
+      "descriptor": {
+        "id": "empty",
+        "label": "Empty",
+        "kind": "table",
+        "order": 1070,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.blank"
+      }
+    },
+    {
+      "view_id": "sparse-valid",
+      "descriptor": {
+        "id": "sparse-valid",
+        "label": "Sparse Valid",
+        "kind": "table",
+        "order": 1080,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.valid"
+      }
+    },
+    {
+      "view_id": "dense",
+      "descriptor": {
+        "id": "dense",
+        "label": "Dense",
+        "kind": "table",
+        "order": 1090,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.dense"
+      }
+    },
+    {
+      "view_id": "loading-incomplete",
+      "descriptor": {
+        "id": "loading-incomplete",
+        "label": "Loading Incomplete",
+        "kind": "table",
+        "order": 1100,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.loading"
+      }
+    },
+    {
+      "view_id": "invalid",
+      "descriptor": {
+        "id": "invalid",
+        "label": "Invalid",
+        "kind": "table",
+        "order": 1110,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.invalid"
+      }
+    },
+    {
+      "view_id": "cycle-missing",
+      "descriptor": {
+        "id": "cycle-missing",
+        "label": "Cycle Missing",
+        "kind": "table",
+        "order": 1120,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.cycle"
+      }
+    },
+    {
+      "view_id": "stale",
+      "descriptor": {
+        "id": "stale",
+        "label": "Stale",
+        "kind": "table",
+        "order": 1130,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.stale"
+      }
+    },
+    {
+      "view_id": "conflict-offline",
+      "descriptor": {
+        "id": "conflict-offline",
+        "label": "Conflict Offline",
+        "kind": "table",
+        "order": 1140,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.conflict"
+      }
+    },
+    {
+      "view_id": "read-only",
+      "descriptor": {
+        "id": "read-only",
+        "label": "Read Only",
+        "kind": "table",
+        "order": 1150,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.read-only"
+      }
+    },
+    {
+      "view_id": "tablet",
+      "descriptor": {
+        "id": "tablet",
+        "label": "Tablet",
+        "kind": "table",
+        "order": 1160,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.valid"
+      }
+    },
+    {
+      "view_id": "mobile-portrait",
+      "descriptor": {
+        "id": "mobile-portrait",
+        "label": "Mobile Portrait",
+        "kind": "table",
+        "order": 1170,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.mobile"
+      }
+    },
+    {
+      "view_id": "mobile-keyboard-pick",
+      "descriptor": {
+        "id": "mobile-keyboard-pick",
+        "label": "Mobile Keyboard Pick",
+        "kind": "table",
+        "order": 1180,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.mobile"
+      }
+    },
+    {
+      "view_id": "legacy-available",
+      "descriptor": {
+        "id": "legacy-available",
+        "label": "Legacy Available",
+        "kind": "table",
+        "order": 1190,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.legacy-available"
+      }
+    },
+    {
+      "view_id": "legacy-conversion",
+      "descriptor": {
+        "id": "legacy-conversion",
+        "label": "Legacy Conversion",
+        "kind": "table",
+        "order": 1200,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.legacy-available"
+      }
+    },
+    {
+      "view_id": "legacy-unavailable",
+      "descriptor": {
+        "id": "legacy-unavailable",
+        "label": "Legacy Unavailable",
+        "kind": "table",
+        "order": 1210,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.legacy-unavailable"
+      }
+    },
+    {
+      "view_id": "blank-table",
+      "descriptor": {
+        "id": "blank-table",
+        "label": "Blank Table",
+        "kind": "table",
+        "order": 1220,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.blank"
+      }
+    },
+    {
+      "view_id": "nested-function",
+      "descriptor": {
+        "id": "nested-function",
+        "label": "Nested Function",
+        "kind": "table",
+        "order": 1230,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.completion"
+      }
+    },
+    {
+      "view_id": "reference-picks",
+      "descriptor": {
+        "id": "reference-picks",
+        "label": "Reference Picks",
+        "kind": "table",
+        "order": 1240,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.references"
+      }
+    },
+    {
+      "view_id": "missing-reference",
+      "descriptor": {
+        "id": "missing-reference",
+        "label": "Missing Reference",
+        "kind": "table",
+        "order": 1250,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.invalid"
+      }
+    },
+    {
+      "view_id": "cycle",
+      "descriptor": {
+        "id": "cycle",
+        "label": "Cycle",
+        "kind": "table",
+        "order": 1260,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.cycle"
+      }
+    },
+    {
+      "view_id": "copy-fill-reorder",
+      "descriptor": {
+        "id": "copy-fill-reorder",
+        "label": "Copy Fill Reorder",
+        "kind": "table",
+        "order": 1270,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.reorder"
+      }
+    },
+    {
+      "view_id": "mobile-authoring",
+      "descriptor": {
+        "id": "mobile-authoring",
+        "label": "Mobile Authoring",
+        "kind": "table",
+        "order": 1280,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.mobile"
+      }
+    },
+    {
+      "view_id": "lifecycle-saved",
+      "descriptor": {
+        "id": "lifecycle-saved",
+        "label": "Lifecycle Saved",
+        "kind": "table",
+        "order": 1290,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.lifecycle"
+      }
+    },
+    {
+      "view_id": "lifecycle-conflict",
+      "descriptor": {
+        "id": "lifecycle-conflict",
+        "label": "Lifecycle Conflict",
+        "kind": "table",
+        "order": 1300,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.lifecycle"
+      }
+    },
+    {
+      "view_id": "lifecycle-offline",
+      "descriptor": {
+        "id": "lifecycle-offline",
+        "label": "Lifecycle Offline",
+        "kind": "table",
+        "order": 1310,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.lifecycle"
+      }
+    },
+    {
+      "view_id": "lifecycle-stale",
+      "descriptor": {
+        "id": "lifecycle-stale",
+        "label": "Lifecycle Stale",
+        "kind": "table",
+        "order": 1320,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.lifecycle"
+      }
+    },
+    {
+      "view_id": "lifecycle-stale-dependency",
+      "descriptor": {
+        "id": "lifecycle-stale-dependency",
+        "label": "Lifecycle Stale Dependency",
+        "kind": "table",
+        "order": 1330,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.lifecycle"
+      }
+    },
+    {
+      "view_id": "lifecycle-legacy-preview",
+      "descriptor": {
+        "id": "lifecycle-legacy-preview",
+        "label": "Lifecycle Legacy Preview",
+        "kind": "table",
+        "order": 1340,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.legacy-available"
+      }
+    },
+    {
+      "view_id": "lifecycle-legacy-conversion",
+      "descriptor": {
+        "id": "lifecycle-legacy-conversion",
+        "label": "Lifecycle Legacy Conversion",
+        "kind": "table",
+        "order": 1350,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.legacy-available"
+      }
+    },
+    {
+      "view_id": "lifecycle-legacy-unavailable",
+      "descriptor": {
+        "id": "lifecycle-legacy-unavailable",
+        "label": "Lifecycle Legacy Unavailable",
+        "kind": "table",
+        "order": 1360,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.legacy-unavailable"
+      }
+    },
+    {
+      "view_id": "user-created-smoke",
+      "descriptor": {
+        "id": "user-created-smoke",
+        "label": "User Created Smoke",
+        "kind": "table",
+        "order": 1370,
+        "filters": [],
+        "projectionRules": [],
+        "visibility": "direct",
+        "sourceDatasetAddress": "visual-database.proof-dataset.user-created"
+      }
+    }
+  ],
+  "datasets": [
+    {
+      "address": "visual-database.proof-dataset.blank",
+      "payload_template": {
+        "kind": "visual-database.dataset",
+        "version": 1,
+        "writable": true,
+        "members": {
+          "recordRefs": [
+            "visual-database.sample::blank::row-1"
+          ],
+          "addresses": [
+            "visual-database.sample::blank::row-1"
+          ]
+        },
+        "records": [
+          {
+            "address": "visual-database.sample::blank::row-1",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Blank 1",
+              "amount": null,
+              "cost": null,
+              "total": null
+            }
+          }
+        ],
+        "fields": {
+          "kind": "visual-database.fields",
+          "version": 2,
+          "descriptors": [
+            {
+              "id": "title",
+              "label": "Name",
+              "role": "title",
+              "paths": [
+                [
+                  "title"
+                ],
+                [
+                  "payload",
+                  "title"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "title"
+              ]
+            },
+            {
+              "id": "amount",
+              "label": "Amount",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "amount"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "amount"
+              ]
+            },
+            {
+              "id": "cost",
+              "label": "Cost",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "cost"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "cost"
+              ]
+            },
+            {
+              "id": "total",
+              "label": "Total",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "total"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "total"
+              ],
+              "evaluator_descriptor_refs": {
+                "$admitted_evaluator_refs": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "visual-database.proof-dataset.catalog",
+      "payload_template": {
+        "kind": "visual-database.dataset",
+        "version": 1,
+        "writable": true,
+        "members": {
+          "recordRefs": [
+            "visual-database.sample::catalog::row-1",
+            "visual-database.sample::catalog::row-2"
+          ],
+          "addresses": [
+            "visual-database.sample::catalog::row-1",
+            "visual-database.sample::catalog::row-2"
+          ]
+        },
+        "records": [
+          {
+            "address": "visual-database.sample::catalog::row-1",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "North region",
+              "amount": 12,
+              "cost": 3,
+              "total": 18
+            }
+          },
+          {
+            "address": "visual-database.sample::catalog::row-2",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "South region",
+              "amount": 24,
+              "cost": 6,
+              "total": 27
+            }
+          }
+        ],
+        "fields": {
+          "kind": "visual-database.fields",
+          "version": 2,
+          "descriptors": [
+            {
+              "id": "title",
+              "label": "Name",
+              "role": "title",
+              "paths": [
+                [
+                  "title"
+                ],
+                [
+                  "payload",
+                  "title"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "title"
+              ]
+            },
+            {
+              "id": "amount",
+              "label": "Amount",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "amount"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "amount"
+              ]
+            },
+            {
+              "id": "cost",
+              "label": "Cost",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "cost"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "cost"
+              ]
+            },
+            {
+              "id": "total",
+              "label": "Total",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "total"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "total"
+              ],
+              "evaluator_descriptor_refs": {
+                "$admitted_evaluator_refs": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "visual-database.proof-dataset.completion",
+      "payload_template": {
+        "kind": "visual-database.dataset",
+        "version": 1,
+        "writable": true,
+        "members": {
+          "recordRefs": [
+            "visual-database.sample::completion::row-1"
+          ],
+          "addresses": [
+            "visual-database.cell-expression::visual-database.sample%3A%3Acompletion%3A%3Arow-1::total",
+            "visual-database.sample::completion::row-1"
+          ]
+        },
+        "records": [
+          {
+            "address": "visual-database.sample::completion::row-1",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Completion 1",
+              "amount": 12,
+              "cost": 3,
+              "total": 15
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Acompletion%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::completion::row-1",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_for_source": "=SUM(Amount, Cost)"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::completion::row-1",
+                      "field_ref": "amount",
+                      "context_key": "Amount"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::completion::row-1",
+                      "field_ref": "cost",
+                      "context_key": "Cost"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          }
+        ],
+        "fields": {
+          "kind": "visual-database.fields",
+          "version": 2,
+          "descriptors": [
+            {
+              "id": "title",
+              "label": "Name",
+              "role": "title",
+              "paths": [
+                [
+                  "title"
+                ],
+                [
+                  "payload",
+                  "title"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "title"
+              ]
+            },
+            {
+              "id": "amount",
+              "label": "Amount",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "amount"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "amount"
+              ]
+            },
+            {
+              "id": "cost",
+              "label": "Cost",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "cost"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "cost"
+              ]
+            },
+            {
+              "id": "total",
+              "label": "Total",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "total"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "total"
+              ],
+              "evaluator_descriptor_refs": {
+                "$admitted_evaluator_refs": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "visual-database.proof-dataset.conflict",
+      "payload_template": {
+        "kind": "visual-database.dataset",
+        "version": 1,
+        "writable": true,
+        "members": {
+          "recordRefs": [
+            "visual-database.sample::conflict::row-1"
+          ],
+          "addresses": [
+            "visual-database.cell-expression::visual-database.sample%3A%3Aconflict%3A%3Arow-1::total",
+            "visual-database.sample::conflict::row-1"
+          ]
+        },
+        "records": [
+          {
+            "address": "visual-database.sample::conflict::row-1",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Conflict 1",
+              "amount": 12,
+              "cost": 3
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Aconflict%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::conflict::row-1",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_for_source": "=Amount-Cost"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::conflict::row-1",
+                      "field_ref": "amount",
+                      "context_key": "Amount"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::conflict::row-1",
+                      "field_ref": "cost",
+                      "context_key": "Cost"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          }
+        ],
+        "fields": {
+          "kind": "visual-database.fields",
+          "version": 2,
+          "descriptors": [
+            {
+              "id": "title",
+              "label": "Name",
+              "role": "title",
+              "paths": [
+                [
+                  "title"
+                ],
+                [
+                  "payload",
+                  "title"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "title"
+              ]
+            },
+            {
+              "id": "amount",
+              "label": "Amount",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "amount"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "amount"
+              ]
+            },
+            {
+              "id": "cost",
+              "label": "Cost",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "cost"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "cost"
+              ]
+            },
+            {
+              "id": "total",
+              "label": "Total",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "total"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "total"
+              ],
+              "evaluator_descriptor_refs": {
+                "$admitted_evaluator_refs": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "visual-database.proof-dataset.cycle",
+      "payload_template": {
+        "kind": "visual-database.dataset",
+        "version": 1,
+        "writable": true,
+        "members": {
+          "recordRefs": [
+            "visual-database.sample::cycle::row-1",
+            "visual-database.sample::cycle::row-2"
+          ],
+          "addresses": [
+            "visual-database.cell-expression::visual-database.sample%3A%3Acycle%3A%3Arow-1::total",
+            "visual-database.cell-expression::visual-database.sample%3A%3Acycle%3A%3Arow-2::total",
+            "visual-database.sample::cycle::row-1",
+            "visual-database.sample::cycle::row-2"
+          ]
+        },
+        "records": [
+          {
+            "address": "visual-database.sample::cycle::row-1",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Cycle 1",
+              "amount": 12,
+              "cost": 3
+            }
+          },
+          {
+            "address": "visual-database.sample::cycle::row-2",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Cycle 2",
+              "amount": 24,
+              "cost": 6
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Acycle%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::cycle::row-1",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_for_source": "=B1"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::cycle::row-2",
+                      "field_ref": "total",
+                      "context_key": "B1"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Acycle%3A%3Arow-2::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::cycle::row-2",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_for_source": "=A1"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::cycle::row-1",
+                      "field_ref": "total",
+                      "context_key": "A1"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          }
+        ],
+        "fields": {
+          "kind": "visual-database.fields",
+          "version": 2,
+          "descriptors": [
+            {
+              "id": "title",
+              "label": "Name",
+              "role": "title",
+              "paths": [
+                [
+                  "title"
+                ],
+                [
+                  "payload",
+                  "title"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "title"
+              ]
+            },
+            {
+              "id": "amount",
+              "label": "Amount",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "amount"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "amount"
+              ]
+            },
+            {
+              "id": "cost",
+              "label": "Cost",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "cost"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "cost"
+              ]
+            },
+            {
+              "id": "total",
+              "label": "Total",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "total"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "total"
+              ],
+              "evaluator_descriptor_refs": {
+                "$admitted_evaluator_refs": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "visual-database.proof-dataset.dense",
+      "payload_template": {
+        "kind": "visual-database.dataset",
+        "version": 1,
+        "writable": true,
+        "members": {
+          "recordRefs": [
+            "visual-database.sample::dense::row-1",
+            "visual-database.sample::dense::row-10",
+            "visual-database.sample::dense::row-11",
+            "visual-database.sample::dense::row-12",
+            "visual-database.sample::dense::row-13",
+            "visual-database.sample::dense::row-14",
+            "visual-database.sample::dense::row-15",
+            "visual-database.sample::dense::row-16",
+            "visual-database.sample::dense::row-17",
+            "visual-database.sample::dense::row-18",
+            "visual-database.sample::dense::row-19",
+            "visual-database.sample::dense::row-2",
+            "visual-database.sample::dense::row-20",
+            "visual-database.sample::dense::row-21",
+            "visual-database.sample::dense::row-22",
+            "visual-database.sample::dense::row-23",
+            "visual-database.sample::dense::row-24",
+            "visual-database.sample::dense::row-3",
+            "visual-database.sample::dense::row-4",
+            "visual-database.sample::dense::row-5",
+            "visual-database.sample::dense::row-6",
+            "visual-database.sample::dense::row-7",
+            "visual-database.sample::dense::row-8",
+            "visual-database.sample::dense::row-9"
+          ],
+          "addresses": [
+            "visual-database.cell-cache::visual-database.sample%3A%3Adense%3A%3Arow-1::total",
+            "visual-database.cell-cache::visual-database.sample%3A%3Adense%3A%3Arow-2::total",
+            "visual-database.cell-cache::visual-database.sample%3A%3Adense%3A%3Arow-3::total",
+            "visual-database.cell-cache::visual-database.sample%3A%3Adense%3A%3Arow-4::total",
+            "visual-database.cell-cache::visual-database.sample%3A%3Adense%3A%3Arow-5::total",
+            "visual-database.cell-cache::visual-database.sample%3A%3Adense%3A%3Arow-6::total",
+            "visual-database.cell-expression::visual-database.sample%3A%3Adense%3A%3Arow-1::total",
+            "visual-database.cell-expression::visual-database.sample%3A%3Adense%3A%3Arow-2::total",
+            "visual-database.cell-expression::visual-database.sample%3A%3Adense%3A%3Arow-3::total",
+            "visual-database.cell-expression::visual-database.sample%3A%3Adense%3A%3Arow-4::total",
+            "visual-database.cell-expression::visual-database.sample%3A%3Adense%3A%3Arow-5::total",
+            "visual-database.cell-expression::visual-database.sample%3A%3Adense%3A%3Arow-6::total",
+            "visual-database.cell-provenance::visual-database.sample%3A%3Adense%3A%3Arow-1::total",
+            "visual-database.cell-provenance::visual-database.sample%3A%3Adense%3A%3Arow-2::total",
+            "visual-database.cell-provenance::visual-database.sample%3A%3Adense%3A%3Arow-3::total",
+            "visual-database.cell-provenance::visual-database.sample%3A%3Adense%3A%3Arow-4::total",
+            "visual-database.cell-provenance::visual-database.sample%3A%3Adense%3A%3Arow-5::total",
+            "visual-database.cell-provenance::visual-database.sample%3A%3Adense%3A%3Arow-6::total",
+            "visual-database.sample::dense::row-1",
+            "visual-database.sample::dense::row-10",
+            "visual-database.sample::dense::row-11",
+            "visual-database.sample::dense::row-12",
+            "visual-database.sample::dense::row-13",
+            "visual-database.sample::dense::row-14",
+            "visual-database.sample::dense::row-15",
+            "visual-database.sample::dense::row-16",
+            "visual-database.sample::dense::row-17",
+            "visual-database.sample::dense::row-18",
+            "visual-database.sample::dense::row-19",
+            "visual-database.sample::dense::row-2",
+            "visual-database.sample::dense::row-20",
+            "visual-database.sample::dense::row-21",
+            "visual-database.sample::dense::row-22",
+            "visual-database.sample::dense::row-23",
+            "visual-database.sample::dense::row-24",
+            "visual-database.sample::dense::row-3",
+            "visual-database.sample::dense::row-4",
+            "visual-database.sample::dense::row-5",
+            "visual-database.sample::dense::row-6",
+            "visual-database.sample::dense::row-7",
+            "visual-database.sample::dense::row-8",
+            "visual-database.sample::dense::row-9"
+          ]
+        },
+        "records": [
+          {
+            "address": "visual-database.sample::dense::row-1",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Dense 1",
+              "amount": 12,
+              "cost": 3,
+              "total": 9
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Adense%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::dense::row-1",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_for_source": "=Amount-Cost"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::dense::row-1",
+                      "field_ref": "amount",
+                      "context_key": "Amount"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::dense::row-1",
+                      "field_ref": "cost",
+                      "context_key": "Cost"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-cache::visual-database.sample%3A%3Adense%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::dense::row-1",
+                "field_ref": "total"
+              },
+              "revision": "cache-source-r1",
+              "cached_value": {
+                "value": 9,
+                "revision": "value-source-r1",
+                "source_revision": "source-r1",
+                "observed_at": "2026-07-26T12:00:00.000Z"
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-provenance::visual-database.sample%3A%3Adense%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::dense::row-1",
+                "field_ref": "total"
+              },
+              "provenance_ref": {
+                "$concat": [
+                  "expression-evaluation::owner=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "ref"
+                    }
+                  },
+                  "::target=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "target"
+                    }
+                  },
+                  "::source=",
+                  {
+                    "$uri_component": "source-r1"
+                  },
+                  "::evaluator-revision=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "revision"
+                    }
+                  }
+                ]
+              },
+              "revision": "provenance-source-r1",
+              "source_revision": "source-r1",
+              "evaluator_ref": {
+                "$evaluator": "ref"
+              },
+              "evaluator_target": {
+                "$evaluator": "target"
+              },
+              "evaluator_revision": {
+                "$evaluator": "revision"
+              },
+              "policy_revision": {
+                "$evaluator": "policy_revision"
+              },
+              "reads": {
+                "variables": [
+                  {
+                    "binding_key": "Amount",
+                    "root_name": "Amount",
+                    "catalog_id": "cell::visual-database.sample%3A%3Adense%3A%3Arow-1::amount",
+                    "record_ref": "visual-database.sample::dense::row-1",
+                    "field_ref": "amount",
+                    "context_key": "Amount",
+                    "value_revision": "value-fnv1a64-07f89407b4ba0c0a",
+                    "span": {
+                      "start_utf16": 1,
+                      "end_utf16": 7
+                    }
+                  },
+                  {
+                    "binding_key": "Cost",
+                    "root_name": "Cost",
+                    "catalog_id": "cell::visual-database.sample%3A%3Adense%3A%3Arow-1::cost",
+                    "record_ref": "visual-database.sample::dense::row-1",
+                    "field_ref": "cost",
+                    "context_key": "Cost",
+                    "value_revision": "value-fnv1a64-af63ae4c86019e62",
+                    "span": {
+                      "start_utf16": 8,
+                      "end_utf16": 12
+                    }
+                  }
+                ],
+                "entities": [],
+                "specials": [],
+                "functions": []
+              },
+              "provenance_display_label": {
+                "$evaluator": "display_label"
+              }
+            }
+          },
+          {
+            "address": "visual-database.sample::dense::row-2",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Dense 2",
+              "amount": 24,
+              "cost": 6,
+              "total": 18
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Adense%3A%3Arow-2::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::dense::row-2",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_for_source": "=Amount-Cost"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::dense::row-2",
+                      "field_ref": "amount",
+                      "context_key": "Amount"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::dense::row-2",
+                      "field_ref": "cost",
+                      "context_key": "Cost"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-cache::visual-database.sample%3A%3Adense%3A%3Arow-2::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::dense::row-2",
+                "field_ref": "total"
+              },
+              "revision": "cache-source-r1",
+              "cached_value": {
+                "value": 18,
+                "revision": "value-source-r1",
+                "source_revision": "source-r1",
+                "observed_at": "2026-07-26T12:00:00.000Z"
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-provenance::visual-database.sample%3A%3Adense%3A%3Arow-2::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::dense::row-2",
+                "field_ref": "total"
+              },
+              "provenance_ref": {
+                "$concat": [
+                  "expression-evaluation::owner=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "ref"
+                    }
+                  },
+                  "::target=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "target"
+                    }
+                  },
+                  "::source=",
+                  {
+                    "$uri_component": "source-r1"
+                  },
+                  "::evaluator-revision=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "revision"
+                    }
+                  }
+                ]
+              },
+              "revision": "provenance-source-r1",
+              "source_revision": "source-r1",
+              "evaluator_ref": {
+                "$evaluator": "ref"
+              },
+              "evaluator_target": {
+                "$evaluator": "target"
+              },
+              "evaluator_revision": {
+                "$evaluator": "revision"
+              },
+              "policy_revision": {
+                "$evaluator": "policy_revision"
+              },
+              "reads": {
+                "variables": [
+                  {
+                    "binding_key": "Amount",
+                    "root_name": "Amount",
+                    "catalog_id": "cell::visual-database.sample%3A%3Adense%3A%3Arow-2::amount",
+                    "record_ref": "visual-database.sample::dense::row-2",
+                    "field_ref": "amount",
+                    "context_key": "Amount",
+                    "value_revision": "value-fnv1a64-08030007b4c31813",
+                    "span": {
+                      "start_utf16": 1,
+                      "end_utf16": 7
+                    }
+                  },
+                  {
+                    "binding_key": "Cost",
+                    "root_name": "Cost",
+                    "catalog_id": "cell::visual-database.sample%3A%3Adense%3A%3Arow-2::cost",
+                    "record_ref": "visual-database.sample::dense::row-2",
+                    "field_ref": "cost",
+                    "context_key": "Cost",
+                    "value_revision": "value-fnv1a64-af63ab4c86019949",
+                    "span": {
+                      "start_utf16": 8,
+                      "end_utf16": 12
+                    }
+                  }
+                ],
+                "entities": [],
+                "specials": [],
+                "functions": []
+              },
+              "provenance_display_label": {
+                "$evaluator": "display_label"
+              }
+            }
+          },
+          {
+            "address": "visual-database.sample::dense::row-3",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Dense 3",
+              "amount": 36,
+              "cost": 9,
+              "total": 27
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Adense%3A%3Arow-3::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::dense::row-3",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_for_source": "=Amount-Cost"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::dense::row-3",
+                      "field_ref": "amount",
+                      "context_key": "Amount"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::dense::row-3",
+                      "field_ref": "cost",
+                      "context_key": "Cost"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-cache::visual-database.sample%3A%3Adense%3A%3Arow-3::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::dense::row-3",
+                "field_ref": "total"
+              },
+              "revision": "cache-source-r1",
+              "cached_value": {
+                "value": 27,
+                "revision": "value-source-r1",
+                "source_revision": "source-r1",
+                "observed_at": "2026-07-26T12:00:00.000Z"
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-provenance::visual-database.sample%3A%3Adense%3A%3Arow-3::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::dense::row-3",
+                "field_ref": "total"
+              },
+              "provenance_ref": {
+                "$concat": [
+                  "expression-evaluation::owner=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "ref"
+                    }
+                  },
+                  "::target=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "target"
+                    }
+                  },
+                  "::source=",
+                  {
+                    "$uri_component": "source-r1"
+                  },
+                  "::evaluator-revision=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "revision"
+                    }
+                  }
+                ]
+              },
+              "revision": "provenance-source-r1",
+              "source_revision": "source-r1",
+              "evaluator_ref": {
+                "$evaluator": "ref"
+              },
+              "evaluator_target": {
+                "$evaluator": "target"
+              },
+              "evaluator_revision": {
+                "$evaluator": "revision"
+              },
+              "policy_revision": {
+                "$evaluator": "policy_revision"
+              },
+              "reads": {
+                "variables": [
+                  {
+                    "binding_key": "Amount",
+                    "root_name": "Amount",
+                    "catalog_id": "cell::visual-database.sample%3A%3Adense%3A%3Arow-3::amount",
+                    "record_ref": "visual-database.sample::dense::row-3",
+                    "field_ref": "amount",
+                    "context_key": "Amount",
+                    "value_revision": "value-fnv1a64-07ff8007b4c008bc",
+                    "span": {
+                      "start_utf16": 1,
+                      "end_utf16": 7
+                    }
+                  },
+                  {
+                    "binding_key": "Cost",
+                    "root_name": "Cost",
+                    "catalog_id": "cell::visual-database.sample%3A%3Adense%3A%3Arow-3::cost",
+                    "record_ref": "visual-database.sample::dense::row-3",
+                    "field_ref": "cost",
+                    "context_key": "Cost",
+                    "value_revision": "value-fnv1a64-af63b44c8601a894",
+                    "span": {
+                      "start_utf16": 8,
+                      "end_utf16": 12
+                    }
+                  }
+                ],
+                "entities": [],
+                "specials": [],
+                "functions": []
+              },
+              "provenance_display_label": {
+                "$evaluator": "display_label"
+              }
+            }
+          },
+          {
+            "address": "visual-database.sample::dense::row-4",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Dense 4",
+              "amount": 48,
+              "cost": 12,
+              "total": 36
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Adense%3A%3Arow-4::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::dense::row-4",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_for_source": "=Amount-Cost"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::dense::row-4",
+                      "field_ref": "amount",
+                      "context_key": "Amount"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::dense::row-4",
+                      "field_ref": "cost",
+                      "context_key": "Cost"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-cache::visual-database.sample%3A%3Adense%3A%3Arow-4::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::dense::row-4",
+                "field_ref": "total"
+              },
+              "revision": "cache-source-r1",
+              "cached_value": {
+                "value": 36,
+                "revision": "value-source-r1",
+                "source_revision": "source-r1",
+                "observed_at": "2026-07-26T12:00:00.000Z"
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-provenance::visual-database.sample%3A%3Adense%3A%3Arow-4::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::dense::row-4",
+                "field_ref": "total"
+              },
+              "provenance_ref": {
+                "$concat": [
+                  "expression-evaluation::owner=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "ref"
+                    }
+                  },
+                  "::target=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "target"
+                    }
+                  },
+                  "::source=",
+                  {
+                    "$uri_component": "source-r1"
+                  },
+                  "::evaluator-revision=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "revision"
+                    }
+                  }
+                ]
+              },
+              "revision": "provenance-source-r1",
+              "source_revision": "source-r1",
+              "evaluator_ref": {
+                "$evaluator": "ref"
+              },
+              "evaluator_target": {
+                "$evaluator": "target"
+              },
+              "evaluator_revision": {
+                "$evaluator": "revision"
+              },
+              "policy_revision": {
+                "$evaluator": "policy_revision"
+              },
+              "reads": {
+                "variables": [
+                  {
+                    "binding_key": "Amount",
+                    "root_name": "Amount",
+                    "catalog_id": "cell::visual-database.sample%3A%3Adense%3A%3Arow-4::amount",
+                    "record_ref": "visual-database.sample::dense::row-4",
+                    "field_ref": "amount",
+                    "context_key": "Amount",
+                    "value_revision": "value-fnv1a64-07ee8807b4b1a321",
+                    "span": {
+                      "start_utf16": 1,
+                      "end_utf16": 7
+                    }
+                  },
+                  {
+                    "binding_key": "Cost",
+                    "root_name": "Cost",
+                    "catalog_id": "cell::visual-database.sample%3A%3Adense%3A%3Arow-4::cost",
+                    "record_ref": "visual-database.sample::dense::row-4",
+                    "field_ref": "cost",
+                    "context_key": "Cost",
+                    "value_revision": "value-fnv1a64-07f89407b4ba0c0a",
+                    "span": {
+                      "start_utf16": 8,
+                      "end_utf16": 12
+                    }
+                  }
+                ],
+                "entities": [],
+                "specials": [],
+                "functions": []
+              },
+              "provenance_display_label": {
+                "$evaluator": "display_label"
+              }
+            }
+          },
+          {
+            "address": "visual-database.sample::dense::row-5",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Dense 5",
+              "amount": 60,
+              "cost": 15,
+              "total": 45
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Adense%3A%3Arow-5::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::dense::row-5",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_for_source": "=Amount-Cost"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::dense::row-5",
+                      "field_ref": "amount",
+                      "context_key": "Amount"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::dense::row-5",
+                      "field_ref": "cost",
+                      "context_key": "Cost"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-cache::visual-database.sample%3A%3Adense%3A%3Arow-5::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::dense::row-5",
+                "field_ref": "total"
+              },
+              "revision": "cache-source-r1",
+              "cached_value": {
+                "value": 45,
+                "revision": "value-source-r1",
+                "source_revision": "source-r1",
+                "observed_at": "2026-07-26T12:00:00.000Z"
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-provenance::visual-database.sample%3A%3Adense%3A%3Arow-5::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::dense::row-5",
+                "field_ref": "total"
+              },
+              "provenance_ref": {
+                "$concat": [
+                  "expression-evaluation::owner=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "ref"
+                    }
+                  },
+                  "::target=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "target"
+                    }
+                  },
+                  "::source=",
+                  {
+                    "$uri_component": "source-r1"
+                  },
+                  "::evaluator-revision=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "revision"
+                    }
+                  }
+                ]
+              },
+              "revision": "provenance-source-r1",
+              "source_revision": "source-r1",
+              "evaluator_ref": {
+                "$evaluator": "ref"
+              },
+              "evaluator_target": {
+                "$evaluator": "target"
+              },
+              "evaluator_revision": {
+                "$evaluator": "revision"
+              },
+              "policy_revision": {
+                "$evaluator": "policy_revision"
+              },
+              "reads": {
+                "variables": [
+                  {
+                    "binding_key": "Amount",
+                    "root_name": "Amount",
+                    "catalog_id": "cell::visual-database.sample%3A%3Adense%3A%3Arow-5::amount",
+                    "record_ref": "visual-database.sample::dense::row-5",
+                    "field_ref": "amount",
+                    "context_key": "Amount",
+                    "value_revision": "value-fnv1a64-07f58c07b4b7c89b",
+                    "span": {
+                      "start_utf16": 1,
+                      "end_utf16": 7
+                    }
+                  },
+                  {
+                    "binding_key": "Cost",
+                    "root_name": "Cost",
+                    "catalog_id": "cell::visual-database.sample%3A%3Adense%3A%3Arow-5::cost",
+                    "record_ref": "visual-database.sample::dense::row-5",
+                    "field_ref": "cost",
+                    "context_key": "Cost",
+                    "value_revision": "value-fnv1a64-07f88f07b4ba038b",
+                    "span": {
+                      "start_utf16": 8,
+                      "end_utf16": 12
+                    }
+                  }
+                ],
+                "entities": [],
+                "specials": [],
+                "functions": []
+              },
+              "provenance_display_label": {
+                "$evaluator": "display_label"
+              }
+            }
+          },
+          {
+            "address": "visual-database.sample::dense::row-6",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Dense 6",
+              "amount": 72,
+              "cost": 18,
+              "total": 54
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Adense%3A%3Arow-6::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::dense::row-6",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_for_source": "=Amount-Cost"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::dense::row-6",
+                      "field_ref": "amount",
+                      "context_key": "Amount"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::dense::row-6",
+                      "field_ref": "cost",
+                      "context_key": "Cost"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-cache::visual-database.sample%3A%3Adense%3A%3Arow-6::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::dense::row-6",
+                "field_ref": "total"
+              },
+              "revision": "cache-source-r1",
+              "cached_value": {
+                "value": 54,
+                "revision": "value-source-r1",
+                "source_revision": "source-r1",
+                "observed_at": "2026-07-26T12:00:00.000Z"
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-provenance::visual-database.sample%3A%3Adense%3A%3Arow-6::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::dense::row-6",
+                "field_ref": "total"
+              },
+              "provenance_ref": {
+                "$concat": [
+                  "expression-evaluation::owner=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "ref"
+                    }
+                  },
+                  "::target=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "target"
+                    }
+                  },
+                  "::source=",
+                  {
+                    "$uri_component": "source-r1"
+                  },
+                  "::evaluator-revision=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "revision"
+                    }
+                  }
+                ]
+              },
+              "revision": "provenance-source-r1",
+              "source_revision": "source-r1",
+              "evaluator_ref": {
+                "$evaluator": "ref"
+              },
+              "evaluator_target": {
+                "$evaluator": "target"
+              },
+              "evaluator_revision": {
+                "$evaluator": "revision"
+              },
+              "policy_revision": {
+                "$evaluator": "policy_revision"
+              },
+              "reads": {
+                "variables": [
+                  {
+                    "binding_key": "Amount",
+                    "root_name": "Amount",
+                    "catalog_id": "cell::visual-database.sample%3A%3Adense%3A%3Arow-6::amount",
+                    "record_ref": "visual-database.sample::dense::row-6",
+                    "field_ref": "amount",
+                    "context_key": "Amount",
+                    "value_revision": "value-fnv1a64-07f20407b4b4abac",
+                    "span": {
+                      "start_utf16": 1,
+                      "end_utf16": 7
+                    }
+                  },
+                  {
+                    "binding_key": "Cost",
+                    "root_name": "Cost",
+                    "catalog_id": "cell::visual-database.sample%3A%3Adense%3A%3Arow-6::cost",
+                    "record_ref": "visual-database.sample::dense::row-6",
+                    "field_ref": "cost",
+                    "context_key": "Cost",
+                    "value_revision": "value-fnv1a64-07f88a07b4b9fb0c",
+                    "span": {
+                      "start_utf16": 8,
+                      "end_utf16": 12
+                    }
+                  }
+                ],
+                "entities": [],
+                "specials": [],
+                "functions": []
+              },
+              "provenance_display_label": {
+                "$evaluator": "display_label"
+              }
+            }
+          },
+          {
+            "address": "visual-database.sample::dense::row-7",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Dense 7",
+              "amount": 84,
+              "cost": 21,
+              "total": 63
+            }
+          },
+          {
+            "address": "visual-database.sample::dense::row-8",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Dense 8",
+              "amount": 96,
+              "cost": 24,
+              "total": 72
+            }
+          },
+          {
+            "address": "visual-database.sample::dense::row-9",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Dense 9",
+              "amount": 108,
+              "cost": 27,
+              "total": 81
+            }
+          },
+          {
+            "address": "visual-database.sample::dense::row-10",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Dense 10",
+              "amount": 120,
+              "cost": 30,
+              "total": 90
+            }
+          },
+          {
+            "address": "visual-database.sample::dense::row-11",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Dense 11",
+              "amount": 132,
+              "cost": 33,
+              "total": 99
+            }
+          },
+          {
+            "address": "visual-database.sample::dense::row-12",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Dense 12",
+              "amount": 144,
+              "cost": 36,
+              "total": 108
+            }
+          },
+          {
+            "address": "visual-database.sample::dense::row-13",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Dense 13",
+              "amount": 156,
+              "cost": 39,
+              "total": 117
+            }
+          },
+          {
+            "address": "visual-database.sample::dense::row-14",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Dense 14",
+              "amount": 168,
+              "cost": 42,
+              "total": 126
+            }
+          },
+          {
+            "address": "visual-database.sample::dense::row-15",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Dense 15",
+              "amount": 180,
+              "cost": 45,
+              "total": 135
+            }
+          },
+          {
+            "address": "visual-database.sample::dense::row-16",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Dense 16",
+              "amount": 192,
+              "cost": 48,
+              "total": 144
+            }
+          },
+          {
+            "address": "visual-database.sample::dense::row-17",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Dense 17",
+              "amount": 204,
+              "cost": 51,
+              "total": 153
+            }
+          },
+          {
+            "address": "visual-database.sample::dense::row-18",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Dense 18",
+              "amount": 216,
+              "cost": 54,
+              "total": 162
+            }
+          },
+          {
+            "address": "visual-database.sample::dense::row-19",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Dense 19",
+              "amount": 228,
+              "cost": 57,
+              "total": 171
+            }
+          },
+          {
+            "address": "visual-database.sample::dense::row-20",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Dense 20",
+              "amount": 240,
+              "cost": 60,
+              "total": 180
+            }
+          },
+          {
+            "address": "visual-database.sample::dense::row-21",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Dense 21",
+              "amount": 252,
+              "cost": 63,
+              "total": 189
+            }
+          },
+          {
+            "address": "visual-database.sample::dense::row-22",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Dense 22",
+              "amount": 264,
+              "cost": 66,
+              "total": 198
+            }
+          },
+          {
+            "address": "visual-database.sample::dense::row-23",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Dense 23",
+              "amount": 276,
+              "cost": 69,
+              "total": 207
+            }
+          },
+          {
+            "address": "visual-database.sample::dense::row-24",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Dense 24",
+              "amount": 288,
+              "cost": 72,
+              "total": 216
+            }
+          }
+        ],
+        "fields": {
+          "kind": "visual-database.fields",
+          "version": 2,
+          "descriptors": [
+            {
+              "id": "title",
+              "label": "Name",
+              "role": "title",
+              "paths": [
+                [
+                  "title"
+                ],
+                [
+                  "payload",
+                  "title"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "title"
+              ]
+            },
+            {
+              "id": "amount",
+              "label": "Amount",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "amount"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "amount"
+              ]
+            },
+            {
+              "id": "cost",
+              "label": "Cost",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "cost"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "cost"
+              ]
+            },
+            {
+              "id": "total",
+              "label": "Total",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "total"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "total"
+              ],
+              "evaluator_descriptor_refs": {
+                "$admitted_evaluator_refs": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "visual-database.proof-dataset.invalid",
+      "payload_template": {
+        "kind": "visual-database.dataset",
+        "version": 1,
+        "writable": true,
+        "members": {
+          "recordRefs": [
+            "visual-database.sample::invalid::row-1"
+          ],
+          "addresses": [
+            "visual-database.cell-expression::visual-database.sample%3A%3Ainvalid%3A%3Arow-1::total",
+            "visual-database.sample::invalid::row-1"
+          ]
+        },
+        "records": [
+          {
+            "address": "visual-database.sample::invalid::row-1",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Invalid 1",
+              "amount": 12,
+              "cost": 3
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Ainvalid%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::invalid::row-1",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_for_source": "=Missing +"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::missing::row-1",
+                      "field_ref": "amount",
+                      "context_key": "Missing"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          }
+        ],
+        "fields": {
+          "kind": "visual-database.fields",
+          "version": 2,
+          "descriptors": [
+            {
+              "id": "title",
+              "label": "Name",
+              "role": "title",
+              "paths": [
+                [
+                  "title"
+                ],
+                [
+                  "payload",
+                  "title"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "title"
+              ]
+            },
+            {
+              "id": "amount",
+              "label": "Amount",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "amount"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "amount"
+              ]
+            },
+            {
+              "id": "cost",
+              "label": "Cost",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "cost"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "cost"
+              ]
+            },
+            {
+              "id": "total",
+              "label": "Total",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "total"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "total"
+              ],
+              "evaluator_descriptor_refs": {
+                "$admitted_evaluator_refs": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "visual-database.proof-dataset.legacy-available",
+      "payload_template": {
+        "kind": "visual-database.dataset",
+        "version": 1,
+        "writable": true,
+        "members": {
+          "recordRefs": [
+            "visual-database.sample::legacy-available::row-1"
+          ],
+          "addresses": [
+            "visual-database.cell-expression::visual-database.sample%3A%3Alegacy-available%3A%3Arow-1::total",
+            "visual-database.sample::legacy-available::row-1"
+          ]
+        },
+        "records": [
+          {
+            "address": "visual-database.sample::legacy-available::row-1",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Legacy Available 1",
+              "amount": 12,
+              "cost": 3,
+              "total": 9
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Alegacy-available%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::legacy-available::row-1",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_override": "visual-database.proof-dataset.legacy-available"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::legacy-available::row-1",
+                      "field_ref": "amount",
+                      "context_key": "Amount"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::legacy-available::row-1",
+                      "field_ref": "cost",
+                      "context_key": "Cost"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          }
+        ],
+        "fields": {
+          "kind": "visual-database.fields",
+          "version": 2,
+          "descriptors": [
+            {
+              "id": "title",
+              "label": "Name",
+              "role": "title",
+              "paths": [
+                [
+                  "title"
+                ],
+                [
+                  "payload",
+                  "title"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "title"
+              ]
+            },
+            {
+              "id": "amount",
+              "label": "Amount",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "amount"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "amount"
+              ]
+            },
+            {
+              "id": "cost",
+              "label": "Cost",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "cost"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "cost"
+              ]
+            },
+            {
+              "id": "total",
+              "label": "Total",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "total"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "total"
+              ],
+              "evaluator_descriptor_refs": {
+                "$admitted_evaluator_refs": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "visual-database.proof-dataset.legacy-unavailable",
+      "payload_template": {
+        "kind": "visual-database.dataset",
+        "version": 1,
+        "writable": true,
+        "members": {
+          "recordRefs": [
+            "visual-database.sample::legacy-unavailable::row-1"
+          ],
+          "addresses": [
+            "visual-database.cell-expression::visual-database.sample%3A%3Alegacy-unavailable%3A%3Arow-1::total",
+            "visual-database.sample::legacy-unavailable::row-1"
+          ]
+        },
+        "records": [
+          {
+            "address": "visual-database.sample::legacy-unavailable::row-1",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Legacy Unavailable 1",
+              "amount": 12,
+              "cost": 3
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Alegacy-unavailable%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::legacy-unavailable::row-1",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_override": "visual-database.proof-dataset.legacy-unavailable"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::legacy-unavailable::row-1",
+                      "field_ref": "amount",
+                      "context_key": "Amount"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::legacy-unavailable::row-1",
+                      "field_ref": "cost",
+                      "context_key": "Cost"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          }
+        ],
+        "fields": {
+          "kind": "visual-database.fields",
+          "version": 2,
+          "descriptors": [
+            {
+              "id": "title",
+              "label": "Name",
+              "role": "title",
+              "paths": [
+                [
+                  "title"
+                ],
+                [
+                  "payload",
+                  "title"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "title"
+              ]
+            },
+            {
+              "id": "amount",
+              "label": "Amount",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "amount"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "amount"
+              ]
+            },
+            {
+              "id": "cost",
+              "label": "Cost",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "cost"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "cost"
+              ]
+            },
+            {
+              "id": "total",
+              "label": "Total",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "total"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "total"
+              ],
+              "evaluator_descriptor_refs": {
+                "$admitted_evaluator_refs": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "visual-database.proof-dataset.lifecycle",
+      "payload_template": {
+        "kind": "visual-database.dataset",
+        "version": 1,
+        "writable": true,
+        "members": {
+          "recordRefs": [
+            "visual-database.sample::lifecycle::row-1"
+          ],
+          "addresses": [
+            "visual-database.cell-cache::visual-database.sample%3A%3Alifecycle%3A%3Arow-1::total",
+            "visual-database.cell-expression::visual-database.sample%3A%3Alifecycle%3A%3Arow-1::total",
+            "visual-database.cell-provenance::visual-database.sample%3A%3Alifecycle%3A%3Arow-1::total",
+            "visual-database.sample::lifecycle::row-1"
+          ]
+        },
+        "records": [
+          {
+            "address": "visual-database.sample::lifecycle::row-1",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Lifecycle 1",
+              "amount": 12,
+              "cost": 3,
+              "total": 9
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Alifecycle%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::lifecycle::row-1",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_for_source": "=Amount-Cost"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::lifecycle::row-1",
+                      "field_ref": "amount",
+                      "context_key": "Amount"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::lifecycle::row-1",
+                      "field_ref": "cost",
+                      "context_key": "Cost"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-cache::visual-database.sample%3A%3Alifecycle%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::lifecycle::row-1",
+                "field_ref": "total"
+              },
+              "revision": "cache-source-r1",
+              "cached_value": {
+                "value": 9,
+                "revision": "value-source-r1",
+                "source_revision": "source-r1",
+                "observed_at": "2026-07-26T12:00:00.000Z"
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-provenance::visual-database.sample%3A%3Alifecycle%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::lifecycle::row-1",
+                "field_ref": "total"
+              },
+              "provenance_ref": {
+                "$concat": [
+                  "expression-evaluation::owner=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "ref"
+                    }
+                  },
+                  "::target=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "target"
+                    }
+                  },
+                  "::source=",
+                  {
+                    "$uri_component": "source-r1"
+                  },
+                  "::evaluator-revision=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "revision"
+                    }
+                  }
+                ]
+              },
+              "revision": "provenance-source-r1",
+              "source_revision": "source-r1",
+              "evaluator_ref": {
+                "$evaluator": "ref"
+              },
+              "evaluator_target": {
+                "$evaluator": "target"
+              },
+              "evaluator_revision": {
+                "$evaluator": "revision"
+              },
+              "policy_revision": {
+                "$evaluator": "policy_revision"
+              },
+              "reads": {
+                "variables": [
+                  {
+                    "binding_key": "Amount",
+                    "root_name": "Amount",
+                    "catalog_id": "cell::visual-database.sample%3A%3Alifecycle%3A%3Arow-1::amount",
+                    "record_ref": "visual-database.sample::lifecycle::row-1",
+                    "field_ref": "amount",
+                    "context_key": "Amount",
+                    "value_revision": "value-fnv1a64-07f89407b4ba0c0a",
+                    "span": {
+                      "start_utf16": 1,
+                      "end_utf16": 7
+                    }
+                  },
+                  {
+                    "binding_key": "Cost",
+                    "root_name": "Cost",
+                    "catalog_id": "cell::visual-database.sample%3A%3Alifecycle%3A%3Arow-1::cost",
+                    "record_ref": "visual-database.sample::lifecycle::row-1",
+                    "field_ref": "cost",
+                    "context_key": "Cost",
+                    "value_revision": "value-fnv1a64-af63ae4c86019e62",
+                    "span": {
+                      "start_utf16": 8,
+                      "end_utf16": 12
+                    }
+                  }
+                ],
+                "entities": [],
+                "specials": [],
+                "functions": []
+              },
+              "provenance_display_label": {
+                "$evaluator": "display_label"
+              }
+            }
+          }
+        ],
+        "fields": {
+          "kind": "visual-database.fields",
+          "version": 2,
+          "descriptors": [
+            {
+              "id": "title",
+              "label": "Name",
+              "role": "title",
+              "paths": [
+                [
+                  "title"
+                ],
+                [
+                  "payload",
+                  "title"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "title"
+              ]
+            },
+            {
+              "id": "amount",
+              "label": "Amount",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "amount"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "amount"
+              ]
+            },
+            {
+              "id": "cost",
+              "label": "Cost",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "cost"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "cost"
+              ]
+            },
+            {
+              "id": "total",
+              "label": "Total",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "total"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "total"
+              ],
+              "evaluator_descriptor_refs": {
+                "$admitted_evaluator_refs": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "visual-database.proof-dataset.loading",
+      "payload_template": {
+        "kind": "visual-database.dataset",
+        "version": 1,
+        "writable": true,
+        "members": {
+          "recordRefs": [
+            "visual-database.sample::loading::row-1"
+          ],
+          "addresses": [
+            "visual-database.cell-expression::visual-database.sample%3A%3Aloading%3A%3Arow-1::total",
+            "visual-database.sample::loading::row-1"
+          ]
+        },
+        "records": [
+          {
+            "address": "visual-database.sample::loading::row-1",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Loading 1",
+              "amount": 12,
+              "cost": 3
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Aloading%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::loading::row-1",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_for_source": "=Amount-Cost"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::loading::row-1",
+                      "field_ref": "amount",
+                      "context_key": "Amount"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::loading::row-1",
+                      "field_ref": "cost",
+                      "context_key": "Cost"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          }
+        ],
+        "fields": {
+          "kind": "visual-database.fields",
+          "version": 2,
+          "descriptors": [
+            {
+              "id": "title",
+              "label": "Name",
+              "role": "title",
+              "paths": [
+                [
+                  "title"
+                ],
+                [
+                  "payload",
+                  "title"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "title"
+              ]
+            },
+            {
+              "id": "amount",
+              "label": "Amount",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "amount"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "amount"
+              ]
+            },
+            {
+              "id": "cost",
+              "label": "Cost",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "cost"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "cost"
+              ]
+            },
+            {
+              "id": "total",
+              "label": "Total",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "total"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "total"
+              ],
+              "evaluator_descriptor_refs": {
+                "$admitted_evaluator_refs": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "visual-database.proof-dataset.mobile",
+      "payload_template": {
+        "kind": "visual-database.dataset",
+        "version": 1,
+        "writable": true,
+        "members": {
+          "recordRefs": [
+            "visual-database.sample::mobile::row-1"
+          ],
+          "addresses": [
+            "visual-database.cell-cache::visual-database.sample%3A%3Amobile%3A%3Arow-1::total",
+            "visual-database.cell-expression::visual-database.sample%3A%3Amobile%3A%3Arow-1::total",
+            "visual-database.cell-provenance::visual-database.sample%3A%3Amobile%3A%3Arow-1::total",
+            "visual-database.sample::mobile::row-1"
+          ]
+        },
+        "records": [
+          {
+            "address": "visual-database.sample::mobile::row-1",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Mobile 1",
+              "amount": 12,
+              "cost": 3,
+              "total": 9
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Amobile%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::mobile::row-1",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_for_source": "=Amount-Cost"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::mobile::row-1",
+                      "field_ref": "amount",
+                      "context_key": "Amount"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::mobile::row-1",
+                      "field_ref": "cost",
+                      "context_key": "Cost"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-cache::visual-database.sample%3A%3Amobile%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::mobile::row-1",
+                "field_ref": "total"
+              },
+              "revision": "cache-source-r1",
+              "cached_value": {
+                "value": 9,
+                "revision": "value-source-r1",
+                "source_revision": "source-r1",
+                "observed_at": "2026-07-26T12:00:00.000Z"
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-provenance::visual-database.sample%3A%3Amobile%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::mobile::row-1",
+                "field_ref": "total"
+              },
+              "provenance_ref": {
+                "$concat": [
+                  "expression-evaluation::owner=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "ref"
+                    }
+                  },
+                  "::target=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "target"
+                    }
+                  },
+                  "::source=",
+                  {
+                    "$uri_component": "source-r1"
+                  },
+                  "::evaluator-revision=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "revision"
+                    }
+                  }
+                ]
+              },
+              "revision": "provenance-source-r1",
+              "source_revision": "source-r1",
+              "evaluator_ref": {
+                "$evaluator": "ref"
+              },
+              "evaluator_target": {
+                "$evaluator": "target"
+              },
+              "evaluator_revision": {
+                "$evaluator": "revision"
+              },
+              "policy_revision": {
+                "$evaluator": "policy_revision"
+              },
+              "reads": {
+                "variables": [
+                  {
+                    "binding_key": "Amount",
+                    "root_name": "Amount",
+                    "catalog_id": "cell::visual-database.sample%3A%3Amobile%3A%3Arow-1::amount",
+                    "record_ref": "visual-database.sample::mobile::row-1",
+                    "field_ref": "amount",
+                    "context_key": "Amount",
+                    "value_revision": "value-fnv1a64-07f89407b4ba0c0a",
+                    "span": {
+                      "start_utf16": 1,
+                      "end_utf16": 7
+                    }
+                  },
+                  {
+                    "binding_key": "Cost",
+                    "root_name": "Cost",
+                    "catalog_id": "cell::visual-database.sample%3A%3Amobile%3A%3Arow-1::cost",
+                    "record_ref": "visual-database.sample::mobile::row-1",
+                    "field_ref": "cost",
+                    "context_key": "Cost",
+                    "value_revision": "value-fnv1a64-af63ae4c86019e62",
+                    "span": {
+                      "start_utf16": 8,
+                      "end_utf16": 12
+                    }
+                  }
+                ],
+                "entities": [],
+                "specials": [],
+                "functions": []
+              },
+              "provenance_display_label": {
+                "$evaluator": "display_label"
+              }
+            }
+          }
+        ],
+        "fields": {
+          "kind": "visual-database.fields",
+          "version": 2,
+          "descriptors": [
+            {
+              "id": "title",
+              "label": "Name",
+              "role": "title",
+              "paths": [
+                [
+                  "title"
+                ],
+                [
+                  "payload",
+                  "title"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "title"
+              ]
+            },
+            {
+              "id": "amount",
+              "label": "Amount",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "amount"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "amount"
+              ]
+            },
+            {
+              "id": "cost",
+              "label": "Cost",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "cost"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "cost"
+              ]
+            },
+            {
+              "id": "total",
+              "label": "Total",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "total"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "total"
+              ],
+              "evaluator_descriptor_refs": {
+                "$admitted_evaluator_refs": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "visual-database.proof-dataset.read-only",
+      "payload_template": {
+        "kind": "visual-database.dataset",
+        "version": 1,
+        "writable": false,
+        "members": {
+          "recordRefs": [
+            "visual-database.sample::read-only::row-1"
+          ],
+          "addresses": [
+            "visual-database.cell-cache::visual-database.sample%3A%3Aread-only%3A%3Arow-1::total",
+            "visual-database.cell-expression::visual-database.sample%3A%3Aread-only%3A%3Arow-1::total",
+            "visual-database.cell-provenance::visual-database.sample%3A%3Aread-only%3A%3Arow-1::total",
+            "visual-database.sample::read-only::row-1"
+          ]
+        },
+        "records": [
+          {
+            "address": "visual-database.sample::read-only::row-1",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Read Only 1",
+              "amount": 12,
+              "cost": 3,
+              "total": 9
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Aread-only%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::read-only::row-1",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_for_source": "=Amount-Cost"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::read-only::row-1",
+                      "field_ref": "amount",
+                      "context_key": "Amount"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::read-only::row-1",
+                      "field_ref": "cost",
+                      "context_key": "Cost"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-cache::visual-database.sample%3A%3Aread-only%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::read-only::row-1",
+                "field_ref": "total"
+              },
+              "revision": "cache-source-r1",
+              "cached_value": {
+                "value": 9,
+                "revision": "value-source-r1",
+                "source_revision": "source-r1",
+                "observed_at": "2026-07-26T12:00:00.000Z"
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-provenance::visual-database.sample%3A%3Aread-only%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::read-only::row-1",
+                "field_ref": "total"
+              },
+              "provenance_ref": {
+                "$concat": [
+                  "expression-evaluation::owner=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "ref"
+                    }
+                  },
+                  "::target=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "target"
+                    }
+                  },
+                  "::source=",
+                  {
+                    "$uri_component": "source-r1"
+                  },
+                  "::evaluator-revision=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "revision"
+                    }
+                  }
+                ]
+              },
+              "revision": "provenance-source-r1",
+              "source_revision": "source-r1",
+              "evaluator_ref": {
+                "$evaluator": "ref"
+              },
+              "evaluator_target": {
+                "$evaluator": "target"
+              },
+              "evaluator_revision": {
+                "$evaluator": "revision"
+              },
+              "policy_revision": {
+                "$evaluator": "policy_revision"
+              },
+              "reads": {
+                "variables": [
+                  {
+                    "binding_key": "Amount",
+                    "root_name": "Amount",
+                    "catalog_id": "cell::visual-database.sample%3A%3Aread-only%3A%3Arow-1::amount",
+                    "record_ref": "visual-database.sample::read-only::row-1",
+                    "field_ref": "amount",
+                    "context_key": "Amount",
+                    "value_revision": "value-fnv1a64-07f89407b4ba0c0a",
+                    "span": {
+                      "start_utf16": 1,
+                      "end_utf16": 7
+                    }
+                  },
+                  {
+                    "binding_key": "Cost",
+                    "root_name": "Cost",
+                    "catalog_id": "cell::visual-database.sample%3A%3Aread-only%3A%3Arow-1::cost",
+                    "record_ref": "visual-database.sample::read-only::row-1",
+                    "field_ref": "cost",
+                    "context_key": "Cost",
+                    "value_revision": "value-fnv1a64-af63ae4c86019e62",
+                    "span": {
+                      "start_utf16": 8,
+                      "end_utf16": 12
+                    }
+                  }
+                ],
+                "entities": [],
+                "specials": [],
+                "functions": []
+              },
+              "provenance_display_label": {
+                "$evaluator": "display_label"
+              }
+            }
+          }
+        ],
+        "fields": {
+          "kind": "visual-database.fields",
+          "version": 2,
+          "descriptors": [
+            {
+              "id": "title",
+              "label": "Name",
+              "role": "title",
+              "paths": [
+                [
+                  "title"
+                ],
+                [
+                  "payload",
+                  "title"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "title"
+              ]
+            },
+            {
+              "id": "amount",
+              "label": "Amount",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "amount"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "amount"
+              ]
+            },
+            {
+              "id": "cost",
+              "label": "Cost",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "cost"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "cost"
+              ]
+            },
+            {
+              "id": "total",
+              "label": "Total",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "total"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "total"
+              ],
+              "evaluator_descriptor_refs": {
+                "$admitted_evaluator_refs": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "visual-database.proof-dataset.references",
+      "payload_template": {
+        "kind": "visual-database.dataset",
+        "version": 1,
+        "writable": true,
+        "members": {
+          "recordRefs": [
+            "visual-database.sample::references::row-1",
+            "visual-database.sample::references::row-2",
+            "visual-database.sample::references::row-3"
+          ],
+          "addresses": [
+            "visual-database.cell-expression::visual-database.sample%3A%3Areferences%3A%3Arow-1::total",
+            "visual-database.sample::references::row-1",
+            "visual-database.sample::references::row-2",
+            "visual-database.sample::references::row-3"
+          ]
+        },
+        "records": [
+          {
+            "address": "visual-database.sample::references::row-1",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "References 1",
+              "amount": 12,
+              "cost": 3
+            }
+          },
+          {
+            "address": "visual-database.sample::references::row-2",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "References 2",
+              "amount": 24,
+              "cost": 6
+            }
+          },
+          {
+            "address": "visual-database.sample::references::row-3",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "References 3",
+              "amount": 36,
+              "cost": 9
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Areferences%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::references::row-1",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_for_source": "=SUM(A1:B2)+A3"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::references::row-1",
+                      "field_ref": "amount",
+                      "context_key": "A1"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::references::row-1",
+                      "field_ref": "cost",
+                      "context_key": "B1"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::references::row-2",
+                      "field_ref": "amount",
+                      "context_key": "A2"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::references::row-2",
+                      "field_ref": "cost",
+                      "context_key": "B2"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::references::row-3",
+                      "field_ref": "amount",
+                      "context_key": "A3"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          }
+        ],
+        "fields": {
+          "kind": "visual-database.fields",
+          "version": 2,
+          "descriptors": [
+            {
+              "id": "title",
+              "label": "Name",
+              "role": "title",
+              "paths": [
+                [
+                  "title"
+                ],
+                [
+                  "payload",
+                  "title"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "title"
+              ]
+            },
+            {
+              "id": "amount",
+              "label": "Amount",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "amount"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "amount"
+              ]
+            },
+            {
+              "id": "cost",
+              "label": "Cost",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "cost"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "cost"
+              ]
+            },
+            {
+              "id": "total",
+              "label": "Total",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "total"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "total"
+              ],
+              "evaluator_descriptor_refs": {
+                "$admitted_evaluator_refs": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "visual-database.proof-dataset.reorder",
+      "payload_template": {
+        "kind": "visual-database.dataset",
+        "version": 1,
+        "writable": true,
+        "members": {
+          "recordRefs": [
+            "visual-database.sample::reorder::row-1",
+            "visual-database.sample::reorder::row-2",
+            "visual-database.sample::reorder::row-3",
+            "visual-database.sample::reorder::row-4",
+            "visual-database.sample::reorder::row-5"
+          ],
+          "addresses": [
+            "visual-database.cell-cache::visual-database.sample%3A%3Areorder%3A%3Arow-1::total",
+            "visual-database.cell-cache::visual-database.sample%3A%3Areorder%3A%3Arow-2::total",
+            "visual-database.cell-cache::visual-database.sample%3A%3Areorder%3A%3Arow-3::total",
+            "visual-database.cell-cache::visual-database.sample%3A%3Areorder%3A%3Arow-4::total",
+            "visual-database.cell-cache::visual-database.sample%3A%3Areorder%3A%3Arow-5::total",
+            "visual-database.cell-expression::visual-database.sample%3A%3Areorder%3A%3Arow-1::total",
+            "visual-database.cell-expression::visual-database.sample%3A%3Areorder%3A%3Arow-2::total",
+            "visual-database.cell-expression::visual-database.sample%3A%3Areorder%3A%3Arow-3::total",
+            "visual-database.cell-expression::visual-database.sample%3A%3Areorder%3A%3Arow-4::total",
+            "visual-database.cell-expression::visual-database.sample%3A%3Areorder%3A%3Arow-5::total",
+            "visual-database.cell-provenance::visual-database.sample%3A%3Areorder%3A%3Arow-1::total",
+            "visual-database.cell-provenance::visual-database.sample%3A%3Areorder%3A%3Arow-2::total",
+            "visual-database.cell-provenance::visual-database.sample%3A%3Areorder%3A%3Arow-3::total",
+            "visual-database.cell-provenance::visual-database.sample%3A%3Areorder%3A%3Arow-4::total",
+            "visual-database.cell-provenance::visual-database.sample%3A%3Areorder%3A%3Arow-5::total",
+            "visual-database.sample::reorder::row-1",
+            "visual-database.sample::reorder::row-2",
+            "visual-database.sample::reorder::row-3",
+            "visual-database.sample::reorder::row-4",
+            "visual-database.sample::reorder::row-5"
+          ]
+        },
+        "records": [
+          {
+            "address": "visual-database.sample::reorder::row-1",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Reorder 1",
+              "amount": 12,
+              "cost": 3,
+              "total": 9,
+              "order": 10
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Areorder%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::reorder::row-1",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_for_source": "=Amount-Cost"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::reorder::row-1",
+                      "field_ref": "amount",
+                      "context_key": "Amount"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::reorder::row-1",
+                      "field_ref": "cost",
+                      "context_key": "Cost"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-cache::visual-database.sample%3A%3Areorder%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::reorder::row-1",
+                "field_ref": "total"
+              },
+              "revision": "cache-source-r1",
+              "cached_value": {
+                "value": 9,
+                "revision": "value-source-r1",
+                "source_revision": "source-r1",
+                "observed_at": "2026-07-26T12:00:00.000Z"
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-provenance::visual-database.sample%3A%3Areorder%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::reorder::row-1",
+                "field_ref": "total"
+              },
+              "provenance_ref": {
+                "$concat": [
+                  "expression-evaluation::owner=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "ref"
+                    }
+                  },
+                  "::target=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "target"
+                    }
+                  },
+                  "::source=",
+                  {
+                    "$uri_component": "source-r1"
+                  },
+                  "::evaluator-revision=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "revision"
+                    }
+                  }
+                ]
+              },
+              "revision": "provenance-source-r1",
+              "source_revision": "source-r1",
+              "evaluator_ref": {
+                "$evaluator": "ref"
+              },
+              "evaluator_target": {
+                "$evaluator": "target"
+              },
+              "evaluator_revision": {
+                "$evaluator": "revision"
+              },
+              "policy_revision": {
+                "$evaluator": "policy_revision"
+              },
+              "reads": {
+                "variables": [
+                  {
+                    "binding_key": "Amount",
+                    "root_name": "Amount",
+                    "catalog_id": "cell::visual-database.sample%3A%3Areorder%3A%3Arow-1::amount",
+                    "record_ref": "visual-database.sample::reorder::row-1",
+                    "field_ref": "amount",
+                    "context_key": "Amount",
+                    "value_revision": "value-fnv1a64-07f89407b4ba0c0a",
+                    "span": {
+                      "start_utf16": 1,
+                      "end_utf16": 7
+                    }
+                  },
+                  {
+                    "binding_key": "Cost",
+                    "root_name": "Cost",
+                    "catalog_id": "cell::visual-database.sample%3A%3Areorder%3A%3Arow-1::cost",
+                    "record_ref": "visual-database.sample::reorder::row-1",
+                    "field_ref": "cost",
+                    "context_key": "Cost",
+                    "value_revision": "value-fnv1a64-af63ae4c86019e62",
+                    "span": {
+                      "start_utf16": 8,
+                      "end_utf16": 12
+                    }
+                  }
+                ],
+                "entities": [],
+                "specials": [],
+                "functions": []
+              },
+              "provenance_display_label": {
+                "$evaluator": "display_label"
+              }
+            }
+          },
+          {
+            "address": "visual-database.sample::reorder::row-2",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Reorder 2",
+              "amount": 24,
+              "cost": 6,
+              "total": 18,
+              "order": 20
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Areorder%3A%3Arow-2::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::reorder::row-2",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_for_source": "=Amount-Cost"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::reorder::row-2",
+                      "field_ref": "amount",
+                      "context_key": "Amount"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::reorder::row-2",
+                      "field_ref": "cost",
+                      "context_key": "Cost"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-cache::visual-database.sample%3A%3Areorder%3A%3Arow-2::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::reorder::row-2",
+                "field_ref": "total"
+              },
+              "revision": "cache-source-r1",
+              "cached_value": {
+                "value": 18,
+                "revision": "value-source-r1",
+                "source_revision": "source-r1",
+                "observed_at": "2026-07-26T12:00:00.000Z"
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-provenance::visual-database.sample%3A%3Areorder%3A%3Arow-2::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::reorder::row-2",
+                "field_ref": "total"
+              },
+              "provenance_ref": {
+                "$concat": [
+                  "expression-evaluation::owner=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "ref"
+                    }
+                  },
+                  "::target=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "target"
+                    }
+                  },
+                  "::source=",
+                  {
+                    "$uri_component": "source-r1"
+                  },
+                  "::evaluator-revision=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "revision"
+                    }
+                  }
+                ]
+              },
+              "revision": "provenance-source-r1",
+              "source_revision": "source-r1",
+              "evaluator_ref": {
+                "$evaluator": "ref"
+              },
+              "evaluator_target": {
+                "$evaluator": "target"
+              },
+              "evaluator_revision": {
+                "$evaluator": "revision"
+              },
+              "policy_revision": {
+                "$evaluator": "policy_revision"
+              },
+              "reads": {
+                "variables": [
+                  {
+                    "binding_key": "Amount",
+                    "root_name": "Amount",
+                    "catalog_id": "cell::visual-database.sample%3A%3Areorder%3A%3Arow-2::amount",
+                    "record_ref": "visual-database.sample::reorder::row-2",
+                    "field_ref": "amount",
+                    "context_key": "Amount",
+                    "value_revision": "value-fnv1a64-08030007b4c31813",
+                    "span": {
+                      "start_utf16": 1,
+                      "end_utf16": 7
+                    }
+                  },
+                  {
+                    "binding_key": "Cost",
+                    "root_name": "Cost",
+                    "catalog_id": "cell::visual-database.sample%3A%3Areorder%3A%3Arow-2::cost",
+                    "record_ref": "visual-database.sample::reorder::row-2",
+                    "field_ref": "cost",
+                    "context_key": "Cost",
+                    "value_revision": "value-fnv1a64-af63ab4c86019949",
+                    "span": {
+                      "start_utf16": 8,
+                      "end_utf16": 12
+                    }
+                  }
+                ],
+                "entities": [],
+                "specials": [],
+                "functions": []
+              },
+              "provenance_display_label": {
+                "$evaluator": "display_label"
+              }
+            }
+          },
+          {
+            "address": "visual-database.sample::reorder::row-3",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Reorder 3",
+              "amount": 36,
+              "cost": 9,
+              "total": 27,
+              "order": 30
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Areorder%3A%3Arow-3::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::reorder::row-3",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_for_source": "=Amount-Cost"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::reorder::row-3",
+                      "field_ref": "amount",
+                      "context_key": "Amount"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::reorder::row-3",
+                      "field_ref": "cost",
+                      "context_key": "Cost"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-cache::visual-database.sample%3A%3Areorder%3A%3Arow-3::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::reorder::row-3",
+                "field_ref": "total"
+              },
+              "revision": "cache-source-r1",
+              "cached_value": {
+                "value": 27,
+                "revision": "value-source-r1",
+                "source_revision": "source-r1",
+                "observed_at": "2026-07-26T12:00:00.000Z"
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-provenance::visual-database.sample%3A%3Areorder%3A%3Arow-3::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::reorder::row-3",
+                "field_ref": "total"
+              },
+              "provenance_ref": {
+                "$concat": [
+                  "expression-evaluation::owner=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "ref"
+                    }
+                  },
+                  "::target=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "target"
+                    }
+                  },
+                  "::source=",
+                  {
+                    "$uri_component": "source-r1"
+                  },
+                  "::evaluator-revision=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "revision"
+                    }
+                  }
+                ]
+              },
+              "revision": "provenance-source-r1",
+              "source_revision": "source-r1",
+              "evaluator_ref": {
+                "$evaluator": "ref"
+              },
+              "evaluator_target": {
+                "$evaluator": "target"
+              },
+              "evaluator_revision": {
+                "$evaluator": "revision"
+              },
+              "policy_revision": {
+                "$evaluator": "policy_revision"
+              },
+              "reads": {
+                "variables": [
+                  {
+                    "binding_key": "Amount",
+                    "root_name": "Amount",
+                    "catalog_id": "cell::visual-database.sample%3A%3Areorder%3A%3Arow-3::amount",
+                    "record_ref": "visual-database.sample::reorder::row-3",
+                    "field_ref": "amount",
+                    "context_key": "Amount",
+                    "value_revision": "value-fnv1a64-07ff8007b4c008bc",
+                    "span": {
+                      "start_utf16": 1,
+                      "end_utf16": 7
+                    }
+                  },
+                  {
+                    "binding_key": "Cost",
+                    "root_name": "Cost",
+                    "catalog_id": "cell::visual-database.sample%3A%3Areorder%3A%3Arow-3::cost",
+                    "record_ref": "visual-database.sample::reorder::row-3",
+                    "field_ref": "cost",
+                    "context_key": "Cost",
+                    "value_revision": "value-fnv1a64-af63b44c8601a894",
+                    "span": {
+                      "start_utf16": 8,
+                      "end_utf16": 12
+                    }
+                  }
+                ],
+                "entities": [],
+                "specials": [],
+                "functions": []
+              },
+              "provenance_display_label": {
+                "$evaluator": "display_label"
+              }
+            }
+          },
+          {
+            "address": "visual-database.sample::reorder::row-4",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Reorder 4",
+              "amount": 48,
+              "cost": 12,
+              "total": 36,
+              "order": 40
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Areorder%3A%3Arow-4::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::reorder::row-4",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_for_source": "=Amount-Cost"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::reorder::row-4",
+                      "field_ref": "amount",
+                      "context_key": "Amount"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::reorder::row-4",
+                      "field_ref": "cost",
+                      "context_key": "Cost"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-cache::visual-database.sample%3A%3Areorder%3A%3Arow-4::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::reorder::row-4",
+                "field_ref": "total"
+              },
+              "revision": "cache-source-r1",
+              "cached_value": {
+                "value": 36,
+                "revision": "value-source-r1",
+                "source_revision": "source-r1",
+                "observed_at": "2026-07-26T12:00:00.000Z"
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-provenance::visual-database.sample%3A%3Areorder%3A%3Arow-4::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::reorder::row-4",
+                "field_ref": "total"
+              },
+              "provenance_ref": {
+                "$concat": [
+                  "expression-evaluation::owner=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "ref"
+                    }
+                  },
+                  "::target=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "target"
+                    }
+                  },
+                  "::source=",
+                  {
+                    "$uri_component": "source-r1"
+                  },
+                  "::evaluator-revision=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "revision"
+                    }
+                  }
+                ]
+              },
+              "revision": "provenance-source-r1",
+              "source_revision": "source-r1",
+              "evaluator_ref": {
+                "$evaluator": "ref"
+              },
+              "evaluator_target": {
+                "$evaluator": "target"
+              },
+              "evaluator_revision": {
+                "$evaluator": "revision"
+              },
+              "policy_revision": {
+                "$evaluator": "policy_revision"
+              },
+              "reads": {
+                "variables": [
+                  {
+                    "binding_key": "Amount",
+                    "root_name": "Amount",
+                    "catalog_id": "cell::visual-database.sample%3A%3Areorder%3A%3Arow-4::amount",
+                    "record_ref": "visual-database.sample::reorder::row-4",
+                    "field_ref": "amount",
+                    "context_key": "Amount",
+                    "value_revision": "value-fnv1a64-07ee8807b4b1a321",
+                    "span": {
+                      "start_utf16": 1,
+                      "end_utf16": 7
+                    }
+                  },
+                  {
+                    "binding_key": "Cost",
+                    "root_name": "Cost",
+                    "catalog_id": "cell::visual-database.sample%3A%3Areorder%3A%3Arow-4::cost",
+                    "record_ref": "visual-database.sample::reorder::row-4",
+                    "field_ref": "cost",
+                    "context_key": "Cost",
+                    "value_revision": "value-fnv1a64-07f89407b4ba0c0a",
+                    "span": {
+                      "start_utf16": 8,
+                      "end_utf16": 12
+                    }
+                  }
+                ],
+                "entities": [],
+                "specials": [],
+                "functions": []
+              },
+              "provenance_display_label": {
+                "$evaluator": "display_label"
+              }
+            }
+          },
+          {
+            "address": "visual-database.sample::reorder::row-5",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Reorder 5",
+              "amount": 60,
+              "cost": 15,
+              "total": 45,
+              "order": 50
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Areorder%3A%3Arow-5::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::reorder::row-5",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_for_source": "=Amount-Cost"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::reorder::row-5",
+                      "field_ref": "amount",
+                      "context_key": "Amount"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::reorder::row-5",
+                      "field_ref": "cost",
+                      "context_key": "Cost"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-cache::visual-database.sample%3A%3Areorder%3A%3Arow-5::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::reorder::row-5",
+                "field_ref": "total"
+              },
+              "revision": "cache-source-r1",
+              "cached_value": {
+                "value": 45,
+                "revision": "value-source-r1",
+                "source_revision": "source-r1",
+                "observed_at": "2026-07-26T12:00:00.000Z"
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-provenance::visual-database.sample%3A%3Areorder%3A%3Arow-5::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::reorder::row-5",
+                "field_ref": "total"
+              },
+              "provenance_ref": {
+                "$concat": [
+                  "expression-evaluation::owner=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "ref"
+                    }
+                  },
+                  "::target=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "target"
+                    }
+                  },
+                  "::source=",
+                  {
+                    "$uri_component": "source-r1"
+                  },
+                  "::evaluator-revision=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "revision"
+                    }
+                  }
+                ]
+              },
+              "revision": "provenance-source-r1",
+              "source_revision": "source-r1",
+              "evaluator_ref": {
+                "$evaluator": "ref"
+              },
+              "evaluator_target": {
+                "$evaluator": "target"
+              },
+              "evaluator_revision": {
+                "$evaluator": "revision"
+              },
+              "policy_revision": {
+                "$evaluator": "policy_revision"
+              },
+              "reads": {
+                "variables": [
+                  {
+                    "binding_key": "Amount",
+                    "root_name": "Amount",
+                    "catalog_id": "cell::visual-database.sample%3A%3Areorder%3A%3Arow-5::amount",
+                    "record_ref": "visual-database.sample::reorder::row-5",
+                    "field_ref": "amount",
+                    "context_key": "Amount",
+                    "value_revision": "value-fnv1a64-07f58c07b4b7c89b",
+                    "span": {
+                      "start_utf16": 1,
+                      "end_utf16": 7
+                    }
+                  },
+                  {
+                    "binding_key": "Cost",
+                    "root_name": "Cost",
+                    "catalog_id": "cell::visual-database.sample%3A%3Areorder%3A%3Arow-5::cost",
+                    "record_ref": "visual-database.sample::reorder::row-5",
+                    "field_ref": "cost",
+                    "context_key": "Cost",
+                    "value_revision": "value-fnv1a64-07f88f07b4ba038b",
+                    "span": {
+                      "start_utf16": 8,
+                      "end_utf16": 12
+                    }
+                  }
+                ],
+                "entities": [],
+                "specials": [],
+                "functions": []
+              },
+              "provenance_display_label": {
+                "$evaluator": "display_label"
+              }
+            }
+          }
+        ],
+        "fields": {
+          "kind": "visual-database.fields",
+          "version": 2,
+          "descriptors": [
+            {
+              "id": "title",
+              "label": "Name",
+              "role": "title",
+              "paths": [
+                [
+                  "title"
+                ],
+                [
+                  "payload",
+                  "title"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "title"
+              ]
+            },
+            {
+              "id": "amount",
+              "label": "Amount",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "amount"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "amount"
+              ]
+            },
+            {
+              "id": "cost",
+              "label": "Cost",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "cost"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "cost"
+              ]
+            },
+            {
+              "id": "total",
+              "label": "Total",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "total"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "total"
+              ],
+              "evaluator_descriptor_refs": {
+                "$admitted_evaluator_refs": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "visual-database.proof-dataset.saved",
+      "payload_template": {
+        "kind": "visual-database.dataset",
+        "version": 1,
+        "writable": true,
+        "members": {
+          "recordRefs": [
+            "visual-database.sample::saved::row-1"
+          ],
+          "addresses": [
+            "visual-database.cell-cache::visual-database.sample%3A%3Asaved%3A%3Arow-1::total",
+            "visual-database.cell-expression::visual-database.sample%3A%3Asaved%3A%3Arow-1::total",
+            "visual-database.cell-provenance::visual-database.sample%3A%3Asaved%3A%3Arow-1::total",
+            "visual-database.sample::saved::row-1"
+          ]
+        },
+        "records": [
+          {
+            "address": "visual-database.sample::saved::row-1",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Saved 1",
+              "amount": 12,
+              "cost": 3,
+              "total": 9
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Asaved%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::saved::row-1",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_for_source": "=Amount-Cost"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::saved::row-1",
+                      "field_ref": "amount",
+                      "context_key": "Amount"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::saved::row-1",
+                      "field_ref": "cost",
+                      "context_key": "Cost"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-cache::visual-database.sample%3A%3Asaved%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::saved::row-1",
+                "field_ref": "total"
+              },
+              "revision": "cache-source-r1",
+              "cached_value": {
+                "value": 9,
+                "revision": "value-source-r1",
+                "source_revision": "source-r1",
+                "observed_at": "2026-07-26T12:00:00.000Z"
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-provenance::visual-database.sample%3A%3Asaved%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::saved::row-1",
+                "field_ref": "total"
+              },
+              "provenance_ref": {
+                "$concat": [
+                  "expression-evaluation::owner=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "ref"
+                    }
+                  },
+                  "::target=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "target"
+                    }
+                  },
+                  "::source=",
+                  {
+                    "$uri_component": "source-r1"
+                  },
+                  "::evaluator-revision=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "revision"
+                    }
+                  }
+                ]
+              },
+              "revision": "provenance-source-r1",
+              "source_revision": "source-r1",
+              "evaluator_ref": {
+                "$evaluator": "ref"
+              },
+              "evaluator_target": {
+                "$evaluator": "target"
+              },
+              "evaluator_revision": {
+                "$evaluator": "revision"
+              },
+              "policy_revision": {
+                "$evaluator": "policy_revision"
+              },
+              "reads": {
+                "variables": [
+                  {
+                    "binding_key": "Amount",
+                    "root_name": "Amount",
+                    "catalog_id": "cell::visual-database.sample%3A%3Asaved%3A%3Arow-1::amount",
+                    "record_ref": "visual-database.sample::saved::row-1",
+                    "field_ref": "amount",
+                    "context_key": "Amount",
+                    "value_revision": "value-fnv1a64-07f89407b4ba0c0a",
+                    "span": {
+                      "start_utf16": 1,
+                      "end_utf16": 7
+                    }
+                  },
+                  {
+                    "binding_key": "Cost",
+                    "root_name": "Cost",
+                    "catalog_id": "cell::visual-database.sample%3A%3Asaved%3A%3Arow-1::cost",
+                    "record_ref": "visual-database.sample::saved::row-1",
+                    "field_ref": "cost",
+                    "context_key": "Cost",
+                    "value_revision": "value-fnv1a64-af63ae4c86019e62",
+                    "span": {
+                      "start_utf16": 8,
+                      "end_utf16": 12
+                    }
+                  }
+                ],
+                "entities": [],
+                "specials": [],
+                "functions": []
+              },
+              "provenance_display_label": {
+                "$evaluator": "display_label"
+              }
+            }
+          }
+        ],
+        "fields": {
+          "kind": "visual-database.fields",
+          "version": 2,
+          "descriptors": [
+            {
+              "id": "title",
+              "label": "Name",
+              "role": "title",
+              "paths": [
+                [
+                  "title"
+                ],
+                [
+                  "payload",
+                  "title"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "title"
+              ]
+            },
+            {
+              "id": "amount",
+              "label": "Amount",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "amount"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "amount"
+              ]
+            },
+            {
+              "id": "cost",
+              "label": "Cost",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "cost"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "cost"
+              ]
+            },
+            {
+              "id": "total",
+              "label": "Total",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "total"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "total"
+              ],
+              "evaluator_descriptor_refs": {
+                "$admitted_evaluator_refs": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "visual-database.proof-dataset.stale",
+      "payload_template": {
+        "kind": "visual-database.dataset",
+        "version": 1,
+        "writable": true,
+        "members": {
+          "recordRefs": [
+            "visual-database.sample::stale::row-1"
+          ],
+          "addresses": [
+            "visual-database.cell-cache::visual-database.sample%3A%3Astale%3A%3Arow-1::total",
+            "visual-database.cell-expression::visual-database.sample%3A%3Astale%3A%3Arow-1::total",
+            "visual-database.cell-provenance::visual-database.sample%3A%3Astale%3A%3Arow-1::total",
+            "visual-database.sample::stale::row-1"
+          ]
+        },
+        "records": [
+          {
+            "address": "visual-database.sample::stale::row-1",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Stale 1",
+              "amount": 12,
+              "cost": 3,
+              "total": 9
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Astale%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::stale::row-1",
+                "field_ref": "total"
+              },
+              "revision": "source-r2",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_for_source": "=Amount-Cost"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::stale::row-1",
+                      "field_ref": "amount",
+                      "context_key": "Amount"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::stale::row-1",
+                      "field_ref": "cost",
+                      "context_key": "Cost"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-cache::visual-database.sample%3A%3Astale%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::stale::row-1",
+                "field_ref": "total"
+              },
+              "revision": "cache-source-r1",
+              "cached_value": {
+                "value": 6,
+                "revision": "value-source-r1",
+                "source_revision": "source-r1",
+                "observed_at": "2026-07-26T12:00:00.000Z"
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-provenance::visual-database.sample%3A%3Astale%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::stale::row-1",
+                "field_ref": "total"
+              },
+              "provenance_ref": {
+                "$concat": [
+                  "expression-evaluation::owner=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "ref"
+                    }
+                  },
+                  "::target=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "target"
+                    }
+                  },
+                  "::source=",
+                  {
+                    "$uri_component": "source-r1"
+                  },
+                  "::evaluator-revision=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "revision"
+                    }
+                  }
+                ]
+              },
+              "revision": "provenance-source-r1",
+              "source_revision": "source-r1",
+              "evaluator_ref": {
+                "$evaluator": "ref"
+              },
+              "evaluator_target": {
+                "$evaluator": "target"
+              },
+              "evaluator_revision": {
+                "$evaluator": "revision"
+              },
+              "policy_revision": {
+                "$evaluator": "policy_revision"
+              },
+              "reads": {
+                "variables": [
+                  {
+                    "binding_key": "Amount",
+                    "root_name": "Amount",
+                    "catalog_id": "cell::visual-database.sample%3A%3Astale%3A%3Arow-1::amount",
+                    "record_ref": "visual-database.sample::stale::row-1",
+                    "field_ref": "amount",
+                    "context_key": "Amount",
+                    "value_revision": "value-fnv1a64-07d00b07b497d12b",
+                    "span": {
+                      "start_utf16": 1,
+                      "end_utf16": 7
+                    }
+                  },
+                  {
+                    "binding_key": "Cost",
+                    "root_name": "Cost",
+                    "catalog_id": "cell::visual-database.sample%3A%3Astale%3A%3Arow-1::cost",
+                    "record_ref": "visual-database.sample::stale::row-1",
+                    "field_ref": "cost",
+                    "context_key": "Cost",
+                    "value_revision": "value-fnv1a64-af63ae4c86019e62",
+                    "span": {
+                      "start_utf16": 8,
+                      "end_utf16": 12
+                    }
+                  }
+                ],
+                "entities": [],
+                "specials": [],
+                "functions": []
+              },
+              "provenance_display_label": {
+                "$evaluator": "display_label"
+              }
+            }
+          }
+        ],
+        "fields": {
+          "kind": "visual-database.fields",
+          "version": 2,
+          "descriptors": [
+            {
+              "id": "title",
+              "label": "Name",
+              "role": "title",
+              "paths": [
+                [
+                  "title"
+                ],
+                [
+                  "payload",
+                  "title"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "title"
+              ]
+            },
+            {
+              "id": "amount",
+              "label": "Amount",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "amount"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "amount"
+              ]
+            },
+            {
+              "id": "cost",
+              "label": "Cost",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "cost"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "cost"
+              ]
+            },
+            {
+              "id": "total",
+              "label": "Total",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "total"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "total"
+              ],
+              "evaluator_descriptor_refs": {
+                "$admitted_evaluator_refs": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "visual-database.proof-dataset.user-created",
+      "payload_template": {
+        "kind": "visual-database.dataset",
+        "version": 1,
+        "writable": true,
+        "members": {
+          "recordRefs": [
+            "visual-database.sample::user-created::row-1"
+          ],
+          "addresses": [
+            "visual-database.cell-cache::visual-database.sample%3A%3Auser-created%3A%3Arow-1::total",
+            "visual-database.cell-expression::visual-database.sample%3A%3Auser-created%3A%3Arow-1::total",
+            "visual-database.cell-provenance::visual-database.sample%3A%3Auser-created%3A%3Arow-1::total",
+            "visual-database.sample::user-created::row-1"
+          ]
+        },
+        "records": [
+          {
+            "address": "visual-database.sample::user-created::row-1",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "My first row",
+              "amount": 20,
+              "cost": 5,
+              "total": 15
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Auser-created%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::user-created::row-1",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_for_source": "=Amount-Cost"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::user-created::row-1",
+                      "field_ref": "amount",
+                      "context_key": "Amount"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::user-created::row-1",
+                      "field_ref": "cost",
+                      "context_key": "Cost"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-cache::visual-database.sample%3A%3Auser-created%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::user-created::row-1",
+                "field_ref": "total"
+              },
+              "revision": "cache-source-r1",
+              "cached_value": {
+                "value": 15,
+                "revision": "value-source-r1",
+                "source_revision": "source-r1",
+                "observed_at": "2026-07-26T12:00:00.000Z"
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-provenance::visual-database.sample%3A%3Auser-created%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::user-created::row-1",
+                "field_ref": "total"
+              },
+              "provenance_ref": {
+                "$concat": [
+                  "expression-evaluation::owner=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "ref"
+                    }
+                  },
+                  "::target=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "target"
+                    }
+                  },
+                  "::source=",
+                  {
+                    "$uri_component": "source-r1"
+                  },
+                  "::evaluator-revision=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "revision"
+                    }
+                  }
+                ]
+              },
+              "revision": "provenance-source-r1",
+              "source_revision": "source-r1",
+              "evaluator_ref": {
+                "$evaluator": "ref"
+              },
+              "evaluator_target": {
+                "$evaluator": "target"
+              },
+              "evaluator_revision": {
+                "$evaluator": "revision"
+              },
+              "policy_revision": {
+                "$evaluator": "policy_revision"
+              },
+              "reads": {
+                "variables": [
+                  {
+                    "binding_key": "Amount",
+                    "root_name": "Amount",
+                    "catalog_id": "cell::visual-database.sample%3A%3Auser-created%3A%3Arow-1::amount",
+                    "record_ref": "visual-database.sample::user-created::row-1",
+                    "field_ref": "amount",
+                    "context_key": "Amount",
+                    "value_revision": "value-fnv1a64-08030407b4c31edf",
+                    "span": {
+                      "start_utf16": 1,
+                      "end_utf16": 7
+                    }
+                  },
+                  {
+                    "binding_key": "Cost",
+                    "root_name": "Cost",
+                    "catalog_id": "cell::visual-database.sample%3A%3Auser-created%3A%3Arow-1::cost",
+                    "record_ref": "visual-database.sample::user-created::row-1",
+                    "field_ref": "cost",
+                    "context_key": "Cost",
+                    "value_revision": "value-fnv1a64-af63a84c86019430",
+                    "span": {
+                      "start_utf16": 8,
+                      "end_utf16": 12
+                    }
+                  }
+                ],
+                "entities": [],
+                "specials": [],
+                "functions": []
+              },
+              "provenance_display_label": {
+                "$evaluator": "display_label"
+              }
+            }
+          }
+        ],
+        "fields": {
+          "kind": "visual-database.fields",
+          "version": 2,
+          "descriptors": [
+            {
+              "id": "title",
+              "label": "Name",
+              "role": "title",
+              "paths": [
+                [
+                  "title"
+                ],
+                [
+                  "payload",
+                  "title"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "title"
+              ]
+            },
+            {
+              "id": "amount",
+              "label": "Amount",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "amount"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "amount"
+              ]
+            },
+            {
+              "id": "cost",
+              "label": "Cost",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "cost"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "cost"
+              ]
+            },
+            {
+              "id": "total",
+              "label": "Total",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "total"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "total"
+              ],
+              "evaluator_descriptor_refs": {
+                "$admitted_evaluator_refs": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "visual-database.proof-dataset.valid",
+      "payload_template": {
+        "kind": "visual-database.dataset",
+        "version": 1,
+        "writable": true,
+        "members": {
+          "recordRefs": [
+            "visual-database.sample::valid::row-1"
+          ],
+          "addresses": [
+            "visual-database.cell-cache::visual-database.sample%3A%3Avalid%3A%3Arow-1::total",
+            "visual-database.cell-expression::visual-database.sample%3A%3Avalid%3A%3Arow-1::total",
+            "visual-database.cell-provenance::visual-database.sample%3A%3Avalid%3A%3Arow-1::total",
+            "visual-database.sample::valid::row-1"
+          ]
+        },
+        "records": [
+          {
+            "address": "visual-database.sample::valid::row-1",
+            "payload": {
+              "kind": "visual-database.row",
+              "title": "Valid 1",
+              "amount": 12,
+              "cost": 3,
+              "total": 9
+            }
+          },
+          {
+            "address": "visual-database.cell-expression::visual-database.sample%3A%3Avalid%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::valid::row-1",
+                "field_ref": "total"
+              },
+              "revision": "source-r1",
+              "expression": {
+                "derive": {
+                  "target": {
+                    "$evaluator": "target"
+                  },
+                  "evaluator_ref": {
+                    "$evaluator": "ref"
+                  },
+                  "request": {
+                    "$request_for_source": "=Amount-Cost"
+                  },
+                  "dependency_refs": [
+                    {
+                      "record_ref": "visual-database.sample::valid::row-1",
+                      "field_ref": "amount",
+                      "context_key": "Amount"
+                    },
+                    {
+                      "record_ref": "visual-database.sample::valid::row-1",
+                      "field_ref": "cost",
+                      "context_key": "Cost"
+                    }
+                  ],
+                  "result_path": {
+                    "$evaluator": "result_path"
+                  },
+                  "persist": true
+                }
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-cache::visual-database.sample%3A%3Avalid%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::valid::row-1",
+                "field_ref": "total"
+              },
+              "revision": "cache-source-r1",
+              "cached_value": {
+                "value": 9,
+                "revision": "value-source-r1",
+                "source_revision": "source-r1",
+                "observed_at": "2026-07-26T12:00:00.000Z"
+              }
+            }
+          },
+          {
+            "address": "visual-database.cell-provenance::visual-database.sample%3A%3Avalid%3A%3Arow-1::total",
+            "payload": {
+              "cell_ref": {
+                "record_ref": "visual-database.sample::valid::row-1",
+                "field_ref": "total"
+              },
+              "provenance_ref": {
+                "$concat": [
+                  "expression-evaluation::owner=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "ref"
+                    }
+                  },
+                  "::target=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "target"
+                    }
+                  },
+                  "::source=",
+                  {
+                    "$uri_component": "source-r1"
+                  },
+                  "::evaluator-revision=",
+                  {
+                    "$uri_component": {
+                      "$evaluator": "revision"
+                    }
+                  }
+                ]
+              },
+              "revision": "provenance-source-r1",
+              "source_revision": "source-r1",
+              "evaluator_ref": {
+                "$evaluator": "ref"
+              },
+              "evaluator_target": {
+                "$evaluator": "target"
+              },
+              "evaluator_revision": {
+                "$evaluator": "revision"
+              },
+              "policy_revision": {
+                "$evaluator": "policy_revision"
+              },
+              "reads": {
+                "variables": [
+                  {
+                    "binding_key": "Amount",
+                    "root_name": "Amount",
+                    "catalog_id": "cell::visual-database.sample%3A%3Avalid%3A%3Arow-1::amount",
+                    "record_ref": "visual-database.sample::valid::row-1",
+                    "field_ref": "amount",
+                    "context_key": "Amount",
+                    "value_revision": "value-fnv1a64-07f89407b4ba0c0a",
+                    "span": {
+                      "start_utf16": 1,
+                      "end_utf16": 7
+                    }
+                  },
+                  {
+                    "binding_key": "Cost",
+                    "root_name": "Cost",
+                    "catalog_id": "cell::visual-database.sample%3A%3Avalid%3A%3Arow-1::cost",
+                    "record_ref": "visual-database.sample::valid::row-1",
+                    "field_ref": "cost",
+                    "context_key": "Cost",
+                    "value_revision": "value-fnv1a64-af63ae4c86019e62",
+                    "span": {
+                      "start_utf16": 8,
+                      "end_utf16": 12
+                    }
+                  }
+                ],
+                "entities": [],
+                "specials": [],
+                "functions": []
+              },
+              "provenance_display_label": {
+                "$evaluator": "display_label"
+              }
+            }
+          }
+        ],
+        "fields": {
+          "kind": "visual-database.fields",
+          "version": 2,
+          "descriptors": [
+            {
+              "id": "title",
+              "label": "Name",
+              "role": "title",
+              "paths": [
+                [
+                  "title"
+                ],
+                [
+                  "payload",
+                  "title"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "title"
+              ]
+            },
+            {
+              "id": "amount",
+              "label": "Amount",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "amount"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "amount"
+              ]
+            },
+            {
+              "id": "cost",
+              "label": "Cost",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "cost"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "cost"
+              ]
+            },
+            {
+              "id": "total",
+              "label": "Total",
+              "role": "metric",
+              "shape": "number",
+              "paths": [
+                [
+                  "payload",
+                  "total"
+                ]
+              ],
+              "writePath": [
+                "payload",
+                "total"
+              ],
+              "evaluator_descriptor_refs": {
+                "$admitted_evaluator_refs": true
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

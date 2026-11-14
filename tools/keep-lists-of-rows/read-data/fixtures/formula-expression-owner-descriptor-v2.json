@@ -1,0 +1,95 @@
+{
+  "ref": "evaluator::formula",
+  "revision": "3",
+  "label": "Formula",
+  "target": "slot::formula-engine",
+  "result_selector": ["result"],
+  "context_path": ["variables"],
+  "authoring": {
+    "schema_version": 2,
+    "protocol_version": 1,
+    "revision": "2",
+    "editor_ref": "ui::expression-composer",
+    "reference_provider_ref": "visual-database::visible-cells",
+    "source_mode": "expression",
+    "source_prefix": "=",
+    "interaction_policy": {
+      "idle_ms": 150,
+      "timeout_ms": 5000
+    },
+    "entry_actions": [
+      {"id": "add", "label": "Add formula", "trigger": "action"},
+      {"id": "equals", "label": "=", "trigger": "key"},
+      {"id": "f2", "label": "F2", "trigger": "key"},
+      {"id": "double-click", "label": "Double-click", "trigger": "pointer"}
+    ],
+    "selection_policy": {
+      "serialization": "explicit-list",
+      "separator": "+",
+      "deduplicate": true
+    },
+    "operations": {
+      "analyze": {
+        "request_template": {"operation": "analyze", "protocol_version": 1},
+        "required_request_keys": ["source", "cursor_offset_utf16", "request_token", "source_revision", "catalog_revision", "registry_revision", "expected_policy_revision", "variables"],
+        "required_reply_keys": ["operation", "request_token", "source_revision", "catalog_revision", "registry_revision", "policy_revision", "canonical_source", "completion", "static_dependencies", "diagnostics"]
+      },
+      "evaluate": {
+        "request_template": {"operation": "evaluate", "protocol_version": 1},
+        "required_request_keys": ["source", "cursor_offset_utf16", "request_token", "source_revision", "catalog_revision", "registry_revision", "expected_policy_revision", "variables"],
+        "required_reply_keys": ["operation", "request_token", "source_revision", "catalog_revision", "registry_revision", "policy_revision", "canonical_source", "static_dependencies", "diagnostics", "evaluation_result", "evaluation_readset"]
+      },
+      "capabilities": {
+        "request_template": {"operation": "capabilities", "protocol_version": 1},
+        "required_request_keys": ["request_token", "source_revision", "catalog_revision", "registry_revision", "expected_policy_revision"],
+        "required_reply_keys": ["operation", "request_token", "source_revision", "catalog_revision", "registry_revision", "policy_revision", "functions"]
+      },
+      "project_source": {
+        "request_template": {"operation": "project_source", "protocol_version": 1},
+        "required_request_keys": ["request_token", "source_revision", "catalog_revision", "registry_revision", "expected_policy_revision", "legacy_request"],
+        "required_reply_keys": ["operation", "request_token", "source_revision", "catalog_revision", "registry_revision", "policy_revision", "legacy_projection"]
+      }
+    },
+    "request_paths": {
+      "source": ["expression"],
+      "cursor_offset_utf16": ["cursor_offset_utf16"],
+      "request_token": ["request_token"],
+      "source_revision": ["source_revision"],
+      "catalog_revision": ["catalog_revision"],
+      "registry_revision": ["registry_revision"],
+      "expected_policy_revision": ["expected_policy_revision"],
+      "variables": ["variables"],
+      "legacy_request": ["legacy_request"]
+    },
+    "reply_paths": {
+      "operation": ["operation"],
+      "request_token": ["request_token"],
+      "source_revision": ["source_revision"],
+      "catalog_revision": ["catalog_revision"],
+      "registry_revision": ["registry_revision"],
+      "policy_revision": ["policy_revision"],
+      "source": ["source"],
+      "canonical_source": ["canonical_expression"],
+      "completion": ["completion"],
+      "static_dependencies": ["static_dependencies"],
+      "diagnostics": ["diagnostics"],
+      "functions": ["functions"],
+      "evaluation_result": ["evaluation", "result"],
+      "evaluation_readset": ["evaluation", "evaluation_readset"],
+      "legacy_projection": ["legacy_projection"]
+    },
+    "diagnostic_labels": {
+      "incomplete": "Keep typing",
+      "invalid": "Formula needs a change",
+      "owner.policy_changed": "Formula rules changed; checking again"
+    },
+    "explanation_sections": ["Formula", "Uses", "Result"],
+    "state_labels": {
+      "analyzing": "Checking formula",
+      "saving": "Saving",
+      "saved": "Saved",
+      "stale": "Result is stale"
+    },
+    "read_only_behavior": "inspect"
+  }
+}

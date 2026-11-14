@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from the original Bitfield package packages/visual-database that no Workshop or apps copy held (tests and fixtures, expression authoring, migrations and their targets, record form, tables home, mounts, selection binding, iOS JavaScriptCore mount, direct-view data, proof and performance evidence). Each names its source path and commit, the identity of its source bytes and of its bytes here. Only the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/visual-database/proof/harness/w7-grid-2026-07-18/stubs/file-editor.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/proof/harness/w7-grid-2026-07-18/stubs/file-editor.tsx",
+      "source_identity": "1f:e8f74c44963c584a64e5bb9448e635a39369268218578e0ef03b6023ff96e5d8",
+      "identity": "1f:e8f74c44963c584a64e5bb9448e635a39369268218578e0ef03b6023ff96e5d8"
+    },
+    {
+      "from": "packages/visual-database/proof/harness/w7-grid-2026-07-18/stubs/runtime-kit.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/proof/harness/w7-grid-2026-07-18/stubs/runtime-kit.ts",
+      "source_identity": "1f:39a35dc95ad640f6f32c2ce0c6cb729761ea359c3e4dc6a0ebf117d1e606fce6",
+      "identity": "1f:39a35dc95ad640f6f32c2ce0c6cb729761ea359c3e4dc6a0ebf117d1e606fce6"
+    }
+  ]
+}

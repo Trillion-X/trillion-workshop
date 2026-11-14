@@ -1,0 +1,10 @@
+{
+  "records": [{
+    "payload_hash_base64": "Ag==",
+    "payload": {
+      "cell_ref": { "record_ref": "record::one", "field_ref": "field::score" },
+      "expression": { "derive": { "target": "slot::formula-engine", "request": { "source": "=A1+B1" } } },
+      "revision": "source-r2"
+    }
+  }]
+}

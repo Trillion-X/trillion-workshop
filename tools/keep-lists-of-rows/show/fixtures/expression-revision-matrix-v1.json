@@ -1,0 +1,22 @@
+{
+  "schema": "visual-database.expression-revision-matrix/v1",
+  "targets": ["fixture::owner-a", "fixture::owner-b"],
+  "operations": ["analyze", "evaluate", "capabilities", "project_source"],
+  "dimensions": ["descriptor_revision", "request_token", "source_revision", "catalog_revision", "registry_revision", "policy_revision"],
+  "lifecycle_scenarios": [
+    {"id": "cancel_before_reply", "terminal_state": "discarded_stale", "durable_write_count": 0},
+    {"id": "cancel_after_reply_before_reduction", "terminal_state": "discarded_stale", "durable_write_count": 0},
+    {"id": "duplicate_reply", "terminal_state": "duplicate_ignored", "durable_write_count": 0},
+    {"id": "timeout_then_late_reply", "terminal_state": "discarded_stale", "durable_write_count": 0},
+    {"id": "cas_success_reply_lost_readback_match", "terminal_state": "source_saved", "durable_write_count": 1},
+    {"id": "cas_conflict", "terminal_state": "save_conflict", "durable_write_count": 0},
+    {"id": "descriptor_revision_during_commit", "terminal_state": "source_saved_evaluation_pending", "durable_write_count": 1},
+    {"id": "policy_revision_during_commit", "terminal_state": "source_saved_evaluation_pending", "durable_write_count": 1},
+    {"id": "catalog_revision_during_pick", "terminal_state": "draft_reanalysis_required", "durable_write_count": 0},
+    {"id": "registry_revision_during_cached_insertion", "terminal_state": "catalog_replaced", "durable_write_count": 0}
+  ],
+  "guard_rows_per_operation_target": 65,
+  "lifecycle_rows_per_operation_target": 10,
+  "rows_per_operation_target": 75,
+  "expected_rows": 600
+}

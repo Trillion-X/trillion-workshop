@@ -1,0 +1,25 @@
+{
+  "about": "Files moved here byte for byte from the original Bitfield package packages/visual-database that no Workshop or apps copy held (tests and fixtures, expression authoring, migrations and their targets, record form, tables home, mounts, selection binding, iOS JavaScriptCore mount, direct-view data, proof and performance evidence). Each names its source path and commit, the identity of its source bytes and of its bytes here. Only the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "an-email-made-up-on-example",
+      "find": "a@b\\.co\\b",
+      "replace": "person@example.com",
+      "means": "A test address shaped like a real one; made up on example.com."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/visual-database/do-work/__tests__/extract-dm-leads.test.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/do-work/__tests__/extract-dm-leads.test.mjs",
+      "source_identity": "1f:e690dc6ccfe970b8e81c2ac5d4d3cc967ed4c71d0a139d06c1eb2acca599b00c",
+      "identity": "1f:48e36b736e777b4de7c127c9d7b2dfaf5580be97028348722038d0b7b72d6ffb",
+      "calls": [
+        "an-email-made-up-on-example"
+      ]
+    }
+  ]
+}

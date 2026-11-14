@@ -1,0 +1,730 @@
+{
+  "schema": "visual-database.or-source-test-coverage/v2",
+  "rows": [
+    {
+      "or_id": "OR-01",
+      "tests": [
+        {
+          "file": "packages/visual-database/proof/consumer-composition-contract.test.ts",
+          "title": "Visual Database live consumer composition contract every import of an owner module resolves, and every shipped module is reachable",
+          "action_ids": [
+            "scan-corpus-imports",
+            "resolve-declared-entries"
+          ],
+          "assertion_ids": [
+            "no-dangling-owner-import",
+            "no-unreachable-shipped-module",
+            "declared-entry-source-exists"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-02",
+      "tests": [
+        {
+          "file": "packages/visual-database/proof/consumer-composition-contract.test.ts",
+          "title": "Visual Database live consumer composition contract no consumer reads the owner feed of another consumer",
+          "action_ids": [
+            "read-declared-owner-feeds"
+          ],
+          "assertion_ids": [
+            "no-consumer-data-leak",
+            "owner-addresses-distinct"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-03",
+      "tests": [
+        {
+          "file": "packages/visual-database/show/visual-database-owner-persistence.test.tsx",
+          "title": "visual-database owner-scoped persistence settles a create when the feed returns the hashed fact address",
+          "action_ids": [
+            "activate-new",
+            "enter-title",
+            "commit",
+            "reload"
+          ],
+          "assertion_ids": [
+            "one-record",
+            "created-identity-stable",
+            "saved-after-feed-and-readback"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-04",
+      "tests": [
+        {
+          "file": "packages/visual-database/show/visual-database-owner-persistence.test.tsx",
+          "title": "visual-database owner-scoped persistence creates the first record through one owner path in every empty view and preserves identity after fold and reload",
+          "action_ids": [
+            "create-first-record-each-view",
+            "reload-each-view"
+          ],
+          "assertion_ids": [
+            "one-record-per-view",
+            "same-create-primitive",
+            "stable-identities"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-05",
+      "tests": [
+        {
+          "file": "packages/visual-database/do-work/mutation-settlement.test.ts",
+          "title": "MutationSettlementCoordinator accepts only after transport, matching feed, and matching direct readback",
+          "action_ids": [
+            "create",
+            "edit-record",
+            "edit-status",
+            "edit-view",
+            "edit-schema",
+            "edit-formula-source",
+            "write-cache",
+            "write-provenance"
+          ],
+          "assertion_ids": [
+            "saving-before-readback",
+            "saved-after-feed-and-readback",
+            "exact-redacted-event-schema"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-06",
+      "tests": [
+        {
+          "file": "packages/visual-database/show/visual-database-owner-persistence.test.tsx",
+          "title": "visual-database owner-scoped persistence opens a choice cell, updates once, and acknowledges only after feed plus direct readback",
+          "action_ids": [
+            "capture-record-identity",
+            "change-status",
+            "reload"
+          ],
+          "assertion_ids": [
+            "same-record-identity",
+            "cardinality-unchanged",
+            "status-updated-once"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-07",
+      "tests": [
+        {
+          "file": "packages/visual-database/show/field-editors.test.tsx",
+          "title": "single-choice status-cell picker owns the exact trigger/listbox/options relationship and active option",
+          "action_ids": [],
+          "assertion_ids": [
+            "anchored-picker"
+          ]
+        },
+        {
+          "file": "packages/visual-database/show/field-editors.test.tsx",
+          "title": "single-choice status-cell picker commits the same value exactly once by pointer and keyboard",
+          "action_ids": [
+            "open-picker-pointer",
+            "select-option",
+            "select-option-keyboard"
+          ],
+          "assertion_ids": [
+            "pointer-and-keyboard-equivalent"
+          ]
+        },
+        {
+          "file": "packages/visual-database/show/field-editors.test.tsx",
+          "title": "single-choice status-cell picker cancels with Escape, writes nothing, and restores the originating gridcell",
+          "action_ids": [
+            "close-picker-escape"
+          ],
+          "assertion_ids": [
+            "focus-restored"
+          ]
+        },
+        {
+          "file": "packages/ui/show/color-tag-picker-overlay/ColorTagPickerOverlay.test.tsx",
+          "title": "ColorTagPickerOverlay single-select contract owns the labelled listbox/option graph, keyboard selection, Escape, and focus return",
+          "action_ids": [
+            "open-picker-keyboard"
+          ],
+          "assertion_ids": []
+        }
+      ]
+    },
+    {
+      "or_id": "OR-08",
+      "tests": [
+        {
+          "file": "packages/visual-database/show/visual-database-owner-persistence.test.tsx",
+          "title": "visual-database owner-scoped persistence reorders a declared choice through the shared handle and persists one complete fields descriptor",
+          "action_ids": [
+            "rename-choice",
+            "recolor-choice",
+            "add-choice",
+            "drag-reorder-choice",
+            "keyboard-reorder-choice",
+            "delete-choice",
+            "reload"
+          ],
+          "assertion_ids": [
+            "complete-domain-preserved",
+            "order-persisted",
+            "colors-persisted"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-09",
+      "tests": [
+        {
+          "file": "packages/visual-database/show/visual-database-owner-persistence.test.tsx",
+          "title": "visual-database owner-scoped persistence changes group-by through the complete views writer and rehydrates the visible grouping",
+          "action_ids": [
+            "open-view-settings",
+            "change-group-field",
+            "reload"
+          ],
+          "assertion_ids": [
+            "group-field-visible",
+            "lanes-match-selected-domain",
+            "selection-persists"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-10",
+      "tests": [
+        {
+          "file": "packages/visual-database/show/visual-database-owner-persistence.test.tsx",
+          "title": "visual-database owner-scoped persistence opens the canonical stage editor from Board and rehydrates the same choice order in Fields",
+          "action_ids": [
+            "edit-contextual-stage",
+            "edit-global-choice",
+            "reload"
+          ],
+          "assertion_ids": [
+            "same-choice-identities",
+            "same-order-both-surfaces"
+          ]
+        },
+        {
+          "file": "packages/visual-database/show/visual-database-owner-persistence.test.tsx",
+          "title": "visual-database owner-scoped persistence renames a stage from the contextual Board editor through the canonical fields owner",
+          "action_ids": [
+            "rename-contextual-stage"
+          ],
+          "assertion_ids": []
+        },
+        {
+          "file": "packages/visual-database/show/visual-database-owner-persistence.test.tsx",
+          "title": "visual-database owner-scoped persistence adds and deletes stages from the contextual Board editor through complete domain writes",
+          "action_ids": [
+            "add-contextual-stage",
+            "delete-contextual-stage"
+          ],
+          "assertion_ids": [
+            "contextual-edits-persist"
+          ]
+        },
+        {
+          "file": "packages/visual-database/show/visual-database-owner-persistence.test.tsx",
+          "title": "visual-database owner-scoped persistence recolors a stage from the contextual Board editor through the canonical choice owner",
+          "action_ids": [
+            "recolor-contextual-stage"
+          ],
+          "assertion_ids": []
+        },
+        {
+          "file": "packages/ui/show/reorder-control/ReorderControl.test.tsx",
+          "title": "input-independent reorder control publishes native pointer drag identity and visible insertion preview",
+          "action_ids": [
+            "drag-reorder-stage"
+          ],
+          "assertion_ids": []
+        },
+        {
+          "file": "packages/ui/show/reorder-control/ReorderControl.test.tsx",
+          "title": "input-independent reorder control routes keyboard and explicit non-drag controls through one callback",
+          "action_ids": [
+            "keyboard-reorder-stage"
+          ],
+          "assertion_ids": []
+        },
+        {
+          "file": "packages/ui/show/drop-indicator/DropIndicator.test.tsx",
+          "title": "DropIndicator insertion geometry pairs the visual indicator with one stable polite human move target",
+          "action_ids": [],
+          "assertion_ids": [
+            "insertion-feedback-visible"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-11",
+      "tests": [
+        {
+          "file": "packages/visual-database/show/visual-database-owner-persistence.test.tsx",
+          "title": "visual-database owner-scoped persistence uses a baseline-aligned text cluster for mixed-size lane labels and counts",
+          "action_ids": [
+            "render-two-fonts",
+            "render-two-themes",
+            "render-empty-and-nonempty"
+          ],
+          "assertion_ids": [
+            "label-count-baselines-aligned",
+            "dot-label-count-centers-stable",
+            "no-hardcoded-color"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-12",
+      "tests": [
+        {
+          "file": "packages/visual-database/show/visual-database-owner-persistence.test.tsx",
+          "title": "visual-database owner-scoped persistence shows all declared and detected fields in one labeled schema surface",
+          "action_ids": [
+            "inventory-fields",
+            "rename-field",
+            "change-type",
+            "edit-choices",
+            "reorder-fields",
+            "reload"
+          ],
+          "assertion_ids": [
+            "declared-and-detected-visible",
+            "contextual-global-owner-equivalence",
+            "all-edits-persist"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-13",
+      "tests": [
+        {
+          "file": "packages/ui/show/reorder-control/ReorderControl.test.tsx",
+          "title": "input-independent reorder control publishes native pointer drag identity and visible insertion preview",
+          "action_ids": [
+            "pointer-row-reorder"
+          ],
+          "assertion_ids": []
+        },
+        {
+          "file": "packages/ui/show/reorder-control/ReorderControl.test.tsx",
+          "title": "input-independent reorder control commits touch pointer placement and clears the visible preview",
+          "action_ids": [
+            "touch-row-reorder",
+            "touch-column-reorder"
+          ],
+          "assertion_ids": [
+            "hover-preview-order"
+          ]
+        },
+        {
+          "file": "packages/visual-database/show/visual-database-owner-persistence.test.tsx",
+          "title": "visual-database owner-scoped persistence routes Table row keyboard and non-drag moves through one durable sort-key write",
+          "action_ids": [
+            "keyboard-row-reorder",
+            "reload"
+          ],
+          "assertion_ids": [
+            "committed-order-persists"
+          ]
+        },
+        {
+          "file": "packages/visual-database/show/visual-database-owner-persistence.test.tsx",
+          "title": "visual-database owner-scoped persistence routes Table column keyboard and non-drag moves through one durable views callback",
+          "action_ids": [
+            "keyboard-column-reorder"
+          ],
+          "assertion_ids": []
+        },
+        {
+          "file": "packages/visual-database/show/visual-database-owner-persistence.test.tsx",
+          "title": "visual-database owner-scoped persistence drags a Table column from the whole header and preserves the dropped order after owner settlement",
+      "action_ids": [
+        "pointer-column-reorder"
+      ],
+      "assertion_ids": []
+        },
+        {
+          "file": "packages/ui/show/drop-indicator/DropIndicator.test.tsx",
+          "title": "DropIndicator insertion geometry pairs the visual indicator with one stable polite human move target",
+          "action_ids": [],
+          "assertion_ids": [
+            "visible-insertion-feedback"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-14",
+      "tests": [
+        {
+          "file": "packages/visual-database/show/VisualDatabaseSurface.test.tsx",
+          "title": "VisualDatabaseSurface reachability instrumentation (#44) VisualDatabaseSurface.tsx source instrumentation keeps wide-table continuation and New row attached across the full horizontal scroll width",
+          "action_ids": [
+            "horizontal-scroll-to-end"
+          ],
+          "assertion_ids": [
+            "continuation-rule-width-equals-table-scroll-width",
+            "new-row-control-remains-attached"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-15",
+      "tests": [
+        {
+          "file": "packages/visual-database/show/VisualDatabaseSurface.test.tsx",
+          "title": "VisualDatabaseSurface reachability instrumentation (#44) grid element property primitive wiring (W7) uses a grid glyph for table and a left-panel layout glyph for canvas",
+          "action_ids": [
+            "render-table",
+            "render-canvas"
+          ],
+          "assertion_ids": [
+            "table-icon-grid",
+            "canvas-icon-layout-panel-left",
+            "same-icons-both-consumers"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-16",
+      "tests": [
+        {
+          "file": "packages/visual-database/show/add-field.test.tsx",
+          "title": "AddFieldForm evaluator authoring disclosure exposes the generic Add Field screen contract without treating Formula as a field type",
+          "action_ids": [
+            "open-add-field",
+            "inspect-long-labels",
+            "inject-unknown-value-source",
+            "create-field"
+          ],
+          "assertion_ids": [
+            "labels-unclipped",
+            "unknown-source-visible",
+            "unknown-source-authors-without-code-branch"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-17",
+      "tests": [
+        {
+          "file": "packages/visual-database/show/cell-expression-editor.test.tsx",
+          "title": "CellExpressionEditor authors human source, previews through the owner, maps picked cells to stable dependencies, and closes only after saved readback",
+          "action_ids": [
+            "author-equals-expression",
+            "preview",
+            "save",
+            "reload"
+          ],
+          "assertion_ids": [
+            "human-source-preserved",
+            "result-correct",
+            "dependencies-stable"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-18",
+      "tests": [
+        {
+          "file": "packages/visual-database/show/visual-database-owner-persistence.test.tsx",
+          "title": "visual-database owner-scoped persistence creates a field from the same Fields surface and keeps detected fields out of the write",
+          "action_ids": [
+            "create-field",
+            "wait-owner-fold",
+            "reload"
+          ],
+          "assertion_ids": [
+            "one-field-identity",
+            "one-field-occurrence",
+            "field-survives-delay-and-reload"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-19",
+      "tests": [
+        {
+          "file": "packages/visual-database/show/visual-database-owner-persistence.test.tsx",
+          "title": "visual-database owner-scoped persistence hides a column through crm.views and remains hidden after canonical model rehydration",
+          "action_ids": [
+            "mutate-view-settings",
+            "wait-owner-fold",
+            "reload"
+          ],
+          "assertion_ids": [
+            "saved-after-readback",
+            "view-settings-survive-delay-and-reload"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-20",
+      "tests": [
+        {
+          "file": "packages/visual-database/show/VisualDatabaseSurface.formula-interactions.test.tsx",
+          "title": "VisualDatabaseSurface formula entry and reference picking inserts a single pick, range pick, and multiple pick with one undo per reference gesture while preserving visible selection feedback",
+          "action_ids": [
+            "single-pick",
+            "range-pick",
+            "multi-pick",
+            "undo",
+            "cancel"
+          ],
+          "assertion_ids": [
+            "utf16-selection-exact",
+            "one-undo-per-gesture",
+            "focus-remains-source"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-21",
+      "tests": [
+        {
+          "file": "packages/visual-database/show/cell-expression-editor.test.tsx",
+          "title": "CellExpressionEditor retains the exact draft and exposes reload, restore, and retry after an offline save failure",
+          "action_ids": [
+            "save-conflict",
+            "save-offline",
+            "reload-draft",
+            "retry"
+          ],
+          "assertion_ids": [
+            "draft-selection-result-retained",
+            "zero-write-on-conflict",
+            "zero-write-offline"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-22",
+      "tests": [
+        {
+          "file": "packages/visual-database/show/VisualDatabaseSurface.formula-interactions.test.tsx",
+          "title": "VisualDatabaseSurface formula entry and reference picking previews stable addressed fill sources and commits one atomic batch only after confirmation",
+          "action_ids": [
+            "preview-fill-before-cancel",
+            "cancel-fill",
+            "preview-fill-before-commit",
+            "commit-fill",
+            "reload"
+          ],
+          "assertion_ids": [
+            "cancel-zero-write",
+            "atomic-commit",
+            "stable-addresses-after-reorder"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-23",
+      "tests": [
+        {
+          "file": "packages/visual-database/show/VisualDatabaseSurface.formula-interactions.test.tsx",
+          "title": "VisualDatabaseSurface formula entry and reference picking proves add formula button entry, double click entry, formula bar and cell synchronization, one controlled editor, and active cell retention",
+          "action_ids": [
+            "open-formula-bar",
+            "edit-cell-mirror",
+            "close-and-reopen"
+          ],
+          "assertion_ids": [
+            "one-semantic-editor-owner",
+            "two-way-source-sync",
+            "no-duplicate-listbox-owner"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-24",
+      "tests": [
+        {
+          "file": "packages/visual-database/show/cell-expression-editor.test.tsx",
+          "title": "CellExpressionEditor announces every owner-projected Formula lifecycle phrase from real state transitions",
+          "action_ids": [
+            "keyboard-author"
+          ],
+          "assertion_ids": [
+            "truthful-announcements"
+          ]
+        },
+        {
+          "file": "packages/ui/show/expression-composer/ExpressionComposer.accessibility.test.tsx",
+          "title": "ExpressionComposer accessibility links only blocking errors assertively and restores input focus on diagnostic activation",
+          "action_ids": [
+            "voiceover-traverse"
+          ],
+          "assertion_ids": [
+            "focus-return"
+          ]
+        },
+        {
+          "file": "packages/ui/show/reorder-control/ReorderControl.test.tsx",
+          "title": "input-independent reorder control uses the shared 44×44 coarse reorder target role for all three controls",
+          "action_ids": [],
+          "assertion_ids": [
+            "minimum-coarse-targets"
+          ]
+        },
+        {
+          "file": "packages/ui/show/control-target/control-target.test.ts",
+          "title": "control target geometry expands every shared reorder control to 44×44 for coarse input",
+          "action_ids": [
+            "coarse-pointer-hit-test"
+          ],
+          "assertion_ids": []
+        },
+        {
+          "file": "packages/ui/show/table/Table.test.tsx",
+          "title": "TableCell coarse pointer target qualifies the 44px target by coarse pointer without inflating desktop density",
+          "action_ids": [],
+          "assertion_ids": [
+            "desktop-density-preserved"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-25",
+      "tests": [
+        {
+          "file": "packages/screen-look/read-data/resolve-screen-look-palette.test.ts",
+          "title": "resolveScreenLookPalette visual roles preserves every authored CSS value across every shipped theme",
+          "action_ids": [
+            "capture-computed-vector"
+          ],
+          "assertion_ids": [
+            "26-distinct-complete-vectors"
+          ]
+        },
+        {
+          "file": "packages/visual-database/proof/or-causal-closure.test.tsx",
+          "title": "Round 28 causal source closure selects every authored theme through one owner simulation and preserves the selected identity after reload",
+          "action_ids": [
+            "select-each-theme",
+            "reload-selected-theme"
+          ],
+          "assertion_ids": [
+            "selected-theme-persists"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-26",
+      "tests": [
+        {
+          "file": "packages/screen-arrangement/show/EmptyContainer.test.tsx",
+          "title": "EmptyContainer owner-backed collections keeps both sections visible when both collections are empty",
+          "action_ids": [
+            "render-empty-tab",
+            "inspect-layouts-section",
+            "inspect-folders-section"
+          ],
+          "assertion_ids": [
+            "layouts-heading-always-visible",
+            "folders-heading-always-visible",
+            "truthful-state-copy"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-27",
+      "tests": [
+        {
+          "file": "packages/vision-board/show/activity-input-contract.test.ts",
+          "title": "vision-board activity input contract declares the exact input used by the material and admits its owner package data",
+          "action_ids": [
+          ],
+          "assertion_ids": [
+            "declared-input-resolves"
+          ]
+        },
+        {
+          "file": "packages/visual-database/proof/or-causal-closure.test.tsx",
+          "title": "Round 28 causal source closure mounts Vision Board, reads its scoped activity input, and preserves the interactive canvas",
+          "action_ids": [
+            "mount",
+            "read-scoped-activity"
+          ],
+          "assertion_ids": [
+            "no-missing-input-error",
+            "canvas-remains-interactive"
+          ]
+        }
+      ]
+    },
+    {
+      "or_id": "OR-28",
+      "tests": [
+        {
+          "file": "packages/visual-database/do-work/descriptor-mutation.test.ts",
+          "title": "descriptor mutation refreshes infrastructure generation conflicts without dropping any user edit",
+          "action_ids": [
+            "create-concurrent-descriptor",
+            "commit-stale-draft"
+          ],
+          "assertion_ids": [
+            "concurrent-descriptor-survives"
+          ]
+        },
+        {
+          "file": "packages/visual-database/show/descriptor-mutation-recovery.test.tsx",
+          "title": "DescriptorConflictRecovery exposes an exact alert and resolves each conflict without console or network failures",
+          "action_ids": [
+            "inspect-conflict-draft",
+            "resolve-conflict",
+            "inspect-console",
+            "inspect-network"
+          ],
+          "assertion_ids": [
+            "conflict-draft-visible-and-resolvable",
+            "console-clean",
+            "network-clean"
+          ]
+        },
+        {
+          "file": "packages/visual-database/do-work/migrate-descriptor-aggregates-target.test.ts",
+          "title": "descriptor aggregate migration target preserves 26 independently addressed records, proves descriptor parity, and reloads addressed authority",
+          "action_ids": [
+            "read-restored-clients",
+            "reload-after-activation"
+          ],
+          "assertion_ids": [
+            "recovered-rows-exact",
+            "unresolved-row-not-fabricated",
+            "addressed-authority-survives-reload"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -20,18 +20,13 @@
 // controls, machine identity never renders as a heading, one-line composer.
 
 import React from 'react';
-import type { VisualDatabaseSurfaceState } from 'trillion-workshop/tools/keep-lists-of-rows/read-data/visual-database.ts';
-import { ArrowRight, Pin } from 'lucide-react';
-import { ExpandableTabs } from '../../ui/show/expandable-tabs';
-import { OpenSurfaceAction } from '../../ui/show/open-surface-action/OpenSurfaceAction';
-import { recordSurfaceIntentToOpenSurfaceProps } from '../../ui/show/placeable-surface-intent/record-surface-intent';
-import { Boxes, CalendarDays, Check, ClipboardList, ChevronDown, ChevronRight, EyeOff, Gauge, GitBranch, Grid2x2, ImageOff, Layers3, LayoutGrid, LayoutPanelLeft, ListChecks, Plus, Rows3, Search, Settings2, Table2, Trash2 } from 'lucide-react';
-import { AnchoredOverlay, Badge, Button, Card, ColorDot, Container, DragReorderList, DropIndicator, Dropdown, EmptyPlaceholder, HoverRevealGroup, HoverRevealItem, Icon, ImageBlock, Inline, InlineEditText, Input, Kbd, NamedIcon, ProgressBar, SegmentedControl, Table, TableBody, TableCell, TableColumnResizeHandle, TableHead, TableHeader, TableRow, Text, TuningControl, VirtualList, useControlledTextSelection } from '../../ui';
-import { BulkSelectBar } from '../../ui/show/bulk-select-bar';
-import { StatusOverview, type StatusLooks, type StatusOverviewOptions } from '../../ui/show/status-overview/StatusOverview';
-import { DatePicker } from '../../ui/show/date-picker/DatePicker';
-import { NativeColorPickerPanel } from '../../ui/show/native-color-picker';
-import { copyTextToClipboard } from 'trillion-workshop/tools/ui/show/clipboard/copy-text.ts';
+import type { VisualDatabaseSurfaceState } from '@/packages/visual-database/read-data/visual-database';
+import { ArrowRight, Circle, Pin } from 'lucide-react';
+import { ExpandableTabs } from '@/packages/ui/show/expandable-tabs';
+import { OpenSurfaceAction } from '@/packages/ui/show/open-surface-action/OpenSurfaceAction';
+import { recordSurfaceIntentToOpenSurfaceProps } from '@/packages/ui/show/placeable-surface-intent/record-surface-intent';
+import { Boxes, CalendarDays, Check, ChevronDown, ChevronRight, EyeOff, Gauge, GitBranch, Grid2x2, ImageOff, Layers3, LayoutGrid, LayoutPanelLeft, ListChecks, Plus, Rows3, Search, Settings2, Table2, Trash2 } from 'lucide-react';
+import { AnchoredOverlay, Badge, BulkSelectBar, Button, Card, ColorDot, Container, DatePicker, DragReorderList, DropIndicator, Dropdown, EmptyPlaceholder, HoverRevealGroup, HoverRevealItem, Icon, ImageBlock, Inline, InlineEditText, Input, Kbd, NamedIcon, NativeColorPickerPanel, PropertyControl, SegmentedControl, Table, TableBody, TableCell, TableColumnResizeHandle, TableHead, TableHeader, TableRow, Text, VirtualList, copyTextToClipboard, useControlledTextSelection } from '@/packages/ui';
 import {
   beforeIdForTarget,
   REORDER_DRAG_MIME,
@@ -39,33 +34,30 @@ import {
   reorderBeforeId,
   ReorderControl,
   type ReorderPreview,
-} from '../../ui/show/reorder-control';
-import { MetricView } from './MetricView';
-import { later } from '../../ui/show/load-later/later';
-import { FormView } from './views/FormView';
-import { addressedCellValueLabels, applyFieldWrites, buildAddressedCellValueWrites, buildRecordWrite, canonicalRecordIdentity, nextRecordCreateAttempt, type AddressedWrite, type FieldWrite, type RecordCreateAttempt } from 'trillion-workshop/tools/keep-lists-of-rows/do-work/record-write-builders.ts';
-import { recordHistory, withRecordHistory } from 'trillion-workshop/tools/keep-lists-of-rows/do-work/record-write-history.ts';
-import type { RecordWriter } from 'trillion-workshop/tools/keep-lists-of-rows/do-work/record-writes.ts';
+} from '@/packages/ui/show/reorder-control';
+import { MetricView } from '@/packages/visual-database/show/MetricView';
+import { NodeGraphView } from '@/packages/visual-database/show/views/NodeGraphView';
+import { addressedCellValueLabels, applyFieldWrites, buildAddressedCellValueWrites, buildRecordWrite, canonicalRecordIdentity, nextRecordCreateAttempt, undoLastWrite, type AddressedWrite, type FieldWrite, type RecordCreateAttempt, type RecordWriter } from '@/packages/visual-database/do-work/record-writes';
 import {
   decodeMutationSettlementPolicy,
   MutationSettlementCoordinator,
   type MutationSettlementPolicy,
   type MutationSettlementResult,
   type MutationSettlementTransition,
-} from 'trillion-workshop/tools/keep-lists-of-rows/do-work/mutation-settlement.ts';
+} from '@/packages/visual-database/do-work/mutation-settlement';
 import {
   cellRefKey,
   foldAddressedCellExpressions,
   type AddressedCellExpressionInputs,
   type AddressedCellValueRecord,
   type FoldedCellExpression,
-} from 'trillion-workshop/tools/keep-lists-of-rows/do-work/cell-expression.ts';
+} from '@/packages/visual-database/do-work/cell-expression';
 import {
   buildCellSourceSettlementAttempt,
   cellSourceMutationResultFromSettlement,
   createCellSourceMutationDraft,
   type CellSourceMutationResult,
-} from 'trillion-workshop/tools/keep-lists-of-rows/do-work/cell-source-settlement.ts';
+} from '@/packages/visual-database/do-work/cell-source-mutation';
 import {
   applyColumnState,
   buildFillDownExpressionPlan,
@@ -78,7 +70,7 @@ import {
   setGridStyleKey,
   toggleColumnHidden,
   type GridCell,
-} from 'trillion-workshop/tools/keep-lists-of-rows/show/grid-interaction.ts';
+} from '@/packages/visual-database/show/grid-interaction';
 import {
   elementStyle,
   evaluateCellFormat,
@@ -86,28 +78,33 @@ import {
   ownGridPropertyValue,
   propertiesForScope,
   resolveGridProperty,
-} from 'trillion-workshop/tools/keep-lists-of-rows/read-data/grid-style.ts';
+} from '@/packages/visual-database/read-data/grid-style';
 import {
   resolveAddressedCells,
   resolutionInputsForFoldedCells,
   type AuthoringEvaluationDispatch,
   type DeriveDispatch,
-} from 'trillion-workshop/tools/keep-lists-of-rows/do-work/resolve-derived-fields.ts';
-import { AddFieldButton, AddFieldForm } from './add-field';
-import type { CellEvaluationProjection, ExpressionReferenceSelection } from './cell-expression-editor';
+} from '@/packages/visual-database/do-work/resolve-derived-fields';
+import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
+import { AddFieldButton, AddFieldForm } from '@/packages/visual-database/show/add-field';
+import {
+  CellExpressionEditor,
+  type CellEvaluationProjection,
+  type ExpressionReferenceSelection,
+} from '@/packages/visual-database/show/cell-expression-editor';
 import {
   buildExpressionReferenceCatalog,
   mapExpressionEvaluationReads,
   type ExpressionReferenceCatalog,
-} from 'trillion-workshop/tools/keep-lists-of-rows/show/reference-catalog.ts';
+} from '@/packages/visual-database/show/reference-catalog';
 import {
   expressionEvaluationProvenanceLabels,
   expressionEvaluationProvenanceRef,
   readDurableExpressionSource,
-} from 'trillion-workshop/tools/keep-lists-of-rows/do-work/expression-owner-protocol.ts';
-import { ExpressionOwnerSessionFactory } from 'trillion-workshop/tools/keep-lists-of-rows/do-work/expression-owner-session.ts';
-import { isOrderKey, keyBetween, spreadKeys } from 'trillion-workshop/tools/keep-lists-of-rows/do-work/fractional-order.ts';
-import { planVisualDatabaseDescriptorIntent } from 'trillion-workshop/tools/keep-lists-of-rows/do-work/descriptor-intent.ts';
+} from '@/packages/visual-database/do-work/expression-owner-protocol';
+import { ExpressionOwnerSessionFactory } from '@/packages/visual-database/do-work/expression-owner-session';
+import { isOrderKey, keyBetween, spreadKeys } from '@/packages/visual-database/do-work/fractional-order';
+import { planVisualDatabaseDescriptorIntent } from '@/packages/visual-database/do-work/descriptor-intent';
 import {
   buildDescriptorSettlementAttempt,
   descriptorIntegrityGenerationKey,
@@ -116,7 +113,7 @@ import {
   type DescriptorExpectedProjection,
   type DescriptorMutationConflict,
   type DescriptorMutationDraft,
-} from 'trillion-workshop/tools/keep-lists-of-rows/do-work/descriptor-mutation.ts';
+} from '@/packages/visual-database/do-work/descriptor-mutation';
 import {
   descriptorAddressFor,
   descriptorFactFromUnknown,
@@ -124,16 +121,15 @@ import {
   type AddressedDescriptorSnapshot,
   type DescriptorKey,
   type DescriptorOwnerTarget,
-} from 'trillion-workshop/tools/keep-lists-of-rows/read-data/addressed-descriptors.ts';
+} from '@/packages/visual-database/read-data/addressed-descriptors';
 import {
   DescriptorConflictRecovery,
   descriptorConflictValuesFromMutation,
   type DescriptorConflictChoice,
-} from './descriptor-mutation-recovery';
+} from '@/packages/visual-database/show/descriptor-mutation-recovery';
 import {
   CompleteControl,
   ActionPromptModal,
-  VisualDatabaseActionContext,
   FieldControl,
   FieldPills,
   OverflowMenu,
@@ -145,13 +141,12 @@ import {
   fieldEditorRegistry,
   isMachineString,
   registerDomainWriter,
-  ReplacedByNewerEdit,
   reportFailure,
   reportSuccess,
   reportSuccessFor,
   shortDate,
   toneColor,
-} from './field-editors';
+} from '@/packages/visual-database/show/field-editors';
 import {
   EMPTY_LANE_ID,
   canvasDefaultPosition,
@@ -188,38 +183,30 @@ import {
   type VisualDatabaseViewDescriptor,
   type VisualDatabaseViewIdentity,
   type VisualDatabaseValueExpression,
-} from 'trillion-workshop/tools/keep-lists-of-rows/read-data/visual-database.ts';
-import { serializePersistableVisualDatabaseFields as serializePersistableFields } from 'trillion-workshop/tools/keep-lists-of-rows/read-data/serialize-fields.ts';
+} from '@/packages/visual-database/read-data/visual-database';
+import { serializePersistableVisualDatabaseFields as serializePersistableFields } from '@/packages/visual-database/read-data/serialize-fields';
 export { serializePersistableFields };
-import { humanizeTimelineBucket, timelineBucketGroups, timelineBucketKey } from 'trillion-workshop/tools/keep-lists-of-rows/show/timeline-grouping.ts';
-import { InspectorSidebar } from '../../ui/show/inspector-sidebar';
+import { humanizeTimelineBucket, timelineBucketGroups, timelineBucketKey } from '@/packages/visual-database/show/timeline-grouping';
+import { InspectorSidebar } from '@/packages/ui/show/inspector-sidebar';
 import {
   createInspectionResolverRegistry,
   resolveInspection,
   stampInspectionRef,
   type InspectionRef,
   type InspectionSource,
-} from '../../ui/show/inspection-ref';
+} from '@/packages/ui/show/inspection-ref';
 import {
   buildRecordInspectionSources,
   makeRecordInspectionDispatch,
   makeRecordInspectionEditor,
   makeRecordInspectionLoader,
-} from './record-inspection';
+} from '@/packages/visual-database/show/record-inspection';
 import {
   dispatchVisualDatabaseObservation,
   opaqueVisualDatabaseObservationHash,
-} from 'trillion-workshop/tools/keep-lists-of-rows/show/visual-database-observation.ts';
-import { FloatingPanel } from '../../screen-arrangement/show/FloatingPanel';
+} from '@/packages/visual-database/show/visual-database-observation';
+import { FloatingPanel } from '@/packages/screen-arrangement/show/FloatingPanel';
 
-import { errorWords } from 'trillion-workshop/tools/ui/show/safe-error-card/sanitize-error-text.ts';
-
-// The graph view arrives when a list is first shown as a graph (load-later).
-// A cell's formula editor arrives when a formula cell is first opened.
-const CellExpressionEditor = later(() => import('./cell-expression-editor'), module => module.CellExpressionEditor);
-const NodeGraphView = later(() => import('./views/NodeGraphView'), module => module.NodeGraphView);
-// The schedule is the shared list view; its code arrives only when it is opened.
-const ScheduleView = later(() => import('./views/ScheduleView'), module => module.ScheduleView);
 /** The inspection family record cards stamp — alt-click resolves it to the record's
  *  editable field sources (the resolver is registered blindly; it names no field). */
 const RECORD_INSPECTION_FAMILY = 'visual-database.record';
@@ -281,17 +268,13 @@ export interface VisualDatabaseSurfaceProps {
   /** Complete caller-ready T6 values. Sources, caches and provenance retain
    * independent identities; this surface never reconstructs them from facts. */
   cellExpressionInputs?: AddressedCellExpressionInputs;
-  evaluatorDescriptors?: readonly import('trillion-workshop/tools/keep-lists-of-rows/read-data/visual-database.ts').VisualDatabaseEvaluatorDescriptor[];
-  /** The owning surface supplies remote expression evaluation. Public copies
-   * draw only their carried values and have no account request transport. */
-  dispatchDerived?: DeriveDispatch;
+  evaluatorDescriptors?: readonly import('@/packages/visual-database/read-data/visual-database').VisualDatabaseEvaluatorDescriptor[];
   onInvokeAction?: (
     action: VisualDatabaseActionDescriptor,
     context: {
       record: VisualDatabaseRecord;
       selectedRecords?: readonly VisualDatabaseRecord[];
       lane?: VisualDatabaseLaneDescriptor;
-      value?: string;
       answers?: Readonly<Record<string, string>>;
     },
   ) => void | Promise<unknown>;
@@ -304,22 +287,6 @@ export interface VisualDatabaseSurfaceProps {
   ) => void | Promise<unknown>;
   /** Optional owner-provided selection effect for topology node identities. */
   onSelectNode?: (nodeRef: string) => void;
-  /** Open a saved row in the owning product's matching detail surface. */
-  onOpenRecord?: (record: VisualDatabaseRecord) => void;
-  /** The owner's nesting: moves a record under another (or under none), before a sibling (or last). With a writer,
-   *  it makes the tree a task tree whose rows drag beside or inside one another at any depth. */
-  onPlaceRecord?: (placement: VisualDatabaseRecordPlacement) => Promise<void>;
-  /** The owner's zoom step: how many facts each record shows beside its name (0 none, null every one). A pinch on the
-   *  owner's list moves it; the surface draws each step (VisualDatabaseDetailContext). */
-  detailFields?: number | null;
-}
-
-/** A record moved in its owner's nesting, every part a record address: `under` null is the top level, `before` null
- *  the last place. */
-export interface VisualDatabaseRecordPlacement {
-  record: string;
-  under: string | null;
-  before: string | null;
 }
 
 export interface VisualDatabaseSelectionAction {
@@ -341,11 +308,6 @@ interface VisualDatabaseCreateContextValue {
 }
 
 const VisualDatabaseCreateContext = React.createContext<VisualDatabaseCreateContextValue>({});
-
-/** How much each record says, from the owner's zoom step (`detailFields`): 0 the name alone, a number the row's usual
- *  few facts, null every fact (a list's rows open as their full cards, a tree's rows carry every field), undefined the
- *  surface's own default. */
-const VisualDatabaseDetailContext = React.createContext<number | null | undefined>(undefined);
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -689,7 +651,7 @@ function settlementFailure(result: MutationSettlementResult): Error {
     return new Error('The owner accepted the write, but its live feed did not return the saved change.');
   }
   if (result.state === 'stale') {
-    return new ReplacedByNewerEdit();
+    return new Error('A newer edit replaced this save attempt.');
   }
   return new Error('The owner could not settle this change.');
 }
@@ -1026,42 +988,6 @@ function SubItemNode({ record, model, view, lanes, grouping, linkDescriptor, wri
   );
 }
 
-/** Adds a record titled `title` under `parent` (or under none): the owner's record target mints its address, the
- *  link descriptor holds its parent, its kind follows the parent's, and it lands after every ordered record. The one
- *  create every "Add sub-task" row commits through. */
-function useCreateUnder(model: VisualDatabaseModel, writeRecord?: RecordWriter) {
-  const { target: recordTarget } = React.useContext(VisualDatabaseCreateContext);
-  const createAttempt = useCreateAttemptAddress();
-  return React.useCallback((parent: VisualDatabaseRecord | null, title: string) => {
-    const trimmed = title.trim();
-    if (!trimmed || !writeRecord) return;
-    const parentAddress = parent ? recordAddress(parent) : null;
-    if (parent && !parentAddress) return;
-    const writes: FieldWrite[] = [];
-    const titleDescriptor = model.fields.find((descriptor) => descriptor.role === 'title')
-      ?? { ...syntheticFieldDescriptor('title'), role: 'title' };
-    writes.push({ descriptor: titleDescriptor, value: trimmed });
-    if (parentAddress) writes.push({ descriptor: hierarchyLinkDescriptor(model.fields), value: parentAddress });
-    const kindDescriptor = model.fields.find((descriptor) => descriptor.role === 'kind');
-    if (kindDescriptor && parent?.kind) writes.push({ descriptor: kindDescriptor, value: parent.kind });
-    const sortDescriptor = sortDescriptorOf(model);
-    if (sortDescriptor) writes.push({ descriptor: sortDescriptor, value: keyBetween(lastOrderKey(model.records), null) });
-    const payload: Record<string, unknown> = { ...(recordTarget?.payloadDefaults ?? {}) };
-    applyFieldWrites(payload, writes);
-    const scope = parent ? 'create sub-item' : 'create';
-    if (!recordTarget) {
-      reportFailure(scope)(new Error('No record owner supplied a record target'));
-      return;
-    }
-    const addressLabel = createAttempt.addressFor(recordTarget, parent?.kind ?? null, trimmed, payload);
-    writeRecord(createRecordWrite(recordTarget, addressLabel, payload))
-      .then(() => {
-        projectSettledCreate(createAttempt.complete, addressLabel);
-      })
-      .catch(reportFailure(scope));
-  }, [createAttempt, model, recordTarget, writeRecord]);
-}
-
 function SubItemsSection({ record, model, view, lanes, grouping, writeRecord, depth = 0, ancestry, onDeleteStart, onDeleteFailure }: {
   record: VisualDatabaseRecord;
   model: VisualDatabaseModel;
@@ -1074,7 +1000,8 @@ function SubItemsSection({ record, model, view, lanes, grouping, writeRecord, de
   onDeleteStart?: (record: VisualDatabaseRecord) => void;
   onDeleteFailure?: (record: VisualDatabaseRecord) => void;
 }) {
-  const createUnder = useCreateUnder(model, writeRecord);
+  const { target: recordTarget } = React.useContext(VisualDatabaseCreateContext);
+  const createAttempt = useCreateAttemptAddress();
   const linkDescriptor = hierarchyLinkDescriptor(model.fields);
   const lineage = ancestry ?? new Set([recordViewKey(record)]);
   const parentAddress = recordAddress(record);
@@ -1117,7 +1044,31 @@ function SubItemsSection({ record, model, view, lanes, grouping, writeRecord, de
               variant="body-xs"
               tone="secondary"
               placeholder="Add sub-task…"
-              onCommit={(title) => createUnder(record, title)}
+              onCommit={(title) => {
+                const trimmed = title.trim();
+                if (!trimmed) return;
+                const writes: FieldWrite[] = [];
+                const titleDescriptor = model.fields.find((descriptor) => descriptor.role === 'title')
+                  ?? { ...syntheticFieldDescriptor('title'), role: 'title' };
+                writes.push({ descriptor: titleDescriptor, value: trimmed });
+                writes.push({ descriptor: linkDescriptor, value: parentAddress });
+                const kindDescriptor = model.fields.find((descriptor) => descriptor.role === 'kind');
+                if (kindDescriptor && record.kind) writes.push({ descriptor: kindDescriptor, value: record.kind });
+                const sortDescriptor = sortDescriptorOf(model);
+                if (sortDescriptor) writes.push({ descriptor: sortDescriptor, value: keyBetween(lastOrderKey(model.records), null) });
+                const payload: Record<string, unknown> = { ...(recordTarget?.payloadDefaults ?? {}) };
+                applyFieldWrites(payload, writes);
+                if (!recordTarget) {
+                  reportFailure('create sub-item')(new Error('No record owner supplied a record target'));
+                  return;
+                }
+                const addressLabel = createAttempt.addressFor(recordTarget, record.kind, trimmed, payload);
+                writeRecord(createRecordWrite(recordTarget, addressLabel, payload))
+                  .then(() => {
+                    projectSettledCreate(createAttempt.complete, addressLabel);
+                  })
+                  .catch(reportFailure('create sub-item'));
+              }}
             />
           </Container>
         </HoverRevealGroup>
@@ -1143,7 +1094,6 @@ function RecordRow({
   onSelectToggle,
   onDeleteStart,
   onDeleteFailure,
-  onOpen,
 }: {
   record: VisualDatabaseRecord;
   recordKey: string;
@@ -1163,8 +1113,6 @@ function RecordRow({
   onSelectToggle?: (id: string) => void;
   onDeleteStart?: (record: VisualDatabaseRecord) => void;
   onDeleteFailure?: (record: VisualDatabaseRecord) => void;
-  /** Opens the record where the list that holds it shows a record whole. */
-  onOpen?: (record: VisualDatabaseRecord) => void;
 }) {
   const subtitle = displaySubtitle(record);
   const date = shortDate(record.date);
@@ -1237,9 +1185,7 @@ function RecordRow({
     </Button>
   );
 
-  // At the zoom step that shows every fact, every row is its full card.
-  const everyFact = React.useContext(VisualDatabaseDetailContext) === null;
-  if (expanded || everyFact) {
+  if (expanded) {
     return (
       <Container layout="vertical" gap="none" padding="none" {...rowInspectionStamp}>
         {dropLine}
@@ -1265,7 +1211,6 @@ function RecordRow({
               writeRecord={writeRecord}
               onDeleteStart={onDeleteStart}
               onDeleteFailure={onDeleteFailure}
-              onOpen={onOpen}
             />
           </Container>
         </Container>
@@ -1282,7 +1227,6 @@ function RecordRow({
             model={model}
             onDeleteStart={onDeleteStart}
             onDeleteFailure={onDeleteFailure}
-            onOpen={onOpen}
           />
         </Container>
         </Card>
@@ -1307,8 +1251,7 @@ function RecordRow({
         {...dragProps}
       >
       <HoverRevealGroup layout="horizontal" alignItems="center" gap="sm" padding="none" justifyContent="between">
-        {/* minWidth 0 here too: the title's own minWidth only truncates inside a parent that may shrink. */}
-        <Container layout="horizontal" alignItems="center" gap="xs" padding="none" flex="1" minHeight="0" minWidth="0">
+        <Container layout="horizontal" alignItems="center" gap="xs" padding="none" flex="1" minHeight="0">
           <HoverRevealItem>{expandToggle}</HoverRevealItem>
           <CompleteControl record={record} lanes={lanes} grouping={grouping} fields={model.fields} writeRecord={writeRecord} />
           {/* Amie collapsed row = ONE line: ring + regular-weight title as
@@ -1375,7 +1318,6 @@ function RecordRow({
               model={model}
               onDeleteStart={onDeleteStart}
               onDeleteFailure={onDeleteFailure}
-              onOpen={onOpen}
             />
           </HoverRevealItem>
         </Container>
@@ -2418,7 +2360,7 @@ function FieldsMenu({
   onChoiceChange,
 }: {
   model: VisualDatabaseModel;
-  evaluators: readonly import('trillion-workshop/tools/keep-lists-of-rows/read-data/visual-database.ts').VisualDatabaseEvaluatorDescriptor[];
+  evaluators: readonly import('@/packages/visual-database/read-data/visual-database').VisualDatabaseEvaluatorDescriptor[];
   onFieldsChange: (fields: readonly VisualDatabaseFieldDescriptor[], scope: string) => void;
   onPaletteChange: (palette: readonly VisualDatabasePaletteColor[]) => void;
   onChoiceChange: (descriptorId: string, values: readonly VisualDatabaseFieldDomainValue[]) => void;
@@ -2864,7 +2806,6 @@ interface ViewProps {
   onToggle: (id: string) => void;
   latestRecordRefs?: readonly string[];
   onSelectNode?: (nodeRef: string) => void;
-  onOpenRecord?: (record: VisualDatabaseRecord) => void;
   writeRecord?: RecordWriter;
   onDeleteStart?: (record: VisualDatabaseRecord) => void;
   onDeleteFailure?: (record: VisualDatabaseRecord) => void;
@@ -2908,13 +2849,12 @@ interface ViewProps {
     gesture: ExpressionReferenceSelection['gesture'],
   ) => void;
   cellExpressions?: ReadonlyMap<string, FoldedCellExpression>;
-  evaluatorDescriptors?: readonly import('trillion-workshop/tools/keep-lists-of-rows/read-data/visual-database.ts').VisualDatabaseEvaluatorDescriptor[];
+  evaluatorDescriptors?: readonly import('@/packages/visual-database/read-data/visual-database').VisualDatabaseEvaluatorDescriptor[];
   expressionReferenceCatalog?: ExpressionReferenceCatalog;
   onRecalculateCell?: (cellRef: { recordRef: string; fieldRef: string }) => void;
   onInvokeAction?: VisualDatabaseSurfaceProps['onInvokeAction'];
   selectionActions?: readonly VisualDatabaseSelectionAction[];
   onInvokeSelectionAction?: VisualDatabaseSurfaceProps['onInvokeSelectionAction'];
-  onPlaceRecord?: VisualDatabaseSurfaceProps['onPlaceRecord'];
 }
 
 function dependencyFreshness(
@@ -2942,7 +2882,7 @@ function dependencyFreshness(
 
 function durableHumanSource(
   expression: VisualDatabaseValueExpression,
-  evaluators: readonly import('trillion-workshop/tools/keep-lists-of-rows/read-data/visual-database.ts').VisualDatabaseEvaluatorDescriptor[],
+  evaluators: readonly import('@/packages/visual-database/read-data/visual-database').VisualDatabaseEvaluatorDescriptor[],
 ): string | null {
   if (!expression.derive) return null;
   const evaluator = evaluators.find((candidate) => (
@@ -3043,81 +2983,24 @@ function dateBucketOf(record: VisualDatabaseRecord, todayIso: string): string {
 const DATE_BUCKET_ORDER: readonly string[] = ['Earlier', 'Yesterday', 'Today', 'Tomorrow', 'Later', 'No date'];
 
 /** Section header row (Amie anatomy): chevron + label + muted count. */
-function BucketHeader({ label, count, collapsed, onToggle, depth = 0, done }: {
+function BucketHeader({ label, count, collapsed, onToggle }: {
   label: string;
   count: number;
   collapsed: boolean;
   onToggle: () => void;
-  /** How deep this heading sits under the headings above it (a feature inside a project). */
-  depth?: number;
-  /** How many of its records are done, for a heading that says how far along it is. */
-  done?: number;
 }) {
-  const percent = done === undefined || count === 0 ? null : Math.round((done / count) * 100);
   return (
-    <Container layout="horizontal" alignItems="center" gap="sm" padding="none" wrap="wrap" style={depth ? { paddingInlineStart: `${depth * 1.25}rem` } : undefined}>
-      {/* A heading longer than the list is wide wraps from its start, never centred past both edges of a narrow list. */}
-      <Button variant="ghost" size="xs" className="h-auto min-w-0 max-w-full justify-start whitespace-normal text-start" aria-label={collapsed ? `Expand ${label}` : `Collapse ${label}`} onClick={onToggle}>
-        <Icon icon={ChevronRight} size="xs" className={`shrink-0 transition-transform duration-200 ease-out ${collapsed ? '' : 'rotate-90'}`} />
-        <Text variant={depth ? 'body' : 'heading-xs'} color={depth ? 'default' : 'muted'}>{label}</Text>
-        <Text variant="caption" color="faint" className="shrink-0 whitespace-nowrap">{done === undefined ? String(count) : `${done} of ${count} done`}</Text>
+    <Container layout="horizontal" alignItems="center" gap="xs" padding="none">
+      <Button variant="ghost" size="xs" aria-label={collapsed ? `Expand ${label}` : `Collapse ${label}`} onClick={onToggle}>
+        <Icon icon={ChevronRight} size="xs" className={`transition-transform duration-200 ease-out ${collapsed ? '' : 'rotate-90'}`} />
+        <Text variant="heading-xs" color="muted">{label}</Text>
+        <Text variant="caption" color="faint">{String(count)}</Text>
       </Button>
-      {percent === null ? null : (
-        <ProgressBar
-          aria-label={`${label}: ${percent}% done`}
-          percentage={percent}
-          color={percent === 100 ? 'var(--color-success)' : 'var(--accent-primary)'}
-          style={{ width: '6rem' }}
-        />
-      )}
     </Container>
   );
 }
 
-/** One heading of a list grouped by its fields: the value it holds, the records under it, and the headings inside. */
-type ListSection = { key: string; label: string; depth: number; records: VisualDatabaseRecord[]; children: ListSection[] };
-
-/** The records that head a section of their own: a record whose value in a grouping field is itself, while other
- *  records hold that value too (a feature whose tasks are grouped under it). It is that heading, never a row repeated
- *  under it nor one of the items the list counts. */
-function sectionHeads(records: readonly VisualDatabaseRecord[], fields: readonly VisualDatabaseFieldDescriptor[]): Set<VisualDatabaseRecord> {
-  const heads = new Set<VisualDatabaseRecord>();
-  for (const field of fields) {
-    const holders = new Map<string, number>();
-    for (const record of records) for (const value of extractFieldText(record, field)) holders.set(value, (holders.get(value) ?? 0) + 1);
-    for (const record of records) {
-      const self = recordViewKey(record);
-      if (extractFieldText(record, field).includes(self) && (holders.get(self) ?? 0) > 1) heads.add(record);
-    }
-  }
-  return heads;
-}
-
-/** The records under one heading per value of each field, nested in the fields' order; headings in the order their
- *  first record comes, a record with no value under "<field> not set". */
-function listSections(records: readonly VisualDatabaseRecord[], fields: readonly VisualDatabaseFieldDescriptor[], depth = 0, parentKey = ''): ListSection[] {
-  const [field, ...inner] = fields;
-  if (!field) return [];
-  const sections = new Map<string, ListSection>();
-  for (const record of records) {
-    const values = extractFieldText(record, field);
-    for (const value of values.length ? values : ['']) {
-      const key = `${parentKey}/${field.id}:${value}`;
-      let section = sections.get(key);
-      if (!section) {
-        const label = value ? field.domain?.values?.find(one => one.id === value)?.label ?? value : `${field.label} not set`;
-        section = { key, label, depth, records: [], children: [] };
-        sections.set(key, section);
-      }
-      section.records.push(record);
-    }
-  }
-  const out = [...sections.values()];
-  for (const section of out) section.children = listSections(section.records, inner, depth + 1, section.key);
-  return out;
-}
-
-const SECTION_PRESENTATION_VARIANTS = new Set(['count-rows', 'open-rows']);
+const SECTION_PRESENTATION_VARIANTS = new Set(['count-rows', 'progress-checklist', 'open-rows']);
 
 function presentationField(
   model: VisualDatabaseModel,
@@ -3143,6 +3026,21 @@ function SectionListView(props: ViewProps) {
   const presentation = props.view.presentation!;
   const countField = presentationField(props.model, presentation.countFieldId);
   const statusField = presentationField(props.model, presentation.statusFieldId);
+  const completionField = presentationField(props.model, presentation.completionFieldId);
+  const iconField = presentationField(props.model, presentation.iconFieldId);
+  const actionField = presentationField(props.model, presentation.actionFieldId)
+    ?? props.model.fields.find((field) => field.role === 'surface-action' || field.role === 'surface-actions')
+    ?? null;
+  const completedValues = new Set((presentation.completedValues ?? ['complete', 'completed', 'done', 'true'])
+    .map((value) => value.toLowerCase()));
+  const isComplete = (record: VisualDatabaseRecord) => {
+    const value = completionField ? extractFieldValue(record, completionField) : null;
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'number') return value > 0;
+    return completedValues.has(String(value ?? '').toLowerCase());
+  };
+  const completed = props.records.filter(isComplete).length;
+  const percent = props.records.length === 0 ? 0 : Math.round((completed / props.records.length) * 100);
   const rowRefs = React.useRef<Array<HTMLButtonElement | null>>([]);
   const moveFocus = (index: number, key: string) => {
     const indices = props.records.flatMap((_record, row) => rowRefs.current[row] ? [row] : []);
@@ -3159,6 +3057,22 @@ function SectionListView(props: ViewProps) {
 
   return (
     <Container layout="vertical" gap="sm" padding="none">
+      {presentation.variant === 'progress-checklist' ? (
+        <Container layout="vertical" gap="xs" padding="none" role="status" aria-live="polite">
+          <Text variant="heading-xl" color="strong">{percent}%</Text>
+          <div
+            role="progressbar"
+            aria-label={`${props.view.label} progress`}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={percent}
+            className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--glass-bg-subtle)]"
+          >
+            <div className="h-full bg-status-warning" style={{ width: `${percent}%` }} />
+          </div>
+          <Text variant="body-sm" color="muted">{completed} / {props.records.length} complete</Text>
+        </Container>
+      ) : null}
       <div
         role="list"
         aria-label={props.view.label}
@@ -3175,12 +3089,17 @@ function SectionListView(props: ViewProps) {
           const status = statusField ? extractFieldText(record, statusField)[0] : null;
           const countValue = countField ? extractFieldValue(record, countField) : null;
           const iconName = iconField ? extractFieldText(record, iconField)[0] : null;
-          const leading = presentation.variant === 'open-rows'
+          const complete = isComplete(record);
+          const leading = presentation.variant === 'progress-checklist'
+            ? <Icon icon={complete ? Check : Circle} size="sm" />
+            : presentation.variant === 'open-rows'
               ? iconName ? <NamedIcon name={iconName} /> : <Icon icon={Pin} size="sm" />
               : <span aria-hidden="true">•</span>;
           const trailing = presentation.variant === 'count-rows'
             ? <span className="font-mono tabular-nums">{countValue == null ? '—' : String(countValue)}</span>
-            : <Icon icon={ArrowRight} size="sm" />;
+            : presentation.variant === 'progress-checklist'
+              ? <Badge variant={complete ? 'success' : 'warning'}>{status ?? (complete ? 'Complete' : 'Not started')}</Badge>
+              : <Icon icon={ArrowRight} size="sm" />;
           return (
             <div key={recordViewKey(record)} role="listitem" aria-label={`${displayTitle(record)}${status ? `, ${status}` : ''}`}>
               {action ? (
@@ -3208,24 +3127,6 @@ function SectionListView(props: ViewProps) {
           );
         })}
       </div>
-    </Container>
-  );
-}
-
-/** How much of a list is done: the share in large figures, a bar, and the count, every record counted at every depth. */
-function DoneProgress({ label, done, total }: { label: string; done: number; total: number }) {
-  const percent = total === 0 ? 0 : Math.round((done / total) * 100);
-  return (
-    <Container layout="vertical" gap="xs" padding="none" role="status" aria-live="polite" data-reach-role="done-progress">
-      <Container layout="horizontal" alignItems="end" justifyContent="between" gap="sm" padding="none">
-        <Text variant="heading-lg" color="strong">{`${percent}%`}</Text>
-        <Text variant="body-sm" color="muted">{`${done} of ${total} done`}</Text>
-      </Container>
-      <ProgressBar
-        aria-label={`${label}: ${percent}% done`}
-        percentage={percent}
-        color={percent === 100 ? 'var(--color-success)' : 'var(--accent-primary)'}
-      />
     </Container>
   );
 }
@@ -3285,8 +3186,7 @@ function ListView(props: ViewProps) {
           setPromptingAction({ action, selectedRecords });
           return;
         }
-        void Promise.resolve().then(() => props.onInvokeAction!(action, { record, selectedRecords }))
-          .catch(reportFailure(action.label.toLowerCase()));
+        void props.onInvokeAction!(action, { record, selectedRecords });
       } }];
     });
     const affordanceActions = (props.selectionActions ?? []).flatMap((action) => {
@@ -3348,10 +3248,6 @@ function ListView(props: ViewProps) {
       onSelectToggle={toggleSelected}
       onDeleteStart={props.onDeleteStart}
       onDeleteFailure={props.onDeleteFailure}
-      {...(props.onOpenRecord || props.onSelectNode ? { onOpen: (opened: VisualDatabaseRecord) => {
-        props.onOpenRecord?.(opened);
-        props.onSelectNode?.(recordViewKey(opened));
-      } } : {})}
     />
     );
   };
@@ -3364,42 +3260,19 @@ function ListView(props: ViewProps) {
     done !== null && grouping !== null && recordGroupValues(record, grouping).includes(done.id)
   );
   const todayIso = new Date().toISOString().slice(0, 10);
-  // A list grouped by its own fields keeps each record under its values, done or not, so every heading says how far
-  // along it is; otherwise records sit under date headings with the done ones last.
-  const sectionFields = (props.view.sections ?? [])
-    .map((id) => props.model.fields.find((descriptor) => descriptor.id === id))
-    .filter((descriptor): descriptor is VisualDatabaseFieldDescriptor => Boolean(descriptor));
-  const buckets: Array<{ key: string; label: string; depth: number; records: VisualDatabaseRecord[]; leaf: boolean; done?: number }> = [];
-  // The items the list counts as done or not: every record, except a record that heads its own section.
-  let items: readonly VisualDatabaseRecord[] = props.records;
-  if (sectionFields.length) {
-    const walk = (sections: readonly ListSection[]) => {
-      for (const section of sections) {
-        buckets.push({ key: section.key, label: section.label, depth: section.depth, records: section.records, leaf: section.children.length === 0, done: section.records.filter(isDone).length });
-        if (!collapsedBuckets.includes(section.key)) walk(section.children);
-      }
-    };
-    const heads = sectionHeads(props.records, sectionFields);
-    items = props.records.filter((record) => !heads.has(record));
-    walk(listSections(topLevel.filter((record) => !heads.has(record)), sectionFields));
-  } else {
-    const open = topLevel.filter((record) => !isDone(record));
-    const completed = topLevel.filter(isDone);
-    // A list nothing in which is dated keeps its open work in one section, in its own order; date sections are for
-    // lists that place their work in time.
-    const dated = props.records.some((record) => dateBucketOf(record, todayIso) !== 'No date');
-    if (!dated) buckets.push({ key: 'To do', label: 'To do', depth: 0, records: open, leaf: true });
-    else for (const label of DATE_BUCKET_ORDER) {
-      const bucketRecords = open.filter((record) => dateBucketOf(record, todayIso) === label);
-      // "Today" always renders, even at 0 — structure persists when the list
-      // is empty (Amie ref 08); other buckets appear only when populated.
-      if (bucketRecords.length > 0 || label === 'Today') buckets.push({ key: label, label, depth: 0, records: bucketRecords, leaf: true });
-    }
-    // Completed always renders (0-count included) so done work has a stable home.
-    buckets.push({ key: 'Completed', label: 'Completed', depth: 0, records: completed, leaf: true });
+  const buckets: Array<{ label: string; records: VisualDatabaseRecord[] }> = [];
+  const open = topLevel.filter((record) => !isDone(record));
+  const completed = topLevel.filter(isDone);
+  for (const label of DATE_BUCKET_ORDER) {
+    const bucketRecords = open.filter((record) => dateBucketOf(record, todayIso) === label);
+    // "Today" always renders, even at 0 — structure persists when the list
+    // is empty (Amie ref 08); other buckets appear only when populated.
+    if (bucketRecords.length > 0 || label === 'Today') buckets.push({ label, records: bucketRecords });
   }
-  const toggleBucket = (key: string) => setCollapsedBuckets((current) => (
-    current.includes(key) ? current.filter((entry) => entry !== key) : [...current, key]
+  // Completed always renders (0-count included) so done work has a stable home.
+  buckets.push({ label: 'Completed', records: completed });
+  const toggleBucket = (label: string) => setCollapsedBuckets((current) => (
+    current.includes(label) ? current.filter((entry) => entry !== label) : [...current, label]
   ));
 
   // Flat item stream (headers interleaved with rows) through the shared
@@ -3409,25 +3282,25 @@ function ListView(props: ViewProps) {
   // (scrollParent='nearest'); below the threshold VirtualList renders the
   // plain path — identical markup, zero windowing machinery.
   type FlatListItem =
-    | { kind: 'bucket-header'; key: string; label: string; count: number; depth: number; done?: number }
-    | { kind: 'record'; key: string; record: VisualDatabaseRecord };
+    | { kind: 'bucket-header'; label: string; count: number }
+    | { kind: 'record'; record: VisualDatabaseRecord };
   const flatItems: FlatListItem[] = [];
   for (const bucket of buckets) {
-    flatItems.push({ kind: 'bucket-header', key: bucket.key, label: bucket.label, count: bucket.records.length, depth: bucket.depth, ...(bucket.done === undefined ? {} : { done: bucket.done }) });
-    if (bucket.leaf && !collapsedBuckets.includes(bucket.key)) {
-      for (const record of bucket.records) flatItems.push({ kind: 'record', key: `${bucket.key}#${recordViewKey(record)}`, record });
+    flatItems.push({ kind: 'bucket-header', label: bucket.label, count: bucket.records.length });
+    if (!collapsedBuckets.includes(bucket.label)) {
+      for (const record of bucket.records) flatItems.push({ kind: 'record', record });
     }
   }
-  const flatKeyOf = (item: FlatListItem) => (item.kind === 'bucket-header' ? `header:${item.key}` : item.key);
+  const flatKeyOf = (item: FlatListItem) => (
+    item.kind === 'bucket-header' ? `header:${item.label}` : recordViewKey(item.record)
+  );
   const flatItemView = (item: FlatListItem) => (
     item.kind === 'bucket-header' ? (
       <BucketHeader
         label={item.label}
         count={item.count}
-        depth={item.depth}
-        {...(item.done === undefined ? {} : { done: item.done })}
-        collapsed={collapsedBuckets.includes(item.key)}
-        onToggle={() => toggleBucket(item.key)}
+        collapsed={collapsedBuckets.includes(item.label)}
+        onToggle={() => toggleBucket(item.label)}
       />
     ) : row(item.record)
   );
@@ -3443,7 +3316,6 @@ function ListView(props: ViewProps) {
       } : undefined}
       onDrop={reorderable ? dropAtEnd : undefined}
     >
-      {props.view.progress ? <DoneProgress label={props.view.label} done={items.filter(isDone).length} total={items.length} /> : null}
       <VirtualList
         items={flatItems}
         itemKey={flatKeyOf}
@@ -3904,7 +3776,7 @@ function BoardView(props: ViewProps) {
                     view={props.view}
                     grouping={grouping}
                     columnId={lane.id}
-                    childStats={childStats.get(recordViewKey(record))}
+                    childStats={childStats.get(record.id)}
                     writeRecord={props.writeRecord}
                     onDropBefore={(draggedId, source, before) => drop(draggedId, source, lane, before)}
                     onDeleteStart={props.onDeleteStart}
@@ -4003,56 +3875,43 @@ function TimelineView(props: ViewProps) {
   }
   const todayIso = new Date().toISOString().slice(0, 10);
   const todayBucket = timelineBucketKey(todayIso, zoom);
-  // One flat stream of day headings and records through the shared VirtualList, as ListView draws: the DOM holds only
-  // what is on screen, so a timeline of thousands of records draws as fast as one of ten.
-  type TimelineItem =
-    | { kind: 'bucket-header'; bucket: string | null; count: number }
-    | { kind: 'record'; record: VisualDatabaseRecord };
-  const items: TimelineItem[] = groups.flatMap(({ bucket, records: dayRecords }) => [
-    { kind: 'bucket-header' as const, bucket, count: dayRecords.length },
-    ...dayRecords.map((record) => ({ kind: 'record' as const, record })),
-  ]);
-  const itemView = (item: TimelineItem) => {
-    if (item.kind === 'record') {
-      const key = recordViewKey(item.record);
-      return (
-        <RecordRow
-          record={item.record}
-          recordKey={key}
-          lanes={props.lanes}
-          model={props.model}
-          view={props.view}
-          grouping={grouping}
-          expanded={props.expandedId === key}
-          onToggle={props.onToggle}
-          writeRecord={props.writeRecord}
-          onDeleteStart={props.onDeleteStart}
-          onDeleteFailure={props.onDeleteFailure}
-        />
-      );
-    }
-    const isToday = item.bucket === todayBucket;
-    return (
-      <Container layout="horizontal" alignItems="center" gap="sm" padding="none">
-        <ColorDot color={isToday ? 'var(--accent-primary)' : 'var(--border-primary)'} size="sm" />
-        <Text variant="heading-xs" color={isToday ? 'accent' : 'strong'}>
-          {item.bucket ? humanizeTimelineBucket(item.bucket, zoom, todayIso) : 'No date'}
-        </Text>
-        <Text variant="caption" color="faint">{String(item.count)}</Text>
-      </Container>
-    );
-  };
   return (
-    <Container layout="vertical" gap="xs" padding="none">
-      <VirtualList
-        items={items}
-        itemKey={(item) => (item.kind === 'bucket-header' ? `header:${item.bucket ?? 'no-date'}` : recordViewKey(item.record))}
-        renderItem={itemView}
-        estimateSize={(item) => (item.kind === 'bucket-header' ? 34 : 46)}
-        threshold={LIST_VIRTUALIZATION_THRESHOLD}
-        scrollParent="nearest"
-        rowGap={4}
-      />
+    <Container layout="vertical" gap="lg" padding="none">
+      {groups.map(({ bucket, records: dayRecords }) => {
+        const isToday = bucket === todayBucket;
+        return (
+          <Container key={bucket ?? 'no-date'} layout="vertical" gap="xs" padding="none">
+            <Container layout="horizontal" alignItems="center" gap="sm" padding="none">
+              <ColorDot color={isToday ? 'var(--accent-primary)' : 'var(--border-primary)'} size="sm" />
+              <Text variant="heading-xs" color={isToday ? 'accent' : 'strong'}>
+                {bucket ? humanizeTimelineBucket(bucket, zoom, todayIso) : 'No date'}
+              </Text>
+              <Text variant="caption" color="faint">{String(dayRecords.length)}</Text>
+            </Container>
+            <Container layout="vertical" gap="xs" padding="none">
+              {dayRecords.map((record) => {
+                const key = recordViewKey(record);
+                return (
+                  <RecordRow
+                    key={key}
+                    record={record}
+                    recordKey={key}
+                    lanes={props.lanes}
+                    model={props.model}
+                    view={props.view}
+                    grouping={grouping}
+                    expanded={props.expandedId === key}
+                    onToggle={props.onToggle}
+                    writeRecord={props.writeRecord}
+                    onDeleteStart={props.onDeleteStart}
+                    onDeleteFailure={props.onDeleteFailure}
+                  />
+                );
+              })}
+            </Container>
+          </Container>
+        );
+      })}
     </Container>
   );
 }
@@ -4206,7 +4065,7 @@ function GridCellBehavior({ columnProps, columnBag, value, children }: {
 }
 
 /** The blind grid-property panel (Airtable/Notion column menu anatomy): a scope
- *  selector (This column / All / Selected) + one shared `TuningControl` per
+ *  selector (This column / All / Selected) + one generic `PropertyControl` per
  *  descriptor of the column scope. Every control renders from DATA — a
  *  border-radius slider, a divider-line toggle, a label-size segmented, a
  *  validation rule select — with ZERO per-property code. Writes fan the value
@@ -4279,11 +4138,11 @@ function GridPropertyPopover({
           onValueChange={setScope}
         />
         {descriptors.map((descriptor) => (
-          <TuningControl
+          <PropertyControl
             key={descriptor.key}
-            setting={descriptor}
+            descriptor={descriptor}
             value={ownGridPropertyValue(descriptor.key, ownBag)}
-            onChange={(key, next) => setKey(key, next === '' ? undefined : next)}
+            onSet={setKey}
           />
         ))}
       </Container>
@@ -4322,11 +4181,11 @@ export function RowDensityControl({
       </Button>
       <AnchoredOverlay anchorRef={anchorRef} open={open} placement="below" onDismiss={() => setOpen(false)}>
         <Container layout="vertical" gap="sm" padding="md" minWidth="280px">
-          <TuningControl
-            setting={descriptor}
+          <PropertyControl
+            descriptor={descriptor}
             value={value}
-            onChange={(key, nextValue) => {
-              onPersist(setGridStyleKey(view, key, nextValue === '' ? undefined : nextValue), 'row density');
+            onSet={(key, nextValue) => {
+              onPersist(setGridStyleKey(view, key, nextValue), 'row density');
               setOpen(false);
             }}
           />
@@ -5325,351 +5184,86 @@ function TableView(props: ViewProps) {
  *  nested Card (the Notion toggle-list anatomy — padding gives the indent, no
  *  raw CSS). Depth is unbounded; cycles are already broken upstream by
  *  treeForRecords' visited set. */
-/** Where a dragged record lands on a tree row: before it, inside it (last of its sub-items), or after it. */
-type TreeDropZone = 'before' | 'into' | 'after';
-
-/** The top and bottom quarter of a row place beside it; the middle half nests inside it. */
-function treeDropZone(event: React.DragEvent): TreeDropZone {
-  const box = (event.currentTarget as HTMLElement).getBoundingClientRect();
-  const at = box.height > 0 ? (event.clientY - box.top) / box.height : 0.5;
-  return at < 0.25 ? 'before' : at > 0.75 ? 'after' : 'into';
-}
-
-/** What an editable tree hands each row: the drag in flight, how to move a record, and how to add one under it. */
-interface TreeEditing {
-  model: VisualDatabaseModel;
-  view?: VisualDatabaseViewDescriptor;
-  lanes: readonly VisualDatabaseLaneDescriptor[];
-  grouping: VisualDatabaseFieldDescriptor | null;
-  writeRecord: RecordWriter;
-  /** The record being dragged and every record under it (none of them can take it). */
-  dragging: ReadonlySet<string> | null;
-  drop: { key: string; zone: TreeDropZone } | null;
-  onDragStart: (node: VisualDatabaseTreeNode) => void;
-  onDragHover: (key: string, zone: TreeDropZone | null) => void;
-  onDragEnd: () => void;
-  onPlace: (node: VisualDatabaseTreeNode, zone: TreeDropZone) => void;
-  onCompose: (key: string) => void;
-}
-
-/** The facts a task tree's row carries beside its name, by the owner's zoom step: none at 0, the row's few usual facts
- *  (people, date, status) by default, and every fact the record holds at null. */
-function TreeRowFacts({ record, editing }: { record: VisualDatabaseRecord; editing: TreeEditing }) {
-  const detail = React.useContext(VisualDatabaseDetailContext);
-  if (detail === 0) return null;
-  const context = { record, model: editing.model, view: editing.view, lanes: editing.lanes, grouping: editing.grouping, writeRecord: editing.writeRecord };
-  if (detail === null) return <FieldPills {...context} />;
-  return (
-    <>
-      {compactSubItemDescriptors(record, editing.model, editing.view, editing.grouping).map((descriptor) => (
-        <FieldControl key={descriptor.id} descriptor={descriptor} {...context} />
-      ))}
-    </>
-  );
-}
-
-function TreeNodeRow({ node, depth, collapsed, onToggleExpand, onOpen, editing }: {
+function TreeNodeRow({ node, expanded, onToggleExpand, onOpen }: {
   node: VisualDatabaseTreeNode;
-  depth: number;
-  collapsed: ReadonlySet<string>;
+  expanded: ReadonlySet<string>;
   onToggleExpand: (key: string) => void;
   onOpen: (key: string) => void;
-  editing?: TreeEditing;
 }) {
   const key = recordViewKey(node.record);
   const hasChildren = node.children.length > 0;
-  const isOpen = hasChildren && !collapsed.has(key);
-  const zone = editing?.drop?.key === key ? editing.drop.zone : null;
-  const takes = Boolean(editing?.dragging && !editing.dragging.has(key));
-  const disclosure = hasChildren ? (
-    <Button
-      variant="ghost"
-      size="icon-xs"
-      aria-label={isOpen ? 'Collapse' : 'Expand'}
-      aria-expanded={isOpen}
-      onClick={(event: React.MouseEvent) => { event.stopPropagation(); onToggleExpand(key); }}
-    >
-      <Icon icon={isOpen ? ChevronDown : ChevronRight} size="xs" />
-    </Button>
-  ) : (
-    <Icon icon={GitBranch} size="xs" />
-  );
-  if (!editing) {
-    return (
+  const isOpen = expanded.has(key);
+  return (
+    <Container layout="vertical" gap="xs" padding="none">
       <Container layout="horizontal" alignItems="center" gap="sm" padding="none">
-        {depth > 0 ? <Container width={`${depth * 20}px`} padding="none" aria-hidden="true" /> : null}
-        {disclosure}
+        {hasChildren ? (
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            aria-label={isOpen ? 'Collapse' : 'Expand'}
+            onClick={() => onToggleExpand(key)}
+          >
+            <Icon icon={isOpen ? ChevronDown : ChevronRight} size="xs" />
+          </Button>
+        ) : (
+          <Icon icon={GitBranch} size="xs" />
+        )}
         <Container layout="horizontal" alignItems="center" gap="sm" padding="none" onClick={() => onOpen(key)}>
           <Text variant="body-xs" weight="medium" color="strong" clamp={1}>{displayTitle(node.record)}</Text>
           {hasChildren ? <Text variant="caption" color="faint">{String(node.children.length)}</Text> : null}
         </Container>
       </Container>
-    );
-  }
-  // An editable row (Notion sidebar / headless-tree anatomy): the whole row drags; while another row is dragged over
-  // it, a line above or below says it lands beside this one, and the row lights up when it lands inside as a sub-task.
-  return (
-    <Container layout="vertical" gap="none" padding="none" data-tree-row={key} data-tree-title={displayTitle(node.record)} data-tree-depth={String(depth)}>
-      <DropIndicator active={zone === 'before'} />
-      <Card
-        variant="ghost"
-        padding="xs"
-        interactive
-        selected={zone === 'into'}
-        draggable
-        aria-label={displayTitle(node.record)}
-        onDragStart={(event: React.DragEvent) => {
-          event.stopPropagation();
-          event.dataTransfer.setData('application/x-record-id', key);
-          event.dataTransfer.effectAllowed = 'move';
-          editing.onDragStart(node);
-        }}
-        onDragEnd={() => editing.onDragEnd()}
-        onDragOver={(event: React.DragEvent) => {
-          if (!takes || !dragCarries(event, 'application/x-record-id')) return;
-          event.preventDefault();
-          event.stopPropagation();
-          event.dataTransfer.dropEffect = 'move';
-          const next = treeDropZone(event);
-          if (next !== zone) editing.onDragHover(key, next);
-        }}
-        onDragLeave={(event: React.DragEvent) => {
-          if (!(event.currentTarget as HTMLElement).contains(event.relatedTarget as Node | null)) editing.onDragHover(key, null);
-        }}
-        onDrop={(event: React.DragEvent) => {
-          if (!takes) return;
-          event.preventDefault();
-          event.stopPropagation();
-          editing.onPlace(node, treeDropZone(event));
-        }}
-      >
-        <HoverRevealGroup layout="horizontal" alignItems="center" gap="xs" padding="none" justifyContent="between">
-          <Container layout="horizontal" alignItems="center" gap="xs" padding="none" flex="1" minHeight="0" minWidth="0">
-            {depth > 0 ? <Container width={`${depth * 20}px`} padding="none" aria-hidden="true" /> : null}
-            {disclosure}
-            <CompleteControl record={node.record} lanes={editing.lanes} grouping={editing.grouping} fields={editing.model.fields} writeRecord={editing.writeRecord} />
-            <ZoneEditor record={node.record} model={editing.model} role="title" writeRecord={editing.writeRecord} />
-          </Container>
-          <Container layout="horizontal" alignItems="center" gap="xs" padding="none" onClick={stopEvent}>
-            <TreeRowFacts record={node.record} editing={editing} />
-            {hasChildren ? (
-              <Badge variant="muted" aria-label={`${node.children.length} sub-tasks`}>
-                <Icon icon={ListChecks} size="xs" />
-                {String(node.children.length)}
-              </Badge>
-            ) : null}
-            <HoverRevealItem>
-              <Button variant="ghost" size="icon-xs" aria-label={`Add a sub-task to ${displayTitle(node.record)}`} onClick={() => editing.onCompose(key)}>
-                <Icon icon={Plus} size="xs" />
-              </Button>
-            </HoverRevealItem>
-          </Container>
-        </HoverRevealGroup>
-      </Card>
-      <DropIndicator active={zone === 'after'} />
+      {hasChildren && isOpen ? (
+        <Card variant="nested" padding="sm" layout="stack">
+          {node.children.map((child) => (
+            <TreeNodeRow
+              key={recordViewKey(child.record)}
+              node={child}
+              expanded={expanded}
+              onToggleExpand={onToggleExpand}
+              onOpen={onOpen}
+            />
+          ))}
+        </Card>
+      ) : null}
     </Container>
   );
-}
-
-/** One quiet row that adds a record: under a record (a sub-task, indented one step past it) or at the top level.
- *  Enter adds it and empties the row; a row opened for one sub-task closes when it loses focus (`onDone`). */
-function TreeComposerRow({ depth, label, onCommit, onDone }: {
-  depth: number;
-  label: string;
-  onCommit: (title: string) => void;
-  onDone?: () => void;
-}) {
-  const [draft, setDraft] = React.useState('');
-  const field = React.useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
-  React.useEffect(() => { if (onDone) field.current?.focus(); }, [onDone !== undefined]);
-  return (
-    <Container layout="horizontal" alignItems="center" gap="xs" padding="none" data-tree-composer={String(depth)} onBlur={onDone ? () => onDone() : undefined}>
-      {depth > 0 ? <Container width={`${depth * 20}px`} padding="none" aria-hidden="true" /> : null}
-      <Icon icon={Plus} size="xs" />
-      <Container layout="vertical" gap="none" padding="none" flex="1" minHeight="0">
-        <InlineEditText
-          ref={field}
-          aria-label={label}
-          value=""
-          draft={draft}
-          onDraftChange={setDraft}
-          variant="body-xs"
-          tone="secondary"
-          placeholder={label}
-          onCommit={(title) => { onCommit(title); setDraft(''); }}
-        />
-      </Container>
-    </Container>
-  );
-}
-
-/** The rows a tree shows: each node, then (unless it is folded) its children, depth first, each with its depth; when a
- *  sub-task is being added under a node, its composer row follows the node's last open descendant. */
-type TreeRow =
-  | { kind: 'node'; node: VisualDatabaseTreeNode; depth: number }
-  | { kind: 'compose'; parent: VisualDatabaseTreeNode; depth: number };
-
-function openTreeRows(
-  roots: readonly VisualDatabaseTreeNode[],
-  collapsed: ReadonlySet<string>,
-  composingUnder: string | null = null,
-): readonly TreeRow[] {
-  const rows: TreeRow[] = [];
-  const stack: Array<{ node: VisualDatabaseTreeNode; depth: number; closing?: true }> = [...roots].reverse().map((node) => ({ node, depth: 0 }));
-  while (stack.length > 0) {
-    const next = stack.pop()!;
-    const key = recordViewKey(next.node.record);
-    if (next.closing) {
-      rows.push({ kind: 'compose', parent: next.node, depth: next.depth + 1 });
-      continue;
-    }
-    rows.push({ kind: 'node', node: next.node, depth: next.depth });
-    if (composingUnder === key) stack.push({ ...next, closing: true });
-    if (!collapsed.has(key)) {
-      for (let index = next.node.children.length - 1; index >= 0; index -= 1) {
-        stack.push({ node: next.node.children[index]!, depth: next.depth + 1 });
-      }
-    }
-  }
-  return rows;
 }
 
 /** kind:'graph' — a real relationship tree. The parent→child structure comes
  *  entirely from the link descriptor via treeForRecords (already cycle-safe);
  *  this renders that nesting recursively with expand/collapse. Generic: zero
- *  field vocabulary — the hierarchy is whatever the link field declares.
- *  When the owner keeps changes (a writer and a placement owner), it is a task
- *  tree: every row ticks done, renames in place, drags beside or inside any
- *  other row at any depth, and adds sub-tasks under itself, without end. */
+ *  field vocabulary — the hierarchy is whatever the link field declares. */
 function RelationshipView(props: ViewProps) {
   const linkDescriptor = hierarchyLinkDescriptor(props.model.fields);
   const { roots } = treeProjectionForRecords(props.records, linkDescriptor);
-  // Every level is open until folded, so a tree of any depth shows whole and a record that gains its first sub-task
-  // shows it at once.
-  const [collapsed, setCollapsed] = React.useState<ReadonlySet<string>>(() => new Set());
+  // Default-open the first level so the hierarchy is visible without a click;
+  // deeper levels start collapsed (Notion/Linear sub-issue anatomy).
+  const [expanded, setExpanded] = React.useState<ReadonlySet<string>>(
+    () => new Set(roots.filter((node) => node.children.length > 0).map((node) => recordViewKey(node.record))),
+  );
   const toggleExpand = React.useCallback((key: string) => {
-    setCollapsed((current) => {
+    setExpanded((current) => {
       const next = new Set(current);
       if (next.has(key)) next.delete(key);
       else next.add(key);
       return next;
     });
   }, []);
-  const [composingUnder, setComposingUnder] = React.useState<string | null>(null);
-  const [dragging, setDragging] = React.useState<ReadonlySet<string> | null>(null);
-  const [drop, setDrop] = React.useState<{ key: string; zone: TreeDropZone } | null>(null);
-  const rows = React.useMemo(() => openTreeRows(roots, collapsed, composingUnder), [roots, collapsed, composingUnder]);
-  const createUnder = useCreateUnder(props.model, props.writeRecord);
-  const writeRecord = props.writeRecord;
-  const onPlaceRecord = props.onPlaceRecord;
-  const editable = Boolean(writeRecord && onPlaceRecord && linkDescriptor.editable !== false);
-  // Each record's parent and siblings, so a drop beside a row knows where it lands.
-  const placeOf = React.useMemo(() => {
-    const places = new Map<string, { parent: string | null; siblings: readonly string[] }>();
-    const visit = (nodes: readonly VisualDatabaseTreeNode[], parent: string | null) => {
-      const siblings = nodes.map((node) => recordViewKey(node.record));
-      for (const node of nodes) {
-        places.set(recordViewKey(node.record), { parent, siblings });
-        visit(node.children, recordViewKey(node.record));
-      }
-    };
-    visit(roots, null);
-    return places;
-  }, [roots]);
-  const editing: TreeEditing | undefined = editable && writeRecord && onPlaceRecord ? {
-    model: props.model,
-    view: props.view,
-    lanes: props.lanes,
-    grouping: groupingDescriptorForView(props.view, props.model.fields),
-    writeRecord,
-    dragging,
-    drop,
-    onDragStart: (node) => {
-      const held = new Set<string>();
-      const walk = (current: VisualDatabaseTreeNode) => { held.add(recordViewKey(current.record)); current.children.forEach(walk); };
-      walk(node);
-      setDragging(held);
-    },
-    onDragHover: (key, zone) => setDrop(zone ? { key, zone } : null),
-    onDragEnd: () => { setDragging(null); setDrop(null); },
-    onPlace: (node, zone) => {
-      const key = recordViewKey(node.record);
-      const moved = [...(dragging ?? [])][0];
-      setDragging(null);
-      setDrop(null);
-      if (!moved || moved === key) return;
-      const place = placeOf.get(key);
-      const placement: VisualDatabaseRecordPlacement = zone === 'into'
-        ? { record: moved, under: key, before: null }
-        : {
-          record: moved,
-          under: place?.parent ?? null,
-          before: zone === 'before'
-            ? key
-            : (() => {
-              const siblings = (place?.siblings ?? []).filter((sibling) => sibling !== moved);
-              return siblings[siblings.indexOf(key) + 1] ?? null;
-            })(),
-        };
-      if (zone === 'into') setCollapsed((current) => { const next = new Set(current); next.delete(key); return next; });
-      onPlaceRecord(placement).then(reportSuccessFor('Moved')).catch(reportFailure('move'));
-    },
-    onCompose: (key) => {
-      setComposingUnder(key);
-      setCollapsed((current) => { const next = new Set(current); next.delete(key); return next; });
-    },
-  } : undefined;
-  if (roots.length === 0 && !editing) {
+  if (roots.length === 0) {
     return <EmptyPlaceholder icon={GitBranch} message="No records to relate yet." data-reach-role="empty-state" />;
   }
-  // Every open row of the tree, at every depth, is one item of the shared VirtualList, so only the rows on screen
-  // are drawn, however many records the tree holds or however many are open.
   return (
-    <Container
-      layout="vertical"
-      gap="xs"
-      padding="none"
-      data-reach-role="record-tree"
-      // A record dropped on the open space below the rows leaves every record it sat under for the top level.
-      onDragOver={editing ? (event: React.DragEvent) => {
-        if (dragging && dragCarries(event, 'application/x-record-id')) event.preventDefault();
-      } : undefined}
-      onDrop={editing ? (event: React.DragEvent) => {
-        event.preventDefault();
-        const moved = [...(dragging ?? [])][0];
-        setDragging(null);
-        setDrop(null);
-        if (moved && placeOf.get(moved)?.parent) {
-          onPlaceRecord!({ record: moved, under: null, before: null }).then(reportSuccessFor('Moved')).catch(reportFailure('move'));
-        }
-      } : undefined}
-    >
-      <VirtualList
-        items={rows}
-        itemKey={(row) => (row.kind === 'node' ? recordViewKey(row.node.record) : `compose:${recordViewKey(row.parent.record)}`)}
-        renderItem={(row) => (row.kind === 'node' ? (
-          <TreeNodeRow
-            node={row.node}
-            depth={row.depth}
-            collapsed={collapsed}
-            onToggleExpand={toggleExpand}
-            onOpen={props.onToggle}
-            editing={editing}
-          />
-        ) : (
-          <TreeComposerRow
-            depth={row.depth}
-            label={`Add a sub-task to ${displayTitle(row.parent.record)}`}
-            onCommit={(title) => createUnder(row.parent.record, title)}
-            onDone={() => setComposingUnder(null)}
-          />
-        ))}
-        estimateSize={() => 32}
-        threshold={LIST_VIRTUALIZATION_THRESHOLD}
-        scrollParent="nearest"
-        rowGap={editing ? 0 : 4}
-      />
-      {editing ? <TreeComposerRow depth={0} label="Add a task" onCommit={(title) => createUnder(null, title)} /> : null}
+    <Container layout="vertical" gap="xs" padding="none">
+      {roots.map((node) => (
+        <TreeNodeRow
+          key={recordViewKey(node.record)}
+          node={node}
+          expanded={expanded}
+          onToggleExpand={toggleExpand}
+          onOpen={props.onToggle}
+        />
+      ))}
     </Container>
   );
 }
@@ -6351,7 +5945,6 @@ const viewIcons: Record<string, React.ElementType> = {
   gallery: LayoutGrid,
   metric: Gauge,
   nodegraph: GitBranch,
-  form: ClipboardList,
 };
 
 // The `metric` view_kind: adapt the shared ViewProps to the pure MetricView
@@ -6360,58 +5953,11 @@ const viewIcons: Record<string, React.ElementType> = {
 // aggregation here (see MetricView.tsx). This is the projection-retirement path
 // (#175): the retired projection surface only composed the same atoms.
 function MetricViewAdapter(props: ViewProps): React.ReactElement {
-  const overview = props.view.overview ? summaryOverview(props, props.view.overview.field) : null;
-  if (!overview) return <MetricView metrics={props.view.metrics ?? []} records={props.records} model={props.model} />;
   return (
-    <Container layout="vertical" gap="none" data-testid="summary-view">
-      <Container padding="md"><StatusOverview {...overview} /></Container>
-      {props.view.metrics?.length ? <MetricView metrics={props.view.metrics} records={props.records} model={props.model} /> : null}
-    </Container>
-  );
-}
-
-/** The summary's records sorted by one field's declared values: each value a section (its label and tone from the
- *  field's own domain, in its order), each record its title and date. Records holding no value gather under the field's
- *  own name with "not set". Null when the field declares no values. */
-function summaryOverview(props: ViewProps, fieldId: string): StatusOverviewOptions | null {
-  const field = props.model.fields.find(descriptor => descriptor.id === fieldId);
-  const values = field?.domain?.values ?? [];
-  if (!field || !values.length) return null;
-  const title = props.model.fields.find(descriptor => descriptor.role === 'title');
-  const date = props.view.dateField ? props.model.fields.find(descriptor => descriptor.id === props.view.dateField) : undefined;
-  const UNSET = '\u0000unset';
-  const ordered = [...values].sort((a, b) => a.order - b.order);
-  const looks: StatusLooks = {
-    states: {
-      ...Object.fromEntries(ordered.map(value => [value.id, { label: value.label, tone: value.tone ?? 'grey', section: value.id }])),
-      [UNSET]: { label: `${field.label} not set`, tone: 'grey', section: UNSET },
-    },
-    sections: [...ordered.map(value => ({ id: value.id, label: value.label, list: true, limit: 5 })), { id: UNSET, label: `${field.label} not set`, stat_label: 'Not set', list: true, limit: 5 }],
-  };
-  const known = new Set(ordered.map(value => value.id));
-  const text = (value: unknown) => (typeof value === 'string' ? value : typeof value === 'number' ? String(value) : '');
-  return {
-    label: `${props.records.length} in ${props.view.label}`,
-    looks,
-    records: props.records.map(record => {
-      const raw = extractFieldValue(record, field);
-      const status = text(Array.isArray(raw) ? raw[0] : raw);
-      const since = date ? text(extractFieldValue(record, date)) : '';
-      return { id: recordViewKey(record), title: (title && text(extractFieldValue(record, title))) || record.id, status: known.has(status) ? status : UNSET, since: since || null };
-    }),
-  };
-}
-
-// The `form` view kind: the records one at a time to fill in, with this surface's own composer after the last one.
-function FormViewAdapter(props: ViewProps): React.ReactElement {
-  return (
-    <FormView
+    <MetricView
+      metrics={props.view.metrics ?? []}
       records={props.records}
-      lanes={props.lanes}
-      view={props.view}
       model={props.model}
-      writeRecord={props.writeRecord}
-      addOne={props.writeRecord ? <RecordComposer view={props.view} lanes={props.lanes} records={props.records} model={props.model} writeRecord={props.writeRecord} /> : undefined}
     />
   );
 }
@@ -6427,8 +5973,6 @@ const viewRenderers: Record<string, typeof ListView> = {
   gallery: GalleryView,
   metric: MetricViewAdapter,
   nodegraph: NodeGraphView,
-  schedule: ScheduleView,
-  form: FormViewAdapter,
 };
 
 // ---------------------------------------------------------------------------
@@ -6493,14 +6037,10 @@ export function VisualDatabaseSurface({
   descriptorAuthorityError,
   cellExpressionInputs,
   evaluatorDescriptors = EMPTY_EVALUATOR_DESCRIPTORS,
-  dispatchDerived,
   onInvokeAction,
   selectionActions,
   onInvokeSelectionAction,
   onSelectNode,
-  onOpenRecord,
-  onPlaceRecord,
-  detailFields,
 }: VisualDatabaseSurfaceProps) {
   // Optimistic views overlay: a rename/recolor/delete shows INSTANTLY while
   // the engine write round-trips; the next feed delivery (new views array
@@ -7206,12 +6746,7 @@ export function VisualDatabaseSurface({
     void reconcile().catch(reportFailure('record owner reconciliation'));
     return () => { cancelled = true; };
   }, [feedModel.records, optimisticRecordPayloads, writeRecord]);
-  // Every write this surface makes goes through one writer that records each SAVED
-  // change as one undo step in the shared history (record-writes.ts withRecordHistory).
-  const recordWriter = React.useMemo(() => {
-    const writer = optimisticWriteRecord ?? writeRecord;
-    return writer ? withRecordHistory(writer) : undefined;
-  }, [optimisticWriteRecord, writeRecord]);
+  const recordWriter = optimisticWriteRecord ?? writeRecord;
   // ── Lane E — the visual-database inspector (alt-click any card → the shared ui
   // InspectorSidebar over that record's editable fields, edited live through
   // visual-database's OWN writer). One editor mechanism, a second gesture (L069);
@@ -7277,29 +6812,26 @@ export function VisualDatabaseSurface({
     },
     [inspectionRegistry],
   );
-  // Cmd-Z / Cmd-Shift-Z: undo or redo the last saved change (field edit, complete,
-  // move, reorder, delete, or a whole multi-record edit) through the shared history. Skipped
+  // Cmd-Z: undo the last durable mutation (field edit, complete, move,
+  // reorder, delete) by rewriting its captured pre-write payload. Skipped
   // while an editable element is focused — the browser owns text undo there.
   React.useEffect(() => {
     if (!recordWriter) return undefined;
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== 'z' && event.key !== 'Z') return;
-      if (!(event.metaKey || event.ctrlKey) || event.altKey) return;
+      if (!(event.metaKey || event.ctrlKey) || event.shiftKey || event.altKey) return;
       const active = document.activeElement;
       if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement
         || (active instanceof HTMLElement && active.isContentEditable)) return;
       event.preventDefault();
-      // Cmd-Shift-Z redoes through the same history.
-      const redo = event.shiftKey;
-      void (redo ? recordHistory.redo() : recordHistory.undo()).then((outcome) => {
-        if (outcome.status === 'done') {
-          setOptimisticDeletedKeys([]);
-          reportSuccess(redo ? 'Redone' : 'Undone');
-        } else if (outcome.status === 'failed' || outcome.status === 'stale') {
-          // failed: the step stays, so the same keys try again; stale: a newer edit came after it.
-          reportFailure(redo ? 'redo' : 'undo')(outcome.error);
-        }
-      });
+      undoLastWrite(recordWriter)
+        .then((undone) => {
+          if (undone) {
+            setOptimisticDeletedKeys([]);
+            reportSuccess('Undone');
+          }
+        })
+        .catch(reportFailure('undo'));
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -7348,9 +6880,16 @@ export function VisualDatabaseSurface({
   }));
   const hasDerivedFields = foldedCells.some((cell) => !!cell.expression?.derive)
     || model.fields.some((descriptor) => descriptor.defaultExpression?.derive);
-  const deriveDispatch = React.useMemo<DeriveDispatch>(() => dispatchDerived ?? (async () => {
-    throw new Error('Expression evaluation is unavailable on this read-only copy.');
-  }), [dispatchDerived]);
+  const deriveDispatch = React.useMemo<DeriveDispatch>(() => async (target, request) => {
+    const reply = await sendRequestToBitfieldTarget({ target, payload: request });
+    const bytes = (reply as { payload?: Uint8Array })?.payload;
+    if (!bytes || bytes.length === 0) return null;
+    try {
+      return JSON.parse(new TextDecoder().decode(bytes));
+    } catch {
+      return null;
+    }
+  }, []);
   const expressionOwnerSessionFactory = React.useMemo(
     () => new ExpressionOwnerSessionFactory(deriveDispatch),
     [deriveDispatch],
@@ -7743,7 +7282,7 @@ export function VisualDatabaseSurface({
       'unmaterialized',
     );
     const observeDescriptorPhase = (
-      phase: import('trillion-workshop/tools/keep-lists-of-rows/show/visual-database-observation.ts')
+      phase: import('@/packages/visual-database/show/visual-database-observation')
         .VisualDatabaseObservationMap['visual-database:descriptor-mutation']['phase'],
       elapsedMs?: number,
     ) => {
@@ -8017,7 +7556,9 @@ export function VisualDatabaseSurface({
         scope,
         draft: plan.draft,
         busy: false,
-        message: errorWords(error, 'Your change could not be confirmed. What you typed is kept.'),
+        message: error instanceof Error
+          ? error.message
+          : 'The owner could not confirm this save. The exact draft has been preserved.',
       });
       reportFailure(scope)(error);
       return false;
@@ -8147,7 +7688,9 @@ export function VisualDatabaseSurface({
         scope: pending.scope,
         draft: resolved,
         busy: false,
-        message: errorWords(error, 'Your change could not be confirmed. What you typed is kept.'),
+        message: error instanceof Error
+          ? error.message
+          : 'The owner could not confirm this save. The exact draft has been preserved.',
       });
     }
   }, [
@@ -8171,7 +7714,9 @@ export function VisualDatabaseSurface({
       setDescriptorUncertain({
         ...pending,
         busy: false,
-        message: errorWords(error, 'Your change could not be confirmed. What you typed is kept.'),
+        message: error instanceof Error
+          ? error.message
+          : 'The owner could not confirm this save. The exact draft has been preserved.',
       });
     }
   }, [
@@ -8201,9 +7746,7 @@ export function VisualDatabaseSurface({
     onToggle,
     latestRecordRefs,
     onSelectNode,
-    onOpenRecord,
     writeRecord: recordWriter,
-    onPlaceRecord,
     onDeleteStart: hideRecord,
     onDeleteFailure: restoreRecord,
     onInvokeAction,
@@ -8249,9 +7792,7 @@ export function VisualDatabaseSurface({
       : <Renderer {...rendererProps} />
   ) : null;
   return (
-    <VisualDatabaseActionContext.Provider value={onInvokeAction ?? null}>
     <VisualDatabaseCreateContext.Provider value={{ target: recordTarget }}>
-    <VisualDatabaseDetailContext.Provider value={detailFields}>
     <Card
       variant={presentation === 'section' ? 'ghost' : 'surface'}
       padding={presentation === 'section' ? 'none' : 'lg'}
@@ -8268,24 +7809,22 @@ export function VisualDatabaseSurface({
       role={presentation === 'section' ? 'region' : undefined}
       aria-label={presentation === 'section' ? view?.label ?? 'Visual database' : undefined}
     >
-      {/* A section is drawn inside a host that already names it and holds its search (a Trillion list's toolbar), so
-          only a whole surface draws its own heading row. */}
-      {presentation !== 'section' && <Container layout="horizontal" alignItems="center" justifyContent="between" gap="md" padding="none">
+      <Container layout="horizontal" alignItems="center" justifyContent="between" gap="md" padding="none">
         <Container layout="horizontal" alignItems="center" gap="sm" padding="none">
           {view?.icon ? <ViewIcon name={view.icon} /> : view?.color ? <ColorDot color={view.color} /> : <Icon icon={Rows3} size="sm" />}
           <Text variant="heading-lg" color="strong">{view?.label ?? 'All'}</Text>
-          <Badge variant="neutral" size="sm" aria-label={`${rootRecordCount.toLocaleString()} records`}>{rootRecordCount.toLocaleString()}</Badge>
+          <Text variant="caption" color="faint">{String(rootRecordCount)}</Text>
         </Container>
         <Container layout="horizontal" padding="none" minHeight="0">
-          <Input
+          {presentation !== 'section' && <Input
             aria-label="Search records"
             icon={<Search size={14} aria-hidden="true" />}
             placeholder="Search"
             value={query}
             onChange={(event) => setQuery(event.currentTarget.value)}
-          />
+          />}
         </Container>
-      </Container>}
+      </Container>
 
       <SurfaceStateNotice state={surfaceState} onAction={onSurfaceStateAction} />
       {descriptorAuthorityError ? (
@@ -8388,8 +7927,7 @@ export function VisualDatabaseSurface({
           ) : null}
         </Container>
         {writeRecord && view && view.visibility !== 'direct' ? (
-          <Container layout="horizontal" gap="xs" padding="none" alignItems="center" wrap="wrap" minWidth="0"
-            role="group" aria-label="View display">
+          <Container layout="horizontal" gap="xs" padding="none" alignItems="center">
             {descriptorOwner ? (
               <FieldsMenu
                 model={model}
@@ -8414,7 +7952,7 @@ export function VisualDatabaseSurface({
               <Button
                 key={layout}
                 variant="ghost"
-                size="sm"
+                size="xs"
                 active={view.kind === layout}
                 aria-label={`${layout} layout`}
                 onClick={() => {
@@ -8449,7 +7987,7 @@ export function VisualDatabaseSurface({
           Every writable view gets the same descriptor-driven composer when its
           records are empty; table keeps its inline row composer so it does not
           render two creation controls. */}
-      {recordWriter && view && view.kind !== 'table' && view.kind !== 'form' ? (
+      {recordWriter && view && view.kind !== 'table' ? (
         <RecordComposer view={view} lanes={lanes} records={records} model={model} writeRecord={recordWriter} />
       ) : null}
 
@@ -8604,8 +8142,6 @@ export function VisualDatabaseSurface({
         />
       ) : null}
     </Card>
-    </VisualDatabaseDetailContext.Provider>
     </VisualDatabaseCreateContext.Provider>
-    </VisualDatabaseActionContext.Provider>
   );
 }

@@ -1,0 +1,85 @@
+{
+  "about": "Files moved here byte for byte from the original Bitfield package packages/visual-database that no Workshop or apps copy held (tests and fixtures, expression authoring, migrations and their targets, record form, tables home, mounts, selection binding, iOS JavaScriptCore mount, direct-view data, proof and performance evidence). Each names its source path and commit, the identity of its source bytes and of its bytes here. Only the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/visual-database/do-work/fixtures/cell-source-projection-failure.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/do-work/fixtures/cell-source-projection-failure.json",
+      "source_identity": "1f:c2def6ebaec3f99c66244feb63e29e5ff7f705b7aa829da887d9bed898a68475",
+      "identity": "1f:c2def6ebaec3f99c66244feb63e29e5ff7f705b7aa829da887d9bed898a68475"
+    },
+    {
+      "from": "packages/visual-database/do-work/fixtures/cell-source-readback-match.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/do-work/fixtures/cell-source-readback-match.json",
+      "source_identity": "1f:6207fdc132c9b303922c89eb51035c36a5c84f2c9457e8f7c46240dc9bfe31a8",
+      "identity": "1f:6207fdc132c9b303922c89eb51035c36a5c84f2c9457e8f7c46240dc9bfe31a8"
+    },
+    {
+      "from": "packages/visual-database/do-work/fixtures/cell-source-readback-mismatch.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/do-work/fixtures/cell-source-readback-mismatch.json",
+      "source_identity": "1f:394679f9f2214f5f49f0f764bc96250fb431f0fb133dfdc4f4097855a0e1769e",
+      "identity": "1f:394679f9f2214f5f49f0f764bc96250fb431f0fb133dfdc4f4097855a0e1769e"
+    },
+    {
+      "from": "packages/visual-database/do-work/fixtures/cell-source-transport-unknown.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/do-work/fixtures/cell-source-transport-unknown.json",
+      "source_identity": "1f:227fc5fd00683ac00593dbc5b0596a1072a5e5bd187175d4f25edfa6715e74c0",
+      "identity": "1f:227fc5fd00683ac00593dbc5b0596a1072a5e5bd187175d4f25edfa6715e74c0"
+    },
+    {
+      "from": "packages/visual-database/do-work/fixtures/cell-source-write-accepted.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/do-work/fixtures/cell-source-write-accepted.json",
+      "source_identity": "1f:534332eda45ea282e4925859080e774b29febb58a905a91ac26271d4714b58b7",
+      "identity": "1f:534332eda45ea282e4925859080e774b29febb58a905a91ac26271d4714b58b7"
+    },
+    {
+      "from": "packages/visual-database/do-work/fixtures/cell-source-write-conflict.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/do-work/fixtures/cell-source-write-conflict.json",
+      "source_identity": "1f:b48d95fbc12415f44cf8460251876f4c73e9b2c6b128a108f30c48b10888f7e5",
+      "identity": "1f:b48d95fbc12415f44cf8460251876f4c73e9b2c6b128a108f30c48b10888f7e5"
+    },
+    {
+      "from": "packages/visual-database/do-work/fixtures/expression-authoring-hostile-matrix-v2.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/do-work/fixtures/expression-authoring-hostile-matrix-v2.json",
+      "source_identity": "1f:07bac4c6810f9e8e9c22fdee21d4c39d20746a2f7f88c75c6365a410e7eb04b9",
+      "identity": "1f:07bac4c6810f9e8e9c22fdee21d4c39d20746a2f7f88c75c6365a410e7eb04b9"
+    },
+    {
+      "from": "packages/visual-database/do-work/fixtures/projection-independent-cas-v1.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/do-work/fixtures/projection-independent-cas-v1.json",
+      "source_identity": "1f:50669e0dba31da34409772f46e0bfff2035672986535592abe89dd8dc2f5078e",
+      "identity": "1f:50669e0dba31da34409772f46e0bfff2035672986535592abe89dd8dc2f5078e"
+    },
+    {
+      "from": "packages/visual-database/do-work/fixtures/provenance-alias-collision-v1.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/do-work/fixtures/provenance-alias-collision-v1.json",
+      "source_identity": "1f:54a13cdb80bd69158a82520a08fe87396bad3dd36ab8c28e1e5d08bf1c236b40",
+      "identity": "1f:54a13cdb80bd69158a82520a08fe87396bad3dd36ab8c28e1e5d08bf1c236b40"
+    },
+    {
+      "from": "packages/visual-database/do-work/fixtures/provenance-member-root-v1.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/do-work/fixtures/provenance-member-root-v1.json",
+      "source_identity": "1f:00c2a48237479ac713328caaee60081deb2e283d1c4afd93053eeee8b76c1eb8",
+      "identity": "1f:00c2a48237479ac713328caaee60081deb2e283d1c4afd93053eeee8b76c1eb8"
+    },
+    {
+      "from": "packages/visual-database/do-work/fixtures/provenance-missing-root-v1.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/do-work/fixtures/provenance-missing-root-v1.json",
+      "source_identity": "1f:899f8cba30cc026d85b5e47085c996609e379cf014220b39389e5715a5dac26b",
+      "identity": "1f:899f8cba30cc026d85b5e47085c996609e379cf014220b39389e5715a5dac26b"
+    }
+  ]
+}

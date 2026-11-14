@@ -1,0 +1,8 @@
+{
+  "source_revision": "source-r2",
+  "projection": {
+    "state": "stale",
+    "error": "Evaluator unavailable",
+    "source_preserved": true
+  }
+}

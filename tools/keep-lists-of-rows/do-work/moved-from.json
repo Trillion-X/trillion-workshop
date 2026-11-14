@@ -1,0 +1,50 @@
+{
+  "about": "Files moved here byte for byte from the original Bitfield package packages/visual-database that no Workshop or apps copy held (tests and fixtures, expression authoring, migrations and their targets, record form, tables home, mounts, selection binding, iOS JavaScriptCore mount, direct-view data, proof and performance evidence). Each names its source path and commit, the identity of its source bytes and of its bytes here. Only the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/visual-database/do-work/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/do-work/README.md",
+      "source_identity": "1f:3f4112d46d2ebfd86acdee3b3b4c0b63c448dd92104b9e004abfba4ecb58c36a",
+      "identity": "1f:3f4112d46d2ebfd86acdee3b3b4c0b63c448dd92104b9e004abfba4ecb58c36a"
+    },
+    {
+      "from": "packages/visual-database/do-work/expression-authoring.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/do-work/expression-authoring.ts",
+      "source_identity": "1f:814d277c34b47df64c7b74c8ba23b40bdf7f5e604e709f14a800e2d3596da69c",
+      "identity": "1f:814d277c34b47df64c7b74c8ba23b40bdf7f5e604e709f14a800e2d3596da69c"
+    },
+    {
+      "from": "packages/visual-database/do-work/migrate-descriptor-aggregates-target.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/do-work/migrate-descriptor-aggregates-target.ts",
+      "source_identity": "1f:f953698484699d2649e27be0f1145634fbf04b3abd3ba3fb6916cda756701e29",
+      "identity": "1f:f953698484699d2649e27be0f1145634fbf04b3abd3ba3fb6916cda756701e29"
+    },
+    {
+      "from": "packages/visual-database/do-work/migrate-field-derivations-target.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/do-work/migrate-field-derivations-target.ts",
+      "source_identity": "1f:1684a0a9600f40abd7418aff680dfb69631b47142edcea55ac542b15d3e43a4f",
+      "identity": "1f:1684a0a9600f40abd7418aff680dfb69631b47142edcea55ac542b15d3e43a4f"
+    },
+    {
+      "from": "packages/visual-database/do-work/migrate-field-derivations.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/do-work/migrate-field-derivations.ts",
+      "source_identity": "1f:89ee175f25c350430bad4d5aea49d6c5e2a95cb4f12068ba1ca6b7d54eeb0aa7",
+      "identity": "1f:89ee175f25c350430bad4d5aea49d6c5e2a95cb4f12068ba1ca6b7d54eeb0aa7"
+    },
+    {
+      "from": "packages/visual-database/do-work/visual-database-action-conformance.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/do-work/visual-database-action-conformance.json",
+      "source_identity": "1f:8196db6d0e698035e20573bd124a95a6cfb1fe303aa38a20b7a8a1920bf4ca12",
+      "identity": "1f:8196db6d0e698035e20573bd124a95a6cfb1fe303aa38a20b7a8a1920bf4ca12"
+    }
+  ]
+}

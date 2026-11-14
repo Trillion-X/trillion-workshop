@@ -5,25 +5,26 @@
 // descriptor-reference mechanisms behind this already-public show root.
 
 import React from 'react';
-import { useToastContext } from '../../ui';
-import { selectDescriptorAuthority } from 'trillion-workshop/tools/keep-lists-of-rows/do-work/migrate-descriptor-aggregates.ts';
-import { createRecordWriter } from 'trillion-workshop/tools/keep-lists-of-rows/do-work/record-writes.ts';
-import { invokeVisualDatabaseAction } from 'trillion-workshop/tools/keep-lists-of-rows/do-work/visual-database-actions.ts';
+import { useToastContext } from '@/packages/ui';
+import { addressedCellInputsFromPublishedRecords } from '@/packages/visual-database/do-work/cell-expression';
+import { selectDescriptorAuthority } from '@/packages/visual-database/do-work/migrate-descriptor-aggregates';
+import { createRecordWriter } from '@/packages/visual-database/do-work/record-writes';
+import { invokeVisualDatabaseAction } from '@/packages/visual-database/do-work/visual-database-actions';
 import {
   foldAddressedDescriptorFactsFromPublishedFeed,
   type DescriptorOwnerTarget,
-} from 'trillion-workshop/tools/keep-lists-of-rows/read-data/addressed-descriptors.ts';
-import { visualDatabaseInputsFromAddressedDescriptors } from 'trillion-workshop/tools/keep-lists-of-rows/read-data/descriptor-projection.ts';
+} from '@/packages/visual-database/read-data/addressed-descriptors';
+import { visualDatabaseInputsFromAddressedDescriptors } from '@/packages/visual-database/read-data/descriptor-projection';
 import {
+  decodeVisualDatabaseEvaluatorDescriptors,
   decodeVisualDatabaseModel,
-} from 'trillion-workshop/tools/keep-lists-of-rows/read-data/visual-database.ts';
-import descriptorReferenceRules from 'trillion-workshop/tools/keep-lists-of-rows/source-data/descriptor-reference-rules.json';
-import { registerMutationNotifier } from './field-editors';
+} from '@/packages/visual-database/read-data/visual-database';
+import descriptorReferenceRules from '@/packages/visual-database/source-data/descriptor-reference-rules.json';
+import { registerMutationNotifier } from '@/packages/visual-database/show/field-editors';
 import {
   VisualDatabaseSurface,
   type VisualDatabaseRecordTarget,
-} from './VisualDatabaseSurface';
-import { useAddressedCellExpressionOwner } from 'trillion-workshop/tools/keep-lists-of-rows/show/use-addressed-cell-expression-owner.ts';
+} from '@/packages/visual-database/show/VisualDatabaseSurface';
 
 export interface VisualDatabaseConsumerDescriptorTarget {
   addressPrefix: string;
@@ -47,8 +48,6 @@ export interface OwnerBoundVisualDatabaseSurfaceProps {
   mutationSettlementPolicy: unknown;
   descriptorRecords: unknown;
   descriptorAuthority: unknown;
-  /** Open one persisted row in the consumer's matching detail surface. */
-  onOpenRecord?: (recordId: string) => void;
 }
 
 /**
@@ -71,7 +70,6 @@ export function OwnerBoundVisualDatabaseSurface({
   mutationSettlementPolicy,
   descriptorRecords,
   descriptorAuthority: descriptorAuthorityInput,
-  onOpenRecord,
 }: OwnerBoundVisualDatabaseSurfaceProps) {
   const { showSuccess, showError } = useToastContext();
   React.useEffect(() => {
@@ -119,7 +117,14 @@ export function OwnerBoundVisualDatabaseSurface({
     }),
     [records, fields, views, actions, addressedDescriptorInputs, descriptorAuthorityInvalid],
   );
-  const expressionOwner = useAddressedCellExpressionOwner(cellExpressionRecords, evaluatorDescriptors, model);
+  const addressedCells = React.useMemo(
+    () => addressedCellInputsFromPublishedRecords(cellExpressionRecords),
+    [cellExpressionRecords],
+  );
+  const decodedEvaluatorDescriptors = React.useMemo(
+    () => decodeVisualDatabaseEvaluatorDescriptors(evaluatorDescriptors),
+    [evaluatorDescriptors],
+  );
 
   return (
     <VisualDatabaseSurface
@@ -134,15 +139,12 @@ export function OwnerBoundVisualDatabaseSurface({
       descriptorAuthorityError={descriptorAuthorityInvalid
         ? `${descriptorAuthorityErrorLabel} (${descriptorAuthority.reason}).`
         : undefined}
-      cellExpressionInputs={expressionOwner.cellExpressionInputs}
-      evaluatorDescriptors={expressionOwner.evaluatorDescriptors}
-      dispatchDerived={expressionOwner.dispatchDerived}
+      cellExpressionInputs={addressedCells}
+      evaluatorDescriptors={decodedEvaluatorDescriptors}
       mutationSettlementPolicy={mutationSettlementPolicy}
-      onOpenRecord={onOpenRecord ? (record) => onOpenRecord(record.id) : undefined}
       onInvokeAction={(action, context) => {
-        return invokeVisualDatabaseAction(action, context).catch((error) => {
+        invokeVisualDatabaseAction(action, context).catch((error) => {
           console.error(`[${actionErrorLabel}] action failed`, error);
-          throw error;
         });
       }}
     />

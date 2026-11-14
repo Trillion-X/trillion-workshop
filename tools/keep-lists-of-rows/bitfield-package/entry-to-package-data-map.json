@@ -1,0 +1,42 @@
+{
+    "kind": "bitfield-entry-to-package-data-map",
+    "package": "visual-database",
+    "package_data_path": "things-to-store-and-run.json",
+    "entries": [
+        {
+            "entry_name": "visual-database",
+            "source_path": "show/mount-visual-database.tsx",
+            "package_data_path": "things-to-store-and-run.json"
+        },
+        {
+            "entry_name": "selected-visual-database",
+            "source_path": "show/mount-selected-visual-database.tsx",
+            "package_data_path": "things-to-store-and-run.json"
+        },
+        {
+            "entry_name": "record-form",
+            "source_path": "show/mount-record-form.tsx",
+            "package_data_path": "things-to-store-and-run.json"
+        },
+        {
+            "entry_name": "tables-home",
+            "source_path": "show/mount-tables-home.tsx",
+            "package_data_path": "things-to-store-and-run.json"
+        },
+    {
+      "entry_name": "migrate-field-derivations-target",
+      "source_path": "do-work/migrate-field-derivations-target.ts",
+      "package_data_path": "things-to-store-and-run.json"
+    },
+    {
+      "entry_name": "migrate-descriptor-aggregates-target",
+      "source_path": "do-work/migrate-descriptor-aggregates-target.ts",
+      "package_data_path": "things-to-store-and-run.json"
+    },
+    {
+      "entry_name": "materialize-selection-target",
+            "source_path": "do-work/materialize-selection-target.ts",
+            "package_data_path": "things-to-store-and-run.json"
+        }
+    ]
+}

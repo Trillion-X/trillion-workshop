@@ -26,22 +26,21 @@
 // =============================================================================
 
 import React from 'react';
-import { Check, Circle, ExternalLink, FolderOpen, Info, MoreHorizontal, Paperclip, Plus, X } from 'lucide-react';
-import { LoadingMark } from 'trillion-workshop/tools/ui/show/loading-mark/index.ts';
-import type { FileContentRendererClassification } from '../../file-content-renderer/show/FileContentRenderer';
-import { later } from '../../ui/show/load-later/later';
+import { Check, Circle, ExternalLink, FolderOpen, Info, Loader2, MoreHorizontal, Paperclip, Plus, X } from 'lucide-react';
+import {
+  FileContentRenderer,
+  type FileContentRendererClassification,
+} from '@/packages/file-content-renderer/show/FileContentRenderer';
 import {
   classifyFileContent,
   fallbackFileContentClassification,
-} from '../../file-content-renderer/show/classify-file-content';
-import { Badge, Button, ColorDot, ColorTagPickerOverlay, CompletionRing, Container, Dropdown, Icon, InlineEditText, Input, MetricRow, PersonTag, Text, Textarea } from '../../ui';
-import { DatePicker } from '../../ui/show/date-picker/DatePicker';
-import type { ColorTagOption } from '../../ui';
-import { OpenSurfaceAction } from '../../ui/show/open-surface-action';
-import { recordSurfaceIntentToOpenSurfaceProps } from '../../ui/show/placeable-surface-intent/record-surface-intent';
-import { buildRecordDeletion, buildRecordWrite, type FieldWrite } from 'trillion-workshop/tools/keep-lists-of-rows/do-work/record-write-builders.ts';
-import type { RecordWriter } from 'trillion-workshop/tools/keep-lists-of-rows/do-work/record-writes.ts';
-import type { VisualDatabaseActionContext as VisualDatabaseActionInvocation } from 'trillion-workshop/tools/keep-lists-of-rows/do-work/visual-database-actions.ts';
+} from '@/packages/file-content-renderer/show/classify-file-content';
+import { Badge, Button, ColorDot, ColorTagPickerOverlay, CompletionRing, Container, DatePicker, Dropdown, Icon, InlineEditText, Input, MetricRow, PersonTag, Text, Textarea } from '@/packages/ui';
+import type { ColorTagOption } from '@/packages/ui';
+import { OpenSurfaceAction } from '@/packages/ui/show/open-surface-action';
+import { recordSurfaceIntentToOpenSurfaceProps } from '@/packages/ui/show/placeable-surface-intent/record-surface-intent';
+import { PUBLISHED_RECORD_PATH, buildRecordWrite, recordDeletionUndo, type FieldWrite, type RecordWriter } from '@/packages/visual-database/do-work/record-writes';
+import { invokeVisualDatabaseAction } from '@/packages/visual-database/do-work/visual-database-actions';
 import {
   EMPTY_LANE_ID,
   deriveShape,
@@ -62,7 +61,7 @@ import {
   type VisualDatabaseModel,
   type VisualDatabaseRecord,
   type VisualDatabaseViewDescriptor,
-} from 'trillion-workshop/tools/keep-lists-of-rows/read-data/visual-database.ts';
+} from '@/packages/visual-database/read-data/visual-database';
 import {
   domainValueColor,
   humanize,
@@ -70,20 +69,16 @@ import {
   type FieldEditorComponent,
   type FieldEditorOwnerCapabilities,
   type FieldEditorProps,
-} from 'trillion-workshop/tools/keep-lists-of-rows/show/field-editor-kit.ts';
-
-// What a record shows only once opened arrives then (load-later): its notes' block editor and an attachment's reader.
-const NotesDocument = later(() => import('./notes-document'), module => module.NotesDocument);
-const FileContentRenderer = later(() => import('../../file-content-renderer/show/FileContentRenderer'), module => module.FileContentRenderer);
-import { GridFieldEditor, ScaleFieldEditor } from './rating-editors';
-import { FloatingPanel } from '../../screen-arrangement/show/FloatingPanel';
+} from '@/packages/visual-database/show/field-editor-kit';
+import { GridFieldEditor, ScaleFieldEditor } from '@/packages/visual-database/show/rating-editors';
+import { FloatingPanel } from '@/packages/screen-arrangement/show/FloatingPanel';
 
 // The editor contract + shared pure helpers live in the leaf kit; re-export the
 // contract types so existing consumers keep importing them from here.
-export type { FieldEditorComponent, FieldEditorProps } from 'trillion-workshop/tools/keep-lists-of-rows/show/field-editor-kit.ts';
+export type { FieldEditorComponent, FieldEditorProps } from '@/packages/visual-database/show/field-editor-kit';
 // `toneColor` moved to the leaf kit; re-export it so facade consumers
 // (e.g. VisualDatabaseSurface) keep resolving it from here.
-export { toneColor } from 'trillion-workshop/tools/keep-lists-of-rows/show/field-editor-kit.ts';
+export { toneColor } from '@/packages/visual-database/show/field-editor-kit';
 
 const FieldEditorOwnerCapabilitiesContext = React.createContext<FieldEditorOwnerCapabilities>({});
 
@@ -438,16 +433,6 @@ function ChoiceFieldEditor({ descriptor, value, domain, commit, readOnly }: Fiel
 /** One modal renders ANY action's declared prompts: choice prompts (options
  *  filters → feed records) and free-text prompts, then fires the action with
  *  the answers + the value the action was invoked on. Zero per-action code. */
-export const VisualDatabaseActionContext = React.createContext<((action: VisualDatabaseActionDescriptor, context: VisualDatabaseActionInvocation) => void | Promise<unknown>) | null>(null);
-
-function useVisualDatabaseAction() {
-  const invoke = React.useContext(VisualDatabaseActionContext);
-  return React.useCallback(async (action: VisualDatabaseActionDescriptor, context: VisualDatabaseActionInvocation) => {
-    if (!invoke) throw new Error('This surface has no action owner.');
-    return invoke(action, context);
-  }, [invoke]);
-}
-
 export function ActionPromptModal({ action, record, value, selectedRecords, model, onClose, onSubmit }: {
   action: VisualDatabaseActionDescriptor;
   record: VisualDatabaseRecord;
@@ -457,7 +442,6 @@ export function ActionPromptModal({ action, record, value, selectedRecords, mode
   onClose: () => void;
   onSubmit?: (answers: Readonly<Record<string, string>>) => void | Promise<unknown>;
 }) {
-  const invokeVisualDatabaseAction = useVisualDatabaseAction();
   const [answers, setAnswers] = React.useState<Readonly<Record<string, string>>>({});
   const [busy, setBusy] = React.useState(false);
   const ready = action.inputPrompts.every((prompt) => (
@@ -487,7 +471,7 @@ export function ActionPromptModal({ action, record, value, selectedRecords, mode
             const chosen = options.find((option) => (option.ref ?? option.id) === answers[prompt.key]);
             return (
               <Container key={prompt.key} layout="vertical" gap="xs">
-                <Text variant="label" color="faint">{prompt.label}</Text>
+                <Text variant="overline" color="faint">{prompt.label}</Text>
                 <Dropdown
                   aria-label={prompt.label}
                   items={[
@@ -510,7 +494,7 @@ export function ActionPromptModal({ action, record, value, selectedRecords, mode
           }
           return (
             <Container key={prompt.key} layout="vertical" gap="xs">
-              <Text variant="label" color="faint">{prompt.label}</Text>
+              <Text variant="overline" color="faint">{prompt.label}</Text>
               <Textarea
                 aria-label={prompt.label}
                 rows={2}
@@ -536,7 +520,6 @@ export function ActionPromptModal({ action, record, value, selectedRecords, mode
 }
 
 function MultiFieldEditor({ record, descriptor, value, domain, commit, readOnly, fieldActions, model }: FieldEditorProps) {
-  const invokeVisualDatabaseAction = useVisualDatabaseAction();
   const isPeopleField = descriptor.role === 'badge' && descriptor.shape === 'multi';
   const rawValues = Array.isArray(value)
     ? value.map((entry) => String(entry))
@@ -827,11 +810,9 @@ function textAt(record: Record<string, unknown>, keys: readonly string[]): strin
   return null;
 }
 
-/** A record with no words of its own is handed to the preview as JSON data, which the file preview reads through the
- *  shared value view (fields, lists, cards), never as text. */
-function recordData(value: unknown): string {
+function jsonPreview(value: unknown): string {
   try {
-    return JSON.stringify(value);
+    return JSON.stringify(value, null, 2);
   } catch {
     return String(value);
   }
@@ -853,15 +834,15 @@ function recordForAttachment(
 function contentFromAttachedRecord(record: VisualDatabaseRecord): { content: string; filePath: string; mimeType?: string } {
   const raw = isPlainObject(record.raw) ? record.raw : {};
   const payload = isPlainObject(raw.payload) ? raw.payload : raw;
-  const words = textAt(payload, ['content', 'markdown', 'text', 'body', 'payload_text'])
-    ?? textAt(raw, ['content', 'markdown', 'text', 'body', 'payload_text']);
-  const content = words ?? recordData(payload);
+  const content = textAt(payload, ['content', 'markdown', 'text', 'body', 'payload_text'])
+    ?? textAt(raw, ['content', 'markdown', 'text', 'body', 'payload_text'])
+    ?? jsonPreview(payload);
   const filePath = textAt(payload, ['file_path', 'filePath', 'path', 'name', 'title'])
     ?? textAt(raw, ['file_path', 'filePath', 'path', 'name', 'title'])
     ?? displayTitle(record);
   const mimeType = textAt(payload, ['mime_type', 'mimeType', 'content_type', 'contentType'])
     ?? textAt(raw, ['mime_type', 'mimeType', 'content_type', 'contentType'])
-    ?? (words === null ? 'application/json' : undefined);
+    ?? undefined;
   return { content, filePath, mimeType };
 }
 
@@ -1009,7 +990,7 @@ function AttachmentPreviewPanel({
             </Button>
           ) : null}
           {attachment.filePath && reveal ? (
-            <Button variant="ghost" size="xs" onClick={() => reveal.invoke(reveal.target, { path: attachment.filePath! }).catch(reportFailure('Reveal attachment'))}>
+            <Button variant="ghost" size="xs" onClick={() => void reveal.invoke(reveal.target, { path: attachment.filePath! }).catch(reportFailure('Reveal attachment'))}>
               <Icon icon={FolderOpen} size="xs" />
               Reveal
             </Button>
@@ -1022,8 +1003,8 @@ function AttachmentPreviewPanel({
 
       {state.status === 'loading' ? (
         <Container layout="horizontal" gap="xs" padding="xs" alignItems="center" minHeight="0">
-          <LoadingMark size="sm" />
-          <Text variant="body-xs" color="muted">Loading preview</Text>
+          <Icon icon={Loader2} size="xs" />
+          <Text variant="body-xs" color="muted">Loading preview...</Text>
         </Container>
       ) : null}
 
@@ -1283,28 +1264,16 @@ export function registerDomainWriter(writer: DomainWriter | null): void {
   domainWriter = writer;
 }
 
-/** A save that a newer edit of the same record replaced before it settled: the newer edit is the one kept, so this
- *  attempt ending is the change working, never a failure to tell the person about. */
-export class ReplacedByNewerEdit extends Error {
-  constructor() { super('A newer edit replaced this save attempt.'); this.name = 'ReplacedByNewerEdit'; }
-}
-
 export function reportFailure(scope: string) {
   const notifierAtAttempt = mutationNotifier;
   const generationAtAttempt = mutationNotifierGeneration;
   return (failure: unknown) => {
-    if (failure instanceof ReplacedByNewerEdit) return;
     console.error(`[VisualDatabase] ${scope} failed`, failure);
     // A promise belongs to the surface that started it. A later mount may
     // register a different notifier before this attempt settles; never route
     // the old attempt's result into that unrelated surface.
     if (!coalesced(`fail:${scope}`, generationAtAttempt)) notifierAtAttempt?.error(`Couldn't save ${scope}`);
   };
-}
-
-/** A refused change uses its caller's words and is not reported as a failed save. */
-export function reportRefused(words: string): void {
-  if (!coalesced(`refused:${words}`)) mutationNotifier?.error(words);
 }
 
 export function reportSuccess(scope: string): void {
@@ -1426,8 +1395,7 @@ export function FieldControl({ descriptor, record, model, view, lanes, grouping,
 // machine identity (id/sort), and structural classification (kind/group/link) —
 // the row already lives inside its view/section, restating "record record"
 // as pills is noise, not information.
-// 'nesting' is the field a record's place under another is kept in: the view draws it as the nesting itself.
-const ZONED_ROLES: readonly string[] = ['id', 'title', 'body', 'sort', 'kind', 'group', 'link', 'nesting'];
+const ZONED_ROLES: readonly string[] = ['id', 'title', 'body', 'sort', 'kind', 'group', 'link'];
 const SURFACE_ACTION_ROLES: readonly string[] = ['surface-action', 'surface-actions'];
 
 function isSurfaceActionRole(role: string): boolean {
@@ -1571,10 +1539,10 @@ export function FieldPills(props: FieldControlContext) {
   );
 }
 
-/** The title zone uses the seamless InlineEditText primitive (the Amie /
+/** Title/body zones use the seamless InlineEditText primitive (the Amie /
  *  record-audio pattern): the text IS the input — no border, no box,
- *  clicking places the caret. The body zone is the record's notes as a
- *  document (NotesDocument). Read-only records render plain Text. */
+ *  clicking places the caret. Title is single-line; body is a multiline
+ *  auto-growing notes zone. Read-only records render plain Text. */
 export function ZoneEditor({
   record,
   model,
@@ -1606,32 +1574,16 @@ export function ZoneEditor({
     );
   }
   if (!isTitle && !display && !expanded) return null;
-  if (!isTitle) {
-    return (
-      <NotesDocument
-        text={display}
-        label={descriptor.label}
-        onKeep={async (next) => {
-          if (!writeRecord) return;
-          try {
-            await writeField(writeRecord, record, [{ descriptor, value: next.length > 0 ? next : null }]);
-          } catch (error) {
-            reportFailure(descriptor.label)(error);
-            throw error;
-          }
-        }}
-      />
-    );
-  }
   return (
     <Container layout="vertical" padding="none" flex="1" minHeight="0" onClick={stop}>
       <InlineEditText
         aria-label={descriptor.label}
-        value={isMachineString(display) ? displayTitle(record) : display}
+        value={isTitle && isMachineString(display) ? displayTitle(record) : display}
         // Amie rows: regular-weight 13px title, not bold heading chrome.
-        variant="body"
-        tone="primary"
-        placeholder="Untitled"
+        variant={isTitle ? 'body' : 'body-xs'}
+        tone={isTitle ? 'primary' : 'secondary'}
+        multiline={!isTitle}
+        placeholder={isTitle ? 'Untitled' : 'Add notes'}
         onCommit={(next) => {
           if (!writeRecord) return;
           writeField(writeRecord, record, [{ descriptor, value: next.length > 0 ? next : null }])
@@ -1691,7 +1643,6 @@ export function OverflowMenu({
   model,
   onDeleteStart,
   onDeleteFailure,
-  onOpen,
 }: {
   record: VisualDatabaseRecord;
   lanes: readonly VisualDatabaseLaneDescriptor[];
@@ -1700,8 +1651,6 @@ export function OverflowMenu({
   model?: VisualDatabaseModel;
   onDeleteStart?: (record: VisualDatabaseRecord) => void;
   onDeleteFailure?: (record: VisualDatabaseRecord) => void;
-  /** Opens the record where the list that holds it shows a record whole (its own page or panel). */
-  onOpen?: (record: VisualDatabaseRecord) => void;
 }) {
   const done = completionLane(lanes);
   const editable = Boolean(writeRecord && canEditRecord(record));
@@ -1725,7 +1674,6 @@ export function OverflowMenu({
   // icon/tint/shortcut handling is the Dropdown's generic per-item data
   // (the agent-management pattern) — zero custom row markup here.
   const items = [
-    ...(onOpen ? [{ value: 'open', label: 'Open', icon: 'arrow-up-right' }] : []),
     ...(canComplete ? [{ value: 'complete', label: 'Mark as done', icon: 'check', shortcut: 'D' }] : []),
     ...(editable && grouping ? [{
       value: 'move',
@@ -1764,7 +1712,6 @@ export function OverflowMenu({
         </Button>
       )}
       onValueChange={(action) => {
-        if (action === 'open') { onOpen?.(record); return; }
         if (!writeRecord) {
           if (action === 'copy-title') void navigator.clipboard?.writeText(record.title).catch(() => {});
           return;
@@ -1785,10 +1732,11 @@ export function OverflowMenu({
         } else if (action === 'delete') {
           // Delete = null payload at the record's address: the log keeps
           // history; the projection drops the row. Honest data deletion.
-          const deletion = buildRecordDeletion(record);
-          if (deletion) {
+          const address = recordAddress(record);
+          if (address) {
+            recordDeletionUndo(address, recordPayload(record));
             onDeleteStart?.(record);
-            writeRecord(deletion)
+            writeRecord({ addressLabel: address, payload: null, pathLabels: PUBLISHED_RECORD_PATH })
               .then(() => reportSuccess('Deleted'))
               .catch((failure) => {
                 onDeleteFailure?.(record);

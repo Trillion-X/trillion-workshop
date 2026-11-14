@@ -1,0 +1,40 @@
+{
+  "profile_revision": "1",
+  "source_characters": 4096,
+  "catalog_items": 2000,
+  "visible_rows": 200,
+  "dependency_cells": 10000,
+  "cycle_depth": 1000,
+  "concurrent_analyses": 32,
+  "warmups": 5,
+  "runs": 50,
+  "percentile": "nearest-rank",
+  "adapters": [
+    "native-analyze",
+    "composer-filter",
+    "owner-round-trip",
+    "stale-reply-discard",
+    "dense-edit-frame",
+    "boundary-call-counter",
+    "editor-heap"
+  ],
+  "scenarios": [
+    "empty",
+    "dense",
+    "fan-in",
+    "fan-out",
+    "long-cycle",
+    "concurrent",
+    "timeout",
+    "stale-reply"
+  ],
+  "thresholds": {
+    "native_analyze_p95_ms": 50,
+    "composer_filter_p95_ms": 16,
+    "owner_round_trip_p95_ms": 150,
+    "stale_reply_discard_p95_ms": 16,
+    "dense_edit_frame_p95_ms": 32,
+    "max_boundary_calls_per_committed_revision": 2,
+    "max_editor_heap_delta_bytes": 8388608
+  }
+}

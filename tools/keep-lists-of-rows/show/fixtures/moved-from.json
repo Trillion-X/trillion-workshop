@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from the original Bitfield package packages/visual-database that no Workshop or apps copy held (tests and fixtures, expression authoring, migrations and their targets, record form, tables home, mounts, selection binding, iOS JavaScriptCore mount, direct-view data, proof and performance evidence). Each names its source path and commit, the identity of its source bytes and of its bytes here. Only the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/visual-database/show/fixtures/cell-expression-schema-v2.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/show/fixtures/cell-expression-schema-v2.json",
+      "source_identity": "1f:b0b6da342bb9814a2a661a672abd65c4a5e07624e161dfe1e175dcfaef9ccb8a",
+      "identity": "1f:b0b6da342bb9814a2a661a672abd65c4a5e07624e161dfe1e175dcfaef9ccb8a"
+    },
+    {
+      "from": "packages/visual-database/show/fixtures/cell-provenance-schema-v2.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/show/fixtures/cell-provenance-schema-v2.json",
+      "source_identity": "1f:f9097050975158d5a525fa5e09ac547804b9aafa40b118ca8bec89f58b53b63a",
+      "identity": "1f:f9097050975158d5a525fa5e09ac547804b9aafa40b118ca8bec89f58b53b63a"
+    },
+    {
+      "from": "packages/visual-database/show/fixtures/expression-revision-matrix-v1.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/show/fixtures/expression-revision-matrix-v1.json",
+      "source_identity": "1f:83bb7ef1fc16388df92e9ad0559e9bdb39ff7bb853d71211096571684dd59359",
+      "identity": "1f:83bb7ef1fc16388df92e9ad0559e9bdb39ff7bb853d71211096571684dd59359"
+    },
+    {
+      "from": "packages/visual-database/show/fixtures/mutation-settlement-policy.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/show/fixtures/mutation-settlement-policy.ts",
+      "source_identity": "1f:da91cb30bfba0600919f45a820e62f3dec209725d3eec09974145c9a5f00314f",
+      "identity": "1f:da91cb30bfba0600919f45a820e62f3dec209725d3eec09974145c9a5f00314f"
+    }
+  ]
+}

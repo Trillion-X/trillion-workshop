@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from the original Bitfield package packages/visual-database that no Workshop or apps copy held (tests and fixtures, expression authoring, migrations and their targets, record form, tables home, mounts, selection binding, iOS JavaScriptCore mount, direct-view data, proof and performance evidence). Each names its source path and commit, the identity of its source bytes and of its bytes here. Only the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/visual-database/entry-to-package-data-map.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/bitfield-package/entry-to-package-data-map.json",
+      "source_identity": "1f:9d72c6a18a14ee177434f25c28b9c9fc18c05d436ead15f35afe86dc4192c039",
+      "identity": "1f:9d72c6a18a14ee177434f25c28b9c9fc18c05d436ead15f35afe86dc4192c039"
+    },
+    {
+      "from": "packages/visual-database/reference-adaptation-contract.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/bitfield-package/reference-adaptation-contract.json",
+      "source_identity": "1f:00d2f1af2fa230c88d90d17d3fd2c2b4af9d50faeae83fcbd5ea827d0ecfb23b",
+      "identity": "1f:00d2f1af2fa230c88d90d17d3fd2c2b4af9d50faeae83fcbd5ea827d0ecfb23b"
+    },
+    {
+      "from": "packages/visual-database/things-to-store-and-run.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/bitfield-package/things-to-store-and-run.json",
+      "source_identity": "1f:66e29c417a5551193b755c2536a3752339ce0665dadb5a617a289504e56b699c",
+      "identity": "1f:66e29c417a5551193b755c2536a3752339ce0665dadb5a617a289504e56b699c"
+    }
+  ]
+}

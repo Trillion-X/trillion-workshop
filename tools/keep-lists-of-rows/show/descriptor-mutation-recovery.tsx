@@ -1,8 +1,8 @@
 import React from 'react';
-import { Button, Card, Container, SchemaValueView, Text } from '../../ui';
+import { Button, Card, Container, Text } from '@/packages/ui';
 import type {
   DescriptorMutationConflict,
-} from 'trillion-workshop/tools/keep-lists-of-rows/do-work/descriptor-mutation.ts';
+} from '@/packages/visual-database/do-work/descriptor-mutation';
 
 export type DescriptorConflictChoice = 'mine' | 'saved';
 
@@ -30,12 +30,16 @@ export interface DescriptorConflictRecoveryProps {
   ) => void | Promise<void>;
 }
 
-/** One side of a conflict in words: a missing or empty value says so, anything else goes through the shared value view. */
-function ConflictSide({ value, testId }: { value: unknown; testId: string }) {
-  const empty = value === undefined ? 'Not set' : value === null ? 'None' : value === '' ? 'Empty' : null;
-  return <Container layout="vertical" data-testid={testId}>
-    {empty ? <Text variant="body-xs" color="subtle">{empty}</Text> : <SchemaValueView value={value} designed={false} />}
-  </Container>;
+function visibleValue(value: unknown): string {
+  if (value === undefined) return 'Not set';
+  if (value === null) return 'None';
+  if (typeof value === 'string') return value.length > 0 ? value : 'Empty';
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  try {
+    return JSON.stringify(value, null, 2);
+  } catch {
+    return String(value);
+  }
 }
 
 const ABSENT_VALUE = Symbol('absent-descriptor-value');
@@ -137,7 +141,7 @@ export function DescriptorConflictRecovery({
           size="sm"
           disabled={uncertain.busy}
           loading={uncertain.busy}
-          onClick={() => uncertain.onRetry()}
+          onClick={() => void uncertain.onRetry()}
         >
           Retry
         </Button>
@@ -160,18 +164,42 @@ export function DescriptorConflictRecovery({
 
               <Container layout="grid" gridColumns={3} gap="sm">
                 <Container layout="vertical" gap="xs">
-                  <Text variant="label">Common base</Text>
-                  <ConflictSide value={conflict.base} testId={`descriptor-conflict-${conflict.id}-base`} />
+                  <Text variant="overline">Common base</Text>
+                  <Text
+                    variant="body-xs"
+                    color="subtle"
+                    mono
+                    wrap="preserve"
+                    data-testid={`descriptor-conflict-${conflict.id}-base`}
+                  >
+                    {visibleValue(conflict.base)}
+                  </Text>
                 </Container>
 
                 <Container layout="vertical" gap="xs">
-                  <Text variant="label">Saved now</Text>
-                  <ConflictSide value={conflict.saved} testId={`descriptor-conflict-${conflict.id}-saved`} />
+                  <Text variant="overline">Saved now</Text>
+                  <Text
+                    variant="body-xs"
+                    color="secondary"
+                    mono
+                    wrap="preserve"
+                    data-testid={`descriptor-conflict-${conflict.id}-saved`}
+                  >
+                    {visibleValue(conflict.saved)}
+                  </Text>
                 </Container>
 
                 <Container layout="vertical" gap="xs">
-                  <Text variant="label">Mine</Text>
-                  <ConflictSide value={conflict.mine} testId={`descriptor-conflict-${conflict.id}-mine`} />
+                  <Text variant="overline">Mine</Text>
+                  <Text
+                    variant="body-xs"
+                    color="primary"
+                    mono
+                    wrap="preserve"
+                    data-testid={`descriptor-conflict-${conflict.id}-mine`}
+                  >
+                    {visibleValue(conflict.mine)}
+                  </Text>
                 </Container>
               </Container>
 
@@ -182,7 +210,7 @@ export function DescriptorConflictRecovery({
                   size="sm"
                   disabled={busy}
                   loading={busy}
-                  onClick={() => onResolve(conflict, 'mine')}
+                  onClick={() => void onResolve(conflict, 'mine')}
                   aria-label={`Keep my change for ${conflict.label}`}
                 >
                   Keep mine for this property
@@ -192,7 +220,7 @@ export function DescriptorConflictRecovery({
                   variant="secondary"
                   size="sm"
                   disabled={busy}
-                  onClick={() => onResolve(conflict, 'saved')}
+                  onClick={() => void onResolve(conflict, 'saved')}
                   aria-label={`Use saved version for ${conflict.label}`}
                 >
                   Use saved version

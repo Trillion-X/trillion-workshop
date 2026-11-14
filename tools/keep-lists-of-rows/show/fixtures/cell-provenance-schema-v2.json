@@ -1,0 +1,78 @@
+{
+  "type": "record",
+  "address": "visual-database.cell-provenance-schema",
+  "live_write_policy": "publish-live",
+  "path": ["current-item", "published-record"],
+  "payload": {
+    "kind": "visual-database.schema",
+    "id": "visual-database.cell-provenance",
+    "version": 2,
+    "json_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "required": ["cell_ref", "provenance_ref", "revision", "source_revision", "evaluator_ref", "evaluator_target", "evaluator_revision", "policy_revision", "reads", "provenance_display_label"],
+      "properties": {
+        "cell_ref": {"$ref": "visual-database.cell-expression-schema#/$defs/cell_ref"},
+        "provenance_ref": {"type": "string", "minLength": 1},
+        "revision": {"type": "string", "minLength": 1},
+        "source_revision": {"type": "string", "minLength": 1},
+        "evaluator_ref": {"type": "string", "minLength": 1},
+        "evaluator_target": {"type": "string", "minLength": 1},
+        "evaluator_revision": {"type": "string", "minLength": 1},
+        "policy_revision": {"type": "string", "minLength": 1},
+        "reads": {"$ref": "#/$defs/reads"},
+        "provenance_display_label": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "span": {
+          "type": "object",
+          "required": ["start_utf16", "end_utf16"],
+          "properties": {
+            "start_utf16": {"type": "integer", "minimum": 0},
+            "end_utf16": {"type": "integer", "minimum": 0}
+          },
+          "additionalProperties": false
+        },
+        "variable_read": {
+          "type": "object",
+          "required": ["binding_key", "root_name", "catalog_id", "record_ref", "field_ref", "value_revision", "span"],
+          "properties": {
+            "binding_key": {"type": "string", "minLength": 1},
+            "root_name": {"type": "string", "minLength": 1},
+            "catalog_id": {"type": "string", "minLength": 1},
+            "record_ref": {"type": "string", "minLength": 1},
+            "field_ref": {"type": "string", "minLength": 1},
+            "value_revision": {"type": "string", "minLength": 1},
+            "context_key": {"type": "string", "minLength": 1},
+            "span": {"oneOf": [{"$ref": "#/$defs/span"}, {"type": "null"}]}
+          },
+          "additionalProperties": false
+        },
+        "string_read_set": {
+          "type": "array",
+          "maxItems": 10000,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "reads": {
+          "type": "object",
+          "required": ["variables", "entities", "specials", "functions"],
+          "properties": {
+            "variables": {
+              "type": "array",
+              "maxItems": 10000,
+              "uniqueItems": true,
+              "items": {"$ref": "#/$defs/variable_read"}
+            },
+            "entities": {"$ref": "#/$defs/string_read_set"},
+            "specials": {"$ref": "#/$defs/string_read_set"},
+            "functions": {"$ref": "#/$defs/string_read_set"}
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "remove": false
+}

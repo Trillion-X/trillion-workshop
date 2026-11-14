@@ -5,13 +5,13 @@
 
 import React from 'react';
 import { GitBranch } from 'lucide-react';
-import { EmptyPlaceholder } from '../../../ui';
-import { NodeGraph } from '../../../ui/show/node-graph/NodeGraph';
-import { projectTopology, type TopologyRecord } from '../../../ui/show/node-graph/project-topology';
+import { EmptyPlaceholder } from '@/packages/ui';
+import { NodeGraph } from '@/packages/ui/show/node-graph/NodeGraph';
+import { projectTopology, type TopologyRecord } from '@/packages/ui/show/node-graph/project-topology';
 import type {
   VisualDatabaseRecord,
   VisualDatabaseViewDescriptor,
-} from 'trillion-workshop/tools/keep-lists-of-rows/read-data/visual-database.ts';
+} from '@/packages/visual-database/read-data/visual-database';
 
 export interface NodeGraphViewProps {
   records: readonly VisualDatabaseRecord[];

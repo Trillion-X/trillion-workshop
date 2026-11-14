@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from the original Bitfield package packages/visual-database that no Workshop or apps copy held (tests and fixtures, expression authoring, migrations and their targets, record form, tables home, mounts, selection binding, iOS JavaScriptCore mount, direct-view data, proof and performance evidence). Each names its source path and commit, the identity of its source bytes and of its bytes here. Only the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/visual-database/proof/or-behavior-observation.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/proof/or-behavior-observation.ts",
+      "source_identity": "1f:0cc069d6bf7fd4b5a88ef5b80861181e2975d53a6e0b90a2c8c1a5cbcef8a871",
+      "identity": "1f:0cc069d6bf7fd4b5a88ef5b80861181e2975d53a6e0b90a2c8c1a5cbcef8a871"
+    },
+    {
+      "from": "packages/visual-database/proof/or-causal-closure.test.tsx",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/proof/or-causal-closure.test.tsx",
+      "source_identity": "1f:3baacd7338c2b34e710555530a58e267636e441ec9679b361b54c958a0f64de3",
+      "identity": "1f:3baacd7338c2b34e710555530a58e267636e441ec9679b361b54c958a0f64de3"
+    },
+    {
+      "from": "packages/visual-database/proof/or-source-test-coverage.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/proof/or-source-test-coverage.json",
+      "source_identity": "1f:75d89aa1b972ba16fe0a08e602e69424084d83e456967c3f1caa3ecc02be7dca",
+      "identity": "1f:75d89aa1b972ba16fe0a08e602e69424084d83e456967c3f1caa3ecc02be7dca"
+    }
+  ]
+}

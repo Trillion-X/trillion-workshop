@@ -1,0 +1,67 @@
+{
+  "schema": "ai-orchestra.reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-VISUAL-DATABASE-CONSOLIDATION",
+  "status": "VERIFIED",
+  "directive": {
+    "quote": "For valuable work, inspect the actual behavior and integrate the final correct implementation into the default branch using ordinary commits.",
+    "message_sha256": "cce66acd2fc5f90f85208e7ee9d5c9099c91015cfed5263ff398626125969c38"
+  },
+  "mode": "BEHAVIORAL_PORT",
+  "sources": [
+    {
+      "path": "packages/visual-database/things-to-store-and-run.json",
+      "sha256": "1ce520c29fbf7ef7b41dfc6cd59703913f84ee6b009fb47a04b8e46f33d23d54",
+      "ownership": "repository-owned"
+    }
+  ],
+  "targets": [
+    { "path": "packages/visual-database/show/surface-input-record-scope.ts" },
+    {
+      "path": "packages/visual-database/show/mount-visual-database.tsx"
+    },
+    {
+      "path": "packages/visual-database/show/field-editors.tsx"
+    },
+    {
+      "path": "packages/visual-database/show/VisualDatabaseSurface.tsx"
+    },
+    {
+      "path": "packages/visual-database/show/MetricView.tsx"
+    },
+    {
+      "path": "packages/visual-database/show/RecordMetricRow.tsx"
+    }
+  ],
+  "preserve": [
+    "Existing shared components and default metric-row presentation."
+  ],
+  "allowed_deltas": [
+    "Honor caller-requested read-only presentation as a narrowing of dataset permission, suppressing both record edits and creation.",
+    "Preserve explicit instance board inputs over global descriptors and reject prototype-carried overrides; retain current record scoping.",
+    "Retain policy-checked field surface actions and one lossless field serializer; preserve latest-record highlighting.",
+    "Retain generic question input and DATA-selected metric grid/presentation from inspected branch work.",
+    "Keep a visible submit control and neutral metric tone; retain shared typography spacing."
+  ],
+  "banned_substitutions": [
+    "No app-specific aliases or home-screen takeover.",
+    "No runtime deployment or fabricated metric values."
+  ],
+  "baseline": {
+    "copied_before_adaptation": false,
+    "note": "Existing source behavior comparison; no external visual reference or appearance change."
+  },
+  "proof": {
+    "test_refs": [
+      "packages/visual-database/show/board-input-precedence.test.ts",
+      "packages/visual-database/show/select-visual-database-input.test.ts",
+      "packages/visual-database/show/surface-input-record-scope.test.ts",
+      "packages/visual-database/show/surface-action-role.test.tsx",
+      "packages/visual-database/show/field-editors.test.tsx",
+      "packages/visual-database/show/VisualDatabaseSurface.latest-record-highlight.test.tsx",
+      "packages/visual-database/read-data/metric-presentation.test.ts",
+      "packages/visual-database/show/MetricView.test.tsx",
+      "packages/visual-database/show/RecordMetricRow.test.tsx"
+    ],
+    "note": "Local component/source checks only; no deployed appearance claim."
+  }
+}

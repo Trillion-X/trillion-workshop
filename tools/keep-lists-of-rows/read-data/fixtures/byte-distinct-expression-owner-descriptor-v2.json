@@ -1,0 +1,90 @@
+{
+  "ref": "fixture::expression-owner",
+  "revision": "fixture-r3",
+  "label": "Fixture expression",
+  "target": "fixture::owner-target",
+  "result_selector": ["fixture_result"],
+  "context_path": ["payload", "bindings"],
+  "authoring": {
+    "schema_version": 2,
+    "protocol_version": 1,
+    "revision": "fixture-authoring-r2",
+    "editor_ref": "ui::expression-composer",
+    "reference_provider_ref": "visual-database::visible-cells",
+    "source_mode": "expression",
+    "source_prefix": "ƒ",
+    "interaction_policy": {
+      "idle_ms": 25,
+      "timeout_ms": 250
+    },
+    "entry_actions": [
+      {"id": "fixture-open", "label": "Compose", "trigger": "fixture-trigger"}
+    ],
+    "selection_policy": {
+      "serialization": "explicit-list",
+      "separator": " ⊕ ",
+      "deduplicate": true
+    },
+    "operations": {
+      "analyze": {
+        "request_template": {"fixture_wire": 1, "fixture_verb": "inspect"},
+        "required_request_keys": ["source", "cursor_offset_utf16", "request_token", "source_revision", "catalog_revision", "registry_revision", "expected_policy_revision", "variables"],
+        "required_reply_keys": ["operation", "request_token", "source_revision", "catalog_revision", "registry_revision", "policy_revision", "canonical_source", "completion", "static_dependencies", "diagnostics"]
+      },
+      "evaluate": {
+        "request_template": {"fixture_wire": 1, "fixture_verb": "solve"},
+        "required_request_keys": ["source", "cursor_offset_utf16", "request_token", "source_revision", "catalog_revision", "registry_revision", "expected_policy_revision", "variables"],
+        "required_reply_keys": ["operation", "request_token", "source_revision", "catalog_revision", "registry_revision", "policy_revision", "canonical_source", "static_dependencies", "diagnostics", "evaluation_result", "evaluation_readset"]
+      },
+      "capabilities": {
+        "request_template": {"fixture_wire": 1, "fixture_verb": "catalog"},
+        "required_request_keys": ["request_token", "source_revision", "catalog_revision", "registry_revision", "expected_policy_revision"],
+        "required_reply_keys": ["operation", "request_token", "source_revision", "catalog_revision", "registry_revision", "policy_revision", "functions"]
+      },
+      "project_source": {
+        "request_template": {"fixture_wire": 1, "fixture_verb": "project"},
+        "required_request_keys": ["request_token", "source_revision", "catalog_revision", "registry_revision", "expected_policy_revision", "legacy_request"],
+        "required_reply_keys": ["operation", "request_token", "source_revision", "catalog_revision", "registry_revision", "policy_revision", "legacy_projection"]
+      }
+    },
+    "request_paths": {
+      "source": ["payload", "authored"],
+      "cursor_offset_utf16": ["payload", "caret"],
+      "request_token": ["identity", "token"],
+      "source_revision": ["identity", "source"],
+      "catalog_revision": ["identity", "catalog"],
+      "registry_revision": ["identity", "registry"],
+      "expected_policy_revision": ["identity", "policy"],
+      "variables": ["payload", "values"],
+      "legacy_request": ["payload", "legacy"]
+    },
+    "reply_paths": {
+      "operation": ["meta", "operation"],
+      "request_token": ["meta", "token"],
+      "source_revision": ["meta", "source"],
+      "catalog_revision": ["meta", "catalog"],
+      "registry_revision": ["meta", "registry"],
+      "policy_revision": ["meta", "policy"],
+      "source": ["body", "source"],
+      "canonical_source": ["body", "canonical"],
+      "completion": ["body", "suggestions"],
+      "static_dependencies": ["body", "uses"],
+      "diagnostics": ["body", "problems"],
+      "functions": ["body", "catalog"],
+      "evaluation_result": ["body", "evaluation", "value"],
+      "evaluation_readset": ["body", "evaluation", "reads"],
+      "legacy_projection": ["body", "projection"]
+    },
+    "diagnostic_labels": {
+      "fixture.incomplete": "Continue"
+    },
+    "explanation_sections": ["Input", "References", "Output"],
+    "state_labels": {
+      "analyzing": "Inspecting",
+      "saving": "Keeping",
+      "saved": "Kept",
+      "stale": "Outdated"
+    },
+    "read_only_behavior": "inspect"
+  }
+}

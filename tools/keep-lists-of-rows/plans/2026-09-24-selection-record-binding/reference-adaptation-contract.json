@@ -1,0 +1,40 @@
+{
+  "schema": "bitfield.reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-VISUAL-DATABASE-SELECTION-RECORD-BINDING",
+  "status": "VERIFIED",
+  "directive": {
+    "quote": "preserve user/agent parity, and prove at least two distinct venture configurations without publishing unreviewed content.",
+    "message_multihash": "1f:4f2103bdcc3fa9370d002d41fbbd1435f0ad89ccf8b5f4be455245043aebe392"
+  },
+  "mode": "BEHAVIORAL_PORT",
+  "sources": [{
+    "path": "packages/ui/show/action-affordance/action-affordance-types.ts",
+    "multihash": "1f:947c1f5d848024d708d2938ac65ac60de4a6d120626ca4ef9f9c51252c1d8556",
+    "ownership": "repository-owned"
+  }],
+  "targets": [
+    { "path": "packages/visual-database/show/selection-action-affordances.ts" },
+    { "path": "packages/visual-database/show/VisualDatabaseSurface.tsx" },
+    { "path": "packages/visual-database/show/mount-visual-database.tsx" }
+  ],
+  "preserve": [
+    "Visual Database keeps its current list, selection actions, and shared ActionForm; no appearance or navigation change.",
+    "Existing selected address bindings and answer bindings remain unchanged."
+  ],
+  "allowed_deltas": [
+    "Expose the one selected current record as an optional binding source so DATA can bind its owner identity without asking a person to type IDs.",
+    "Use the existing generic accepts conditions against the selected current record before showing a selection action."
+  ],
+  "banned_substitutions": [
+    "No venture-specific branch in Visual Database.",
+    "No publication action, fabricated question or inferred query volume."
+  ],
+  "baseline": {
+    "copied_before_adaptation": false,
+    "note": "Authentic running Visual Database screenshot captured by computer use at 2026-09-24 08:45 UTC; current 1087-record list, no question candidate or review controls. Appearance is unchanged by this behavioral adapter."
+  },
+  "proof": {
+    "test_refs": ["packages/visual-database/show/selection-action-affordances.test.ts"],
+    "note": "Behavioral source test; live selected-app candidate review remains a separate end-to-end requirement."
+  }
+}

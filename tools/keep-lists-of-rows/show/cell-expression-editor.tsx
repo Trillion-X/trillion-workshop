@@ -13,26 +13,26 @@ import {
   type ExpressionDiagnosticItem,
   type ExpressionPostCommitMoveIntent,
   type ExpressionReferenceItem,
-} from '../../ui';
+} from '@/packages/ui';
 import type {
   VisualDatabaseCellRef,
   VisualDatabaseDependencyRef,
   VisualDatabaseEvaluatorDescriptor,
   VisualDatabaseValueExpression,
-} from 'trillion-workshop/tools/keep-lists-of-rows/read-data/visual-database.ts';
-import type { DeriveDispatch } from 'trillion-workshop/tools/keep-lists-of-rows/do-work/resolve-derived-fields.ts';
-import type { CellSourceMutationResult } from 'trillion-workshop/tools/keep-lists-of-rows/do-work/cell-source-mutation.ts';
-import { cellRefKey } from 'trillion-workshop/tools/keep-lists-of-rows/do-work/cell-expression.ts';
+} from '@/packages/visual-database/read-data/visual-database';
+import type { DeriveDispatch } from '@/packages/visual-database/do-work/resolve-derived-fields';
+import type { CellSourceMutationResult } from '@/packages/visual-database/do-work/cell-source-mutation';
+import { cellRefKey } from '@/packages/visual-database/do-work/cell-expression';
 import {
   buildDurableExpressionOwnerRequest,
   expressionEvaluationProvenanceLabels,
   readDurableExpressionSource,
-} from 'trillion-workshop/tools/keep-lists-of-rows/do-work/expression-owner-protocol.ts';
-import { restoreControlledTextSelection } from '../../ui/show/input/useControlledTextSelection';
+} from '@/packages/visual-database/do-work/expression-owner-protocol';
+import { restoreControlledTextSelection } from '@/packages/ui/show/input/useControlledTextSelection';
 import {
   ExpressionOwnerSessionFactory,
   ExpressionOwnerStaleReplyError,
-} from 'trillion-workshop/tools/keep-lists-of-rows/do-work/expression-owner-session.ts';
+} from '@/packages/visual-database/do-work/expression-owner-session';
 import {
   formatExpressionReferenceSelection,
   indexExpressionReferences,
@@ -40,7 +40,7 @@ import {
   type ExpressionReferenceCandidate,
   type ExpressionReferenceCatalog,
   type MappedExpressionEvaluationReads,
-} from 'trillion-workshop/tools/keep-lists-of-rows/show/reference-catalog.ts';
+} from './reference-catalog';
 
 export interface ExpressionReferenceSelection {
   id: string;
@@ -1193,7 +1193,7 @@ export function CellExpressionEditor(props: CellExpressionEditorProps) {
               size="sm"
               data-testid="use-human-formula"
               disabled={state === 'saving'}
-              onClick={() => acceptLegacyConversion()}
+              onClick={() => { void acceptLegacyConversion(); }}
             >
               Use human formula
             </Button>
@@ -1547,7 +1547,7 @@ export function CellExpressionEditor(props: CellExpressionEditorProps) {
                 variant="primary"
                 size="sm"
                 data-testid="formula-retry"
-                onClick={() => saveAuthored()}
+                onClick={() => { void saveAuthored(); }}
               >
                 Retry
               </Button>
@@ -1632,7 +1632,7 @@ export function CellExpressionEditor(props: CellExpressionEditorProps) {
         </Text>
       ) : null}
       <Container layout="horizontal" gap="xs" padding="none">
-        <Button variant="primary" size="sm" disabled={props.readOnly} onClick={() => saveAdvanced()}>Save cell</Button>
+        <Button variant="primary" size="sm" disabled={props.readOnly} onClick={() => { void saveAdvanced(); }}>Save cell</Button>
         <Button variant="ghost" size="sm" onClick={props.onDismiss}>{props.readOnly ? 'Close' : 'Cancel'}</Button>
       </Container>
     </Container>

@@ -22,9 +22,9 @@
 // synthetic beyond a fallback record when the address can't be resolved.
 
 import * as React from 'react';
-import type { InspectorFieldEditorProps } from '../../ui/show/inspector-sidebar';
-import type { InspectionSource } from '../../ui/show/inspection-ref';
-import { editorForShape } from './field-editors';
+import type { InspectorFieldEditorProps } from '@/packages/ui/show/inspector-sidebar';
+import type { InspectionSource } from '@/packages/ui/show/inspection-ref';
+import { editorForShape } from '@/packages/visual-database/show/field-editors';
 import {
   effectiveDomain,
   recordAddress,
@@ -32,32 +32,33 @@ import {
   type VisualDatabaseFieldDescriptor,
   type VisualDatabaseModel,
   type VisualDatabaseRecord,
-} from 'trillion-workshop/tools/keep-lists-of-rows/read-data/visual-database.ts';
+} from '@/packages/visual-database/read-data/visual-database';
 import {
   buildRecordWrite,
   payloadFieldPath,
   type AddressedWrite,
-  type FieldWrite,
-} from 'trillion-workshop/tools/keep-lists-of-rows/do-work/record-write-builders.ts';
-import type { RecordWriter } from 'trillion-workshop/tools/keep-lists-of-rows/do-work/record-writes.ts';
+  type RecordWriter,
+} from '@/packages/visual-database/do-work/record-writes';
 
 /** Open write-kind key an inspector source carries for a record-field edit. The
  *  mount's dispatch routes on it; it is never a `switch` in `ui`. */
 export const RECORD_FIELD_WRITE_KIND = 'visual-database.field';
 
-/** Readable fields include immutable evidence. A payload path locates the value;
- *  `editable` controls its write capability separately, never whether it is visible. */
+/** Which descriptors are inspectable/editable: has a payload write path, is not the
+ *  identity, and is not turned off via `editable: false`. Blind — no field-id names,
+ *  no role allow-list beyond excluding the immutable identity. */
 export function inspectableDescriptors(
   model: VisualDatabaseModel,
 ): readonly VisualDatabaseFieldDescriptor[] {
   return model.fields.filter(
     (descriptor) =>
+      descriptor.editable !== false &&
       descriptor.role !== 'id' &&
       payloadFieldPath(descriptor) !== null,
   );
 }
 
-/** Build the inspector sources for ONE record — one readable field = one source.
+/** Build the inspector sources for ONE record — one editable field = one source.
  *  `fieldPath` is payload-relative (SSOT via `payloadFieldPath`) so the sidebar's
  *  `valueAtPath(payloadSnapshot, fieldPath)` reads exactly the cell `buildRecordWrite`
  *  writes. `descriptorRef` lets the dispatch resolve the descriptor; `shape` drives the
@@ -79,9 +80,7 @@ export function buildRecordInspectionSources(
       descriptorRef: descriptor.id,
       label: descriptor.label,
       ...(descriptor.shape ? { shape: descriptor.shape } : {}),
-      ...(descriptor.editable !== false
-        ? { write: { kind: RECORD_FIELD_WRITE_KIND, inputTemplate: { value: '$value' } } }
-        : {}),
+      write: { kind: RECORD_FIELD_WRITE_KIND, inputTemplate: { value: '$value' } },
     });
   }
   return sources;
@@ -123,9 +122,6 @@ export function makeRecordInspectionDispatch(options: {
     const descriptor = source.descriptorRef ? options.descriptorById(source.descriptorRef) : null;
     if (!record || !descriptor) {
       throw new Error(options.unsupportedText ?? 'record inspector: record/descriptor not resolvable');
-    }
-    if (descriptor.editable === false || descriptor.role === 'id') {
-      throw new Error('This field is read-only.');
     }
     const addressed: AddressedWrite | null = buildRecordWrite(record, [
       { descriptor, value: input.value },

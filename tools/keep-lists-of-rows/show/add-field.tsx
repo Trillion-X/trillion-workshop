@@ -10,10 +10,10 @@
 
 import React from 'react';
 import { Plus } from 'lucide-react';
-import { Button, Card, Container, Dropdown, Icon, Input, Text } from '../../ui';
-import { fieldEditorRegistry } from './field-editors';
-import { humanize } from 'trillion-workshop/tools/keep-lists-of-rows/show/field-editor-kit.ts';
-import type { VisualDatabaseEvaluatorDescriptor, VisualDatabaseFieldDescriptor } from 'trillion-workshop/tools/keep-lists-of-rows/read-data/visual-database.ts';
+import { Button, Card, Container, Dropdown, Icon, Input, Text } from '@/packages/ui';
+import { fieldEditorRegistry } from '@/packages/visual-database/show/field-editors';
+import { humanize } from '@/packages/visual-database/show/field-editor-kit';
+import type { VisualDatabaseEvaluatorDescriptor, VisualDatabaseFieldDescriptor } from '@/packages/visual-database/read-data/visual-database';
 
 export function buildFieldDescriptor(options: {
   label: string;

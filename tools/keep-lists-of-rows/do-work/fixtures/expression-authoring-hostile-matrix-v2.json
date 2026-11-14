@@ -1,0 +1,140 @@
+{
+  "schema": "visual-database.expression-hostile-matrix/v2",
+  "operations": ["analyze", "evaluate", "capabilities", "project_source"],
+  "guard_dimensions": [
+    "descriptor_revision",
+    "request_token",
+    "source_revision",
+    "catalog_revision",
+    "registry_revision",
+    "policy_revision"
+  ],
+  "lifecycle_programs": [
+    {
+      "id": "cancel-before-reply",
+      "events": [
+        {"type": "request"},
+        {"type": "cancel"},
+        {"type": "decode_reply"},
+        {"type": "reduce_reply"}
+      ]
+    },
+    {
+      "id": "cancel-after-decode-before-reduction",
+      "events": [
+        {"type": "request"},
+        {"type": "decode_reply"},
+        {"type": "cancel"},
+        {"type": "reduce_reply"}
+      ]
+    },
+    {
+      "id": "duplicate-reply",
+      "events": [
+        {"type": "request"},
+        {"type": "decode_reply"},
+        {"type": "reduce_reply"},
+        {"type": "reduce_reply"}
+      ]
+    },
+    {
+      "id": "timeout-then-late-reply",
+      "events": [
+        {"type": "request"},
+        {"type": "timeout"},
+        {"type": "late_reply"}
+      ]
+    },
+    {
+      "id": "commit-reply-lost-readback-match",
+      "events": [
+        {"type": "save", "transport": "commit_then_throw", "readback": "match", "feed": "match"}
+      ]
+    },
+    {
+      "id": "commit-conflict",
+      "events": [
+        {"type": "save", "transport": "reject", "readback": "conflict", "feed": "missing"}
+      ]
+    },
+    {
+      "id": "commit-readback-feed-unknown",
+      "events": [
+        {"type": "save", "transport": "accept", "readback": "match", "feed": "missing"}
+      ]
+    },
+    {
+      "id": "commit-transport-result-unknown",
+      "events": [
+        {"type": "save", "transport": "accept", "readback": "error", "feed": "missing"}
+      ]
+    },
+    {
+      "id": "commit-rejected-same-basis",
+      "events": [
+        {"type": "save", "transport": "reject", "readback": "same_basis", "feed": "missing"}
+      ]
+    },
+    {
+      "id": "read-only-commit",
+      "events": [
+        {"type": "set_writable", "value": false},
+        {"type": "save", "transport": "accept", "readback": "match", "feed": "match"}
+      ]
+    },
+    {
+      "id": "descriptor-change-after-source-commit",
+      "events": [
+        {"type": "save", "transport": "accept", "readback": "match", "feed": "match"},
+        {"type": "change_guard", "dimension": "descriptor_revision"}
+      ]
+    },
+    {
+      "id": "policy-change-after-source-commit",
+      "events": [
+        {"type": "save", "transport": "accept", "readback": "match", "feed": "match"},
+        {"type": "change_guard", "dimension": "policy_revision"}
+      ]
+    },
+    {
+      "id": "catalog-change-after-pick",
+      "events": [
+        {"type": "edit", "operation": "pick", "references": ["a1", "a2", "a3"]},
+        {"type": "change_guard", "dimension": "catalog_revision"}
+      ]
+    },
+    {
+      "id": "registry-change-during-cached-insertion",
+      "events": [
+        {"type": "change_guard", "dimension": "registry_revision"}
+      ]
+    },
+    {
+      "id": "source-edit-then-stale-reply",
+      "events": [
+        {"type": "request"},
+        {"type": "edit_source", "suffix": "+1"},
+        {"type": "late_reply"}
+      ]
+    },
+    {
+      "id": "pick-replace-undo-redo",
+      "events": [
+        {"type": "edit", "operation": "pick", "references": ["a1"]},
+        {"type": "edit", "operation": "pick", "references": ["a2", "a3", "a4"]},
+        {"type": "edit", "operation": "pick", "references": ["a6"]},
+        {"type": "edit", "operation": "replace", "references": ["a5"], "selection_reference": "a2"},
+        {"type": "undo"},
+        {"type": "redo"}
+      ]
+    }
+  ],
+  "references": {
+    "a1": {"id": "ref-A1", "alias": "A1"},
+    "a2": {"id": "ref-A2", "alias": "A2"},
+    "a3": {"id": "ref-A3", "alias": "A3"},
+    "a4": {"id": "ref-A4", "alias": "A4"},
+    "a5": {"id": "ref-A5", "alias": "A5"},
+    "a6": {"id": "ref-A6", "alias": "A6"}
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from the original Bitfield package packages/visual-database that no Workshop or apps copy held (tests and fixtures, expression authoring, migrations and their targets, record form, tables home, mounts, selection binding, iOS JavaScriptCore mount, direct-view data, proof and performance evidence). Each names its source path and commit, the identity of its source bytes and of its bytes here. Only the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/visual-database/read-data/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/read-data/README.md",
+      "source_identity": "1f:c5cf27c615c968805564c39aa80af33b57d493f804f74ea466134d8c5f35f6d1",
+      "identity": "1f:c5cf27c615c968805564c39aa80af33b57d493f804f74ea466134d8c5f35f6d1"
+    }
+  ]
+}

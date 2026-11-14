@@ -1,0 +1,51 @@
+{
+  "about": "Files moved here byte for byte from the original Bitfield package packages/visual-database that no Workshop or apps copy held (tests and fixtures, expression authoring, migrations and their targets, record form, tables home, mounts, selection binding, iOS JavaScriptCore mount, direct-view data, proof and performance evidence). Each names its source path and commit, the identity of its source bytes and of its bytes here. Only the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "made-up-computer-user",
+      "find": "(?<=/Users/|USER: '|LOGNAME: ')[a-z]+",
+      "replace": "example",
+      "means": "This repository is public and holds made-up data only: the account name of the computer the package was written on, in a home-folder path or an environment value, becomes a made-up one. Nothing else in the file changes.",
+      "files": [
+        "tools/keep-lists-of-rows/proof/emergent-domains/author-emergent-configs.mjs"
+      ]
+    },
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/visual-database/proof/emergent-domains/README.md",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/proof/emergent-domains/README.md",
+      "source_identity": "1f:786b4e1c4b6333b0b9ed4292c4055b53ca50561bb815580c107a34ddfec85c5d",
+      "identity": "1f:b79fc564dc1cf22602f8e437ccf297a22bcd27671eeb3b88d898bbec896ea4ca",
+      "calls": [
+        "private-notes-path"
+      ]
+    },
+    {
+      "from": "packages/visual-database/proof/emergent-domains/author-emergent-configs.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/proof/emergent-domains/author-emergent-configs.mjs",
+      "source_identity": "1f:afc99297e63ec3d31704c8f4b8cbcdc7f5ab2c651479bb742b1a36249f689dad",
+      "identity": "1f:add1bd70cea8d0a9972045990aba5879f0f96106c049017d0de1ad4a8bb3f6f7",
+      "calls": [
+        "made-up-computer-user"
+      ]
+    },
+    {
+      "from": "packages/visual-database/proof/emergent-domains/emergent-configs.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/proof/emergent-domains/emergent-configs.mjs",
+      "source_identity": "1f:10a5954f170492abe950f57808f69872f16e177d398038862b5162669ffcc2dd",
+      "identity": "1f:10a5954f170492abe950f57808f69872f16e177d398038862b5162669ffcc2dd"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "about": "Files moved here byte for byte from the original Bitfield package packages/visual-database that no Workshop or apps copy held (tests and fixtures, expression authoring, migrations and their targets, record form, tables home, mounts, selection binding, iOS JavaScriptCore mount, direct-view data, proof and performance evidence). Each names its source path and commit, the identity of its source bytes and of its bytes here. Only the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "private-notes-path",
+      "find": "\\.ai-orch[e]stra/",
+      "replace": "notes/",
+      "means": "A path into the maker's private notes, named as notes/ instead."
+    }
+  ],
+  "files": [
+    {
+      "from": "packages/visual-database/source-data/direct-view-data-catalog.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/source-data/direct-view-data-catalog.json",
+      "source_identity": "1f:b8864c5cca6f1304912799465aaa802a7cf4c9fdb2ec782ec87e93034615b95f",
+      "identity": "1f:b8864c5cca6f1304912799465aaa802a7cf4c9fdb2ec782ec87e93034615b95f"
+    },
+    {
+      "from": "packages/visual-database/source-data/direct-view-data-model.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/source-data/direct-view-data-model.mjs",
+      "source_identity": "1f:03f87a23dc6b559bd6dfef5e417b076d79a912cfd7cd3866784076bca78bc5d0",
+      "identity": "1f:03f87a23dc6b559bd6dfef5e417b076d79a912cfd7cd3866784076bca78bc5d0"
+    },
+    {
+      "from": "packages/visual-database/source-data/generate-direct-view-data.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/source-data/generate-direct-view-data.mjs",
+      "source_identity": "1f:b09f8b4a6051bdf41288ef5d9bfa1a294d7d900c968ae112532d9c9f1f156780",
+      "identity": "1f:567a0ac96c8c6a0c2a3f1b414824e8f2c1839f372a52bc2d3a4d313757dd3f6b",
+      "calls": [
+        "private-notes-path"
+      ]
+    }
+  ]
+}

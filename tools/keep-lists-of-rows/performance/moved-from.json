@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from the original Bitfield package packages/visual-database that no Workshop or apps copy held (tests and fixtures, expression authoring, migrations and their targets, record form, tables home, mounts, selection binding, iOS JavaScriptCore mount, direct-view data, proof and performance evidence). Each names its source path and commit, the identity of its source bytes and of its bytes here. Only the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/visual-database/performance/human-formula.profile.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/performance/human-formula.profile.json",
+      "source_identity": "1f:6261795eb0390eb971cbc6a25605438c32f59f30321f27f74669bcd7fecfe444",
+      "identity": "1f:6261795eb0390eb971cbc6a25605438c32f59f30321f27f74669bcd7fecfe444"
+    },
+    {
+      "from": "packages/visual-database/performance/run-human-formula-profile.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/performance/run-human-formula-profile.ts",
+      "source_identity": "1f:45e58defee76b91663eeb4d00b25801af6e4342b5d629075a2848212ce756225",
+      "identity": "1f:45e58defee76b91663eeb4d00b25801af6e4342b5d629075a2848212ce756225"
+    },
+    {
+      "from": "packages/visual-database/performance/run-production-human-formula-profile.ts",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/performance/run-production-human-formula-profile.ts",
+      "source_identity": "1f:0886f248c8ef1a9d5c628c27b6e0719059e084ca56c34dbbf625578f5973d6d0",
+      "identity": "1f:0886f248c8ef1a9d5c628c27b6e0719059e084ca56c34dbbf625578f5973d6d0"
+    }
+  ]
+}

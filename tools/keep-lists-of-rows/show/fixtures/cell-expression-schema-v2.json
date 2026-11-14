@@ -1,0 +1,84 @@
+{
+  "type": "record",
+  "address": "visual-database.cell-expression-schema",
+  "live_write_policy": "publish-live",
+  "path": ["current-item", "published-record"],
+  "payload": {
+    "kind": "visual-database.schema",
+    "id": "visual-database.cell-expression",
+    "version": 2,
+    "json_schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "required": ["cell_ref", "expression", "revision"],
+      "properties": {
+        "cell_ref": {"$ref": "#/$defs/cell_ref"},
+        "expression": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": ["literal"],
+              "properties": {"literal": {}},
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "required": ["derive"],
+              "properties": {"derive": {"$ref": "#/$defs/derive"}},
+              "additionalProperties": false
+            }
+          ]
+        },
+        "revision": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "cell_ref": {
+          "type": "object",
+          "required": ["record_ref", "field_ref"],
+          "properties": {
+            "record_ref": {"type": "string", "minLength": 1},
+            "field_ref": {"type": "string", "minLength": 1}
+          },
+          "additionalProperties": false
+        },
+        "dependency_ref": {
+          "type": "object",
+          "required": ["record_ref", "field_ref"],
+          "properties": {
+            "record_ref": {"type": "string", "minLength": 1},
+            "field_ref": {"type": "string", "minLength": 1},
+            "context_key": {"type": "string", "minLength": 1}
+          },
+          "additionalProperties": false
+        },
+        "path": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "derive": {
+          "type": "object",
+          "required": ["target"],
+          "properties": {
+            "target": {"type": "string", "minLength": 1},
+            "evaluator_ref": {"type": "string", "minLength": 1},
+            "request": {"type": "object"},
+            "result_path": {"$ref": "#/$defs/path"},
+            "dependency_refs": {
+              "type": "array",
+              "maxItems": 10000,
+              "uniqueItems": true,
+              "items": {"$ref": "#/$defs/dependency_ref"}
+            },
+            "dependency_selector": {"type": "object"},
+            "cache_path": {"$ref": "#/$defs/path"},
+            "persist": {"type": "boolean"}
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "remove": false
+}

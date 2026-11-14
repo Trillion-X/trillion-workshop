@@ -26,14 +26,14 @@
 // =============================================================================
 
 import React from 'react';
-import { Badge, Button, ColorDot, Container, Slider } from '../../ui';
-import type { VisualDatabaseFieldDomainValue } from 'trillion-workshop/tools/keep-lists-of-rows/read-data/visual-database.ts';
+import { Badge, Button, ColorDot, Container, Slider } from '@/packages/ui';
+import type { VisualDatabaseFieldDomainValue } from '@/packages/visual-database/read-data/visual-database';
 import {
   domainValueColor,
   humanize,
   stop,
   type FieldEditorProps,
-} from 'trillion-workshop/tools/keep-lists-of-rows/show/field-editor-kit.ts';
+} from '@/packages/visual-database/show/field-editor-kit';
 
 // -----------------------------------------------------------------------------
 // Scale — bounds + endpoint anchors are DATA: the domain values ARE the scale

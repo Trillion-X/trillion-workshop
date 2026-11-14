@@ -36,24 +36,21 @@
 // =============================================================================
 
 import React from 'react';
-import { Container, Text } from '../../ui';
-import { later } from '../../ui/show/load-later/later';
-// A metric's trend line is fetched the first time a metric draws one, never with the list.
-const Chart = later(() => import('../../ui/show/chart/Chart'), module => module.Chart);
-import { chartOfPoints } from '../../ui/show/chart/chart-from-records';
-import { StatStrip } from '../../ui/show/stat-strip/StatStrip';
-import { ScoreRing } from '../../ui/show/score-ring/ScoreRing';
-import { MetricRow } from '../../ui/show/metric-row/MetricRow';
+import { Container, Text } from '@/packages/ui';
+import { LineChart } from '@/packages/ui/show/line-chart/LineChart';
+import { StatStrip } from '@/packages/ui/show/stat-strip/StatStrip';
+import { ScoreRing } from '@/packages/ui/show/score-ring/ScoreRing';
+import { MetricRow } from '@/packages/ui/show/metric-row/MetricRow';
 import {
   computeMetricValues,
   metricRowTone,
   type MetricComputation,
-} from 'trillion-workshop/tools/keep-lists-of-rows/read-data/metric-aggregation.ts';
+} from '@/packages/visual-database/read-data/metric-aggregation';
 import type {
   VisualDatabaseMetricDescriptor,
   VisualDatabaseModel,
   VisualDatabaseRecord,
-} from 'trillion-workshop/tools/keep-lists-of-rows/read-data/visual-database.ts';
+} from '@/packages/visual-database/read-data/visual-database';
 
 // ---------------------------------------------------------------------------
 // Atom capability map (L090: DATA key selects renderer; injected, not an enum)
@@ -131,7 +128,7 @@ export const METRIC_ATOM_RENDERERS: Readonly<Record<string, MetricAtomRenderer>>
         className={dominant ? 'md:col-span-2 md:row-span-2' : 'md:col-span-1'}
       >
         <Container layout="horizontal" gap="sm" alignItems="start" justifyContent="between">
-          <Text variant="label" color="faint">{metric.label ?? metric.values[0]?.label}</Text>
+          <Text variant="overline" color="faint">{metric.label ?? metric.values[0]?.label}</Text>
           {trend ? (
             <Text
               variant={dominant ? 'body-lg' : 'body-xs'}
@@ -153,7 +150,7 @@ export const METRIC_ATOM_RENDERERS: Readonly<Record<string, MetricAtomRenderer>>
           {primary?.displayValue ?? String.fromCharCode(0x2014)}
         </Text>
         {presentation?.sparkline && presentation.sparkline.length > 1 ? (
-          <Chart mark="sparkline" height={48} label="Metric trend" data={chartOfPoints([...presentation.sparkline], { label: metric.label ?? 'Trend', tone: 'good' })} />
+          <LineChart points={[...presentation.sparkline]} tone="success" height="sm" aria-label="Metric trend" />
         ) : null}
         <Container layout="vertical" gap="xs">
           {presentation?.asOf ? (

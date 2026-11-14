@@ -1,0 +1,50 @@
+{
+  "about": "Files moved here byte for byte from the original Bitfield package packages/visual-database that no Workshop or apps copy held (tests and fixtures, expression authoring, migrations and their targets, record form, tables home, mounts, selection binding, iOS JavaScriptCore mount, direct-view data, proof and performance evidence). Each names its source path and commit, the identity of its source bytes and of its bytes here. Only the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/visual-database/proof/harness/w7-grid-2026-07-18/state/canvas-desktop.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/proof/harness/w7-grid-2026-07-18/state/canvas-desktop.json",
+      "source_identity": "1f:d3a596531408f124c152f6af9eb94e68e67752e6a706dadb1ffce989173ad062",
+      "identity": "1f:d3a596531408f124c152f6af9eb94e68e67752e6a706dadb1ffce989173ad062"
+    },
+    {
+      "from": "packages/visual-database/proof/harness/w7-grid-2026-07-18/state/dense-desktop.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/proof/harness/w7-grid-2026-07-18/state/dense-desktop.json",
+      "source_identity": "1f:119e68a794e981eb5a790f8b1b06b7e119bf9eb3aa33045d9942d488492bd963",
+      "identity": "1f:119e68a794e981eb5a790f8b1b06b7e119bf9eb3aa33045d9942d488492bd963"
+    },
+    {
+      "from": "packages/visual-database/proof/harness/w7-grid-2026-07-18/state/empty-desktop.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/proof/harness/w7-grid-2026-07-18/state/empty-desktop.json",
+      "source_identity": "1f:abbad3ebd73dd825183c69828142f880c1d44753366558767e503afca00903d9",
+      "identity": "1f:abbad3ebd73dd825183c69828142f880c1d44753366558767e503afca00903d9"
+    },
+    {
+      "from": "packages/visual-database/proof/harness/w7-grid-2026-07-18/state/readonly-desktop.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/proof/harness/w7-grid-2026-07-18/state/readonly-desktop.json",
+      "source_identity": "1f:49cd6ddec0f369b08fd8e03699b7325090703d187d38d2ee6873aaef739de148",
+      "identity": "1f:49cd6ddec0f369b08fd8e03699b7325090703d187d38d2ee6873aaef739de148"
+    },
+    {
+      "from": "packages/visual-database/proof/harness/w7-grid-2026-07-18/state/sparse-desktop.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/proof/harness/w7-grid-2026-07-18/state/sparse-desktop.json",
+      "source_identity": "1f:4ab25fe10f625b8be2c65a237db87a7ae515c456883c9beac9bc5292fbea172a",
+      "identity": "1f:4ab25fe10f625b8be2c65a237db87a7ae515c456883c9beac9bc5292fbea172a"
+    },
+    {
+      "from": "packages/visual-database/proof/harness/w7-grid-2026-07-18/state/sparse-mobile.json",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/proof/harness/w7-grid-2026-07-18/state/sparse-mobile.json",
+      "source_identity": "1f:4ab25fe10f625b8be2c65a237db87a7ae515c456883c9beac9bc5292fbea172a",
+      "identity": "1f:4ab25fe10f625b8be2c65a237db87a7ae515c456883c9beac9bc5292fbea172a"
+    }
+  ]
+}

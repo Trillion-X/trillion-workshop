@@ -1,0 +1,141 @@
+{
+  "record": {
+    "id": "record:alpha",
+    "title": "Review packet",
+    "body": "",
+    "kind": "generic-record",
+    "group": "generic-record",
+    "lane": {
+      "id": "open",
+      "label": "Open",
+      "order": 0
+    },
+    "date": null,
+    "sort": null,
+    "badges": [],
+    "links": [],
+    "raw": {
+      "address": "record:alpha",
+      "payload": {
+        "title": "Review packet"
+      }
+    }
+  },
+  "explicitWorkflowAction": {
+    "id": "run-owner-definition",
+    "label": "Run owner definition",
+    "target": "slot::workflow",
+    "definitionId": "action:generic-owner-definition",
+    "definitionIds": [],
+    "input": {
+      "caller_ref": "human"
+    },
+    "copy": [
+      {
+        "key": "selected_record_ref",
+        "from": "record.address"
+      }
+    ],
+    "generate": [
+      {
+        "key": "request_ref",
+        "method": "unique-id",
+        "params": {
+          "prefix": "request:"
+        }
+      }
+    ],
+    "inputPrompts": [],
+    "viewKinds": [],
+    "acceptsLanes": true
+  },
+  "explicitSessionAction": {
+    "id": "start-assigned-record-work",
+    "label": "Start assigned work",
+    "target": "process-session.start-assigned-record-work-session",
+    "operation": "start_assigned_record_work_session",
+    "fieldId": "record-people",
+    "valueKey": "assignee_ref",
+    "definitionIds": [],
+    "input": {
+      "session_config": {
+        "source": "visual-database"
+      }
+    },
+    "copy": [
+      {
+        "key": "selected_record_ref",
+        "from": "record.address"
+      },
+      {
+        "key": "assignee_refs",
+        "from": "value"
+      },
+      {
+        "key": "caller_message",
+        "from": "answers.caller_message"
+      },
+      {
+        "key": "model_override",
+        "from": "answers.model_override"
+      }
+    ],
+    "generate": [
+      {
+        "key": "session_request_ref",
+        "method": "unique-id",
+        "params": {
+          "prefix": "session-request:"
+        }
+      },
+      {
+        "key": "requested_at",
+        "method": "timestamp",
+        "params": {}
+      }
+    ],
+    "inputPrompts": [
+      {
+        "key": "caller_message",
+        "label": "Message"
+      },
+      {
+        "key": "model_override",
+        "label": "Model",
+        "optional": true
+      }
+    ],
+    "viewKinds": [],
+    "acceptsLanes": true
+  },
+  "explicitExternalAction": {
+    "id": "send-target-request",
+    "label": "Send target request",
+    "target": "owner-action.invoke",
+    "operation": "invoke_owner_action",
+    "definitionIds": [],
+    "input": {},
+    "copy": [
+      {
+        "key": "selected_record_ref",
+        "from": "record.address"
+      }
+    ],
+    "generate": [],
+    "inputPrompts": [],
+    "viewKinds": [],
+    "acceptsLanes": false
+  },
+  "missingTargetAction": {
+    "id": "missing-target",
+    "label": "Missing target",
+    "definitionId": "action:generic-owner-definition",
+    "definitionIds": [],
+    "input": {},
+    "copy": [],
+    "generate": [],
+    "inputPrompts": [],
+    "viewKinds": [],
+    "acceptsLanes": false
+  }
+}

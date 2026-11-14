@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from the original Bitfield package packages/visual-database that no Workshop or apps copy held (tests and fixtures, expression authoring, migrations and their targets, record form, tables home, mounts, selection binding, iOS JavaScriptCore mount, direct-view data, proof and performance evidence). Each names its source path and commit, the identity of its source bytes and of its bytes here. Only the listed calls differ.",
+  "source": "bitfield-packages",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "packages/visual-database/do-work/process-scripts/extract-dm-leads.mjs",
+      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
+      "to": "tools/keep-lists-of-rows/do-work/process-scripts/extract-dm-leads.mjs",
+      "source_identity": "1f:46ff608583e1f94d67810b3c6929c2693ab23a4d91b0cb0f5fd37e9348d6f49d",
+      "identity": "1f:46ff608583e1f94d67810b3c6929c2693ab23a4d91b0cb0f5fd37e9348d6f49d"
+    }
+  ]
+}
