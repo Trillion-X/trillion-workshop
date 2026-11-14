@@ -18,7 +18,7 @@ const fetchImpl = async url => {
   asked.push(url);
   const { pathname, searchParams } = new URL(url);
   if (pathname === '/origins/certificate') return { ok: verified.has(searchParams.get('domain')), status: verified.has(searchParams.get('domain')) ? 200 : 404 };
-  if (pathname === '/origins/related') return { ok: true, status: 200, json: async () => ({ origins: [...verified].map(host => `https://${host}`) }) };
+  if (pathname === '/origins/related') return { ok: true, status: 200, json: async () => ({ origins: [...verified].sort().map((host, revision) => ({ origin: `https://${host}`, revision: revision + 1 })) }) };
   return { ok: false, status: 404 };
 };
 const request = origin => new Request('https://app.example.test/api/auth/sign-up/email', { method: 'POST', headers: origin ? { origin } : {} });

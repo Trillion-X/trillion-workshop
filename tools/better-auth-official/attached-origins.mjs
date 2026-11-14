@@ -3,8 +3,8 @@
 // attached domain signs people in with no settings edit. settings.json `attached_origins`:
 //   ask_url      the front door's certificate ask: GET ?domain=<host> answers 200 only when one live account names the host
 //   cache_ms     how long one answer is kept (the ask carries no revision to key a cache by)
-//   related_url  a read answering {origins: [...]} for every verified origin, for the passkey related origins document;
-//                null until the rows answer one
+//   related_url  the forwarder's GET /origins/related (loopback only): {origins: [{origin, revision}]}, every host exactly one
+//                live account names, for the passkey related origins document; read per request, no list kept here
 // Used as Better Auth's documented function form of trustedOrigins (Options, "Dynamic Origins"): the home origins when
 // there is no request, and a request's own origin only when the rows name its host, never one copied without the lookup.
 
@@ -46,7 +46,8 @@ export async function relatedOrigins(settings, { fetchImpl = fetch } = {}) {
   try {
     const answer = await fetchImpl(url);
     const { origins = [] } = answer.ok ? await answer.json() : {};
-    return { origins: [...home, ...origins.filter(origin => hostOf(origin) && !home.includes(origin))] };
+    const named = origins.map(entry => entry?.origin).filter(origin => typeof origin === 'string' && hostOf(origin) && !home.includes(origin));
+    return { origins: [...home, ...named] };
   } catch {
     return { origins: home };
   }
