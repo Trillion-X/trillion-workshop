@@ -65,7 +65,7 @@ export function keptRows(rows, fields, tree) {
   collect(tree);
   const found = filterRecords({
     records: rows.map(row => ({ value: Object.fromEntries([...read].filter(name => name in row.values).map(name => [name, row.values[name]])) })),
-    fields: fields.filter(field => read.has(field.id)).map(field => ({ id: field.id, kind: field.kind, path: ['value', field.id] })),
+    fields: fields.filter(field => read.has(field.id)).map(field => ({ id: field.id, kind: settings.rule_kinds[field.kind] ?? field.kind, path: ['value', field.id] })),
     tree,
   });
   if (!Array.isArray(found?.matches)) refuse('view_unusable', { why: 'the rule filter gave no answer' });
@@ -99,8 +99,8 @@ export async function rowsOfMethod(door, method) {
 
 /** The strictness one row is checked by: its own value, else the method's, else the default; { rules, review, from }. */
 export function strictnessOf(rowValues, record) {
-  const row = rowValues?.[STRICT.row_field];
-  if (object(row)) return { ...row, from: 'row' };
+  const row = STRICT.row_fields.map(field => rowValues?.[field]).find(object);
+  if (row) return { ...row, from: 'row' };
   const view = record?.[STRICT.view_field];
   if (object(view)) return { ...view, from: 'method' };
   return { ...STRICT.default, from: 'default' };

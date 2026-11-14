@@ -68,6 +68,15 @@ test('a row\'s own strictness wins over the method\'s, and the method\'s over th
   assert.deepEqual(page.strictness.rules, wide);
 });
 
+test('a row made from a document carries its strictness in its frontmatter, and a row of any kind in its own field', async () => {
+  const own = group(ruleOf('answer', 'has_all_words', { values: ['because'] }));
+  const page = await read(account({ gamma: { 'note.strictness': { rules: own } }, rows: { beta: { title: 'Beta section', kind: 'section', 'document.offset': 10, strictness: { rules: own, review: true } } } }), { method: VIEW });
+  const by = Object.fromEntries(page.rows.map(row => [row.id, row.strictness]));
+  assert.deepEqual([by[ROW('gamma')].from, by[ROW('gamma')].rules], ['row', own]);
+  assert.deepEqual([by[ROW('beta')].from, by[ROW('beta')].review], ['row', true]);
+  assert.equal(by[ROW('alpha')].from, 'default');
+});
+
 test('a method is read a page at a time, and a page ends before it holds more bytes than the DATA allows', async () => {
   const door = account();
   const first = await read(door, { method: VIEW, limit: 2 });
@@ -82,6 +91,15 @@ test('a method is read a page at a time, and a page ends before it holds more by
   assert.equal(heavy.next, '2');
   const rest = await read(account({ rows: { alpha: { title: 'Alpha section', kind: 'section', 'document.offset': 30, note: big }, beta: { title: 'Beta section', kind: 'section', 'document.offset': 10, note: big } } }), { method: VIEW, after: heavy.next });
   assert.deepEqual(rest.rows.map(row => row.values.title), ['Alpha section']);
+});
+
+test('a rule over a long text, which the rule filter reads as text, keeps the rows it should', async () => {
+  const door = account();
+  door.put('list:sample-methods', 'list', { row_type: 'method-row', fields: [{ id: 'title', kind: 'text' }, { id: 'kind', kind: 'text' }, { id: 'document.offset', kind: 'number' }, { id: 'note', kind: 'long-text' }] });
+  door.put(ROW('beta'), 'record:method-row', { title: 'Beta section', kind: 'section', 'document.offset': 10, note: 'Words that say something' });
+  door.put(VIEW, 'list-view', { list_id: 'sample-methods', view: { rules: group(ruleOf('note', 'is_not_empty')), sort: [] } });
+  const page = await read(door, { method: VIEW });
+  assert.deepEqual(page.rows.map(row => row.id), [ROW('beta')]);
 });
 
 test('a method that is not there, a limit past the most, and a view the rule filter cannot use are refused by name', async () => {
