@@ -111,6 +111,34 @@ test('matches are ranked by how rare the tags they met are, times the condition\
   assert.deepEqual(ranks, ranks.map((_, at) => at + 1), 'ranks run 1, 2, 3 within a part, best first');
 });
 
+test('a workflow in the chain of runs the choice is made inside is never chosen again, at any depth, and is named in within', async () => {
+  const door = doorOver([
+    ownRow('plant-trees', { title: 'Plant trees', fires_when: JSON.stringify([condition('anything that should grow a tree', ['seed'])]) }),
+    ownRow('split-notes', { title: 'Split notes', fires_when: JSON.stringify([condition('a note to split', ['seed', 'note'])]) }),
+    ownRow('file-notes', { title: 'File notes', fires_when: JSON.stringify([condition('a note to file', ['note'])]) }),
+  ]);
+  const parts = [{ words: 'The whole seed again.', kinds: ['seed', 'note'] }];
+  const top = await chooseTheWorkflowsThatFire({ parts }, { door });
+  assert.ok(top.chosen.some(item => item.workflow === 'workflow:plant-trees') && !top.within.length);
+  const nested = await chooseTheWorkflowsThatFire({ parts, within: ['workflow:plant-trees', 'workflow:split-notes'] }, { door });
+  assert.deepEqual(nested.chosen.map(item => item.workflow).filter(id => id.startsWith('workflow:plant') || id.startsWith('workflow:split') || id.startsWith('workflow:file')), ['workflow:file-notes']);
+  assert.deepEqual(nested.within, [
+    { workflow: 'workflow:plant-trees', part: 0, condition: 'anything that should grow a tree' },
+    { workflow: 'workflow:split-notes', part: 0, condition: 'a note to split' },
+  ]);
+  assert.equal(nested.chosen.find(item => item.workflow === 'workflow:file-notes').rank, 1, 'ranks count only what may start');
+  await assert.rejects(chooseTheWorkflowsThatFire({ parts, within: 'workflow:plant-trees' }, { door }), /within must be a list/);
+});
+
+test('the installed one tree, started inside its own run, is refused for a part that holds a whole seed', async () => {
+  const parts = [{ words: 'A thought, a note and an email, all at once.', kinds: ['seed'] }];
+  const outside = await chooseTheWorkflowsThatFire({ parts }, { door: doorOver([]) });
+  assert.ok(outside.chosen.some(item => item.workflow === 'workflow:grow-the-one-tree'), 'a seed arriving from outside starts the tree');
+  const inside = await chooseTheWorkflowsThatFire({ parts, within: ['workflow:grow-the-one-tree'] }, { door: doorOver([]) });
+  assert.ok(!inside.chosen.some(item => item.workflow === 'workflow:grow-the-one-tree'));
+  assert.ok(inside.within.some(item => item.workflow === 'workflow:grow-the-one-tree' && item.part === 0));
+});
+
 test('parts are required', async () => {
   await assert.rejects(chooseTheWorkflowsThatFire({ parts: [] }, { door: doorOver([]) }), /parts must be a list/);
 });

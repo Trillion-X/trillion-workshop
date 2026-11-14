@@ -7,9 +7,14 @@
 // conditions keep which parts. Nothing here names a workflow, a branch or a tag: a workflow added, or a kit installed,
 // is a candidate at once.
 //
-//   chooseTheWorkflowsThatFire({ parts, operators? }, { door })
+//   chooseTheWorkflowsThatFire({ parts, operators?, within? }, { door })
 //     -> { workflows, own, catalog_only, chosen: [{ workflow, label, part, condition, made_by, from }],
-//          unfinished: [{ workflow, condition, incomplete }], unconditioned: [{ workflow, label }], unmatched_parts }
+//          unfinished: [{ workflow, condition, incomplete }], unconditioned: [{ workflow, label }], unmatched_parts,
+//          within: [{ workflow, part, condition }] }
+//
+// within names the workflows of the runs this choice is made inside (the run itself and every run above it). A workflow
+// in that chain is never chosen again, so no workflow starts itself through its own parts, at any depth; its matches are
+// named in within instead of being dropped unseen.
 //
 // A condition that is Off, unfinished (a rule the engine cannot evaluate) or has no rule at all chooses nothing; the
 // last two are named so the run can fix them. A workflow with no condition is named in unconditioned, so the run can
@@ -88,7 +93,8 @@ function metKeys(condition, part, operators) {
 }
 
 export async function chooseTheWorkflowsThatFire(input = {}, { door }) {
-  const { parts, operators } = input;
+  const { parts, operators, within = [] } = input;
+  if (!Array.isArray(within) || !within.every(id => typeof id === 'string')) throw new Error('within must be a list of workflow ids.');
   if (!Array.isArray(parts) || !parts.length || !parts.every(object)) throw new Error('parts must be a list of the seed\'s parts, each an object of its typed fields.');
   const catalog = catalogRecipes();
   const own = await ownWorkflows(door);
@@ -116,7 +122,9 @@ export async function chooseTheWorkflowsThatFire(input = {}, { door }) {
   }
   // Specificity: the sum over the rule keys a part met of log(conditioned workflows / workflows holding that key), times the
   // condition's weight (its measured share of runs that ended done, written by learn-and-prune; 1 before any run).
-  const chosen = matches.map(({ workflow, label, part, item, from }) => {
+  const chain = new Set(within);
+  const inside = matches.filter(({ workflow }) => chain.has(workflow)).map(({ workflow, part, item }) => ({ workflow, part, condition: item.label }));
+  const chosen = matches.filter(({ workflow }) => !chain.has(workflow)).map(({ workflow, label, part, item, from }) => {
     const matched = metKeys(item.condition, parts[part], operators);
     const weight = typeof item.weight === 'number' ? item.weight : 1;
     const score = weight * matched.reduce((sum, key) => sum + Math.log(conditioned / (holders.get(key) ?? conditioned)), 0);
@@ -143,5 +151,6 @@ export async function chooseTheWorkflowsThatFire(input = {}, { door }) {
     broad,
     unconditioned,
     unmatched_parts: parts.map((_, at) => at).filter(at => !rankOf.has(at)),
+    within: inside,
   };
 }

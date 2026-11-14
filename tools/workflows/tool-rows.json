@@ -278,6 +278,13 @@
             "operators": {
               "type": "object",
               "description": "Comparisons and combinators as rows of data, as tool:filter-rows-by-rules takes them; left out for the built-in ones"
+            },
+            "within": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The workflow ids of the runs this choice is made inside (the run itself and every run above it); none of them is chosen again, so no workflow starts itself through its own parts"
             }
           }
         },
@@ -383,6 +390,12 @@
               "type": "array",
               "items": {
                 "type": "integer"
+              }
+            },
+            "within": {
+              "type": "array",
+              "items": {
+                "type": "object"
               }
             },
             "broad": {
