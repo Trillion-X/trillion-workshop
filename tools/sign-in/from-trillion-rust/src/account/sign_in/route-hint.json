@@ -1,0 +1,6 @@
+{
+  "_what": "The browser's public account address hint, read by sign_in/route_hint.rs. It chooses only the account path for a visit to the front page; the account separately checks the opaque session there. __Host- requires Secure, Path=/ and no Domain, so a sibling host cannot shadow it. Its Max-Age is copied from the session just issued, and sign-out clears it. No secret or account authority is kept in this cookie.",
+  "cookie": "__Host-account-address",
+  "attributes": "Path=/; Secure; HttpOnly; SameSite=Lax",
+  "clearing_attributes": "Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age=0"
+}

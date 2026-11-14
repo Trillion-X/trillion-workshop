@@ -1,0 +1,118 @@
+{
+  "_what": "The files every sign-in page names (src/account/sign_in/assets.rs): the brand mark, the tab and home-screen icons, the manifest, the page look's stylesheet and its fonts. Each file has its content identity (`identity`, `1f:` + BLAKE3 hex of the bytes, the Namespace's own form). A computer serves a file from its verified content cache (`<accounts>/content/<identity>`, the same bytes at `/content/<identity>`), and falls back to `file` under the look's `static_root` until the bytes are uploaded and verified on two places. Only these identities are served at `/content/`: this list is the allow-list. `origins` are the https holders a computer fetches a missing file from, once, in order (`/content/<identity>` on each); `fetch` bounds one answer. The forwarder carries each path whole and `/content/<identity>` (src/forwarder/new_accounts.json `carried_paths` and `content_prefix`).",
+  "files": [
+    {
+      "path": "/brand/current/mark.svg",
+      "file": "mark.svg",
+      "content_type": "image/svg+xml",
+      "identity": "1f:0925a153b94ba014c5bdc1ba0209157739feff6429af932218fa181c8b1f8e00"
+    },
+    {
+      "path": "/favicon.svg",
+      "file": "favicon.svg",
+      "content_type": "image/svg+xml",
+      "identity": "1f:0925a153b94ba014c5bdc1ba0209157739feff6429af932218fa181c8b1f8e00"
+    },
+    {
+      "path": "/favicon.ico",
+      "file": "favicon.ico",
+      "content_type": "image/x-icon",
+      "identity": "1f:d869b9d6f2a2b093b1949a91584278316b2ad3c0af1f04e41f75593679ae9eda"
+    },
+    {
+      "path": "/apple-touch-icon.png",
+      "file": "apple-touch-icon.png",
+      "content_type": "image/png",
+      "identity": "1f:76f2b7e7c369f1b674dc4cdb435c48be024dfcc7d2fc51de8805c7fb351bf6ac"
+    },
+    {
+      "path": "/icon-192.png",
+      "file": "icon-192.png",
+      "content_type": "image/png",
+      "identity": "1f:98ced111c23db2abf066602fc68c7cfcf013f7f112b6a9fc56c7baff5c356937"
+    },
+    {
+      "path": "/icon-512.png",
+      "file": "icon-512.png",
+      "content_type": "image/png",
+      "identity": "1f:99d6e45aca08f551d2cdb079ff8f28f4aa7bc5ea297a00e6d7a227ad3f49ddff"
+    },
+    {
+      "path": "/icon-maskable-512.png",
+      "file": "icon-maskable-512.png",
+      "content_type": "image/png",
+      "identity": "1f:4ea939511fcd06c8030faeba4fd00d98447089541305ba9edcf5a2a1fae95ebf"
+    },
+    {
+      "path": "/trillion.webmanifest",
+      "file": "trillion.webmanifest",
+      "content_type": "application/manifest+json",
+      "identity": "1f:0f3496e5352ee99ce2f148ec93fa47385fba7be35a965556e74ed907cb9a3a39"
+    },
+    {
+      "path": "/workspace/fonts.css",
+      "file": "workspace/fonts.css",
+      "content_type": "text/css; charset=utf-8",
+      "identity": "1f:590fc940e0ee92e5d6431c3e6f4ce18dfd42ba77d259cbe20b0d68bdf8f18d3b"
+    },
+    {
+      "path": "/workspace/fonts/Recoleta-Medium.woff2",
+      "file": "workspace/fonts/Recoleta-Medium.woff2",
+      "content_type": "font/woff2",
+      "identity": "1f:7d7025bf32a9fe50d4bca223f8aadf75434f4eed0ec60e2a89b69761285ef6ee"
+    },
+    {
+      "path": "/workspace/fonts/Recoleta-Regular.woff2",
+      "file": "workspace/fonts/Recoleta-Regular.woff2",
+      "content_type": "font/woff2",
+      "identity": "1f:b624fa03ed73428ce139f8966c54b96a7a8df4bec2f50fd5232ce9ce9b462844"
+    },
+    {
+      "path": "/workspace/fonts/Recoleta-SemiBold.woff2",
+      "file": "workspace/fonts/Recoleta-SemiBold.woff2",
+      "content_type": "font/woff2",
+      "identity": "1f:0c861a4ca4f3ffd57ef9437a3cbe2d96fadde9feb922ef975626f91cf47d7f1c"
+    },
+    {
+      "path": "/workspace/fonts/SF-Pro-Text-Medium.woff2",
+      "file": "workspace/fonts/SF-Pro-Text-Medium.woff2",
+      "content_type": "font/woff2",
+      "identity": "1f:7d7440f4e8c85a8f261ea037c62c7eab8da651870400f7cd40515ae3e642f8cd"
+    },
+    {
+      "path": "/workspace/fonts/SF-Pro-Text-Regular.woff2",
+      "file": "workspace/fonts/SF-Pro-Text-Regular.woff2",
+      "content_type": "font/woff2",
+      "identity": "1f:5f4d09520d8143cfad5c4ad135b9f636c72da4b65e2af734719c52ca6a830536"
+    },
+    {
+      "path": "/workspace/fonts/SF-Pro-Text-Semibold.woff2",
+      "file": "workspace/fonts/SF-Pro-Text-Semibold.woff2",
+      "content_type": "font/woff2",
+      "identity": "1f:ac362cee621877578a2d51fcbf044b3e0c543a5b51403955da81af6e1aa54951"
+    },
+    {
+      "path": "/workspace/fonts/Trillion-Medium.woff2",
+      "file": "workspace/fonts/Trillion-Medium.woff2",
+      "content_type": "font/woff2",
+      "identity": "1f:5f310155a4f4c2ee2cdb96bd016993a45e60efdf52abdb8f34ebd83a29ff6907"
+    },
+    {
+      "path": "/workspace/fonts/Trillion-Regular.woff2",
+      "file": "workspace/fonts/Trillion-Regular.woff2",
+      "content_type": "font/woff2",
+      "identity": "1f:6d04fb33cb8ff048c34fba0e8c11dd7501bcff29d946a324c8c4cb93a623ab86"
+    },
+    {
+      "path": "/workspace/fonts/Trillion-SemiBold.woff2",
+      "file": "workspace/fonts/Trillion-SemiBold.woff2",
+      "content_type": "font/woff2",
+      "identity": "1f:3c91e0f66676d4f0a751561c14434f7dfff92f57cc507cfb82f87dd86b419521"
+    }
+  ],
+  "origins": [],
+  "fetch": {
+    "answer_bytes": 1048576,
+    "wait_ms": 15000
+  }
+}

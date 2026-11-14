@@ -1,0 +1,31 @@
+{
+  "_what": "The sign-in's own numbers that are no account's setting (src/account/sign_in.rs `settings`). `calls`: how many calls one sign-in (a personal key, an AI app's grant, or a browser session) may make in `period_seconds` before it is answered too_many_calls with when to ask again (src/account/sign_in/calls.rs, ported from old trillion src/sign-in-calls.json); the first rule whose `when` all hold picks the tier: `caller` is what signed in (key, app, account), `approved_by_not` the ways a grant was approved by that keep it off the rule (a grant approved by any other way, or by no way recorded, matches); a rule with no `when` is the default; `most_counted` bounds how many sign-ins one door counts at once. `web_link_seconds`: how long a link that opens a signed-in web page for an app already signed in works (src/account/sign_in/sessions.rs `web_link`, old src/web-sign-in.mjs). `authority`: which passkeys are known (src/account/sign_in/known.rs, old src/passkey-authority.json): each provenance's wait before it is known, and how many notices one account is told within a window. The wait is the computer's DATA here, never an account's row, so no credential the account holds can shorten it. `redirects`: which addresses an app may register for its sign-in to return to (src/account/sign_in/oauth.rs `acceptable_redirect`, ported from old trillion's OAuth provider package (workers-oauth-provider 1.1.0, dist/oauth-provider.js:251-269) `validateRedirectUriScheme`): `https` anywhere, `http` only to one of `loopback_hosts` (RFC 8252 §7.3), and an app's own scheme (RFC 8252 §7.1, such as trillion-share:// for Trillion for iPhone) unless it is one of `refused_schemes`; a control character or a fragment is always refused. Also the computer's DATA, never an account's row.",
+  "calls": {
+    "tiers": [
+      { "id": "standard", "limit": 1200, "period_seconds": 60 },
+      { "id": "weaker", "limit": 300, "period_seconds": 60 }
+    ],
+    "rules": [
+      { "when": { "caller": ["app"], "approved_by_not": ["passkey", "window"] }, "tier": "weaker" },
+      { "tier": "standard" }
+    ],
+    "retry_after_seconds": 60,
+    "most_counted": 2000
+  },
+  "web_link_seconds": 60,
+  "public_registration": { "prefix": "public.", "max_id_bytes": 4096, "nonce_hex_chars": 32 },
+  "authority": {
+    "provenance": {
+      "sign-up": { "gains_authority": true, "wait_hours": 0 },
+      "known-passkey": { "gains_authority": true, "wait_hours": 72 },
+      "notice": { "gains_authority": true, "wait_hours": 72 },
+      "unvouched": { "gains_authority": false, "wait_hours": 0 }
+    },
+    "notice_most": 3,
+    "notice_window_hours": 24
+  },
+  "redirects": {
+    "refused_schemes": ["javascript", "data", "vbscript", "file", "mailto", "blob"],
+    "loopback_hosts": ["127.0.0.1", "[::1]", "localhost"]
+  }
+}

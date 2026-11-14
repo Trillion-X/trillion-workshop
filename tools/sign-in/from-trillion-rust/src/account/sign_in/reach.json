@@ -1,0 +1,59 @@
+{
+  "_what": "Which door address and methods each sign-in scope reaches (src/account/sign_in.rs `contract().reach`, checked by src/account/sign_in_check.rs `permits`; `*` is any characters). `scopes` is each scope's own reach. `full_key` is the account's own full key: a sign-in that holds every scope in `holds` (the records and tools an AI app is offered over OAuth, and a browser session of the person's own page) also reaches `reach`, so an AI holding the account's own key can do everything the person's own page can, and is never refused only because it is not the person. Of that reach, `needs_person` names the operations that prove the person is physically present (registering or removing a passkey and its ceremony), each with why; the full key does not reach those, and only a key that holds the `sign-in` scope itself does. A key granted less (one scope, one label, one tool) holds less than `holds` and gets only its own scopes' reach. A guarded change the door makes (src/account/sign_in/known.rs) still asks the known passkey's confirmation of whoever calls it.",
+  "scopes": {
+    "records": [
+      ["@own-records", "records:*"],
+      ["@own-records", "workspace:read"],
+      ["@own-records", "workspace:write"],
+      ["@own-records", "wake:*"],
+      ["@namespace", "*"],
+      ["@own-records", "sharing.receive"],
+      ["@harness-hooks", "hooks:*"]
+    ],
+    "tools": [
+      ["@workshop-tools", "tools:*"],
+      ["@workshop-tools", "workshop:*"],
+      ["@computer-grants", "grants:list"],
+      ["@computer-grants", "grants:offered"],
+      ["@computer-grants", "grants:offer"],
+      ["@computer-grants", "grants:read-offer"],
+      ["@computer-grants", "grants:trash-source"]
+    ],
+    "sign-in": [
+      ["@sign-in", "sign-in:*"],
+      ["@computer-grants", "grants:grant"],
+      ["@computer-grants", "grants:revoke"]
+    ],
+    "namespace-read": [
+      ["@namespace", "find_file"],
+      ["@namespace", "show_file"],
+      ["@namespace", "read_file"]
+    ],
+    "vault": [
+      ["@held-values", "held-values:put"],
+      ["@held-values", "held-values:remove"]
+    ]
+  },
+  "full_key": {
+    "holds": ["records", "tools"],
+    "reach": [
+      ["@sign-in", "sign-in:*"],
+      ["@own-records", "sharing.keep"],
+      ["@held-values", "held-values:put"],
+      ["@held-values", "held-values:remove"],
+      ["@held-values", "held-values:sign"]
+    ],
+    "needs_person": [
+      {"address": "@sign-in", "method": "sign-in:passkey-link", "why": "it opens a link that registers a new passkey: registering a passkey proves the person is present"},
+      {"address": "@sign-in", "method": "sign-in:waiting", "why": "it lists the passkey registrations a passkey link opened: part of registering a passkey"},
+      {"address": "@sign-in", "method": "sign-in:withdraw", "why": "it withdraws a passkey registration a passkey link opened: part of registering a passkey"},
+      {"address": "@sign-in", "method": "sign-in:remove-passkey", "why": "removing a passkey proves the person is present"},
+      {"address": "@sign-in", "method": "sign-in:vouch-passkey", "why": "a known passkey vouching for another is the person's passkey ceremony"},
+      {"address": "@sign-in", "method": "sign-in:recover-passkeys", "why": "starting or cancelling a passkey recovery replaces which passkeys are known: removing a passkey"},
+      {"address": "@sign-in", "method": "sign-in:confirm-change", "why": "it is the passkey ceremony that confirms a guarded change: the person's own presence"},
+      {"address": "@computer-grants", "method": "grants:grant", "why": "applying a grant is the person's act: a passkey confirms the offer it applies"},
+      {"address": "@computer-grants", "method": "grants:revoke", "why": "removing a grant is the person's act: a passkey confirms the removal"},
+      {"address": "@sign-in", "method": "sign-in:issue-key", "why": "minting a key is the person's act: a key that carries the sign-in scope needs the person's passkey, and any other key is minted only with scopes its minter holds"}
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "_what": "The shipped defaults a stored sign-in shape leaves out, read at use (src/account/sign_in/ways.rs). A kept row or config never has these written into it.",
+  "name_field": "sign_in_{kind}",
+  "text_recover_with": ["email-code"],
+  "previous_text_recover_with": ["email-code", "backup-codes"],
+  "previous_code_sent": "If {name} signs in to this account, a {digits}-digit code is on its way. It works for {minutes} minutes. Check your spam folder if it does not arrive."
+}

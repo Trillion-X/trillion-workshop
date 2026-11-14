@@ -1,0 +1,7 @@
+{
+  "_what": "The email index's own numbers (src/account/sign_in/email_index.rs): the context the index key is derived under from the account's secrets key, the attempt limits (`lookup_per_email` lookups per email, `claim_per_computer` claims per hosting computer, each in `window_seconds`; chosen, not measured). The operator account the index lives in is the product settings' `sign_up_hosting` section (src/account_files/identity.json), not here. The key is derived from the secrets key, so no new vault value is created.",
+  "key_context": "trillion email index key v1",
+  "window_seconds": 900,
+  "lookup_per_email": 10,
+  "claim_per_computer": 100
+}

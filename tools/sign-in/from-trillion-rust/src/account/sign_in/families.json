@@ -1,0 +1,27 @@
+{
+  "_what": "The families the door's own sign-in keeps with its own code (src/account/sign_in). One account's sign-in database: every row names its account, so one file can later hold many accounts. `value` is the record's JSON text; its shape is owned by the module named in `readers`. Secrets are never stored: tokens, codes, sessions and personal keys are kept by the SHA-256 (tokens, codes) or BLAKE3 (sessions, keys) hex of their text.",
+  "schemas": [
+    {
+      "schema": "sign_in",
+      "_what": "Sign-in: AI-app clients, their grants and tokens, pending authorization requests, passkeys and their one-use challenges, browser sessions and personal keys, the other ways an account signs in (the ways it holds, codes and setups waiting to be used, counted tries, and the tool that sends each channel's codes), the computers rows (family `places`) that say which computers keep an account or pursuit and which may answer, and the account's own lists (its sign-in settings row, its ways row, its copy rule's rows and runs, and its limits row).",
+      "families": [
+        {"family": "clients", "key": ["id"], "fields": ["id", "account", "expires_at", "value"], "readers": ["src/account/sign_in/oauth.rs"]},
+        {"family": "grants", "key": ["id"], "fields": ["id", "account", "expires_at", "value"], "readers": ["src/account/sign_in/oauth.rs"]},
+        {"family": "tokens", "key": ["id"], "fields": ["id", "account", "expires_at", "value"], "readers": ["src/account/sign_in/oauth.rs"]},
+        {"family": "requests", "key": ["id"], "fields": ["id", "account", "expires_at", "value"], "readers": ["src/account/sign_in/oauth.rs"]},
+        {"family": "passkeys", "key": ["id"], "fields": ["id", "account", "expires_at", "value"], "readers": ["src/account/sign_in/passkeys.rs"]},
+        {"family": "challenges", "key": ["id"], "fields": ["id", "account", "expires_at", "value"], "readers": ["src/account/sign_in/passkeys.rs"]},
+        {"family": "sessions", "key": ["id"], "fields": ["id", "account", "expires_at", "value"], "readers": ["src/account/sign_in/sessions.rs"]},
+        {"family": "personal_keys", "key": ["id"], "fields": ["id", "account", "expires_at", "value"], "readers": ["src/account/sign_in/keys.rs"]},
+        {"family": "places", "key": ["id"], "fields": ["id", "account", "expires_at", "value"], "readers": ["src/account/computers.rs"]},
+        {"family": "lists", "key": ["id"], "fields": ["id", "account", "expires_at", "value"], "readers": ["src/account/sign_in/lists.rs", "src/account/sign_in/ways.rs", "src/account/computers/copy_rule.rs", "src/account/computers/limits_row.rs"]},
+        {"family": "ways", "key": ["id"], "fields": ["id", "account", "expires_at", "value"], "readers": ["src/account/sign_in/ways.rs"]},
+        {"family": "way_codes", "key": ["id"], "fields": ["id", "account", "expires_at", "value"], "readers": ["src/account/sign_in/ways.rs"]},
+        {"family": "tries", "key": ["id"], "fields": ["id", "account", "expires_at", "value"], "readers": ["src/account/sign_in/ways.rs"]},
+        {"family": "deliveries", "key": ["id"], "fields": ["id", "account", "expires_at", "value"], "readers": ["src/account/sign_in/ways.rs"]},
+        {"family": "signup_names", "key": ["id"], "fields": ["id", "account", "expires_at", "value"], "readers": ["src/account/sign_in/ways.rs"]},
+        {"family": "email_index", "key": ["id"], "fields": ["id", "account", "expires_at", "value"], "readers": ["src/account/sign_in/email_index.rs"]}
+      ]
+    }
+  ]
+}
