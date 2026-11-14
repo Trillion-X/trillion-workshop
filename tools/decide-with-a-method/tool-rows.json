@@ -4820,6 +4820,366 @@
      }
     ]
    }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:record-a-persons-own-decision",
+    "label": "Record a decision I made myself",
+    "job": "When I have already decided, keep my own verdict as the decision, with my exact words and when I said them, without my AI walking the method's questions",
+    "description": "The person decided; this keeps their verdict as the decision. Only the person's own word is taken: person.message_id names the message row they sent (type message, speaker person) and person.said must be their exact words in it, or the run comes from their own signed-in page, which the engine attests as the task's origin and no input can set. An AI saying the person decided, with neither, is refused and told to walk the method (tool:next-decision-question, then tool:make-the-decision), which every decision an AI makes still needs. The person's words are kept as an evidence row (person-verdict-<generation>) with where and when they said them; the decision and its root say decided_by person and method_walked false, and every method step not answered is listed as decided by the person (steps_decided_by_the_person), never written as an answer. A decision already made moves to decision_history. next_action and success_measure are what the AI will do now and how it will know it worked. The same verdict again replays.",
+    "status": "active",
+    "result_selector": "$.result",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "decision_id",
+      "option_id",
+      "next_action",
+      "success_measure",
+      "person"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "decision_id": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The decision the person decided (from tool:start-a-decision)"
+      },
+      "option_id": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The option the person chose, one of the decision's options"
+      },
+      "next_action": {
+       "type": "string",
+       "minLength": 1,
+       "description": "What you will do now to carry out the person's decision"
+      },
+      "success_measure": {
+       "type": "string",
+       "minLength": 1,
+       "description": "How you will both know it worked"
+      },
+      "person": {
+       "type": "object",
+       "required": [
+        "said"
+       ],
+       "additionalProperties": false,
+       "description": "Where the person said it: message_id names the message row they sent, and said is their exact words in it. From their own signed-in page, said alone (the page's run is the source).",
+       "properties": {
+        "said": {
+         "type": "string",
+         "minLength": 1,
+         "description": "The person's exact words, as they wrote them"
+        },
+        "message_id": {
+         "type": "string",
+         "minLength": 1,
+         "description": "The message row the person sent (type message, speaker person)"
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "case_id",
+      "decided_by",
+      "method_walked"
+     ],
+     "properties": {
+      "case_id": {
+       "type": "string"
+      },
+      "decided_by": {
+       "type": "string"
+      },
+      "method_walked": {
+       "type": "boolean"
+      },
+      "steps_decided_by_the_person": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/decide-with-a-method",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/decide-with-a-method/read-data/decisions.mjs",
+      "recordAPersonsOwnDecision"
+     ],
+     "stdin": {
+      "verdict": {
+       "fill": {
+        "from": "input"
+       }
+      },
+      "origin": {
+       "fill": {
+        "from": "task",
+        "field": "origin"
+       }
+      },
+      "run": {
+       "fill": {
+        "from": "task",
+        "field": "request_key"
+       }
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "decide-with-a-method",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/decide-with-a-method"
+       },
+       {
+        "package": "check-against-a-persons-rules-and-verdicts",
+        "paths": [
+         "do-work/branch.mjs"
+        ],
+        "at": "/opt/check-against-a-persons-rules-and-verdicts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "learn-from-everyones-results",
+        "paths": [
+         "read-data/plain-privacy-pass.mjs"
+        ],
+        "at": "/opt/learn-from-everyones-results"
+       },
+       {
+        "package": "ask-a-small-model-for-a-verdict",
+        "paths": [
+         "do-work/ask-a-hosted-classifier.mjs",
+         "do-work/ask-a-locally-served-model.mjs",
+         "do-work/ask-for-a-verdict.mjs",
+         "do-work/fresh-local-classifier-fetch.mjs",
+         "do-work/judge-content.mjs",
+         "do-work/who-can-be-asked.mjs"
+        ],
+        "at": "/opt/ask-a-small-model-for-a-verdict"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
+       }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "decision",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "message",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-revision",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-step",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-call",
+        "operations": [
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-evidence",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-answered-step",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-option",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-candidate",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-report",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-carried-out",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-history",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-cited-pursuit",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-method",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-part",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-refs",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "ai-job",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "pursuit",
+        "operations": [
+         "records:read",
+         "records:list"
+        ]
+       },
+       {
+        "kind": "record:check",
+        "operations": [
+         "records:list",
+         "records:read"
+        ]
+       },
+       {
+        "kind": "record:decision-kind",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:decide-with-a-method"
+   }
   }
  ]
 }

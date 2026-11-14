@@ -217,8 +217,10 @@ export function progressFromSteps(record, rows) {
 // Whether the AI that took a decision's next action has said it was done (or named the wall it reached), for the
 // decision as it stands now: a revised decision is owed again. src/engine.mjs recordCarriedOut keeps what was said.
 export const carriedOut = record => Boolean(record?.decision) && (record.carried_out ?? []).some(entry => entry.decision_generation === (record.decision_generation ?? 1));
-// What a list of decisions says about a decided one: when it was decided and whether its next action was said done.
-export const decidedSummary = record => (record.decision ? { decided: true, decided_at: record.decided_at ?? null, carried_out: carriedOut(record) } : { decided: false });
+// What a list of decisions says about a decided one: when it was decided and whether its next action was said done, and,
+// when the person decided it themselves (tool:record-a-persons-own-decision), that the method was not walked.
+export const decidedSummary = record => (record.decision ? { decided: true, decided_at: record.decided_at ?? null, carried_out: carriedOut(record),
+  ...(record.decided_by ? { decided_by: record.decided_by, method_walked: false } : {}) } : { decided: false });
 
 // --- src/record-scope.mjs ---
 /** Every link one record carries, from the DATA links: [{ target, target_kind, via }]. The links the store keeps as

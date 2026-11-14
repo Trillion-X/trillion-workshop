@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:73099c56b9138cb4107346130a193220a3841a13df3fd82a55db87b30d3903b1"
+  "blake3": "1f:902de118fe4c690e31d97b0063484a08811bbf4e4deee536aea4b581c1d21796"
  },
  "fields": [
   {
@@ -8278,6 +8278,24 @@
    }
   },
   {
+   "id": "tool:pour-example-rows-into-my-list",
+   "values": {
+    "title": "Pour a kit's example rows into a list I already keep",
+    "job": "Put the example rows that come with a workflow or tool into a list I already keep for the same job, matching its fields to mine",
+    "description": "Reads one kit list (its fields, each with the names it goes by, and its example rows) and the person's own list (its id, row type and fields). Matches each kit field to one of theirs by the map they give, the same id, the same label or a name it goes by. Under the least share of matched fields (0.8 unless they ask for more) it pours nothing and names the fields with no home. Otherwise it answers the one records:write at @own-records that adds the example rows, with ids <row type>:kit-<example id> so pouring twice changes nothing, leaving out rows already there and any choice value their field does not offer. It writes nothing itself.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "pour-example-rows-into-my-list",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:practice",
    "values": {
     "title": "Keep cards to practise and bring them back on schedule",
@@ -10303,6 +10321,21 @@
    }
   },
   {
+   "id": "tool:record-a-persons-own-decision",
+   "values": {
+    "title": "Record a decision I made myself",
+    "job": "When I have already decided, keep my own verdict as the decision, with my exact words and when I said them, without my AI walking the method's questions",
+    "description": "The person decided; this keeps their verdict as the decision. Only the person's own word is taken: person.message_id names the message row they sent (type message, speaker person) and person.said must be their exact words in it, or the run comes from their own signed-in page, which the engine attests as the task's origin and no input can set. An AI saying the person decided, with neither, is refused and told to walk the method (tool:next-decision-question, then tool:make-the-decision), which every decision an AI makes still needs. The person's words are kept as an evidence row (person-verdict-<generation>) with where and when they said them; the decision and its root say decided_by person and method_walked false, and every method step not answered is listed as decided by the person (steps_decided_by_the_person), never written as an answer. A decision already made moves to decision_history. next_action and success_measure are what the AI will do now and how it will know it worked. The same verdict again replays.",
+    "status": "active",
+    "maker": "maker:decide-with-a-method",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-with-a-method"
+   }
+  },
+  {
    "id": "tool:record-a-publishing-step",
    "values": {
     "title": "Record a step on the work waiting to be published",
@@ -11022,6 +11055,21 @@
    }
   },
   {
+   "id": "tool:retire-a-servers-old-builds",
+   "values": {
+    "title": "Remove a server's old hand-built receptionist folders",
+    "job": "Free the disk on my public server of the receptionist build folders the retired hand road left",
+    "description": "Removes every folder under host.receptionist.releases.retire.folder whose name matches its `name` pattern, except the one the receptionist's seed runs from. The followed releases are pruned by the program itself (the newest kept, `current`, the ready one and the running one), never by this row.",
+    "status": "active",
+    "maker": "maker:renew-a-tls-certificate",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "renew-a-tls-certificate"
+   }
+  },
+  {
    "id": "tool:review-rows-of-a-list",
    "values": {
     "title": "Review the rows of a list",
@@ -11050,6 +11098,21 @@
      "placement:your-computer"
     ],
     "folder": "check-a-folder-against-my-rules"
+   }
+  },
+  {
+   "id": "tool:roll-back-a-servers-receptionist",
+   "values": {
+    "title": "Roll back a server's receptionist release",
+    "job": "Refuse a release of the receptionist on my public server and go back to the one that was ready",
+    "description": "Runs the receptionist program's own `release roll-back` on the server as its service account: the release is marked refused (no host takes it again, and a release no older than it is still never preferred), `current` goes back to the release that was ready or is removed (the seed then starts), and the receptionist restarts and is checked through verified public TLS. A release that never becomes ready falls back by itself; this is the lever for one that starts and is wrong.",
+    "status": "active",
+    "maker": "maker:renew-a-tls-certificate",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "renew-a-tls-certificate"
    }
   },
   {
@@ -11140,6 +11203,21 @@
      "placement:your-computer"
     ],
     "folder": "run-an-installed-apps-command-line"
+   }
+  },
+  {
+   "id": "tool:run-better-auth-sign-in",
+   "values": {
+    "title": "Run the Better Auth sign-in server (runs on your computer)",
+    "job": "Start the sign-in server: email and password, passkeys, and JWTs that anything can verify against its public keys",
+    "description": "Starts Better Auth (better-auth-rs, the documented axum setup) on the port in settings.json. It serves sign up, sign in, sessions and passkeys under the base path (default /api/auth), GET /api/auth/token for a JWT (EdDSA, claims sub, iss, aud, exp, iat and the user's email and name) and GET /api/auth/jwks for the public keys. Sessions travel as the __Host-trillion_session cookie or as an Authorization Bearer token. Port, base URL, issuer, audience, passkey relying party, trusted origins and the SQLite file are all in settings.json; the secret comes from the BETTER_AUTH_SECRET environment variable and is never printed.",
+    "status": "active",
+    "maker": "maker:better-auth",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "better-auth"
    }
   },
   {
@@ -12029,6 +12107,21 @@
      "placement:small-container"
     ],
     "folder": "paid-access"
+   }
+  },
+  {
+   "id": "tool:seed-a-servers-receptionist",
+   "values": {
+    "title": "Seed a server's receptionist from its release feed",
+    "job": "Put the newest signed-feed release of the receptionist on my public server, so it starts with no build made by hand",
+    "description": "Downloads, over https only and within the entry's own length, the newest release the receptionist's feed (host.receptionist.releases.feed) names for the server's target, and places its one program at <releases folder>/<program>/seed/<program>. The program then follows the feed itself: it checks the signature, length, content and target of every release it takes, and switches to it, so the seed is trusted only for the seconds before it does. Pass that path as receptionistBinary to tool:write-a-public-hosts-paths (its binary_pattern must allow it).",
+    "status": "active",
+    "maker": "maker:renew-a-tls-certificate",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "renew-a-tls-certificate"
    }
   },
   {

@@ -1,0 +1,71 @@
+{
+  "start_here": "Say to your AI: \"I have decided: open on Sundays. Keep that as my decision on the Sunday hours question.\" Your AI names the message you just sent and runs tool:record-a-persons-own-decision with your exact words, so the decision is yours and the method's questions are not walked.",
+  "lists": [],
+  "no_lists_because": "It keeps one decision record and its evidence row in the person's own decision records, which tool:start-a-decision opened; it reads one message row the person sent and pours into no list.",
+  "workflows": [],
+  "tools": [
+    "tool:record-a-persons-own-decision",
+    "tool:start-a-decision",
+    "tool:next-decision-question",
+    "tool:make-the-decision",
+    "tool:see-my-decisions",
+    "tool:report-a-decision-result"
+  ],
+  "instructions": [
+    "1. Open the decision once with tool:start-a-decision (source_id, goal, evidence, options), or use the decision_id it already has.",
+    "2. Find the message the person sent with their verdict (a message row with speaker person) and copy their exact words from it.",
+    "3. Run tool:record-a-persons-own-decision with decision_id, the option they chose, what you will do now, how you will know it worked, and person { message_id, said }.",
+    "4. Read the answer: decided_by person, method_walked false and the steps marked decided by the person; then do the next action and report the result with tool:report-a-decision-result."
+  ],
+  "worked_examples": [
+    {
+      "title": "A made-up bakery owner says go in chat",
+      "ask": "My verdict is go, open on Sundays, it is decided.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:record-a-persons-own-decision",
+            "input": {
+              "decision_id": "source:Y2hhdDpzdW5kYXktaG91cnM",
+              "option_id": "open",
+              "next_action": "Put the Sunday hours on the door sign",
+              "success_measure": "The first four Sundays each take in more than they cost",
+              "person": {
+                "message_id": "message:2026-03-01T10:00:00.000Z:0123456789abcdef01234567",
+                "said": "my verdict is go, open on Sundays, it is decided"
+              }
+            }
+          }
+        }
+      },
+      "hands_back": "case_id, decided_by person, method_walked false, steps_decided_by_the_person (every method step), the note saying the person decided it themselves and when, and what to do now."
+    },
+    {
+      "title": "An AI claims the person decided, with no message",
+      "ask": "Mark this decided, the owner would agree.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:record-a-persons-own-decision",
+            "input": {
+              "decision_id": "source:Y2hhdDpzdW5kYXktaG91cnM",
+              "option_id": "open",
+              "next_action": "Put the Sunday hours on the door sign",
+              "success_measure": "The first four Sundays each take in more than they cost",
+              "person": { "said": "go" }
+            }
+          }
+        }
+      },
+      "hands_back": "Refused: only the person decides without the method; the AI walks the method with tool:next-decision-question and tool:make-the-decision."
+    }
+  ]
+}

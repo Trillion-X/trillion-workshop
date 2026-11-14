@@ -24,13 +24,18 @@
 //   3. An answer and a decision cite only the decision's own evidence or the person's current pursuits. Evidence is
 //      added as rows with the time they came in; an answer or an evidence row brought in from another of the person's
 //      decisions is copied as it stood and checked as a typed one is.
-//   4. A decided decision changes only after a failed result or check; the earlier one moves to decision_history, and
+//   4. A decided decision changes only after a failed result or check (or by the person's own word, 8); the earlier one moves to decision_history, and
 //      its answers can be revised only after that failed result.
 //   5. A result is the person's: answered_by must be "person"; nothing here can mark it verified by a trusted source.
 //   6. A decision is kept as shared only by ./share-a-decision.mjs, after its privacy checks.
 //   7. Every check a step asks is graded by a second judge: an answer is kept only with a verdict taken for each of its
 //      checks, an answer kept before this rule is asked again until its verdicts are added, and a decision is made only
 //      when every step is graded.
+//   8. The person may decide without the method (tool:record-a-persons-own-decision), and only the person: the source is a
+//      message row they sent, holding the words given, or a run their own signed-in page started (the task's origin, which
+//      no input sets). Their words and time are kept as evidence, the decision and its root say `decided_by: "person"` and
+//      `method_walked: false`, and the steps not answered are named as decided by the person, never written as answers.
+//      The person's word stands over a decision already made, which moves to decision_history.
 import { readFileSync } from 'node:fs';
 import { AnswerProblems, judgedProblems, methodCatalogue, refusalWords, ungradedOf } from './method.mjs';
 import { takeCallerVerdicts } from './verdicts.mjs';
@@ -764,6 +769,10 @@ export async function makeTheDecision(input, { door }) {
     record.decision_history.push({ decision: record.decision, decided_at: record.decided_at, revised_at: new Date().toISOString() });
   }
   record.decision = decision;
+  // A decision made with the method, after the person's own one failed: the method was walked this time.
+  delete record.decided_by;
+  delete record.method_walked;
+  delete record.steps_decided_by_the_person;
   record.decision_generation = (record.decision_generation ?? (decidedBefore ? 1 : 0)) + 1;
   const proof = record.guidance.find(item => item.step_id === 'proof')?.answer;
   if (proof?.recheck_on && !record.recheck_on) record.recheck_on = proof.recheck_on;
@@ -786,6 +795,67 @@ function decidedReply(cat, record, already) {
     how_to_say_it: cat.howToSayIt(record),
   };
 }
+
+// Where a person's own decision came from (settings `person_verdict`): the message row they sent, read here and found to be
+// theirs with their words in it, or a run their own signed-in page started, which only the engine can attest (the task's
+// origin). Anything else is an AI saying the person decided, and is refused.
+async function personSource(door, person, origin, run) {
+  const { message: MESSAGE, basis: BASIS } = settings.person_verdict;
+  if (nonempty(person.message_id)) {
+    const kept = await door.read(MESSAGE.type, person.message_id);
+    if (!object(kept)) refuse('person_message_missing', { id: person.message_id });
+    if (kept[MESSAGE.speaker_field] !== MESSAGE.person) refuse('person_message_not_theirs', { id: person.message_id, speaker: kept[MESSAGE.speaker_field] ?? 'no one named' });
+    if (typeof kept[MESSAGE.text_field] !== 'string' || !kept[MESSAGE.text_field].includes(person.said)) refuse('person_words_not_said', { id: person.message_id });
+    const screen = MESSAGE.screen_roads.includes(kept[MESSAGE.road_field]);
+    return { basis: screen ? BASIS.screen : BASIS.message, source_ref: person.message_id, said: person.said, at: kept[MESSAGE.at_field] ?? null };
+  }
+  if (origin === settings.person_verdict.page_origin && nonempty(run)) return { basis: BASIS.screen, source_ref: `run:${run}`, said: person.said, at: new Date().toISOString() };
+  refuse('person_verdict_no_person');
+}
+
+/** tool:record-a-persons-own-decision. The engine fills { verdict: <the call's input>, origin?, run } from the run (the
+ * row's stdin): verdict { decision_id, option_id, next_action, success_measure, person: { said, message_id? } }. The person
+ * decided; their words and time are the evidence, and the method's steps not answered are marked decided by the person,
+ * never answered. A decision an AI makes still walks the method (tool:make-the-decision). */
+export async function recordAPersonsOwnDecision({ verdict, origin, run } = {}, { door }) {
+  const PERSON = settings.person_verdict;
+  if (!object(verdict)) refuse('person_verdict_shape');
+  refuseMisplacedFields('tool:record-a-persons-own-decision', verdict);
+  const { option_id: optionId, next_action: nextAction, success_measure: successMeasure, person } = verdict;
+  if (!nonempty(optionId) || !nonempty(nextAction) || !nonempty(successMeasure) || !object(person) || !nonempty(person.said)) refuse('person_verdict_shape');
+  const id = decisionId(verdict);
+  const record = await decisionOrRefuse(door, id);
+  const cat = catalogue(await methodsOf(door, methodIdOf(record)));
+  if (!optionsOf(record).some(option => option.id === optionId)) {
+    refuse('unknown_option', { option: JSON.stringify(optionId), options: optionsOf(record).map(option => `${JSON.stringify(option.id)} (${option.label})`).join(', ') });
+  }
+  const source = await personSource(door, person, origin, run);
+  const sameVerdict = decision => decision?.decided_by === PERSON.decided_by && decision.option_id === optionId && decision.next_action === nextAction
+    && decision.success_measure === successMeasure && decision.person_source?.source_ref === source.source_ref && decision.person_source?.said === source.said;
+  if (sameVerdict(record.decision)) return { ...decidedReply(cat, record, true), ...personNote(record) };
+  const generation = (record.decision_generation ?? (record.decision ? 1 : 0)) + 1;
+  const ref = PERSON.evidence_ref.replace('{generation}', String(generation));
+  takeEvidence(record, [{ ref, claim: source.said, added_at: new Date().toISOString(), person_source: source }]);
+  // The person's word stands over any decision already made: that one moves to the decision's history.
+  if (record.decision) {
+    record.decision_history ??= [];
+    record.decision_history.push({ decision: record.decision, decided_at: record.decided_at, revised_at: new Date().toISOString(), replaced_by: PERSON.decided_by });
+  }
+  const answered = new Set((record.guidance ?? []).filter(item => !item.needs_recheck && ungradedOf(item).missing === 0).map(item => item.step_id));
+  record.decision = { option_id: optionId, reason: source.said, next_action: nextAction, success_measure: successMeasure, evidence_refs: [ref], decided_by: PERSON.decided_by, person_source: source };
+  record.decided_by = PERSON.decided_by;
+  record.method_walked = false;
+  record.steps_decided_by_the_person = (record.method?.steps ?? []).map(step => step.id).filter(stepId => !answered.has(stepId));
+  record.decision_generation = generation;
+  record.status = 'needs_outcome';
+  record.decided_at = new Date().toISOString();
+  await writeDecision(door, recordsOf(record), `record-a-persons-own-decision:${id}:${generation}`);
+  return { ...decidedReply(cat, record, false), ...personNote(record) };
+}
+const personNote = record => ({
+  decided_by: record.decided_by, method_walked: false, steps_decided_by_the_person: record.steps_decided_by_the_person,
+  note: say('person_decided_note', { basis: record.decision.person_source.basis, at: record.decision.person_source.at, steps: record.steps_decided_by_the_person.length }),
+});
 
 // The status a new piece of evidence gives the decision, when it is the current outcome.
 const applyOutcome = (record, entry) => {
