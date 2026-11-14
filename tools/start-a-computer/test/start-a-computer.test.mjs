@@ -366,9 +366,9 @@ test('a start writes both fields into the computer config it installs, and a bad
   const here = folder(), written = [], setups = [];
   const run = async (_machine, command, input) => {
     if (command === 'uname -m') return 'x86_64\n';
+    if (command.startsWith('sh -s')) { setups.push(command); return ''; }
     if (command.includes('curl')) return '200';
     if (command.startsWith('getent passwd')) throw Object.assign(new Error('no such account'), { code: 3 });
-    if (command.startsWith('sh -s')) setups.push(command);
     if (command === 'install -o place -g place -m 0600 /dev/stdin /var/lib/place/place.json') written.push(JSON.parse(input));
     if (command === `install -o place -g place -m 0600 /dev/stdin '${productSettings.file}'`) written.push(Buffer.from(input));
     return '';

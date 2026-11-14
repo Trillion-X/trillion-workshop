@@ -77,7 +77,7 @@
             "node",
             "ssh"
           ],
-          "say": "This runs on the person's computer from the root of the Workshop checkout. Hand the machine provider row's vault_key credential on descriptor 3 and the names row's on descriptor 4, read from the person's vault, never in argv or a file. Tell the person the computer's public name, its price and whether the sign-up page answered 200. If it stops part way, run the same command again: the saved lease resumes it."
+          "say": "This runs on the person's computer from the root of the Workshop checkout. Hand the machine provider row's vault_key credential on descriptor 3 and the names row's on descriptor 4, read from the person's vault, never in argv or a file. When a host_layout unit names a secret_vault_key, hand descriptor 5 one JSON object of each such vault name to the value the vault holds under it; the computer seals it with systemd-creds at the unit's secret_file. Tell the person the computer's public name, its price and whether the sign-up page answered 200. If it stops part way, run the same command again: the saved lease resumes it."
         },
         "needs": {
           "expected_seconds": 240,

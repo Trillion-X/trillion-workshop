@@ -9,7 +9,8 @@
 // The engine is input (its file name, data folder and the argv that prints the computer id); this tool names none.
 // A path in a request file is read relative to that file; ssh uses the person's own SSH agent and settings unless
 // the request names an identity file. Credentials arrive on private pipes only: descriptor 3 holds the machine
-// provider's credential (the row's vault_key), descriptor 4 the name provider's. They never reach argv, a file, the
+// provider's credential (the row's vault_key), descriptor 4 the name provider's, and descriptor 5 the values a layout's
+// units name by vault name (`secret_vault_key`), as one JSON object of vault name to value. They never reach argv, a file, the
 // environment or the answer.
 //
 // The caller names its product data: the trillion-apps manifest computer/product-data.json (`product_data`), whose settings file
@@ -101,22 +102,38 @@ async function readIfPresent(machine, run, path) {
   return run(machine, `if [ -f ${q(path)} ]; then cat ${q(path)}; else exit 3; fi`).catch(error => { if (error.code === 3) return undefined; throw error; });
 }
 
-/** Apply a computer's layout row: set it up, write only the files that differ from what the row renders, and restart what
- * those files change. A computer that already matches gets nothing written, no set-up run and nothing restarted. A file
- * that is replaced keeps its previous bytes beside it as `NAME.bak-STAMP`. */
-export async function applyHostLayout(machine, layout, run = onMachine, product) {
+/** Apply a computer's layout row: set it up, seal each secret a unit names that the computer does not hold yet, write only
+ * the files that differ from what the row renders, and restart what those change. A computer that already matches gets
+ * nothing written, no set-up run and nothing restarted. A file that is replaced keeps its previous bytes beside it as
+ * `NAME.bak-STAMP`. `held` maps a unit's `secret_vault_key` to the value the person's vault holds under that name; the value
+ * reaches the computer only on the SSH channel's standard input, sealed there by systemd-creds at the unit's `secret_file`. */
+export async function applyHostLayout(machine, layout, run = onMachine, product, held = {}) {
   const { rendered, live } = await hostLayoutState(machine, layout, run, product);
   const writes = rendered.filter(({ path, text }) => live[path] !== text);
-  if (!writes.length) return { written: [], restarted: [] };
-  // Set-up makes what is missing (packages, accounts, folders); a computer whose accounts all exist needs none, and
-  // running it would refresh the package lists on every apply.
+  const absent = path => run(machine, `${path} || exit 3`).then(() => false, error => { if (error.code === 3) return true; throw error; });
+  const nodes = [...new Set(layout.units.map(unit => unit.node_bin).filter(Boolean))];
+  const nodeMissing = (await Promise.all(nodes.map(bin => absent(`test -x ${q(`${bin}/node`)}`)))).includes(true);
+  const secretUnits = layout.units.filter(unit => unit.secret_file);
+  const missing = [];
+  for (const unit of secretUnits) if (await absent(`test -s ${q(unit.secret_file)}`)) missing.push(unit);
+  for (const unit of missing) {
+    if (typeof held[unit.secret_vault_key] !== 'string' || !held[unit.secret_vault_key]) {
+      throw refused(`${unit.unit} needs the value held under the vault name ${unit.secret_vault_key}: hand it on descriptor 5 as {"${unit.secret_vault_key}": value}, read from the person's vault.`);
+    }
+  }
+  if (!writes.length && !missing.length && !nodeMissing) return { written: [], restarted: [] };
+  // Set-up makes what is missing (packages, node, accounts, folders); a computer whose accounts and node all exist needs
+  // none, and running it would refresh the package lists on every apply.
   const accounts = await Promise.all(layout.units.map(unit => run(machine, `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
   // A front door's pinned Caddy is fetched by set-up too, so a layout that gains front_door on a computer that has its
   // accounts still runs set-up once.
   const door = layout.caddy?.front_door;
   const doorCaddy = door ? await frontDoorCaddy(machine, run) : null;
   const caddyMissing = door ? await run(machine, `printf '%s  %s\\n' ${q(doorCaddy.sha256)} ${q(doorCaddy.binary)} | sha256sum -c --status || exit 3`).then(() => false, error => { if (error.code === 3) return true; throw error; }) : false;
-  if (accounts.includes(false) || caddyMissing) await run(machine, `sh -s -- ${q(JSON.stringify(layout))}${door ? ` ${q(`${doorCaddy.binary} ${doorCaddy.url} ${doorCaddy.sha256}`)}` : ''}`, readFileSync(SETUP));
+  if (accounts.includes(false) || caddyMissing || nodeMissing) await run(machine, `sh -s -- ${q(JSON.stringify(layout))} ${q(JSON.stringify(SETTINGS.machine))}${door ? ` ${q(`${doorCaddy.binary} ${doorCaddy.url} ${doorCaddy.sha256}`)}` : ''}`, readFileSync(SETUP));
+  for (const unit of missing) {
+    await run(machine, `install -d -m 0700 ${q(dirname(unit.secret_file))} && umask 077 && systemd-creds encrypt --name=${q(unit.secret_name)} - ${q(unit.secret_file)}`, held[unit.secret_vault_key]);
+  }
   // A product settings file is the unit's own: its user owns it and it is private (0600), as serve writes it.
   const owner = path => layout.units.find(unit => unit.product_settings === path)?.user;
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -134,8 +151,9 @@ export async function applyHostLayout(machine, layout, run = onMachine, product)
     }
   }
   const unitOf = path => layout.units.find(unit => unit.product_settings === path)?.unit ?? path.match(/\/([^/]+\.service)(?:\.d\/[^/]+)?$/)?.[1];
-  const units = [...new Set(writes.map(({ path }) => unitOf(path)).filter(Boolean))];
-  const running = new Set(writes.filter(({ path }) => live[path] !== undefined).map(({ path }) => unitOf(path)));
+  const units = [...new Set([...writes.map(({ path }) => unitOf(path)), ...missing.map(unit => unit.unit)].filter(Boolean))];
+  const running = new Set([...writes.filter(({ path }) => live[path] !== undefined).map(({ path }) => unitOf(path)),
+    ...missing.filter(unit => live[`/etc/systemd/system/${unit.unit}`] !== undefined).map(unit => unit.unit)]);
   if (units.length) await run(machine, 'systemctl daemon-reload');
   // Caddy is restarted, never only enabled, when its front-door drop-in changes: the drop-in swaps the program itself.
   for (const unit of units) {
@@ -152,7 +170,7 @@ export async function applyHostLayout(machine, layout, run = onMachine, product)
     if (status !== health.status) throw Object.assign(new Error(`${unit} answered ${status ?? 'nothing'} on ${health.path}, not ${health.status}, after its restart.`), { unit, status });
     booted.push(unit);
   }
-  return { written: writes.map(({ path }) => path), restarted: units, booted };
+  return { written: writes.map(({ path }) => path), restarted: units, booted, ...(missing.length ? { sealed: missing.map(unit => unit.secret_name) } : {}) };
 }
 
 const CADDYFILE = '/etc/caddy/Caddyfile';
@@ -357,10 +375,10 @@ export async function capTheJournal(machine, run = onMachine, root = '') {
 }
 
 /** Set the machine up, install the release, write the config, start serving, and read it all back. */
-async function serve(machine, request, price, { run, product, ...deps }) {
+async function serve(machine, request, price, { run, product, held, ...deps }) {
   const engine = request.engine;
   if (!request.host_layout) throw refused('A start needs host_layout: the computer\'s layout row (units, caddy, unmanaged).');
-  await applyHostLayout(machine, request.host_layout, run);
+  await applyHostLayout(machine, request.host_layout, run, undefined, held);
   await capTheJournal(machine, run);
   const release = await installRelease(machine, engine, run);
   const config = await computerConfig(machine, request, price, run, product);
@@ -389,13 +407,13 @@ export async function rentAMachine(request, { machineToken, nameToken, fetchImpl
   return { machine, price, arch, lease: { provider: lease.provider, name: lease.name, serverId: lease.serverId, address: lease.address, state: lease.state }, host_name: request.name.host_name };
 }
 
-export async function startAComputer(request, { machineToken, nameToken, fetchImpl = fetch, wait = pause, tries = 48, run = onMachine } = {}) {
+export async function startAComputer(request, { machineToken, nameToken, held = {}, fetchImpl = fetch, wait = pause, tries = 48, run = onMachine } = {}) {
   const product = productSettingsOf(readProductData(request));
   if (request.copies !== undefined) copiesPolicy(request.copies);
   feedOf(request);
   if (request.default_places !== undefined) defaultComputers(request.default_places);
   const { machine, price, arch, lease, host_name } = await rentAMachine(request, { machineToken, nameToken, fetchImpl, wait, run });
-  const served = await serve(machine, request, price, { run, product, fetchImpl, wait, tries });
+  const served = await serve(machine, request, price, { run, product, held, fetchImpl, wait, tries });
   return { lease, host_name, arch, price, place_id: served.computerId, release: served.release, sign_up_status: served.signUp };
 }
 
@@ -596,6 +614,14 @@ export function readRequest(file) {
   return request;
 }
 
+/** The values descriptor 5 hands, as one JSON object of vault name to value; anything else is refused without echoing it. */
+function heldValues(text) {
+  let values;
+  try { values = JSON.parse(text || '{}'); } catch { throw refused('Descriptor 5 holds no JSON object of vault name to value.'); }
+  if (!values || typeof values !== 'object' || Array.isArray(values) || Object.values(values).some(value => typeof value !== 'string')) throw refused('Descriptor 5 holds no JSON object of vault name to value.');
+  return values;
+}
+
 async function pipe(fd) {
   let text = '';
   try { for await (const bytes of createReadStream(null, { fd, autoClose: false })) { text += bytes; if (text.length > 65536) throw new Error(`Descriptor ${fd} exceeds its private input bound.`); } }
@@ -605,7 +631,7 @@ async function pipe(fd) {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [operation, first, second, third] = process.argv.slice(2);
-  const usage = 'usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | install LEASE_FILE REQUEST_FILE | update LEASE_FILE REQUEST_FILE | rollback LEASE_FILE REQUEST_FILE BACKUP | remove LEASE_FILE (machine credential on fd 3, name credential on fd 4)';
+  const usage = 'usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | install LEASE_FILE REQUEST_FILE | update LEASE_FILE REQUEST_FILE | rollback LEASE_FILE REQUEST_FILE BACKUP | remove LEASE_FILE (machine credential on fd 3, name credential on fd 4, the values a layout names by vault name on fd 5)';
   const overMachine = ['install', 'update', 'rollback', 'unit'];
   const json = path => readRequest(resolvePath(path));
   try {
@@ -613,7 +639,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const asked = ['price', 'rent', 'start'].includes(operation), lease = asked ? null : readLease(resolvePath(first));
     const needsName = ['rent', 'start'].includes(operation) ? Boolean(json(first).name?.provider) : operation === 'remove' && Boolean(lease.recordId);
     const needsMachine = !overMachine.includes(operation) && Boolean(machineProvider(asked ? json(first).machine.provider : lease.provider).base);
-    const tokens = { machineToken: needsMachine ? await pipe(3) : '', nameToken: needsName ? await pipe(4) : '' };
+    const needsHeld = operation === 'start' && (json(first).host_layout?.units ?? []).some(unit => unit.secret_vault_key);
+    const tokens = { machineToken: needsMachine ? await pipe(3) : '', nameToken: needsName ? await pipe(4) : '', held: needsHeld ? heldValues(await pipe(5)) : {} };
     const answer = operation === 'price' ? await priceOfAPlace(json(first), tokens)
       : operation === 'rent' ? await rentAMachine(json(first), tokens).then(({ lease, host_name, arch, price }) => ({ lease, host_name, arch, price }))
       : operation === 'start' ? await startAComputer(json(first), tokens)

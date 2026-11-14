@@ -1,0 +1,35 @@
+{
+  "draft": true,
+  "drafted_from": "tool:run-better-auth-sign-in's own row (its words, input schema, sample run and steps); read it before relying on it",
+  "start_here": "Say to your AI: \"Run tool:run-better-auth-sign-in with nothing more.\" Start the sign-in server: email and password, passkeys, and JWTs that anything can verify against its public keys",
+  "lists": [],
+  "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
+  "workflows": [],
+  "tools": [
+    "tool:run-better-auth-sign-in"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Run tool:run-better-auth-sign-in\", and give it nothing more.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:run-better-auth-sign-in and its input (the worked example shows one).",
+    "3. Read what comes back: The result the item's own job names: Start the sign-in server: email and password, passkeys, and JWTs that anything can verify against its public keys"
+  ],
+  "worked_examples": [
+    {
+      "title": "Run the Better Auth sign-in server (runs on your computer) on a sample input",
+      "ask": "Run tool:run-better-auth-sign-in.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-better-auth-sign-in",
+            "input": {}
+          }
+        }
+      },
+      "hands_back": "The result the item's own job names: Start the sign-in server: email and password, passkeys, and JWTs that anything can verify against its public keys"
+    }
+  ]
+}

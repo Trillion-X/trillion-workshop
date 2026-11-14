@@ -14,5 +14,16 @@
       "x86_64": { "url": "https://app.gettrillion.ai/download/caddy/caddy-2.11.9-redis-linux-amd64", "sha256": "eca5f1582fe35e8758a6f03df305427cc1848d908a810341ad1425ef87b2062f" },
       "aarch64": { "url": "https://app.gettrillion.ai/download/caddy/caddy-2.11.9-redis-linux-arm64", "sha256": "0f15ce80ba4b0538b0603a2f243ea560f24efece8cd22b37cb54408b460cf8ad" }
     }
+  },
+  "machine": {
+    "_what": "What set-up-the-machine.sh installs: the apt packages, and the node release each unit node_bin folder gets when it has none (from nodejs.org's SHASUMS256.txt for that release, read 2026-11-13).",
+    "packages": ["caddy", "jq", "ufw", "git", "curl"],
+    "node": {
+      "version": "v24.22.3",
+      "files": {
+        "x86_64": { "url": "https://nodejs.org/dist/v24.22.3/node-v24.22.3-linux-x64.tar.gz", "sha256": "061ec3e3062115705b56b51fa9cc330ab50d34b6969387d4e4b1a50c6809acc2" },
+        "aarch64": { "url": "https://nodejs.org/dist/v24.22.3/node-v24.22.3-linux-arm64.tar.gz", "sha256": "261af2af250dfd7e9f25cf151d1b2713a0adf8f10a9ad116c4947f68627affe8" }
+      }
+    }
   }
 }

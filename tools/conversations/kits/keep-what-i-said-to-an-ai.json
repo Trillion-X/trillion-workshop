@@ -1,0 +1,278 @@
+{
+  "draft": true,
+  "drafted_from": "tool:keep-what-i-said-to-an-ai's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep the messages of a turn with an AI that keeps its chats on its own service (Muse, Grok Bot), my words and its replies, as my messages\", with {\"app\":\"Muse\",\"conversation_id\":\"bakery-1\",\"messages\":[{\"id\":\"m1\",\"speaker\":\"person\",\"text\":\"How long does rye proof?\",\"at\":\"2026-11-13T17:00:00Z\"},{\"id\":\"m2\",\"speaker\":\"ai\",\"text\":\"About two hours.\",\"at\":\"2026-11-13T17:00:05Z\"}]}. It runs tool:keep-what-i-said-to-an-ai; its answer contains \"added\".",
+  "lists": [
+    {
+      "list": "list:ai-conversations",
+      "label": "AI conversations",
+      "row_type": "record:ai-conversation",
+      "holds": "Every conversation you had with an AI, one row each, with when it happened, what it was about and which pursuits and people it touches.",
+      "fields": [
+        {
+          "id": "title",
+          "label": "Title",
+          "kind": "text",
+          "alike": [
+            "name",
+            "subject"
+          ]
+        },
+        {
+          "id": "app",
+          "label": "App",
+          "kind": "text",
+          "alike": [
+            "ai app",
+            "assistant"
+          ]
+        },
+        {
+          "id": "conversation_id",
+          "label": "Conversation",
+          "kind": "text",
+          "alike": [
+            "chat id",
+            "thread id"
+          ]
+        },
+        {
+          "id": "started",
+          "label": "Started",
+          "kind": "date",
+          "alike": [
+            "created",
+            "first message"
+          ]
+        },
+        {
+          "id": "last",
+          "label": "Last message",
+          "kind": "date",
+          "alike": [
+            "updated",
+            "last message at"
+          ]
+        },
+        {
+          "id": "messages",
+          "label": "Messages",
+          "kind": "number",
+          "alike": [
+            "message count",
+            "turns"
+          ]
+        },
+        {
+          "id": "models",
+          "label": "Models",
+          "kind": "tags",
+          "alike": [
+            "model"
+          ]
+        },
+        {
+          "id": "labels",
+          "label": "Labels",
+          "kind": "tags",
+          "alike": [
+            "tags"
+          ]
+        },
+        {
+          "id": "people",
+          "label": "People",
+          "kind": "tags",
+          "alike": [
+            "who"
+          ]
+        },
+        {
+          "id": "pursuits",
+          "label": "Pursuits",
+          "kind": "tags",
+          "alike": [
+            "goals",
+            "projects"
+          ]
+        },
+        {
+          "id": "follow_ups",
+          "label": "Follow-ups",
+          "kind": "text",
+          "alike": [
+            "next steps",
+            "to do"
+          ]
+        },
+        {
+          "id": "original_file",
+          "label": "Original file",
+          "kind": "text",
+          "alike": [
+            "source file",
+            "export file"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "muse-bakery-1",
+          "values": {
+            "title": "How long does rye proof?",
+            "app": "Muse",
+            "conversation_id": "bakery-1",
+            "started": "2026-11-13T17:00:00Z",
+            "last": "2026-11-13T17:00:05Z",
+            "messages": 2,
+            "models": [],
+            "labels": [
+              "baking"
+            ],
+            "people": [],
+            "pursuits": [],
+            "follow_ups": "",
+            "original_file": ""
+          }
+        },
+        {
+          "id": "grok-trip-7",
+          "values": {
+            "title": "Packing for a weekend in the hills",
+            "app": "Grok",
+            "conversation_id": "trip-7",
+            "started": "2026-11-12T09:30:00Z",
+            "last": "2026-11-12T09:41:00Z",
+            "messages": 6,
+            "models": [
+              "grok-4"
+            ],
+            "labels": [
+              "travel"
+            ],
+            "people": [],
+            "pursuits": [
+              "weekend trip"
+            ],
+            "follow_ups": "Buy rain jacket",
+            "original_file": ""
+          }
+        }
+      ],
+      "alike": [
+        "AI chats",
+        "chat history",
+        "assistant conversations"
+      ]
+    }
+  ],
+  "workflows": [],
+  "tools": [
+    "tool:keep-what-i-said-to-an-ai"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Keep the messages of a turn with an AI that keeps its chats on its own service (Muse, Grok Bot), my words and its replies, as my messages\", and give it app (The AI app the messages were said in, as it calls itself (Muse, Grok)); conversation_id (The AI's own name for this conversation, the same for every turn of it); messages.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-what-i-said-to-an-ai and its input (the worked example shows one).",
+    "3. Read what comes back: Takes one conversation's messages from an AI that keeps its chats on its own service and has no store on this computer (Muse, Grok Bot: set-up-my-account harnesses.json turns.roads mcp-record), as old Trillion's record_messages did: app (the AI as it calls itself), conversation_id (its own name for the conversation), title?, and messages [{id, speaker: person | ai, text word for word, at?, model?}].",
+    "4. It reads and writes only its own rows through the records door: message (records:read, records:list, records:write); message-source-key (records:read, records:write); message-resend-key (records:read, records:write); message-content-key (records:read, records:write); setting (records:read, records:write); list (records:read, records:write); record:ai-conversation (records:read, records:list, records:write)."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep what I said to an AI and what it answered on its own sample",
+      "ask": "Keep the messages of a turn with an AI that keeps its chats on its own service (Muse, Grok Bot), my words and its replies, as my messages",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-what-i-said-to-an-ai",
+            "input": {
+              "app": "Muse",
+              "conversation_id": "bakery-1",
+              "messages": [
+                {
+                  "id": "m1",
+                  "speaker": "person",
+                  "text": "How long does rye proof?",
+                  "at": "2026-11-13T17:00:00Z"
+                },
+                {
+                  "id": "m2",
+                  "speaker": "ai",
+                  "text": "About two hours.",
+                  "at": "2026-11-13T17:00:05Z"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "The input {\"app\":\"Muse\",\"conversation_id\":\"bakery-1\",\"messages\":[{\"id\":\"m1\",\"speaker\":\"person\",\"text\":\"How long does rye proof?\",\"at\":\"2026-11-13T17:00:00Z\"},{\"id\":\"m2\",\"speaker\":\"ai\",\"text\":\"About two hours.\",\"at\":\"2026-11-13T17:00:05Z\"}]}.",
+      "hands_back": "The answer's $ contains \"added\"."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:ai-conversations",
+      "into": {
+        "list": "list:my-ai-conversations",
+        "row_type": "record:ai-conversation",
+        "fields": [
+          {
+            "id": "title",
+            "label": "Title"
+          },
+          {
+            "id": "app",
+            "label": "App"
+          },
+          {
+            "id": "conversation_id",
+            "label": "Conversation"
+          },
+          {
+            "id": "started",
+            "label": "Started"
+          },
+          {
+            "id": "last",
+            "label": "Last message"
+          },
+          {
+            "id": "messages",
+            "label": "Messages"
+          },
+          {
+            "id": "models",
+            "label": "Models"
+          },
+          {
+            "id": "labels",
+            "label": "Labels"
+          },
+          {
+            "id": "people",
+            "label": "People"
+          },
+          {
+            "id": "pursuits",
+            "label": "Pursuits"
+          },
+          {
+            "id": "follow_ups",
+            "label": "Follow-ups"
+          },
+          {
+            "id": "original_file",
+            "label": "Original file"
+          }
+        ]
+      }
+    }
+  }
+}

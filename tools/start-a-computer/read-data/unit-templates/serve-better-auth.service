@@ -4,8 +4,9 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-# BETTER_AUTH_SECRET is the vault key {secret_vault_key}: the vault's owner writes it to {secret_file}; this unit names only where.
-LoadCredential=better-auth-secret:{secret_file}
+# BETTER_AUTH_SECRET is the value held under the vault name {secret_vault_key}: start-a-computer seals it for this computer
+# (systemd-creds) at {secret_file}; this unit names only where.
+LoadCredentialEncrypted={secret_name}:{secret_file}
 Environment=BETTER_AUTH_SETTINGS={settings_file}
 Environment=PATH={node_bin}:/usr/bin:/bin
 Environment=npm_config_cache={workshop}/.npm-cache
@@ -14,7 +15,7 @@ User={user}
 Group={user}
 ExecStartPre=/bin/sh -c 'test -d {workshop}/.git || git clone --depth 1 {repository} {workshop}'
 ExecStartPre=/bin/sh -c 'cd {workshop}/{tool_folder} && npm ci --no-audit --no-fund'
-ExecStart=/bin/sh -c 'cd {workshop}/{tool_folder} && BETTER_AUTH_SECRET="$(cat "$CREDENTIALS_DIRECTORY/better-auth-secret")" && export BETTER_AUTH_SECRET && npx auth migrate --config auth.mjs -y && exec node server.mjs'
+ExecStart=/bin/sh -c 'cd {workshop}/{tool_folder} && BETTER_AUTH_SECRET="$(cat "$CREDENTIALS_DIRECTORY/{secret_name}")" && export BETTER_AUTH_SECRET && npx auth migrate --config auth.mjs -y && exec node server.mjs'
 Restart=on-failure
 RestartSec=3
 KillSignal=SIGTERM
