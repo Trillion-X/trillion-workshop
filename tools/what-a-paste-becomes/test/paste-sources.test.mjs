@@ -10,8 +10,11 @@ import { launchChromium } from '../../../test-helpers/chromium.mjs';
 
 const source = readFileSync(new URL('../show/paste-sources.ts', import.meta.url), 'utf8');
 const settings = readFileSync(new URL('../show/paste-sources.json', import.meta.url), 'utf8');
-const moduleText = `${stripTypeScriptTypes(source).replace(/^import settings from .*$/m, `const settings = ${settings};`)}
-window.__paste = { pastedMarkdown, pasteSourceOf, tableRows };`;
+const canonical = readFileSync(new URL('../../edit-a-document-together/read-data/paste-sources.ts', import.meta.url), 'utf8');
+const modules = {
+  '/what-a-paste-becomes/show/paste-sources.ts': stripTypeScriptTypes(source).replace(/^import configuration from .*$/m, `const configuration = ${settings}; window.__pasteConfiguration = configuration;`),
+  '/edit-a-document-together/read-data/paste-sources.ts': stripTypeScriptTypes(canonical).replace(/^import settings from .*$/m, `const settings = ${settings};`),
+};
 
 const GOOGLE_DOCS = '<meta charset="utf-8"><b style="font-weight:normal;" id="docs-internal-guid-12ab"><h2 dir="ltr"><span>Launch plan</span></h2><p dir="ltr"><span style="font-weight:700;">Owner</span><span> is Ada</span></p><ul><li><p>First</p></li><li><p>Second</p></li></ul></b>';
 const WORD = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><body><p class="MsoListParagraph"><span style="mso-list:Ignore">·<span>&nbsp;</span></span>Buy milk<o:p></o:p></p><p class="MsoNormal">Plain line</p></body></html>';
@@ -21,9 +24,12 @@ test('pastes from other editors keep their structure', { timeout: 90_000 }, asyn
   const browser = await launchChromium();
   try {
     const page = await browser.newPage();
-    await page.route('http://localhost/**', route => route.fulfill({ contentType: 'text/html', body: '' }));
+    await page.route('http://localhost/**', route => {
+      const module = modules[new URL(route.request().url()).pathname];
+      return route.fulfill(module === undefined ? { contentType: 'text/html', body: '' } : { contentType: 'text/javascript', body: module });
+    });
     await page.goto('http://localhost/paste');
-    await page.addScriptTag({ content: moduleText, type: 'module' });
+    await page.addScriptTag({ content: `import * as paste from '/what-a-paste-becomes/show/paste-sources.ts'; window.__paste = paste; import * as canonical from '/edit-a-document-together/read-data/paste-sources.ts'; window.__canonicalPaste = canonical;`, type: 'module' });
     await page.waitForFunction(() => Boolean(window.__paste));
     const converted = await page.evaluate(([google, word, notion]) => ({
       google: window.__paste.pastedMarkdown(google), word: window.__paste.pastedMarkdown(word), notion: window.__paste.pastedMarkdown(notion),
@@ -46,5 +52,10 @@ test('pastes from other editors keep their structure', { timeout: 90_000 }, asyn
     assert.equal(converted.table[0][0], 'Name');
     assert.equal(converted.table.length, 2);
     assert.equal(converted.noTable, null);
+    const configured = await page.evaluate(() => {
+      window.__pasteConfiguration.default_rules.unshift({ tag: 'p', before: '[', after: ']' });
+      return { tool: window.__paste.pastedMarkdown('<p>Configured</p>').markdown, canonical: window.__canonicalPaste.pastedMarkdown('<p>Configured</p>').markdown };
+    });
+    assert.deepEqual(configured, { tool: '[Configured]', canonical: 'Configured' }, 'the forwarding tool keeps its editable DATA and the canonical defaults remain unchanged');
   } finally { await browser.close(); }
 });
