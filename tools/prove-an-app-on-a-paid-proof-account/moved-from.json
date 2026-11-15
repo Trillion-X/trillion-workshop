@@ -1,0 +1,71 @@
+{
+  "about": "Files moved here byte for byte from Trillion-X/trillion-apps web/scripts and web/test: each names its source path and commit, the identity of its source bytes and of its bytes here.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/paid-proof-account.mjs",
+      "commit": "ebb287c88e36366c2bf769844a9352aece840b93",
+      "to": "tools/prove-an-app-on-a-paid-proof-account/scripts/paid-proof-account.mjs",
+      "source_identity": "1f:e60930ce3bffd1a134444d72b20151074320b3e41d9d7f3000ca1f7cce409250",
+      "identity": "1f:e60930ce3bffd1a134444d72b20151074320b3e41d9d7f3000ca1f7cce409250",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/credential-file.mjs",
+      "commit": "ebb287c88e36366c2bf769844a9352aece840b93",
+      "to": "tools/prove-an-app-on-a-paid-proof-account/scripts/credential-file.mjs",
+      "source_identity": "1f:81c679363e1675d444b82445f09bdc1dfd87c18fb7f15a50b178faece086c47b",
+      "identity": "1f:81c679363e1675d444b82445f09bdc1dfd87c18fb7f15a50b178faece086c47b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/first-paint-evidence.mjs",
+      "commit": "ebb287c88e36366c2bf769844a9352aece840b93",
+      "to": "tools/prove-an-app-on-a-paid-proof-account/scripts/first-paint-evidence.mjs",
+      "source_identity": "1f:fad476b37fb3ec2175d9eea540e6963914077ac5c8ea080f5981147120b1039e",
+      "identity": "1f:fad476b37fb3ec2175d9eea540e6963914077ac5c8ea080f5981147120b1039e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/test/paid-proof-account.test.mjs",
+      "commit": "ebb287c88e36366c2bf769844a9352aece840b93",
+      "to": "tools/prove-an-app-on-a-paid-proof-account/test/paid-proof-account.test.mjs",
+      "source_identity": "1f:fe7d0e315460df75665938eddd49c13d09bf85771b54799d4e74d4394df04374",
+      "identity": "1f:fe7d0e315460df75665938eddd49c13d09bf85771b54799d4e74d4394df04374",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/test/paid-proof-account-grant.test.mjs",
+      "commit": "ebb287c88e36366c2bf769844a9352aece840b93",
+      "to": "tools/prove-an-app-on-a-paid-proof-account/test/paid-proof-account-grant.test.mjs",
+      "source_identity": "1f:8034ac5ee196316778639a62ac8831d8a36ad558b06284b8ff1dcc01efd6e876",
+      "identity": "1f:8034ac5ee196316778639a62ac8831d8a36ad558b06284b8ff1dcc01efd6e876",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/test/paid-proof-owner.test.mjs",
+      "commit": "ebb287c88e36366c2bf769844a9352aece840b93",
+      "to": "tools/prove-an-app-on-a-paid-proof-account/test/paid-proof-owner.test.mjs",
+      "source_identity": "1f:12c484d34f9f47c4eecb76ca98a70df4a805420eed79957cb88308ae75693c7e",
+      "identity": "1f:12c484d34f9f47c4eecb76ca98a70df4a805420eed79957cb88308ae75693c7e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/test/credential-file.test.mjs",
+      "commit": "ebb287c88e36366c2bf769844a9352aece840b93",
+      "to": "tools/prove-an-app-on-a-paid-proof-account/test/credential-file.test.mjs",
+      "source_identity": "1f:2fd28e09bbcc48c92c2d2d62da5e7a2957987bdd754da403e2eacc792100d1b7",
+      "identity": "1f:2fd28e09bbcc48c92c2d2d62da5e7a2957987bdd754da403e2eacc792100d1b7",
+      "found_by": "byte copy"
+    }
+  ]
+}

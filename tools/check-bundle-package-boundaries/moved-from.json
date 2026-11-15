@@ -1,0 +1,53 @@
+{
+  "about": "Files moved here byte for byte from Trillion-X/trillion-apps web/scripts and web/test: each names its source path and commit, the identity of its source bytes and of its bytes here.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/check-bundle-part-boundaries.mjs",
+      "commit": "ebb287c88e36366c2bf769844a9352aece840b93",
+      "to": "tools/check-bundle-package-boundaries/scripts/check-bundle-part-boundaries.mjs",
+      "source_identity": "1f:84dda8e9ba4e95390753d66845d2696e3833f2c36793db9a986d5b2d6e146bd3",
+      "identity": "1f:84dda8e9ba4e95390753d66845d2696e3833f2c36793db9a986d5b2d6e146bd3",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/barrel-imports.mjs",
+      "commit": "ebb287c88e36366c2bf769844a9352aece840b93",
+      "to": "tools/check-bundle-package-boundaries/scripts/barrel-imports.mjs",
+      "source_identity": "1f:fb4d0e1474d7364bcdd4ebcfd4c961af759244ec11ed088b40dc83dab6c0c78b",
+      "identity": "1f:fb4d0e1474d7364bcdd4ebcfd4c961af759244ec11ed088b40dc83dab6c0c78b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/part-side-effects.mjs",
+      "commit": "ebb287c88e36366c2bf769844a9352aece840b93",
+      "to": "tools/check-bundle-package-boundaries/scripts/part-side-effects.mjs",
+      "source_identity": "1f:76c7342a6c2eb83bea8f8751f70a29449010a64012111b078b48bf0abfdc41bf",
+      "identity": "1f:76c7342a6c2eb83bea8f8751f70a29449010a64012111b078b48bf0abfdc41bf",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/light-theme.mjs",
+      "commit": "ebb287c88e36366c2bf769844a9352aece840b93",
+      "to": "tools/check-bundle-package-boundaries/scripts/light-theme.mjs",
+      "source_identity": "1f:74d9da06e7a9e9ae9aeb9a38bebb0bec01e2bafab051234f0c79569fb6b1bfc2",
+      "identity": "1f:74d9da06e7a9e9ae9aeb9a38bebb0bec01e2bafab051234f0c79569fb6b1bfc2",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/test/check-bundle-part-boundaries.test.mjs",
+      "commit": "ebb287c88e36366c2bf769844a9352aece840b93",
+      "to": "tools/check-bundle-package-boundaries/test/check-bundle-part-boundaries.test.mjs",
+      "source_identity": "1f:f8d7490e03036f18ff590781abb08bc7b5af0cf0013a07a73299b76a989e0713",
+      "identity": "1f:f8d7490e03036f18ff590781abb08bc7b5af0cf0013a07a73299b76a989e0713",
+      "found_by": "byte copy"
+    }
+  ]
+}

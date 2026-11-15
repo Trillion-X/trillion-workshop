@@ -1,0 +1,66 @@
+{
+  "what_this_is": "Files written by a generator from other files. A commit that changes any input or output of a row runs that row's check (scripts/check-generated-files.mjs, from scripts/commit-paths.sh) and is refused when the output is not what the generator writes now, naming the command that writes it. `inputs` are the files the generator reads; `output` is the file it writes; `check` exits 1 when the output is behind; `write` brings it up to date.",
+  "generated": [
+    {
+      "id": "how-to-start:ios/app-store/listing.json",
+      "output": "../ios/app-store/listing.json",
+      "inputs": [
+        "../src/how-to-start-for-reviewers.json",
+        "../scripts/how-to-start-for-reviewers.mjs",
+        "../computer/workshop-resolver.mjs",
+        "../computer/workshop-install.mjs"
+      ],
+      "check": [
+        "node",
+        "../scripts/how-to-start-for-reviewers.mjs",
+        "--check"
+      ],
+      "write": [
+        "node",
+        "../scripts/how-to-start-for-reviewers.mjs"
+      ],
+      "why": "Keep this app-owned reviewer copy equal to its committed sentence source."
+    },
+    {
+      "id": "how-to-start:macos/app-store/listing.json",
+      "output": "../macos/app-store/listing.json",
+      "inputs": [
+        "../src/how-to-start-for-reviewers.json",
+        "../scripts/how-to-start-for-reviewers.mjs",
+        "../computer/workshop-resolver.mjs",
+        "../computer/workshop-install.mjs"
+      ],
+      "check": [
+        "node",
+        "../scripts/how-to-start-for-reviewers.mjs",
+        "--check"
+      ],
+      "write": [
+        "node",
+        "../scripts/how-to-start-for-reviewers.mjs"
+      ],
+      "why": "Keep this app-owned reviewer copy equal to its committed sentence source."
+    },
+    {
+      "id": "how-to-start:extension/store-listing.json",
+      "output": "../extension/store-listing.json",
+      "inputs": [
+        "../src/how-to-start-for-reviewers.json",
+        "../scripts/how-to-start-for-reviewers.mjs",
+        "../computer/workshop-resolver.mjs",
+        "../computer/workshop-install.mjs",
+        "../extension/manifest.json"
+      ],
+      "check": [
+        "node",
+        "../scripts/how-to-start-for-reviewers.mjs",
+        "--check"
+      ],
+      "write": [
+        "node",
+        "../scripts/how-to-start-for-reviewers.mjs"
+      ],
+      "why": "Keep this app-owned reviewer copy equal to its committed sentence source."
+    }
+  ]
+}

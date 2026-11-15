@@ -182,6 +182,8 @@ by Expansion's shared-controls build, not claims of live Trillion convergence.
 | `show/border-beam.css` | Appearance of the shared border beam (`ui/show/border-beam`): the look's thread travelling round a working box's border with a soft bloom, its colour, width and turn time as variables, its ~300 ms wait and fade, and a still faint ring for reduced motion. |
 | `show/catch-up.css` | Appearance of whether every copy is in step (`ui/show/catch-up`): the tinted pill and its icon form, the dot that breathes while work goes on and the ring that fills to a measured percent (both still for reduced motion), the panel's padding and popup height, and the two versions view: a column per version with its head when there is room, one stacked list under 32rem by container query. Tones are the plain tone words (good, attention, bad, info, quiet). |
 | `show/file-field.css` | The shared file field (`ui/show/file-field`): a low dashed drop box beside "Choose from your files", the upload line with its share done, the chosen file's chip with its remove button, and the chooser popover's size; loaded through `scripts/workspace-looks.json`. |
+| `scripts/make-device-looks.mjs` | Carries the one look from the screen-look themes into every device host that cannot run them (`device-hosts.json` `generated` rows name the file and its emitter: `swift-palette`, ...). Moved byte for byte from trillion-apps `web/scripts/`. |
+| `test/look-font-fallback.test.mjs` | A look that names its face as a raw CSS variable still gets the shipped face in the resolved palette. Moved byte for byte from trillion-apps `web/test/`. |
 
 ## Rules
 

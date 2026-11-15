@@ -2,7 +2,26 @@
   "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
   "source": "trillion",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "lock-of-the-consumer",
+      "means": "The test helper reads the package-lock.json of the checkout that runs the test (the working folder), as it read the one beside web/ in trillion-apps; in the Workshop the folder beside it is no consumer's.",
+      "find": "new URL\\('\\.\\./package-lock\\.json', import\\.meta\\.url\\)",
+      "replace": "new URL('package-lock.json', pathToFileURL(`${process.cwd()}/`))"
+    },
+    {
+      "id": "control-plane-default",
+      "means": "A private home path used as a default folder name is swapped for a made-up one: a public tree holds made-up data only. The folder is still taken from TRILLION_CONTROL_PLANE when that is set.",
+      "find": "join\\(homedir\\(\\), 'dev/ai-command-[c]enter'\\)",
+      "replace": "join(homedir(), 'control-plane')"
+    },
+    {
+      "id": "control-plane-pins-path",
+      "means": "The path of the pins file inside the control plane folder is swapped for a made-up one: a public tree names no private folder.",
+      "find": "'\\.ai-[o]rchestra/data/test-retirement-pins\\.json'",
+      "replace": "'data/test-retirement-pins.json'"
+    }
+  ],
   "files": [
     {
       "from": "parts/headless-browser/bare-linux.mjs",
@@ -21,6 +40,40 @@
       "source_identity": "1f:53bf2afcd25a2ba48a9366566e690187c1d0592c3fab79b793c28a01e6fc540e",
       "identity": "1f:53bf2afcd25a2ba48a9366566e690187c1d0592c3fab79b793c28a01e6fc540e",
       "found_by": "same bytes"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/test/workshop-browser-for-tests.mjs",
+      "commit": "ebb287c88e36366c2bf769844a9352aece840b93",
+      "to": "tools/headless-browser/test/workshop-browser-for-tests.mjs",
+      "source_identity": "1f:43aae5ea2a309157dc1f65914725e8662a9f2ed825276fd8e1d160f9d816f337",
+      "identity": "1f:9258b15a9750bcac682fdf38f02c75ef0a1d24a22cbba595053b51d561183503",
+      "found_by": "byte copy, then the listed calls",
+      "calls": [
+        "lock-of-the-consumer"
+      ]
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/test/byte-identity-for-tests.mjs",
+      "commit": "ebb287c88e36366c2bf769844a9352aece840b93",
+      "to": "tools/headless-browser/test/byte-identity-for-tests.mjs",
+      "source_identity": "1f:6888e09766bf82f7b13880076fbf58688624907a0d7df4b4a58cd09023388f3e",
+      "identity": "1f:6888e09766bf82f7b13880076fbf58688624907a0d7df4b4a58cd09023388f3e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/test/workshop-custody-for-tests.mjs",
+      "commit": "ebb287c88e36366c2bf769844a9352aece840b93",
+      "to": "tools/headless-browser/test/workshop-custody-for-tests.mjs",
+      "source_identity": "1f:751eb5ab434e8bb67f14df3c076f88a580919013d88d245f571ec2b00d884fc6",
+      "identity": "1f:9640274695f53f19342eb84d5b915f0bb6f29ad6bcfdf97a6c91d0e0f6c48172",
+      "found_by": "byte copy, then the listed calls",
+      "calls": [
+        "control-plane-default",
+        "control-plane-pins-path"
+      ]
     }
   ]
 }

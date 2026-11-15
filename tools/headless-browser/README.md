@@ -17,6 +17,9 @@ its files beside theirs at `/opt/headless-browser`.
 | `test/devtools-target.test.mjs` | A browser with no startup page gets one made and attached; an existing page is attached without making another. |
 | `test/devtools-pipe.test.mjs`, `test/stand-in/pipe-browser.mjs` | The browser is started with the pipe and no port; messages split across writes are framed by the NUL byte; one that exits at start is a `BrowserProblem` with its own words. The stand-in browser speaks only the pipe. |
 | `test/proxy.test.mjs` | A browser told a proxy loads a page through it, and loopback, private and metadata addresses go to the proxy too (where the engine refuses them), never around it. |
+| `test/workshop-browser-for-tests.mjs` | The browser launcher and Screen Look stylesheet path a test of another repository imports, with the selected-checkout provenance line. One call row applied (`lock-of-the-consumer`). Moved from trillion-apps `web/test/`. |
+| `test/byte-identity-for-tests.mjs` | The `1f:` identity of bytes a test made itself, from the compiled hasher, checked once against the JavaScript BLAKE3. Moved byte for byte. |
+| `test/workshop-custody-for-tests.mjs` | Shared test-only custody comparison: complete assertion token streams retain literal contents, arguments, nested calls and callbacks. Two call rows applied (`control-plane-default`, `control-plane-pins-path`: a private folder named as a default becomes a made-up one). |
 
 ## Key Types / Functions
 

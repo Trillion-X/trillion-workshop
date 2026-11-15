@@ -11,6 +11,7 @@ What every AI connected to a person's account did, kept so the person can see it
 | `do-work/keep-and-read-activity.mjs` | `keepAndReadActivity({ calls, access?, read? })`: the calls handed in, kept in an in-memory SQLite store and read back newest first (what `tool-rows.json` runs) |
 | `moved-from.json` | Where `activity-marks.json` came from, with the identity of its bytes |
 | `tool-rows.json` | The row `tool:list-what-my-ais-did`, with a sample run that reads back the one call that failed |
+| `test/activity-trace-bounds.test.mjs` | The bounds on the activity trace. Moved byte for byte from trillion-apps `web/test/`. |
 
 ## The row
 

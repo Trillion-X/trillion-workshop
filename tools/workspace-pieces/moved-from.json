@@ -10,6 +10,24 @@
       "to": "tools/workspace-pieces/src/workspace-pieces.json",
       "source_identity": "1f:4628d9eecf1deb199b5a656ed95a98ef9595f5bfca47bf873058a4bd8cfc1f33",
       "identity": "1f:4628d9eecf1deb199b5a656ed95a98ef9595f5bfca47bf873058a4bd8cfc1f33"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/workshop-shell-imports.mjs",
+      "commit": "ebb287c88e36366c2bf769844a9352aece840b93",
+      "to": "tools/workspace-pieces/scripts/workshop-shell-imports.mjs",
+      "source_identity": "1f:e95e97d272ec257048104f1a1f3e0a581dd0447ae97dea213185051103082e6f",
+      "identity": "1f:e95e97d272ec257048104f1a1f3e0a581dd0447ae97dea213185051103082e6f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/workshop-shell-homes.json",
+      "commit": "ebb287c88e36366c2bf769844a9352aece840b93",
+      "to": "tools/workspace-pieces/scripts/workshop-shell-homes.json",
+      "source_identity": "1f:1c4db7204a3603b2fcc025a4ef388ff9a9175bd8c287fc6e7f12865c06550bbb",
+      "identity": "1f:1c4db7204a3603b2fcc025a4ef388ff9a9175bd8c287fc6e7f12865c06550bbb",
+      "found_by": "byte copy"
     }
   ]
 }

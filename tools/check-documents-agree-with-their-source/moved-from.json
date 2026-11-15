@@ -1,0 +1,26 @@
+{
+  "about": "Files moved here byte for byte from Trillion-X/trillion-apps web/scripts and web/test: each names its source path and commit, the identity of its source bytes and of its bytes here.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/generated-files.json",
+      "commit": "ebb287c88e36366c2bf769844a9352aece840b93",
+      "to": "tools/check-documents-agree-with-their-source/scripts/generated-files.json",
+      "source_identity": "1f:19ac32db1c5c7e6241767434f0c9f6efbc676f05a457405888a0677cb212b5c7",
+      "identity": "1f:19ac32db1c5c7e6241767434f0c9f6efbc676f05a457405888a0677cb212b5c7",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/deploy-guard-tests.json",
+      "commit": "ebb287c88e36366c2bf769844a9352aece840b93",
+      "to": "tools/check-documents-agree-with-their-source/scripts/deploy-guard-tests.json",
+      "source_identity": "1f:f6bfc4a5df5688fbf45c8267bb2d24116afef852d733ab7395b3f4eb950e7f40",
+      "identity": "1f:f6bfc4a5df5688fbf45c8267bb2d24116afef852d733ab7395b3f4eb950e7f40",
+      "found_by": "byte copy"
+    }
+  ]
+}

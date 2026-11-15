@@ -1,0 +1,64 @@
+{
+  "_what": "The guard tests of every release (scripts/deploy-worker.mjs); `selection` decides which of them a change must pass before upload and which run right after the switch: each holds one way the store, Worker or a person's destination once failed (rows written, crashes and resets at any statement, a trapped engine, storage growth, memory, boot, a screen drawn off the selected look, or an addressed message shown as empty). Resource limits are kept as data (src/rows-written-budget.json, src/reliability-ceilings.json, src/read-budgets.json); destination regressions follow persisted identity through its read and visible result. A failing test stops the deploy and the live version stays. A test that reads either limits file must be named here (test/deploy-guards.test.mjs checks). after_release holds the checks that judge how screens look and behave in a browser, wording and documents, and the deploy script's own diagnostics: they run on every release right after it goes live and name what to fix, but they never keep a built, guarded version from going live (2026-10-12: a style rule, a README and browser timeouts held every release for hours).",
+  "_known_failures_what": "Guards red on main whose failure the release tolerates only as it stands: each row is one exact offender line (guard test file, the line its assertion names, the owner fixing it, the date it was recorded). A guard blocks a release when it names an offender line not here; the file only shrinks (scripts/deploy-worker.mjs refuses a row the serving commit's file did not hold, test/guard-known-failures.test.mjs). Seeded 2026-10-21 from the offenders of marketplace-content-shrink-only and no-named-playbooks-in-source, red since 2026-10-19 (builds d5a9ad0b, b9236104, 70ce8c53 stopped on them). A row whose line names a whole file or field, not the content in it, carries `holds` (that file, or file#key): it is tolerated only while the target holds nothing it did not hold when the row was first recorded (scripts/guard-selection.mjs heldGrowth), so it never masks content written into it later.",
+  "selection": {
+    "_what": "How a release picks the guard tests it must pass before upload (scripts/guard-selection.mjs). A test is affected when a file changed since the serving commit is in what it reaches: its imports (also inside bundled harness sources), the files and folders it names by path, and the sources of a generated folder it reads (`generated`). Affected tests, `always` and every test an earlier release still owes run before upload; tests that drive a real browser page and every unaffected test run right after the switch, and what does not pass there is owed (APP_KV `owed_key`) and runs before the next upload. The owner's `Guards-After-Switch` trailer moves the selected guards to after the switch except the kinds `trailer_keeps_before_upload` names: the `always` list and every guard an earlier release saw FAIL (the owed record's `failed`); those run before upload, always. A change to a `run_all_when_changed` path, or a change set that cannot be read, runs every non-browser test before upload. `passed_key` keeps, per guard, the fingerprint it last passed against: the test, every file it reaches, the `fingerprint_inputs` every test shares and the Node version. A guard whose fingerprint matches is not run again, before or after the switch; a failure drops its kept pass. A build stopped by Cloudflare's 20-minute limit therefore keeps what it proved, and the next one continues (2026-10-14: a wrangler.jsonc change selected all 647 guards, which cannot finish in one build, so no build after 13:21 reached upload).",
+    "always": [
+      "test/deploy-guards.test.mjs",
+      "test/guard-selection.test.mjs",
+      "test/retired-paths-stay-retired.test.mjs"
+    ],
+    "trailer_keeps_before_upload": [
+      "always",
+      "failed_owed"
+    ],
+    "run_all_when_changed": [
+      "package.json",
+      "package-lock.json",
+      "scripts/deploy-guard-tests.json",
+      "scripts/guard-selection.mjs"
+    ],
+    "generated": {
+      "dist/": [
+        "scripts/build-workspace.mjs",
+        "scripts/build.mjs"
+      ]
+    },
+    "owed_key": "deploy:guards-owed",
+    "durations_key": "deploy:guard-durations",
+    "passed_key": "deploy:guards-passed",
+    "presentation_key": "deploy:presentation-owed",
+    "fingerprint_inputs": [
+      "package.json",
+      "package-lock.json",
+      ".nvmrc"
+    ],
+    "after_switch_reserve_minutes": 7,
+    "build_minutes": 30,
+    "file_timeout_ms": 300000,
+    "_file_timeout_why": "The most one guard file may run before upload (scripts/deploy-guard-suite.mjs fileTimeoutMs): past it the file counts as failed ('guard file timed out after N s'), its process is stopped, and the build goes on to judge it like any other failure. On 2026-10-21 a hosted build waited 30 minutes on test/lists.test.mjs, which passes in 6 s on a Mac."
+  },
+  "tests": [
+    "test/committed-credentials-guard.test.mjs",
+    "test/retired-paths-stay-retired.test.mjs",
+    "test/public-app-name-claim-readback.test.mjs",
+    "test/workerd-production-clock.test.mjs",
+    "test/activity-trace-bounds.test.mjs",
+    "test/card-sections-retention.test.mjs",
+    "test/deploy-build-progress.test.mjs",
+    "test/deploy-guards.test.mjs",
+    "test/guard-runs-strict.test.mjs",
+    "test/guard-selection.test.mjs",
+    "test/limits-only-go-down.test.mjs",
+    "test/module-download-graph.test.mjs",
+    "test/motion-exit-lifecycle.test.mjs",
+    "test/naming-fields-are-record-picks.test.mjs",
+    "test/publish-current-main-mode.test.mjs",
+    "test/unbounded-reads-lint.test.mjs",
+    "test/wrangler-credential-reader.test.mjs",
+    "../test/how-to-start-for-reviewers.test.mjs"
+  ],
+  "after_release": [
+  ],
+  "known_failures": []
+}

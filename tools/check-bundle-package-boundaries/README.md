@@ -16,6 +16,11 @@ It judges the bundler's own report (an esbuild-shaped metafile), so what is judg
 | `tool-rows.json` | The row. It runs on the person's computer after they grant `read-a-folder`. |
 | `test/check-bundle-package-boundaries.test.mjs` | The package's three tests on made-up packages (public files, same-package and unowned edges, private reaches, namespaced absolute paths, unreadable declarations) and the required declaration. |
 | `test/check-my-bundle-row.test.mjs` | The row's shape, and the command run the way the engine runs it over a made-up folder. |
+| `scripts/check-bundle-part-boundaries.mjs` | Judges a finished bundle's real import graph and reports every edge where code outside a part reaches a file that part has not declared public (the form the Send to Trillion extension build uses). Moved byte for byte from trillion-apps `web/scripts/`. |
+| `scripts/barrel-imports.mjs` | An esbuild plugin that turns a browser bundle's import of a part's index into imports of the files that index names. Moved byte for byte. |
+| `scripts/part-side-effects.mjs` | Lets a browser bundle leave out a part's modules nothing uses. Moved byte for byte. |
+| `scripts/light-theme.mjs` | The light theme's tokens as a stylesheet, read once from their one source. Moved byte for byte. |
+| `test/check-bundle-part-boundaries.test.mjs` | The bundle check on made-up parts: public files, same-part edges, private reaches. Moved byte for byte. |
 
 ## Key Types / Functions
 

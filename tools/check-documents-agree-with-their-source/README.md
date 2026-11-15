@@ -12,6 +12,8 @@ Several documents each claim to reflect one source (summaries, translations, cop
 | `tool-rows.json` | The row. It runs on the person's computer after they grant `read-a-folder`. |
 | `test/a-document-that-fell-behind-its-source.test.mjs` | The package's test: unit extraction, numeric ordering, every refusal, falling behind, markers with a per-mirror override, and the same engine on a different subject. The sample identifiers are made up. |
 | `test/check-my-documents-row.test.mjs` | The row's shape, and the command run the way the engine runs it over a made-up folder. |
+| `scripts/generated-files.json` | Each generated file's output, inputs, check and write commands, and why. Read by trillion-apps `test/how-to-start-for-reviewers.test.mjs`. Moved byte for byte from `web/scripts/`. |
+| `scripts/deploy-guard-tests.json` | The guard tests list that `test/how-to-start-for-reviewers.test.mjs` of trillion-apps reads. Moved byte for byte. |
 
 ## Key Types / Functions
 

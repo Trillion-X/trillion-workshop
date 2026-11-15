@@ -1,0 +1,45 @@
+{
+  "about": "Workshop imports the page answers with another file than the one they name. A row with `shell`: the web shell holds the newer copy of that Workshop module (it exports what the page and other Workshop tools ask of it). A row with `home`: the Workshop file imports a path its target no longer has, and `home` is where that file lives in the Workshop now. Each row ends when the Workshop catches up. Read by scripts/workshop-shell-imports.mjs.",
+  "rows": [
+    {
+      "workshop": "tools/keep-and-wake-ai-sessions-on-this-computer/src/workspace/first-answers.json",
+      "home": "tools/workspace-screens/web/src/workspace/first-answers.json",
+      "why": "The Apps boot consumer reads tool:see-what-holds-me after current setup; this product DATA omits the retired GET hold preload. The native release carries this same data by its role first-answers."
+    },
+    {
+      "workshop": "tools/visual-database/do-work/migrate-descriptor-aggregates",
+      "home": "tools/keep-lists-of-rows/do-work/migrate-descriptor-aggregates.ts",
+      "why": "The recording entries still import the old visual-database part path; its descriptor owner now lives in keep-lists-of-rows."
+    },
+    {
+      "workshop": "tools/visual-database/read-data/addressed-descriptors",
+      "home": "tools/keep-lists-of-rows/read-data/addressed-descriptors.ts",
+      "why": "The recording entries still import the old visual-database part path; its descriptor owner now lives in keep-lists-of-rows."
+    },
+    {
+      "workshop": "tools/visual-database/read-data/descriptor-projection",
+      "home": "tools/keep-lists-of-rows/read-data/descriptor-projection.ts",
+      "why": "The recording entries still import the old visual-database part path; its descriptor owner now lives in keep-lists-of-rows."
+    },
+    {
+      "workshop": "tools/visual-database/read-data/visual-database",
+      "home": "tools/keep-lists-of-rows/read-data/visual-database.ts",
+      "why": "The recording entries still import the old visual-database part path; the generic record model now lives in keep-lists-of-rows."
+    },
+    {
+      "workshop": "tools/visual-database/show/use-addressed-cell-expression-owner",
+      "home": "tools/keep-lists-of-rows/show/use-addressed-cell-expression-owner.ts",
+      "why": "The recording entries still import the old visual-database part path; its expression owner now lives in keep-lists-of-rows."
+    },
+    {
+      "workshop": "tools/delight-moments/read-data/choose-moment.mjs",
+      "home": "tools/make-things-feel-good/read-data/choose-moment.mjs",
+      "why": "tools/make-things-feel-good/read-data/choose-feel.mjs imports its sibling by its old part path."
+    },
+    {
+      "workshop": "tools/tweak-live-controls/failure.mjs",
+      "home": "tools/set-up-my-account/read-data/failure.mjs",
+      "why": "tools/tweak-live-controls/made-controls.mjs imports old trillion's src/failure.mjs as its sibling; the Workshop keeps it in set-up-my-account."
+    }
+  ]
+}
